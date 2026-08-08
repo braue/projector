@@ -7,20 +7,17 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 
-import { extractRtacProfile } from '../lib/comm/extract/rtac.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 
 const DEFAULT_WORKSPACE = 'Default';
 
-// One extractor per source type — phase 2 adds rdb, phase 3 scd.
-const EXTRACTORS = {
-  rtac: (model, ref) => extractRtacProfile(model, ref),
-};
-
 class WorkspaceService {
-  constructor({ dataDir, projects }) {
+  // `resolvers` maps a source type to an async (ref) => DeviceProfile — one
+  // per artifact kind (rtac, rdb; scd in phase 3). Built in index.js so this
+  // service stays ignorant of parsers and other services.
+  constructor({ dataDir, resolvers }) {
     this.dir = path.join(dataDir, 'workspaces');
-    this.projects = projects;
+    this.resolvers = resolvers;
   }
 
   async init() {
@@ -81,7 +78,7 @@ class WorkspaceService {
     if (!source?.type || !source?.ref) {
       throw Object.assign(new Error('source { type, ref } required'), { status: 400 });
     }
-    if (!EXTRACTORS[source.type]) {
+    if (!this.resolvers[source.type]) {
       throw Object.assign(new Error(`unsupported source type: ${source.type}`), { status: 400 });
     }
     const workspace = await this.#load(name);
@@ -130,8 +127,9 @@ class WorkspaceService {
 
     for (const device of workspace.devices) {
       try {
-        const model = await this.projects.model(device.source.ref);
-        const profile = EXTRACTORS[device.source.type](model, device.source.ref);
+        const resolver = this.resolvers[device.source.type];
+        if (!resolver) throw new Error(`unsupported source type: ${device.source.type}`);
+        const profile = await resolver(device.source.ref);
         resolved.push({ device, profile });
       } catch (err) {
         broken.push({ device, error: err?.message ?? String(err) });

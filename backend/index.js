@@ -10,10 +10,14 @@ import cors from 'cors';
 import express from 'express';
 
 import { createAcRtacClient } from './lib/acrtac/index.js';
+import { extractRdbProfile } from './lib/comm/extract/rdb.js';
+import { extractRtacProfile } from './lib/comm/extract/rtac.js';
 import { compareRoutes } from './routes/compare.js';
 import { projectRoutes } from './routes/projects.js';
+import { rdbRoutes } from './routes/rdb.js';
 import { workspaceRoutes } from './routes/workspaces.js';
 import { ProjectService } from './services/projects.js';
+import { RdbService } from './services/rdb.js';
 import { WorkspaceService } from './services/workspaces.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -30,7 +34,16 @@ if (projects.listError) {
   );
 }
 
-const workspaces = new WorkspaceService({ dataDir: DATA_DIR, projects });
+const rdb = new RdbService({ dataDir: DATA_DIR });
+await rdb.init();
+
+const workspaces = new WorkspaceService({
+  dataDir: DATA_DIR,
+  resolvers: {
+    rtac: async (ref) => extractRtacProfile(await projects.model(ref), ref),
+    rdb: async (ref) => extractRdbProfile(rdb.profile(ref), ref),
+  },
+});
 await workspaces.init();
 
 const app = express();
@@ -42,6 +55,7 @@ app.get('/api/health', (_req, res) => {
 });
 app.use('/api/projects', projectRoutes(projects));
 app.use('/api/compare', compareRoutes(projects));
+app.use('/api/rdb', rdbRoutes(rdb));
 app.use('/api/workspaces', workspaceRoutes(workspaces));
 
 // The API always speaks JSON, including for failures the routers never see.

@@ -6,6 +6,7 @@ import type {
   ProjectItem,
   ProjectList,
   ProjectTree,
+  RdbFile,
   WorkspaceGraph,
 } from './types'
 
@@ -83,6 +84,41 @@ export function aggregateSettings(
   files: string[],
 ): Promise<AggregateResult> {
   return send(`/api/projects/${encodeURIComponent(name)}/aggregate`, 'POST', { terms, files })
+}
+
+// --- rdb ----------------------------------------------------------------------
+
+export async function listRdbFiles(): Promise<RdbFile[]> {
+  const body = await get<{ files: RdbFile[] }>('/api/rdb')
+  return body.files
+}
+
+export async function uploadRdb(file: File): Promise<RdbFile> {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch('/api/rdb', { method: 'POST', body: form })
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.error ?? `${res.status} ${res.statusText}`)
+  }
+  return res.json()
+}
+
+export function deleteRdbFile(id: string): Promise<unknown> {
+  return send(`/api/rdb/${encodeURIComponent(id)}`, 'DELETE')
+}
+
+// Inspect works for any source type — same shapes, per-type endpoints.
+export function fetchSourceTree(source: DeviceSource): Promise<ProjectTree> {
+  if (source.type === 'rdb') return get(`/api/rdb/tree?ref=${encodeURIComponent(source.ref)}`)
+  return fetchTree(source.ref)
+}
+
+export function fetchSourceItem(source: DeviceSource, file: string): Promise<ProjectItem> {
+  if (source.type === 'rdb') {
+    return get(`/api/rdb/item?ref=${encodeURIComponent(source.ref)}&file=${encodeURIComponent(file)}`)
+  }
+  return fetchItem(source.ref, file)
 }
 
 // --- workspaces / canvas ------------------------------------------------------

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Background,
   Handle,
@@ -15,7 +15,7 @@ import {
 import '@xyflow/react/dist/style.css'
 
 import { fetchGraph, moveDevice, placeDevice, removeDevice } from '../api'
-import type { GraphLink, LinkTier, WorkspaceGraph } from '../types'
+import type { DeviceSource, GraphLink, LinkTier, WorkspaceGraph } from '../types'
 import { SOURCE_MIME } from './SourcesSidebar'
 
 // The canvas: boxes and colored wires, nothing else. All written detail lives
@@ -93,11 +93,14 @@ function LinkPopup({ popup, onClose }: { popup: PopupState; onClose: () => void 
 
 function CanvasInner({
   workspace,
+  reloadKey,
   onInspect,
   onGraph,
 }: {
   workspace: string
-  onInspect: (ref: string) => void
+  /** Bump to force a graph reload (e.g. after an RDB upload resolves ghosts). */
+  reloadKey: number
+  onInspect: (source: DeviceSource) => void
   onGraph: (graph: WorkspaceGraph | null) => void
 }) {
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
@@ -105,10 +108,16 @@ function CanvasInner({
   const [nodes, setNodes] = useState<DeviceNode[]>([])
   const [popup, setPopup] = useState<PopupState | null>(null)
   const { screenToFlowPosition } = useReactFlow()
+  // Loads can overlap (StrictMode double-mount, drop + upload back to back);
+  // only the latest response may write state, or React Flow can validate
+  // edges against a node set that is about to be replaced.
+  const loadSeq = useRef(0)
 
   const load = useCallback(async () => {
+    const seq = ++loadSeq.current
     try {
       const next = await fetchGraph(workspace)
+      if (seq !== loadSeq.current) return
       setGraph(next)
       setError(null)
       onGraph(next)
@@ -132,6 +141,7 @@ function CanvasInner({
         })),
       ])
     } catch (err) {
+      if (seq !== loadSeq.current) return
       setError(err instanceof Error ? err.message : String(err))
       onGraph(null)
     }
@@ -140,7 +150,7 @@ function CanvasInner({
   useEffect(() => {
     setPopup(null)
     load()
-  }, [load])
+  }, [load, reloadKey])
 
   const edges = useMemo<Edge[]>(
     () =>
@@ -200,7 +210,7 @@ function CanvasInner({
         onNodeClick={(_e, node) => {
           if (node.data.ghost) return
           const device = graph?.devices.find((d) => d.id === node.id)
-          if (device?.source.type === 'rtac') onInspect(device.source.ref)
+          if (device && !device.error) onInspect(device.source)
         }}
         onEdgeClick={(e, edge) => {
           const wrap = (e.target as HTMLElement).closest('.canvas-wrap')?.getBoundingClientRect()
@@ -231,7 +241,8 @@ function CanvasInner({
 
 export function CanvasView(props: {
   workspace: string
-  onInspect: (ref: string) => void
+  reloadKey: number
+  onInspect: (source: DeviceSource) => void
   onGraph: (graph: WorkspaceGraph | null) => void
 }) {
   return (

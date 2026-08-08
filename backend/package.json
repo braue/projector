@@ -11,8 +11,10 @@
   },
   "license": "ISC",
   "dependencies": {
+    "cfb": "^1.2.2",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "fast-xml-parser": "^5.10.1"
+    "fast-xml-parser": "^5.10.1",
+    "multer": "^2.2.0"
   }
 }

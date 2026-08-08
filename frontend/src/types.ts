@@ -215,6 +215,18 @@ export interface DeviceSource {
   ref: string
 }
 
+export interface RdbProfileEntry {
+  name: string
+  ref: string
+  relayType: string | null
+}
+
+export interface RdbFile {
+  id: string
+  fileName: string
+  profiles: RdbProfileEntry[]
+}
+
 export type LinkTier = 'confirmed' | 'conflict' | 'probable' | 'declared' | 'manual'
 
 export interface GraphDevice {

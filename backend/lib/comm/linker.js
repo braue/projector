@@ -158,11 +158,19 @@ function linkProfiles(devices, manualLinks = []) {
         }
       }
 
-      const tier = warnings.length ? 'conflict' : server ? 'confirmed' : 'probable';
+      let tier = warnings.length ? 'conflict' : server ? 'confirmed' : 'probable';
       if (!server) {
         warnings.push({
           kind: 'warning',
           text: `${owner.profile.name} owns ${address} but states no matching ${endpoint.protocol ?? ''} server — matched on IP only`,
+        });
+      } else if (tier === 'confirmed' && endpoint.remotePort && !server.localPort) {
+        // The far side agrees on protocol but is silent on the port the
+        // client dials — enough to pair, not enough to confirm.
+        tier = 'probable';
+        warnings.push({
+          kind: 'warning',
+          text: `${owner.profile.name} states no ${endpoint.protocol ?? ''} port — matched on IP and protocol only`,
         });
       }
 

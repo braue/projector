@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { fetchItem, fetchTree, listProjects, refreshProjects, startExport } from './api'
+import {
+  deleteRdbFile,
+  fetchSourceItem,
+  fetchSourceTree,
+  listProjects,
+  listRdbFiles,
+  refreshProjects,
+  startExport,
+  uploadRdb,
+} from './api'
 import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
 import { CompareView } from './components/CompareView'
@@ -8,7 +17,14 @@ import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { SourcesSidebar } from './components/SourcesSidebar'
 import { SegmentedControl } from './components/ui'
-import type { ProjectEntry, ProjectItem, ProjectTree, WorkspaceGraph } from './types'
+import type {
+  DeviceSource,
+  ProjectEntry,
+  ProjectItem,
+  ProjectTree,
+  RdbFile,
+  WorkspaceGraph,
+} from './types'
 
 const POLL_MS = 1200
 const WORKSPACE = 'Default' // named workspaces get a switcher later
@@ -27,13 +43,16 @@ export default function App() {
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
   const [projects, setProjects] = useState<ProjectEntry[]>([])
   const [listError, setListError] = useState<string | null>(null)
-  const [selectedProject, setSelectedProject] = useState<string | null>(null)
+  const [rdbFiles, setRdbFiles] = useState<RdbFile[]>([])
+  const [rdbError, setRdbError] = useState<string | null>(null)
+  const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
   const [tree, setTree] = useState<ProjectTree | null>(null)
   const [treeError, setTreeError] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
   const [item, setItem] = useState<ProjectItem | null>(null)
   const [itemError, setItemError] = useState<string | null>(null)
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
+  const [graphVersion, setGraphVersion] = useState(0)
   const pollTimer = useRef<number | null>(null)
 
   const refresh = useCallback(async () => {
@@ -45,6 +64,14 @@ export default function App() {
     } catch (err) {
       setListError(`Cannot reach the backend: ${err instanceof Error ? err.message : String(err)}`)
       return []
+    }
+  }, [])
+
+  const refreshRdb = useCallback(async () => {
+    try {
+      setRdbFiles(await listRdbFiles())
+    } catch (err) {
+      setRdbError(err instanceof Error ? err.message : String(err))
     }
   }, [])
 
@@ -69,11 +96,12 @@ export default function App() {
       }
     }
     tick()
+    refreshRdb()
     return () => {
       cancelled = true
       if (pollTimer.current !== null) window.clearTimeout(pollTimer.current)
     }
-  }, [refresh])
+  }, [refresh, refreshRdb])
 
   const handleExport = useCallback(
     async (name: string) => {
@@ -85,7 +113,7 @@ export default function App() {
         )
         return
       }
-      setSelectedProject((current) => (current === name ? null : current))
+      setSelectedSource((current) => (current?.type === 'rtac' && current.ref === name ? null : current))
       const list = await refresh()
       if (list.some((p) => p.status === 'exporting') && pollTimer.current === null) {
         pollTimer.current = window.setTimeout(async function tick() {
@@ -99,69 +127,98 @@ export default function App() {
     [refresh],
   )
 
-  // Selecting a project (sidebar click, or canvas node click via onInspect).
-  const handleSelectProject = useCallback((name: string) => {
-    setSelectedProject(name)
+  const handleUploadRdb = useCallback(
+    async (file: File) => {
+      setRdbError(null)
+      try {
+        await uploadRdb(file)
+        await refreshRdb()
+        // New relay profiles may resolve existing ghosts — recompute the canvas.
+        setGraphVersion((v) => v + 1)
+      } catch (err) {
+        setRdbError(err instanceof Error ? err.message : String(err))
+      }
+    },
+    [refreshRdb],
+  )
+
+  const handleDeleteRdb = useCallback(
+    async (id: string) => {
+      try {
+        await deleteRdbFile(id)
+      } catch (err) {
+        setRdbError(err instanceof Error ? err.message : String(err))
+      }
+      setSelectedSource((current) =>
+        current?.type === 'rdb' && current.ref.startsWith(`${id}::`) ? null : current,
+      )
+      await refreshRdb()
+      setGraphVersion((v) => v + 1)
+    },
+    [refreshRdb],
+  )
+
+  // Selecting a source (sidebar click, or canvas node click via onInspect).
+  const handleSelectSource = useCallback((source: DeviceSource) => {
+    setSelectedSource(source)
     setSelectedItem(null)
     setItem(null)
     setItemError(null)
+    setInspectSub('browse')
   }, [])
 
   const inspectFromCanvas = useCallback(
-    (ref: string) => {
-      handleSelectProject(ref)
+    (source: DeviceSource) => {
+      handleSelectSource(source)
       setMode('inspect')
-      setInspectSub('browse')
     },
-    [handleSelectProject],
+    [handleSelectSource],
   )
 
   useEffect(() => {
-    if (!selectedProject) {
+    if (!selectedSource) {
       setTree(null)
       return
     }
     let cancelled = false
     setTree(null)
     setTreeError(null)
-    fetchTree(selectedProject)
+    fetchSourceTree(selectedSource)
       .then((t) => !cancelled && setTree(t))
       .catch((err) => !cancelled && setTreeError(err.message))
     return () => {
       cancelled = true
     }
-  }, [selectedProject])
+  }, [selectedSource])
 
   useEffect(() => {
-    if (!selectedProject || !selectedItem) {
+    if (!selectedSource || !selectedItem) {
       setItem(null)
       return
     }
     let cancelled = false
     setItemError(null)
-    fetchItem(selectedProject, selectedItem)
+    fetchSourceItem(selectedSource, selectedItem)
       .then((i) => !cancelled && setItem(i))
       .catch((err) => !cancelled && setItemError(err.message))
     return () => {
       cancelled = true
     }
-  }, [selectedProject, selectedItem])
+  }, [selectedSource, selectedItem])
 
   const placedRefs = useMemo(
     () =>
-      new Set(
-        (graph?.devices ?? [])
-          .filter((device) => device.source.type === 'rtac')
-          .map((device) => device.source.ref),
-      ),
+      new Set((graph?.devices ?? []).map((device) => `${device.source.type}:${device.source.ref}`)),
     [graph],
   )
 
+  const canAggregate = selectedSource?.type === 'rtac'
+
   const topbarInfo =
     mode === 'canvas' && graph
-      ? `${graph.summary.confirmed + graph.summary.probable + graph.summary.declared + graph.summary.manual + graph.summary.conflicts} connections · ${graph.summary.conflicts} conflict${graph.summary.conflicts === 1 ? '' : 's'}`
-      : mode === 'inspect' && selectedProject
-        ? `${selectedProject} · read-only`
+      ? `${graph.links?.length ?? 0} connections · ${graph.summary.conflicts} conflict${graph.summary.conflicts === 1 ? '' : 's'}`
+      : mode === 'inspect' && selectedSource
+        ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace('::', ' · ') : selectedSource.ref} · read-only`
         : ''
 
   return (
@@ -169,7 +226,7 @@ export default function App() {
       <header className="topbar">
         <span className="brand">Gridlink</span>
         <SegmentedControl options={MODES} value={mode} onChange={setMode} />
-        {mode === 'inspect' && selectedProject && (
+        {mode === 'inspect' && canAggregate && (
           <SegmentedControl
             options={[
               { value: 'browse' as InspectSub, label: 'Browse' },
@@ -188,12 +245,12 @@ export default function App() {
             projects={projects}
             listError={listError}
             onRetryList={retryList}
-            selected={mode === 'inspect' ? selectedProject : null}
-            onSelect={(name) => {
-              handleSelectProject(name)
-              if (mode !== 'inspect') return
-              setInspectSub('browse')
-            }}
+            rdbFiles={rdbFiles}
+            rdbError={rdbError}
+            onUploadRdb={handleUploadRdb}
+            onDeleteRdb={handleDeleteRdb}
+            selected={mode === 'inspect' ? selectedSource : null}
+            onSelect={handleSelectSource}
             onExport={handleExport}
             placedRefs={placedRefs}
             footer={
@@ -206,7 +263,12 @@ export default function App() {
 
         {mode === 'canvas' && (
           <div className="canvas-column">
-            <CanvasView workspace={WORKSPACE} onInspect={inspectFromCanvas} onGraph={setGraph} />
+            <CanvasView
+              workspace={WORKSPACE}
+              reloadKey={graphVersion}
+              onInspect={inspectFromCanvas}
+              onGraph={setGraph}
+            />
             <div className="status-bar">
               {graph ? (
                 <>
@@ -226,16 +288,20 @@ export default function App() {
         )}
 
         {mode === 'inspect' &&
-          (selectedProject && tree && inspectSub === 'aggregate' ? (
-            <AggregateView key={selectedProject} project={selectedProject} tree={tree} />
+          (selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
+            <AggregateView
+              key={selectedSource.ref}
+              project={selectedSource.ref}
+              tree={tree}
+            />
           ) : (
             <>
-              {selectedProject && tree && (
+              {selectedSource && tree && (
                 <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} />
               )}
-              {selectedProject && !tree && (
+              {selectedSource && !tree && (
                 <aside className="file-tree">
-                  <div className="pane-message">{treeError ?? 'Loading project…'}</div>
+                  <div className="pane-message">{treeError ?? 'Loading…'}</div>
                 </aside>
               )}
               {item ? (
@@ -244,9 +310,9 @@ export default function App() {
                 <main className="preview">
                   <div className="pane-message">
                     {itemError ??
-                      (selectedProject
-                        ? 'Select an item in the project tree to view its settings.'
-                        : 'Pick a downloaded project from the sidebar — or click a device on the canvas.')}
+                      (selectedSource
+                        ? 'Select an item to view its settings.'
+                        : 'Pick a source from the sidebar — or click a device on the canvas.')}
                   </div>
                 </main>
               )}

@@ -71,9 +71,16 @@ Workspaces store only placements and manual links (JSON under
 
 ## Phases
 
-1. **(this)** RTAC source + canvas with declared links/ghosts + Inspect +
+1. **done** — RTAC source + canvas with declared links/ghosts + Inspect +
    Compare.
-2. RDB upload + parser (port from Volture) + extractor → real two-sided
-   matching, conflicts, ghost snapping.
+2. **done** — RDB upload + parser (CFB/QuickSet, ported from Volture) +
+   extractor → two-sided matching, conflicts, ghost snapping. The extractor
+   is a documented rule table over SEL setting names
+   (`backend/lib/comm/extract/rdb.js`) — tune it there when real files show
+   variant spellings. A synthetic demo database lives at
+   `backend/test/fixtures/demo_relays.rdb`; upload it and place FEEDER_1 /
+   METER_3 alongside a sample RTAC project to see confirmed, conflict,
+   probable, and ghost-snapping behavior at once.
 3. SCD/SCL parser (awaiting example exports) → IEDs, subnet regions, GOOSE.
-4. Manual serial pairing UI, conflict report export, canvas snapshot compare.
+4. Manual serial pairing UI, RDB-vs-RDB compare, conflict report export,
+   canvas snapshot compare.
