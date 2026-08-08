@@ -1,0 +1,12 @@
+# dependencies
+node_modules/
+
+# downloaded exports and workspace state (recreated at runtime)
+backend/data/
+
+# build output
+frontend/dist/
+
+# editor/OS noise
+.DS_Store
+Thumbs.db

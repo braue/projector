@@ -1,0 +1,82 @@
+// XML helpers for the SEL AcSELerator RTAC project-export parser.
+//
+// An export is a folder of UTF-8 files (some carry a BOM), one <RTACModule>
+// root per file, with repeated <SettingPage>/<Row>/<Setting> elements.
+// fast-xml-parser collapses a single repeated element to an object instead of
+// an array, so every access to a "list" node must go through toArray().
+
+import { XMLParser } from 'fast-xml-parser';
+
+// parseTagValue:false keeps every leaf as a raw string. That matters: point
+// numbers, IP addresses, "0"/"True"/"OFF" enums and comma lists must survive
+// verbatim so the semantic layer — not the XML layer — decides how to coerce.
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  parseTagValue: false,
+  parseAttributeValue: false,
+  trimValues: true,
+  cdataPropName: '__cdata',
+  processEntities: true,
+});
+
+function stripBom(value) {
+  return value.charCodeAt(0) === 0xfeff ? value.slice(1) : value;
+}
+
+function parseXml(xmlString) {
+  return parser.parse(stripBom(xmlString));
+}
+
+// Normalize fast-xml-parser output (object | array | undefined) to an array.
+function toArray(node) {
+  if (node === undefined || node === null) return [];
+  return Array.isArray(node) ? node : [node];
+}
+
+// Leaf text for a node that may be "", undefined, or a { '#text', '@_...' } object.
+function text(node) {
+  if (node === undefined || node === null) return '';
+  if (typeof node === 'string') return node;
+  if (typeof node === 'number' || typeof node === 'boolean') return String(node);
+  if (typeof node === 'object') {
+    if ('#text' in node) return String(node['#text']);
+    if ('__cdata' in node) return String(node.__cdata);
+  }
+  return '';
+}
+
+// CDATA-aware leaf text: RTAC wraps source code (ST/GVL/DataType bodies) in
+// CDATA; fast-xml-parser stores it under __cdata. Falls back to plain text.
+function cdata(node) {
+  if (node && typeof node === 'object' && '__cdata' in node) return String(node.__cdata);
+  return text(node);
+}
+
+// Depth-first search collecting every value stored under `key`, anywhere in the
+// tree. Used to locate SettingPage / Protocol nodes without hard-coding paths.
+function collect(obj, key, out = []) {
+  if (obj === null || typeof obj !== 'object') return out;
+  for (const [k, v] of Object.entries(obj)) {
+    if (k === key) {
+      for (const item of toArray(v)) out.push(item);
+    }
+    if (v && typeof v === 'object') collect(v, key, out);
+  }
+  return out;
+}
+
+// First value stored under `key` anywhere in the tree, or undefined.
+function findFirst(obj, key) {
+  if (obj === null || typeof obj !== 'object') return undefined;
+  for (const [k, v] of Object.entries(obj)) {
+    if (k === key) return Array.isArray(v) ? v[0] : v;
+    if (v && typeof v === 'object') {
+      const found = findFirst(v, key);
+      if (found !== undefined) return found;
+    }
+  }
+  return undefined;
+}
+
+export { cdata, collect, findFirst, parseXml, text, toArray };

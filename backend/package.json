@@ -1,0 +1,18 @@
+{
+  "name": "gridlink-backend",
+  "version": "0.1.0",
+  "description": "Settings-truth communications canvas: parse RTAC/RDB/SCD artifacts, infer device links.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "test": "node --test"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "fast-xml-parser": "^5.10.1"
+  }
+}

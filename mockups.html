@@ -1,0 +1,753 @@
+<title>Gridlink — Frontend Mockups</title>
+<style>
+  /* ---------- page shell tokens ---------- */
+  :root {
+    --ground: #fafafa;
+    --panel: #ffffff;
+    --ink: #0d0d14;
+    --muted: #6e7180;
+    --border: #e5e7eb;
+    --accent: #10a37f;
+    --mono: ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
+    --sans: ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ground: #0f0f10; --panel: #171719; --ink: #ececf1; --muted: #9a9aa3; --border: #2a2a2e; }
+  }
+  :root[data-theme="dark"] { --ground: #0f0f10; --panel: #171719; --ink: #ececf1; --muted: #9a9aa3; --border: #2a2a2e; }
+  :root[data-theme="light"] { --ground: #fafafa; --panel: #ffffff; --ink: #0d0d14; --muted: #6e7180; --border: #e5e7eb; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+  .page { max-width: 1280px; margin: 0 auto; padding: 48px 28px 100px; }
+
+  .page-header h1 { margin: 0 0 8px; font-size: 28px; font-weight: 650; letter-spacing: -0.02em; text-wrap: balance; }
+  .page-header p.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+  .meta-row { display: flex; gap: 18px; margin-top: 16px; font-size: 13px; color: var(--muted); }
+
+  section.shot { margin-top: 64px; }
+  .eyebrow { font-size: 13px; font-weight: 600; color: var(--accent); }
+  section.shot h2 { margin: 4px 0 6px; font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+  section.shot > p.blurb { margin: 0 0 16px; max-width: 66ch; color: var(--muted); }
+  .try-hint {
+    display: inline-block; margin-bottom: 12px; font-size: 13px; font-weight: 550; color: var(--ink);
+    border: 1px solid var(--border); background: var(--panel); padding: 6px 14px; border-radius: 999px;
+  }
+
+  .frame-scroll { overflow-x: auto; padding-bottom: 6px; }
+  .notes {
+    margin: 16px 0 0; padding: 0; list-style: none;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px 32px; max-width: 1100px;
+  }
+  .notes li { display: flex; gap: 10px; font-size: 14px; color: var(--muted); }
+  .notes li strong { color: var(--ink); font-weight: 600; }
+  .pin {
+    flex: none; width: 20px; height: 20px; margin-top: 2px; border-radius: 50%;
+    background: var(--ink); color: var(--ground); font-size: 11px; font-weight: 650;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* =====================================================================
+     MOCKUPS — the app itself, light, clean, rounded.
+     ===================================================================== */
+  .mock {
+    --m-bg: #fafbfc; --m-card: #ffffff; --m-ink: #1a1a22; --m-muted: #6e7180;
+    --m-border: #e5e7eb; --m-border-soft: #eef0f3; --m-fill: #f2f3f5;
+    --m-ok: #1a9e5c; --m-bad: #d63a3a; --m-warn: #d7930a; --m-ghost: #a9adb8;
+    color: var(--m-ink); font-family: var(--sans); background: var(--m-card);
+    border: 1px solid var(--m-border); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 2px rgba(15, 18, 26, 0.05), 0 12px 36px rgba(15, 18, 26, 0.07);
+  }
+  .app-frame { width: 1220px; }
+  .mock, .mock * { line-height: 1.4; }
+
+  .m-topbar { display: flex; align-items: center; gap: 14px; height: 52px; padding: 0 16px; background: var(--m-card); border-bottom: 1px solid var(--m-border); }
+  .m-brand { font-weight: 650; font-size: 14.5px; letter-spacing: -0.01em; }
+  .m-seg { display: flex; gap: 2px; background: var(--m-fill); border-radius: 9px; padding: 3px; }
+  .m-seg span { display: flex; align-items: center; padding: 4px 16px; font-size: 13px; font-weight: 550; color: var(--m-muted); border-radius: 7px; }
+  .m-seg span.on { background: var(--m-card); color: var(--m-ink); box-shadow: 0 1px 2px rgba(15,18,26,0.08); }
+  .m-wsp { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border: 1px solid var(--m-border); border-radius: 8px; background: var(--m-card); font-size: 13px; }
+  .m-wsp .caret { color: var(--m-muted); font-size: 9px; }
+  .m-topbar .m-right { margin-left: auto; font-size: 13px; color: var(--m-muted); }
+
+  .m-body { display: flex; }
+
+  /* sources sidebar */
+  .m-side { width: 224px; flex: none; background: var(--m-card); border-right: 1px solid var(--m-border); display: flex; flex-direction: column; }
+  .m-tabs { display: flex; gap: 2px; margin: 10px 10px 6px; background: var(--m-fill); border-radius: 8px; padding: 3px; }
+  .m-tabs span { flex: 1; text-align: center; padding: 4px 0; font-size: 12.5px; font-weight: 550; color: var(--m-muted); border-radius: 6px; }
+  .m-tabs span.on { background: var(--m-card); color: var(--m-ink); box-shadow: 0 1px 2px rgba(15,18,26,0.08); }
+  .m-list { padding: 2px 8px; }
+  .m-proj { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; font-size: 13.5px; border-radius: 7px; }
+  .m-proj .grip { color: var(--m-ghost); font-size: 12px; cursor: grab; }
+  .m-proj.grey { color: #b0b4bf; }
+  .m-proj.sel { background: var(--m-fill); font-weight: 600; }
+  .m-proj .on-canvas { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .m-spin { margin-left: auto; width: 11px; height: 11px; border: 2px solid #c4c7cf; border-top-color: transparent; border-radius: 50%; }
+  .m-foot { margin-top: auto; padding: 9px 16px; font-size: 12px; color: var(--m-muted); border-top: 1px solid var(--m-border); }
+
+  .m-drop { margin: 8px 12px 10px; padding: 18px 12px; text-align: center; font-size: 12.5px; color: var(--m-muted); border: 1.5px dashed var(--m-border); border-radius: 10px; background: var(--m-bg); }
+  .m-drop b { display: block; color: var(--m-ink); font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .m-file { display: flex; align-items: center; gap: 6px; padding: 8px 16px 3px; font-family: var(--mono); font-size: 11.5px; color: var(--m-muted); }
+  .m-prof { display: flex; align-items: center; gap: 8px; height: 30px; margin: 0 8px; padding: 0 10px 0 20px; font-size: 13px; border-radius: 7px; }
+  .m-prof .kind { margin-left: auto; font-size: 11px; color: var(--m-muted); background: var(--m-fill); padding: 1px 7px; border-radius: 999px; }
+  .m-note { margin: 10px 12px; padding: 9px 12px; font-size: 12px; color: #8a6d1d; background: #fdf7e7; border: 1px solid #f0e3b8; border-radius: 8px; }
+
+  /* canvas */
+  .m-canvas {
+    position: relative; flex: 1; height: 560px; overflow: hidden;
+    background: radial-gradient(circle, #dfe2e8 1px, transparent 1px) 0 0 / 26px 26px, var(--m-bg);
+  }
+  .m-canvas svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .m-canvas svg.wires .hit { cursor: pointer; }
+
+  .m-node {
+    position: absolute; width: 176px; padding: 12px 15px; background: var(--m-card);
+    border: 1px solid var(--m-border); border-radius: 11px;
+    box-shadow: 0 1px 3px rgba(15,18,26,0.07); font-size: 13.5px; cursor: grab; user-select: none;
+  }
+  .m-node:active { cursor: grabbing; }
+  .m-node .nm { font-weight: 650; }
+  .m-node .sub { font-size: 11.5px; color: var(--m-muted); margin-top: 2px; }
+  .m-node.ghost { border-style: dashed; background: rgba(255,255,255,0.6); color: var(--m-muted); box-shadow: none; }
+  .m-node.ghost .nm { font-weight: 550; color: var(--m-muted); }
+
+  .m-region { position: absolute; border: 1.5px dashed #d3d7de; border-radius: 14px; background: rgba(120, 130, 150, 0.04); pointer-events: none; }
+  .m-region .rlabel { position: absolute; top: 8px; left: 12px; font-size: 11px; font-weight: 600; color: #9aa0ad; }
+
+  .m-status { display: flex; align-items: center; gap: 18px; height: 34px; padding: 0 16px; font-size: 12.5px; color: var(--m-muted); background: var(--m-card); border-top: 1px solid var(--m-border); }
+  .m-status .tierdot { display: inline-flex; align-items: center; gap: 6px; }
+  .m-status .d { width: 8px; height: 8px; border-radius: 50%; }
+  .m-status b { color: var(--m-ink); font-weight: 600; }
+  .m-status .conflict { color: var(--m-bad); font-weight: 600; }
+
+  .callout {
+    position: absolute; width: 22px; height: 22px; border-radius: 50%; z-index: 6;
+    background: var(--ink); color: var(--ground); font-size: 11px; font-weight: 650;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 3px rgba(13, 13, 20, 0.12); pointer-events: none;
+  }
+
+  /* ---------- connection popup ---------- */
+  .popup {
+    position: absolute; z-index: 10; width: 340px; background: var(--m-card);
+    border: 1px solid var(--m-border); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 12px 40px rgba(15,18,26,0.16); font-size: 13px;
+  }
+  .popup .ph { display: flex; align-items: center; gap: 10px; padding: 11px 14px 9px; }
+  .popup .ph .t { font-weight: 650; font-size: 14px; }
+  .popup .ph .x { margin-left: auto; color: var(--m-muted); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 6px; }
+  .popup .ph .x:hover { background: var(--m-fill); }
+  .popup .summary { padding: 0 14px 10px; font-size: 12.5px; color: var(--m-muted); border-bottom: 1px solid var(--m-border-soft); }
+  .popup .endlabel { padding: 9px 14px 3px; font-size: 11.5px; font-weight: 600; color: var(--m-muted); }
+  .popup .endinfo { padding: 0 14px 6px; font-family: var(--mono); font-size: 11.5px; }
+  .popup .endinfo div { padding: 1px 0; }
+  .popup .warnhead { padding: 9px 14px 3px; font-size: 11.5px; font-weight: 600; border-top: 1px solid var(--m-border-soft); margin-top: 4px; }
+  .popup .warn { margin: 5px 14px; padding: 7px 11px; font-size: 12.5px; border-radius: 8px; }
+  .popup .warn.bad { background: #fcecec; color: #a02c2c; }
+  .popup .warn.warnc { background: #fdf5e0; color: #8a6d1d; }
+  .popup .clean { margin: 5px 14px 12px; font-size: 12.5px; color: var(--m-ok); }
+  .popup .warnhead.bad { color: var(--m-bad); }
+  .popup .warnhead.warnc { color: #a8821c; }
+  .popup .warnhead.okc { color: var(--m-ok); }
+  .popup > :last-child { margin-bottom: 12px; }
+
+  .badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+  .badge.bad { color: #a02c2c; background: #fcecec; }
+
+  /* ---------- tier legend ---------- */
+  .tiers { max-width: 880px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); overflow: hidden; display: grid; grid-template-columns: 150px 130px 1fr; }
+  .tiers > div { padding: 12px 18px; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; align-items: center; }
+  .tiers > div:nth-last-child(-n+3) { border-bottom: 0; }
+  .tiers .thead { font-size: 12.5px; font-weight: 600; color: var(--muted); background: color-mix(in oklab, var(--ground) 55%, var(--panel)); }
+  .tier-name { font-weight: 600; }
+  .tier-desc { color: var(--muted); }
+  .lsample { width: 100px; height: 0; border-top-width: 2.5px; border-top-style: solid; border-radius: 2px; }
+  .ls-ok { border-color: #1a9e5c; } .ls-bad { border-color: #d63a3a; }
+  .ls-warn { border-color: #d7930a; border-top-style: dashed; }
+  .ls-dim { border-color: #a9adb8; border-top-style: dashed; }
+  .ls-manual { border-color: #4b5160; }
+
+  /* compare tree rows */
+  .m-treehead { padding: 10px 12px; border-bottom: 1px solid var(--m-border); }
+  .m-pick { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--m-muted); font-weight: 600; padding: 3px 0; }
+  .m-pick .lbl { width: 52px; flex: none; }
+  .m-pick .sel-box { flex: 1; height: 26px; display: flex; align-items: center; padding: 0 9px; border: 1px solid var(--m-border); border-radius: 7px; background: var(--m-card); font-size: 12.5px; color: var(--m-ink); font-weight: 400; font-family: var(--mono); }
+  .m-trow { display: flex; align-items: center; gap: 7px; height: 27px; margin: 0 6px; padding: 0 8px; font-size: 13px; border-radius: 6px; }
+  .m-trow .caret { width: 10px; font-size: 8px; color: var(--m-muted); }
+  .m-trow .tag { margin-left: auto; font-size: 10.5px; color: var(--m-muted); background: var(--m-fill); padding: 1px 7px; border-radius: 999px; }
+  .m-trow.folder { font-weight: 600; }
+  .m-trow.add { background: #e9f7ef; }
+  .m-trow.del { background: #fceeee; }
+  .m-trow.mod { background: #fdf6e3; }
+  .m-trow .mk { font-family: var(--mono); font-size: 10px; font-weight: 700; }
+  .m-trow.add .mk { color: #1a9e5c; } .m-trow.del .mk { color: #d63a3a; } .m-trow.mod .mk { color: #b3851a; }
+
+  table.ev { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.ev th { text-align: left; padding: 8px 16px; font-size: 12px; color: var(--m-muted); border-bottom: 1px solid var(--m-border); font-weight: 600; }
+  table.ev td { padding: 7px 16px; border-bottom: 1px solid var(--m-border-soft); font-family: var(--mono); font-size: 12px; }
+  table.ev td.k { font-family: var(--sans); color: var(--m-muted); }
+  .insp-sec { padding: 9px 16px 3px; font-size: 12px; font-weight: 600; color: var(--m-muted); }
+
+  /* inspect mode */
+  .m-tree { width: 280px; flex: none; border-right: 1px solid var(--m-border); background: var(--m-card); }
+  .m-treetitle { padding: 10px 14px 6px; font-size: 13px; font-weight: 650; }
+  .m-treetitle .sub { font-weight: 400; font-size: 11.5px; color: var(--m-muted); }
+  .m-ptabs { display: flex; gap: 20px; padding: 0 16px; border-bottom: 1px solid var(--m-border); }
+  .m-ptabs span { padding: 8px 0 7px; font-size: 13px; color: var(--m-muted); }
+  .m-ptabs span.on { color: var(--m-ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--m-ink); }
+  .m-ptabs .n { font-size: 11px; color: var(--m-muted); margin-left: 3px; }
+  .m-input {
+    height: 28px; padding: 0 10px; border: 1px solid var(--m-border); border-radius: 7px;
+    background: var(--m-card); font-size: 12.5px; color: var(--m-muted); display: inline-flex; align-items: center;
+  }
+  .kvgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 4px 32px; padding: 10px 16px; }
+  .kv { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; min-width: 0; }
+  .kv .k { color: var(--m-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kv .v { font-family: var(--mono); font-size: 11.5px; }
+  .m-check { flex: none; width: 13px; height: 13px; border: 1.5px solid #c4c7cf; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; }
+  .m-check.on { background: var(--m-ink); border-color: var(--m-ink); }
+  .m-btn { height: 30px; display: inline-flex; align-items: center; padding: 0 16px; font-size: 13px; font-weight: 550; border: 1px solid var(--m-border); border-radius: 8px; background: var(--m-card); }
+  .m-btn.primary { background: var(--m-ink); border-color: var(--m-ink); color: var(--m-card); }
+  .m-textarea {
+    width: 300px; padding: 8px 10px; border: 1px solid var(--m-border); border-radius: 8px;
+    background: var(--m-card); font-family: var(--mono); font-size: 12px; color: var(--m-ink); line-height: 1.5;
+  }
+
+  .footer-note { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13.5px; max-width: 70ch; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .m-spin { animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  }
+</style>
+
+<div class="page">
+  <header class="page-header">
+    <h1>Gridlink — frontend mockups, v4</h1>
+    <p class="lede">
+      Three modes across the top now: <strong>Canvas</strong> (boxes and wires),
+      <strong>Inspect</strong> (read-only settings browsing for one file, with the
+      aggregate-settings table from rtac-explorer inside it), and <strong>Compare</strong>
+      (two files of the same kind — two RTAC projects, two RDB profiles). Clean neutral
+      styling throughout. Screen 1 is interactive.
+    </p>
+    <div class="meta-row">
+      <span>v4 · 2026-08-08</span><span>light theme shown</span><span>canvas rendered by React Flow</span>
+    </div>
+  </header>
+
+  <!-- ================================================================ -->
+  <section class="shot">
+    <div class="eyebrow">Screen 01 · interactive</div>
+    <h2>Canvas</h2>
+    <div class="try-hint">Try it — drag any box, click any wire</div>
+    <div class="frame-scroll"><div class="mock app-frame" style="position: relative;">
+      <span class="callout" style="left: 200px; top: 148px;">1</span>
+      <span class="callout" style="left: 300px; top: 288px;">2</span>
+      <span class="callout" style="left: 630px; top: 236px;">3</span>
+      <span class="callout" style="left: 1078px; top: 512px;">4</span>
+      <span class="callout" style="left: 430px; top: 618px;">5</span>
+
+      <div class="m-topbar">
+        <span class="m-brand">Gridlink</span>
+        <div class="m-seg"><span class="on">Canvas</span><span>Inspect</span><span>Compare</span></div>
+        <div class="m-wsp">Site A — Mojave Yard <span class="caret">▾</span></div>
+        <span class="m-right">4 connections · 1 conflict</span>
+      </div>
+      <div class="m-body">
+        <div class="m-side" style="height: 594px;">
+          <div class="m-tabs"><span class="on">RTAC</span><span>RDB</span><span>SCD</span></div>
+          <div class="m-list">
+            <div class="m-proj sel"><span class="grip">⠿</span>Project1_3555<span class="on-canvas"></span></div>
+            <div class="m-proj"><span class="grip">⠿</span>Mojave_Sphinx_3555</div>
+            <div class="m-proj grey">North_Substation_3530<span class="m-spin"></span></div>
+            <div class="m-proj grey">Pad_A_Sequencer_3555</div>
+            <div class="m-proj"><span class="grip">⠿</span>Training_Demo_3505</div>
+          </div>
+          <div class="m-foot">Double-click to download · drag to canvas</div>
+        </div>
+
+        <div style="flex: 1; display: flex; flex-direction: column;">
+          <div class="m-canvas" id="canvas">
+            <div class="m-region" style="left: 640px; top: 48px; width: 268px; height: 252px;">
+              <span class="rlabel">Station bus · 10.10.1.0/24</span>
+            </div>
+            <svg class="wires" id="wires" aria-hidden="true"></svg>
+
+            <div class="m-node" id="n-rtac" style="left: 90px; top: 236px;">
+              <div class="nm">RTAC_MAIN</div>
+              <div class="sub">SEL-3555 · Project1_3555</div>
+            </div>
+            <div class="m-node" id="n-feeder" style="left: 684px; top: 84px;">
+              <div class="nm">FEEDER_1</div>
+              <div class="sub">SEL-751A · feeder_relays.rdb</div>
+            </div>
+            <div class="m-node" id="n-bustie" style="left: 684px; top: 204px;">
+              <div class="nm">BUS_TIE</div>
+              <div class="sub">SEL-451 · feeder_relays.rdb</div>
+            </div>
+            <div class="m-node" id="n-meter" style="left: 684px; top: 330px;">
+              <div class="nm">METER_3</div>
+              <div class="sub">SEL-735 · feeder_relays.rdb</div>
+            </div>
+            <div class="m-node ghost" id="n-ghost" style="left: 684px; top: 446px;">
+              <div class="nm">10.10.1.60</div>
+              <div class="sub">Declared by RTAC_MAIN · not loaded</div>
+            </div>
+          </div>
+
+          <div class="m-status">
+            <span><b>5</b> devices</span>
+            <span class="tierdot"><span class="d" style="background: #1a9e5c;"></span><b>1</b> confirmed</span>
+            <span class="tierdot"><span class="d" style="background: #d7930a;"></span><b>1</b> suggested</span>
+            <span class="tierdot"><span class="d" style="background: #a9adb8;"></span><b>1</b> declared</span>
+            <span class="conflict">1 conflict</span>
+            <span style="margin-left: auto;">Auto-layout · Export</span>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <ul class="notes">
+      <li><span class="pin">1</span><div><strong>Drag out of any tab.</strong> The RTAC download flow (grey → spinner → ready) is unchanged; the green dot marks "already on canvas".</div></li>
+      <li><span class="pin">2</span><div><strong>Just a box:</strong> name and model/source, rounded, soft shadow. Drag moves it; a plain click opens its settings in Inspect.</div></li>
+      <li><span class="pin">3</span><div><strong>Wires carry only their color.</strong> Green agree, red conflict, amber suggested, grey declared. Click one for its details.</div></li>
+      <li><span class="pin">4</span><div><strong>Ghost box</strong> for a declared far end nobody has loaded. Dropping its RDB later replaces it in place.</div></li>
+      <li><span class="pin">5</span><div><strong>Status bar</strong> keeps the census; the conflict count reads red.</div></li>
+    </ul>
+  </section>
+
+  <!-- ================================================================ -->
+  <section class="shot">
+    <div class="eyebrow">Screen 02</div>
+    <h2>Wire colors</h2>
+    <p class="blurb">Color is all a wire shows. Everything written waits in the click popup.</p>
+    <div class="tiers">
+      <div class="thead">Tier</div><div class="thead">Wire</div><div class="thead">Meaning</div>
+      <div class="tier-name">Confirmed</div><div><span class="lsample ls-ok"></span></div><div class="tier-desc">Both ends' settings agree — address, port, protocol.</div>
+      <div class="tier-name">Conflict</div><div><span class="lsample ls-bad"></span></div><div class="tier-desc">Both ends claim the link but a value disagrees. Click for the specifics.</div>
+      <div class="tier-name">Suggested</div><div><span class="lsample ls-warn"></span></div><div class="tier-desc">Partial evidence — IP without port, or serial name-similarity.</div>
+      <div class="tier-name">Declared</div><div><span class="lsample ls-dim"></span></div><div class="tier-desc">One side declares it; the far end isn't loaded (ghost box).</div>
+      <div class="tier-name">Manual</div><div><span class="lsample ls-manual"></span></div><div class="tier-desc">User-drawn serial pair. Still validated — a baud mismatch turns it red.</div>
+    </div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section class="shot">
+    <div class="eyebrow">Screen 03</div>
+    <h2>Connection popup</h2>
+    <p class="blurb">
+      What clicking a wire opens (live in screen 1). The top says what the connection is;
+      then each end's port info; warnings and errors listed below.
+    </p>
+    <div class="frame-scroll"><div class="mock" style="width: 340px; display: inline-block;">
+      <div class="popup" style="position: static; width: 100%; box-shadow: none; border: 0; border-radius: 0;">
+        <div class="ph"><span class="t">RTAC_MAIN ⇄ BUS_TIE</span><span class="badge bad">Conflict</span><span class="x">✕</span></div>
+        <div class="summary">DNP3 client → server over TCP · matched on IP 10.10.1.22</div>
+        <div class="endlabel">RTAC_MAIN · client · SEL_451_1_DNP</div>
+        <div class="endinfo">
+          <div>eth F · 10.10.1.5</div>
+          <div>dials 10.10.1.22 : 20000</div>
+          <div>DNP address 0 → expects server 4</div>
+        </div>
+        <div class="endlabel">BUS_TIE · server · Port 5</div>
+        <div class="endinfo">
+          <div>Port 5 · 10.10.1.22</div>
+          <div>listens : 20001</div>
+          <div>DNP address 3</div>
+        </div>
+        <div class="warnhead bad">2 errors</div>
+        <div class="warn bad">Port mismatch — RTAC dials 20000, relay listens on 20001</div>
+        <div class="warn bad">DNP address mismatch — RTAC expects 4, relay is set to 3</div>
+      </div>
+    </div></div>
+    <ul class="notes">
+      <li><span class="pin">1</span><div><strong>Top: what it is.</strong> The two device names, the tier, and one line saying why the matcher paired them.</div></li>
+      <li><span class="pin">2</span><div><strong>Port info per end,</strong> RTAC_MAIN first then the far device — interface, address, port, protocol addressing, straight from each artifact.</div></li>
+      <li><span class="pin">3</span><div><strong>Warnings and errors below.</strong> Red for disagreements, amber for cautions. A clean link says "No warnings — both ends agree."</div></li>
+    </ul>
+  </section>
+
+  <!-- ================================================================ -->
+  <section class="shot">
+    <div class="eyebrow">Screen 04</div>
+    <h2>Inspect — read-only settings for one file</h2>
+    <p class="blurb">
+      Two ways in: <strong>click a device box on the canvas</strong> (jumps here with that
+      device selected), or <strong>open the Inspect tab and pick from the sidebar</strong>.
+      Either way it's read-only browsing: full object tree on the left, settings on the
+      right with one tab per settings page — the rtac-explorer preview, restyled. A
+      Browse / Aggregate toggle sits in the pane: Aggregate is the settings-comparison
+      table across objects <em>within this file</em>.
+    </p>
+    <div class="frame-scroll"><div class="mock app-frame" style="position: relative; margin-bottom: 20px;">
+      <span class="callout" style="left: 500px; top: 118px;">1</span>
+      <span class="callout" style="left: 1120px; top: 66px;">2</span>
+      <span class="callout" style="left: 700px; top: 296px;">3</span>
+      <div class="m-topbar">
+        <span class="m-brand">Gridlink</span>
+        <div class="m-seg"><span>Canvas</span><span class="on">Inspect</span><span>Compare</span></div>
+        <div class="m-wsp">Project1_3555 <span class="caret">▾</span></div>
+        <span class="m-right">RTAC · 56 files · read-only</span>
+      </div>
+      <div class="m-body">
+        <div class="m-side" style="height: 428px;">
+          <div class="m-tabs"><span class="on">RTAC</span><span>RDB</span><span>SCD</span></div>
+          <div class="m-list">
+            <div class="m-proj sel"><span class="grip">⠿</span>Project1_3555<span class="on-canvas"></span></div>
+            <div class="m-proj"><span class="grip">⠿</span>Mojave_Sphinx_3555</div>
+            <div class="m-proj grey">North_Substation_3530</div>
+            <div class="m-proj"><span class="grip">⠿</span>Training_Demo_3505</div>
+          </div>
+          <div class="m-foot">Click to inspect</div>
+        </div>
+        <div class="m-tree" style="height: 428px;">
+          <div class="m-treetitle">Project1_3555 <span class="sub">· SEL-3555</span></div>
+          <div class="m-trow folder"><span class="caret">▾</span>Server Examples</div>
+          <div class="m-trow" style="padding-left: 24px;">Other_11<span class="tag">C37118Server</span></div>
+          <div class="m-trow sel" style="padding-left: 24px; background: var(--m-fill); font-weight: 600;">Other_12<span class="tag">DNPServer</span></div>
+          <div class="m-trow" style="padding-left: 24px;">Other_13<span class="tag">IEC60870Server</span></div>
+          <div class="m-trow" style="padding-left: 24px;">Other_15<span class="tag">ModbusServer</span></div>
+          <div class="m-trow folder"><span class="caret">▾</span>User Logic</div>
+          <div class="m-trow" style="padding-left: 24px;">STProgram<span class="tag">POU</span></div>
+          <div class="m-trow" style="padding-left: 24px;">GVL1<span class="tag">GVL</span></div>
+          <div class="m-trow folder"><span class="caret">▸</span>Virtual Tag Lists</div>
+        </div>
+        <div style="flex: 1; height: 428px; display: flex; flex-direction: column; min-width: 0;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 11px 16px 9px;">
+            <span style="font-weight: 650; font-size: 14.5px;">Other_12</span>
+            <span class="badge" style="color:#4b5160; background:#f2f3f5;">DNP server · serial · Com_07</span>
+            <div class="m-seg" style="margin-left: auto;"><span class="on">Browse</span><span>Aggregate</span></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 0 16px 9px; border-bottom: 1px solid var(--m-border);">
+            <span class="m-input" style="width: 220px;">Search settings…</span>
+            <span style="font-size: 12px; color: var(--m-muted);">111 settings</span>
+          </div>
+          <div class="kvgrid">
+            <div class="kv"><span class="k">Baud Rate</span><span class="v">19200</span></div>
+            <div class="kv"><span class="k">Server DNP Address</span><span class="v">1</span></div>
+            <div class="kv"><span class="k">Serial Communications Port</span><span class="v">Com_07</span></div>
+            <div class="kv"><span class="k">Map Name</span><span class="v">DNPServerSharedMap1_DNP</span></div>
+            <div class="kv"><span class="k">Data Bits</span><span class="v">8</span></div>
+            <div class="kv"><span class="k">Allow Unsolicited Messages</span><span class="v">True</span></div>
+          </div>
+          <div class="m-ptabs">
+            <span class="on">Binary Inputs<span class="n">5</span></span>
+            <span>Double Bit Inputs<span class="n">5</span></span>
+            <span>Binary Outputs<span class="n">30</span></span>
+            <span>Analog Inputs<span class="n">5</span></span>
+            <span>Dataset_0<span class="n">5</span></span>
+          </div>
+          <table class="ev">
+            <tr><th>Tag Name</th><th>Point Number</th><th>Tag Type</th><th>Event Class</th></tr>
+            <tr><td>BI_00</td><td>0</td><td>SPS</td><td>1</td></tr>
+            <tr><td>BI_01</td><td>1</td><td>SPS</td><td>1</td></tr>
+            <tr><td>BI_02</td><td>2</td><td>SPS</td><td>2</td></tr>
+          </table>
+        </div>
+      </div>
+    </div></div>
+
+    <div class="frame-scroll"><div class="mock app-frame" style="position: relative;">
+      <span class="callout" style="left: 300px; top: 120px;">4</span>
+      <span class="callout" style="left: 700px; top: 76px;">5</span>
+      <div class="m-topbar">
+        <span class="m-brand">Gridlink</span>
+        <div class="m-seg"><span>Canvas</span><span class="on">Inspect</span><span>Compare</span></div>
+        <div class="m-wsp">Project1_3555 <span class="caret">▾</span></div>
+        <span class="m-right">Aggregate · 4 objects match</span>
+      </div>
+      <div class="m-body">
+        <div class="m-tree" style="height: 330px;">
+          <div class="m-treetitle">Scope <span class="sub">· check objects · none = all</span></div>
+          <div class="m-trow folder"><span class="caret">▾</span><span class="m-check on">✓</span>Server Examples</div>
+          <div class="m-trow" style="padding-left: 24px;"><span class="m-check on">✓</span>Other_11<span class="tag">C37118Server</span></div>
+          <div class="m-trow" style="padding-left: 24px;"><span class="m-check on">✓</span>Other_12<span class="tag">DNPServer</span></div>
+          <div class="m-trow" style="padding-left: 24px;"><span class="m-check on">✓</span>Other_15<span class="tag">ModbusServer</span></div>
+          <div class="m-trow folder"><span class="caret">▾</span><span class="m-check"></span>Client Examples</div>
+          <div class="m-trow" style="padding-left: 24px;"><span class="m-check"></span>Other_3<span class="tag">DNPClient</span></div>
+        </div>
+        <div style="flex: 1; height: 330px; min-width: 0;">
+          <div style="display: flex; align-items: flex-end; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--m-border);">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: var(--m-muted); margin-bottom: 5px;">Setting names — one per line</div>
+              <div class="m-textarea">Baud Rate<br>Map Name</div>
+            </div>
+            <span class="m-btn primary">Aggregate</span>
+          </div>
+          <table class="ev">
+            <tr><th>Object</th><th>Kind</th><th>Baud Rate</th><th>Map Name</th></tr>
+            <tr><td class="k" style="font-weight:600; color: var(--m-ink);">Other_12</td><td class="k">DNPServer</td><td>19200</td><td>DNPServerSharedMap1_DNP</td></tr>
+            <tr><td class="k" style="font-weight:600; color: var(--m-ink);">Other_14</td><td class="k">LG8979Server</td><td>—</td><td>None</td></tr>
+            <tr><td class="k" style="font-weight:600; color: var(--m-ink);">Other_15</td><td class="k">ModbusServer</td><td>—</td><td>ModbusServerSharedMap1</td></tr>
+            <tr><td class="k" style="font-weight:600; color: var(--m-ink);">Other_18</td><td class="k">SES92Server</td><td>19200</td><td>None</td></tr>
+          </table>
+        </div>
+      </div>
+    </div></div>
+    <ul class="notes">
+      <li><span class="pin">1</span><div><strong>Full object tree,</strong> read-only — connections, logic, tag lists, everything the parser found in this one file.</div></li>
+      <li><span class="pin">2</span><div><strong>Browse / Aggregate toggle.</strong> Browse is the settings transcript: pinned searchable settings, then one tab per settings page.</div></li>
+      <li><span class="pin">3</span><div><strong>Point pages as tabs,</strong> raw columns exactly as the export wrote them.</div></li>
+      <li><span class="pin">4</span><div><strong>Aggregate scope:</strong> the tree grows checkboxes; a folder checks its subtree. Nothing checked means the whole file.</div></li>
+      <li><span class="pin">5</span><div><strong>Settings × objects table,</strong> same behavior as rtac-explorer: case-insensitive matching, one column per name, one row per object that carries any of them.</div></li>
+    </ul>
+  </section>
+
+  <!-- ================================================================ -->
+  <section class="shot">
+    <div class="eyebrow">Screen 05</div>
+    <h2>Source tabs</h2>
+    <p class="blurb">
+      One sidebar, three tabs, one rule: the list shows draggable <em>profiles</em>, not
+      files. An RDB can hold several relays; an SCD yields many IEDs plus its subnets.
+    </p>
+    <div class="frame-scroll" style="display: flex; gap: 24px;">
+      <div class="mock" style="width: 232px;">
+        <div class="m-tabs"><span class="on">RTAC</span><span>RDB</span><span>SCD</span></div>
+        <div class="m-list">
+          <div class="m-proj sel"><span class="grip">⠿</span>Project1_3555<span class="on-canvas"></span></div>
+          <div class="m-proj"><span class="grip">⠿</span>Mojave_Sphinx_3555</div>
+          <div class="m-proj grey">North_Substation_3530<span class="m-spin"></span></div>
+          <div class="m-proj grey">Pad_A_Sequencer_3555</div>
+          <div class="m-proj"><span class="grip">⠿</span>Training_Demo_3505</div>
+        </div>
+        <div class="m-foot">Double-click to download · drag to canvas</div>
+      </div>
+      <div class="mock" style="width: 232px;">
+        <div class="m-tabs"><span>RTAC</span><span class="on">RDB</span><span>SCD</span></div>
+        <div class="m-drop"><b>Drop .rdb here</b>QuickSet database, or click to browse</div>
+        <div>
+          <div class="m-file">▸ feeder_relays.rdb</div>
+          <div class="m-prof"><span class="grip">⠿</span>FEEDER_1<span class="on-canvas" style="margin-left:6px;"></span><span class="kind">SEL-751A</span></div>
+          <div class="m-prof"><span class="grip">⠿</span>BUS_TIE<span class="on-canvas" style="margin-left:6px;"></span><span class="kind">SEL-451</span></div>
+          <div class="m-prof"><span class="grip">⠿</span>METER_3<span class="kind">SEL-735</span></div>
+        </div>
+        <div>
+          <div class="m-file">▸ xfmr_prot.rdb</div>
+          <div class="m-prof"><span class="grip">⠿</span>XFMR_87<span class="kind">SEL-787</span></div>
+        </div>
+        <div class="m-foot">3 of 4 profiles on canvas</div>
+      </div>
+      <div class="mock" style="width: 232px;">
+        <div class="m-tabs"><span>RTAC</span><span>RDB</span><span class="on">SCD</span></div>
+        <div class="m-drop"><b>Drop .scd / .cid here</b>SEL Architect · IEC 61850</div>
+        <div>
+          <div class="m-file">▸ station.scd</div>
+          <div class="m-prof"><span class="grip">⠿</span>Station Bus<span class="kind">subnet</span></div>
+          <div class="m-prof"><span class="grip">⠿</span>IED_A01<span class="kind">MU</span></div>
+          <div class="m-prof"><span class="grip">⠿</span>IED_A02<span class="kind">P&amp;C</span></div>
+        </div>
+        <div class="m-note">SCL parser lands in phase 3 — layout shown for review; awaiting example exports.</div>
+        <div class="m-foot">1 subnet · 2 IEDs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section class="shot">
+    <div class="eyebrow">Screen 06</div>
+    <h2>Compare mode — across two files</h2>
+    <p class="blurb">
+      For comparing two settings files of the same kind: two RTAC projects, two RDB
+      profiles, two SCDs. The source picker in the topbar sets the kind; then the union
+      tree with green/red/yellow tints, and click through to the structured diff — exactly
+      the rtac-explorer behavior, restyled.
+    </p>
+    <div class="frame-scroll"><div class="mock app-frame">
+      <div class="m-topbar">
+        <span class="m-brand">Gridlink</span>
+        <div class="m-seg"><span>Canvas</span><span>Inspect</span><span class="on">Compare</span></div>
+        <div class="m-wsp">RTAC <span class="caret">▾</span></div>
+        <span class="m-right">1 added · 1 removed · 2 modified</span>
+      </div>
+      <div class="m-body">
+        <div class="m-side" style="width: 310px; height: 348px;">
+          <div class="m-treehead">
+            <div class="m-pick"><span class="lbl">Original</span><span class="sel-box">Project1_3555</span></div>
+            <div class="m-pick"><span class="lbl">New</span><span class="sel-box">Mojave_Sphinx_3555</span></div>
+          </div>
+          <div style="padding-top: 4px;">
+            <div class="m-trow folder"><span class="caret">▾</span>Server Examples</div>
+            <div class="m-trow" style="padding-left: 24px;">Other_11<span class="tag">C37118Server</span></div>
+            <div class="m-trow mod" style="padding-left: 24px;">Other_12<span class="mk" style="margin-left:6px;">M</span><span class="tag">DNPServer</span></div>
+            <div class="m-trow" style="padding-left: 24px;">Other_13<span class="tag">IEC60870Server</span></div>
+            <div class="m-trow folder"><span class="caret">▾</span>User Logic</div>
+            <div class="m-trow add" style="padding-left: 24px;">GVL2<span class="mk" style="margin-left:6px;">A</span></div>
+            <div class="m-trow mod" style="padding-left: 24px;">STProgram<span class="mk" style="margin-left:6px;">M</span></div>
+            <div class="m-trow folder"><span class="caret">▾</span>Client Examples</div>
+            <div class="m-trow del" style="padding-left: 24px;">Other_10<span class="mk" style="margin-left:6px;">R</span><span class="tag">SNMPClient</span></div>
+          </div>
+        </div>
+        <div style="flex: 1; height: 348px;">
+          <div style="padding: 12px 16px 10px; border-bottom: 1px solid #e5e7eb;">
+            <span style="font-weight: 650; font-size: 14.5px;">Other_12</span>
+            <span class="badge" style="color:#8a6d1d; background:#fdf5e0; margin-left: 8px;">Modified</span>
+            <div style="font-family: var(--mono); font-size: 11px; color: #6e7180; margin-top: 3px;">SEL_RTAC/Server Examples/Other_12_DNP.xml</div>
+          </div>
+          <div class="insp-sec">Setting changes · 1</div>
+          <table class="ev">
+            <tr><th>Setting</th><th>Original</th><th>New</th></tr>
+            <tr style="background: #fdf6e3;"><td class="k">Baud Rate</td><td>19200</td><td>38400</td></tr>
+          </table>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <div class="footer-note">
+    <strong>For review:</strong> same open questions as before — should the popup dismiss on
+    an outside click, and do you want one more piece of info on the box face (say, the
+    device's primary IP)? The wire palette is unchanged per your note; everything else is
+    neutral.
+  </div>
+</div>
+
+<script>
+  (() => {
+    const canvas = document.getElementById('canvas');
+    const svg = document.getElementById('wires');
+    if (!canvas || !svg) return;
+
+    const LINKS = [
+      {
+        from: 'n-rtac', to: 'n-feeder', color: '#1a9e5c', dash: null,
+        title: 'RTAC_MAIN ⇄ FEEDER_1', tier: 'Confirmed', tierClass: 'okc',
+        summary: 'DNP3 client → server over TCP · matched on IP 10.10.1.21',
+        aLabel: 'RTAC_MAIN · client · SEL_751A_1_DNP',
+        a: ['eth F · 10.10.1.5', 'dials 10.10.1.21 : 20000', 'DNP address 0 → server 4'],
+        bLabel: 'FEEDER_1 · server · Port 5',
+        b: ['Port 5 · 10.10.1.21', 'listens : 20000', 'DNP address 4'],
+        warnings: [],
+      },
+      {
+        from: 'n-rtac', to: 'n-bustie', color: '#d63a3a', dash: null,
+        title: 'RTAC_MAIN ⇄ BUS_TIE', tier: 'Conflict', tierClass: 'bad',
+        summary: 'DNP3 client → server over TCP · matched on IP 10.10.1.22',
+        aLabel: 'RTAC_MAIN · client · SEL_451_1_DNP',
+        a: ['eth F · 10.10.1.5', 'dials 10.10.1.22 : 20000', 'DNP address 0 → expects server 4'],
+        bLabel: 'BUS_TIE · server · Port 5',
+        b: ['Port 5 · 10.10.1.22', 'listens : 20001', 'DNP address 3'],
+        warnings: [
+          { kind: 'bad', text: 'Port mismatch — RTAC dials 20000, relay listens on 20001' },
+          { kind: 'bad', text: 'DNP address mismatch — RTAC expects 4, relay is set to 3' },
+        ],
+      },
+      {
+        from: 'n-rtac', to: 'n-meter', color: '#d7930a', dash: '7 5',
+        title: 'RTAC_MAIN ⇄ METER_3', tier: 'Suggested', tierClass: 'warnc',
+        summary: 'SEL protocol over serial · suggested by name match (SEL_735_1)',
+        aLabel: 'RTAC_MAIN · client · SEL_735_1_SEL',
+        a: ['Com_03 · 19200 baud · 8N1'],
+        bLabel: 'METER_3 · serial',
+        b: ['Port 3 · 19200 baud · 8N1'],
+        warnings: [
+          { kind: 'warnc', text: 'Serial pair is a name-match suggestion — confirm to pin it as a manual link' },
+        ],
+      },
+      {
+        from: 'n-rtac', to: 'n-ghost', color: '#a9adb8', dash: '4 4',
+        title: 'RTAC_MAIN ⇄ 10.10.1.60', tier: 'Declared', tierClass: 'warnc',
+        summary: 'Modbus client → server over TCP · far end not loaded',
+        aLabel: 'RTAC_MAIN · client · Other_25_MODBUS',
+        a: ['eth F · 10.10.1.5', 'dials 10.10.1.60 : 502', 'unit id 1'],
+        bLabel: '10.10.1.60 · unknown device',
+        b: ['no artifact loaded for this address'],
+        warnings: [
+          { kind: 'warnc', text: 'Far end unknown — drop its RDB or SCD to verify this link' },
+        ],
+      },
+    ];
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const lines = LINKS.map((link) => {
+      const visible = document.createElementNS(NS, 'line');
+      visible.setAttribute('stroke', link.color);
+      visible.setAttribute('stroke-width', '2');
+      visible.setAttribute('stroke-linecap', 'round');
+      if (link.dash) visible.setAttribute('stroke-dasharray', link.dash);
+      const hit = document.createElementNS(NS, 'line');
+      hit.setAttribute('stroke', 'rgba(0,0,0,0)');
+      hit.setAttribute('stroke-width', '14');
+      hit.classList.add('hit');
+      hit.addEventListener('click', (e) => { e.stopPropagation(); openPopup(link); });
+      svg.appendChild(visible);
+      svg.appendChild(hit);
+      return { link, visible, hit };
+    });
+
+    function anchors(el) {
+      return {
+        left: el.offsetLeft, top: el.offsetTop,
+        right: el.offsetLeft + el.offsetWidth,
+        cy: el.offsetTop + el.offsetHeight / 2,
+        cx: el.offsetLeft + el.offsetWidth / 2,
+      };
+    }
+
+    function redraw() {
+      for (const { link, visible, hit } of lines) {
+        const a = anchors(document.getElementById(link.from));
+        const b = anchors(document.getElementById(link.to));
+        const ax = a.cx <= b.cx ? a.right : a.left;
+        const bx = a.cx <= b.cx ? b.left : b.right;
+        for (const el of [visible, hit]) {
+          el.setAttribute('x1', ax); el.setAttribute('y1', a.cy);
+          el.setAttribute('x2', bx); el.setAttribute('y2', b.cy);
+        }
+      }
+    }
+
+    let popup = null;
+    function closePopup() { if (popup) { popup.remove(); popup = null; } }
+    function openPopup(link) {
+      closePopup();
+      popup = document.createElement('div');
+      popup.className = 'popup';
+      const hasBad = link.warnings.some(w => w.kind === 'bad');
+      const warnHead = link.warnings.length
+        ? `<div class="warnhead ${hasBad ? 'bad' : 'warnc'}">${link.warnings.length} ${hasBad ? 'error' : 'warning'}${link.warnings.length > 1 ? 's' : ''}</div>`
+        : '<div class="warnhead okc">Checks</div>';
+      const warnBody = link.warnings.length
+        ? link.warnings.map(w => `<div class="warn ${w.kind}">${w.text}</div>`).join('')
+        : '<div class="clean">No warnings — both ends agree.</div>';
+      popup.innerHTML =
+        `<div class="ph"><span class="t">${link.title}</span>` +
+        `<span class="badge ${link.tierClass === 'bad' ? 'bad' : ''}" style="${link.tierClass !== 'bad' ? `color:${link.color};background:color-mix(in srgb, ${link.color} 12%, white);` : ''}">${link.tier}</span>` +
+        `<span class="x" title="Close">✕</span></div>` +
+        `<div class="summary">${link.summary}</div>` +
+        `<div class="endlabel">${link.aLabel}</div>` +
+        `<div class="endinfo">${link.a.map(t => `<div>${t}</div>`).join('')}</div>` +
+        `<div class="endlabel">${link.bLabel}</div>` +
+        `<div class="endinfo">${link.b.map(t => `<div>${t}</div>`).join('')}</div>` +
+        warnHead + warnBody;
+      const from = anchors(document.getElementById(link.from));
+      const to = anchors(document.getElementById(link.to));
+      const x = Math.max(8, Math.min((from.cx + to.cx) / 2 - 170, canvas.clientWidth - 350));
+      const y = Math.max(8, Math.min((from.cy + to.cy) / 2 - 40, canvas.clientHeight - 270));
+      popup.style.left = `${x}px`;
+      popup.style.top = `${y}px`;
+      popup.querySelector('.x').addEventListener('click', closePopup);
+      canvas.appendChild(popup);
+    }
+
+    let drag = null;
+    for (const node of canvas.querySelectorAll('.m-node')) {
+      node.addEventListener('pointerdown', (e) => {
+        drag = { node, dx: e.clientX - node.offsetLeft, dy: e.clientY - node.offsetTop };
+        node.setPointerCapture(e.pointerId);
+      });
+      node.addEventListener('pointermove', (e) => {
+        if (!drag || drag.node !== node) return;
+        const x = Math.max(0, Math.min(e.clientX - drag.dx, canvas.clientWidth - node.offsetWidth));
+        const y = Math.max(0, Math.min(e.clientY - drag.dy, canvas.clientHeight - node.offsetHeight));
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+        redraw();
+      });
+      node.addEventListener('pointerup', () => { drag = null; });
+    }
+
+    redraw();
+  })();
+</script>
