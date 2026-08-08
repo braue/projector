@@ -17,7 +17,9 @@ import { mkdir, readdir, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
 import { compareHashes, diffItems, STATUS } from '../lib/compare.js';
+import { httpError, resolveChild } from '../lib/http.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
+import { moduleBaseName } from '../lib/parsers/rtac/project.js';
 
 const EXPORTABLE = /\.xml$/i;
 
@@ -27,25 +29,25 @@ class ProjectService {
     this.exportsDir = path.join(dataDir, 'exports');
     // name -> { status: 'available'|'exporting'|'ready'|'error', error? }
     this.state = new Map();
-    // name -> { model, hashes: Map<file, sha1> }
+    // name -> { model, byFile: Map<file, item>, hashes: Map<file, sha1> }
     this.parseCache = new Map();
     this.names = [];
     // Last listprojects failure, or null; served beside the list.
     this.listError = null;
   }
 
+  // Local state only — the (possibly slow) database list is refreshed
+  // separately so startup never blocks on the database.
   async init() {
     await mkdir(this.exportsDir, { recursive: true });
 
     // Anything already exported in a previous run is immediately browsable —
-    // even if the database turns out to be unreachable below.
+    // even if the database turns out to be unreachable.
     const onDisk = await readdir(this.exportsDir, { withFileTypes: true });
     for (const entry of onDisk) {
       if (entry.isDirectory()) this.state.set(entry.name, { status: 'ready' });
     }
     this.names = [...this.state.keys()];
-
-    await this.refreshList();
   }
 
   // (Re-)query the database's project list. Never throws: a failure lands in
@@ -62,7 +64,8 @@ class ProjectService {
       }
       // Database order first; exports on disk that the database no longer
       // lists stay visible after it (they are still browsable).
-      const extras = [...this.state.keys()].filter((name) => !dbNames.includes(name));
+      const dbSet = new Set(dbNames);
+      const extras = [...this.state.keys()].filter((name) => !dbSet.has(name));
       this.names = [...dbNames, ...extras];
     } catch (err) {
       this.listError = err?.message ?? String(err);
@@ -77,19 +80,14 @@ class ProjectService {
     };
   }
 
+  // Names come from the AcRTAC database, but they become a path segment here.
   #dir(name) {
-    // Names come from the AcRTAC database, but they become a path segment
-    // here — refuse anything that would escape the exports directory.
-    const dir = path.resolve(this.exportsDir, name);
-    if (path.dirname(dir) !== path.resolve(this.exportsDir)) {
-      throw Object.assign(new Error(`invalid project name: ${name}`), { status: 400 });
-    }
-    return dir;
+    return resolveChild(this.exportsDir, name, `invalid project name: ${name}`);
   }
 
   #known(name) {
     const state = this.state.get(name);
-    if (!state) throw Object.assign(new Error(`unknown project: ${name}`), { status: 404 });
+    if (!state) throw httpError(404, `unknown project: ${name}`);
     return state;
   }
 
@@ -118,15 +116,16 @@ class ProjectService {
     return this.state.get(name);
   }
 
-  // Parse the exported folder into { model, hashes } (cached until the next
-  // export). Reads every .xml under the export root, keyed by forward-slash
-  // relative path — the identity the parser, the diff, and the UI all share.
-  // The hash is of the raw bytes: it decides edited/unchanged in a compare,
-  // so it must see changes the parser doesn't model (e.g. CFC blobs).
+  // Parse the exported folder into { model, byFile, hashes } (cached until the
+  // next export). Reads every .xml under the export root, keyed by
+  // forward-slash relative path — the identity the parser, the diff, and the
+  // UI all share. The hash is of the raw bytes: it decides edited/unchanged in
+  // a compare, so it must see changes the parser doesn't model (e.g. CFC
+  // blobs).
   async #parsed(name) {
     const state = this.#known(name);
     if (state.status !== 'ready') {
-      throw Object.assign(new Error(`project ${name} is not exported yet`), { status: 409 });
+      throw httpError(409, `project ${name} is not exported yet`);
     }
 
     const cached = this.parseCache.get(name);
@@ -134,17 +133,16 @@ class ProjectService {
 
     const root = this.#dir(name);
     const files = [];
-    const hashes = new Map();
     const walk = async (dir, rel) => {
-      for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const entries = await readdir(dir, { withFileTypes: true });
+      await Promise.all(entries.map(async (entry) => {
         const relPath = rel ? `${rel}/${entry.name}` : entry.name;
         if (entry.isDirectory()) await walk(path.join(dir, entry.name), relPath);
         else if (EXPORTABLE.test(entry.name)) {
           const xml = await readFile(path.join(dir, entry.name), 'utf8');
           files.push({ file: relPath, xml });
-          hashes.set(relPath, createHash('sha1').update(xml).digest('hex'));
         }
-      }
+      }));
     };
     try {
       await walk(root, '');
@@ -153,26 +151,26 @@ class ProjectService {
         // The export vanished from disk (deleted by hand). Drop back to
         // 'available' so the sidebar greys it out for a fresh download.
         this.state.set(name, { status: 'available' });
-        throw Object.assign(
-          new Error(`the export of ${name} is missing on disk — download it again`),
-          { status: 409 },
-        );
+        throw httpError(409, `the export of ${name} is missing on disk — download it again`);
       }
       throw err;
     }
 
-    const parsed = { model: parseRtacProject(files), hashes };
+    // Reads run concurrently, so impose a stable order before parsing.
+    files.sort((a, b) => a.file.localeCompare(b.file));
+    const hashes = new Map(
+      files.map(({ file, xml }) => [file, createHash('sha1').update(xml).digest('hex')]),
+    );
+
+    const model = parseRtacProject(files);
+    const parsed = { model, byFile: new Map(model.items.map((item) => [item.file, item])), hashes };
     this.parseCache.set(name, parsed);
     return parsed;
   }
 
-  async #model(name) {
-    return (await this.#parsed(name)).model;
-  }
-
   // Public read of the parsed project model — the comm extractors consume it.
   async model(name) {
-    return this.#model(name);
+    return (await this.#parsed(name)).model;
   }
 
   // --- tree ------------------------------------------------------------------
@@ -181,7 +179,7 @@ class ProjectService {
   static #itemNode(item, extra = {}) {
     return {
       type: 'item',
-      name: item.name ?? item.file.split('/').pop().replace(EXPORTABLE, ''),
+      name: item.name ?? moduleBaseName(item.file),
       path: item.file,
       kind: item.kind,
       kindLabel: item.kindLabel,
@@ -248,13 +246,13 @@ class ProjectService {
   // The full export as a nested tree — folders, programs, connections, all of
   // it.
   async tree(name) {
-    const model = await this.#model(name);
+    const model = await this.model(name);
     const nodes = model.items.map((item) => ProjectService.#itemNode(item));
 
     return {
       name: model.name ?? name,
       schema: model.schema,
-      deviceMOT: model.deviceMOT,
+      deviceLabel: model.deviceMOT ? `SEL-${model.deviceMOT}` : null,
       summary: model.summary,
       errors: model.errors,
       tree: ProjectService.#foldTree(nodes, model.errors),
@@ -263,11 +261,8 @@ class ProjectService {
 
   // Full parsed body of one export file, for the preview pane.
   async item(name, file) {
-    const model = await this.#model(name);
-    const item = model.items.find((candidate) => candidate.file === file);
-    if (!item) {
-      throw Object.assign(new Error(`no such item in ${name}: ${file}`), { status: 404 });
-    }
+    const item = (await this.#parsed(name)).byFile.get(file);
+    if (!item) throw httpError(404, `no such item in ${name}: ${file}`);
     return item;
   }
 
@@ -283,7 +278,6 @@ class ProjectService {
     ]);
     const status = compareHashes(original.hashes, updated.hashes);
 
-    const originalByFile = new Map(original.model.items.map((item) => [item.file, item]));
     const nodes = [];
     for (const item of updated.model.items) {
       nodes.push(ProjectService.#itemNode(item, { status: status.get(item.file) }));
@@ -294,26 +288,21 @@ class ProjectService {
       }
     }
 
-    const count = (wanted) =>
-      [...status.values()].filter((value) => value === wanted).length;
+    const summary = { added: 0, removed: 0, edited: 0, unchanged: 0 };
+    for (const value of status.values()) summary[value] += 1;
 
     // Parse errors from both sides; a file that fails on either side still
     // needs a row for its status to hang on.
     const errors = [...updated.model.errors];
     const seen = new Set(errors.map((e) => e.file));
     for (const error of original.model.errors) {
-      if (!seen.has(error.file) && !originalByFile.has(error.file)) errors.push(error);
+      if (!seen.has(error.file) && !original.byFile.has(error.file)) errors.push(error);
     }
 
     return {
       original: { name: original.model.name ?? originalName },
       updated: { name: updated.model.name ?? updatedName },
-      summary: {
-        added: count(STATUS.ADDED),
-        removed: count(STATUS.REMOVED),
-        edited: count(STATUS.EDITED),
-        unchanged: count(STATUS.UNCHANGED),
-      },
+      summary,
       tree: ProjectService.#foldTree(nodes, []),
     };
   }
@@ -324,13 +313,19 @@ class ProjectService {
       this.#parsed(originalName),
       this.#parsed(updatedName),
     ]);
-    const originalItem = original.model.items.find((item) => item.file === file) ?? null;
-    const updatedItem = updated.model.items.find((item) => item.file === file) ?? null;
+    const originalItem = original.byFile.get(file) ?? null;
+    const updatedItem = updated.byFile.get(file) ?? null;
     if (!originalItem && !updatedItem) {
-      throw Object.assign(new Error(`no such item: ${file}`), { status: 404 });
+      throw httpError(404, `no such item: ${file}`);
     }
 
-    const status = compareHashes(original.hashes, updated.hashes).get(file) ?? STATUS.UNCHANGED;
+    const before = original.hashes.get(file);
+    const after = updated.hashes.get(file);
+    const status =
+      before === undefined ? STATUS.ADDED
+      : after === undefined ? STATUS.REMOVED
+      : before === after ? STATUS.UNCHANGED
+      : STATUS.EDITED;
 
     return {
       file,
@@ -348,11 +343,12 @@ class ProjectService {
   // (case-insensitive; exact name or substring). Only objects with at least
   // one match make a row — the table answers "what is X set to, everywhere".
   async aggregate(name, { terms = [], files = [] } = {}) {
-    const model = await this.#model(name);
+    const model = await this.model(name);
     const wanted = terms.map((term) => String(term).trim()).filter(Boolean);
     if (!wanted.length) {
-      throw Object.assign(new Error('at least one setting name is required'), { status: 400 });
+      throw httpError(400, 'at least one setting name is required');
     }
+    const lowered = wanted.map((term) => term.toLowerCase());
 
     const scope = files.length ? new Set(files) : null;
     const rows = [];
@@ -360,13 +356,16 @@ class ProjectService {
     for (const item of model.items) {
       if (scope && !scope.has(item.file)) continue;
 
+      const entries = Object.entries(item.settings).map(
+        ([key, value]) => [key.toLowerCase(), key, value],
+      );
       const values = {};
       let matched = false;
-      for (const term of wanted) {
-        const lower = term.toLowerCase();
-        const matches = Object.entries(item.settings)
-          .filter(([key]) => key.toLowerCase().includes(lower))
-          .map(([key, value]) => ({ name: key, value }));
+      for (const [index, term] of wanted.entries()) {
+        const lower = lowered[index];
+        const matches = entries
+          .filter(([keyLower]) => keyLower.includes(lower))
+          .map(([, key, value]) => ({ name: key, value }));
         if (matches.length) matched = true;
         values[term] = matches;
       }

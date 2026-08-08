@@ -1,0 +1,3505 @@
+{
+  "device": "421",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "examples": [
+            "04214211XXXX1H1XXXXXX"
+          ]
+        },
+        "front_pdf": "i7000d.pdf",
+        "rear_pdf": "i7000d.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04214211XXXX1H20XXXXX"
+          ]
+        },
+        "front_pdf": "i7001d.pdf",
+        "rear_pdf": "i7001d.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04214211XXXX1H60X0XXX"
+          ]
+        },
+        "front_pdf": "i7002d.pdf",
+        "rear_pdf": "i7002d.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04214211XXXX1V1XXXXXX"
+          ]
+        },
+        "front_pdf": "i7052c.pdf",
+        "rear_pdf": "i7052c.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04214211XXXX1V20XXXXX"
+          ]
+        },
+        "front_pdf": "i7053c.pdf",
+        "rear_pdf": "i7053c.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04214211XXXX1V60X0XXX"
+          ]
+        },
+        "front_pdf": "i7054c.pdf",
+        "rear_pdf": "i7054c.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0421711X3200XD6H5210XXXXX"
+          ]
+        },
+        "front_pdf": "i7208.C.pdf",
+        "rear_pdf": "i7208.C.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0421711X3200XD6H621240XXX"
+          ]
+        },
+        "front_pdf": "i7209.D.pdf",
+        "rear_pdf": "i7209.D.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0421711X3200XD6V5210XXXXX"
+          ]
+        },
+        "front_pdf": "i7211.C.pdf",
+        "rear_pdf": "i7211.C.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0421711X3200XD6V621240XXX"
+          ]
+        },
+        "front_pdf": "i7212.D.pdf",
+        "rear_pdf": "i7212.D.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04217XXXX200XE6H421XXXXXX"
+          ]
+        },
+        "front_pdf": "i7285.B.pdf",
+        "rear_pdf": "i7285.B.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04217XXXX200XE6V421XXXXXX"
+          ]
+        },
+        "front_pdf": "i7286.B.pdf",
+        "rear_pdf": "i7286.B.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7000d.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "4.0_____DWG",
+            "object_id": "17 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "19 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "4.0_____DWG",
+            "object_id": "104 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "105 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "106 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "107 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "93 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "94 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "10 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "97 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "100 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "96 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "99 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "95 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "11 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "98 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "101 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "102 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7001d.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "7.0_____DWG",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "30 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "7.0_____DWG",
+            "object_id": "208 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "209 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "210 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "211 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "212 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "213 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "214 0 R"
+          },
+          {
+            "name": "7.0_____DWG",
+            "object_id": "385 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "386 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "387 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "388 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "389 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "390 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "391 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "193 0 R"
+                },
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "370 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__4U. Up to Two IO Boards__2",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "4.1__4U. Up to Two IO Boards__2",
+                  "object_id": "196 0 R"
+                },
+                {
+                  "name": "4.1__4U. Up to One IO Board__2",
+                  "object_id": "373 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "4.2__4U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__3",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "4.2__4U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__3",
+                  "object_id": "195 0 R"
+                },
+                {
+                  "name": "4.2__4U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__3",
+                  "object_id": "372 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "17 0 R"
+                },
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "197 0 R"
+                },
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "374 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "18 0 R"
+                },
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "198 0 R"
+                },
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "375 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "201 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "378 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "204 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "381 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "20 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "200 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "377 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "23 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "203 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "380 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "19 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "199 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "376 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "22 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "202 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "379 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "25 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "205 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "382 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "27 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "207 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "384 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "26 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "206 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "383 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7002d.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "8.0_____DWG",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "7.0____[IO BOARD POSITION C FOR 5U CHASSIS]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "8.0_____DWG",
+            "object_id": "272 0 R"
+          },
+          {
+            "name": "7.0____[IO BOARD POSITION C FOR 5U CHASSIS]",
+            "object_id": "273 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "274 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "275 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "276 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "277 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "278 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "279 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_7": {
+            "options": {
+              "0": [
+                {
+                  "name": "7.1__Empty IO Board Position__0",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "7.1__Empty IO Board Position__0",
+                  "object_id": "249 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "257 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "6": [
+                {
+                  "name": "4.1__5U. Up to Two IO Boards__6",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "4.1__5U. Up to Two IO Boards__6",
+                  "object_id": "260 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__5U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__7",
+                  "object_id": "23 0 R"
+                },
+                {
+                  "name": "4.2__5U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__7",
+                  "object_id": "259 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "25 0 R"
+                },
+                {
+                  "name": "3.2__Horizontal Panel Mount__3",
+                  "object_id": "261 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "26 0 R"
+                },
+                {
+                  "name": "3.1__Horizontal Rack Mount__H",
+                  "object_id": "262 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "29 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "265 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "32 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "268 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "28 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "264 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "31 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "267 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "27 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "263 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "266 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "269 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "35 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "271 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "34 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "270 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7052c.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "4.0_____DWG",
+            "object_id": "17 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "19 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "4.0_____DWG",
+            "object_id": "105 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "106 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "107 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "108 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "94 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "95 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "10 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "98 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "101 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "97 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "100 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "96 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "11 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "99 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "102 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "103 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7053c.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "7.0_____DWG",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "30 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "7.0_____DWG",
+            "object_id": "212 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "213 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "214 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "215 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "216 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "217 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "218 0 R"
+          },
+          {
+            "name": "7.0_____DWG",
+            "object_id": "392 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "393 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "394 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "395 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "396 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "397 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "398 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "197 0 R"
+                },
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "377 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__4U. Up to Two IO Boards__2",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "4.1__4U. Up to Two IO Boards__2",
+                  "object_id": "200 0 R"
+                },
+                {
+                  "name": "4.1__4U. Up to One IO Board__2",
+                  "object_id": "380 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "4.2__4U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__3",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "4.2__4U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__3",
+                  "object_id": "199 0 R"
+                },
+                {
+                  "name": "4.2__4U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__3",
+                  "object_id": "379 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "17 0 R"
+                },
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "201 0 R"
+                },
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "381 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "18 0 R"
+                },
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "202 0 R"
+                },
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "382 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "205 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "385 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "208 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "388 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "20 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "204 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "384 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "23 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "207 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "387 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "19 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "203 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "383 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "22 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "206 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "386 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "25 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "209 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "389 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "27 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "211 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "391 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "26 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "210 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "390 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7054c.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "8.0_____DWG",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "7.0____[IO BOARD POSITION C FOR 5U CHASSIS]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "8.0_____DWG",
+            "object_id": "277 0 R"
+          },
+          {
+            "name": "7.0____[IO BOARD POSITION C FOR 5U CHASSIS]",
+            "object_id": "278 0 R"
+          },
+          {
+            "name": "6.0____[IO BOARD POSITION B FOR 4U or 5U CHASSIS]",
+            "object_id": "279 0 R"
+          },
+          {
+            "name": "5.0____[AUX T/C COMBINED CHASSIS & IO POSITION B]",
+            "object_id": "280 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS OPTION]",
+            "object_id": "281 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "282 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "283 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "284 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_7": {
+            "options": {
+              "0": [
+                {
+                  "name": "7.1__Empty IO Board Position__0",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "7.1__Empty IO Board Position__0",
+                  "object_id": "254 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "6.1__Empty IO Board Position__0",
+                  "object_id": "262 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "6": [
+                {
+                  "name": "4.1__5U. Up to Two IO Boards__6",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "4.1__5U. Up to Two IO Boards__6",
+                  "object_id": "265 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__5U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__7",
+                  "object_id": "23 0 R"
+                },
+                {
+                  "name": "4.2__5U. Front Panel w/ (24) Target LEDs. (12) Op Ctrl buttons. & Tri-Color LEDs__7",
+                  "object_id": "264 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "25 0 R"
+                },
+                {
+                  "name": "3.2__Vertical Panel Mount__4",
+                  "object_id": "266 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "26 0 R"
+                },
+                {
+                  "name": "3.1__Vertical Rack Mount__V",
+                  "object_id": "267 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "29 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "270 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "32 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "273 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "28 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "269 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "31 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "272 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "27 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "268 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "271 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "2.1__None__X",
+                  "object_id": "274 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "35 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block__1",
+                  "object_id": "276 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "34 0 R"
+                },
+                {
+                  "name": "1.2__Connectorized Relay__2",
+                  "object_id": "275 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7208.C.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "44 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "61 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7209.D.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "6.0_____[IO BOARD POSITION D]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "66 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "69 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100 Base-FX Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "62 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7211.C.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "62 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "53 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100 Base-FX Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "55 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7212.D.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "6.0_____[IO BOARD POSITION D]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "66 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "69 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100 Base-FX Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "62 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7285.B.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "51 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard and (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "33 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.2__1__Screw Terminal (SV Publisher)",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.3__2__Connectorized (SV Publisher)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "1.4__T__Time-Domain Link (TiDL with SFPs)",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None (SV Subscriber)",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7286.B.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "51 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard and (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "33 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.2__1__Screw Terminal (SV Publisher)",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.3__2__Connectorized (SV Publisher)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "1.4__T__Time-Domain Link (TiDL with SFPs)",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None (SV Subscriber)",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7000d.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            138.8,
+            654,
+            1603.5,
+            1171.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1852.5,
+            711.8,
+            3132.8,
+            1107.8
+          ]
+        }
+      },
+      "i7001d.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            130.23,
+            521.14,
+            1614.93,
+            1176.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1852.5,
+            586.5,
+            3132.8,
+            1107.8
+          ]
+        }
+      },
+      "i7002d.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            134.8,
+            402,
+            1610.36,
+            1170.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1852.5,
+            459.8,
+            3132.8,
+            1107.8
+          ]
+        }
+      },
+      "i7052c.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1426.07,
+            53.29,
+            1954.2,
+            1521.37
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2268.64,
+            145.9,
+            2664.07,
+            1419.04
+          ]
+        }
+      },
+      "i7053c.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1298.07,
+            51,
+            1954.2,
+            1523.86
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2267.43,
+            144.46,
+            2793.14,
+            1422.17
+          ]
+        }
+      },
+      "i7054c.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1176.93,
+            51,
+            1949.63,
+            1521.57
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2263.71,
+            142.64,
+            2921.37,
+            1427.37
+          ]
+        }
+      },
+      "i7208.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.7,
+            540.6,
+            1675.3,
+            1310
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1924.2,
+            600.6,
+            3205,
+            1248.5
+          ]
+        }
+      },
+      "i7209.D.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.7,
+            413.9,
+            1675.3,
+            1309.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1924.2,
+            474.7,
+            3205,
+            1248.5
+          ]
+        }
+      },
+      "i7211.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            558.7,
+            129.7,
+            1328.1,
+            1593.4
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2240.7,
+            221.2,
+            2888.6,
+            1502
+          ]
+        }
+      },
+      "i7212.D.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            495.7,
+            129,
+            1391,
+            1593.4
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2178.4,
+            221.2,
+            2951.6,
+            1501.2
+          ]
+        }
+      },
+      "i7285.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            132,
+            653.2,
+            1596,
+            1296.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1951.5,
+            714,
+            3232.5,
+            1235.2
+          ]
+        }
+      },
+      "i7286.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            611.2,
+            174,
+            1254.8,
+            1638
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2400,
+            265.5,
+            2922,
+            1545.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "421",
+    "product": "SEL-421-7 Line Protection, Automation, and Control System (with Sampled Values or TiDL Technology)",
+    "length": 25,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0421",
+      "description": "SEL-421 Protection, Automation, and Control System"
+    },
+    "note": "25-digit MOT string for the SEL-421-7 (WI-13777, the Sampled Values / TiDL variant — the only current SEL-421 ordering-information doc). Positions 6, 15, 16, 18, 20, 22 are anchored by the SEL-421-7 master drawing layers (i7208/i7209/i7211/i7212 family, groups GROUP_1..GROUP_6). Positions 8, 11, 12, 13, 24, 25 are fixed template digits. Because this is the SV/TiDL doc, positions 6/7/9/14 carry SV-subscriber (X) and TiDL (R/T) codes in addition to the standard screw/connectorized publisher codes. A separate older SEL-421 (21-digit, prefix 0421...) and SEL-421-7-early families exist in the drawings but have no standalone ordering-information doc.",
+    "references": [
+      "SEL-421-7 Ordering Information (WI-13777, 20231221) — SEL-421-7 With Sampled Values or TiDL Technology",
+      "SEL-421-7 master configuration drawings i7208.C/i7209.D/i7211.C/i7212.D (drawing layers GROUP_1..GROUP_6)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0421711X3200XD6H5210XXXXX",
+        "note": "From SEL-421-7 master drawing i7208.C configuration example: Screw Terminal, 1 A current, 300 V + conformal coat, 24-48 Vdc PS, DNP3+IEC61850+SV Publication, four 10/100Base-T, horizontal rack mount, 5U chassis, Board B = 8 opto/13 Form A/2 Form C @ 24 Vdc, Board C empty. Trailing X's are legitimate not-applicable fillers."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed at 7 for the SEL-421-7.",
+        "options": {
+          "7": "Standard 421 Protection plus Sub-cycle Elements, Series Compensation Logic, and Full Automation"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "group": "GROUP_1",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "1": "Screw Terminal (Sampled Values Publisher)",
+          "2": "Connectorized (Sampled Values Publisher)",
+          "X": "None (Sampled Values Subscriber — voltages/currents received via Ethernet)",
+          "R": "Time-Domain Link (TiDL)",
+          "T": "Time-Domain Link (TiDL) With SFPs"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "secondary_current_inputs",
+        "label": "Secondary Current Inputs",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A (Sampled Values Publisher)",
+          "5": "5 A (Sampled Values Publisher)",
+          "X": "None",
+          "R": "Time-Domain Link (TiDL)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "fixed_8",
+        "label": "Fixed template digit",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed 'X' in the MOT template.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "secondary_voltage_conformal",
+        "label": "Secondary Voltage Inputs and Conformal Coat",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "options": {
+          "1": "None, with conformally coated circuit boards",
+          "3": "300 V Phase-Neutral, with conformally coated circuit boards (Sampled Values Publisher)",
+          "X": "None"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "options": {
+          "2": "24-48 Vdc",
+          "4": "48-125 Vdc or 110-120 Vac",
+          "6": "125-250 Vdc or 110-240 Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "fixed_11",
+        "label": "Fixed template digit",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed '0' in the MOT template.",
+        "options": {
+          "0": "Fixed digit"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "fixed_12",
+        "label": "Fixed template digit",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed '0' in the MOT template.",
+        "options": {
+          "0": "Fixed digit"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "fixed_13",
+        "label": "Fixed template digit",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed 'X' in the MOT template.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "ethernet_protocols",
+        "label": "Ethernet Communications Protocols",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Also encodes the Sampled Values role: E = SV Subscriber (no analog board), B/C/D = SV Publisher.",
+        "options": {
+          "B": "FTP, Telnet, Synchrophasors, and DNP3",
+          "C": "FTP, Telnet, Synchrophasors, DNP3, and IEC 61850",
+          "D": "FTP, Telnet, Synchrophasors, DNP3, and IEC 61850 With Sampled Values Publication",
+          "E": "FTP, Telnet, Synchrophasors, DNP3, and IEC 61850 with Sampled Values Subscription"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "ethernet_connection",
+        "label": "Ethernet Connection Options",
+        "group": "GROUP_2",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "6": "Four 10/100BASE-T Connectors",
+          "7": "Four 100BASE-FX Connectors",
+          "8": "Two 10/100BASE-T and Two 100BASE-FX Connectors",
+          "9": "Two 100/1000BASE and Three 100BASE SFP Ports (order SFP transceivers separately)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_3",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "4": "Vertical Panel Mount",
+          "H": "Horizontal Rack Mount",
+          "V": "Vertical Rack Mount"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "chassis",
+        "label": "Chassis",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Determines how many I/O boards are populated: 4U=Board B only; 5U=Boards B,C; 6U=Boards B,C,D. Unpopulated board positions are 'X'.",
+        "options": {
+          "4": "4U, One I/O Board",
+          "5": "5U, Up to Two I/O Boards",
+          "6": "6U, Up to Three I/O Boards"
+        }
+      },
+      {
+        "position": 18,
+        "length": 2,
+        "field": "io_board_b",
+        "label": "I/O Board Position B (card type | input voltage)",
+        "group": "GROUP_4",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = board card type (drawing anchor position 18), second digit = digital input voltage. Board present per Chassis (position 17): B always, C on 5U/6U, D on 6U; unused positions are 'X'.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty I/O board position",
+              "2": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) Standard Form A, (2) Standard Form C Outputs",
+              "4": "(24) Optoisolated Level-Sensitive Inputs, (2) Standard and (6) High-Speed High-Current Interrupting Form A Outputs",
+              "7": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) High-Current Interrupting Form A, (2) Standard Form C Outputs",
+              "8": "(8) Optoisolated Independent Level-Sensitive Inputs, (8) High-Speed High-Current Interrupting Form A Outputs",
+              "X": "Not applicable (board not present for this chassis)",
+              "D": "(24) Optoisolated Level-Sensitive Inputs, (8) Standard Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None / not applicable"
+            }
+          }
+        ]
+      },
+      {
+        "position": 20,
+        "length": 2,
+        "field": "io_board_c",
+        "label": "I/O Board Position C (card type | input voltage)",
+        "group": "GROUP_5",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = board card type (drawing anchor position 20), second digit = digital input voltage. Board present per Chassis (position 17): B always, C on 5U/6U, D on 6U; unused positions are 'X'.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty I/O board position",
+              "2": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) Standard Form A, (2) Standard Form C Outputs",
+              "4": "(24) Optoisolated Level-Sensitive Inputs, (2) Standard and (6) High-Speed High-Current Interrupting Form A Outputs",
+              "7": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) High-Current Interrupting Form A, (2) Standard Form C Outputs",
+              "8": "(8) Optoisolated Independent Level-Sensitive Inputs, (8) High-Speed High-Current Interrupting Form A Outputs",
+              "X": "Not applicable (board not present for this chassis)",
+              "D": "(24) Optoisolated Level-Sensitive Inputs, (8) Standard Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None / not applicable"
+            }
+          }
+        ]
+      },
+      {
+        "position": 22,
+        "length": 2,
+        "field": "io_board_d",
+        "label": "I/O Board Position D (card type | input voltage)",
+        "group": "GROUP_6",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = board card type (drawing anchor position 22), second digit = digital input voltage. Board present per Chassis (position 17): B always, C on 5U/6U, D on 6U; unused positions are 'X'.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty I/O board position",
+              "2": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) Standard Form A, (2) Standard Form C Outputs",
+              "4": "(24) Optoisolated Level-Sensitive Inputs, (2) Standard and (6) High-Speed High-Current Interrupting Form A Outputs",
+              "7": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) High-Current Interrupting Form A, (2) Standard Form C Outputs",
+              "8": "(8) Optoisolated Independent Level-Sensitive Inputs, (8) High-Speed High-Current Interrupting Form A Outputs",
+              "X": "Not applicable (board not present for this chassis)",
+              "D": "(24) Optoisolated Level-Sensitive Inputs, (8) Standard Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None / not applicable"
+            }
+          }
+        ]
+      },
+      {
+        "position": 24,
+        "length": 1,
+        "field": "fixed_24",
+        "label": "Fixed template digit",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed 'X' in the MOT template.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      },
+      {
+        "position": 25,
+        "length": 1,
+        "field": "fixed_25",
+        "label": "Fixed template digit",
+        "source": "SEL-421-7 Ordering Information (WI-13777, 20231221)",
+        "confidence": "high",
+        "note": "Fixed 'X' in the MOT template.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      }
+    ]
+  }
+}

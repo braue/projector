@@ -1,0 +1,122 @@
+{
+  "device": "3400",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i6318a.pdf",
+        "rear_pdf": "i6319c.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i6318a.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "0",
+            "object_id": "6 0 R"
+          }
+        ]
+      },
+      "i6319c.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "0",
+            "object_id": "6 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i6318a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            165.91,
+            589.23,
+            1554.12,
+            733.41
+          ]
+        }
+      },
+      "i6319c.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            219.16,
+            588.93,
+            1502.56,
+            733.09
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "IRIG-IN",
+        "label": "IRIG-B Inputs",
+        "transport": "timing",
+        "connector": "BNC",
+        "evidence_layer": "SEL-3400 manual: two demodulated IRIG-B BNC inputs",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Signal",
+            "value": "Demodulated IRIG-B000, IRIG-B002, or IRIG-B004"
+          }
+        ]
+      },
+      {
+        "id": "IRIG-OUT",
+        "label": "IRIG-B Outputs",
+        "transport": "timing",
+        "connector": "BNC",
+        "evidence_layer": "SEL-3400 manual: twelve demodulated IRIG-B BNC outputs",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "12"
+          },
+          {
+            "label": "Signal",
+            "value": "Demodulated IRIG-B TTL"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "3400",
+    "product": "SEL-3400 IRIG-B Distribution Module",
+    "length": null,
+    "prefix": {
+      "positions": "1-4",
+      "value": "3400",
+      "description": "SEL-3400 IRIG-B Distribution Module"
+    },
+    "note": "No configurable Model Option Table. The SEL-3400 is a fixed-catalog IRIG-B distribution module (two demodulated IRIG-B BNC inputs, twelve demodulated IRIG-B BNC outputs) with a single wide-range power supply (18-300 Vdc / 75-264 Vac, rated 24/48/125/250 Vdc, 120/230 Vac) and no per-digit ordering options. Output levels and redundant/verification behavior are set by front-panel DIP switches, not by the part number. No ordering-information document, no MOT figure in the instruction manual, and no drawing option layers exist for this device; no genuine configurable part number was found. positions is intentionally empty.",
+    "references": [
+      "SEL-3400 IRIG-B Distribution Module Instruction Manual (date code 20210806)"
+    ],
+    "positions": []
+  }
+}

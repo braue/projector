@@ -1,0 +1,331 @@
+{
+  "device": "2407",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "Mounting": [
+                  "1/2 Rack Horizontal Mount"
+                ]
+              },
+              "example_model_number": "24070000X",
+              "example_answer_string": "1-1,2-1,3-1,4-2"
+            }
+          ]
+        },
+        "front_pdf": "i3858b.pdf",
+        "rear_pdf": "i3857b.pdf"
+      },
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "Mounting": [
+                  "Panel Mount"
+                ]
+              },
+              "example_model_number": "240700003",
+              "example_answer_string": "1-1,2-1,3-1,4-4"
+            }
+          ]
+        },
+        "front_pdf": "i4723a.pdf",
+        "rear_pdf": "i3857b.pdf"
+      },
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "Mounting": [
+                  "Wall / Surface Mount"
+                ]
+              },
+              "example_model_number": "24070000W",
+              "example_answer_string": "1-1,2-1,3-1,4-3"
+            }
+          ]
+        },
+        "front_pdf": "i4724a.pdf",
+        "rear_pdf": "i3857b.pdf"
+      },
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "Mounting": [
+                  "19 in Horizontal Rack Mount With Bracket"
+                ]
+              },
+              "example_model_number": "24070010B",
+              "example_answer_string": "1-1,2-2,3-1,4-1"
+            }
+          ]
+        },
+        "front_pdf": "i4725a.pdf",
+        "rear_pdf": "i3857b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i4723a.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "6 0 R"
+          },
+          {
+            "name": "1",
+            "object_id": "7 0 R"
+          }
+        ]
+      },
+      "i4724a.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "6 0 R"
+          },
+          {
+            "name": "0",
+            "object_id": "7 0 R"
+          }
+        ]
+      },
+      "i4725a.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "6 0 R"
+          },
+          {
+            "name": "1",
+            "object_id": "7 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i3857b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            541.62,
+            572.61,
+            1186.38,
+            726.3
+          ]
+        }
+      },
+      "i3858b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            480.91,
+            572.61,
+            1248.24,
+            724.01
+          ]
+        }
+      },
+      "i4723a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            453.56,
+            520.99,
+            1275.6,
+            778.14
+          ]
+        }
+      },
+      "i4724a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            486.8,
+            567.44,
+            1245.79,
+            729.73
+          ]
+        }
+      },
+      "i4725a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            166.29,
+            571.31,
+            1565.88,
+            727.44
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "P1",
+        "label": "Rear Serial Port",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2407 manual: rear EIA-232 DB-9 serial port",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          },
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P2",
+        "label": "Optional Fiber-Optic Serial Port",
+        "transport": "serial",
+        "connector": "fiber-optic",
+        "evidence_layer": "SEL-2407 manual: optional rear SEL-2812-compatible fiber-optic serial port",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "fiber-optic serial"
+          },
+          {
+            "label": "Configuration",
+            "value": "Optional"
+          }
+        ],
+        "interface": "fiber-optic serial"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2407",
+    "product": "SEL-2407 Satellite-Synchronized Clock",
+    "length": 9,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2407",
+      "description": "SEL-2407 Satellite-Synchronized Clock"
+    },
+    "note": "9-character MOT string. Positions 5-9 are the five ordering options from the SEL Online Model Option Table (WI-4673): firmware, optional communications port, conformal coat, antenna, and mounting. The device has no option-group drawing layers, so positions are calibrated against the online MOT and eight real part numbers; all real numbers decode cleanly and the mounting codes match the master-drawing metadata (24070000X=1/2 rack, 240700003=panel, 24070000W=wall, 24070010B/24070011B/24070003B=19in rack with bracket). Power supply is universal (18-300 Vdc, 85-264 Vac) and is not a part-number option.",
+    "references": [
+      "SEL-2407 Online Model Option Table (WI-4673, 20160304)",
+      "SEL-2407 Satellite-Synchronized Clock Instruction Manual (2407_IM_20250228)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "24070000X",
+        "note": "Standard fw, no fiber port, no conformal coat, no antenna, 1/2 rack horizontal mount (master-drawing metadata example)"
+      },
+      {
+        "part_number": "240700003",
+        "note": "Standard config, panel mount (metadata example)"
+      },
+      {
+        "part_number": "24070000W",
+        "note": "Standard config, wall/surface mount (metadata example)"
+      },
+      {
+        "part_number": "24070010B",
+        "note": "Conformal-coated boards, 19in rack mount with bracket (metadata example)"
+      },
+      {
+        "part_number": "240700013",
+        "note": "SEL-9524A antenna included, panel mount (distributor 2407#0102, popular model)"
+      },
+      {
+        "part_number": "240700033",
+        "note": "Complete antenna installation kit, panel mount (distributor 2407#0202)"
+      },
+      {
+        "part_number": "24070011B",
+        "note": "Conformal coat + SEL-9524A antenna, 19in rack with bracket (distributor 2407#N7H2)"
+      },
+      {
+        "part_number": "24070003B",
+        "note": "Complete antenna installation kit, 19in rack with bracket (distributor 2407#0201)"
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-2407 Online Model Option Table (WI-4673)",
+        "confidence": "high",
+        "note": "Fixed digit; only Standard is offered.",
+        "options": {
+          "0": "Standard"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "optional_communications_port",
+        "label": "Optional Communications Port",
+        "source": "SEL-2407 Online Model Option Table (WI-4673)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "A": "850 nm fiber-optic port (SEL-2812 compatible)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-2407 Online Model Option Table (WI-4673)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "Conformal-coated circuit boards"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "antenna",
+        "label": "Antenna",
+        "source": "SEL-2407 Online Model Option Table (WI-4673)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "SEL-9524A GPS/GNSS antenna, 50 ohm, with 75 ft (23 m) of cable (C965-75)",
+          "3": "Complete antenna installation kit (SEL-9524A antenna, SEL-C961-050 50 ft LMR-400 cable, gas-tube coaxial surge protector and mounting kit 915900139, SEL-C961-025 25 ft LMR-400 cable, antenna pipe-mounting kit 915900043)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-2407 Online Model Option Table (WI-4673)",
+        "confidence": "high",
+        "options": {
+          "3": "Panel mount",
+          "B": "19 in horizontal rack mount with bracket (bracket on right side in front view)",
+          "X": "1/2 rack horizontal mount",
+          "W": "Wall / surface mount"
+        }
+      }
+    ]
+  }
+}

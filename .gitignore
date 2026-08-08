@@ -4,6 +4,10 @@ node_modules/
 # downloaded exports and workspace state (recreated at runtime)
 backend/data/
 
+# SEL master drawing PDFs — SEL's copyrighted works, never redistributed from
+# here. Drop them beside their model's metadata.json to enable drawings.
+backend/resources/selDevices/*/*.pdf
+
 # build output
 frontend/dist/
 

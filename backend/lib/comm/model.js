@@ -1,4 +1,4 @@
-// CommModel — the normalization boundary at the heart of gridlink.
+// CommModel — the normalization boundary at the heart of purview.
 //
 // Every source type (RTAC project, RDB relay profile, SCD IED) reduces to one
 // DeviceProfile via an extractor in lib/comm/extract/. The linker and the

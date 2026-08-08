@@ -1,0 +1,547 @@
+{
+  "device": "651RA",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7167a.pdf",
+        "rear_pdf": "i7167a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7167a.pdf": {
+        "always": [
+          {
+            "name": "3.0_____DWG",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "2.0____[COMMUNICATIONS INTERFACE]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "1.0____[EXTRA INPUTS-OUTPUTS]",
+            "object_id": "37 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_2": {
+            "options": {
+              "L": [
+                {
+                  "name": "2.4__L__(1) 10-100Base-T. (1) 100Base-FX",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "2.3__F__(2) 100Base-FX. EIA-485",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.2__E__(2) 10-100Base-T. EIA-485",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "2.1__D__(1) 100Base-FX. EIA-485",
+                  "object_id": "33 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "X": [
+                {
+                  "name": "1.1__X__None",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "1.2__A__(2) 125 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.2__A__(2) 125 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.2__A__(2) 125 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "1.2__A__(2) 125 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "35 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7167a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1278,
+            62,
+            2141,
+            1473
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2466,
+            62,
+            2945,
+            1473
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[DEF]$",
+            "transport": "serial",
+            "connector": "5-pin Euro",
+            "evidence_layer": "EIA-485 serial Port 1 option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^D$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "single 100Base-FX Ethernet Port 5 option"
+          },
+          {
+            "match": "^E$",
+            "transport": "ethernet",
+            "connector": "dual RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5A/5B option"
+          },
+          {
+            "match": "^F$",
+            "transport": "ethernet",
+            "connector": "dual LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5A/5B option"
+          },
+          {
+            "match": "^L$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5A/5B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^E$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5A option"
+          },
+          {
+            "match": "^F$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5A option"
+          },
+          {
+            "match": "^L$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5A option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^E$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5B option"
+          },
+          {
+            "match": "^F$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5B option"
+          },
+          {
+            "match": "^L$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5B option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "651RA",
+    "product": "SEL-651RA Recloser Control (Traditional Retrofit, 14-pin)",
+    "length": 24,
+    "prefix": {
+      "positions": "1-6",
+      "value": "0651RA",
+      "description": "SEL-651RA Traditional Retrofit (14-pin) Recloser Control (leading catalog 0)"
+    },
+    "note": "24-character MOT string as stored in the RDB (PARTNO=0651RA01XAA8AE2A311XXXXX, with the leading catalog 0). Positions 8, 13, 16 are fixed digits (constant '1','A','A' across all observed part numbers and the doc header template). Drawing layers only cover Extra Inputs/Outputs (GROUP_1) and Communications Interface (GROUP_2); their layer source.position values (8 and 10) are OFFSET from this stored-PN index by +4 (real positions 12 and 14) because the drawing indexes a truncated part-number origin - positions here are calibrated to the real stored part numbers, which are authoritative. Extra I/O option codes 8/B/C are not enumerated in WI-12760 (which lists only X and A) but are taken from the sibling SEL-651R-2 WI-9861 MOT; code 8 is used by real 651RA part numbers.",
+    "references": [
+      "SEL-651RA Ordering Information (WI-12760, 20250604)",
+      "SEL-651R-2 Ordering Information (WI-9861) - fuller Extra Inputs/Outputs option list (codes 8, B, C)",
+      "SEL-651RA master configuration drawing i7167a (drawing layers GROUP_1, GROUP_2)",
+      "SEL-651RA Instruction Manual (651RA_IM_20240516) - source of real PARTNO strings"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0651RA01XAA8AE2A311XXXXX",
+        "note": "Real PARTNO from 651RA IM: std fw, uncoated, (6) 300 Vac VY+VZ, 1 A/0.2 A current, Extra I/O (7)12Vdc/(8)StdOut, (2) 10/100BaseT EIA-485, Std+IEC 61850, Config Labels+Tri-Color LEDs, painted Al, 12 V/16 Ahr battery, no accessories"
+      },
+      {
+        "part_number": "0651RA01XAAAAF1A111XXXXX",
+        "note": "Real PARTNO from 651RA IM: as above but Extra I/O (2)125Vdc/(5)12Vdc, (2) 100BaseFX EIA-485, Standard protocol, User Interface code 1 (Tri-Color LEDs, no configurable labels - inferred)"
+      },
+      {
+        "part_number": "0651RA01XAG8AE2A311XXXXX",
+        "note": "Real PARTNO from 651RA IM: as first but Secondary Input Current G (with High-Impedance Fault Detection)"
+      }
+    ],
+    "positions": [
+      {
+        "position": 7,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "note": "Only one firmware option is offered; effectively a fixed digit.",
+        "options": {
+          "0": "Standard"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "reserved_base_digit",
+        "label": "Reserved (base model digit)",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "note": "Fixed digit '1' in the '0651RA01' header template and in every observed part number.",
+        "options": {
+          "1": "Fixed"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "1": "Conformally Coated Circuit Boards"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_input_voltage",
+        "label": "Secondary Input Voltage",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "1": "(1) 300 Vac Max Input (V1Y only)",
+          "A": "(6) 300 Vac Max Inputs (Both VY and VZ)",
+          "B": "(3) 8 Vac Max LEA Inputs (VY) and (3) 300 Vac Max Inputs (VZ)",
+          "C": "(3) 8 Vac Max LEA Inputs (VY) and (3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VZ)",
+          "D": "(3) Kyle Nova LEA Inputs (VY) and (3) 300 Vac Max Inputs (VZ)",
+          "E": "(3) Kyle Nova LEA Inputs (VY) and (3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VZ)",
+          "F": "(3) 300 Vac Max Inputs (VY) and (3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VZ)",
+          "G": "(6) 8 Vac Max LEA Inputs (Both VY and VZ)"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "A": "1 A Phase, 0.2 A Neutral",
+          "G": "1 A Phase, 0.2 A Neutral With High-Impedance Fault Detection"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "extra_inputs_outputs",
+        "label": "Extra Inputs/Outputs",
+        "group": "GROUP_1",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_1 (source.position 8) maps this field; the layer index is offset from this stored-PN position 12. Codes 8/B/C come from the sibling SEL-651R-2 WI-9861 MOT (WI-12760 lists only X and A); real 651RA part numbers use code 8.",
+        "options": {
+          "X": "None",
+          "8": "(7) 12 Vdc Inputs / (8) Standard Outputs",
+          "A": "(2) 125 Vdc and (5) 12 Vdc Inputs / (8) Standard Outputs",
+          "B": "(2) 48 Vdc and (5) 12 Vdc Inputs / (8) Standard Outputs",
+          "C": "(2) 220 Vdc and (5) 12 Vdc Inputs / (8) Standard Outputs"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "fixed_digit_13",
+        "label": "Fixed digit",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "note": "Constant 'A' in the header template and every observed part number (mandatory hardware).",
+        "options": {
+          "A": "Fixed"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "communications_interface",
+        "label": "Communications Interface",
+        "group": "GROUP_2",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_2 (source.position 10) maps this field; the layer index is offset from this stored-PN position 14 (real part numbers are authoritative).",
+        "options": {
+          "D": "(1) 100BASE-FX, EIA-485",
+          "E": "(2) 10/100BASE-T, EIA-485",
+          "F": "(2) 100BASE-FX, EIA-485",
+          "L": "(1) 10/100BASE-T, (1) 100BASE-FX"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard",
+          "2": "Standard Plus IEC 61850"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "fixed_digit_16",
+        "label": "Fixed digit",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "note": "Constant 'A' in the header template and every observed part number (mandatory hardware).",
+        "options": {
+          "A": "Fixed"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "user_interface",
+        "label": "User Interface",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "low",
+        "note": "WI-12760 enumerates only 2 and 3. Codes 0 and 1 are inferred from the standard SEL-651 labels/Tri-Color-LED bit pattern; real part number 0651RA01XAAAAF1A111XXXXX uses code 1.",
+        "options": {
+          "0": "No Configurable Labels (inferred)",
+          "1": "Tri-Color LEDs, No Configurable Labels (inferred)",
+          "2": "Configurable Labels",
+          "3": "Configurable Labels and Tri-Color LEDs"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "enclosure",
+        "label": "Enclosure",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "1": "Painted Aluminum",
+          "2": "Painted Aluminum With Standard Outlet",
+          "3": "Painted Aluminum With GFCI Outlet"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "battery_option",
+        "label": "Battery Option",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "1": "12 V, 16 Ahr",
+          "2": "12 V, 40 Ahr"
+        }
+      },
+      {
+        "position": 20,
+        "length": 1,
+        "field": "accessory_infrastructure",
+        "label": "Accessory Infrastructure",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "1": "Accessory Mounting Kit w/ 12 V Aux TB",
+          "2": "Fuse Block for Field Wiring",
+          "3": "TB Wired to I/O",
+          "4": "100 W Heater",
+          "A": "Accessory Mounting Kit w/ 12 V Aux TB and Fuse Block for Field Wiring",
+          "B": "Fuse Block for Field Wiring and TB Wired to I/O",
+          "C": "Accessory Mounting Kit w/ 12 V Aux TB and 100 W Heater",
+          "D": "Fuse Block for Field Wiring and 100 W Heater",
+          "E": "Accessory Mounting Kit w/ 12 V Aux TB, Fuse Block for Field Wiring and 100 W Heater",
+          "F": "Fuse Block for Field Wiring, TB Wired to I/O and 100 W Heater"
+        }
+      },
+      {
+        "position": 21,
+        "length": 1,
+        "field": "lv_close_and_voltage_connectors",
+        "label": "LV Close and Secondary Input Voltage Connectors",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "1": "Low-Voltage Close Connector (2-Pin Female)",
+          "2": "8-Pin Connector for Voltage Inputs (MS5015 Size 22)",
+          "3": "8-Pin Connector for LEA Voltage Inputs (MS26482 Size 12)",
+          "4": "4-Pin Connector for LEA Inputs (MS5015 Size 22)",
+          "A": "LV Close Connector + 8-Pin Connector for Voltage Inputs (MS5015 Size 22)",
+          "B": "LV Close Connector + 8-Pin Connector for LEA Voltage Inputs (MS26482 Size 12)",
+          "C": "LV Close Connector + 4-Pin Connector for LEA Inputs (MS5015 Size 22)",
+          "D": "8-Pin Connector for Voltage Inputs (MS5015 Size 22) + 8-Pin Connector for LEA Voltage Inputs (MS26482 Size 12)",
+          "E": "8-Pin Connector for Voltage Inputs (MS5015 Size 22) + 4-Pin Connector for LEA Inputs (MS5015 Size 22)",
+          "F": "LV Close Connector + 8-Pin Connector for Voltage Inputs (MS5015 Size 22) + 8-Pin Connector for LEA Voltage Inputs (MS26482 Size 12)",
+          "G": "LV Close Connector + 8-Pin Connector for Voltage Inputs (MS5015 Size 22) + 4-Pin Connector for LEA Inputs (MS5015 Size 22)"
+        }
+      },
+      {
+        "position": 22,
+        "length": 2,
+        "field": "accessories",
+        "label": "Accessories (2-digit)",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "note": "Two-digit field selecting installed power connectors and mounted accessories (SEL-2401 clock, SEL-3031 radio, SEL-3061 router).",
+        "options": {
+          "XX": "None",
+          "10": "2-Pin Male Connector for Incoming Power (MS5015 Size 22)",
+          "11": "3-Pin Male Connector for Incoming Power (MS5015 Size 22)",
+          "13": "SEL-2401 Satellite Synchronized Clock (24010XXX0)",
+          "15": "SEL-3031 Serial Radio (30310B013XX)",
+          "17": "SEL-3061 Cellular Router (3061#J7P0)",
+          "A0": "2-Pin Male Connector for Incoming Power + SEL-2401 Satellite Synchronized Clock",
+          "A2": "2-Pin Male Connector for Incoming Power + SEL-3031 Serial Radio",
+          "A3": "3-Pin Male Connector for Incoming Power + SEL-2401 Satellite Synchronized Clock",
+          "A5": "3-Pin Male Connector for Incoming Power + SEL-3031 Serial Radio",
+          "A7": "SEL-2401 Satellite Synchronized Clock + SEL-3031 Serial Radio",
+          "A8": "2-Pin Male Connector for Incoming Power + SEL-2401 Satellite Synchronized Clock + SEL-3031 Serial Radio"
+        }
+      },
+      {
+        "position": 24,
+        "length": 1,
+        "field": "bundled_accessories",
+        "label": "Bundled Accessories",
+        "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
+        "confidence": "high",
+        "note": "Shipped in box with the SEL-651RA but not installed in the enclosure.",
+        "options": {
+          "X": "None",
+          "1": "Security Sleeve (2\" Diameter)",
+          "2": "Two Security Sleeves (2\" Diameter)",
+          "3": "Three Security Sleeves (2\" Diameter)",
+          "4": "Four Security Sleeves (2\" Diameter)",
+          "5": "Five Security Sleeves (2\" Diameter)",
+          "A": "Retrofit Mounting Adapter",
+          "B": "Retrofit Mounting Adapter and Security Sleeve (2\" diameter)",
+          "C": "Retrofit Mounting Adapter and Two Security Sleeves (2\" diameter)",
+          "D": "Retrofit Mounting Adapter and Three Security Sleeves (2\" diameter)",
+          "E": "Retrofit Mounting Adapter and Four Security Sleeves (2\" diameter)",
+          "F": "Retrofit Mounting Adapter and Five Security Sleeves (2\" diameter)"
+        }
+      }
+    ]
+  }
+}

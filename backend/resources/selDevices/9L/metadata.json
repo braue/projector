@@ -1,0 +1,29 @@
+{
+  "device": "9L",
+  "model_to_drawings": {
+    "front_and_rear": []
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {}
+  },
+  "part_number": {
+    "model": "9L",
+    "product": "SEL-9L Line Relay",
+    "length": null,
+    "prefix": {
+      "positions": "1-2",
+      "value": "9L",
+      "description": "SEL-9L Line Relay (SEL 9 Series relay platform)"
+    },
+    "note": "No configurable per-digit Model Option Table is published for the SEL-9L. It is the first relay in the new SEL 9 Series platform; the only available document is a preliminary data sheet, which describes feature-based / preconfigured 'Popular Models' ordering rather than a legacy fixed-column part number. No genuine part numbers were found in the data sheet, instruction manuals, or RDB uploads to calibrate positions against. Emit no decodable positions until an SEL-9L Ordering Information (Model Option Table) document is published.",
+    "references": [
+      "SEL-9L Line Relay Data Sheet (9L_DS_20250829.pdf, Date Code 20260514, Preliminary Copy--Subject to Change)"
+    ],
+    "positions": []
+  }
+}

@@ -1,0 +1,5109 @@
+{
+  "device": "451",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1H1XXXXXX"
+          ]
+        },
+        "front_pdf": "i7014c.pdf",
+        "rear_pdf": "i7014c.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1V1XXXXXX"
+          ]
+        },
+        "front_pdf": "i7061c.pdf",
+        "rear_pdf": "i7061c.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "H",
+            "3"
+          ],
+          "position_17": [
+            "4"
+          ]
+        },
+        "front_pdf": "i7301.B.pdf",
+        "rear_pdf": "i7301.B.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "H",
+            "3"
+          ],
+          "position_17": [
+            "5"
+          ]
+        },
+        "front_pdf": "i7302.C.pdf",
+        "rear_pdf": "i7302.C.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "H",
+            "3"
+          ],
+          "position_17": [
+            "6"
+          ]
+        },
+        "front_pdf": "i7303.B.pdf",
+        "rear_pdf": "i7303.B.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "V",
+            "4"
+          ],
+          "position_17": [
+            "4"
+          ]
+        },
+        "front_pdf": "i7304.B.pdf",
+        "rear_pdf": "i7304.B.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "V",
+            "4"
+          ],
+          "position_17": [
+            "5"
+          ]
+        },
+        "front_pdf": "i7305.C.pdf",
+        "rear_pdf": "i7305.C.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "V",
+            "4"
+          ],
+          "position_17": [
+            "6"
+          ]
+        },
+        "front_pdf": "i7306.B.pdf",
+        "rear_pdf": "i7306.B.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1H60X0XXX"
+          ]
+        },
+        "front_pdf": "i7311.A.pdf",
+        "rear_pdf": "i7311.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1H70X0XXX"
+          ]
+        },
+        "front_pdf": "i7312.A.pdf",
+        "rear_pdf": "i7312.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1V60X0XXX"
+          ]
+        },
+        "front_pdf": "i7313.A.pdf",
+        "rear_pdf": "i7313.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1V70X0XXX"
+          ]
+        },
+        "front_pdf": "i7314.A.pdf",
+        "rear_pdf": "i7314.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1H20XXXXX"
+          ]
+        },
+        "front_pdf": "i7315.A.pdf",
+        "rear_pdf": "i7315.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1H30XXXXX"
+          ]
+        },
+        "front_pdf": "i7316.A.pdf",
+        "rear_pdf": "i7316.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1V20XXXXX"
+          ]
+        },
+        "front_pdf": "i7317.A.pdf",
+        "rear_pdf": "i7317.A.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "04515211XXXX1V30XXXXX"
+          ]
+        },
+        "front_pdf": "i7318.A.pdf",
+        "rear_pdf": "i7318.A.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7014c.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "6.0____DWG",
+            "object_id": "22 0 R"
+          },
+          {
+            "name": "5.0____[FRONT OVERLAY]",
+            "object_id": "23 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "24 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "25 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "27 0 R"
+          },
+          {
+            "name": "MECH",
+            "object_id": "121 0 R"
+          },
+          {
+            "name": "6.0____DWG",
+            "object_id": "138 0 R"
+          },
+          {
+            "name": "5.0____[FRONT OVERLAY]",
+            "object_id": "139 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "140 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "141 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION]",
+            "object_id": "142 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "143 0 R"
+          },
+          {
+            "name": "6.0____DWG",
+            "object_id": "252 0 R"
+          },
+          {
+            "name": "5.0____[FRONT OVERLAY]",
+            "object_id": "253 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "254 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "255 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION]",
+            "object_id": "256 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "257 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "1": [
+                {
+                  "name": "5.2__Bay Control Front Overlay__1",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "5.2__Bay Control Front Overlay__1",
+                  "object_id": "122 0 R"
+                },
+                {
+                  "name": "5.2__Bay Control Front Overlay__1",
+                  "object_id": "236 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.1__Standard Front Overlay__X",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "5.1__Standard Front Overlay__X",
+                  "object_id": "123 0 R"
+                },
+                {
+                  "name": "5.1__Standard Front Overlay__X",
+                  "object_id": "237 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "1": [
+                {
+                  "name": "4.1__3U Standard IO__1",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "4.1__3U Standard IO__1",
+                  "object_id": "124 0 R"
+                },
+                {
+                  "name": "4.1__3U Standard IO__1",
+                  "object_id": "238 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__Horizontal Panel__3",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "3.2__Horizontal Panel__3",
+                  "object_id": "125 0 R"
+                },
+                {
+                  "name": "3.2__Horizontal Panel__3",
+                  "object_id": "239 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__Horizontal Rack__H",
+                  "object_id": "10 0 R"
+                },
+                {
+                  "name": "3.1__Horizontal Rack__H",
+                  "object_id": "126 0 R"
+                },
+                {
+                  "name": "3.1__Horizontal Rack__H",
+                  "object_id": "240 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "129 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "243 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "132 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "246 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "128 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "242 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "131 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "245 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "11 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "127 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "241 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "130 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "244 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__No Ethernet__X",
+                  "object_id": "17 0 R"
+                },
+                {
+                  "name": "2.1__No Ethernet__X",
+                  "object_id": "133 0 R"
+                },
+                {
+                  "name": "2.1__No Ethernet__X",
+                  "object_id": "247 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "2 & 1": [
+                {
+                  "name": "1.4__Connectorized Relay & Euro Conn w LEA Inputs__2 & 1",
+                  "object_id": "18 0 R"
+                },
+                {
+                  "name": "1.4__Connectorized Relay & Euro Conn w LEA Inputs__2 & 1",
+                  "object_id": "134 0 R"
+                },
+                {
+                  "name": "1.4__Connectorized Relay & Euro Conn w LEA Inputs__2 & 1",
+                  "object_id": "248 0 R"
+                }
+              ],
+              "2 & X": [
+                {
+                  "name": "1.3__Connectorized Relay & 300V Phase__2 & X",
+                  "object_id": "19 0 R"
+                },
+                {
+                  "name": "1.3__Connectorized Relay & 300V Phase__2 & X",
+                  "object_id": "135 0 R"
+                },
+                {
+                  "name": "1.3__Connectorized Relay & 300V Phase__2 & X",
+                  "object_id": "249 0 R"
+                }
+              ],
+              "1 & 1": [
+                {
+                  "name": "1.2__Screw Terminal Block & Euro Conn w LEA Inputs__1 & 1",
+                  "object_id": "20 0 R"
+                },
+                {
+                  "name": "1.2__Screw Terminal Block & Euro Conn w LEA Inputs__1 & 1",
+                  "object_id": "136 0 R"
+                },
+                {
+                  "name": "1.2__Screw Terminal Block & Euro Conn w LEA Inputs__1 & 1",
+                  "object_id": "250 0 R"
+                }
+              ],
+              "1 & X": [
+                {
+                  "name": "1.1__Screw Terminal Block & 300V Phase__1 & X",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block & 300V Phase__1 & X",
+                  "object_id": "137 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block & 300V Phase__1 & X",
+                  "object_id": "251 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": " & "
+            }
+          }
+        }
+      },
+      "i7061c.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "6.0____DWG",
+            "object_id": "22 0 R"
+          },
+          {
+            "name": "5.0____[FRONT OVERLAY]",
+            "object_id": "23 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "24 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "25 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "27 0 R"
+          },
+          {
+            "name": "6.0____DWG",
+            "object_id": "139 0 R"
+          },
+          {
+            "name": "5.0____[FRONT OVERLAY]",
+            "object_id": "140 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "141 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "142 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION]",
+            "object_id": "143 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "144 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "1": [
+                {
+                  "name": "5.2__Bay Control Front Overlay__1",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "5.2__Bay Control Front Overlay__1",
+                  "object_id": "123 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.1__Standard Front Overlay__X",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "5.1__Standard Front Overlay__X",
+                  "object_id": "124 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "1": [
+                {
+                  "name": "4.1__3U Standard IO__1",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "4.1__3U Standard IO__1",
+                  "object_id": "125 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__Vertical Panel__4",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "3.2__Vertical Panel__4",
+                  "object_id": "126 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__Vertical Rack__V",
+                  "object_id": "10 0 R"
+                },
+                {
+                  "name": "3.1__Vertical Rack__V",
+                  "object_id": "127 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "2.5__Ports 5C & 5D: (2) 10-100BASE-T Connectors__0",
+                  "object_id": "130 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "2.2__Ports 5A & 5B w/ PTP: (2) 10-100BASE-T Connectors__1",
+                  "object_id": "133 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "2.6__Ports 5C & 5D: (2) 100BASE-FX Connectors__2",
+                  "object_id": "129 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "2.3__Ports 5A & 5B w/ PTP: (2) 100BASE-FX Connectors__3",
+                  "object_id": "132 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "11 0 R"
+                },
+                {
+                  "name": "2.7__Ports 5C & 5D: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__4",
+                  "object_id": "128 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "2.4__Ports 5A & 5B w/ PTP: (1) 10-100BASE-T & (1) 100BASE-FX Connectors__5",
+                  "object_id": "131 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__No Ethernet__X",
+                  "object_id": "17 0 R"
+                },
+                {
+                  "name": "2.1__No Ethernet__X",
+                  "object_id": "134 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "2 & 1": [
+                {
+                  "name": "1.4__Connectorized Relay & Euro Conn w LEA Inputs__2 & 1",
+                  "object_id": "18 0 R"
+                },
+                {
+                  "name": "1.4__Connectorized Relay & Euro Conn w LEA Inputs__2 & 1",
+                  "object_id": "135 0 R"
+                }
+              ],
+              "2 & X": [
+                {
+                  "name": "1.3__Connectorized Relay & 300V Phase__2 & X",
+                  "object_id": "19 0 R"
+                },
+                {
+                  "name": "1.3__Connectorized Relay & 300V Phase__2 & X",
+                  "object_id": "136 0 R"
+                }
+              ],
+              "1 & 1": [
+                {
+                  "name": "1.2__Screw Terminal Block & Euro Conn w LEA Inputs__1 & 1",
+                  "object_id": "20 0 R"
+                },
+                {
+                  "name": "1.2__Screw Terminal Block & Euro Conn w LEA Inputs__1 & 1",
+                  "object_id": "137 0 R"
+                }
+              ],
+              "1 & X": [
+                {
+                  "name": "1.1__Screw Terminal Block & 300V Phase__1 & X",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "1.1__Screw Terminal Block & 300V Phase__1 & X",
+                  "object_id": "138 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": " & "
+            }
+          }
+        }
+      },
+      "i7301.B.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "51 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.3__1__Screw Terminal (SV Publisher)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.4__2__Connectorized (SV Publisher)",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "1.2__T__Time-Domain Link (TiDL with SFPs)",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None (SV Subscriber)",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7302.C.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "55 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "59 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty IO Board Position",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "49 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal (SV Publisher)",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized (SV Publisher)",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "1.3__T__Time-Domain Link (TiDL with SFPs. Order SFP Transceivers Separately)",
+                  "object_id": "56 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7303.B.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "6.0_____[IO BOARD POSITION D]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "64 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "67 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty IO Board Position",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "6.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty IO Board Position",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "58 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal (SV Publisher)",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized (SV Publisher)",
+                  "object_id": "65 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7304.B.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "15 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "23 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "28 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "17 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "19 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.3__1__Screw Terminal (SV Publisher)",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.4__2__Connectorized (SV Publisher)",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "1.2__T__Time-Domain Link (TiDL with SFPs)",
+                  "object_id": "26 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None (SV Subscriber)",
+                  "object_id": "27 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7305.C.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "48 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "60 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty IO Board Position",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal (SV Publisher)",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized (SV Publisher)",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "1.3__T__Time-Domain Link (TiDL with SFPs. Order SFP Transceivers Separately)",
+                  "object_id": "57 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7306.B.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "6.0_____[IO BOARD POSITION D]",
+            "object_id": "16 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "23 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "40 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty IO Board Position",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "6.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty IO Board Position",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "26 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(18) Common Inputs. (6) Independent Inputs. (8) Standard Form A Outputs",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "27 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "31 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "33 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal (SV Publisher)",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized (SV Publisher)",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7311.A.pdf": {
+        "always": [
+          {
+            "name": "7.00_____[DWG]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "6.00_____[FRONT OVERLAY]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "5.00_____[IO BOARD POSITION C]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "57 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "70 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "6.02__1__Bay Control",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "6.01__X__Standard",
+                  "object_id": "35 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_C": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.01__0__Empty",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "5.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "5.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.02__3__Horizontal Panel Mount",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.01__H__Horizontal Rack Mount",
+                  "object_id": "56 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "64 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "69 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7312.A.pdf": {
+        "always": [
+          {
+            "name": "7.00_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "6.00_____[FRONT OVERLAY]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.00_____[IO BOARD POSITION C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "57 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "68 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "73 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "6.02__1__Bay Control",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "6.01__X__Standard",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_C": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.01__0__Empty",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "5.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "5.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.10__B__Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.09__A__Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.02__3__Horizontal Panel Mount",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.01__H__Horizontal Rack Mount",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "72 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7313.A.pdf": {
+        "always": [
+          {
+            "name": "7.00_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "6.00_____[FRONT OVERLAY]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.00_____[IO BOARD POSITION C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "57 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "68 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "73 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "6.02__1__Bay Control",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "6.01__X__Standard",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_C": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.01__0__Empty",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "5.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "5.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.10__B__Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.09__A__Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.02__4__Vertical Panel Mount",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.01__V__Vertical Rack Mount",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "72 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7314.A.pdf": {
+        "always": [
+          {
+            "name": "7.00_____[DWG]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "6.00_____[FRONT OVERLAY]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "5.00_____[IO BOARD POSITION C]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "63 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "66 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "74 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "79 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "6.02__1__Bay Control",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "6.01__X__Standard",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_C": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.01__0__Empty",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "5.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "5.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.10__B__Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.09__A__Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.02__4__Vertical Panel Mount",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.01__V__Vertical Rack Mount",
+                  "object_id": "65 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "73 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "75 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "76 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "78 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7315.A.pdf": {
+        "always": [
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "5.00_____[FRONT OVERLAY]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "57 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "62 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "5.02__1__Bay Control",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.01__X__Standard",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.02__3__Horizontal Panel Mount",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.01__H__Horizontal Rack Mount",
+                  "object_id": "48 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "56 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "61 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7316.A.pdf": {
+        "always": [
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "5.00_____[FRONT OVERLAY]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "65 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "5.02__1__Bay Control",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.01__X__Standard",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.10__B__Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.09__A__Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.02__3__Horizontal Panel Mount",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.01__H__Horizontal Rack Mount",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "64 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7317.A.pdf": {
+        "always": [
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "5.00_____[FRONT OVERLAY]",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "48 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "64 0 R"
+          },
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "5.00_____[FRONT OVERLAY]",
+            "object_id": "68 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "77 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "80 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "88 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "93 0 R"
+          },
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "94 0 R"
+          },
+          {
+            "name": "5.00_____[FRONT OVERLAY]",
+            "object_id": "97 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "106 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "109 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "117 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "122 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "5.02__1__Bay Control",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "5.02__1__Bay Control",
+                  "object_id": "66 0 R"
+                },
+                {
+                  "name": "5.02__1__Bay Control",
+                  "object_id": "95 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.01__X__Standard",
+                  "object_id": "38 0 R"
+                },
+                {
+                  "name": "5.01__X__Standard",
+                  "object_id": "67 0 R"
+                },
+                {
+                  "name": "5.01__X__Standard",
+                  "object_id": "96 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "76 0 R"
+                },
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "75 0 R"
+                },
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "74 0 R"
+                },
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "73 0 R"
+                },
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "102 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "43 0 R"
+                },
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "72 0 R"
+                },
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "101 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "42 0 R"
+                },
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "71 0 R"
+                },
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "100 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "70 0 R"
+                },
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "99 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "69 0 R"
+                },
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "98 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.02__4__Vertical Panel Mount",
+                  "object_id": "49 0 R"
+                },
+                {
+                  "name": "3.02__4__Vertical Panel Mount",
+                  "object_id": "78 0 R"
+                },
+                {
+                  "name": "3.02__4__Vertical Panel Mount",
+                  "object_id": "107 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.01__V__Vertical Rack Mount",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "3.01__V__Vertical Rack Mount",
+                  "object_id": "79 0 R"
+                },
+                {
+                  "name": "3.01__V__Vertical Rack Mount",
+                  "object_id": "108 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "54 0 R"
+                },
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "83 0 R"
+                },
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "112 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "57 0 R"
+                },
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "86 0 R"
+                },
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "115 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "53 0 R"
+                },
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "82 0 R"
+                },
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "111 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "56 0 R"
+                },
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "85 0 R"
+                },
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "114 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "52 0 R"
+                },
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "81 0 R"
+                },
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "110 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "55 0 R"
+                },
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "84 0 R"
+                },
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "113 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "87 0 R"
+                },
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "116 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "60 0 R"
+                },
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "89 0 R"
+                },
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "118 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "61 0 R"
+                },
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "90 0 R"
+                },
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "119 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "62 0 R"
+                },
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "91 0 R"
+                },
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "120 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "63 0 R"
+                },
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "92 0 R"
+                },
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "121 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      },
+      "i7318.A.pdf": {
+        "always": [
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "5.00_____[FRONT OVERLAY]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD POSITION B]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "3.00_____[MOUNTING]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "2.00_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "1.00_____[CONNECTOR TYPE & SECONDARY INPUT VOLTAGE]",
+            "object_id": "65 0 R"
+          }
+        ],
+        "by_option_group": {
+          "FRONT_OVERLAY": {
+            "options": {
+              "1": [
+                {
+                  "name": "5.02__1__Bay Control",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.01__X__Standard",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "IO_BOARD_POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.01__0__Empty",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "4.02__1__(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.04__4__(24) Optoisolated Level-Sensitive Inputs. (8) Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.05__5__(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.06__6__(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.07__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.08__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.10__B__Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.09__A__Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.02__4__Vertical Panel Mount",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.01__V__Vertical Rack Mount",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "ETHERNET_CONNECTION_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.05__0__Ports 5C. 5D - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.02__1__Ports 5A. 5B with PTP - Ethernet Card With (2) 10-100Base-T Connectors",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.06__2__Ports 5C. 5D - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.03__3__Ports 5A. 5B with PTP - Ethernet Card With (2) 100Base-FX Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.07__4__Ports 5C. 5D - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.04__5__Ports 5A. 5B with PTP - Ethernet Card With (1) 10-100Base-T. (1) 100Base-FX Connector",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__X__None",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
+            "options": {
+              "2-1": [
+                {
+                  "name": "1.04__2-1__Connectorized Relay (Harness Configured Separately) with Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "1-1": [
+                {
+                  "name": "1.03__1-1__Screw-Terminal Block with Euro Connector with IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "2-X": [
+                {
+                  "name": "1.02__2-X__Connectorized Relay (Harness Configured Separately) with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "1-X": [
+                {
+                  "name": "1.01__1-X__Screw-Terminal Block with 300 V Phase - Neutral Maximum (Wye)",
+                  "object_id": "64 0 R"
+                }
+              ]
+            },
+            "source": {
+              "parts": [
+                {
+                  "position": 6
+                },
+                {
+                  "position": 8
+                }
+              ],
+              "separator": "-"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7014c.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            129.43,
+            654,
+            1603.5,
+            1175
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1852.5,
+            717,
+            3133.5,
+            1113
+          ]
+        }
+      },
+      "i7061c.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1410.07,
+            63,
+            1940.49,
+            1536.77
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2254.57,
+            160.93,
+            2652,
+            1442.36
+          ]
+        }
+      },
+      "i7301.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            213,
+            696,
+            1677,
+            1338.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1926.8,
+            756,
+            3207,
+            1278
+          ]
+        }
+      },
+      "i7302.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            213,
+            571.4,
+            1676.8,
+            1340.7
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1926.5,
+            632.9,
+            3206.5,
+            1280
+          ]
+        }
+      },
+      "i7303.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            213,
+            443.2,
+            1677,
+            1338.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1926.8,
+            504,
+            3207,
+            1278
+          ]
+        }
+      },
+      "i7304.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            750,
+            159,
+            1392.8,
+            1623
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2098.5,
+            250.5,
+            2620.5,
+            1531.5
+          ]
+        }
+      },
+      "i7305.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            692.2,
+            161.2,
+            1460.8,
+            1625.7
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2167.2,
+            253.5,
+            2814.4,
+            1533.5
+          ]
+        }
+      },
+      "i7306.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            497.2,
+            159,
+            1392.8,
+            1623
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2098.5,
+            250.5,
+            2872.5,
+            1531.5
+          ]
+        }
+      },
+      "i7311.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.8,
+            672,
+            1675.5,
+            1441.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1902,
+            730.5,
+            3183,
+            1377.8
+          ]
+        }
+      },
+      "i7312.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.8,
+            672,
+            1674.8,
+            1441.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1902,
+            730.5,
+            3182.2,
+            1377.8
+          ]
+        }
+      },
+      "i7313.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            844.5,
+            106.5,
+            1614,
+            1571.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1929,
+            196.5,
+            2576.2,
+            1476.8
+          ]
+        }
+      },
+      "i7314.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            845.9,
+            109.5,
+            1616,
+            1573.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1930.2,
+            198.7,
+            2578.1,
+            1479.5
+          ]
+        }
+      },
+      "i7315.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.7,
+            798.6,
+            1675.3,
+            1442
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1901.7,
+            857.1,
+            3182.5,
+            1379
+          ]
+        }
+      },
+      "i7316.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            211.5,
+            796.3,
+            1675.3,
+            1440.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1902.5,
+            855.6,
+            3182.5,
+            1376.7
+          ]
+        }
+      },
+      "i7317.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            972.6,
+            109.5,
+            1616,
+            1573.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1930.2,
+            198.7,
+            2452.1,
+            1479.5
+          ]
+        }
+      },
+      "i7318.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            972.6,
+            109.5,
+            1616,
+            1573.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1930.2,
+            198.7,
+            2452.1,
+            1479.5
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "ETHERNET_CONNECTION_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "ETHERNET_CONNECTION_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "ETHERNET_CONNECTION_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "ETHERNET_CONNECTION_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "ETHERNET_CONNECTION_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "451",
+    "product": "SEL-451-6 Protection, Automation, and Bay Control System (Sampled Values / TiDL, 8U-capable chassis)",
+    "length": 25,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0451",
+      "description": "SEL-451 Protection, Automation, and Bay Control System; position 5 selects the sub-model/firmware (6 = SEL-451-6)"
+    },
+    "note": "25-digit Model Option Table for the SEL-451-6 (long/8U-capable string decoded by WI-15509). Positions 6 (connector type), 15 (Ethernet connection), 16 (mounting) and the I/O board slots at 18/20/22 are anchored by the 8U configuration drawings (i7301-i7306); the remaining positions come from WI-15509 and were confirmed against the instruction-manual VER sample part number. Positions 11-13 (00X) and 24-25 (XX) are fixed/reserved template digits. This is distinct from the shorter 3U SEL-451/-5 string (drawings i7014c/i7061c) whose digit meanings differ.",
+    "references": [
+      "SEL-451-6 With Sampled Values or TiDL Technology Ordering Information (WI-15509, 20231221)",
+      "SEL-451-5 With 8U Chassis Ordering Information (WI-13119, 20190731) - shared I/O board / voltage tables",
+      "SEL-451 8U master configuration drawings i7301.B-i7306.B (drawing layers: connector, Ethernet, mounting, I/O board positions B/C/D)",
+      "SEL-400 Series Instruction Manual, VER command sample (Part Number: 04516XX0X600XE9H4C4XXXXXX)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "04516XX0X600XE9H4C4XXXXXX",
+        "note": "SEL-451-6 VER sample from the SEL-400 Series instruction manual (fixed digits genuine; X = wildcard/unspecified). Decodes: 125-250 V PS, Ethernet protocol E (IEC 61850 + SV subscription), Ethernet option 9 (SFP), Horizontal Rack, 4U one I/O board, I/O board B = C (24 opto inputs / 8 outputs) @ 125 Vdc. VER confirms Ethernet Config 9 (SFP ports), IEC 61850, Board 1 = 24 in/8 out."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "note": "Fixed for the SEL-451-6.",
+        "options": {
+          "6": "Standard firmware (SEL-451-6)"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "group": "GROUP_1",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "X/R/T per WI-15509; codes 1 and 2 (SV Publisher) come from the configuration drawings (i7301-i7306 GROUP_1).",
+        "options": {
+          "1": "Screw Terminal Block (SV Publisher)",
+          "2": "Connectorized Relay (SV Publisher)",
+          "X": "None (SV Subscriber - receives voltages/currents via Ethernet; no analog input boards)",
+          "R": "Time-Domain Link (TiDL)",
+          "T": "Time-Domain Link (TiDL with SFPs; order SFP transceivers separately)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "reserved_connector",
+        "label": "Connector Type (second digit)",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "low",
+        "note": "Always X in WI-15509 (SV Subscriber / TiDL). SV Publisher configurations may carry secondary-input current/voltage information here that is not covered by WI-15509.",
+        "options": {
+          "X": "Not used / reserved"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "high_impedance_fault_detection",
+        "label": "High-Impedance Fault Detection",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "options": {
+          "0": "Standard Fault Detection",
+          "A": "High-Impedance Fault Detection"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "options": {
+          "1": "Conformally Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "options": {
+          "2": "24-48 Vdc",
+          "4": "48-125 Vdc / 110-120 Vac",
+          "6": "125-250 Vdc / 110-240 Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 3,
+        "field": "reserved_mid",
+        "label": "Reserved",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "note": "Fixed/reserved template digits.",
+        "options": {
+          "00X": "Reserved (fixed digits)"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "ethernet_communications_protocol",
+        "label": "Ethernet Communications Protocol",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "options": {
+          "B": "FTP, Telnet, Synchrophasors, and DNP3",
+          "C": "FTP, Telnet, Synchrophasors, DNP3, and IEC 61850",
+          "E": "FTP, Telnet, Synchrophasors, DNP3, and IEC 61850 with Sampled Values Subscription"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "ethernet_connection_options",
+        "label": "Ethernet Connection Options",
+        "group": "GROUP_2",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "6": "(4) 10/100BASE-T Connectors",
+          "7": "(4) 100BASE-FX Connectors",
+          "8": "(2) 10/100BASE-T and (2) 100BASE-FX Connectors",
+          "9": "(2) 100/1000BASE and (3) 100BASE SFP Ports (order SFP transceivers separately)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_3",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "4": "Vertical Panel Mount",
+          "H": "Horizontal Rack Mount",
+          "V": "Vertical Rack Mount"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "chassis",
+        "label": "Chassis / Number of I/O Boards",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "low",
+        "note": "Only 4 (4U, one I/O board) is confirmed by WI-15509 and the real part number. Codes 5 and 6 (larger 5U/8U enclosures enabling I/O board positions C and D) are inferred from the 8U configuration drawings (i7302/i7303) and example strings.",
+        "options": {
+          "4": "4U, One I/O Board (Position B)",
+          "5": "5U, Two I/O Boards (Positions B, C)",
+          "6": "8U, Three I/O Boards (Positions B, C, D)"
+        }
+      },
+      {
+        "position": 18,
+        "length": 2,
+        "field": "io_board_position_b",
+        "label": "I/O Board Position B (card | input voltage)",
+        "group": "GROUP_4",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = I/O board card, second digit = input voltage (X = user-settable for independent-input boards).",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "I/O board card",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) Standard Form A, (2) Standard Form C Outputs",
+              "4": "(18) Common Inputs, (6) Independent Inputs, (6) High-Speed High-Current Interrupting Form A Outputs, (2) Standard Form A Outputs",
+              "7": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) High-Current Interrupting Form A, (2) Standard Form C Outputs",
+              "8": "(8) Optoisolated Independent Level-Sensitive Inputs, (8) High-Speed High-Current Interrupting Form A Outputs",
+              "C": "(24) Optoisolated Level-Sensitive Inputs, (8) Outputs",
+              "D": "(18) Common Inputs, (6) Independent Inputs, (8) Standard Form A Outputs",
+              "X": "None / position not present in this chassis"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "0": "None",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "User-settable pickup voltage (independent-input boards) or not applicable"
+            }
+          }
+        ]
+      },
+      {
+        "position": 20,
+        "length": 2,
+        "field": "io_board_position_c",
+        "label": "I/O Board Position C (card | input voltage)",
+        "group": "GROUP_5",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "Present only on 5U/8U chassis; X when the position does not exist. First digit = card, second = input voltage.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "I/O board card",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) Standard Form A, (2) Standard Form C Outputs",
+              "4": "(18) Common Inputs, (6) Independent Inputs, (6) High-Speed High-Current Interrupting Form A Outputs, (2) Standard Form A Outputs",
+              "7": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) High-Current Interrupting Form A, (2) Standard Form C Outputs",
+              "8": "(8) Optoisolated Independent Level-Sensitive Inputs, (8) High-Speed High-Current Interrupting Form A Outputs",
+              "C": "(24) Optoisolated Level-Sensitive Inputs, (8) Outputs",
+              "D": "(18) Common Inputs, (6) Independent Inputs, (8) Standard Form A Outputs",
+              "X": "None / position not present in this chassis"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "0": "None",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "User-settable pickup voltage (independent-input boards) or not applicable"
+            }
+          }
+        ]
+      },
+      {
+        "position": 22,
+        "length": 2,
+        "field": "io_board_position_d",
+        "label": "I/O Board Position D (card | input voltage)",
+        "group": "GROUP_6",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)+pdf-layers",
+        "confidence": "high",
+        "note": "Present only on 8U chassis; X when the position does not exist. First digit = card, second = input voltage.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "I/O board card",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) Standard Form A, (2) Standard Form C Outputs",
+              "4": "(18) Common Inputs, (6) Independent Inputs, (6) High-Speed High-Current Interrupting Form A Outputs, (2) Standard Form A Outputs",
+              "7": "(8) Optoisolated Independent Level-Sensitive Inputs, (13) High-Current Interrupting Form A, (2) Standard Form C Outputs",
+              "8": "(8) Optoisolated Independent Level-Sensitive Inputs, (8) High-Speed High-Current Interrupting Form A Outputs",
+              "C": "(24) Optoisolated Level-Sensitive Inputs, (8) Outputs",
+              "D": "(18) Common Inputs, (6) Independent Inputs, (8) Standard Form A Outputs",
+              "X": "None / position not present in this chassis"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "0": "None",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "User-settable pickup voltage (independent-input boards) or not applicable"
+            }
+          }
+        ]
+      },
+      {
+        "position": 24,
+        "length": 2,
+        "field": "reserved_tail",
+        "label": "Reserved",
+        "source": "SEL-451-6 Ordering Information (WI-15509, 20231221)",
+        "confidence": "high",
+        "note": "Fixed/reserved trailing template digits.",
+        "options": {
+          "XX": "Reserved (fixed digits)"
+        }
+      }
+    ]
+  }
+}

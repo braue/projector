@@ -1,0 +1,183 @@
+{
+  "device": "501",
+  "model_to_drawings": {
+    "front_and_rear": []
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {}
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "rear serial Port 1 ordered as EIA-232 or EIA-485"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "front EIA-232 serial Port F"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "501",
+    "product": "SEL-501 Dual Overcurrent Relay (Connectorized)",
+    "length": 14,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0501",
+      "description": "SEL-501 Dual Overcurrent Relay (model digits, ordered as 0-5-0-1)"
+    },
+    "note": "14-character Model Option Table from WI-1022, the SEL-501-0/-2 Connectorized (plug-in connector) ordering doc. Position 6 is the fixed connectorized designator 'W' (the improved plug-in connector design; the older Connectorized design was 'J'). Position 5 selects firmware/application settings and distinguishes the SEL-501-0 (code 0) from the SEL-501-2 (code 2). The 'Secondary Input Current; Frequency; Phase Rotation' section is split across three non-adjacent columns: current (8) and frequency (9) are adjacent, while phase rotation (13) is a trailing character after the packaging/protocol columns. No full real part number was available; positions are anchored to the WI-1022 MOT figure (this device has no drawing layers).",
+    "references": [
+      "SEL-501-0, -2 Connectorized Ordering Information (WI-1022, 20210702)",
+      "SEL-501/SEL-501-1 Instruction Manual (501-0-1_IM_20250131) - partial part numbers 0501xW / 0501xJ"
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware / Application Settings",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "note": "Code 0 = SEL-501-0, code 2 = SEL-501-2.",
+        "options": {
+          "0": "Standard with all application setting options",
+          "2": "OC1 application setting option only"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "connectorized_design",
+        "label": "Connectorized Design Designator",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "note": "Fixed digit for this ordering doc. 'W' = improved plug-in connector (Connectorized) design; the earlier Connectorized design used 'J'.",
+        "options": {
+          "W": "Connectorized (plug-in connectors, improved connector design)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "3": "48/125 Vdc or 125 Vac",
+          "6": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "secondary_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "note": "First digit of the Secondary Input Current; Frequency; Phase Rotation section.",
+        "options": {
+          "1": "1 A phase (nominal)",
+          "5": "5 A phase (nominal)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "frequency",
+        "label": "Frequency",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "options": {
+          "5": "50 Hz",
+          "6": "60 Hz"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "comm_port",
+        "label": "Communications Port (Port 1)",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "note": "EIA-485 is for special applications only; SEL recommends EIA-232. EIA-485 units ship with a C675 terminal adapter (DB-9 to 8-pin screw terminal).",
+        "options": {
+          "1": "EIA-232",
+          "2": "EIA-485"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "packaging",
+        "label": "Packaging",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "options": {
+          "X": "Horizontal rack mount",
+          "P": "Part of two-relay rack mount package",
+          "B": "Single relay assembled with rack mount bracket 9100 (bracket on right side in front view)",
+          "C": "Single relay with rack mount bracket 9102 w/cutout for test switch (bracket on right side in front view)",
+          "3": "Horizontal panel mount",
+          "5": "Horizontal projection panel mount"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "options": {
+          "X": "Standard",
+          "2": "Standard plus Modbus"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "phase_rotation",
+        "label": "Phase Rotation",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "note": "Trailing character of the Secondary Input Current; Frequency; Phase Rotation section.",
+        "options": {
+          "B": "ABC",
+          "C": "ACB"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-501 Ordering Information (WI-1022, 20210702)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc (level sensitive inputs)",
+          "3": "110 Vdc (level sensitive inputs)",
+          "4": "125 Vdc (level sensitive inputs)",
+          "6": "250 Vdc (level sensitive inputs)"
+        }
+      }
+    ]
+  }
+}

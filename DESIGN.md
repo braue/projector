@@ -1,4 +1,4 @@
-# gridlink — design document
+# purview — design document
 
 *Working title. A settings-truth communications canvas for substation devices.*
 
@@ -213,7 +213,7 @@ fixtures needed before building — user will supply examples.
 
 ## Open questions for the user
 
-- Name: gridlink? commscape? something else?
+- ~~Name: gridlink? commscape? something else?~~ Settled: **Purview** (2026-08-08).
 - RDB examples: Volture's parser handles QuickSet .rdb — confirm the files
   you'll upload are QuickSet exports (not something else).
 - SCD: waiting on example files (SEL Architect exports — .scd? .cid/.icd

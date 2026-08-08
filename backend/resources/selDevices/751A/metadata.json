@@ -1,0 +1,1052 @@
+{
+  "device": "751A",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7008.E.pdf",
+        "rear_pdf": "i7008.E.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7008.E.pdf": {
+        "always": [
+          {
+            "name": "7.00_____[DWG]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "6.00_____[SLOT E]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "5.00_____[COMBINED SLOT D__9-  &  SLOT E]",
+            "object_id": "80 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT D]",
+            "object_id": "89 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT C]",
+            "object_id": "99 0 R"
+          },
+          {
+            "name": "2.00_____[SLOT B]",
+            "object_id": "114 0 R"
+          },
+          {
+            "name": "1.00_____[USER INTERFACE]",
+            "object_id": "119 0 R"
+          }
+        ],
+        "by_option_group": {
+          "USER_INTERFACE": {
+            "source": {
+              "position": 5
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "1.01__0__No Configurable Labels",
+                  "object_id": "118 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.02__1__Reclosing. No Configurable Labels",
+                  "object_id": "117 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.03__5__Configurable Labels",
+                  "object_id": "116 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.04__6__Reclosing w Configurable Labels",
+                  "object_id": "115 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_B": {
+            "source": {
+              "parts": [
+                {
+                  "position": 16
+                },
+                {
+                  "position": 17
+                }
+              ]
+            },
+            "options": {
+              "10": [
+                {
+                  "name": "2.08__10__FO. No Eth. EIA-232",
+                  "object_id": "106 0 R"
+                }
+              ],
+              "11": [
+                {
+                  "name": "2.09__11__FO. No Eth. EIA-485",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "12": [
+                {
+                  "name": "2.10__12__FO. (1) 10-100Base-T Eth. EIA-232",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "13": [
+                {
+                  "name": "2.11__13__FO. (1) 10-100Base-T Eth. EIA-485",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "14": [
+                {
+                  "name": "2.12__14__FO. (1) 100Base-FX Eth. EIA-232",
+                  "object_id": "102 0 R"
+                }
+              ],
+              "16": [
+                {
+                  "name": "2.13__16__FO. (2) 10-100Base-T Eth. EIA-232",
+                  "object_id": "101 0 R"
+                }
+              ],
+              "18": [
+                {
+                  "name": "2.14__18__FO. (2) 100Base-FX Eth. EIA-232",
+                  "object_id": "100 0 R"
+                }
+              ],
+              "00": [
+                {
+                  "name": "2.01__00__No Eth. EIA-232",
+                  "object_id": "113 0 R"
+                }
+              ],
+              "01": [
+                {
+                  "name": "2.02__01__No Eth. EIA-485",
+                  "object_id": "112 0 R"
+                }
+              ],
+              "02": [
+                {
+                  "name": "2.03__02__(1) 10-100Base-T Eth. EIA-232",
+                  "object_id": "111 0 R"
+                }
+              ],
+              "03": [
+                {
+                  "name": "2.04__03__(1) 10-100Base-T Eth. EIA-485",
+                  "object_id": "110 0 R"
+                }
+              ],
+              "04": [
+                {
+                  "name": "2.05__04__(1) 100Base-FX Eth. EIA-232",
+                  "object_id": "109 0 R"
+                }
+              ],
+              "06": [
+                {
+                  "name": "2.06__06__(2) 10-100Base-T Eth. EIA-232",
+                  "object_id": "108 0 R"
+                }
+              ],
+              "08": [
+                {
+                  "name": "2.07__08__(2) 100Base-FX Eth. EIA-232",
+                  "object_id": "107 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_C": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "0-": [
+                {
+                  "name": "3.01__0-__NO CARD",
+                  "object_id": "98 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__(3) DI. (4) DO. (1) 4-20mA AO",
+                  "object_id": "97 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.03__1-__(4) DI. (4) DO",
+                  "object_id": "96 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI. (4) FHCI DO",
+                  "object_id": "95 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "3.05__5-__(8) AI",
+                  "object_id": "94 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.06__6-__(4) AI. (4) AO",
+                  "object_id": "93 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "3.07__A-__SERIAL COMM CARD",
+                  "object_id": "92 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.08__3-__(8) DI",
+                  "object_id": "91 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.09__D-__(4) DI. (2) Form C & (1) Form B DO",
+                  "object_id": "90 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_D": {
+            "source": {
+              "position": 10
+            },
+            "options": {
+              "0-": [
+                {
+                  "name": "4.01__0-__NO CARD",
+                  "object_id": "88 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "4.02__B-__(3) DI. (4) DO. (1) 4-20mA AO",
+                  "object_id": "87 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "4.03__1-__(4) DI. (4) DO",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "4.04__C-__(4) DI. (4) FHCI DO",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "4.05__5-__(8) AI",
+                  "object_id": "84 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "4.06__6-__(4) AI. (4) AO",
+                  "object_id": "83 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "4.07__3-__(8) DI",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "4.08__D-__(4) DI. (2) Form C & (1) Form B DO",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "9-": []
+            }
+          },
+          "COMBINED_SLOT_D_9_AND_SLOT_E": {
+            "optional": true,
+            "source": {
+              "parts": [
+                {
+                  "position": 10
+                },
+                {
+                  "position": 12,
+                  "length": 2
+                }
+              ]
+            },
+            "options": {
+              "971": [
+                {
+                  "name": "5.07__9- 71__(10) RTD & (3) AVI",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "972": [
+                {
+                  "name": "5.08__9- 72__(10) RTD & (5) AVI w Monitoring Pkg",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "973": [
+                {
+                  "name": "5.09__9- 73__(10) RTD & (5) AVI w ADV Metering & Protection Pkg",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "974": [
+                {
+                  "name": "5.10__9- 74__(10) RTD & (3) AVI. (4) AFDI",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "975": [
+                {
+                  "name": "5.11__9- 75__(10) RTD & (5) AVI. (1) ACI. 5 AMP Residual",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "976": [
+                {
+                  "name": "5.12__9- 76__(10) RTD & (5) AVI. (1) ACI. 1 AMP Residual",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "90X": [
+                {
+                  "name": "5.01__9- 0-__(10) RTD & NO CARD",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "9BX": [
+                {
+                  "name": "5.02__9- B-__(10) RTD & (3) DI. (4) DO. (1) 4-20mA AO",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "91X": [
+                {
+                  "name": "5.03__9- 1-__(10) RTD & (4) DI. (4) DO",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "9CX": [
+                {
+                  "name": "5.04__9- C-__(10) RTD & (4) DI. (4) FHCI DO",
+                  "object_id": "76 0 R"
+                }
+              ],
+              "95X": [
+                {
+                  "name": "5.05__9- 5-__(10) RTD & (8) AI",
+                  "object_id": "75 0 R"
+                }
+              ],
+              "96X": [
+                {
+                  "name": "5.06__9- 6-__(10) RTD & (4) AI & (4) AO",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "93X": [
+                {
+                  "name": "5.13__9- 3-__(10) RTD & (8) DI",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "9DX": [
+                {
+                  "name": "5.14__9- D-__(10) RTD & (4) DI. (2) FORM C. (1) FORM B DO",
+                  "object_id": "66 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_E": {
+            "source": {
+              "position": 12,
+              "length": 2
+            },
+            "options": {
+              "71": [
+                {
+                  "name": "6.07__71__(3) AVI",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "72": [
+                {
+                  "name": "6.08__72__(5) AVI w Monitoring Pkg",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "73": [
+                {
+                  "name": "6.09__73__(5) AVI w ADV Metering & Protection Pkg",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "74": [
+                {
+                  "name": "6.10__74__(3) AVI. (4) AFDI",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "75": [
+                {
+                  "name": "6.11__75__(5) AVI. (1) ACI. 5 AMP Residual",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "76": [
+                {
+                  "name": "6.12__76__(5) AVI. (1) ACI. 1 AMP Residual",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "6.01__0-__NO CARD",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "6.02__B-__(3) DI. (4) DO. (1) 4-20mA AO",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "6.03__1-__(4) DI. (4) DO",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "6.04__C-__(4) DI. (4) FHCI DO",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "6.05__5-__(8) AI",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "6.06__6-__(4) AI & (4) AO",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "6.13__3-__(8) DI",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "6.14__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "51 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7008.E.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            67.6,
+            90,
+            502.6,
+            663.14
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1182.12,
+            98,
+            1602.12,
+            652.86
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "options": {
+          "10": {
+            "transport": "serial",
+            "connector": "DB9",
+            "evidence_layer": "2.08__10__FO. No Eth. EIA-232"
+          },
+          "11": {
+            "transport": "serial",
+            "connector": "DB9",
+            "evidence_layer": "2.09__11__FO. No Eth. EIA-485"
+          },
+          "12": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.10__12__FO. (1) 10-100Base-T Eth. EIA-232"
+          },
+          "13": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.11__13__FO. (1) 10-100Base-T Eth. EIA-485"
+          },
+          "14": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.12__14__FO. (1) 100Base-FX Eth. EIA-232"
+          },
+          "16": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.13__16__FO. (2) 10-100Base-T Eth. EIA-232"
+          },
+          "18": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.14__18__FO. (2) 100Base-FX Eth. EIA-232"
+          },
+          "00": {
+            "transport": "serial",
+            "connector": "DB9",
+            "evidence_layer": "2.01__00__No Eth. EIA-232"
+          },
+          "01": {
+            "transport": "serial",
+            "connector": "DB9",
+            "evidence_layer": "2.02__01__No Eth. EIA-485"
+          },
+          "02": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.03__02__(1) 10-100Base-T Eth. EIA-232"
+          },
+          "03": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.04__03__(1) 10-100Base-T Eth. EIA-485"
+          },
+          "04": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.05__04__(1) 100Base-FX Eth. EIA-232"
+          },
+          "06": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.06__06__(2) 10-100Base-T Eth. EIA-232"
+          },
+          "08": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.07__08__(2) 100Base-FX Eth. EIA-232"
+          }
+        }
+      },
+      {
+        "ports": [
+          "P1A"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "options": {
+          "16": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.13__16__FO. (2) 10-100Base-T Eth. EIA-232"
+          },
+          "18": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.14__18__FO. (2) 100Base-FX Eth. EIA-232"
+          },
+          "06": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.06__06__(2) 10-100Base-T Eth. EIA-232"
+          },
+          "08": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.07__08__(2) 100Base-FX Eth. EIA-232"
+          }
+        }
+      },
+      {
+        "ports": [
+          "P1B"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "options": {
+          "16": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.13__16__FO. (2) 10-100Base-T Eth. EIA-232"
+          },
+          "18": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.14__18__FO. (2) 100Base-FX Eth. EIA-232"
+          },
+          "06": {
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "2.06__06__(2) 10-100Base-T Eth. EIA-232"
+          },
+          "08": {
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "2.07__08__(2) 100Base-FX Eth. EIA-232"
+          }
+        }
+      },
+      {
+        "ports": [
+          "P2"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "options": {
+          "10": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.08__10__FO. No Eth. EIA-232"
+          },
+          "11": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.09__11__FO. No Eth. EIA-485"
+          },
+          "12": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.10__12__FO. (1) 10-100Base-T Eth. EIA-232"
+          },
+          "13": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.11__13__FO. (1) 10-100Base-T Eth. EIA-485"
+          },
+          "14": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.12__14__FO. (1) 100Base-FX Eth. EIA-232"
+          },
+          "16": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.13__16__FO. (2) 10-100Base-T Eth. EIA-232"
+          },
+          "18": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.14__18__FO. (2) 100Base-FX Eth. EIA-232"
+          },
+          "00": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.01__00__No Eth. EIA-232"
+          },
+          "01": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.02__01__No Eth. EIA-485"
+          },
+          "02": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.03__02__(1) 10-100Base-T Eth. EIA-232"
+          },
+          "03": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.04__03__(1) 10-100Base-T Eth. EIA-485"
+          },
+          "04": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.05__04__(1) 100Base-FX Eth. EIA-232"
+          },
+          "06": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.06__06__(2) 10-100Base-T Eth. EIA-232"
+          },
+          "08": {
+            "transport": "serial",
+            "connector": "fiber-optic",
+            "evidence_layer": "2.07__08__(2) 100Base-FX Eth. EIA-232"
+          }
+        }
+      },
+      {
+        "ports": [
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "751A fixed serial port sections"
+      },
+      {
+        "ports": [
+          "P4"
+        ],
+        "source": {
+          "option_group": "SLOT_C"
+        },
+        "options": {
+          "A-": {
+            "transport": "serial",
+            "connector": "DB9 / 5-pin Euro",
+            "evidence_layer": "3.07__A-__SERIAL COMM CARD"
+          }
+        }
+      }
+    ]
+  },
+  "part_number": {
+    "model": "751A",
+    "product": "SEL-751A Feeder Protection Relay",
+    "length": 19,
+    "prefix": {
+      "positions": "1-4",
+      "value": "751A",
+      "description": "SEL-751A Feeder Protection Relay (vertical chassis)"
+    },
+    "note": "19-digit MOT string. Positions 5, 8, 10, 12-13, 16, 17 are anchored by the drawing layers; 6, 7, 14-15, 18, 19 come from the ordering information. Distinct from the SEL-751: pos 5 is firmware/labels (not language/extended-I/O), Slot B splits into processor (16) + Ethernet (17) + protocols (18), and Slot Z current input lives at 14-15.",
+    "references": [
+      "SEL-751A Ordering Information (WI-7074, 20180913)",
+      "SEL-751A master configuration drawing i7008.E (drawing layers)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "751A51ABA0X71850230",
+        "note": "Real part number from an uploaded RDB (my751a): std+labels, 110-250V PS, Slot C 3DI/4DO/1AO@125V, Slot E 3 AVI, Slot Z 5A/5A, single 10/100BaseT, Std+DNP3+IEC61850"
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware_user_interface",
+        "label": "Firmware / User Interface",
+        "group": "USER_INTERFACE",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "0": "Standard firmware, no configurable labels",
+          "1": "Standard firmware plus Reclosing, no configurable labels",
+          "5": "Standard firmware with configurable labels",
+          "6": "Standard firmware plus Reclosing with configurable labels"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "power_supply_voltage",
+        "label": "Slot A Power Supply Voltage",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)",
+        "confidence": "high",
+        "options": {
+          "1": "110-250 Vdc / 110-240 Vac, 50/60 Hz",
+          "2": "24-48 Vdc"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "slot_a_digital_input_voltage",
+        "label": "Slot A Digital Input Voltage",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)",
+        "confidence": "high",
+        "options": {
+          "A": "125 Vdc/Vac",
+          "B": "24 Vdc/Vac",
+          "C": "48 Vdc/Vac",
+          "D": "110 Vdc/Vac",
+          "G": "220 Vdc/Vac",
+          "H": "250 Vdc/Vac"
+        }
+      },
+      {
+        "position": 8,
+        "length": 2,
+        "field": "slot_c",
+        "label": "Slot C card | DI voltage",
+        "source": "ordering-information (WI-7074)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Digital input voltage. Only one 3 DI/4 DO/1 AO and one 4 AI/4 AO card per chassis.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO (Electromechanical)",
+              "3": "8 DI",
+              "5": "8 AI (±20 mA or ±10 V)",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA)",
+              "C": "4 DI / 4 DO (Fast High-Current Interrupting)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)",
+              "A": "Serial Communications (EIA-232/485)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "0": "None",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 10,
+        "length": 2,
+        "field": "slot_d",
+        "label": "Slot D card | DI voltage",
+        "source": "ordering-information (WI-7074)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Digital input voltage. 10 RTD card (9) is Slot D only.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO (Electromechanical)",
+              "3": "8 DI",
+              "5": "8 AI (±20 mA or ±10 V)",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "9": "10 RTD Input",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA)",
+              "C": "4 DI / 4 DO (Fast High-Current Interrupting)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)",
+              "A": "Serial Communications (EIA-232/485)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "0": "None",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 12,
+        "length": 2,
+        "field": "slot_e",
+        "label": "Slot E card | DI voltage / voltage variant",
+        "source": "ordering-information (WI-7074)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Digital input voltage or voltage/arc-flash variant. Card 7 = AC voltage/Vsync-Vbat/arc-flash; second digit then selects the voltage package.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO (Electromechanical)",
+              "3": "8 DI",
+              "5": "8 AI (±20 mA or ±10 V)",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "7": "AC Voltage / Vsync-Vbat / Arc-Flash card",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA)",
+              "C": "4 DI / 4 DO (Fast High-Current Interrupting)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage or voltage/arc-flash variant",
+            "options": {
+              "0": "None",
+              "1": "3 AVI, 300 Vac",
+              "2": "5 AVI, 300 Vac + Monitoring Package",
+              "3": "5 AVI, 300 Vac + Advanced Metering & Protection",
+              "4": "3 AVI / 4 AFDI, 300 Vac + Arc-Flash Detection",
+              "5": "5 AVI / 1 ACI, 5 A Residual (IG)",
+              "6": "5 AVI / 1 ACI, 1 A Residual (IG)",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 14,
+        "length": 2,
+        "field": "slot_z",
+        "label": "Slot Z current input",
+        "source": "ordering-information (WI-7074)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Phase / neutral current rating. Base-unit 4 ACI current-input card; first digit fixed at 8.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "8": "4 AC Current Input (4 ACI)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Phase / neutral current rating",
+            "options": {
+              "1": "1 A phase, 1 A neutral",
+              "2": "1 A phase, 5 A neutral",
+              "3": "1 A phase, 2.5 mA high-sense neutral",
+              "4": "1 A phase, 50 mA neutral",
+              "5": "5 A phase, 5 A neutral",
+              "6": "5 A phase, 1 A neutral",
+              "7": "5 A phase, 2.5 mA high-sense neutral",
+              "8": "5 A phase, 50 mA neutral"
+            }
+          }
+        ]
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "slot_b_processor",
+        "label": "Slot B Processor Board (CPU/COM)",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)+pdf-layers",
+        "confidence": "high",
+        "note": "Combined with position 17 this is the layer SLOT_B group.",
+        "options": {
+          "0": "EIA-232 front, IRIG-B, SEL ASCII, Modbus RTU",
+          "1": "EIA-232 front, IRIG-B, Fiber-Optic Serial Multimode ST, SEL ASCII, Modbus RTU"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "slot_b_ethernet",
+        "label": "Slot B Ethernet / Rear Serial",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "0": "No Ethernet, EIA-232 rear",
+          "1": "No Ethernet, EIA-485 rear",
+          "2": "Single 10/100Base-T Ethernet, EIA-232 rear",
+          "3": "Single 10/100Base-T Ethernet, EIA-485 rear",
+          "4": "Single 100Base-FX MM LC Ethernet, EIA-232 rear",
+          "6": "Dual 10/100Base-T Ethernet, EIA-232 rear",
+          "8": "Dual 100Base-FX MM LC Ethernet, EIA-232 rear"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "protocol",
+        "label": "Slot B Protocols",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)",
+        "confidence": "high",
+        "options": {
+          "0": "Standard",
+          "1": "Standard plus IEC 61850 (requires Ethernet)",
+          "2": "Standard plus DNP3",
+          "3": "Standard plus DNP3 plus IEC 61850 (requires Ethernet)"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-751A Ordering Information (WI-7074, 20180913)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "Conformally coated circuit boards"
+        }
+      }
+    ]
+  }
+}

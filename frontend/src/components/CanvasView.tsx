@@ -15,27 +15,18 @@ import {
 import '@xyflow/react/dist/style.css'
 
 import { fetchGraph, moveDevice, placeDevice, removeDevice } from '../api'
-import type { DeviceSource, GraphLink, LinkTier, WorkspaceGraph } from '../types'
+import { errorMessage } from '../lib/errors'
+import { TIER_COLOR, TIER_DASH } from '../lib/tiers'
+import { REF_SEPARATOR } from '../types'
+import type { DeviceSource, GraphDevice, GraphLink, WorkspaceGraph } from '../types'
+import { FloatingEdge } from './FloatingEdge'
 import { SOURCE_MIME } from './SourcesSidebar'
 
 // The canvas: boxes and colored wires, nothing else. All written detail lives
 // in the click popup. Wires are inferred server-side on every graph read —
 // the canvas never stores a link.
 
-const TIER_COLOR: Record<LinkTier, string> = {
-  confirmed: '#1a9e5c',
-  conflict: '#d63a3a',
-  probable: '#d7930a',
-  declared: '#a9adb8',
-  manual: '#4b5160',
-}
-
-const TIER_DASH: Partial<Record<LinkTier, string>> = {
-  probable: '7 5',
-  declared: '4 4',
-}
-
-type DeviceNodeData = { name: string; sub: string; error?: string; ghost?: boolean }
+type DeviceNodeData = { name: string; sub: string; ghost?: boolean }
 type DeviceNode = Node<DeviceNodeData, 'device'>
 
 function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
@@ -43,15 +34,55 @@ function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
     <div className={data.ghost ? 'canvas-node ghost' : 'canvas-node'}>
       <Handle type="target" position={Position.Left} className="node-handle" />
       <div className="nm">{data.name}</div>
-      <div className="sub">{data.error ?? data.sub}</div>
+      <div className="sub">{data.sub}</div>
       <Handle type="source" position={Position.Right} className="node-handle" />
     </div>
   )
 }
 
 const NODE_TYPES = { device: DeviceNodeView }
+const EDGE_TYPES = { floating: FloatingEdge }
 
 type PopupState = { link: GraphLink; x: number; y: number }
+type NodePopupState = { device: GraphDevice; x: number; y: number }
+
+// Which settings artifact a canvas node is built from, as one line.
+function sourceLine(source: DeviceSource): string {
+  if (source.type === 'rdb') {
+    const at = source.ref.indexOf(REF_SEPARATOR)
+    if (at > 0) {
+      return `${source.ref.slice(0, at)}.rdb · profile ${source.ref.slice(at + REF_SEPARATOR.length)}`
+    }
+  }
+  if (source.type === 'rtac') return `RTAC export · ${source.ref}`
+  return `${source.type} · ${source.ref}`
+}
+
+function NodePopup({ popup, onClose }: { popup: NodePopupState; onClose: () => void }) {
+  const { device } = popup
+  return (
+    <div className="link-popup" style={{ left: popup.x, top: popup.y }}>
+      <div className="ph">
+        <span className="t">{device.name}</span>
+        <button className="x" onClick={onClose} title="Close">✕</button>
+      </div>
+      <div className="summary">
+        {device.model ?? device.source.type.toUpperCase()}
+        {device.endpointCount !== undefined &&
+          ` · ${device.endpointCount} comm endpoint${device.endpointCount === 1 ? '' : 's'}`}
+      </div>
+      <div className="endlabel">Settings source</div>
+      <div className="endinfo">
+        <div>{sourceLine(device.source)}</div>
+      </div>
+      {device.error ? (
+        <div className="warn bad">{device.error}</div>
+      ) : (
+        <div className="endlabel">Double-click to open in Inspect</div>
+      )}
+    </div>
+  )
+}
 
 function LinkPopup({ popup, onClose }: { popup: PopupState; onClose: () => void }) {
   const { link } = popup
@@ -107,6 +138,7 @@ function CanvasInner({
   const [error, setError] = useState<string | null>(null)
   const [nodes, setNodes] = useState<DeviceNode[]>([])
   const [popup, setPopup] = useState<PopupState | null>(null)
+  const [nodePopup, setNodePopup] = useState<NodePopupState | null>(null)
   const { screenToFlowPosition } = useReactFlow()
   // Loads can overlap (StrictMode double-mount, drop + upload back to back);
   // only the latest response may write state, or React Flow can validate
@@ -129,7 +161,6 @@ function CanvasInner({
           data: {
             name: device.name,
             sub: device.error ?? `${device.model ?? device.source.type.toUpperCase()} · ${device.source.ref}`,
-            error: device.error,
           },
         })),
         ...next.ghosts.map<DeviceNode>((ghost, i) => ({
@@ -142,13 +173,14 @@ function CanvasInner({
       ])
     } catch (err) {
       if (seq !== loadSeq.current) return
-      setError(err instanceof Error ? err.message : String(err))
+      setError(errorMessage(err))
       onGraph(null)
     }
   }, [workspace, onGraph])
 
   useEffect(() => {
     setPopup(null)
+    setNodePopup(null)
     load()
   }, [load, reloadKey])
 
@@ -158,7 +190,7 @@ function CanvasInner({
         id: link.id,
         source: link.sourceDeviceId,
         target: link.targetDeviceId ?? link.targetGhostId ?? '',
-        type: 'straight',
+        type: 'floating',
         style: {
           stroke: TIER_COLOR[link.tier],
           strokeWidth: 2,
@@ -191,7 +223,7 @@ function CanvasInner({
         const source = JSON.parse(raw)
         const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
         await placeDevice(workspace, source, Math.round(position.x), Math.round(position.y)).catch(
-          (err) => setError(err instanceof Error ? err.message : String(err)),
+          (err) => setError(errorMessage(err)),
         )
         await load()
       }}
@@ -201,40 +233,71 @@ function CanvasInner({
         nodes={nodes}
         edges={edges}
         nodeTypes={NODE_TYPES}
+        edgeTypes={EDGE_TYPES}
         onNodesChange={onNodesChange}
         onNodeDragStop={(_e, node) => {
           if (!node.data.ghost) {
             moveDevice(workspace, node.id, Math.round(node.position.x), Math.round(node.position.y)).catch(() => undefined)
           }
         }}
-        onNodeClick={(_e, node) => {
+        onNodeClick={(e, node) => {
+          if (node.data.ghost) return
+          const target = e.target as HTMLElement
+          const wrap = target.closest('.canvas-wrap')?.getBoundingClientRect()
+          const nodeRect = target.closest('.react-flow__node')?.getBoundingClientRect()
+          const device = graph?.devices.find((d) => d.id === node.id)
+          if (!device || !wrap || !nodeRect) return
+          setPopup(null)
+          // Beside the node, never under the cursor — the second click of a
+          // double-click must still land on the node, not on this popup.
+          const rightOf = nodeRect.right - wrap.left + 10
+          setNodePopup({
+            device,
+            x: rightOf > wrap.width - 356
+              ? Math.max(nodeRect.left - wrap.left - 358, 8)
+              : rightOf,
+            y: Math.min(Math.max(nodeRect.top - wrap.top, 8), wrap.height - 190),
+          })
+        }}
+        onNodeDoubleClick={(_e, node) => {
           if (node.data.ghost) return
           const device = graph?.devices.find((d) => d.id === node.id)
-          if (device && !device.error) onInspect(device.source)
+          if (device && !device.error) {
+            setNodePopup(null)
+            onInspect(device.source)
+          }
         }}
         onEdgeClick={(e, edge) => {
           const wrap = (e.target as HTMLElement).closest('.canvas-wrap')?.getBoundingClientRect()
           const link = (edge.data as { link: GraphLink } | undefined)?.link
           if (!link || !wrap) return
+          setNodePopup(null)
           setPopup({
             link,
             x: Math.min(Math.max(e.clientX - wrap.left - 170, 8), wrap.width - 356),
             y: Math.min(Math.max(e.clientY - wrap.top - 30, 8), wrap.height - 300),
           })
         }}
-        onPaneClick={() => setPopup(null)}
+        onPaneClick={() => {
+          setPopup(null)
+          setNodePopup(null)
+        }}
         onNodesDelete={async (deleted) => {
-          for (const node of deleted) {
-            if (!node.data.ghost) await removeDevice(workspace, node.id).catch(() => undefined)
-          }
+          await Promise.all(
+            deleted
+              .filter((node) => !node.data.ghost)
+              .map((node) => removeDevice(workspace, node.id).catch(() => undefined)),
+          )
           await load()
         }}
         fitView={false}
+        zoomOnDoubleClick={false}
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={26} size={1.5} color="#dfe2e8" />
       </ReactFlow>
       {popup && <LinkPopup popup={popup} onClose={() => setPopup(null)} />}
+      {nodePopup && <NodePopup popup={nodePopup} onClose={() => setNodePopup(null)} />}
     </div>
   )
 }

@@ -1,0 +1,215 @@
+{
+  "device": "2664S",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7108b.pdf",
+        "rear_pdf": "i7108b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7108b.pdf": {
+        "always": [
+          {
+            "name": "2.0_____DWG",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "1.0_____[MOUNTING]",
+            "object_id": "45 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__STANDARD (WALL MOUNT)__0",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__PANEL MOUNT__1",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.3__PANEL MOUNT W/ RACK MOUNT ADAPTER PLATE__2",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "value": "0"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7108b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            2386,
+            519.2,
+            3813.2,
+            1322.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            69.2,
+            527.2,
+            1505.6,
+            1313
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "PF",
+        "label": "Front Port F Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2664S manual: Port F EIA-232 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P1A",
+        "label": "Port 1A Ethernet",
+        "transport": "ethernet",
+        "connector": "LC fiber",
+        "evidence_layer": "SEL-2664S manual: Port 1 dual 100BASE-FX Ethernet",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "100BASE-FX"
+          }
+        ]
+      },
+      {
+        "id": "P1B",
+        "label": "Port 1B Ethernet",
+        "transport": "ethernet",
+        "connector": "LC fiber",
+        "evidence_layer": "SEL-2664S manual: Port 1 dual 100BASE-FX Ethernet",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "100BASE-FX"
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "label": "Port 2 Fiber-Optic Serial",
+        "transport": "serial",
+        "connector": "ST fiber",
+        "evidence_layer": "SEL-2664S manual: Port 2 fiber-optic EIA-232 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "fiber-optic EIA-232"
+          }
+        ],
+        "interface": "fiber-optic EIA-232"
+      },
+      {
+        "id": "P3",
+        "label": "Port 3 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2664S manual: Port 3 EIA-232 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2664S",
+    "product": "SEL-2664S Stator Ground Protection Relay",
+    "length": 11,
+    "prefix": {
+      "positions": "1-5",
+      "value": "2664S",
+      "description": "SEL-2664S Stator Ground Protection Relay"
+    },
+    "note": "11-character part number. Per the WI-11267 Model Option Table only the Mounting digit (position 6) is configurable; positions 7-11 are a fixed single hardware/communications configuration ('1XX83'). Calibrated against the real part number 2664S01XX83 from the SEL-2664S Instruction Manual (PARTNO/FID). Positions are ordering-doc + real-PN derived; drawing layers were not used as anchors.",
+    "references": [
+      "SEL-2664S Ordering Information (WI-11267, 20250305)",
+      "SEL-2664S Instruction Manual (2664S_IM_20250530), PARTNO=2664S01XX83"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "2664S01XX83",
+        "note": "Real part number from the SEL-2664S Instruction Manual (FID/PARTNO). Standard wall mount, standard communications."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-2664S Ordering Information (WI-11267, 20250305)",
+        "confidence": "high",
+        "options": {
+          "0": "Standard (Wall Mount)",
+          "1": "Panel Mount",
+          "2": "Panel Mount With Rack Mount Adapter Plate"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "hardware_config",
+        "label": "Hardware Configuration (fixed)",
+        "source": "SEL-2664S Ordering Information (WI-11267, 20250305)",
+        "confidence": "high",
+        "note": "Fixed digit ('1') in the WI-11267 part-number template; not broken out into a configurable option section. Confirmed by the real part number 2664S01XX83.",
+        "options": {
+          "1": "Standard (fixed)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 4,
+        "field": "communications",
+        "label": "Communications",
+        "source": "SEL-2664S Ordering Information (WI-11267, 20250305)",
+        "confidence": "high",
+        "note": "Fixed 'Standard' communications block in the WI-11267 template (positions 8-11 = XX83): dual 100BASE-FX MM LC Ethernet, multimode ST fiber-optic serial port, 2 EIA-232 serial ports; SEL ASCII/Compressed ASCII, SEL File Transfer, Fast Meter/Operate/FAST SER, SEL Mirrored Bits, DNP3 Serial and LAN/WAN, Modbus RTU and TCP/IP, IEC 61850, SNTP/Telnet/Ping/FTP.",
+        "options": {
+          "XX83": "Standard"
+        }
+      }
+    ]
+  }
+}

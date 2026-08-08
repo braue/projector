@@ -1,0 +1,605 @@
+{
+  "device": "2740S",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7127g.pdf",
+        "rear_pdf": "i7127g.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7127g.pdf": {
+        "always": [
+          {
+            "name": "9.0_____DWG",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "8.0_____[SLOT F]",
+            "object_id": "11 0 R"
+          },
+          {
+            "name": "7.0_____[SLOT E]",
+            "object_id": "17 0 R"
+          },
+          {
+            "name": "6.0_____[SLOT D]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "5.0_____[SLOT C]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT B]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT A]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0_____[POWER SUPPLY B]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "1.0_____[POWER SUPPLY A]",
+            "object_id": "49 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "None": [
+                {
+                  "name": "8.1__None",
+                  "object_id": "10 0 R"
+                },
+                {
+                  "name": "7.1__None",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "6.1__None",
+                  "object_id": "25 0 R"
+                },
+                {
+                  "name": "5.1__None",
+                  "object_id": "31 0 R"
+                },
+                {
+                  "name": "4.1__None",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "2.1__None",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "SDN": [
+                {
+                  "name": "3.1__SDN Flow Processor",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "Flow": [
+                {
+                  "name": "3.1__SDN Flow Processor",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "Processor": [
+                {
+                  "name": "3.1__SDN Flow Processor",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "1.1__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "1.1__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "1.1__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "1.1__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "48 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "NONE"
+            }
+          },
+          "2": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "8.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "7.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "6.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "5.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "4.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "10-100-1000": [
+                {
+                  "name": "8.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "7.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "6.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "5.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "4.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "Mbps": [
+                {
+                  "name": "8.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "7.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "6.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "5.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "4.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "Copper": [
+                {
+                  "name": "8.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "7.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "6.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "5.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "4.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "Ethernet": [
+                {
+                  "name": "8.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "7.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "6.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "24 0 R"
+                },
+                {
+                  "name": "5.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "4.2__4-Port 10-100-1000 Mbps Copper Ethernet",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "None": [
+                {
+                  "name": "3.2__None",
+                  "object_id": "39 0 R"
+                },
+                {
+                  "name": "1.2__None",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "2.2__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "2.2__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "2.2__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "2.2__ 125-250 Vdc or Vac (SEL-9330A)",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          },
+          "3": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "8.3__4-Port 100Base-FX",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "7.3__4-Port 100Base-FX",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "6.3__4-Port 1000Base-SX",
+                  "object_id": "23 0 R"
+                },
+                {
+                  "name": "5.3__4-Port 100Base-FX",
+                  "object_id": "29 0 R"
+                },
+                {
+                  "name": "4.3__4-Port 100Base-FX",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "100Base-FX": [
+                {
+                  "name": "8.3__4-Port 100Base-FX",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "7.3__4-Port 100Base-FX",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "5.3__4-Port 100Base-FX",
+                  "object_id": "29 0 R"
+                },
+                {
+                  "name": "4.3__4-Port 100Base-FX",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1000Base-SX": [
+                {
+                  "name": "6.3__4-Port 1000Base-SX",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "24-48": [
+                {
+                  "name": "2.3__24-48 Vdc (SEL-9330C)",
+                  "object_id": "42 0 R"
+                },
+                {
+                  "name": "1.3__24-48 Vdc (SEL-9330C)",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "2.3__24-48 Vdc (SEL-9330C)",
+                  "object_id": "42 0 R"
+                },
+                {
+                  "name": "1.3__24-48 Vdc (SEL-9330C)",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          },
+          "4": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "8.4__4-Port 100Base-LX",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "7.4__4-Port 100Base-LX",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "6.4__4-Port 1000Base-LX",
+                  "object_id": "22 0 R"
+                },
+                {
+                  "name": "5.4__4-Port 100Base-LX",
+                  "object_id": "28 0 R"
+                },
+                {
+                  "name": "4.4__4-Port 100Base-LX",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "100Base-LX": [
+                {
+                  "name": "8.4__4-Port 100Base-LX",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "7.4__4-Port 100Base-LX",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "5.4__4-Port 100Base-LX",
+                  "object_id": "28 0 R"
+                },
+                {
+                  "name": "4.4__4-Port 100Base-LX",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "1000Base-LX": [
+                {
+                  "name": "6.4__4-Port 1000Base-LX",
+                  "object_id": "22 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          },
+          "5": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "8.5__4-Port 10Base-FL",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "7.5__4-Port 10Base-FL",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "6.5__4-Port 100Base-FX",
+                  "object_id": "21 0 R"
+                },
+                {
+                  "name": "5.5__4-Port 10Base-FL",
+                  "object_id": "27 0 R"
+                },
+                {
+                  "name": "4.5__4-Port 10Base-FL",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "10Base-FL": [
+                {
+                  "name": "8.5__4-Port 10Base-FL",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "7.5__4-Port 10Base-FL",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "5.5__4-Port 10Base-FL",
+                  "object_id": "27 0 R"
+                },
+                {
+                  "name": "4.5__4-Port 10Base-FL",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "100Base-FX": [
+                {
+                  "name": "6.5__4-Port 100Base-FX",
+                  "object_id": "21 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          },
+          "6": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "6.6__4-Port 100Base-LX",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "100Base-LX": [
+                {
+                  "name": "6.6__4-Port 100Base-LX",
+                  "object_id": "20 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          },
+          "7": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "6.7__4-Port 1000Base-EX",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "1000Base-EX": [
+                {
+                  "name": "6.7__4-Port 1000Base-EX",
+                  "object_id": "19 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          },
+          "8": {
+            "options": {
+              "4-Port": [
+                {
+                  "name": "6.8__4-Port 10Base-FL",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "10Base-FL": [
+                {
+                  "name": "6.8__4-Port 10Base-FL",
+                  "object_id": "18 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "4-PORT"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7127g.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            142,
+            1086.43,
+            1555.86,
+            1256.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1798,
+            1091,
+            3205,
+            1254
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETHF",
+        "label": "Front Ethernet Port",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2740S manual: front Ethernet port",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "id": "ETH-MODULES",
+        "label": "Ethernet Module Ports",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber / SFP",
+        "evidence_layer": "SEL-2740S manual: modular Ethernet slots B-F with four-port modules",
+        "specs": [
+          {
+            "label": "Slots",
+            "value": "B-F"
+          },
+          {
+            "label": "Maximum count",
+            "value": "20"
+          },
+          {
+            "label": "Per module",
+            "value": "4 ports"
+          },
+          {
+            "label": "Options",
+            "value": "10/100/1000BASE-T, 1000BASE-SX, 1000BASE-LX, 100BASE-FX, 100BASE-LX, 1000BASE-EX, 10BASE-FL"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2740S",
+    "product": "SEL-2740S Software-Defined Network (SDN) Switch",
+    "length": null,
+    "prefix": {
+      "positions": null,
+      "value": "SEL-2740S",
+      "description": "SEL-2740S Software-Defined Network Switch base chassis (six interface slots A-F, two power-supply slots)"
+    },
+    "note": "No per-digit configurable Model Option Table. The SEL-2740S is a build-to-suit modular chassis: it is ordered as a base chassis plus separately ordered SEL-9620-series interface modules and SEL-9330-series power supplies, so there is no digit-encoded part number to decode (positions is empty). Slot A must hold the SEL-9620-0007 alarm-contact/SDN flow-processor (coprocessor) module for the switch to operate; Ethernet modules (SEL-9620-00xx) populate Slots B-F. Interface modules from Table 3 of the instruction manual: SEL-9620-0007 (alarm contact and coprocessor, Slot A), SEL-9620-0008 (10/100/1000BASE-T RJ45), SEL-9620-0019 (100BASE-FX multimode), SEL-9620-0020 (1000BASE-LX single-mode), SEL-9620-0023 (1000BASE-SX multimode), SEL-9620-0026 (100BASE-LX10 single-mode), SEL-9620-0029 (1000BASE-EX single-mode), SEL-9620-0031 (10BASE-FL), SEL-9620-0037 (2-port 1000BASE-SX + 2-port 10/100/1000 copper), SEL-9620-0041 (2-port 1000BASE-LX + 2-port 10/100/1000 copper), SEL-9620-0044 (1-port 1000BASE-LX + 3-port 1000BASE-SX). Power supplies: SEL-9330A (110-240 Vac / 88-300 Vdc) and SEL-9330C (24-48 Vdc). Conformal-coating variants use different part numbers; an optional surface-mount kit is part number 915900533.",
+    "references": [
+      "SEL-2740S Software-Defined Network Switch Instruction Manual (2740S_IM_20240501), Table 3 Interface Modules and Power Supply section",
+      "SEL-2740S product page (selinc.com/products/2740S)"
+    ],
+    "positions": []
+  }
+}

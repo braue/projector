@@ -1,0 +1,1323 @@
+{
+  "device": "487V",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_17": [
+            "H",
+            "3"
+          ],
+          "position_18": [
+            "5"
+          ]
+        },
+        "front_pdf": "i7019a.pdf",
+        "rear_pdf": "i7019a.pdf"
+      },
+      {
+        "when": {
+          "position_17": [
+            "V",
+            "4"
+          ],
+          "position_18": [
+            "4"
+          ]
+        },
+        "front_pdf": "i7064b.pdf",
+        "rear_pdf": "i7064b.pdf"
+      },
+      {
+        "when": {
+          "position_17": [
+            "V",
+            "4"
+          ],
+          "position_18": [
+            "5"
+          ]
+        },
+        "front_pdf": "i7065a.pdf",
+        "rear_pdf": "i7065a.pdf"
+      },
+      {
+        "when": {},
+        "front_pdf": "i7018b.pdf",
+        "rear_pdf": "i7018b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7018b.pdf": {
+        "always": [
+          {
+            "name": "5.0____[DWG]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD B]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "44 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET OPTIONS]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "52 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__Empty",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.2__2__(8) OptoIso Independent LS In. (13) STD Form A. (2) STD Form C Out",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) OptoIso Independent LS In. (2) STD Form A. (6) HS HC Form A Out",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.6__7__(8) OptoIso Independent LS In. (13) HC Interrupting Form A. (2) STD Form C Out",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.7__8__(8) OptoIso Independent LS In. (8) HS HC Interrupting Form A Out",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.5__B__Aux TC PB w Guards. (24) OptoIso LS In. (4) HC Interrupting Form A Out",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.4__A__Aux TC PB. (24) OptoIso LS In. (4) HC Interrupting Form A Out",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 19
+            },
+            "optional": true
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Panel Mount",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Rack Mount",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 17
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.2__0__(2) 10-100Base-T",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.3__2__(2) 100Base-FX",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.4__4__(1) 10-100Base-T & (1) 100Base-FX",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "48 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9
+            }
+          }
+        }
+      },
+      "i7019a.pdf": {
+        "always": [
+          {
+            "name": "20_DWG",
+            "object_id": "9 0 R"
+          }
+        ],
+        "by_option_group": {
+          "POSITION_C": {
+            "options": {
+              "0": [
+                {
+                  "name": "15_POSITION C__0",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "16_POSITION C__2",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "17_POSITION C__4",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "18_POSITION C__7",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "19_POSITION C__8",
+                  "object_id": "10 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 21
+            },
+            "optional": true
+          },
+          "POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "09_POSITION B__0",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "10_POSITION B__2",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "11_POSITION B__4",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "12_POSITION B__7",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "13_POSITION B__8",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "14_POSITION B__A B",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "14_POSITION B__A B",
+                  "object_id": "15 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 19
+            },
+            "optional": true
+          },
+          "ETHERNET": {
+            "options": {
+              "0": [
+                {
+                  "name": "06_ETHERNET__0",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "07_ETHERNET__2",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "08_ETHERNET__4",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "05_ETHERNET__X",
+                  "object_id": "24 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "3": [
+                {
+                  "name": "04_MOUNTING__3",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "03_MOUNTING__H",
+                  "object_id": "26 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 17
+            }
+          },
+          "CONNECTOR": {
+            "options": {
+              "1": [
+                {
+                  "name": "01_CONNECTOR__1",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "02_CONNECTOR__2",
+                  "object_id": "27 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9
+            }
+          }
+        }
+      },
+      "i7064b.pdf": {
+        "always": [
+          {
+            "name": "5.0____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD B]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET OPTIONS]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "53 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__Empty",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.2__2__(8) OptoIso Independent LS In. (13) STD Form A. (2) STD Form C Out",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) OptoIso Independent LS In. (2) STD Form A. (6) HS HC Form A Out",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.6__7__(8) OptoIso Independent LS In. (13) HC Interrupting Form A. (2) STD Form C Out",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.7__8__(8) OptoIso Independent LS In. (8) HS HC Interrupting Form A Out",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.5__B__Aux TC PB w Guards. (24) OptoIso LS In. (4) HC Interrupting Form A Out",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.4__A__Aux TC PB. (24) OptoIso LS In. (4) HC Interrupting Form A Out",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 19
+            },
+            "optional": true
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Panel Mount",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Rack Mount",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 17
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.2__0__(2) 10-100Base-T",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.3__2__(2) 100Base-FX",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.4__4__(1) 10-100Base-T & (1) 100Base-FX",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "49 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9
+            }
+          }
+        }
+      },
+      "i7065a.pdf": {
+        "always": [
+          {
+            "name": "20_DWG",
+            "object_id": "9 0 R"
+          }
+        ],
+        "by_option_group": {
+          "POSITION_C": {
+            "options": {
+              "0": [
+                {
+                  "name": "15_POSITION C__0",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "16_POSITION C__2",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "17_POSITION C__4",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "18_POSITION C__7",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "19_POSITION C__8",
+                  "object_id": "10 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 21
+            },
+            "optional": true
+          },
+          "POSITION_B": {
+            "options": {
+              "0": [
+                {
+                  "name": "09_POSITION B__0",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "10_POSITION B__2",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "11_POSITION B__4",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "12_POSITION B__7",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "13_POSITION B__8",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "14_POSITION B__A B",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "14_POSITION B__A B",
+                  "object_id": "15 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 19
+            },
+            "optional": true
+          },
+          "ETHERNET": {
+            "options": {
+              "0": [
+                {
+                  "name": "06_ETHERNET__0",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "07_ETHERNET__2",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "08_ETHERNET__4",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "05_ETHERNET__X",
+                  "object_id": "24 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "4": [
+                {
+                  "name": "04_MOUNTING__4",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "03_MOUNTING__V",
+                  "object_id": "26 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 17
+            }
+          },
+          "CONNECTOR": {
+            "options": {
+              "1": [
+                {
+                  "name": "01_CONNECTOR__1",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "02_CONNECTOR__2",
+                  "object_id": "27 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7018b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            127.14,
+            527.2,
+            1601.2,
+            1175
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1852.5,
+            586.5,
+            3133.5,
+            1112.2
+          ]
+        }
+      },
+      "i7019a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            126,
+            402,
+            1603.5,
+            1175
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1852.5,
+            460.5,
+            3133.5,
+            1112.2
+          ]
+        }
+      },
+      "i7064b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1416.36,
+            298.5,
+            2053.5,
+            1758.86
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2382.8,
+            390.8,
+            2901,
+            1662.8
+          ]
+        }
+      },
+      "i7065a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1411.5,
+            289.36,
+            2183.8,
+            1758.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2506.5,
+            390.8,
+            3150.8,
+            1662.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "ETHERNET"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "ETHERNET"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "ETHERNET"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "ETHERNET"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "ETHERNET"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "487V",
+    "product": "SEL-487V Capacitor Bank Protection, Automation, and Control",
+    "length": 23,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0487V",
+      "description": "SEL-487V Capacitor Bank Protection, Automation, and Control relay"
+    },
+    "note": "23-character MOT string (WI-8227, 20190711). The ordering table lays the option groups out in a left-to-right staircase that does NOT match the model_to_layers source.position numbers for several groups: the drawing layers place Ethernet at position 8, Connector at 16 and the I/O board at 18, but the ordering table and BOTH drawing-selection example strings show Power Supply at 8, Connector at 9, Mainboard Input Voltage at 16, Chassis at 18 and I/O Board Position B at 19. Positions 8, 16 and 18 were corrected to the ordering doc. Mounting (17), I/O Board Position B (19) and I/O Board Position C (21) agree with the drawing layers. Positions 11 (fixed 1), 12, 15 and 23 (fixed X) are pre-printed placeholders.",
+    "references": [
+      "SEL-487V Ordering Information (WI-8227, 20190711)",
+      "SEL-487V master configuration drawings i7018b / i7019a / i7064b / i7065a (drawing layers)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0487V0X61511XXBAH4XXXXX",
+        "note": "Real part number from the SEL-487V instruction manual CID block (FID SEL-487V-R100V0, 2009). Front positions decode cleanly: 0=Standard firmware, X=no conformal coat, 6=125-250 Vdc PS, 1=Screw terminals, 5=300 V / 5 A W / 5 A X, 1=6 V + 6 I, X/X=no Ethernet, H=Horizontal Rack. Positions 12 (1), 15 (B) and 16 (A) use the older R100 encoding and do not match the current WI-8227 (20190711) placeholders / Mainboard-Input-Voltage numbering."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "options": {
+          "0": "Standard",
+          "1": "Standard Plus Automatic Voltage Control and VSSI Reporting"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformally Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Drawing layers label position 8 as the Ethernet card (GROUP_2); the WI-8227 table and both example strings show Power Supply here. Corrected to the ordering doc.",
+        "options": {
+          "4": "48-125 Vdc or 110-120 Vac",
+          "6": "125-250 Vdc or 110-240 Vac"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "options": {
+          "1": "Screw Terminal Block",
+          "2": "Connectorized Relay"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_inputs",
+        "label": "Secondary Inputs",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "300 V phase-neutral maximum (Wye) on all options; code selects W and X channel current-terminal ratings.",
+        "options": {
+          "1": "300 V P-N max (Wye), 1 A W Current Terminals, 1 A X Current Terminals",
+          "3": "300 V P-N max (Wye), 5 A W Current Terminals, 1 A X Current Terminals",
+          "5": "300 V P-N max (Wye), 5 A W Current Terminals, 5 A X Current Terminals",
+          "9": "300 V P-N max (Wye), 1 A W Current Terminals, 5 A X Current Terminals"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "ac_input_channels",
+        "label": "AC Input Channels",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Fixed digit; only option offered.",
+        "options": {
+          "1": "6 AC Voltage, 6 AC Current"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "reserved_12",
+        "label": "Reserved",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Fixed digit (pre-printed 'X' placeholder in the WI-8227 template). Older R100 part numbers used a non-X value here.",
+        "options": {
+          "X": "Fixed placeholder"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "ethernet_protocols",
+        "label": "Ethernet Communications Protocols",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "B": "FTP, Telnet, Synchrophasors, and DNP3 LAN/WAN",
+          "C": "FTP, Telnet, Synchrophasors, DNP3 LAN/WAN, and IEC 61850"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "ethernet_connection",
+        "label": "Ethernet Connection Options",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Drawing layers label the Ethernet card at position 8; the WI-8227 table places the Ethernet connection option here at position 14.",
+        "options": {
+          "0": "Ethernet Card With Two 10/100BASE-T Connectors",
+          "2": "Ethernet Card With Two 100BASE-FX Connectors",
+          "4": "Ethernet Card With One 100BASE-FX, One 10/100BASE-T Connector",
+          "X": "None"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved_15",
+        "label": "Reserved",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Fixed digit (pre-printed 'X' placeholder in the WI-8227 template). Older R100 part numbers used a non-X value here.",
+        "options": {
+          "X": "Fixed placeholder"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mainboard_input_voltage",
+        "label": "Mainboard Input Voltage",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Digital-input voltage for the 7 mainboard optoisolated inputs. Drawing layers label position 16 as the Connector type (GROUP_1); the WI-8227 table shows Mainboard Input Voltage here. Corrected to the ordering doc.",
+        "options": {
+          "2": "48 Vdc",
+          "3": "110 Vdc",
+          "4": "125 Vdc",
+          "5": "220 Vdc",
+          "6": "250 Vdc"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "MOUNTING",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "4": "Vertical Panel Mount",
+          "H": "Horizontal Rack Mount",
+          "V": "Vertical Rack Mount"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "chassis",
+        "label": "Chassis",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Drawing layers label position 18 as I/O Board Position B (GROUP_4); the WI-8227 table shows the Chassis selector here, with the I/O board at position 19. Corrected to the ordering doc.",
+        "options": {
+          "4": "4U, Up to One Additional I/O Board",
+          "5": "5U, Up to Two Additional I/O Boards"
+        }
+      },
+      {
+        "position": 19,
+        "length": 2,
+        "field": "io_board_b",
+        "label": "I/O Board Position B card | input voltage",
+        "group": "POSITION_B",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = board type (matches drawing layer POSITION_B), second digit = board input voltage (X when the position is empty).",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Board type",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "8 Optoisolated Independent LS Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "4": "24 Optoisolated LS Inputs, 8 Outputs",
+              "7": "8 Optoisolated Independent LS Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "8": "8 Optoisolated Independent LS Inputs, 8 High-Speed High-Current Interrupting Form A Outputs",
+              "A": "Auxiliary Trip/Close Pushbuttons, 24 Optoisolated LS Inputs, 4 High-Current Interrupting Form A Outputs",
+              "B": "Auxiliary Trip/Close Pushbuttons With Guards, 24 Optoisolated LS Inputs, 4 High-Current Interrupting Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Board input voltage",
+            "options": {
+              "0": "None",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty board)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 21,
+        "length": 2,
+        "field": "io_board_c",
+        "label": "I/O Board Position C card | input voltage (5U chassis only)",
+        "group": "POSITION_C",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "5U chassis only (chassis code 5). First digit = board type (matches drawing layer POSITION_C), second digit = board input voltage. Both are X on a 4U chassis.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Board type",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "8 Optoisolated Independent LS Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "4": "24 Optoisolated LS Inputs, 8 Outputs",
+              "7": "8 Optoisolated Independent LS Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "8": "8 Optoisolated Independent LS Inputs, 8 High-Speed High-Current Interrupting Form A Outputs",
+              "X": "Not present (4U chassis)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Board input voltage",
+            "options": {
+              "0": "None",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None"
+            }
+          }
+        ]
+      },
+      {
+        "position": 23,
+        "length": 1,
+        "field": "reserved_23",
+        "label": "Reserved",
+        "source": "SEL-487V Ordering Information (WI-8227, 20190711)",
+        "confidence": "high",
+        "note": "Fixed trailing digit (pre-printed 'X' placeholder in the WI-8227 template).",
+        "options": {
+          "X": "Fixed placeholder"
+        }
+      }
+    ]
+  }
+}

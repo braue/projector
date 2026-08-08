@@ -16,17 +16,6 @@ const STATUS_LABEL: Record<FileStatus, string> = {
   unchanged: 'Unchanged',
 }
 
-const STATUS_TONE: Record<FileStatus, 'added' | 'removed' | 'edited' | 'default'> = {
-  added: 'added',
-  removed: 'removed',
-  edited: 'edited',
-  unchanged: 'default',
-}
-
-function StatusBanner({ status, text }: { status: FileStatus; text: string }) {
-  return <div className={`diff-banner banner-${status}`}>{text}</div>
-}
-
 function SettingsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   if (!diff.settings.length) return null
   const rows: TableRow[] = diff.settings.map((row) => ({
@@ -160,14 +149,11 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
       <Preview
         item={item}
         banner={
-          <StatusBanner
-            status={status}
-            text={
-              status === 'added'
-                ? 'Added — this object exists only in the new project.'
-                : 'Removed — this object exists only in the original project.'
-            }
-          />
+          <div className={`diff-banner banner-${status}`}>
+            {status === 'added'
+              ? 'Added — this object exists only in the new project.'
+              : 'Removed — this object exists only in the original project.'}
+          </div>
         }
       />
     )
@@ -187,7 +173,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
       <header className="preview-header">
         <div className="preview-title-row">
           <h2>{item.name ?? file}</h2>
-          <Tag tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Tag>
+          <Tag tone={status === 'unchanged' ? 'default' : status}>{STATUS_LABEL[status]}</Tag>
         </div>
         <div className="preview-subtitle">
           <span className="mono">{file}</span>

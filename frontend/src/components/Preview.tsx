@@ -26,17 +26,11 @@ const HIDDEN_PAGES = new Set(['POU Pin Settings'])
 
 // --- header -----------------------------------------------------------------
 
+const ROLE_TAG: Record<string, string> = { client: 'Client', server: 'Server', peer: 'Peer' }
+
 function itemTag(item: ProjectItem): string | null {
   const tag =
-    item.category === 'connection'
-      ? item.role === 'client'
-        ? 'Client'
-        : item.role === 'server'
-          ? 'Server'
-          : item.role === 'peer'
-            ? 'Peer'
-            : item.kindLabel
-      : item.kindLabel
+    (item.category === 'connection' && ROLE_TAG[item.role ?? '']) || item.kindLabel
   return tag === item.name ? null : tag
 }
 
@@ -169,20 +163,22 @@ function SheetTable({ sheet: s, maxHeight }: { sheet: Sheet; maxHeight?: string 
   )
 }
 
-function Sheets({ item }: { item: ProjectItem }) {
-  const sheets = useMemo<Sheet[]>(() => {
-    const points = [...item.points, ...(item.sharedMap?.points ?? [])]
-    // Nothing makes page names unique within a module, so position is part of
-    // the key — two identically named pages must both be reachable.
-    const pages = item.pages
-      .map((page, index) => ({ page, index }))
-      .filter(({ page }: { page: SettingPage }) => !HIDDEN_PAGES.has(page.name))
-    return [
-      ...pointSheets(points),
-      ...pages.map(({ page, index }) => sheet(`page:${index}`, page.name, page.columns, page.rows)),
-    ]
-  }, [item])
+// Every sheet an item renders: its point pages plus its non-hidden generic
+// pages — the single source for "does this item have tabular content".
+function buildSheets(item: ProjectItem): Sheet[] {
+  const points = [...item.points, ...(item.sharedMap?.points ?? [])]
+  // Nothing makes page names unique within a module, so position is part of
+  // the key — two identically named pages must both be reachable.
+  const pages = item.pages
+    .map((page, index) => ({ page, index }))
+    .filter(({ page }: { page: SettingPage }) => !HIDDEN_PAGES.has(page.name))
+  return [
+    ...pointSheets(points),
+    ...pages.map(({ page, index }) => sheet(`page:${index}`, page.name, page.columns, page.rows)),
+  ]
+}
 
+function Sheets({ sheets }: { sheets: Sheet[] }) {
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const active = sheets.find((s) => s.key === activeKey) ?? sheets[0] ?? null
 
@@ -222,10 +218,8 @@ function LayoutTree({ items }: { items: LayoutItem[] }) {
 export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNode }) {
   const tag = itemTag(item)
   const subtitle = itemSubtitle(item)
-  const hasSheets =
-    item.points.length > 0 ||
-    (item.sharedMap?.points.length ?? 0) > 0 ||
-    item.pages.some((page) => !HIDDEN_PAGES.has(page.name))
+  const sheets = useMemo(() => buildSheets(item), [item])
+  const hasSheets = sheets.length > 0
 
   return (
     <main className="preview">
@@ -243,6 +237,12 @@ export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNod
 
       <div className={hasSheets ? 'preview-scroll' : 'preview-scroll no-sheets'}>
         <div className="preview-sections">
+          {item.image && (
+            <div className="drawing-view">
+              <img src={item.image.url} alt={item.name ?? 'panel drawing'} />
+            </div>
+          )}
+
           {item.description && (
             <CollapsibleSection title="Description">
               <p className="section-note">{item.description}</p>
@@ -315,9 +315,10 @@ export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNod
         </div>
 
         {hasSheets ? (
-          <Sheets item={item} />
+          <Sheets sheets={sheets} />
         ) : (
           Object.keys(item.settings).length === 0 &&
+          !item.image &&
           !item.code &&
           !item.hasArchivedContent &&
           !item.nodes?.length &&

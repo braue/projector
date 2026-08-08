@@ -11,6 +11,7 @@
 // page-name list, so unfamiliar pages (new relay models, future protocols)
 // still classify instead of being dropped.
 
+import { firstSetting } from '../../settings.js';
 import {
   RTAC_BAUD_SETTING,
   RTAC_LOCAL_PORT_SETTINGS,
@@ -96,14 +97,6 @@ function extractPoints(page) {
       raw: row,
     };
   });
-}
-
-function firstSetting(settings, keys) {
-  for (const key of keys) {
-    const value = settings[key];
-    if (value) return value;
-  }
-  return null;
 }
 
 // The far end of a connection as one short label for the connections table.
@@ -232,4 +225,4 @@ function buildProject(modules) {
   };
 }
 
-export { buildProject };
+export { buildProject, moduleBaseName };

@@ -9,28 +9,27 @@
 
 import {
   RTAC_BAUD_SETTING,
+  RTAC_DATA_BITS_SETTING,
+  RTAC_DNP_CLIENT_ADDRESS_SETTING,
+  RTAC_DNP_SERVER_ADDRESS_SETTING,
   RTAC_LOCAL_PORT_SETTINGS,
+  RTAC_MODBUS_UNIT_SETTING,
+  RTAC_PARITY_SETTING,
   RTAC_REMOTE_ADDRESS_SETTINGS,
   RTAC_REMOTE_PORT_SETTINGS,
   RTAC_SERIAL_PORT_SETTING,
+  RTAC_STOP_BITS_SETTING,
 } from '../../parsers/rtac/endpoints.js';
+import { firstSetting } from '../../settings.js';
 import { endpointLines } from '../model.js';
-
-function firstSetting(settings, keys) {
-  for (const key of keys) {
-    const value = (settings[key] ?? '').trim();
-    if (value) return value;
-  }
-  return null;
-}
 
 // DNP addressing is stated from the connection's own point of view: a client
 // connection's "Client DNP Address" is the RTAC itself, its "Server DNP
 // Address" is the far end — and on a server connection the same two names
 // swap owners.
 function dnpAddressing(item) {
-  const client = (item.settings['Client DNP Address'] ?? '').trim() || null;
-  const server = (item.settings['Server DNP Address'] ?? '').trim() || null;
+  const client = firstSetting(item.settings, [RTAC_DNP_CLIENT_ADDRESS_SETTING]);
+  const server = firstSetting(item.settings, [RTAC_DNP_SERVER_ADDRESS_SETTING]);
   if (client == null && server == null) return {};
   if (item.role === 'server') return { selfDnp: server, peerDnp: client };
   return { selfDnp: client, peerDnp: server };
@@ -39,6 +38,7 @@ function dnpAddressing(item) {
 function extractEndpoint(item) {
   const settings = item.settings ?? {};
   const transport = item.connectionType === 'Serial' ? 'serial' : 'tcp';
+  const modbusUnit = firstSetting(settings, [RTAC_MODBUS_UNIT_SETTING]);
 
   const endpoint = {
     id: item.file,
@@ -52,16 +52,16 @@ function extractEndpoint(item) {
     serial:
       transport === 'serial'
         ? {
-            port: (settings[RTAC_SERIAL_PORT_SETTING] ?? '').trim() || null,
-            baud: (settings[RTAC_BAUD_SETTING] ?? '').trim() || null,
-            dataBits: (settings['Data Bits'] ?? '').trim() || null,
-            parity: (settings['Parity Bit'] ?? '').trim() || null,
-            stopBits: (settings['Stop Bit'] ?? '').trim() || null,
+            port: firstSetting(settings, [RTAC_SERIAL_PORT_SETTING]),
+            baud: firstSetting(settings, [RTAC_BAUD_SETTING]),
+            dataBits: firstSetting(settings, [RTAC_DATA_BITS_SETTING]),
+            parity: firstSetting(settings, [RTAC_PARITY_SETTING]),
+            stopBits: firstSetting(settings, [RTAC_STOP_BITS_SETTING]),
           }
         : null,
     addressing: {
       ...dnpAddressing(item),
-      ...((settings['Slave ID'] ?? '').trim() ? { modbusUnit: settings['Slave ID'].trim() } : {}),
+      ...(modbusUnit ? { modbusUnit } : {}),
     },
   };
   endpoint.lines = endpointLines(endpoint);

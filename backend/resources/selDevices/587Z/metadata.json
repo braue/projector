@@ -1,0 +1,245 @@
+{
+  "device": "587Z",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "examples": [
+            "0587Z0X111312XX"
+          ]
+        },
+        "front_pdf": "i3481b.pdf",
+        "rear_pdf": "i3482b.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0587Z0X111H12XX"
+          ]
+        },
+        "front_pdf": "i3483b.pdf",
+        "rear_pdf": "i3482b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i3481b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            134.82,
+            394.72,
+            1594.19,
+            896.56
+          ]
+        }
+      },
+      "i3482b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            228.91,
+            451.01,
+            1496.68,
+            847.6
+          ]
+        }
+      },
+      "i3483b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            163.62,
+            446.8,
+            1564.25,
+            850.25
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "rear serial Port 1 ordered as EIA-232 or EIA-485"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "front EIA-232 serial Port F"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "587Z",
+    "product": "SEL-587Z High-Impedance Differential Relay",
+    "length": 15,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0587Z",
+      "description": "SEL-587Z High-Impedance Differential Relay (part number begins 0587Z)"
+    },
+    "note": "15-digit MOT string measured directly from WI-2772 page 1 (Part Number template 0 5 8 7 Z 0 [ ][ ][ ][ ][ ] 2 X X). Positions: 6 firmware (fixed 0), 7 conformal coat, 8 power supply/control-input voltage (combined single digit), 9 energy-clamping MOVs, 10 secondary input current, 11 mounting, 12 communications port, 13 communications protocol (fixed 2 = Standard Plus Modbus RTU), 14-15 trailing fixed X digits. This model has NO drawing layers (model_to_layers.has_layers=false), so positions were calibrated against genuine part numbers: the SEL-587Z IM reports PARTNO=0587ZXXXX5XX2XX (position 10=5 -> 5 A Phase, position 13=2 -> Modbus, trailing X X), and the two device drawing-selection strings 0587Z0X111312XX / 0587Z0X111H12XX (differing only at position 11 mounting, 3=Panel vs H=Rack) decode to all-valid options, confirming the column map.",
+    "references": [
+      "SEL-587Z Ordering Information (WI-2772, 20210702)",
+      "SEL-587Z Instruction Manual (587Z_IM_20250131), reported PARTNO=0587ZXXXX5XX2XX",
+      "SEL-587Z data sheet (587Z_DS_20221103)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0587Z0X111312XX",
+        "note": "Drawing-selection example (front i3481b): Standard firmware, No conformal coat, 24 Vdc PS/24 Vdc control, 1 MOV (2500 J), 1 A phase, Horizontal Panel Mount, EIA-232 front and rear, Standard Plus Modbus RTU. Decodes cleanly against this block."
+      },
+      {
+        "part_number": "0587Z0X111H12XX",
+        "note": "Drawing-selection example (front i3483b): identical to above but position 11 = H (Horizontal Rack Mount)."
+      },
+      {
+        "part_number": "0587ZXXXX5XX2XX",
+        "note": "Generic template as reported by the relay's PARTNO command in the SEL-587Z IM; configurable positions shown as X, with 5 A phase (pos 10) and Modbus (pos 13)."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "note": "Only one firmware option is offered; this digit is fixed at 0.",
+        "options": {
+          "0": "Standard"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformally Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "power_supply_control_input_voltage",
+        "label": "Power Supply; Control Input Voltage",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "note": "Single digit encoding the paired power-supply and control-input-voltage combination. Control input voltage is jumper-selectable (24/48/125/250 Vdc); the factory sets jumpers to match the option ordered.",
+        "options": {
+          "1": "24 Vdc; 24 Vdc",
+          "2": "48/125 Vdc or 125 Vac; 48 Vdc",
+          "3": "48/125 Vdc or 125 Vac; 125 Vdc",
+          "6": "125/250 Vdc or Vac; 250 Vdc"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "energy_clamping_movs",
+        "label": "Energy-Clamping MOVs",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "options": {
+          "1": "1 MOV - 2500 J, 2000 V",
+          "2": "2 MOVs - 5000 J, 2000 V",
+          "3": "4 MOVs - 8400 J, 1500 V"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A Phase",
+          "5": "5 A Phase"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "5": "Horizontal Projection Panel Mount",
+          "H": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "communications_port",
+        "label": "Communications Port",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "note": "EIA-485 is for special applications only; SEL strongly recommends EIA-232. An EIA-485 order ships with an SEL-C675 Terminal Adapter (DB-9 to 8-pin screw terminal).",
+        "options": {
+          "1": "EIA-232 Front and Rear Port",
+          "2": "EIA-232 Front Port and EIA-485 Rear Port"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "note": "Only one protocol option is offered; this digit is fixed at 2.",
+        "options": {
+          "2": "Standard Plus Modbus RTU"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "reserved_14",
+        "label": "Reserved",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "note": "Trailing fixed digit; the WI-2772 template shows X and all known part numbers carry X here.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved_15",
+        "label": "Reserved",
+        "source": "SEL-587Z Ordering Information (WI-2772)",
+        "confidence": "high",
+        "note": "Trailing fixed digit; the WI-2772 template shows X and all known part numbers carry X here.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "device": "2742",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7221.F.pdf",
+        "rear_pdf": "i7221.F.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7221.F.pdf": {
+        "always": [
+          {
+            "name": "3.00_____[DWG]",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "1.00_____[MOUNTING]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "2.00_____[PORTS]",
+            "object_id": "39 0 R"
+          }
+        ],
+        "by_option_group": {
+          "02": {
+            "options": {
+              "Side": [
+                {
+                  "name": "1.02__Side Mount DIN Rail",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.02__Side Mount DIN Rail",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "DIN": [
+                {
+                  "name": "1.02__Side Mount DIN Rail",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "Rail": [
+                {
+                  "name": "1.02__Side Mount DIN Rail",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "SIDE"
+            }
+          },
+          "01": {
+            "options": {
+              "DIN": [
+                {
+                  "name": "1.01__DIN Rail",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "Rail": [
+                {
+                  "name": "1.01__DIN Rail",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "DIN"
+            }
+          },
+          "03": {
+            "options": {
+              "Surface": [
+                {
+                  "name": "1.03__Surface",
+                  "object_id": "41 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "SURFACE"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7221.F.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            308,
+            78.57,
+            576.86,
+            716
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1086.57,
+            818,
+            1535.43,
+            1100.28
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETHF",
+        "label": "Front Ethernet Port",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2742 manual: front Ethernet port labeled ETH F",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "id": "ETH1-ETH12",
+        "label": "Ethernet Ports 1-12",
+        "transport": "ethernet",
+        "connector": "RJ45 / SFF fiber",
+        "evidence_layer": "SEL-2742 manual: 12-port Ethernet switch with SFF port options",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "12"
+          },
+          {
+            "label": "PoE+",
+            "value": "Ports 5 and 6"
+          },
+          {
+            "label": "Options",
+            "value": "Gigabit copper/fiber and fast Ethernet copper/fiber ordering matrix"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2742",
+    "product": "SEL-2742 Ethernet Switch (12-port small-form-factor managed switch)",
+    "length": null,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2742",
+      "description": "SEL-2742 Ethernet Switch base model"
+    },
+    "note": "No per-digit Model Option Table (MOT) digit template could be resolved. The SEL-2742 is a configurable managed Ethernet switch ordered through SEL's online Model Option Table configurator; the instruction manual lists the ordering DIMENSIONS but not a positional part-number string, and no genuine part number, ordering-doc MOT, or digit-position drawing anchor was available to calibrate against (the drawing layers key off text labels, not digit positions). No positions are asserted to avoid inventing them. Configurable ordering dimensions per Table 4/Table 5 of the instruction manual: Port-interface option 1-13 selecting the gigabit + fast-Ethernet port mix (e.g. 1 = four 10/100/1000BASE-T + eight 10/100BASE-T; higher options add 1000BASE-SX / -LX / -EX SFF fiber and 100BASE-FX / -LX fast-Ethernet fiber; ports 5 and 6 support PoE+; front ETH F management port is fixed); Mounting Rear DIN clip / Side DIN clip / Surface / Axion chassis mount; Conformal Coat Yes/No. Power is dual redundant 24 or 48 Vdc (fixed, not a part-number option).",
+    "references": [
+      "SEL-2742 Ethernet Switch Instruction Manual (2742_IM_20250822), Table 4 Ordering Options and Table 5 Mounting Options",
+      "SEL-2742 Model Option Table / ordering configurator (selinc.com/products/2742)"
+    ],
+    "positions": []
+  }
+}

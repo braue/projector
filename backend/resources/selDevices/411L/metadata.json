@@ -1,0 +1,3176 @@
+{
+  "device": "411L",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXH424XXXX"
+          ]
+        },
+        "front_pdf": "i7029.L.pdf",
+        "rear_pdf": "i7029.L.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXV424XXXX"
+          ]
+        },
+        "front_pdf": "i7030.L.pdf",
+        "rear_pdf": "i7030.L.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXH57474XX"
+          ]
+        },
+        "front_pdf": "i7031.L.pdf",
+        "rear_pdf": "i7031.L.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXV52474XX"
+          ]
+        },
+        "front_pdf": "i7032.L.pdf",
+        "rear_pdf": "i7032.L.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXH7247424"
+          ]
+        },
+        "front_pdf": "i7240.E.pdf",
+        "rear_pdf": "i7240.E.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXH6247424"
+          ]
+        },
+        "front_pdf": "i7251.F.pdf",
+        "rear_pdf": "i7251.F.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "0411L0X6X5C8DCXV6247424"
+          ]
+        },
+        "front_pdf": "i7252.E.pdf",
+        "rear_pdf": "i7252.E.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7029.L.pdf": {
+        "always": [
+          {
+            "name": "8.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "17 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "50 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "3": [
+                {
+                  "name": "6.2__3__Horizontal Panel Mount",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "6.1__H__Horizontal Rack Mount",
+                  "object_id": "19 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "26 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "29 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "34 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "41 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7030.L.pdf": {
+        "always": [
+          {
+            "name": "8.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "17 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "50 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "4": [
+                {
+                  "name": "6.2__4__Vertical Panel Mount",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "6.1__V__Vertical Rack Mount",
+                  "object_id": "19 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "26 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "29 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "34 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "41 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7031.L.pdf": {
+        "always": [
+          {
+            "name": "9.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "8.0_____[IO BOARD POSITION C]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "59 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_8": {
+            "options": {
+              "0": [
+                {
+                  "name": "8.1__0__Empty IO Board Position",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "8.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "8.7__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "8.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "8.8__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "8.6__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "8.5__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "8.4__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "23 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "3": [
+                {
+                  "name": "6.2__3__Horizontal Panel Mount",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "6.1__H__Horizontal Rack Mount",
+                  "object_id": "28 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "35 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "53 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "56 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7032.L.pdf": {
+        "always": [
+          {
+            "name": "9.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "8.0_____[IO BOARD POSITION C]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "59 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_8": {
+            "options": {
+              "0": [
+                {
+                  "name": "8.1__0__Empty IO Board Position",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "8.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "8.7__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "8.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "8.8__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "8.6__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "8.5__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "8.4__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "23 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "4": [
+                {
+                  "name": "6.2__4__Vertical Panel Mount",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "6.1__V__Vertical Rack Mount",
+                  "object_id": "28 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "35 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "53 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "56 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7240.E.pdf": {
+        "always": [
+          {
+            "name": "10.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "9.0_____[IO BOARD POSITION D & E]",
+            "object_id": "17 0 R"
+          },
+          {
+            "name": "8.0_____[IO BOARD POSITION C]",
+            "object_id": "25 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "44 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "66 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_9": {
+            "options": {
+              "2": [
+                {
+                  "name": "9.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "9.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "9.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "9.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "9.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "9.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "9.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_8": {
+            "options": {
+              "2": [
+                {
+                  "name": "8.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "8.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "8.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "8.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "8.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "8.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "8.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "22 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "26 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "29 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "30 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "3": [
+                {
+                  "name": "6.2__3__Horizontal Panel Mount",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "6.1__H__Horizontal Rack Mount",
+                  "object_id": "35 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "57 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "63 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7251.F.pdf": {
+        "always": [
+          {
+            "name": "10.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "9.0_____[IO BOARD POSITION D]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "8.0_____[IO BOARD POSITION C]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "62 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "67 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_9": {
+            "options": {
+              "0": [
+                {
+                  "name": "9.1__0__Empty IO Board Position",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "9.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "9.7__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "9.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "9.8__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "9.6__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "9.5__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "9.4__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_8": {
+            "options": {
+              "2": [
+                {
+                  "name": "8.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "8.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "8.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "8.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "8.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "8.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "8.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "23 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "29 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "31 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "3": [
+                {
+                  "name": "6.2__3__Horizontal Panel Mount",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "6.1__H__Horizontal Rack Mount",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "58 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "61 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "64 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7252.E.pdf": {
+        "always": [
+          {
+            "name": "10.0_____[DWG]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "9.0_____[IO BOARD POSITION D]",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "8.0_____[IO BOARD POSITION C]",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "7.0_____[IO BOARD POSITION B]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "6.0_____[MOUNTING]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.0_____[CHANNEL 2]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "4.0_____[CHANNEL 1]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "3.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "2.0_____[CONNECTOR TYPE]",
+            "object_id": "62 0 R"
+          },
+          {
+            "name": "1.0_____[FIRMWARE]",
+            "object_id": "67 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_9": {
+            "options": {
+              "0": [
+                {
+                  "name": "9.1__0__Empty IO Board Position",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "9.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "9.7__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "9.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "9.8__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "9.6__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "9.5__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "9.4__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "14 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_8": {
+            "options": {
+              "2": [
+                {
+                  "name": "8.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "8.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "8.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "8.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "8.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "8.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "8.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "23 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_7": {
+            "options": {
+              "2": [
+                {
+                  "name": "7.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "7.6__4__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "7.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "7.7__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.5__E__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs",
+                  "object_id": "29 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.4__D__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__C__(18) Common & (6) Independent Optoisolated Level-Sensitive Inputs. (6) High-Speed High-Current Interrupting Polarity-Sensitive Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "31 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_6": {
+            "options": {
+              "4": [
+                {
+                  "name": "6.2__4__Vertical Panel Mount",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "6.1__V__Vertical Rack Mount",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.6__E__1550 nm Fiber",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__1300 nm Fiber",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__Isolated EIA-422",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "0": [
+                {
+                  "name": "4.1__0__None",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "4.7__H__1300 nm IEEE C37.94 Fiber",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "4.6__E__1550 nm Fiber",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.5__D__1300 nm Fiber",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__850 nm IEEE C37.94 Fiber",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__Isolated G.703 Co-Directional",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__Isolated EIA-422",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "6": [
+                {
+                  "name": "3.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "3.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "3.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "3.5__9__(2) 100-1000BASE & (3) 100BASE SFP Ports",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "58 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.2__2__Connectorized",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__Screw Terminal Block",
+                  "object_id": "61 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Standard Current Differential & Distance Elements for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Standard Current Differential & Distance Elements. Plus Sub-cycle Distance Elements. Series Compensation Logic. TW Fault Locating for Single-Dual Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.4__B__Standard Current Differential & Distance Elements for Single Breaker. Single-Three Pole Tripping Applications",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.3__A__Standard Current Differential & Distance Elements for Single Breaker. Three Pole Tripping Applications",
+                  "object_id": "64 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7029.L.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.8,
+            664.5,
+            1677.94,
+            1307.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1921.49,
+            721.64,
+            3210.07,
+            1250.06
+          ]
+        }
+      },
+      "i7030.L.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            748.5,
+            127.5,
+            1391.2,
+            1591.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2187.8,
+            219.8,
+            2709,
+            1500.8
+          ]
+        }
+      },
+      "i7031.L.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.8,
+            537.8,
+            1675.66,
+            1307.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1921.49,
+            594.94,
+            3210.07,
+            1252.34
+          ]
+        }
+      },
+      "i7032.L.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            621.8,
+            127.5,
+            1391.2,
+            1591.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2187.8,
+            219.8,
+            2835,
+            1500.8
+          ]
+        }
+      },
+      "i7240.E.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            2187.8,
+            219.8,
+            2835,
+            1500.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1921.49,
+            348.21,
+            3210.07,
+            1247.77
+          ]
+        }
+      },
+      "i7251.F.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            210.8,
+            411.8,
+            1680.23,
+            1307.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1921.49,
+            471.23,
+            3210.07,
+            1247.77
+          ]
+        }
+      },
+      "i7252.E.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            495.8,
+            127.5,
+            1391.2,
+            1591.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2187.8,
+            219.8,
+            2961,
+            1500.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "411L",
+    "product": "SEL-411L Current Differential Relay with Full Distance Backup Protection",
+    "length": 23,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0411L",
+      "description": "SEL-411L Current Differential Relay (fixed model prefix)"
+    },
+    "note": "23-character MOT string. Positions and option codes were calibrated directly against the WI-8762 part-number template columns (vector art read via rendered PNGs). The drawing layers (model_to_layers) confirm positions 6, 16, 18, 20 and 22, but their nominal source positions for the connector (7), Ethernet connection (8), serial channel 1 (11) and serial channel 2 (13) are shifted low because the layers omit the conformal-coat, power-supply and secondary-input digits; the WI-8762 columns place those at 9, 12, 13 and 14 respectively. Validated by the device drawing-selection examples, which decode cleanly: 0411L...H424XXXX = 4U/1 board, ...H57474XX = 5U/2 boards, ...H6247424 = 6U/3 boards.",
+    "references": [
+      "SEL-411L Ordering Information (WI-8762, 20220413)",
+      "SEL-411L 400-series master configuration drawings i7029.L / i7240.E (drawing layers)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0411L0X6X5C8DCXH424XXXX",
+        "note": "From device drawing-selection set (i7029.L): std FW, no conformal, 125-250V PS, screw terminals, 5 A, IEC 61850 protocols, 2x10/100BASE-T+2x100BASE-FX, ch1 1300nm, ch2 850nm C37.94, horizontal rack, 4U one I/O board B=(8DI/13FormA/2FormC)@125Vdc"
+      },
+      {
+        "part_number": "0411L0X6X5C8DCXH57474XX",
+        "note": "From device drawing-selection set (i7031.L): as above but 5U, two I/O boards B & C both (8DI/13HCI/2FormC)@125Vdc"
+      },
+      {
+        "part_number": "0411L0X6X5C8DCXH6247424",
+        "note": "From device drawing-selection set (i7251.F): 6U chassis, three I/O boards B/C/D = (8DI/13FormA)@125, (8DI/13HCI)@125, (8DI/13FormA)@125"
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "group": "GROUP_1",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)+pdf-layers",
+        "confidence": "high",
+        "note": "WI-8762 annotates option A with a linked 'C' in the Ethernet/87L position (11), indicating firmware A is ordered together with the IEC 61850 + 87L communications option. Option B is present in the drawing layers but not shown on WI-8762.",
+        "options": {
+          "0": "Standard Current Differential and Distance Element (single/dual breaker, single/three-pole tripping)",
+          "1": "Standard Plus Sub-cycle Distance Elements, Series Compensation Logic and Traveling-Wave Fault Location",
+          "A": "Standard Current Differential and Distance Element for Single Breaker, Three-Pole Tripping Applications",
+          "B": "Standard Current Differential and Distance Element for Single Breaker, Single/Three-Pole Tripping Applications"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformally Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "options": {
+          "2": "24-48 Vdc",
+          "4": "48-125 Vdc or 110-120 Vac",
+          "6": "125-250 Vdc or 110-240 Vac"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "group": "GROUP_2",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_2 nominally lists position 7; corrected to 9 per the WI-8762 template columns.",
+        "options": {
+          "2": "Connectorized Relay",
+          "X": "Screw Terminal Block"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_inputs",
+        "label": "Secondary Inputs",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "options": {
+          "1": "300 V Phase-Neutral Maximum (Wye), 1 A Phase",
+          "5": "300 V Phase-Neutral Maximum (Wye), 5 A Phase"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "ethernet_protocols",
+        "label": "Ethernet Communications Protocols and 87L Line Current Differential",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "'None' is shown as X in both this position and the Ethernet Connection Options digit (12).",
+        "options": {
+          "X": "None",
+          "B": "FTP, Telnet, Synchrophasors and DNP3 LAN/WAN",
+          "C": "FTP, Telnet, Synchrophasors, DNP3 LAN/WAN and IEC 61850"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "ethernet_connection",
+        "label": "Ethernet Connection Options",
+        "group": "GROUP_3",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_3 nominally lists position 8; corrected to 12 per the WI-8762 template columns. Code 9 (two 100-1000BASE + three 100BASE SFP ports) appears only in the 400-series drawing layers, not on WI-8762.",
+        "options": {
+          "6": "Four 10/100BASE-T Connectors",
+          "7": "Four 100BASE-FX Connectors",
+          "8": "Two 10/100BASE-T and Two 100BASE-FX Connectors",
+          "9": "Two 100-1000BASE and Three 100BASE SFP Ports",
+          "X": "None"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "serial_channel_1",
+        "label": "Serial Line Current Differential Communications Channel 1",
+        "group": "GROUP_4",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_4 nominally lists position 11; corrected to 13 per the WI-8762 template columns.",
+        "options": {
+          "0": "None",
+          "A": "Isolated EIA-422",
+          "B": "Isolated G.703 Co-Directional",
+          "C": "850 nm IEEE C37.94 Fiber",
+          "D": "1300 nm Fiber",
+          "E": "1550 nm Fiber",
+          "H": "1300 nm IEEE C37.94 Fiber"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "serial_channel_2",
+        "label": "Serial Line Current Differential Communications Channel 2",
+        "group": "GROUP_5",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_5 nominally lists position 13; corrected to 14 per the WI-8762 template columns.",
+        "options": {
+          "0": "None",
+          "A": "Isolated EIA-422",
+          "B": "Isolated G.703 Co-Directional",
+          "C": "850 nm IEEE C37.94 Fiber",
+          "D": "1300 nm Fiber",
+          "E": "1550 nm Fiber",
+          "H": "1300 nm IEEE C37.94 Fiber"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved",
+        "label": "Fixed digit",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "Fixed digit in the WI-8762 template (always X).",
+        "options": {
+          "X": "Fixed (reserved)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_6",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "4": "Vertical Panel Mount",
+          "H": "Horizontal Rack Mount",
+          "V": "Vertical Rack Mount"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "chassis",
+        "label": "Chassis",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)",
+        "confidence": "high",
+        "note": "Determines how many I/O board slots exist; unused I/O slots are filled with X.",
+        "options": {
+          "4": "4U, One I/O Board (position B only)",
+          "5": "5U, Up to Two I/O Boards (positions B, C)",
+          "6": "6U, Up to Three I/O Boards (positions B, C, D)"
+        }
+      },
+      {
+        "position": 18,
+        "length": 2,
+        "field": "io_board_b",
+        "label": "I/O Board Position B (type | input voltage)",
+        "group": "GROUP_7",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-digit slot: first digit = I/O board type, second digit = board input voltage. Option codes/descriptions here follow WI-8762. The SEL-411L 400-series master drawings (i7029.L / i7240.E, model_to_layers GROUP_7/8/9) define a partially different I/O-board option set (they add board codes 4 and 8 for the '18 common + 6 independent input' boards and remap codes C/D/E, including polarity-sensitive Form A variants). Decode the I/O-board type against the specific unit's hardware generation.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "I/O board type",
+            "options": {
+              "2": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "7": "8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "C": "24 Optoisolated Level-Sensitive Inputs, 2 Standard and 6 High-Speed High-Current Interrupting Form A Outputs",
+              "D": "24 Optoisolated Level-Sensitive Inputs, 8 Standard Form A Outputs",
+              "E": "8 Optoisolated Independent Level-Sensitive Inputs, 8 High-Speed High-Current Interrupting Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "0": "None (empty / no board)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty / no board)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 20,
+        "length": 2,
+        "field": "io_board_c",
+        "label": "I/O Board Position C (type | input voltage)",
+        "group": "GROUP_8",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)+pdf-layers",
+        "confidence": "high",
+        "note": "Present on 5U and 6U chassis only; 'X X' when absent. Two-digit slot: first digit = I/O board type, second digit = board input voltage. Option codes/descriptions here follow WI-8762. The SEL-411L 400-series master drawings (i7029.L / i7240.E, model_to_layers GROUP_7/8/9) define a partially different I/O-board option set (they add board codes 4 and 8 for the '18 common + 6 independent input' boards and remap codes C/D/E, including polarity-sensitive Form A variants). Decode the I/O-board type against the specific unit's hardware generation.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "I/O board type",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "7": "8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "C": "24 Optoisolated Level-Sensitive Inputs, 2 Standard and 6 High-Speed High-Current Interrupting Form A Outputs",
+              "D": "24 Optoisolated Level-Sensitive Inputs, 8 Standard Form A Outputs",
+              "E": "8 Optoisolated Independent Level-Sensitive Inputs, 8 High-Speed High-Current Interrupting Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "0": "None (empty / no board)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty / no board)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 22,
+        "length": 2,
+        "field": "io_board_d",
+        "label": "I/O Board Position D (type | input voltage)",
+        "group": "GROUP_9",
+        "source": "SEL-411L Ordering Information (WI-8762, 20220413)+pdf-layers",
+        "confidence": "high",
+        "note": "Present on 6U chassis only; 'X X' when absent. Two-digit slot: first digit = I/O board type, second digit = board input voltage. Option codes/descriptions here follow WI-8762. The SEL-411L 400-series master drawings (i7029.L / i7240.E, model_to_layers GROUP_7/8/9) define a partially different I/O-board option set (they add board codes 4 and 8 for the '18 common + 6 independent input' boards and remap codes C/D/E, including polarity-sensitive Form A variants). Decode the I/O-board type against the specific unit's hardware generation.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "I/O board type",
+            "options": {
+              "0": "Empty I/O Board Position",
+              "2": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "7": "8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "C": "24 Optoisolated Level-Sensitive Inputs, 2 Standard and 6 High-Speed High-Current Interrupting Form A Outputs",
+              "D": "24 Optoisolated Level-Sensitive Inputs, 8 Standard Form A Outputs",
+              "E": "8 Optoisolated Independent Level-Sensitive Inputs, 8 High-Speed High-Current Interrupting Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Input voltage",
+            "options": {
+              "0": "None (empty / no board)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty / no board)"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

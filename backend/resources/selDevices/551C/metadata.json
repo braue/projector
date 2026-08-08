@@ -1,0 +1,143 @@
+{
+  "device": "551C",
+  "model_to_drawings": {
+    "front_and_rear": []
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {}
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "rear serial Port 1 ordered as EIA-232 or EIA-485"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "front EIA-232 serial Port F"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "551C",
+    "product": "SEL-551C Overcurrent and Reclosing Relay (Conventional Terminal Blocks)",
+    "length": 12,
+    "prefix": {
+      "positions": "1-6",
+      "value": "0551C0",
+      "description": "SEL-551C Overcurrent and Reclosing Relay, conventional terminal blocks (0551 model designator + fixed 'C0')"
+    },
+    "note": "12-digit MOT string of the form 0551C0 P C S K M X, where positions 1-6 are the fixed prefix 0551C0 (0551 model designator, then a fixed 'C 0'). The configurable digits are Power Supply; Control Input Voltage (7), Conformal Coat (8), Secondary Input Current (9), Packaging (10), and Communications Port (11); position 12 is a fixed trailing 'X'. Unlike the plain SEL-551, the SEL-551C combines power supply and control input voltage into a single digit (7). This device has no drawing layers, so positions are calibrated against the real part number 0551C0BX5X1X (from the SEL-551C instruction manual, Figure 8.2) plus the WI-4991 Model Option Table; every option code and column was confirmed by both.",
+    "references": [
+      "SEL-551C Ordering Information (WI-4991, 20120910)",
+      "SEL-551/SEL-551C Data Sheet (551-551C_DS_20221103)",
+      "SEL-551C Instruction Manual (551C_IM_20250131; real part number 0551C0BX5X1X)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0551C0BX5X1X",
+        "note": "Example from the SEL-551C instruction manual (Relay Part Number sticker, Figure 8.2): 48/125 Vdc or 125 Vac supply with 125 Vdc level-sensitive inputs, no conformal coat, 5 A phase / 5 A neutral, horizontal rack mount, EIA-232 rear port."
+      }
+    ],
+    "positions": [
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply_control_input_voltage",
+        "label": "Power Supply; Control Input Voltage",
+        "source": "SEL-551C Ordering Information (WI-4991, 20120910)",
+        "confidence": "high",
+        "note": "A single digit jointly selects the power supply range and the control (optoisolated) input voltage.",
+        "options": {
+          "1": "24 Vdc power supply; 24 Vdc control inputs",
+          "A": "48/125 Vdc or 125 Vac power supply; 48 Vdc control inputs (level sensitive)",
+          "B": "48/125 Vdc or 125 Vac power supply; 125 Vdc control inputs (level sensitive)",
+          "E": "48/125 Vdc or 125 Vac power supply; 110 Vdc control inputs (level sensitive)",
+          "C": "125/250 Vdc or Vac power supply; 220 Vdc control inputs (level sensitive)",
+          "D": "125/250 Vdc or Vac power supply; 250 Vdc control inputs (level sensitive)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-551C Ordering Information (WI-4991, 20120910)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "2": "Conformal coated circuit boards"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-551C Ordering Information (WI-4991, 20120910)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A phase, 1 A neutral",
+          "5": "5 A phase, 5 A neutral",
+          "6": "5 A phase, 1 A neutral"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "packaging",
+        "label": "Packaging / Mounting",
+        "source": "SEL-551C Ordering Information (WI-4991, 20120910)",
+        "confidence": "high",
+        "options": {
+          "X": "Horizontal rack mount",
+          "P": "Part of two-relay rack mount package",
+          "B": "Single relay assembled with rack mount bracket 9100 (bracket on right side in front view)",
+          "C": "Single relay with rack mount bracket 9102 with cutout for test switch (bracket on right side in front view)",
+          "3": "Horizontal panel mount",
+          "5": "Horizontal projection panel mount"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "communications_port",
+        "label": "Communications Port",
+        "source": "SEL-551C Ordering Information (WI-4991, 20120910)",
+        "confidence": "high",
+        "note": "EIA-485 is for special applications only; SEL recommends EIA-232.",
+        "options": {
+          "1": "EIA-232 rear port",
+          "2": "EIA-485 rear port",
+          "3": "EIA-232 front and rear port",
+          "4": "EIA-232 front port and EIA-485 rear port"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "trailing_digit",
+        "label": "Trailing Digit",
+        "source": "SEL-551C Ordering Information (WI-4991, 20120910)",
+        "confidence": "high",
+        "note": "Fixed trailing digit 'X' shown constant in the WI-4991 part-number template and the real part number 0551C0BX5X1X.",
+        "options": {
+          "X": "Fixed trailing digit"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "device": "351RS",
+  "model_to_drawings": {
+    "front": [
+      {
+        "when": {},
+        "pdf": "i4864a.pdf"
+      }
+    ],
+    "rear": [
+      {
+        "when": {
+          "position_13": "E"
+        },
+        "pdf": "i4868b.pdf"
+      },
+      {
+        "when": {
+          "position_13": "F"
+        },
+        "pdf": "i4937a.pdf"
+      },
+      {
+        "when": {
+          "position_13": "D"
+        },
+        "pdf": "i4942a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i4864a.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "1",
+            "object_id": "22 0 R"
+          }
+        ]
+      },
+      "i4868b.pdf": {
+        "always": [
+          {
+            "name": "1",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "DWG",
+            "object_id": "24 0 R"
+          }
+        ]
+      },
+      "i4937a.pdf": {
+        "always": [
+          {
+            "name": "1",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "DWG",
+            "object_id": "24 0 R"
+          }
+        ]
+      },
+      "i4942a.pdf": {
+        "always": [
+          {
+            "name": "1",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "DWG",
+            "object_id": "24 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i4864a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            321.4,
+            235.56,
+            959.89,
+            1485.18
+          ]
+        }
+      },
+      "i4868b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.91,
+            479.96,
+            1498.23,
+            816.69
+          ]
+        }
+      },
+      "i4937a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.91,
+            479.12,
+            1498.23,
+            815.85
+          ]
+        }
+      },
+      "i4942a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.91,
+            477.68,
+            1499.37,
+            814.41
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "EIA-232 serial ports"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "Ethernet Port 5"
+      },
+      {
+        "ports": [
+          "P5A",
+          "P5B"
+        ],
+        "when": {
+          "position_13": [
+            "D",
+            "F"
+          ]
+        },
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "Ethernet Ports 5A and 5B"
+      },
+      {
+        "ports": [
+          "P5A",
+          "P5B"
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "351RS",
+    "product": "SEL-351RS Kestrel Single-Phase Recloser Control",
+    "length": 20,
+    "prefix": {
+      "positions": "1-6",
+      "value": "0351RS",
+      "description": "SEL-351RS Kestrel single-phase recloser control (fixed prefix; the relay reports it as PARTNO=0351RS...)"
+    },
+    "note": "20-character PARTNO string (e.g. the relay CID reports PARTNO=0351RS021XA2E21X1XXX). No SEL Model Option Table / ordering-information document exists for this product and the data sheet carries no per-digit ordering figure, so this block is calibrated from real PARTNO strings in the instruction manual plus the QuickSet Device Part Number dialog. Only three positions are user-selectable in that dialog (IM Figure 3.6): position 12 = User Inputs/Outputs, position 13 = Communication Interface, position 14 = Communications Protocols; these are confirmed. All other positions are marked '*' (of no consequence to QuickSet), are fixed across observed real part numbers (except position 11, which varies but is undocumented), and are recorded at low confidence. Position 13 aligns with metadata model_to_layers position_13, which selects the rear-panel Ethernet drawings (D/E/F).",
+    "references": [
+      "SEL-351RS Kestrel Instruction Manual (351RS_IM_20220510), Figure 3.6 'Setting the Part Number' and CID PARTNO examples",
+      "SEL-351RS Kestrel Data Sheet (351RS_DS_20250612), Specifications (Communications Ports) and External Connections (Figure 17)",
+      "Real PARTNO strings 0351RS021XA2E21X1XXX and 0351RS021X31A11X1XXX from the IM"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0351RS021XA2E21X1XXX",
+        "note": "Real PARTNO from IM CID example: User I/O 2 (4 DI/5 DO/1 alarm), Comm Interface E (single 10/100BASE-T + EIA-485), Protocols 2"
+      },
+      {
+        "part_number": "0351RS021X31A11X1XXX",
+        "note": "Real PARTNO from IM CID example: User I/O 1, Comm Interface A, Protocols 1 (Standard)"
+      }
+    ],
+    "positions": [
+      {
+        "position": 7,
+        "length": 1,
+        "field": "reserved_pos_7",
+        "label": "Reserved / fixed (position 7)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "0": "Fixed value '0'"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "reserved_pos_8",
+        "label": "Reserved / fixed (position 8)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "2": "Fixed value '2'"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "reserved_pos_9",
+        "label": "Reserved / fixed (position 9)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "1": "Fixed value '1'"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "reserved_pos_10",
+        "label": "Reserved / fixed (position 10)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "X": "Not applicable (placeholder)"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "hardware_option_pos_11",
+        "label": "Hardware ordering option (position 11)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Varies between real units (observed 'A' and '3'), so it encodes a genuine hardware ordering option, but this position is not exposed in the QuickSet Device Part Number dialog and its meaning is not documented in the available data sheet or instruction manual.",
+        "options": {
+          "3": "Undocumented option '3' (observed in real PARTNO 0351RS021X31A11X1XXX)",
+          "A": "Undocumented option 'A' (observed in real PARTNO 0351RS021XA2E21X1XXX)"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "user_inputs_outputs",
+        "label": "User Inputs/Outputs",
+        "source": "SEL-351RS Instruction Manual Figure 3.6 (QuickSet Device Part Number dialog) + real PARTNO",
+        "confidence": "high",
+        "note": "First of three QuickSet-selectable positions. Option '2' is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021XA2E21X1XXX. Option '1' is observed in real PARTNO 0351RS021X31A11X1XXX but its exact description is inferred (the data sheet shows IN102-IN104 and OUT101-OUT104 as ordering options).",
+        "options": {
+          "1": "Reduced input/output configuration (inferred)",
+          "2": "(4) Inputs (12 Vdc), (5) Outputs and (1) Alarm Output"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "communication_interface",
+        "label": "Communication Interface",
+        "source": "SEL-351RS Instruction Manual Figure 3.6 (QuickSet Device Part Number dialog) + real PARTNO + metadata rear-panel drawings",
+        "confidence": "high",
+        "note": "Second QuickSet-selectable position; aligns with metadata model_to_layers position_13 (D/E/F select the rear-panel Ethernet drawings i4942a/i4868b/i4937a). Option 'E' is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021XA2E21X1XXX. 'A' is observed in real PARTNO 0351RS021X31A11X1XXX. 'D' and 'F' descriptions are inferred from the data sheet Ethernet port options (dual copper / single fiber / dual fiber, internal Ethernet switch) and the dual-port rear drawings; treat A/D/F as low-confidence.",
+        "options": {
+          "E": "Single 10/100BASE-T (RJ45), EIA-485",
+          "A": "Single-port Ethernet variant (observed in real PARTNO; exact description undocumented)",
+          "D": "Dual redundant 10/100BASE-T (RJ45), EIA-485 (inferred)",
+          "F": "Dual redundant 100BASE-FX multimode (LC), EIA-485 (inferred)"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "communications_protocols",
+        "label": "Communications Protocols",
+        "source": "SEL-351RS Instruction Manual Figure 3.6 (QuickSet Device Part Number dialog) + real PARTNO",
+        "confidence": "high",
+        "note": "Third QuickSet-selectable position. Option '1' (Standard Protocols) is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021X31A11X1XXX. Option '2' is observed in real PARTNO 0351RS021XA2E21X1XXX (which also carries an Ethernet interface); its description is inferred (IEC 61850 is the typical Ethernet-only protocol adder).",
+        "options": {
+          "1": "Standard Protocols (SEL ASCII, Modbus, DNP3, IEEE C37.118, etc.)",
+          "2": "Standard plus IEC 61850 (requires Ethernet) (inferred)"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved_pos_15",
+        "label": "Reserved / fixed (position 15)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "1": "Fixed value '1'"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "reserved_pos_16",
+        "label": "Reserved / fixed (position 16)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "X": "Not applicable (placeholder)"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "reserved_pos_17",
+        "label": "Reserved / fixed (position 17)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "1": "Fixed value '1'"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "reserved_pos_18",
+        "label": "Reserved / fixed (position 18)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "X": "Not applicable (placeholder)"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "reserved_pos_19",
+        "label": "Reserved / fixed (position 19)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "X": "Not applicable (placeholder)"
+        }
+      },
+      {
+        "position": 20,
+        "length": 1,
+        "field": "reserved_pos_20",
+        "label": "Reserved / fixed (position 20)",
+        "source": "Real PARTNO strings from SEL-351RS IM CID examples",
+        "confidence": "low",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "options": {
+          "X": "Not applicable (placeholder)"
+        }
+      }
+    ]
+  }
+}

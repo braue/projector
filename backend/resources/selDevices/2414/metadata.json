@@ -1,0 +1,1275 @@
+{
+  "device": "2414",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7033.D.pdf",
+        "rear_pdf": "i7033.D.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "A"
+          ]
+        },
+        "front_pdf": "i7298.B.pdf",
+        "rear_pdf": "i7298.B.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7033.D.pdf": {
+        "always": [
+          {
+            "name": "7.00_____DWG",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "6.00_____[COMBINED LOAD TAP CHANGER CONTROL & CONFORMAL COAT]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "5.00_____[SLOT Z]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT E]",
+            "object_id": "72 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT D]",
+            "object_id": "86 0 R"
+          },
+          {
+            "name": "2.00_____[SLOT C]",
+            "object_id": "100 0 R"
+          },
+          {
+            "name": "1.00____[SLOT B COMBINED ETHERNET. FIBER-OPTIC SERIAL. & IRIG CONNECTOR]",
+            "object_id": "111 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMBINED_LOAD_TAP_CHANGER_CONTROL_&_CONFORMAL_COAT": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.01__0__NO LTC & NO CC",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "6.02__1__NO LTC & CC",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.03__2__LTC & NO CC",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "6.04__3__LTC & CC",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 19
+            }
+          },
+          "SLOT_Z": {
+            "options": {
+              "E": [
+                {
+                  "name": "5.11__E__(4) ACI - (3) AVI",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "5.10__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "5.09__5-__(8) AI",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "5.08__3-__(8) DI",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "5.07__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "5.06__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "5.05__2A__(8) DO (Standard Form B)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "5.04__2X__(8) DO (Standard Form A)",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "5.03__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8-": [
+                {
+                  "name": "5.02__8-__(4) ACI",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "5.01__0-__Empty",
+                  "object_id": "58 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14,
+              "length": 2
+            }
+          },
+          "SLOT_E": {
+            "options": {
+              "71": [
+                {
+                  "name": "4.02__71__(3) AVI (300 Vac Max)",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "74": [
+                {
+                  "name": "4.03__74__(3) ACI - (3) AVI (300 Vac Max. 5 A Phase)",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "4.12__D-__(14) DI",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "4.11__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "4.10__5-__(8) AI",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "4.09__3-__(8) DI",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "4.08__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "4.07__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "4.06__2A__(8) DO (Standard Form B)",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "4.05__2X__(8) DO (Standard Form A)",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "4.04__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "4.01__0-__Empty",
+                  "object_id": "71 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12,
+              "length": 2
+            }
+          },
+          "SLOT_D": {
+            "options": {
+              "91": [
+                {
+                  "name": "3.02__91__(10) RTD - TC",
+                  "object_id": "84 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.12__D-__(14) DI",
+                  "object_id": "73 0 R"
+                },
+                {
+                  "name": "3.10__D-__(14) DI",
+                  "object_id": "75 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.11__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "3.10__5-__(8) AI",
+                  "object_id": "76 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.09__3-__(8) DI",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "3.08__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "3.07__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "3.06__2A__(8) DO (Standard Form B)",
+                  "object_id": "80 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "3.05__2X__(8) DO (Standard Form A)",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "9X": [
+                {
+                  "name": "3.03__9X__(10) RTD",
+                  "object_id": "83 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.01__0-__Empty",
+                  "object_id": "85 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10,
+              "length": 2
+            }
+          },
+          "SLOT_C": {
+            "options": {
+              "D-": [
+                {
+                  "name": "2.13__D-__(14) DI",
+                  "object_id": "87 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "2.12__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "88 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "2.11__5-__(8) AI",
+                  "object_id": "89 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.10__3-__(8) DI",
+                  "object_id": "90 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "2.09__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "91 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "2.08__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "92 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "2.07__2A__(8) DO (Standard Form B)",
+                  "object_id": "93 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "2.06__2X__(8) DO (Standard Form A)",
+                  "object_id": "94 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.05__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "95 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.04__B-__(4) DI - (4) DO (Fast High Current Interrupting)",
+                  "object_id": "96 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.03__1-__(4) DI - (4) DO (Standard)",
+                  "object_id": "97 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "2.02__A-__Serial Communications (EIA-232-485)",
+                  "object_id": "98 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__Empty",
+                  "object_id": "99 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8,
+              "length": 2
+            }
+          },
+          "SLOT_B_COMBINED_ETHERNET._FIBER_OPTIC_SERIAL._&_IRIG_CONNECTOR": {
+            "options": {
+              "10": [
+                {
+                  "name": "1.06__10__IRIG Connector. Fiber-Optic Serial",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "11": [
+                {
+                  "name": "1.07__11__(1) 10-100BASE-T. IRIG Connector. Fiber-Optic Serial",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "14": [
+                {
+                  "name": "1.08__14__(1) 100BASE-FX LC. Fiber-Optic Serial",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "16": [
+                {
+                  "name": "1.09__16__(2) 10-100BASE-T. Fiber-Optic Serial",
+                  "object_id": "102 0 R"
+                }
+              ],
+              "18": [
+                {
+                  "name": "1.10__18__(2) 100BASE-FX LC. Fiber-Optic Serial",
+                  "object_id": "101 0 R"
+                }
+              ],
+              "08": [
+                {
+                  "name": "1.05__08__(2) 100BASE-FX LC .  None",
+                  "object_id": "106 0 R"
+                }
+              ],
+              "06": [
+                {
+                  "name": "1.04__06__(2) 10-100BASE-T.  None",
+                  "object_id": "107 0 R"
+                }
+              ],
+              "04": [
+                {
+                  "name": "1.03__04__(1) 100BASE-FX LC .  None",
+                  "object_id": "108 0 R"
+                }
+              ],
+              "01": [
+                {
+                  "name": "1.02__01__(1) 10-100BASE-T. IRIG Connector",
+                  "object_id": "109 0 R"
+                }
+              ],
+              "00": [
+                {
+                  "name": "1.01__00__None. IRIG Connector",
+                  "object_id": "110 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16,
+              "length": 2
+            }
+          }
+        }
+      },
+      "i7298.B.pdf": {
+        "always": [
+          {
+            "name": "7.00_____DWG",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "6.00_____[COMBINED LOAD TAP CHANGER CONTROL & CONFORMAL COAT]",
+            "object_id": "48 0 R"
+          },
+          {
+            "name": "5.00_____[SLOT Z]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT E]",
+            "object_id": "73 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT D]",
+            "object_id": "87 0 R"
+          },
+          {
+            "name": "2.00_____[SLOT C]",
+            "object_id": "101 0 R"
+          },
+          {
+            "name": "1.00____[SLOT B COMBINED ETHERNET. FIBER-OPTIC SERIAL. & IRIG CONNECTOR]",
+            "object_id": "112 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMBINED_LOAD_TAP_CHANGER_CONTROL_&_CONFORMAL_COAT": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.01__0__NO LTC & NO CC",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "6.02__1__NO LTC & CC",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.03__2__LTC & NO CC",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "6.04__3__LTC & CC",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 19
+            }
+          },
+          "SLOT_Z": {
+            "options": {
+              "E": [
+                {
+                  "name": "5.11__E__(4) ACI - (3) AVI",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "5.10__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "5.09__5-__(8) AI",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "5.08__3-__(8) DI",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "5.07__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "5.06__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "5.05__2A__(8) DO (Standard Form B)",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "5.04__2X__(8) DO (Standard Form A)",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "5.03__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "8-": [
+                {
+                  "name": "5.02__8-__(4) ACI",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "5.01__0-__Empty",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14,
+              "length": 2
+            }
+          },
+          "SLOT_E": {
+            "options": {
+              "71": [
+                {
+                  "name": "4.02__71__(3) AVI (300 Vac Max)",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "74": [
+                {
+                  "name": "4.03__74__(3) ACI - (3) AVI (300 Vac Max. 5 A Phase)",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "4.12__D-__(14) DI",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "4.11__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "4.10__5-__(8) AI",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "4.09__3-__(8) DI",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "4.08__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "4.07__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "4.06__2A__(8) DO (Standard Form B)",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "4.05__2X__(8) DO (Standard Form A)",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "4.04__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "4.01__0-__Empty",
+                  "object_id": "72 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12,
+              "length": 2
+            }
+          },
+          "SLOT_D": {
+            "options": {
+              "91": [
+                {
+                  "name": "3.02__91__(10) RTD - TC",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.12__D-__(14) DI",
+                  "object_id": "74 0 R"
+                },
+                {
+                  "name": "3.10__D-__(14) DI",
+                  "object_id": "76 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.11__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "75 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "3.10__5-__(8) AI",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.09__3-__(8) DI",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "3.08__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "3.07__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "80 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "3.06__2A__(8) DO (Standard Form B)",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "3.05__2X__(8) DO (Standard Form A)",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "83 0 R"
+                }
+              ],
+              "9X": [
+                {
+                  "name": "3.03__9X__(10) RTD",
+                  "object_id": "84 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.01__0-__Empty",
+                  "object_id": "86 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10,
+              "length": 2
+            }
+          },
+          "SLOT_C": {
+            "options": {
+              "D-": [
+                {
+                  "name": "2.13__D-__(14) DI",
+                  "object_id": "88 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "2.12__6-__(4) AI - (4) AO (±20 mA or ±10 V Selectable)",
+                  "object_id": "89 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "2.11__5-__(8) AI",
+                  "object_id": "90 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.10__3-__(8) DI",
+                  "object_id": "91 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "2.09__2C__(8) DO (Standard (2) Form A. (6) Form B)",
+                  "object_id": "92 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "2.08__2B__(8) DO (Standard (6) Form A. (2) Form B)",
+                  "object_id": "93 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "2.07__2A__(8) DO (Standard Form B)",
+                  "object_id": "94 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "2.06__2X__(8) DO (Standard Form A)",
+                  "object_id": "95 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.05__C-__(4) DI - (3) DO (Standard (2) Form C. (1) Form B)",
+                  "object_id": "96 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.04__B-__(4) DI - (4) DO (Fast High Current Interrupting)",
+                  "object_id": "97 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.03__1-__(4) DI - (4) DO (Standard)",
+                  "object_id": "98 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "2.02__A-__Serial Communications (EIA-232-485)",
+                  "object_id": "99 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__Empty",
+                  "object_id": "100 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8,
+              "length": 2
+            }
+          },
+          "SLOT_B_COMBINED_ETHERNET._FIBER_OPTIC_SERIAL._&_IRIG_CONNECTOR": {
+            "options": {
+              "10": [
+                {
+                  "name": "1.06__10__IRIG Connector. Fiber-Optic Serial",
+                  "object_id": "106 0 R"
+                }
+              ],
+              "11": [
+                {
+                  "name": "1.07__11__(1) 10-100BASE-T. IRIG Connector. Fiber-Optic Serial",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "14": [
+                {
+                  "name": "1.08__14__(1) 100BASE-FX LC. Fiber-Optic Serial",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "16": [
+                {
+                  "name": "1.09__16__(2) 10-100BASE-T. Fiber-Optic Serial",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "18": [
+                {
+                  "name": "1.10__18__(2) 100BASE-FX LC. Fiber-Optic Serial",
+                  "object_id": "102 0 R"
+                }
+              ],
+              "08": [
+                {
+                  "name": "1.05__08__(2) 100BASE-FX LC .  None",
+                  "object_id": "107 0 R"
+                }
+              ],
+              "06": [
+                {
+                  "name": "1.04__06__(2) 10-100BASE-T.  None",
+                  "object_id": "108 0 R"
+                }
+              ],
+              "04": [
+                {
+                  "name": "1.03__04__(1) 100BASE-FX LC .  None",
+                  "object_id": "109 0 R"
+                }
+              ],
+              "01": [
+                {
+                  "name": "1.02__01__(1) 10-100BASE-T. IRIG Connector",
+                  "object_id": "110 0 R"
+                }
+              ],
+              "00": [
+                {
+                  "name": "1.01__00__None. IRIG Connector",
+                  "object_id": "111 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16,
+              "length": 2
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7033.D.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            50.43,
+            92.71,
+            500.43,
+            681.86
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1247.77,
+            101.86,
+            1672.77,
+            672.71
+          ]
+        }
+      },
+      "i7298.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            49.81,
+            92.8,
+            502.38,
+            681.37
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1244.52,
+            104.62,
+            1678.66,
+            670.91
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "P1",
+        "label": "Port 1 Ethernet",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "SEL-2414 manual: Port 1 Ethernet, copper or fiber by ordering option",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T or 100BASE-FX"
+          },
+          {
+            "label": "Configuration",
+            "value": "One or two Ethernet interfaces by ordering option"
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "label": "Port 2 Fiber-Optic Serial",
+        "transport": "serial",
+        "connector": "fiber-optic",
+        "evidence_layer": "SEL-2414 manual: Port 2 fiber-optic serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "fiber-optic serial"
+          }
+        ],
+        "interface": "fiber-optic serial"
+      },
+      {
+        "id": "P3",
+        "label": "Port 3 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2414 manual: Port 3 EIA-232 DB-9 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P4",
+        "label": "Optional Port 4 Serial",
+        "transport": "serial",
+        "connector": "DB9 / EIA-485 terminal",
+        "evidence_layer": "SEL-2414 manual: optional Port 4A EIA-485 or Port 4C EIA-232 serial",
+        "specs": [
+          {
+            "label": "Configuration",
+            "value": "Optional EIA-485 or EIA-232 serial card"
+          }
+        ],
+        "interface": "EIA-232 / EIA-485"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2414",
+    "product": "SEL-2414 Transformer Automation Controller",
+    "length": 19,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2414",
+      "description": "SEL-2414 Transformer Automation Controller"
+    },
+    "note": "19-digit part number: 2414 + positions 5-19. The ACSELERATOR Device Part Number dialog (IM Figure 3.7) shows the exact template 2414 * * * [C][C] [D][D] [E][E] [Z][Z] [comm ports][comm ports] [protocol] * , confirming slots C/D/E/Z at 8/10/12/14, Slot B communications at 16-17 and communications protocol at 18. Positions 5-7 (front panel, Slot A power supply, Slot A digital-input voltage) and position 19 (combined LTC control + conformal coat) are the '*' digits set outside that dialog. NOTE: the drawing layers place the LTC/conformal-coat group at position 6, but every real part number and Figure 3.7 put it at position 19 (position 6 is the power supply); the anchor was corrected to 19. No standalone Model Option Table doc exists for the SEL-2414 (the IM refers to the online MOT); positions calibrated against real part numbers from the IM CID/PARTNO blocks.",
+    "references": [
+      "SEL-2414 Instruction Manual (2414_IM_20250730) Figure 3.7 Device Part Number dialog",
+      "SEL-2414 master configuration drawings i7033.D / i7298.B (drawing layers)",
+      "SEL-2414 Data Sheet (2414_DS_20250730)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "241421A3X9X74850840",
+        "note": "Real PN (IM PARTNO): Large LCD/4 pushbuttons, 125/250 V PS, 125 V DI, Slot C (8) DI, Slot D (10) RTD, Slot E (3) ACI/(3) AVI, Slot Z (4) ACI, (2) 100BASE-FX no IRIG, Std+DNP+IEC 61850, no LTC/no CC"
+      },
+      {
+        "part_number": "2414A1A009X74151140",
+        "note": "Real PN (IM): 5\" color touchscreen, 125/250 V PS, 125 V DI, Slot C empty, Slot D (10) RTD, Slot E (3) ACI/(3) AVI, Slot Z (4) ACI, (1) 10/100BASE-T + IRIG + fiber serial, Std+DNP+IEC 61850, no LTC/no CC"
+      },
+      {
+        "part_number": "241421A0X0X0X0X1000",
+        "note": "Real PN (IM): Large LCD, 125/250 V PS, 125 V DI, all plug-in slots empty, IRIG + fiber-optic serial (no Ethernet), Standard protocol, no LTC/no CC"
+      },
+      {
+        "part_number": "241421AA09X746X1140",
+        "note": "Real PN (IM): Large LCD, Slot C serial comm, Slot D (10) RTD, Slot E (3) ACI/(3) AVI, Slot Z (4) AI/(4) AO, (1) 10/100BASE-T + IRIG + fiber serial, Std+DNP+IEC 61850"
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "front_panel_display",
+        "label": "Front Panel / Display",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)",
+        "confidence": "low",
+        "note": "Only codes confirmed from real part numbers are listed; the full display option set is in the online SEL-2414 Model Option Table. 2 = Large LCD with four pushbuttons (7 programmable LEDs); A = 5-inch color touchscreen with eight programmable pushbuttons (16 LEDs) plus 7 programmable LEDs.",
+        "options": {
+          "2": "Large LCD with (4) pushbuttons (7 programmable LEDs)",
+          "A": "5\" color touchscreen, (8) programmable pushbuttons with 16 LEDs, 7 programmable LEDs"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "power_supply_voltage",
+        "label": "Slot A Power Supply Voltage",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)",
+        "confidence": "low",
+        "note": "Two power-supply models per the IM/data sheet (high- and low-voltage). Code 1 (125/250 Vdc, 110-240 Vac) confirmed by real part numbers; code 2 (24/48 Vdc) inferred from the documented low-voltage model and not confirmed against a real PN.",
+        "options": {
+          "1": "125-250 Vdc / 110-240 Vac (high-voltage model)",
+          "2": "24-48 Vdc (low-voltage model)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "slot_a_digital_input_voltage",
+        "label": "Slot A Digital Input Voltage",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)",
+        "confidence": "low",
+        "note": "Code A (125 Vdc/Vac) confirmed by real part numbers; the IM documents 24 Vdc/Vac and 48 Vdc/Vac ordering options (B, C). Codes D/G/H follow the standard SEL digital-input voltage convention (shared slot-card family with the SEL-751) and are not individually confirmed against a real PN.",
+        "options": {
+          "A": "125 Vdc/Vac",
+          "B": "24 Vdc/Vac",
+          "C": "48 Vdc/Vac",
+          "D": "110 Vdc/Vac",
+          "G": "220 Vdc/Vac",
+          "H": "250 Vdc/Vac"
+        }
+      },
+      {
+        "position": 8,
+        "length": 2,
+        "field": "slot_c",
+        "label": "Slot C I/O Card",
+        "group": "SLOT_C",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-character card code (a trailing '-' is a filler for the second digit). Confirmed by drawing layers and real part numbers.",
+        "options": {
+          "0-": "Empty",
+          "A-": "Serial Communications (EIA-232/485)",
+          "1-": "(4) DI / (4) DO (Standard)",
+          "B-": "(4) DI / (4) DO (Fast High-Current Interrupting)",
+          "C-": "(4) DI / (3) DO (Standard: (2) Form C, (1) Form B)",
+          "2X": "(8) DO (Standard Form A)",
+          "2A": "(8) DO (Standard Form B)",
+          "2B": "(8) DO (Standard: (6) Form A, (2) Form B)",
+          "2C": "(8) DO (Standard: (2) Form A, (6) Form B)",
+          "3-": "(8) DI",
+          "5-": "(8) AI",
+          "6-": "(4) AI / (4) AO (±20 mA or ±10 V selectable)",
+          "D-": "(14) DI"
+        }
+      },
+      {
+        "position": 10,
+        "length": 2,
+        "field": "slot_d",
+        "label": "Slot D I/O Card",
+        "group": "SLOT_D",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-character card code. Slot D adds the (10) RTD / (10) RTD-TC cards (9X / 91).",
+        "options": {
+          "91": "(10) RTD-TC",
+          "0-": "Empty",
+          "C-": "(4) DI / (3) DO (Standard: (2) Form C, (1) Form B)",
+          "2X": "(8) DO (Standard Form A)",
+          "2A": "(8) DO (Standard Form B)",
+          "2B": "(8) DO (Standard: (6) Form A, (2) Form B)",
+          "2C": "(8) DO (Standard: (2) Form A, (6) Form B)",
+          "3-": "(8) DI",
+          "5-": "(8) AI",
+          "6-": "(4) AI / (4) AO (±20 mA or ±10 V selectable)",
+          "9X": "(10) RTD",
+          "D-": "(14) DI"
+        }
+      },
+      {
+        "position": 12,
+        "length": 2,
+        "field": "slot_e",
+        "label": "Slot E I/O Card",
+        "group": "SLOT_E",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-character card code. Slot E adds voltage/current-input cards (71 = (3) AVI, 74 = (3) ACI/(3) AVI).",
+        "options": {
+          "71": "(3) AVI (300 Vac Max)",
+          "74": "(3) ACI / (3) AVI (300 Vac Max, 5 A Phase)",
+          "0-": "Empty",
+          "C-": "(4) DI / (3) DO (Standard: (2) Form C, (1) Form B)",
+          "2X": "(8) DO (Standard Form A)",
+          "2A": "(8) DO (Standard Form B)",
+          "2B": "(8) DO (Standard: (6) Form A, (2) Form B)",
+          "2C": "(8) DO (Standard: (2) Form A, (6) Form B)",
+          "3-": "(8) DI",
+          "5-": "(8) AI",
+          "6-": "(4) AI / (4) AO (±20 mA or ±10 V selectable)",
+          "D-": "(14) DI"
+        }
+      },
+      {
+        "position": 14,
+        "length": 2,
+        "field": "slot_z",
+        "label": "Slot Z I/O Card",
+        "group": "SLOT_Z",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-character card code. Slot Z adds current-input cards (8- = (4) ACI, E = (4) ACI/(3) AVI).",
+        "options": {
+          "0-": "Empty",
+          "C-": "(4) DI / (3) DO (Standard: (2) Form C, (1) Form B)",
+          "2X": "(8) DO (Standard Form A)",
+          "2A": "(8) DO (Standard Form B)",
+          "2B": "(8) DO (Standard: (6) Form A, (2) Form B)",
+          "2C": "(8) DO (Standard: (2) Form A, (6) Form B)",
+          "3-": "(8) DI",
+          "5-": "(8) AI",
+          "6-": "(4) AI / (4) AO (±20 mA or ±10 V selectable)",
+          "8-": "(4) ACI",
+          "E": "(4) ACI / (3) AVI"
+        }
+      },
+      {
+        "position": 16,
+        "length": 2,
+        "field": "slot_b_communications",
+        "label": "Slot B Ethernet / Fiber-Optic Serial / IRIG",
+        "group": "SLOT_B_COMBINED_ETHERNET._FIBER_OPTIC_SERIAL._&_IRIG_CONNECTOR",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-digit code selecting the Slot B Ethernet interface, fiber-optic serial port, and IRIG connector combination.",
+        "options": {
+          "10": "IRIG connector, fiber-optic serial",
+          "11": "(1) 10/100BASE-T Ethernet, IRIG connector, fiber-optic serial",
+          "14": "(1) 100BASE-FX LC Ethernet, fiber-optic serial",
+          "16": "(2) 10/100BASE-T Ethernet, fiber-optic serial",
+          "18": "(2) 100BASE-FX LC Ethernet, fiber-optic serial",
+          "00": "None Ethernet, IRIG connector",
+          "01": "(1) 10/100BASE-T Ethernet, IRIG connector",
+          "04": "(1) 100BASE-FX LC Ethernet, no IRIG",
+          "06": "(2) 10/100BASE-T Ethernet, no IRIG",
+          "08": "(2) 100BASE-FX LC Ethernet, no IRIG"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)",
+        "confidence": "high",
+        "note": "From the Figure 3.7 dialog 'Communications Protocol' field. Codes 0 (Standard) and 4 (Standard plus DNP and IEC 61850) confirmed by real part numbers; additional codes (e.g., DNP-only, IEC 61850-only) exist per the online MOT but were not confirmable. IEC 61850 requires an Ethernet option in Slot B.",
+        "options": {
+          "0": "Standard",
+          "4": "Standard plus DNP3 and IEC 61850"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "ltc_conformal_coat",
+        "label": "Load Tap Changer Control & Conformal Coat",
+        "group": "COMBINED_LOAD_TAP_CHANGER_CONTROL_&_CONFORMAL_COAT",
+        "source": "SEL-2414 Instruction Manual (2414_IM_20250730, Figure 3.7 Device Part Number)+pdf-layers",
+        "confidence": "high",
+        "note": "Combined LTC-control feature and conformal-coat option. Drawing layers label this group as position 6, but Figure 3.7 and every real part number place it at position 19 (position 6 is the power supply); the anchor was corrected here.",
+        "options": {
+          "0": "No LTC control, no conformal coat",
+          "1": "No LTC control, conformal coat",
+          "2": "LTC control, no conformal coat",
+          "3": "LTC control, conformal coat"
+        }
+      }
+    ]
+  }
+}

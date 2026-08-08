@@ -1,0 +1,1843 @@
+{
+  "device": "735",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7299.A.pdf",
+        "rear_pdf": "i7299.A.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "H"
+          ]
+        },
+        "front_pdf": "i7300.A.pdf",
+        "rear_pdf": "i7300.A.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "B"
+          ]
+        },
+        "front_pdf": "i7386.A.pdf",
+        "rear_pdf": "i7386.A.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "F"
+          ]
+        },
+        "front_pdf": "i7387.A.pdf",
+        "rear_pdf": "i7387.A.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "V"
+          ]
+        },
+        "front_pdf": "i7388.A.pdf",
+        "rear_pdf": "i7388.A.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "E"
+          ]
+        },
+        "front_pdf": "i7389.A.pdf",
+        "rear_pdf": "i7389.A.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "L"
+          ]
+        },
+        "front_pdf": "i7390.A.pdf",
+        "rear_pdf": "i7390.A.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7299.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "5.0_____[FRONT-PANEL LABELING]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT D]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "2.0_____[SLOT B]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "1.0_____[METER FORM]",
+            "object_id": "55 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__ANSI",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__IEC",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.3__2__AUS NMI",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "4.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "3.3__G__Telephone Modem",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__Empty",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "2.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "2.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "1.2__5__Form 5",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.3__6__Form 36",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.1__9__Form 9",
+                  "object_id": "54 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7300.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "5.0_____[FRONT-PANEL LABELING]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT D]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "2.0_____[SLOT B]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "1.0_____[METER FORM]",
+            "object_id": "55 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__ANSI",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__IEC",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.3__2__AUS NMI",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "4.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "3.3__G__Telephone Modem",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__Empty",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "2.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "2.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "1.2__5__Form 5",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.3__6__Form 36",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.1__9__Form 9",
+                  "object_id": "54 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7386.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "5.0_____[FRONT-PANEL LABELING]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT D]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT C]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "2.0_____[SLOT B]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "1.0_____[METER FORM]",
+            "object_id": "56 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__ANSI",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__IEC",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.3__2__AUS NMI",
+                  "object_id": "34 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "4.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "42 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "3.3__G__Telephone Modem",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__Empty",
+                  "object_id": "46 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "2.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "2.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "51 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "1.2__5__Form 5",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.3__6__Form 36",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.1__9__Form 9",
+                  "object_id": "55 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7387.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "5.0_____[FRONT-PANEL LABELING]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT D]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "2.0_____[SLOT B]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "1.0_____[METER FORM]",
+            "object_id": "55 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__ANSI",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__IEC",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.3__2__AUS NMI",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "4.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "3.3__G__Telephone Modem",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__Empty",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "2.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "2.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "1.2__5__Form 5",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.3__6__Form 36",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.1__9__Form 9",
+                  "object_id": "54 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7388.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "5.0_____[FRONT-PANEL LABELING]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT D]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "2.0_____[SLOT B]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "1.0_____[METER FORM]",
+            "object_id": "55 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__ANSI",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__IEC",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.3__2__AUS NMI",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "4.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "3.3__G__Telephone Modem",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__Empty",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "2.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "2.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "1.2__5__Form 5",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.3__6__Form 36",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.1__9__Form 9",
+                  "object_id": "54 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7389.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "5.0_____[FRONT-PANEL LABELING]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT D]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT C]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "2.0_____[SLOT B]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "1.0_____[METER FORM]",
+            "object_id": "55 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__ANSI",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__IEC",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.3__2__AUS NMI",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "4.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "4.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "4.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "3.3__G__Telephone Modem",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.1__X__Empty",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "2.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "2.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "1.2__5__Form 5",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.3__6__Form 36",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.1__9__Form 9",
+                  "object_id": "54 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7390.A.pdf": {
+        "always": [
+          {
+            "name": "6.0_____DWG",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "5.0_____[SLOT D]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT C]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "3.0_____[SLOT B]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "2.0_____[METER FORM]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "1.0_____[ENCLOSURE]",
+            "object_id": "59 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "source": {
+              "position": 15
+            },
+            "options": {
+              "D": [
+                {
+                  "name": "5.5__D__(4) AO (20mA). (4) DO Solid-State",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.4__C__(4) AO (1mA). (4) DO Solid-State",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "5.3__B__(4) DI. (4) DO Electromechanical",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "5.2__A__(4) DI. (4) DO Solid-State",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.1__X__Empty",
+                  "object_id": "40 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 13
+            },
+            "options": {
+              "G": [
+                {
+                  "name": "4.3__G__Telephone Modem",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "4.2__F__Serial Comms EIA-232 & EIA-485",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.1__X__Empty",
+                  "object_id": "44 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "3.4__F__(1) 100Base-FX. EIA-232",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "3.3__G__(1) 100Base-FX. EIA-485",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "3.2__C__(1) 10-100Base-T. EIA-232",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "3.1__E__(1) 10-100Base-T. EIA-485",
+                  "object_id": "49 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "5": [
+                {
+                  "name": "2.2__5__Form 5",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "2.3__6__Form 36",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.1__9__Form 9",
+                  "object_id": "53 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 6
+            },
+            "options": {
+              "C": [
+                {
+                  "name": "1.4__C__Portable Power Quality Meter",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "1.3__E__Easily Extractable Meter (EXM)",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.2__B__NEMA 4 w FT-1 Test Switch",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None",
+                  "object_id": "58 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7299.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            66,
+            95.2,
+            632.29,
+            527.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1080,
+            96.8,
+            1626.8,
+            507
+          ]
+        }
+      },
+      "i7300.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            66,
+            95.2,
+            633.43,
+            527.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1080,
+            96.8,
+            1626.8,
+            507
+          ]
+        }
+      },
+      "i7386.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60,
+            106.5,
+            492,
+            674.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1259.04,
+            115.66,
+            1666.24,
+            663.8
+          ]
+        }
+      },
+      "i7387.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60,
+            94.5,
+            492,
+            674.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1259.04,
+            91.66,
+            1666.24,
+            663.8
+          ]
+        }
+      },
+      "i7388.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60,
+            106.5,
+            492,
+            674.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1259.52,
+            113.37,
+            1666.72,
+            663.8
+          ]
+        }
+      },
+      "i7389.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60,
+            94.5,
+            492,
+            674.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1259.52,
+            92.8,
+            1666.72,
+            663.8
+          ]
+        }
+      },
+      "i7390.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60.8,
+            95.2,
+            491.2,
+            673.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1259.52,
+            91.66,
+            1666.72,
+            663.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "PF",
+        "label": "Front Port F",
+        "transport": "serial",
+        "connector": "USB-C / optical / DB9",
+        "evidence_layer": "SEL-735 manual: front port is display-dependent USB-C, optical, or EIA-232",
+        "specs": [
+          {
+            "label": "Configuration",
+            "value": "Display option dependent"
+          },
+          {
+            "label": "Interfaces",
+            "value": "USB Type-C, optical serial, or EIA-232"
+          }
+        ],
+        "interface": "USB Type-C / optical / EIA-232"
+      },
+      {
+        "id": "P1",
+        "label": "Port 1 Ethernet",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "SEL-735 manual: Port 1 Ethernet RJ45 or LC fiber",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T or 100BASE-FX"
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "label": "Port 2 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-735 manual: Port 2 EIA-232 serial with IRIG-B",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          },
+          {
+            "label": "Time input",
+            "value": "IRIG-B"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P3",
+        "label": "Port 3 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-735 manual: Port 3 EIA-232 serial with IRIG-B",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          },
+          {
+            "label": "Time input",
+            "value": "IRIG-B"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P4",
+        "label": "Optional Port 4 Serial",
+        "transport": "serial",
+        "connector": "DB9 / modem / EIA-485 terminal",
+        "evidence_layer": "SEL-735 manual: optional Port 4A EIA-485, Port 4B modem, or Port 4C EIA-232",
+        "specs": [
+          {
+            "label": "Configuration",
+            "value": "Optional"
+          },
+          {
+            "label": "Interfaces",
+            "value": "EIA-485, modem, or EIA-232"
+          }
+        ],
+        "interface": "EIA-232 / EIA-485 / modem"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "735",
+    "product": "SEL-735 Power Quality and Revenue Meter",
+    "length": 25,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0735",
+      "description": "SEL-735 Power Quality and Revenue Meter"
+    },
+    "note": "25-character MOT string. Fully triangulated against a real PARTNO from the SEL-735 Instruction Manual and the QuickSet Model Option Table (Figure 2.17), whose template is *735H*0*94*BX*X***161****. Drawing layers anchor positions 6 (enclosure), 9 (meter form), 12 (Slot B comms/Ethernet), 13 (Slot C), 15 (Slot D), and 22 (front-panel labeling). Position 5 is the chassis/display type (H and L confirmed; other letters map to distinct panel drawings). Positions 8, 14, 17, 18, and 25 are wildcard/reserved digits in the QuickSet MOT and are constant in observed part numbers. WI-16251 covers the color-touchscreen (L) chassis; other chassis letters share the same digit layout.",
+    "references": [
+      "SEL-735 Power Quality and Revenue Meter With Color Touchscreen - Ordering Information (WI-16251, 20251015)",
+      "SEL-735 Instruction Manual (735_IM_20250711), Figure 2.17 SEL-735 Model Option Table",
+      "SEL-735 master configuration drawings i7299/i7300/i7386/i7387/i7388/i7389/i7390 (drawing layers)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0735LX20944EXXXXXX16201XX",
+        "note": "Real PARTNO from the SEL-735 Instruction Manual (735_IM_20250711): color touchscreen chassis, no enclosure, Advanced PQ and Recording, Form 9, 110-240 Vac/110-250 Vdc supply with 125 V control inputs, single 10/100BASE-T EIA-485 Ethernet, empty Slots C and D, Slot Z CL2/10/20 (low-end accuracy), 60 Hz, Standard plus IEC 61850, ANSI labeling, no conformal coat, no software bundle."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "chassis_display",
+        "label": "Chassis / Display Type",
+        "source": "SEL-735 Instruction Manual MOT (Fig 2.17) + model drawings",
+        "confidence": "high",
+        "note": "Chassis / display type. H and L are confirmed (QuickSet MOT Fig 2.17 and WI-16251); the remaining letters each map to a distinct front/rear panel drawing (model_to_drawings) but their exact display/mount descriptions are provisional.",
+        "options": {
+          "A": "Panel-mount chassis variant (drawing i7299)",
+          "H": "Horizontal Panel Mount, ANSI Optical Port",
+          "B": "Panel-mount chassis variant (drawing i7386)",
+          "F": "Panel-mount chassis variant (drawing i7387)",
+          "V": "Panel-mount chassis variant (drawing i7388)",
+          "E": "Panel-mount chassis variant (drawing i7389)",
+          "L": "Color Touchscreen (5-inch, 800x480) with USB-C front port"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "enclosure_type",
+        "label": "Enclosure Type",
+        "group": "GROUP_1",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing-anchored in the i7390 (portable/touchscreen) layer set as GROUP_1.",
+        "options": {
+          "X": "None",
+          "E": "Easily Extractable Meter (EXM)",
+          "B": "NEMA 4 with FT-1 Test Switch",
+          "C": "Portable Case"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_quality_recording",
+        "label": "Power Quality and Recording Option",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "0": "Basic PQ and Recording (128 MB, 16 LDP channels, 1 kHz waveform, 270 VSSI summary events, up to 15th-order harmonics)",
+          "1": "Intermediate PQ and Recording (256 MB, 192 LDP channels, 8 kHz waveform, flicker, up to 63rd-order harmonics)",
+          "2": "Advanced PQ and Recording (1 GB, 512 LDP channels, 32 kHz waveform, 600 VSSI summary events, Waveview, power harmonics, interharmonics)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "reserved_pos8",
+        "label": "Reserved / fixed digit",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "low",
+        "note": "Wildcard in the QuickSet MOT (Fig 2.17) and constant '0' in observed part numbers; treated as a fixed/reserved digit.",
+        "options": {
+          "0": "Fixed digit (reserved)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "metering_form",
+        "label": "Metering Form",
+        "group": "GROUP_1",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing-anchored; GROUP_1 in the main drawings (i7299 family), GROUP_2 in i7390.",
+        "options": {
+          "5": "Form 5 (Three-Wire Delta; 2 PTs, 2 CTs)",
+          "6": "Form 36 (Four-Wire Wye; 2 PTs, 3 CTs)",
+          "9": "Form 9 (Four-Wire Wye; 3 PTs, 3 CTs)"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "slot_a_power_supply",
+        "label": "Slot A Power Supply Voltage",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "note": "Slot A also provides 3 contact outputs and 2 control inputs.",
+        "options": {
+          "2": "24-48 Vdc (range 19-58 Vdc)",
+          "4": "110-240 Vac 50/60 Hz and 110-250 Vdc"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "slot_a_control_input_voltage",
+        "label": "Slot A Control Input Voltage",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc/Vac",
+          "2": "48 Vdc/Vac",
+          "3": "110 Vdc/Vac",
+          "4": "125 Vdc/Vac",
+          "5": "220 Vdc/Vac",
+          "6": "250 Vdc/Vac"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "slot_b_communications",
+        "label": "Slot B Main Board Communications (Port 1 Ethernet | Port 3 Rear Serial)",
+        "group": "GROUP_2",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)+pdf-layers",
+        "confidence": "high",
+        "note": "Port 2 EIA-232 is standard on all options. Code 'B' (no Ethernet) comes from the QuickSet MOT; the Ethernet codes are drawing-anchored (GROUP_2 in the main drawings).",
+        "options": {
+          "B": "Two EIA-232 ports (no Ethernet)",
+          "C": "Single 10/100BASE-T Ethernet | EIA-232 rear serial",
+          "E": "Single 10/100BASE-T Ethernet | EIA-485 rear serial",
+          "F": "Single 100BASE-FX Multimode Ethernet | EIA-232 rear serial",
+          "G": "Single 100BASE-FX Multimode Ethernet | EIA-485 rear serial"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "slot_c_communications",
+        "label": "Slot C Communications",
+        "group": "GROUP_3",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing-anchored (GROUP_3 in main drawings). Field-upgradeable.",
+        "options": {
+          "X": "Empty",
+          "F": "Serial Communications (EIA-232 and EIA-485 ports)",
+          "G": "Telephone Modem"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "reserved_pos14",
+        "label": "Reserved / fixed digit",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "low",
+        "note": "Wildcard in the QuickSet MOT (Fig 2.17) and constant 'X' in observed part numbers; treated as a fixed/reserved digit.",
+        "options": {
+          "X": "Fixed digit (reserved)"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "slot_d_io",
+        "label": "Slot D I/O Card",
+        "group": "GROUP_4",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing-anchored (GROUP_4 in main drawings). Field-upgradeable.",
+        "options": {
+          "X": "Empty",
+          "A": "4 DI / 4 DO Solid-State (KYZ)",
+          "B": "4 DI / 4 DO Electromechanical",
+          "C": "4 AO (+/-1 mA) / 4 DO Solid-State (KYZ)",
+          "D": "4 AO (+/-20 mA) / 4 DO Solid-State (KYZ)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "slot_d_control_input_voltage",
+        "label": "Slot D Control Input Voltage",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "note": "Applies to Slot D DI cards; 'X' when Slot D has no digital inputs.",
+        "options": {
+          "1": "24 Vdc/Vac",
+          "2": "48 Vdc/Vac",
+          "3": "110 Vdc/Vac",
+          "4": "125 Vdc/Vac",
+          "5": "220 Vdc/Vac",
+          "6": "250 Vdc/Vac",
+          "X": "None"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "reserved_pos17",
+        "label": "Reserved / fixed digit",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "low",
+        "note": "Wildcard in the QuickSet MOT (Fig 2.17) and constant 'X' in observed part numbers; treated as a fixed/reserved digit.",
+        "options": {
+          "X": "Fixed digit (reserved)"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "reserved_pos18",
+        "label": "Reserved / fixed digit",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "low",
+        "note": "Wildcard in the QuickSet MOT (Fig 2.17) and constant 'X' in observed part numbers; treated as a fixed/reserved digit.",
+        "options": {
+          "X": "Fixed digit (reserved)"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "slot_z_current_voltage",
+        "label": "Slot Z Current and Voltage Inputs",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "1": "Current Class CL2/10/20, optimized for low-end accuracy",
+          "2": "Current Class CL10/20, optimized for 100 A fault recording"
+        }
+      },
+      {
+        "position": 20,
+        "length": 1,
+        "field": "system_frequency",
+        "label": "System Frequency",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "5": "50 Hz",
+          "6": "60 Hz"
+        }
+      },
+      {
+        "position": 21,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard (SEL ASCII, SEL LMD, SEL Fast Meter, Compressed ASCII, MV-90 Translation, Modbus RTU/TCP, Mirrored Bits, Telnet, DNP3 Level 2 Outstation and LAN/WAN, Synchrophasors)",
+          "2": "Standard plus IEC 61850 with GOOSE and MMS",
+          "3": "Standard plus IEC 61850 with GOOSE and MMS with Continuous Waveform Streaming"
+        }
+      },
+      {
+        "position": 22,
+        "length": 1,
+        "field": "front_panel_labeling",
+        "label": "Front-Panel Labeling / Metering Standard",
+        "group": "GROUP_5",
+        "source": "SEL-735 master drawings (drawing layers GROUP_5)",
+        "confidence": "high",
+        "note": "Drawing-anchored (GROUP_5 in main drawings); not surfaced as a section in the WI-16251 touchscreen MOT, but confirmed by the real part number (0=ANSI).",
+        "options": {
+          "0": "ANSI",
+          "1": "IEC",
+          "2": "AUS NMI"
+        }
+      },
+      {
+        "position": 23,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "1": "No",
+          "2": "Yes"
+        }
+      },
+      {
+        "position": 24,
+        "length": 1,
+        "field": "software_bundle",
+        "label": "Software Bundle",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "C": "Meter Data Reporting Bundle (SEL-5705 Synchrowave Reports - Meter Data; SEL-5045 acSELerator TEAM Profile)",
+          "D": "Power Quality Reporting Bundle (SEL-5705 Synchrowave Reports - Power Quality; SEL-5703 Synchrowave Monitoring - Trending & Archiving; SEL-5045 TEAM Profile)",
+          "E": "Energy and Power Monitoring Bundle (SEL-5705 Synchrowave Reports - Power Quality; SEL-5703 Synchrowave Monitoring - Power Monitoring; SEL-5045 TEAM Profile)"
+        }
+      },
+      {
+        "position": 25,
+        "length": 1,
+        "field": "reserved_pos25",
+        "label": "Reserved / fixed digit",
+        "source": "SEL-735 Ordering Information (WI-16251, 20251015)",
+        "confidence": "low",
+        "note": "Trailing wildcard in the QuickSet MOT (Fig 2.17) and constant 'X' in observed part numbers; treated as a fixed/reserved digit.",
+        "options": {
+          "X": "Fixed digit (reserved)"
+        }
+      }
+    ]
+  }
+}

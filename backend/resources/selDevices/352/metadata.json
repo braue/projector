@@ -1,0 +1,515 @@
+{
+  "device": "352",
+  "model_to_drawings": {
+    "front": [
+      {
+        "when": {
+          "position_6": "0",
+          "position_10": "H",
+          "position_11": "XX"
+        },
+        "pdf": "i3152b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_10": "3",
+          "position_11": "XX"
+        },
+        "pdf": "i3154b.pdf"
+      },
+      {
+        "when": {
+          "position_6": [
+            "1",
+            "Y"
+          ],
+          "position_10": "3",
+          "position_11": [
+            "1",
+            "2"
+          ]
+        },
+        "pdf": "i3155b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_10": "3",
+          "position_11": [
+            "1",
+            "5"
+          ],
+          "position_12": "5"
+        },
+        "pdf": "i3156b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_10": "H",
+          "position_11": [
+            "1",
+            "5"
+          ],
+          "position_12": "5"
+        },
+        "pdf": "i3157b.pdf"
+      },
+      {
+        "when": {
+          "position_6": [
+            "1",
+            "Y"
+          ],
+          "position_10": "H",
+          "position_11": [
+            "1",
+            "2",
+            "5",
+            "6"
+          ]
+        },
+        "pdf": "i3160b.pdf"
+      }
+    ],
+    "rear": [
+      {
+        "when": {
+          "position_11": "XX"
+        },
+        "pdf": "i3153c.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_11": "1",
+          "position_12": "5"
+        },
+        "pdf": "i3158c.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_11": "1"
+        },
+        "pdf": "i3161c.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_11": "2"
+        },
+        "pdf": "i3162c.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_11": "5"
+        },
+        "pdf": "i3164b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_11": "6"
+        },
+        "pdf": "i3165b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "Y",
+          "position_11": "6"
+        },
+        "pdf": "i3170b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "Y",
+          "position_11": "2"
+        },
+        "pdf": "i3171a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_11": "5",
+          "position_12": "5"
+        },
+        "pdf": "i6392a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i6392a.pdf": {
+        "always": [
+          {
+            "name": "MECH",
+            "object_id": "5 0 R"
+          },
+          {
+            "name": "DWG",
+            "object_id": "6 0 R"
+          },
+          {
+            "name": "0",
+            "object_id": "7 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i3152b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            169.33,
+            510.28,
+            1558.23,
+            788.09
+          ]
+        }
+      },
+      "i3153c.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            232.33,
+            507.63,
+            1495.54,
+            785.08
+          ]
+        }
+      },
+      "i3154b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            135.96,
+            458.25,
+            1595.03,
+            841.79
+          ]
+        }
+      },
+      "i3155b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            131.77,
+            397.23,
+            1592.4,
+            903.77
+          ]
+        }
+      },
+      "i3156b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            135.96,
+            328.4,
+            1591.91,
+            960.94
+          ]
+        }
+      },
+      "i3157b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            137.11,
+            328.4,
+            1593.05,
+            960.94
+          ]
+        }
+      },
+      "i3158c.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            232.33,
+            383.54,
+            1496.68,
+            910.48
+          ]
+        }
+      },
+      "i3160b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            162.48,
+            446.07,
+            1567.38,
+            852.17
+          ]
+        }
+      },
+      "i3161c.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            231.19,
+            447.58,
+            1498.96,
+            847.6
+          ]
+        }
+      },
+      "i3162c.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            231.19,
+            446.43,
+            1498.96,
+            849.88
+          ]
+        }
+      },
+      "i3164b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            228.91,
+            447.58,
+            1500.11,
+            851.03
+          ]
+        }
+      },
+      "i3165b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            225.48,
+            446.43,
+            1502.39,
+            849.88
+          ]
+        }
+      },
+      "i3170b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            228.91,
+            447.58,
+            1498.96,
+            851.03
+          ]
+        }
+      },
+      "i3171a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            446.43,
+            1503.54,
+            852.17
+          ]
+        }
+      },
+      "i6392a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.06,
+            387.55,
+            1501.25,
+            913.91
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "8-position plug-in connector",
+        "evidence_layer": "fixed EIA-485 serial Port 1"
+      },
+      {
+        "ports": [
+          "P2",
+          "P3",
+          "P4"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial ports"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "352",
+    "product": "SEL-352-1, -2 Connectorized Breaker Failure Relay",
+    "length": 15,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0352",
+      "description": "SEL-352 Breaker Failure Relay (0352 base)"
+    },
+    "note": "15-character part number for the SEL-352-1/-2 Connectorized variant (20 outputs, 14 inputs, plug-in connectors). Positions were calibrated by pixel-column analysis of the WI-1033 Model Option Table (each option digit's box column maps to its 1-based character position); this device has NO usable model_to_layers/drawing anchors. WATCH THE CONNECTORIZED COLUMN SHIFT: metadata.model_to_drawings uses position_6/10/11/12 with STANDARD-variant semantics that do NOT match this connectorized layout. Position 12 is a fixed template digit (always X in WI-1033) with no configurable section, and the secondary-input voltage digit (pos 8) is fixed at 2 (150 Vac Wye).",
+    "references": [
+      "SEL-352-1, -2 Connectorized Ordering Information (WI-1033, 20190711) — Part Number template 0 3 5 2 Y ... X",
+      "SEL-352 Relay Instruction Manual (352-1-2-3_IM_20250127), part-number sticker template 0352XXXXXXXXXXX and front/rear model designators (0352x0xxxxX, 0352x2xxxx15, 0352xYxxxx6, ...)"
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard with Enhanced SELogic Control Equations",
+          "2": "Standard plus RMS Overcurrent Element and Breaker Wear"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "chassis",
+        "label": "Chassis",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "note": "Fixed digit for the connectorized -1/-2 (3U only). The standard SEL-352 offers other chassis codes (0/1/2/Y per model_to_drawings).",
+        "options": {
+          "Y": "3U"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "2": "24/48 Vdc",
+          "3": "48/125 Vdc or 125 Vac",
+          "4": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 8,
+        "length": 2,
+        "field": "secondary_input",
+        "label": "Secondary Input Voltage; Current",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "note": "First digit = secondary input voltage (fixed at 2), second digit = phase current rating.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Secondary input voltage",
+            "options": {
+              "2": "150 Vac Maximum Phase-Neutral (Wye)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Phase current",
+            "options": {
+              "1": "1 A Phase",
+              "5": "5 A Phase"
+            }
+          }
+        ]
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "5": "Horizontal Projection Panel Mount",
+          "H": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "output_contacts",
+        "label": "Output Contacts",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "2": "20 Standard (12 outputs configurable, Form A or Form B)",
+          "6": "8 Standard, 12 High-Current Interrupting (12 outputs configurable, Form A or Form B)"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "fixed_digit",
+        "label": "Fixed template digit",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "low",
+        "note": "WI-1033 pre-fills this box with X and provides no option section for it (the connectorized column-shift digit). Treated as a fixed placeholder.",
+        "options": {
+          "X": "Fixed (no configurable option)"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc",
+          "3": "110 Vdc",
+          "4": "125 Vdc",
+          "6": "250 Vdc"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformally Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-352-1,-2 Connectorized Ordering Information (WI-1033)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard plus DNP 3.00 Level 2 Slave (not available in the SEL-352-1)",
+          "X": "Standard"
+        }
+      }
+    ]
+  }
+}

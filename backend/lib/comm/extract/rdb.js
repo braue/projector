@@ -8,6 +8,8 @@
 // still yields an interface (the linker then matches on IP alone, tier
 // 'probable'), and a section nothing matches is simply not a comm setting.
 
+import { relayType } from '../../parsers/rdb/index.js';
+import { firstSetting } from '../../settings.js';
 import { endpointLines } from '../model.js';
 
 // --- the rule table -----------------------------------------------------------
@@ -34,21 +36,16 @@ const SERVER_RULES = [
 ];
 
 // A section with a baud-rate setting is a serial port; PROTO names what runs
-// on it (SEL, DNP, MOD, ...).
+// on it (SEL, DNP, MOD, ...) and the framing keys fill in the line settings.
 const BAUD_KEYS = ['SPEED', 'BAUD'];
 const SERIAL_PROTO_KEYS = ['PROTO', 'PROTOCOL'];
-
-// -----------------------------------------------------------------------------
-
-function firstKey(settings, keys) {
-  for (const key of keys) {
-    const value = (settings[key] ?? '').trim();
-    if (value) return { key, value };
-  }
-  return null;
-}
+const DATA_BITS_KEYS = ['BITS', 'DATABIT'];
+const PARITY_KEYS = ['PARITY'];
+const STOP_BITS_KEYS = ['STOPBIT', 'STOP'];
 
 const PROTO_FAMILY = { MOD: 'Modbus', MODBUS: 'Modbus', DNP: 'DNP', SEL: 'SEL' };
+
+// -----------------------------------------------------------------------------
 
 function extractRdbProfile(profile, ref) {
   const interfaces = [];
@@ -58,18 +55,18 @@ function extractRdbProfile(profile, ref) {
     const settings = section.settings ?? {};
     const sectionName = section.desc ?? section.key;
 
-    const ip = firstKey(settings, IP_KEYS);
+    const ip = firstSetting(settings, IP_KEYS);
     if (ip) {
       interfaces.push({
         kind: 'ethernet',
         name: sectionName,
-        ip: ip.value,
-        mask: firstKey(settings, MASK_KEYS)?.value ?? null,
+        ip,
+        mask: firstSetting(settings, MASK_KEYS),
       });
     }
 
     for (const rule of SERVER_RULES) {
-      const address = firstKey(settings, rule.address);
+      const address = firstSetting(settings, rule.address);
       if (!address) continue;
       const endpoint = {
         id: `${section.key}:${rule.protocol}`,
@@ -79,17 +76,17 @@ function extractRdbProfile(profile, ref) {
         transport: 'tcp',
         remoteAddress: null,
         remotePort: null,
-        localPort: firstKey(settings, rule.port)?.value ?? null,
+        localPort: firstSetting(settings, rule.port),
         serial: null,
-        addressing: rule.addressing(address.value),
+        addressing: rule.addressing(address),
       };
       endpoint.lines = endpointLines(endpoint);
       endpoints.push(endpoint);
     }
 
-    const baud = firstKey(settings, BAUD_KEYS);
+    const baud = firstSetting(settings, BAUD_KEYS);
     if (baud) {
-      const proto = firstKey(settings, SERIAL_PROTO_KEYS)?.value?.toUpperCase() ?? null;
+      const proto = firstSetting(settings, SERIAL_PROTO_KEYS)?.toUpperCase() ?? null;
       const endpoint = {
         id: `${section.key}:serial`,
         name: sectionName,
@@ -98,10 +95,10 @@ function extractRdbProfile(profile, ref) {
         transport: 'serial',
         serial: {
           port: sectionName,
-          baud: baud.value,
-          dataBits: firstKey(settings, ['BITS', 'DATABIT'])?.value ?? null,
-          parity: firstKey(settings, ['PARITY'])?.value ?? null,
-          stopBits: firstKey(settings, ['STOPBIT', 'STOP'])?.value ?? null,
+          baud,
+          dataBits: firstSetting(settings, DATA_BITS_KEYS),
+          parity: firstSetting(settings, PARITY_KEYS),
+          stopBits: firstSetting(settings, STOP_BITS_KEYS),
         },
         addressing: {},
       };
@@ -113,7 +110,7 @@ function extractRdbProfile(profile, ref) {
   return {
     name: profile.name,
     manufacturer: 'SEL',
-    model: profile.info?.RELAYTYPE ?? profile.info?.DEVICETYPE ?? 'relay',
+    model: relayType(profile) ?? 'relay',
     source: { type: 'rdb', ref },
     interfaces,
     endpoints,

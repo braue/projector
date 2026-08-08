@@ -1,0 +1,900 @@
+{
+  "device": "351A",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": [
+            "H",
+            "3",
+            "5"
+          ]
+        },
+        "front_pdf": "i7020.C.pdf",
+        "rear_pdf": "i7020.C.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": [
+            "H",
+            "3",
+            "5"
+          ]
+        },
+        "front_pdf": "i7022.C.pdf",
+        "rear_pdf": "i7022.C.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "4"
+        },
+        "front_pdf": "i7023b.pdf",
+        "rear_pdf": "i7023b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": [
+            "R",
+            "P",
+            "T"
+          ],
+          "position_8": "2"
+        },
+        "front_pdf": "i7084a.pdf",
+        "rear_pdf": "i7084a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7020.C.pdf": {
+        "always": [
+          {
+            "name": "17_DWG",
+            "object_id": "31 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMMUNICATIONS_INTERFACE": {
+            "source": {
+              "position": 11
+            },
+            "options": {
+              "K": [
+                {
+                  "name": "16_COMMUNICATIONS INTERFACE__K",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "J": [
+                {
+                  "name": "15_COMMUNICATIONS INTERFACE__J",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "14_COMMUNICATIONS INTERFACE__H",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "13_COMMUNICATIONS INTERFACE__G",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "12_COMMUNICATIONS INTERFACE__F",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "11_COMMUNICATIONS INTERFACE__E",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "10_COMMUNICATIONS INTERFACE__D",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "09_COMMUNICATIONS INTERFACE__C",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "08_COMMUNICATIONS INTERFACE__B",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "07_COMMUNICATIONS INTERFACE__A",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "USER_INTERFACE": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "03_USER INTERFACE__0",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "04_USER INTERFACE__1",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "05_USER INTERFACE__2",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "06_USER INTERFACE__6",
+                  "object_id": "42 0 R"
+                }
+              ]
+            }
+          },
+          "MOUNTING": {
+            "source": {
+              "position": 7
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "02_MOUNTING__3 5",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "02_MOUNTING__3 5",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "01_MOUNTING__H",
+                  "object_id": "47 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7022.C.pdf": {
+        "always": [
+          {
+            "name": "17_DWG",
+            "object_id": "31 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMMUNICATIONS_INTERFACE": {
+            "source": {
+              "position": 11
+            },
+            "options": {
+              "K": [
+                {
+                  "name": "16_COMMUNICATIONS INTERFACE__K",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "J": [
+                {
+                  "name": "15_COMMUNICATIONS INTERFACE__J",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "14_COMMUNICATIONS INTERFACE__H",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "13_COMMUNICATIONS INTERFACE__G",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "12_COMMUNICATIONS INTERFACE__F",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "11_COMMUNICATIONS INTERFACE__E",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "10_COMMUNICATIONS INTERFACE__D",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "09_COMMUNICATIONS INTERFACE__C",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "08_COMMUNICATIONS INTERFACE__B",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "07_COMMUNICATIONS INTERFACE__A",
+                  "object_id": "41 0 R"
+                }
+              ]
+            }
+          },
+          "USER_INTERFACE": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "03_USER INTERFACE__0",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "04_USER INTERFACE__1",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "05_USER INTERFACE__2",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "06_USER INTERFACE__6",
+                  "object_id": "42 0 R"
+                }
+              ]
+            }
+          },
+          "MOUNTING": {
+            "source": {
+              "position": 7
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "02_MOUNTING__3 5",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "02_MOUNTING__3 5",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "01_MOUNTING__H",
+                  "object_id": "47 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7023b.pdf": {
+        "always": [
+          {
+            "name": "15_DWG",
+            "object_id": "9 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMMUNICATIONS_INTERFACE": {
+            "source": {
+              "position": 11
+            },
+            "options": {
+              "K": [
+                {
+                  "name": "14_COMMUNICATIONS INTERFACE__K",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "J": [
+                {
+                  "name": "13_COMMUNICATIONS INTERFACE__J",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "12_COMMUNICATIONS INTERFACE__H",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "11_COMMUNICATIONS INTERFACE__G",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "10_COMMUNICATIONS INTERFACE__F",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "09_COMMUNICATIONS INTERFACE__E",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "08_COMMUNICATIONS INTERFACE__D",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "07_COMMUNICATIONS INTERFACE__C",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "06_COMMUNICATIONS INTERFACE__B",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "05_COMMUNICATIONS INTERFACE__A",
+                  "object_id": "19 0 R"
+                }
+              ]
+            }
+          },
+          "USER_INTERFACE": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "01_USER INTERFACE__0",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "02_USER INTERFACE__1",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "03_USER INTERFACE__2",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "04_USER INTERFACE__6",
+                  "object_id": "20 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7084a.pdf": {
+        "always": [
+          {
+            "name": "11_DWG",
+            "object_id": "9 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMMUNICATIONS_INTERFACE": {
+            "source": {
+              "position": 11
+            },
+            "options": {
+              "F": [
+                {
+                  "name": "10_COMMUNICATIONS INTERFACE__F",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "09_COMMUNICATIONS INTERFACE__E",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "08_COMMUNICATIONS INTERFACE__D",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "07_COMMUNICATIONS INTERFACE__C",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "06_COMMUNICATIONS INTERFACE__B",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "05_COMMUNICATIONS INTERFACE__A",
+                  "object_id": "15 0 R"
+                }
+              ]
+            }
+          },
+          "USER_INTERFACE": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "03_USER INTERFACE__0",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "04_USER INTERFACE__2",
+                  "object_id": "16 0 R"
+                }
+              ]
+            }
+          },
+          "CHASSIS": {
+            "source": {
+              "position": 7
+            },
+            "options": {
+              "P": [
+                {
+                  "name": "02_CHASSIS__P T",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "02_CHASSIS__P T",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "01_CHASSIS__R",
+                  "object_id": "19 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7020.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            65.14,
+            868.11,
+            1547.43,
+            1278.69
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1785.14,
+            930.57,
+            3068,
+            1219.43
+          ]
+        }
+      },
+      "i7022.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            65.14,
+            865.71,
+            1547.43,
+            1274
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1787.43,
+            930.57,
+            3070.29,
+            1214.86
+          ]
+        }
+      },
+      "i7023b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1574.57,
+            180,
+            1895.43,
+            1520
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2250,
+            198,
+            2558.29,
+            1510
+          ]
+        }
+      },
+      "i7084a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            131.43,
+            781.14,
+            1611.43,
+            1182.57
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1850.48,
+            842.96,
+            3129.48,
+            1125.96
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[BDEF]$",
+            "transport": "serial",
+            "connector": "5-pin Euro",
+            "evidence_layer": "optional EIA-485 serial Port 1"
+          },
+          {
+            "match": "^[GHJK]$",
+            "transport": "serial",
+            "connector": "ST fiber",
+            "evidence_layer": "optional fiber-optic serial Port 1"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[ABG]$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "single 10-100Base-T Ethernet Port 5 option"
+          },
+          {
+            "match": "^[CD]$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "single 100Base-FX Ethernet Port 5 option"
+          },
+          {
+            "match": "^[EFHJK]$",
+            "transport": "ethernet",
+            "connector": "dual Ethernet",
+            "evidence_layer": "dual Ethernet Port 5A/5B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[EJ]$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5A option"
+          },
+          {
+            "match": "^[FK]$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5A option"
+          },
+          {
+            "match": "^H$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5A option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[EJ]$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5B option"
+          },
+          {
+            "match": "^[FK]$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5B option"
+          },
+          {
+            "match": "^H$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5B option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "351A",
+    "product": "SEL-351A Protection System",
+    "length": 15,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0351A",
+      "description": "SEL-351A Protection System"
+    },
+    "note": "15-digit MOT string (WI-8347). Prefix 0351A occupies positions 1-5; position 6 (firmware) is effectively fixed at 0, and position 9 is a fixed X in the template. Positions 7 (chassis/mounting), 8 (user interface) and 11 (communications interface) are also present in the drawing layers and match by box column. Voltage note: accepts single-phase up to 300 V L-N or three-phase up to 300 V L-N, wye or delta (global setting). A 14-character string 0351A0H34E54X2 appears in the instruction manual as a firmware-upgrade example; it does not align to this 15-digit MOT (likely an older revision or OCR artifact) and was not used for calibration.",
+    "references": [
+      "SEL-351A Ordering Information (WI-8347, 20170223)",
+      "SEL-351A master configuration drawings i7020.C / i7022.C / i7023b / i7084a (drawing layers)",
+      "SEL-351A Protection System Instruction Manual (351A_PS_IM_20250428) - real part number 0351A0H6X3D14X2"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0351A0H6X3D14X2",
+        "note": "From the SEL-351A instruction manual; decodes fully against this MOT (2U horiz rack, USB+SafeLock, 48/125 Vdc, (1)100Base-FX+EIA-485, 1A/1A, 125 Vdc control, no coat, +IEC 61850)."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "note": "Fixed digit - only the Standard firmware is offered on the SEL-351A.",
+        "options": {
+          "0": "Standard (same as SEL-351-5, without pilot protection schemes)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "chassis_and_mounting",
+        "label": "Chassis & Mounting",
+        "group": "MOUNTING",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)+pdf-layers",
+        "confidence": "high",
+        "note": "Vertical panel mount (4) has no LCD. Connectorized/PMU variants (-1/-T) carry P/R/T mounting codes on the i7084a drawing layer; those are covered by the WI-8348 MOT, not this one.",
+        "options": {
+          "3": "2U horizontal panel mount",
+          "4": "2U vertical panel mount (no LCD)",
+          "5": "2U horizontal projection panel mount",
+          "H": "2U horizontal rack mount"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "user_interface",
+        "label": "User Interface",
+        "group": "USER_INTERFACE",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layers also retain legacy user-interface codes 0 and 1 (pre-USB); the current MOT offers only 2 and 6.",
+        "options": {
+          "2": "Standard interface including USB",
+          "6": "Standard interface including USB plus indoor SafeLock trip/close pushbuttons"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "reserved",
+        "label": "Reserved",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "note": "Fixed digit - hardcoded X in the MOT template.",
+        "options": {
+          "X": "Fixed digit"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "options": {
+          "2": "24/48 Vdc",
+          "3": "48/125 Vdc or 120 Vac",
+          "4": "125/250 Vdc or 120/230 Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "communications_interface",
+        "label": "Communications Interface",
+        "group": "COMMUNICATIONS_INTERFACE",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)+pdf-layers",
+        "confidence": "high",
+        "note": "WI-8347 lists only the Ethernet combinations D-K; the drawing layers additionally enumerate legacy codes A/B/C/G (single-copper/no-Ethernet) without current descriptions.",
+        "options": {
+          "D": "(1) 100Base-FX MM LC, EIA-485",
+          "E": "(2) 10/100Base-T, EIA-485",
+          "F": "(2) 100Base-FX MM LC, EIA-485",
+          "H": "(1) 10/100Base-T, (1) 100Base-FX MM LC, (1) FO MM ST serial port",
+          "J": "(2) 10/100Base-T, (1) FO MM ST serial port",
+          "K": "(2) 100Base-FX MM LC, (1) FO MM ST serial port"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A phase, 1 A neutral",
+          "5": "5 A phase, 5 A neutral",
+          "6": "5 A phase, 1 A neutral",
+          "8": "1 A phase, 0.05 A neutral (nondirectional SEF)",
+          "9": "5 A phase, 0.05 A neutral (nondirectional SEF)",
+          "A": "1 A phase, 0.2 A neutral (directional, various grounding)",
+          "B": "5 A phase, 0.2 A neutral (directional, various grounding)"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc",
+          "3": "110 Vdc",
+          "4": "125 Vdc",
+          "5": "220 Vdc",
+          "6": "250 Vdc"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformally coated circuit boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-351A Ordering Information (WI-8347, 20170223)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard protocols (DNP3, Modbus, C37.118, etc.)",
+          "2": "Standard plus IEC 61850"
+        }
+      }
+    ]
+  }
+}

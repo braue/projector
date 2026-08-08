@@ -1,0 +1,236 @@
+{
+  "device": "3560S",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7156b.pdf",
+        "rear_pdf": "i7156b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7156b.pdf": {
+        "always": [
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "1.0_____[HEATSINK]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "1.0_____[HEATSINK]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "1.0_____[HEATSINK]",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "1.0_____[HEATSINK]",
+            "object_id": "43 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "Standard": [
+                {
+                  "name": "1.1__Standard",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "1.1__Standard",
+                  "object_id": "34 0 R"
+                },
+                {
+                  "name": "1.1__Standard",
+                  "object_id": "38 0 R"
+                },
+                {
+                  "name": "1.1__Standard",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "STANDARD"
+            }
+          },
+          "2": {
+            "options": {
+              "Conduction": [
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "29 0 R"
+                },
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "Cooled": [
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "29 0 R"
+                },
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "1.2__Conduction Cooled",
+                  "object_id": "41 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "CONDUCTION"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7156b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            53.43,
+            401.43,
+            817,
+            639.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            854,
+            404.86,
+            1623.29,
+            634.71
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETH1-ETH2",
+        "label": "Rear Ethernet Ports 1-2",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3560 manual: two rear gigabit Ethernet ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Speed",
+            "value": "Gigabit Ethernet"
+          }
+        ]
+      },
+      {
+        "id": "SER1-SER2",
+        "label": "Serial Ports 1-2",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-3560 manual: two EIA-232 DB-9 serial ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "SER-EXP",
+        "label": "Optional Serial Expansion Ports",
+        "transport": "serial",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3560 manual: optional EIA-232/EIA-422/EIA-485 serial expansion ports",
+        "specs": [
+          {
+            "label": "Configuration",
+            "value": "Optional expansion"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232/EIA-422/EIA-485"
+          }
+        ],
+        "interface": "EIA-232 / EIA-422 / EIA-485"
+      },
+      {
+        "id": "USB",
+        "label": "USB Ports",
+        "transport": "usb",
+        "connector": "USB",
+        "evidence_layer": "SEL-3560 manual: two front and four rear USB ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "6"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "3560S",
+    "product": "SEL-3560S Real-Time Automation Controller (RTAC)",
+    "length": null,
+    "prefix": {
+      "positions": "1-5",
+      "value": "3560S",
+      "description": "SEL-3560S — compact RTAC variant of the SEL-3560 Real-Time Automation Controller (no internal power supply, no PCI/PCIe expansion slots; base 2 EIA-232 DB-9 serial ports with an optional SEL-3390S8 serial card adding up to 12 EIA-232/EIA-422/EIA-485 ports). Rated -40 C to +75 C with the E3-1505L CPU. The expandable sibling is the SEL-3560E (SEL-9331 power supply, expansion slots)."
+    },
+    "note": "No configurable per-digit Model Option Table is emitted. The SEL-3560 RTAC is ordered as a base catalog unit (SEL-3560S compact vs SEL-3560E expandable) with configuration options — CPU, RAM (8/16/32/64 GB ECC, factory-installed), SATA storage, operating system, thermal option (standard vs conduction-cooled heatsink), and the SEL-3390S8 serial expansion card — selected via SEL's interactive Model Option Table, not encoded as a fixed-length decodable part-number string. No ordering-information document exists in the local SEL index for this model (only the data sheet and instruction manual); the instruction manual states outright that it 'does not provide complete ordering information'; no genuine SEL-3560S part number was found in uploads/test; and the data sheet contains no part-number template or ordering appendix. The drawing layers present in this metadata (Standard vs Conduction-Cooled heatsink) describe the physical thermal build of the unit but are NOT used here as part-number position anchors. positions:[] is intentional; the decoder returns no attributes.",
+    "references": [
+      "SEL-3560 RTAC Data Sheet (3560_DS_20241218.pdf) — no Model Option Table / part-number template present",
+      "SEL-3560 RTAC Instruction Manual (3560_IM_20241218_20260313.pdf) — explicitly states it does not provide complete ordering information; no PARTNO appendix",
+      "SEL online Model Option Table (selinc.com/products/3560/) — interactive configurator; not a decodable digit string"
+    ],
+    "positions": []
+  }
+}

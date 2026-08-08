@@ -1,0 +1,125 @@
+{
+  "device": "T401L",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i6360a.pdf",
+        "rear_pdf": "i6361.B.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i6360a.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "27 0 R"
+          }
+        ]
+      },
+      "i6361.B.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "0",
+            "object_id": "10 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i6360a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            165.77,
+            463.01,
+            1563.37,
+            888.43
+          ]
+        }
+      },
+      "i6361.B.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            11.6,
+            48.03,
+            1287.02,
+            428.74
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "transport": "serial",
+        "connector": "fiber-optic",
+        "evidence_layer": "protection signaling fiber-optic ports"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "USB",
+        "evidence_layer": "front-panel USB Port F"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "transport": "ethernet",
+        "connector": "SFP fiber",
+        "evidence_layer": "100BASE-FX Ethernet Port 5"
+      },
+      {
+        "ports": [
+          "P6"
+        ],
+        "transport": "serial",
+        "connector": "SFP fiber",
+        "evidence_layer": "direct fiber-optic protection channel Port 6"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "T401L",
+    "product": "SEL-T401L Ultra-High-Speed Line Relay",
+    "length": null,
+    "prefix": {
+      "positions": "1-6",
+      "value": "T401L#",
+      "description": "SEL-T401L Ultra-High-Speed Line Relay; the relay's part number is 'T401L#' followed by an SEL-assigned configuration index (e.g. T401L#0001)."
+    },
+    "note": "The SEL-T401L has NO per-digit configurable Model Option Table, so there is nothing to decode. It ships in a fixed 3U horizontal rack-mount chassis; hardware selections are captured against an SEL-assigned configuration number rather than encoded into decodable part-number digits. Configurable hardware per the data sheet: power-supply range (High-Voltage 125-250 Vdc / 110-240 Vac, or Medium-Voltage 48-125 Vdc / 110-120 Vac), contact-input rated voltage (48/110/125/220/250 Vdc), 1 A vs 5 A nominal current model, and Port 5 / Port 6 SFP transceivers (ordered separately). The VER/version report lists the part number as 'T401L#xxxx' (e.g. T401L#0001); the firmware ID carries the model, e.g. SEL-T401L-Rnnn-Vx-Zsssppp-Dyyyymmdd. Order through SEL (selinc.com).",
+    "references": [
+      "SEL-T401L Data Sheet (T401L_DS_20250424) - General Specifications (power supply, contact inputs, SFP transceivers); no Model Option Table printed",
+      "SEL-T401L Instruction Manual (T401L_IM_20251003) - ordering information directs to SEL; VER report Figure 9.32/9.33 shows PARTNO=T401L#xxxx"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "T401L#0001",
+        "note": "Sample VER-report part number from the SEL-T401L Instruction Manual (Figure 9.33). '#0001' is an SEL-assigned configuration index, not a decodable option string. That sample unit: 5 A nominal current, 125 Vdc contact inputs, 125-250 Vdc / 110-240 Vac power supply, dual 1000BASE-SX Port 5/6 SFP transceivers."
+      }
+    ],
+    "positions": []
+  }
+}

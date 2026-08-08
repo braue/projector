@@ -3,33 +3,12 @@
 // interfaces, which is what phase 2 will produce).
 
 import assert from 'node:assert/strict';
-import { access, readdir, readFile } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
 import test from 'node:test';
 
 import { extractRtacProfile } from '../lib/comm/extract/rtac.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
-
-const SAMPLE_DIR = process.env.ACRTAC_SAMPLE_DIR
-  ?? path.join(os.homedir(), 'Desktop', 'RTAC_PROJECT');
-const sampleExists = await access(SAMPLE_DIR).then(() => true, () => false);
-
-async function loadSample() {
-  const files = [];
-  const walk = async (dir, rel) => {
-    for (const entry of await readdir(dir, { withFileTypes: true })) {
-      const relPath = rel ? `${rel}/${entry.name}` : entry.name;
-      if (entry.isDirectory()) await walk(path.join(dir, entry.name), relPath);
-      else if (/\.xml$/i.test(entry.name)) {
-        files.push({ file: relPath, xml: await readFile(path.join(dir, entry.name), 'utf8') });
-      }
-    }
-  };
-  await walk(SAMPLE_DIR, '');
-  return files;
-}
+import { loadSample, sampleExists } from './helpers/loadSample.js';
 
 test('RTAC extractor yields endpoints from the sample export', { skip: !sampleExists }, async () => {
   const model = parseRtacProject(await loadSample());

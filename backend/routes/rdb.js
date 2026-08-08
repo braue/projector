@@ -4,45 +4,44 @@
 import { Router } from 'express';
 import multer from 'multer';
 
+import { httpError, requireQuery } from '../lib/http.js';
+
 const MAX_UPLOAD_BYTES = 64 * 1024 * 1024;
 
 function rdbRoutes(service) {
   const router = Router();
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
-  const respond = (handler) => async (req, res) => {
-    try {
-      await handler(req, res);
-    } catch (err) {
-      res.status(err?.status ?? 500).json({ error: err?.message ?? String(err) });
-    }
-  };
-
-  router.get('/', respond(async (_req, res) => {
+  router.get('/', (_req, res) => {
     res.json({ files: service.list() });
-  }));
+  });
 
-  router.post('/', upload.single('file'), respond(async (req, res) => {
-    if (!req.file) {
-      res.status(400).json({ error: 'multipart field "file" required' });
-      return;
-    }
+  router.post('/', upload.single('file'), async (req, res) => {
+    if (!req.file) throw httpError(400, 'multipart field "file" required');
     res.status(201).json(await service.upload(req.file.originalname, req.file.buffer));
-  }));
+  });
 
-  router.delete('/:id', respond(async (req, res) => {
+  router.delete('/:id', async (req, res) => {
     await service.remove(req.params.id);
     res.json({ ok: true });
-  }));
+  });
 
   // Inspect shapes; the profile ref travels as ?ref= because it contains "::".
-  router.get('/tree', respond(async (req, res) => {
-    res.json(service.tree(String(req.query.ref ?? '')));
-  }));
+  router.get('/tree', (req, res) => {
+    res.json(service.tree(requireQuery(req, 'ref')));
+  });
 
-  router.get('/item', respond(async (req, res) => {
-    res.json(service.item(String(req.query.ref ?? ''), String(req.query.file ?? '')));
-  }));
+  router.get('/item', (req, res) => {
+    res.json(service.item(requireQuery(req, 'ref'), requireQuery(req, 'file')));
+  });
+
+  // Generated front/rear panel drawing PNG for one profile.
+  router.get('/drawing', (req, res, next) => {
+    const file = service.drawingPath(requireQuery(req, 'ref'), requireQuery(req, 'view'));
+    res.sendFile(file, (err) => {
+      if (err) next(err);
+    });
+  });
 
   return router;
 }

@@ -1,0 +1,830 @@
+{
+  "device": "651R",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7171.e.pdf",
+        "rear_pdf": "i7171.e.pdf"
+      },
+      {
+        "when": {
+          "position_8": "C"
+        },
+        "front_pdf": "i7172.c.pdf",
+        "rear_pdf": "i7172.c.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7171.e.pdf": {
+        "always": [
+          {
+            "name": "5.0____DWG",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "4.0____[POWER SUPPLY]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "3.0____[COMMUNICATIONS INTERFACE]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0____[EXTRA INPUTS-OUTPUTS]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "1.0____[CONTROL CABLE INTERFACE]",
+            "object_id": "57 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "source": {
+              "position": 16
+            },
+            "options": {
+              "1": [
+                {
+                  "name": "4.1__1__120 Vac (Includes GFCI Outlet)",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.2__2__230 Vac",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "4.4__3__125 Vdc",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__48 Vdc",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "L": [
+                {
+                  "name": "3.4__L__(1) 10-100Base-T. (1) 100Base-FX",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.3__F__(2) 100Base-FX. EIA-485",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "3.2__E__(2) 10-100Base-T. EIA-485",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "3.1__D__(1) 100Base-FX. EIA-485",
+                  "object_id": "40 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "8": [
+                {
+                  "name": "2.2__8__(7) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.5__C__(2) 220 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "2.4__B__(2) 48 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.3__A__(2) 125 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "46 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 7
+            },
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Traditional Retrofit (14-Pin)",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__G&W Viper-ST. G&W Viper-LT. ABB Gridshield. or ABB Elastimold MVR (32-Pin)",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "1.3__3__ABB OVR-3.VR3S (15 & 27 kV only) (24-Pin)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "1.4__4__G&W Ctrl Power Viper-S or Ctrl-Powered Eaton NOVA (19-Pin)",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.5__5__ABB Joslyn TriMod 600R (27-Pin)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.6__6__Eaton NOVA-TS Triple-Single or NOVA-STS Single-Tank Triple-Single (26-Pin)",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "1.7__8__Siemens SDR Triple-Single (40-Pin)",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.8__9__Siemens SDR 3-Phase (40-Pin)",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.9__A__SEL Multi-Recloser Interface (42-Pin)",
+                  "object_id": "48 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7172.c.pdf": {
+        "always": [
+          {
+            "name": "5.0____DWG",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "4.0____[POWER SUPPLY]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "3.0____[COMMUNICATIONS INTERFACE]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0____[EXTRA INPUTS-OUTPUTS]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "1.0____[CONTROL CABLE INTERFACE]",
+            "object_id": "57 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "source": {
+              "position": 16
+            },
+            "options": {
+              "1": [
+                {
+                  "name": "4.1__1__120 Vac (Includes GFCI Outlet)",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.2__2__230 Vac",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "4.4__3__125 Vdc",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__48 Vdc",
+                  "object_id": "33 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "L": [
+                {
+                  "name": "3.4__L__(1) 10-100Base-T. (1) 100Base-FX",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.3__F__(2) 100Base-FX. EIA-485",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "3.2__E__(2) 10-100Base-T. EIA-485",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "3.1__D__(1) 100Base-FX. EIA-485",
+                  "object_id": "40 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 12
+            },
+            "options": {
+              "8": [
+                {
+                  "name": "2.2__8__(7) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.5__C__(2) 220 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "2.4__B__(2) 48 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.3__A__(2) 125 Vdc & (5) 12 Vdc Inputs. (8) Std Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "46 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 7
+            },
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Traditional Retrofit (14-Pin)",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__G&W Viper-ST. G&W Viper-LT. ABB Gridshield. or ABB Elastimold MVR (32-Pin)",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "1.3__3__ABB OVR-3.VR3S (15 & 27 kV only) (24-Pin)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "1.4__4__G&W Ctrl Power Viper-S or Ctrl-Powered Eaton NOVA (19-Pin)",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.5__5__ABB Joslyn TriMod 600R (27-Pin)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.6__6__Eaton NOVA-TS Triple-Single or NOVA-STS Single-Tank Triple-Single (26-Pin)",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "1.7__8__Siemens SDR Triple-Single (40-Pin)",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.8__9__Siemens SDR 3-Phase (40-Pin)",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "1.9__A__SEL Multi-Recloser Interface (42-Pin)",
+                  "object_id": "48 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7171.e.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            192.8,
+            900.66,
+            1613.29,
+            1416.14
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1848.8,
+            905.86,
+            3263.2,
+            1422.63
+          ]
+        }
+      },
+      "i7172.c.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            584.37,
+            102,
+            1613.2,
+            1515
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1848.8,
+            102,
+            2865.8,
+            1516.5
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^[DEF]$",
+            "transport": "serial",
+            "connector": "5-pin Euro",
+            "evidence_layer": "EIA-485 serial Port 1 option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^D$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "single 100Base-FX Ethernet Port 5 option"
+          },
+          {
+            "match": "^E$",
+            "transport": "ethernet",
+            "connector": "dual RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5A/5B option"
+          },
+          {
+            "match": "^F$",
+            "transport": "ethernet",
+            "connector": "dual LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5A/5B option"
+          },
+          {
+            "match": "^L$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5A/5B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^E$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5A option"
+          },
+          {
+            "match": "^F$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5A option"
+          },
+          {
+            "match": "^L$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5A option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_3"
+        },
+        "option_patterns": [
+          {
+            "match": "^E$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5B option"
+          },
+          {
+            "match": "^F$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5B option"
+          },
+          {
+            "match": "^L$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5B option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "651R",
+    "product": "SEL-651R-2 Recloser Control",
+    "length": 22,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0651R",
+      "description": "SEL-651R Recloser Control (leading catalog 0). The 6th digit ('2' = Standard firmware) denotes the -2 generation and is folded into position 6 below."
+    },
+    "note": "22-character MOT string as stored in the RDB (e.g. PARTNO=0651R221XEG8AE2123XXXX). Field order follows the SEL-651R-2 Model Option Table (WI-9861): Firmware(6), Control Cable Interface(7), Enclosure(8), Conformal Coat(9), Secondary Input Voltage(10), Secondary Input Current(11), Extra Inputs/Outputs(12), Communications Port(13, fixed 'A'), Communications Interface(14), Communications Protocol(15), Power Supply(16), Battery(17), User Interface(18), Installed Accessories(19-20, 2-digit), Bundled Accessories(21-22, 2-digit). Every position is calibrated to two genuine part numbers (0651R221XEG8AE2123XXXX from the SEL-651R-2 IM factory-default figure, and 0651R214XAAXAE1112XXXX from an RDB upload) which agree on every field and are authoritative. The i7171/i7172 drawing layer source.position values (GROUP_1=8, GROUP_2=10, GROUP_3=14, GROUP_4=18) are OFFSET from these stored-PN positions (Control Cable Interface=7, Extra I/O=12, Communications Interface=14, Power Supply=16) by an inconsistent amount, so the real part numbers - not the drawing anchors - set the positions here. Enclosure (position 8): WI-9861 uses letter codes A-D but both genuine stored part numbers use legacy numeric codes 1-4; the numeric->enclosure mapping is inferred by parallel ordering (see that position's note).",
+    "references": [
+      "SEL-651R-2 Ordering Information (WI-9861, 20260114) - Model Option Table",
+      "SEL-651R-2 Instruction Manual (651R-2_IM_20250401) - factory-default PARTNO 0651R221XEG8AE2123XXXX",
+      "SEL-651R RDB upload - real PARTNO 0651R214XAAXAE1112XXXX",
+      "SEL-651R master configuration drawings i7171.e / i7172.c (drawing layers GROUP_1..GROUP_4)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0651R221XEG8AE2123XXXX",
+        "note": "SEL-651R-2 IM factory-default example: Standard fw, Control Cable Interface 2 (G&W Viper-ST/LT, ABB Gridshield/Elastimold MVR, 32-pin), Enclosure 1 (dual-door side mount), uncoated, SIV E (Eaton Nova VY + Lindsey SVMI VZ), SIC G (1A/0.2A w/ HIF detection), Extra I/O 8 ((7)12Vdc in/(8) std out), 3 EIA-232+USB, Comms Interface E ((2)10/100BASE-T EIA-485), Standard+IEC 61850, 120 Vac PS w/ GFCI, 12V/40Ahr battery, User Interface 3 (config labels + tri-color LEDs), no installed/bundled accessories"
+      },
+      {
+        "part_number": "0651R214XAAXAE1112XXXX",
+        "note": "Real RDB PARTNO: Control Cable Interface 1 (Traditional Retrofit 14-pin), Enclosure 4 (single-door rear mount, legacy numeric), uncoated, SIV A ((6) 300 Vac both VY/VZ), SIC A (1A/0.2A), Extra I/O X (none), 3 EIA-232+USB, Comms Interface E ((2)10/100BASE-T EIA-485), Standard protocol, 120 Vac PS, 12V/16Ahr battery, User Interface 2 (config labels), no installed/bundled accessories"
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "note": "Only one firmware option is offered; constant '2' (= Standard / the -2 generation) in the header template and in every observed part number.",
+        "options": {
+          "2": "Standard"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "control_cable_interface",
+        "label": "Control Cable Interface",
+        "group": "GROUP_1",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)+pdf-layers",
+        "confidence": "high",
+        "note": "Selects the recloser control-cable interface. Drawing layer GROUP_1 (source.position 8) maps this field; the layer index is offset from this stored-PN position 7. Real part numbers use codes 1 and 2.",
+        "options": {
+          "1": "Traditional Retrofit (14-Pin)",
+          "2": "G&W Viper-ST, G&W Viper-LT, ABB Gridshield, or ABB Elastimold MVR (32-Pin)",
+          "3": "ABB OVR-3/VR3S (15 and 27 kV only) (24-Pin)",
+          "4": "G&W Control Power Viper-S or Control-Powered Eaton NOVA (19-Pin)",
+          "5": "ABB Joslyn TriMod 600R (27-Pin)",
+          "6": "Eaton NOVA-TS Triple-Single or NOVA-STS Single-Tank Triple-Single (26-Pin)",
+          "8": "Siemens SDR Triple-Single (40-Pin)",
+          "9": "Siemens SDR 3-Phase (40-Pin)",
+          "A": "SEL Multi-Recloser Interface (42-Pin)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "enclosure",
+        "label": "Enclosure",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "low",
+        "note": "WI-9861 (2026) uses letter codes A-D (high confidence). Both genuine stored part numbers instead use legacy numeric codes at this position (0651R221... uses '1', 0651R214... uses '4'); the numeric->enclosure mapping (1->A, 2->B, 3->C, 4->D) is inferred by parallel ordering. Per WI-9861 footnotes, enclosures ordered before 2026 were painted steel and are painted 5052 marine-grade aluminum thereafter. The model_to_drawings rule switches to the single-door/rear-mount drawing i7172.c when this position is 'C'.",
+        "options": {
+          "1": "Dual Door (Side Mount), Painted Aluminum/Steel (legacy numeric, = option A)",
+          "2": "Dual Door (Side Mount), Painted Type 304 Stainless Steel (legacy numeric, = option B)",
+          "3": "Single Door (Rear Mount), Painted Aluminum/Steel (legacy numeric, = option C)",
+          "4": "Single Door (Rear Mount), Painted Type 304 Stainless Steel (legacy numeric, = option D)",
+          "A": "Dual Door (Side Mount), Painted 5052 Marine Grade Aluminum With 3-Point Latches",
+          "B": "Dual Door (Side Mount), Painted Type 304 Stainless Steel With 3-Point Latches",
+          "C": "Single Door (Rear Mount), Painted 5052 Marine Grade Aluminum With 3-Point Latches",
+          "D": "Single Door (Rear Mount), Painted Type 304 Stainless Steel With 3-Point Latches"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "options": {
+          "1": "Conformally Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_input_voltage",
+        "label": "Secondary Input Voltage",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "options": {
+          "A": "(6) 300 Vac Max Inputs (Both VY and VZ)",
+          "B": "(3) 8 Vac Max LEA Inputs (VY) and (3) 300 Vac Max Inputs (VZ)",
+          "C": "(3) 8 Vac Max LEA Inputs (VY) and (3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VZ)",
+          "D": "(3) Eaton Nova LEA Inputs (VY) and (3) 300 Vac Max Inputs (VZ)",
+          "E": "(3) Eaton Nova LEA Inputs (VY) and (3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VZ)",
+          "F": "(3) 300 Vac Max Inputs (VY) and (3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VZ)",
+          "G": "(6) 8 Vac Max LEA Inputs (Both VY and VZ)",
+          "H": "(3) 300 Vac Max Inputs (VY) and (3) Siemens SDR LEA Inputs (VZ)",
+          "J": "(3) 120 Vac, 1M Lindsey SVMI LEA Inputs (VY) and (3) Siemens SDR LEA Inputs (VZ)",
+          "K": "(6) Siemens SDR LEA Inputs (Both VY and VZ)"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "options": {
+          "A": "1 A Phase, 0.2 A Neutral",
+          "G": "1 A Phase, 0.2 A Neutral With High-Impedance Fault Detection"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "extra_inputs_outputs",
+        "label": "Extra Inputs/Outputs",
+        "group": "GROUP_2",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_2 (source.position 10) maps this field; the layer index is offset from this stored-PN position 12.",
+        "options": {
+          "8": "(7) 12 Vdc Inputs / (8) Standard Outputs",
+          "X": "None",
+          "A": "(2) 125 Vdc and (5) 12 Vdc Inputs / (8) Standard Outputs",
+          "B": "(2) 48 Vdc and (5) 12 Vdc Inputs / (8) Standard Outputs",
+          "C": "(2) 220 Vdc and (5) 12 Vdc Inputs / (8) Standard Outputs"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "communications_port",
+        "label": "Communications Port",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "note": "Single fixed option; pre-filled 'A' in the header template and constant across every observed part number.",
+        "options": {
+          "A": "3 EIA-232, USB"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "communications_interface",
+        "label": "Communications Interface",
+        "group": "GROUP_3",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_3 (source.position 14) maps this field and agrees with the stored-PN position 14.",
+        "options": {
+          "D": "(1) 100BASE-FX, EIA-485",
+          "E": "(2) 10/100BASE-T, EIA-485",
+          "F": "(2) 100BASE-FX, EIA-485",
+          "L": "(1) 10/100BASE-T, (1) 100BASE-FX"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard",
+          "2": "Standard Plus IEC 61850"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "group": "GROUP_4",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_4 (source.position 18) maps this field; the layer index is offset from this stored-PN position 16.",
+        "options": {
+          "1": "120 Vac (Includes GFCI Outlet)",
+          "2": "230 Vac",
+          "3": "125 Vdc",
+          "4": "48 Vdc"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "battery_option",
+        "label": "Battery Option",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "note": "DC power supply options (48/125 Vdc) force this to X (None).",
+        "options": {
+          "1": "12 V, 16 Ahr",
+          "2": "12 V, 40 Ahr",
+          "X": "None"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "user_interface",
+        "label": "User Interface",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "options": {
+          "2": "Configurable Labels",
+          "3": "Configurable Labels and Tri-Colored LEDs"
+        }
+      },
+      {
+        "position": 19,
+        "length": 2,
+        "field": "installed_accessories",
+        "label": "Installed Accessories (2-digit)",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "note": "Two-digit field selecting factory-installed enclosure accessories (shelves, fuse blocks, transfer switch, heater, receptacles, mounted SEL-2401/2725/3031/3061/3622 devices, security straps, control cables). WI-9861 enumerates ~70 combination codes; only the common single-accessory codes are listed here. XX = None.",
+        "options": {
+          "10": "Accessory Shelf",
+          "11": "Voltage Input Fuse Block (Secondary Voltages)",
+          "12": "Universal Fuse Block (Incoming Power)",
+          "13": "AC Transfer Switch",
+          "14": "100 W Heater",
+          "16": "SEL-2401 Satellite-Synchronized Clock (24010XXX0) on Accessory Shelf",
+          "17": "SEL-2725 Ethernet Switch (2725D33XX) on Accessory Shelf",
+          "18": "SEL-3031 Serial Radio Transceiver (30310W01XXX) on Accessory Shelf",
+          "20": "2-Position Socket Contact Receptacle for Low-Voltage Close/Heater (MS5015, Size 22)",
+          "21": "8-Position Pin Contact Receptacle for Voltage Inputs (MS5015, Size 22)",
+          "22": "4-Position Pin Contact Receptacle for LEA Inputs (MS5015, Size 22)",
+          "30": "3-Position Pin Contact Receptacle for Input Power (MS26482, Size 12)",
+          "XX": "None",
+          "1A": "Two SEL-2812MR Transceivers (2812MRX0)",
+          "1G": "SEL-3061 Cellular Router (3061#M47Q) on Accessory Shelf",
+          "1M": "Security Package 1: SEL-3622 Security Gateway (3622XDE00XX1) on Accessory Shelf and Door Switch"
+        }
+      },
+      {
+        "position": 21,
+        "length": 2,
+        "field": "bundled_accessories",
+        "label": "Bundled Accessories (2-digit)",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "confidence": "high",
+        "note": "Shipped in the box with the SEL-651R but not installed in the enclosure. XX = None.",
+        "options": {
+          "XX": "None",
+          "01": "Security Sleeve (2\" Diameter)",
+          "02": "Two Security Sleeves (2\" Diameter)",
+          "03": "Three Security Sleeves (2\" Diameter)",
+          "04": "Four Security Sleeves (2\" Diameter)",
+          "05": "Five Security Sleeves (2\" Diameter)"
+        }
+      }
+    ]
+  }
+}

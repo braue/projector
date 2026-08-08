@@ -1,0 +1,1764 @@
+{
+  "device": "401",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7201.C.pdf",
+        "rear_pdf": "i7201.C.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "H",
+            "3"
+          ],
+          "position_17": [
+            "5"
+          ]
+        },
+        "front_pdf": "i7202.C.pdf",
+        "rear_pdf": "i7202.C.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "H",
+            "3"
+          ],
+          "position_17": [
+            "6"
+          ]
+        },
+        "front_pdf": "i7203.D.pdf",
+        "rear_pdf": "i7203.D.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "V",
+            "4"
+          ],
+          "position_17": [
+            "4"
+          ]
+        },
+        "front_pdf": "i7204.C.pdf",
+        "rear_pdf": "i7204.C.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "V",
+            "4"
+          ],
+          "position_17": [
+            "5"
+          ]
+        },
+        "front_pdf": "i7205.C.pdf",
+        "rear_pdf": "i7205.C.pdf"
+      },
+      {
+        "when": {
+          "position_16": [
+            "V",
+            "4"
+          ],
+          "position_17": [
+            "6"
+          ]
+        },
+        "front_pdf": "i7206.D.pdf",
+        "rear_pdf": "i7206.D.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7201.C.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "53 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10
+            },
+            "optional": true
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7202.C.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "44 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "61 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            },
+            "optional": true
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10
+            },
+            "optional": true
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7203.D.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "6.0_____[IO BOARD POSITION D]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "66 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "69 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            },
+            "optional": true
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            },
+            "optional": true
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "62 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10
+            },
+            "optional": true
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7204.C.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "53 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10
+            },
+            "optional": true
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7205.C.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "44 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "61 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            },
+            "optional": true
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10
+            },
+            "optional": true
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "59 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      },
+      "i7206.D.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "6.0_____[IO BOARD POSITION D]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "5.0_____[IO BOARD POSITION C]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "66 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "69 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            },
+            "optional": true
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            },
+            "optional": true
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoiso Ind LS Inputs. (13) Std Form A. (2) Std Form C Outputs",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoiso LS Inputs. (2) Std. & (6) HS HC Int Form A Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoiso Ind LS Inputs. (13) HC Int Form A. (2) Std Form C Outputs",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoiso Ind LS Inputs. (8) HS HC Int Form A Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoiso LS Inputs. (8) Std Form A Outputs",
+                  "object_id": "54 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "60 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100Base-T Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100Base-FX Connectors",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100Base-T & (2) 100Base-FX Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000Base & (3) 100Base-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "62 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10
+            },
+            "optional": true
+          },
+          "GROUP_1": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.1__1__Screw Terminal",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7201.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            203.94,
+            658.34,
+            1689.37,
+            1313.37
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1912.34,
+            715.49,
+            3219.21,
+            1263.09
+          ]
+        }
+      },
+      "i7202.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            205.52,
+            539.2,
+            1681.81,
+            1315.66
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1916.91,
+            596.34,
+            3212.36,
+            1256.23
+          ]
+        }
+      },
+      "i7203.D.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            206.23,
+            412.5,
+            1682.51,
+            1308
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1916.91,
+            467.36,
+            3214.64,
+            1257.71
+          ]
+        }
+      },
+      "i7204.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            621.8,
+            130.12,
+            1265.2,
+            1594.12
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2304,
+            219,
+            2826,
+            1500
+          ]
+        }
+      },
+      "i7205.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            558.8,
+            128.2,
+            1328.2,
+            1592.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2241,
+            219.8,
+            2889,
+            1500.8
+          ]
+        }
+      },
+      "i7206.D.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            495.8,
+            128.2,
+            1391.2,
+            1592.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2178,
+            219.8,
+            2952,
+            1500.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "401",
+    "product": "SEL-401 Protection, Automation, and Control Merging Unit",
+    "length": 25,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0401",
+      "description": "SEL-401 Merging Unit (SEL-400 series platform)"
+    },
+    "note": "25-character SEL-400-series part number. No SEL-401 Model Option Table has been published, so this block is calibrated from three sources: (1) the SEL-401 master drawing layers (i7201.C-i7206.D) which anchor positions 6, 10, 16, 18, 20 and 22; (2) the platform-sibling SEL-451-6 With Sampled Values/TiDL ordering doc (WI-15509), which supplies field semantics and option codes for the chassis (17), the INT I/O boards and their input-voltage second digit; and (3) genuine part numbers. The real SEL-401 part number 0401015X3400XD6H624C4XXXX (from an IM CONFIGURATION INFO screen) confirms the I/O section: board B '24' = INT2 (8 inputs / 15 outputs) at 125 Vdc, exactly matching that unit's reported I/O. Leading/middle fixed digits (5, 7, 8, 9, 11-15, 24-25) are constant across all known part numbers; their exact meaning is unconfirmed (merging-unit analog-input template). NOTE: the 2017-vintage real part number uses legacy codes not in the current option lists at position 10 ('4') and the position-C board card ('C'); current-production part numbers decode cleanly.",
+    "references": [
+      "SEL-401 master configuration drawings i7201.C-i7206.D (drawing layers)",
+      "SEL-451-6 With Sampled Values or TiDL Technology Ordering Information (WI-15509, 20231221) - platform sibling, used for field semantics and option codes",
+      "SEL-401 Instruction Manual (401_IM_20250919) CONFIGURATION INFO screen - genuine part number"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0401015X3400XD6H624C4XXXX",
+        "note": "Genuine part number from an SEL-401 IM CONFIGURATION INFO screen (FID SEL-401-R400V0, 2017 build). Connector = screw terminal; horizontal rack mount; 3-I/O-board chassis; board B = INT2 (8 in / 15 out) @ 125 Vdc. Legacy: pos10 '4' and pos20 'C' predate the current option lists."
+      },
+      {
+        "part_number": "0401015X3600XD8H624240XXX",
+        "note": "Representative current-production string (drawing i7203.D): screw terminal, four 10/100BASE-T Ethernet, horizontal rack mount, 3-board chassis, boards B/C = INT2 @125 Vdc, board D empty."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware / product option",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant '0' in all known SEL-401 part numbers; meaning not confirmed (no published SEL-401 MOT).",
+        "options": {
+          "0": "Standard (as shipped in all known SEL-401 part numbers)"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "group": "GROUP_1",
+        "source": "SEL-401 drawing layers (i7201.C-i7206.D)",
+        "confidence": "high",
+        "options": {
+          "1": "Screw Terminal",
+          "2": "Connectorized"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "ac_current_input_rating",
+        "label": "AC Current Input Rating",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant '5' in known units, which report 5 A current inputs; 1 A variant code not observed. Unconfirmed (no published SEL-401 MOT).",
+        "options": {
+          "5": "5 A nominal current inputs"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "reserved_8",
+        "label": "Reserved / analog option",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant 'X' (unused) in all known part numbers.",
+        "options": {
+          "X": "None / not used"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "analog_input_option",
+        "label": "Analog input option",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant '3' in all known part numbers; meaning not confirmed.",
+        "options": {
+          "3": "As shipped in all known SEL-401 part numbers"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "ethernet_connection",
+        "label": "Ethernet Connection Options",
+        "group": "GROUP_2",
+        "source": "SEL-401 drawing layers (i7201.C-i7206.D); descriptions per SEL-451-6 WI-15509",
+        "confidence": "high",
+        "note": "Anchored by the drawing layers and consumed by port_transports (ports P5/P5A-P5D). The 2017 real part number carries a legacy code '4' that is not in the current option list.",
+        "options": {
+          "6": "Four 10/100BASE-T Connectors",
+          "7": "Four 100BASE-FX Connectors",
+          "8": "Two 10/100BASE-T and Two 100BASE-FX Connectors",
+          "9": "Two 100/1000BASE and Three 100BASE-SFP Ports (order SFP transceivers separately)"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "reserved_11",
+        "label": "Reserved",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant '0' in all known part numbers.",
+        "options": {
+          "0": "As shipped in all known SEL-401 part numbers"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "reserved_12",
+        "label": "Reserved",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant '0' in all known part numbers.",
+        "options": {
+          "0": "As shipped in all known SEL-401 part numbers"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "reserved_13",
+        "label": "Reserved / option",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant 'X' (unused) in all known part numbers.",
+        "options": {
+          "X": "None / not used"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "processing_option",
+        "label": "Processing / hardware option",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Constant 'D' in all known part numbers; meaning not confirmed.",
+        "options": {
+          "D": "As shipped in all known SEL-401 part numbers"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "hardware_generation",
+        "label": "Hardware/comms generation",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "'8' on current-production drawing examples, '6' on the 2017 real unit (co-varies with the ethernet/processing generation). Meaning not confirmed.",
+        "options": {
+          "6": "As shipped on early (2017) SEL-401 units",
+          "8": "As shipped on current-production SEL-401 units"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_3",
+        "source": "SEL-401 drawing layers (i7201.C-i7206.D); descriptions per SEL-451-6 WI-15509",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "4": "Vertical Panel Mount",
+          "H": "Horizontal Rack Mount",
+          "V": "Vertical Rack Mount"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "chassis",
+        "label": "Chassis (I/O board capacity)",
+        "source": "SEL-451-6 WI-15509 (Chassis) + SEL-401 drawing selection (i7201-i7206)",
+        "confidence": "high",
+        "note": "Selects chassis size / number of I/O-board positions. Confirmed by the SEL-451-6 sibling 'Chassis' section and by which SEL-401 master drawing a part number maps to (1/2/3 I/O boards).",
+        "options": {
+          "4": "One I/O board (position B only)",
+          "5": "Two I/O boards (positions B and C)",
+          "6": "Three I/O boards (positions B, C and D)"
+        }
+      },
+      {
+        "position": 18,
+        "length": 2,
+        "field": "i_o_board_b",
+        "label": "I/O Board Position B (card | input voltage)",
+        "group": "GROUP_4",
+        "source": "SEL-401 drawing layers (i7201.C-i7206.D); descriptions per SEL-451-6 Ordering Information (WI-15509)",
+        "confidence": "high",
+        "note": "First digit = INT interface-board type (drawing layer); second digit = optoisolated input voltage. Empty board = '0' with 'X' filler.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Interface board type",
+            "options": {
+              "2": "INT2 - 8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "4": "INT4 - 24 Optoisolated Level-Sensitive Inputs, 2 Standard & 6 High-Speed High-Current Interrupting Form A Outputs",
+              "7": "INT7 - 8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "8": "INT8 - 8 Optoisolated Independent Level-Sensitive Inputs, 8 High-Speed High-Current Interrupting Form A Outputs",
+              "D": "INTD - 24 Optoisolated Level-Sensitive Inputs, 8 Standard Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Optoisolated input voltage",
+            "options": {
+              "0": "None (empty board)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty board)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 20,
+        "length": 2,
+        "field": "i_o_board_c",
+        "label": "I/O Board Position C (card | input voltage)",
+        "group": "GROUP_5",
+        "source": "SEL-401 drawing layers (i7201.C-i7206.D); descriptions per SEL-451-6 Ordering Information (WI-15509)",
+        "confidence": "high",
+        "note": "First digit = INT interface-board type (drawing layer); second digit = optoisolated input voltage. Empty board = '0' with 'X' filler.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Interface board type",
+            "options": {
+              "0": "Empty (no I/O board)",
+              "2": "INT2 - 8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "4": "INT4 - 24 Optoisolated Level-Sensitive Inputs, 2 Standard & 6 High-Speed High-Current Interrupting Form A Outputs",
+              "7": "INT7 - 8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "8": "INT8 - 8 Optoisolated Independent Level-Sensitive Inputs, 8 High-Speed High-Current Interrupting Form A Outputs",
+              "D": "INTD - 24 Optoisolated Level-Sensitive Inputs, 8 Standard Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Optoisolated input voltage",
+            "options": {
+              "0": "None (empty board)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty board)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 22,
+        "length": 2,
+        "field": "i_o_board_d",
+        "label": "I/O Board Position D (card | input voltage)",
+        "group": "GROUP_6",
+        "source": "SEL-401 drawing layers (i7201.C-i7206.D); descriptions per SEL-451-6 Ordering Information (WI-15509)",
+        "confidence": "high",
+        "note": "First digit = INT interface-board type (drawing layer); second digit = optoisolated input voltage. Empty board = '0' with 'X' filler.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Interface board type",
+            "options": {
+              "0": "Empty (no I/O board)",
+              "2": "INT2 - 8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+              "4": "INT4 - 24 Optoisolated Level-Sensitive Inputs, 2 Standard & 6 High-Speed High-Current Interrupting Form A Outputs",
+              "7": "INT7 - 8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+              "8": "INT8 - 8 Optoisolated Independent Level-Sensitive Inputs, 8 High-Speed High-Current Interrupting Form A Outputs",
+              "D": "INTD - 24 Optoisolated Level-Sensitive Inputs, 8 Standard Form A Outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Optoisolated input voltage",
+            "options": {
+              "0": "None (empty board)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None (empty board)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 24,
+        "length": 2,
+        "field": "reserved_tail",
+        "label": "Reserved / options",
+        "source": "SEL-401 sample part numbers (IM + master drawings)",
+        "confidence": "low",
+        "note": "Trailing 'XX' (unused) in all known part numbers.",
+        "options": {
+          "XX": "None / not used",
+          "X": "None / not used"
+        }
+      }
+    ]
+  }
+}

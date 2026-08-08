@@ -1,0 +1,760 @@
+{
+  "device": "2431",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_6": [
+            "X"
+          ]
+        },
+        "front_pdf": "i7096b.pdf",
+        "rear_pdf": "i7096b.pdf"
+      },
+      {
+        "when": {},
+        "front_pdf": "i7115a.pdf",
+        "rear_pdf": "i7115a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7096b.pdf": {
+        "always": [
+          {
+            "name": "4.00__DWG",
+            "object_id": "22 0 R"
+          },
+          {
+            "name": "3.00___{COMMUNICATIONS PORT 2}",
+            "object_id": "11 0 R"
+          },
+          {
+            "name": "2.00___{COMMUNICATIONS PORT 1}",
+            "object_id": "18 0 R"
+          },
+          {
+            "name": "1.00___{MANUAL RAISE/LOWER OPERATORS}",
+            "object_id": "21 0 R"
+          },
+          {
+            "name": "4.00__DWG",
+            "object_id": "120 0 R"
+          },
+          {
+            "name": "3.00___{COMMUNICATIONS PORT 2}",
+            "object_id": "109 0 R"
+          },
+          {
+            "name": "2.00___{COMMUNICATIONS PORT 1}",
+            "object_id": "116 0 R"
+          },
+          {
+            "name": "1.00___{MANUAL RAISE/LOWER OPERATORS}",
+            "object_id": "119 0 R"
+          }
+        ],
+        "by_option_group": {
+          "{COMMUNICATIONS_PORT_2}": {
+            "options": {
+              "1": [
+                {
+                  "name": "3.02__EIA-232__1",
+                  "object_id": "9 0 R"
+                },
+                {
+                  "name": "3.02__EIA-232__1",
+                  "object_id": "107 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "3.03__EIA-485 (4 wire)__2",
+                  "object_id": "8 0 R"
+                },
+                {
+                  "name": "3.03__EIA-485 (4 wire)__2",
+                  "object_id": "106 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "3.04__Fiber Optic 200μm Multimode VPIN Style Connector__3",
+                  "object_id": "7 0 R"
+                },
+                {
+                  "name": "3.04__Fiber Optic 200μm Multimode VPIN Style Connector__3",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "3.05__Fiber Optic 62.5μm Multimode ST Style Connector__4",
+                  "object_id": "6 0 R"
+                },
+                {
+                  "name": "3.05__Fiber Optic 62.5μm Multimode ST Style Connector__4",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "3.06__EIA-485 (2-wire)__5",
+                  "object_id": "5 0 R"
+                },
+                {
+                  "name": "3.06__EIA-485 (2-wire)__5",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.01__None__X",
+                  "object_id": "10 0 R"
+                },
+                {
+                  "name": "3.01__None__X",
+                  "object_id": "108 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 13,
+              "length": 1
+            }
+          },
+          "{COMMUNICATIONS_PORT_1}": {
+            "options": {
+              "1": [
+                {
+                  "name": "2.02__EIA-232__1",
+                  "object_id": "16 0 R"
+                },
+                {
+                  "name": "2.02__EIA-232__1",
+                  "object_id": "114 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.03__EIA-485 (4 wire)__2",
+                  "object_id": "15 0 R"
+                },
+                {
+                  "name": "2.03__EIA-485 (4 wire)__2",
+                  "object_id": "113 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.04__Fiber Optic 200μm Multimode VPIN Style Connector__3",
+                  "object_id": "14 0 R"
+                },
+                {
+                  "name": "2.04__Fiber Optic 200μm Multimode VPIN Style Connector__3",
+                  "object_id": "112 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.05__Fiber Optic 62.5μm Multimode ST Style Connector__4",
+                  "object_id": "13 0 R"
+                },
+                {
+                  "name": "2.05__Fiber Optic 62.5μm Multimode ST Style Connector__4",
+                  "object_id": "111 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.06__EIA-485 (2-wire)__5",
+                  "object_id": "12 0 R"
+                },
+                {
+                  "name": "2.06__EIA-485 (2-wire)__5",
+                  "object_id": "110 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.01__None__XX",
+                  "object_id": "17 0 R"
+                },
+                {
+                  "name": "2.01__None__XX",
+                  "object_id": "115 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 12,
+              "length": 1
+            }
+          },
+          "{MANUAL_RAISE/LOWER_OPERATORS}": {
+            "options": {
+              "1": [
+                {
+                  "name": "1.01__Pushbutton Raise/Lower Operators__1",
+                  "object_id": "20 0 R"
+                },
+                {
+                  "name": "1.01__Pushbutton Raise/Lower Operators__1",
+                  "object_id": "118 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.02__Toggle Switch Raise/Lower Operators__2",
+                  "object_id": "19 0 R"
+                },
+                {
+                  "name": "1.02__Toggle Switch Raise/Lower Operators__2",
+                  "object_id": "117 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 11,
+              "length": 1
+            }
+          }
+        }
+      },
+      "i7115a.pdf": {
+        "always": [
+          {
+            "name": "5.00_DWG",
+            "object_id": "30 0 R"
+          },
+          {
+            "name": "4.00____{Communications Port (Port 2)}",
+            "object_id": "16 0 R"
+          },
+          {
+            "name": "3.00____{Communications Port (Port 1)}",
+            "object_id": "23 0 R"
+          },
+          {
+            "name": "2.00____{Manual Raise/Lower Operators}",
+            "object_id": "26 0 R"
+          },
+          {
+            "name": "1.00____{USB Interface}",
+            "object_id": "29 0 R"
+          }
+        ],
+        "by_option_group": {
+          "{COMMUNICATIONS_PORT_(PORT_2)}": {
+            "options": {
+              "1": [
+                {
+                  "name": "4.02__EIA-232(DO NOT USE WITH LAYER 3.01)__1",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "4.03__EIA-485 (4-wire)(DO NOT USE WITH LAYER 3.01)__2",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "4.04__Fiber Optic. 200μm. Multimode. VPIN Style Connector(DO NOT USE WITH LAYER 3.01)__3",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.05__Fiber Optic. 62.5μm. Multimode. ST Style Connector(DO NOT USE WITH LAYER 3.01)__4",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "4.06__EIA-485 (2-wire)(DO NOT USE WITH LAYER 3.01)__5",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.07__Dual Fiber Ethernet 100BASE-FX__6",
+                  "object_id": "9 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.08__Dual Copper Ethernet (10/100BASE-T) RJ-45 Connector__7",
+                  "object_id": "8 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.09__One Copper Ethernet (10/100BASE-T) RJ-45 Connector and One Fiber Ethernet 100BASE-FX (Multimode) LC Connector__8",
+                  "object_id": "7 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "4.10__Dual Fiber Ethernet 100BASE-LX10 (Singlemode) LC Connector__9",
+                  "object_id": "6 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.11__One Copper Ethernet (10/100BASE-T) RJ-45 Connector, and One Fiber Ethernet 100BASE-LX10 (Singlemode) LC Connector__A",
+                  "object_id": "5 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.01__None__X",
+                  "object_id": "15 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 13,
+              "length": 1
+            }
+          },
+          "{COMMUNICATIONS_PORT_(PORT_1)}": {
+            "options": {
+              "1": [
+                {
+                  "name": "3.02__EIA-232__1",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "3.03__EIA-485 (4-wire)__2",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "3.04__Fiber Optic. 200μm. Multimode. VPIN Style Connector__3",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "3.05__Fiber Optic. 62.5μm. Multimode. ST Style Connector__4",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "3.06__EIA-485 (2-wire)__5",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.01__None(REFER TO NOTE 4 FOR SPECIAL INSTRUCTIONS)__X",
+                  "object_id": "22 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 12,
+              "length": 1
+            }
+          },
+          "{MANUAL_RAISE/LOWER_OPERATORS}": {
+            "options": {
+              "1": [
+                {
+                  "name": "2.01__Pushbutton Raise/Lower Operators__1",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.02__Toggle Switch Raise/Lower Operators__2",
+                  "object_id": "24 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 11,
+              "length": 1
+            }
+          },
+          "{USB_INTERFACE}": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.01__None__0",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.02__Type A USB Flash Drive Interface__1",
+                  "object_id": "27 0 R"
+                }
+              ]
+            },
+            "options_source": "pdf_layer_codes",
+            "source": {
+              "position": 6,
+              "length": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7096b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            803.51,
+            335.14,
+            1468.22,
+            1465.57
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1987.14,
+            335.71,
+            2651.86,
+            1467.86
+          ]
+        }
+      },
+      "i7115a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            801.7,
+            335.14,
+            1468.7,
+            1463.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1989.43,
+            335.71,
+            2654.14,
+            1467.86
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "USB",
+        "label": "USB Host Port",
+        "transport": "usb",
+        "connector": "USB Type A",
+        "evidence_layer": "SEL-2431 manual: front Type A USB port",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "id": "PF",
+        "label": "Front Port F Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2431 manual: front Port F serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P1",
+        "label": "Port 1 Serial",
+        "transport": "serial",
+        "connector": "DB9 / EIA-485 / fiber",
+        "evidence_layer": "SEL-2431 manual: serial Port 1 options",
+        "specs": [
+          {
+            "label": "Options",
+            "value": "EIA-232, 2-wire EIA-485, 4-wire EIA-485, 200 um fiber, or 62.5 um ST fiber"
+          }
+        ],
+        "interface": "EIA-232 / EIA-485 / fiber-optic serial"
+      },
+      {
+        "id": "P2",
+        "label": "Port 2 Serial",
+        "transport": "serial",
+        "connector": "DB9 / EIA-485 / fiber",
+        "evidence_layer": "SEL-2431 manual: serial Port 2 options",
+        "specs": [
+          {
+            "label": "Options",
+            "value": "EIA-232, 2-wire EIA-485, 4-wire EIA-485, 200 um fiber, or 62.5 um ST fiber"
+          }
+        ],
+        "interface": "EIA-232 / EIA-485 / fiber-optic serial"
+      },
+      {
+        "id": "PE",
+        "label": "Port E Ethernet Pair",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "SEL-2431 manual: dual Ethernet Port E options",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Options",
+            "value": "10/100BASE-T RJ45, 100BASE-FX, 100BASE-LX10, or copper/fiber combinations"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2431",
+    "product": "SEL-2431 Voltage Regulator Control",
+    "length": 20,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2431",
+      "description": "SEL-2431 Voltage Regulator Control"
+    },
+    "note": "20-character model option string. Calibrated against genuine SEL-2431 part numbers embedded in the instruction manual (e.g. PARTNO=24310X11X1131XXXXXXX and Part Number=24310X11XX2XXXXXXXXX) and against the SEL-2431 Ordering Information (WI-7079). WI-7079 is the legacy single-phase, two-serial-port variant: it fully enumerates positions 5, 7, 11, 12, 13, 16, 17-18 and 19-20 (all confirmed by the genuine part numbers). Positions 6, 8, 9, 10, 14 and 15 are fixed base-hardware / reserved digits in that MOT (24310X11X1... template); the newer Ethernet + USB-interface variant seen in some part numbers repurposes position 6 (observed 0) and is not covered by any available per-digit MOT, so those digits are marked low confidence. NO drawing-layer anchors were used to build this block.",
+    "references": [
+      "SEL-2431 Ordering Information (WI-7079, 20130104) - Model Option Table",
+      "SEL-2431 Data Sheet (2431_DS_20250722) - Ordering / communications options",
+      "SEL-2431 Instruction Manual (2431_IM_20250722) - genuine PARTNO example strings"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "24310X11X1131XXXXXXX",
+        "note": "Genuine PARTNO example from the SEL-2431 instruction manual (communications example): Standard firmware, Standard 120 Vac supply, Pushbutton raise/lower, Port 1 = 200 um VPIN fiber, Port 2 = EIA-232, no conformal coat / retrofit / installed accessories. X characters are placeholders left unset in the demo string."
+      },
+      {
+        "part_number": "24310X11XX2XXXXXXXXX",
+        "note": "Genuine Part Number example from the SEL-2431 instruction manual (VER / STATUS output): Standard firmware, Standard 120 Vac supply, Toggle-switch raise/lower operators; remaining option digits left as X in the demo string."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "note": "Single firmware offering; constant across all observed part numbers.",
+        "options": {
+          "0": "Standard - Voltage Regulator Control with Forward/Reverse operating modes, Line Drop Compensation, SELOGIC programming, metering, event reporting, SER, load profiling, synchrophasors and Load Sense technology"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "reserved_pos6",
+        "label": "Base / reserved digit",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "low",
+        "note": "Fixed template digit in the legacy MOT (X). Newer Ethernet/USB-interface part numbers show 0 here; meaning is not enumerated by any available per-digit MOT.",
+        "options": {
+          "0": "Base configuration (Ethernet/USB variant)",
+          "X": "Base configuration (legacy variant)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "note": "Single power-supply offering; constant across all observed part numbers.",
+        "options": {
+          "1": "Standard - 120 Vac, 50/60 Hz"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "base_io_pos8",
+        "label": "Base I/O configuration digit",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "low",
+        "note": "Fixed base-hardware digit (two 120 Vac voltage inputs, eight contact inputs, seven contact outputs are standard). Constant 1 in observed part numbers; not separately enumerated in the MOT.",
+        "options": {
+          "1": "Base voltage-input / contact-I/O configuration (fixed)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "reserved_pos9",
+        "label": "Reserved digit",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "low",
+        "note": "Fixed template digit (X) in the legacy MOT; not separately enumerated.",
+        "options": {
+          "X": "Reserved / not applicable"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "base_io_pos10",
+        "label": "Base I/O configuration digit",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "low",
+        "note": "Fixed base-hardware digit; 1 in most observed part numbers (X in some demo strings). Not separately enumerated in the MOT.",
+        "options": {
+          "1": "Base configuration (fixed)",
+          "X": "Placeholder (unset in demo strings)"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "manual_raise_lower_operators",
+        "label": "Manual Raise/Lower Operators",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "note": "Membrane pushbutton operators do not provide manual operation when control power is lost.",
+        "options": {
+          "1": "Pushbutton Raise/Lower Operators",
+          "2": "Toggle Switch Raise/Lower Operators"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "communications_port_1",
+        "label": "Communications Port (Port 1)",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "note": "All serial ports include SEL-ASCII, SEL Compressed ASCII, Fast Meter, Fast Operate and DNP3 Level 2 Slave. Port 1 accepts demodulated IRIG-B when configured EIA-232, 4-wire EIA-485 or fiber-optic serial.",
+        "options": {
+          "1": "EIA-232",
+          "2": "EIA-485 (4-wire)",
+          "3": "Fiber-Optic, 200 um multimode, VPIN style connector (compatible with SEL-2800/SEL-2810)",
+          "4": "Fiber-Optic, 62.5 um multimode, ST style connector (compatible with SEL-2812)",
+          "5": "EIA-485 (2-wire)",
+          "X": "None"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "communications_port_2",
+        "label": "Communications Port (Port 2)",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "note": "All serial ports include SEL-ASCII, SEL Compressed ASCII, Fast Meter, Fast Operate and DNP3 Level 2 Slave protocols.",
+        "options": {
+          "1": "EIA-232",
+          "2": "EIA-485 (4-wire)",
+          "3": "Fiber-Optic, 200 um multimode, VPIN style connector (compatible with SEL-2800/SEL-2810)",
+          "4": "Fiber-Optic, 62.5 um multimode, ST style connector (compatible with SEL-2812)",
+          "5": "EIA-485 (2-wire)",
+          "X": "None"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "reserved_pos14",
+        "label": "Reserved digit",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "low",
+        "note": "Fixed template digit (X) in the legacy MOT; the newer Ethernet/USB variant likely repurposes this area but no per-digit MOT is available.",
+        "options": {
+          "X": "Reserved / not applicable"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved_pos15",
+        "label": "Reserved digit",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "low",
+        "note": "Fixed template digit (X) in the legacy MOT; not separately enumerated.",
+        "options": {
+          "X": "Reserved / not applicable"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformal Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 17,
+        "length": 2,
+        "field": "retrofit_kit",
+        "label": "Retrofit Kit (voltage-regulator interface)",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "note": "Factory-installed retrofit interface (mounting hardware and wiring harness for mating with an existing voltage-regulator control enclosure).",
+        "options": {
+          "10": "Siemens/Allis-Chalmers: 10-Position Polarized Disconnect Switch (PDS) Interface",
+          "20": "Howard Industries: 10-Position Connector Terminal Strip (CTS) Interface",
+          "30": "Cooper/McGraw-Edison: 18/10-Position Fanning Strip (Traditional) Interface",
+          "31": "Cooper: 20-Position Connector (Dead-Front) Interface",
+          "40": "GE: Fork-Terminal Connection (Traditional Interface to Cabinet NN Terminals)",
+          "41": "GE: 24-Position Connector (Power Disconnect Interface)",
+          "XX": "None",
+          "01": "Generic Fork Terminals for Siemens/Allis-Chalmers/Howard/GE (does not include mounting hardware)",
+          "02": "Generic Fork Terminals for Cooper/McGraw-Edison (does not include mounting hardware)"
+        }
+      },
+      {
+        "position": 19,
+        "length": 2,
+        "field": "installed_accessories",
+        "label": "Installed Accessories",
+        "source": "SEL-2431 Ordering Information (WI-7079)",
+        "confidence": "high",
+        "options": {
+          "10": "SEL-3022 Wireless Encrypting Transceiver Accessory (requires an EIA-232 port)",
+          "11": "SEL-2401 Satellite-Synchronized Clock Accessory (requires an EIA-232 or 2-wire EIA-485 card in Port 1 for IRIG-B)",
+          "20": "SEL-3022 Wireless Encrypting Transceiver Accessory and SEL-2401 Satellite-Synchronized Clock Accessory",
+          "XX": "None"
+        }
+      }
+    ]
+  }
+}

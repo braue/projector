@@ -1,0 +1,830 @@
+{
+  "device": "351S",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_8": [
+            "H",
+            "3",
+            "5",
+            "7",
+            "9"
+          ]
+        },
+        "front_pdf": "i7073.E.pdf",
+        "rear_pdf": "i7073.E.pdf"
+      },
+      {
+        "when": {
+          "position_8": [
+            "4",
+            "8"
+          ]
+        },
+        "front_pdf": "i7074d.pdf",
+        "rear_pdf": "i7074d.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7073.E.pdf": {
+        "always": [
+          {
+            "name": "5.00_____DWG",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "3.00_____[COMMUNICATIONS INTERFACE]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "2.00_____[USER INTERFACE]",
+            "object_id": "62 0 R"
+          },
+          {
+            "name": "1.00_____[CHASSIS & MOUNTING]",
+            "object_id": "69 0 R"
+          }
+        ],
+        "by_option_group": {
+          "IO_BOARD": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "2": [
+                {
+                  "name": "4.02__2__Additional (12) Std Outputs. (8) Inputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.03__4__Additional (4) Std Outputs. (16) Inputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.04__6__Additional (12) High IC Outputs. (8) Inputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.01__X__No Additional IO",
+                  "object_id": "39 0 R"
+                }
+              ]
+            }
+          },
+          "COMMUNICATIONS_INTERFACE": {
+            "source": {
+              "position": 11
+            },
+            "options": {
+              "K": [
+                {
+                  "name": "3.10__K__(2) 100Base-FX MM LC. (1) FO MM ST Serial Port",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "J": [
+                {
+                  "name": "3.09__J__(2) 10-100Base-T. (1) FO MM ST Serial Port",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.08__H__(1) 10-100Base-T. (1) 100Base-FX. (1) FO Serial Port",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "3.07__G__(1) 10-100Base-T. (1) FO MM ST Serial Port",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.06__F__(2) 100Base-FX MM LC. EIA-485",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "3.05__E__(2) 10-100Base-T. EIA-485",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "3.04__D__(1) 100Base-FX MM LC. EIA-485",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "3.03__C__(1) 100Base-FX MM LC",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "3.02__B__(1) 10-100Base-T. EIA-485",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "3.01__A__(1) 10-100Base-T",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "USER_INTERFACE": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "2.01__3__Std Interface",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.02__4__Std. Configurable Labels",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.03__5__Std. Indoor SafeLock TC Pushbuttons",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "2.04__6__Std. Indoor SafeLock TC Pushbuttons. Configurable Labels",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.05__7__Std. Outdoor SafeLock TC Pushbuttons. Configurable Labels",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.10__E__Std. Outdoor SafeLock TC Buttons. Configurable Labels. USB",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "2.09__D__Std. Indoor SafeLock TC Buttons. Configurable Labels. USB",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.08__C__Std. Indoor SafeLock TC Pushbuttons. USB",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "2.07__B__Std. Configurable Labels. USB",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.06__A__Std. USB",
+                  "object_id": "56 0 R"
+                }
+              ]
+            }
+          },
+          "CHASSIS_&_MOUNTING": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "1.02__3__Horizontal Panel Mount",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.03__5__Horizontal Projection Panel Mount",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "1.05__7__Horizontal Panel Mount & Conformal Coat",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "1.06__9__Horizontal Projection Panel Mount & Conformal Coat",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "1.04__C__Horizontal Rack Mount & Conformal Coat",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "1.01__H__Horizontal Rack Mount",
+                  "object_id": "68 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7074d.pdf": {
+        "always": [
+          {
+            "name": "5.00_____DWG",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "4.00_____[IO BOARD]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "3.00_____[COMMUNICATIONS INTERFACE]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "2.00_____[USER INTERFACE]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "1.00_____[CHASSIS & MOUNTING]",
+            "object_id": "35 0 R"
+          }
+        ],
+        "by_option_group": {
+          "IO_BOARD": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "2": [
+                {
+                  "name": "4.02__2__Additional (12) Std Outputs. (8) Inputs",
+                  "object_id": "7 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.03__4__Additional (4) Std Outputs. (16) Inputs",
+                  "object_id": "6 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "4.04__6__Additional (12) High IC Outputs. (8) Inputs",
+                  "object_id": "5 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "4.01__X__No Additional IO",
+                  "object_id": "8 0 R"
+                }
+              ]
+            }
+          },
+          "COMMUNICATIONS_INTERFACE": {
+            "source": {
+              "position": 11
+            },
+            "options": {
+              "K": [
+                {
+                  "name": "3.10__K__(2) 100Base-FX MM LC. (1) FO MM ST Serial Port",
+                  "object_id": "9 0 R"
+                }
+              ],
+              "J": [
+                {
+                  "name": "3.09__J__(2) 10-100Base-T. (1) FO MM ST Serial Port",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.08__H__(1) 10-100Base-T. (1) 100Base-FX. (1) FO Serial Port",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "3.07__G__(1) 10-100Base-T, (1) FO MM ST Serial Port",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "3.06__F__(2) 100Base-FX MM LC. EIA-485",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "3.05__E__(2) 10-100Base-T. EIA-485",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "3.04__D__(1) 100Base-FX MM LC. EIA-485",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "3.03__C__(1) 100Base-FX MM LC",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "3.02__B__(1) 10-100Base-T. EIA-485",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "3.01__A__(1) 10-100Base-T",
+                  "object_id": "18 0 R"
+                }
+              ]
+            }
+          },
+          "USER_INTERFACE": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "2.01__3__Std. Interface",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.02__4__Std. Configurable Labels",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.03__5__Std. Indoor SafeLock TC Pushbuttons",
+                  "object_id": "26 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "2.04__6__Std. Indoor SafeLock TC Pushbuttons. Configurable Labels",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.05__7__Std. Outdoor SafeLock TC Pushbuttons. Configurable Labels",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "2.10__E__Std. Outdoor SafeLock TC Buttons. Configurable Labels. USB",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "2.09__D__Std. Indoor SafeLock TC Buttons. Configurable Labels. USB",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.08__C__Std. Indoor SafeLock TC Buttons. USB",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "2.07__B__Std. Interface. Configurable Labels. USB",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.06__A__Std. Interface. USB",
+                  "object_id": "23 0 R"
+                }
+              ]
+            }
+          },
+          "CHASSIS_&_MOUNTING": {
+            "optional": true,
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "4": [
+                {
+                  "name": "1.01__4__Vertical Panel Mount",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "1.02__8__Vertical Panel Mount & Conformal Coat",
+                  "object_id": "29 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7073.E.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            108.57,
+            685.14,
+            1579.43,
+            1210
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1821.71,
+            741.71,
+            3106.86,
+            1157.71
+          ]
+        }
+      },
+      "i7074d.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1414,
+            66,
+            1937,
+            1533
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2252.08,
+            162,
+            2663.08,
+            1445
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[BDEF]$",
+            "transport": "serial",
+            "connector": "5-pin Euro",
+            "evidence_layer": "optional EIA-485 serial Port 1"
+          },
+          {
+            "match": "^[GHJK]$",
+            "transport": "serial",
+            "connector": "ST fiber",
+            "evidence_layer": "optional fiber-optic serial Port 1"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[ABG]$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "single 10-100Base-T Ethernet Port 5 option"
+          },
+          {
+            "match": "^[CD]$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "single 100Base-FX Ethernet Port 5 option"
+          },
+          {
+            "match": "^[EFHJK]$",
+            "transport": "ethernet",
+            "connector": "dual Ethernet",
+            "evidence_layer": "dual Ethernet Port 5A/5B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[EJ]$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5A option"
+          },
+          {
+            "match": "^[FK]$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5A option"
+          },
+          {
+            "match": "^H$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5A option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_INTERFACE"
+        },
+        "option_patterns": [
+          {
+            "match": "^[EJ]$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 5B option"
+          },
+          {
+            "match": "^[FK]$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 5B option"
+          },
+          {
+            "match": "^H$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "copper/fiber pair Ethernet Port 5B option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "351S",
+    "product": "SEL-351S Protection System",
+    "length": 15,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0351S",
+      "description": "SEL-351S Protection System (Standard with Ethernet, C37.118 synchrophasors, DNP3 outstation, Modbus TCP/RTU)"
+    },
+    "note": "15-digit MOT string. Positions 8, 9, 11, 14 are anchored by the drawing layers and match; positions 6, 7, 10, 12, 13, 15 come from the ordering information, anchored by box column to those four. Position 7 is a fixed 'X' placeholder printed in the ordering-table template. Unlike the base SEL-351, the 351S has no standalone conformal-coat digit — conformal coating is folded into the Chassis & Mounting option (codes C/7/8/9). Voltage note: accepts single-phase up to 300 V L-N or three-phase up to 300 V L-N, wye or delta (global setting).",
+    "references": [
+      "SEL-351S Ordering Information (WI-8323, 20211221)",
+      "SEL-351S master configuration drawings i7073.E / i7074d (drawing layers)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0351S5XH34A54X1",
+        "note": "Real part number from backend uploads: Basic firmware, 3U Horizontal Rack Mount, Std Interface (legacy), 125/250 Vdc PS, (1) 10/100Base-T, 5 A/5 A secondary, 125 Vdc control, no additional I/O, standard protocols"
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
+        "confidence": "high",
+        "options": {
+          "5": "Basic",
+          "6": "Standard (includes MIRRORED BITS and Load Profile)",
+          "7": "Standard plus Power Elements, Voltage Sag/Swell/Interruption"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "reserved",
+        "label": "Fixed placeholder",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
+        "confidence": "high",
+        "note": "Fixed 'X' printed in the ordering-table part-number template; not a selectable option.",
+        "options": {
+          "X": "Fixed placeholder"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "chassis_and_mounting",
+        "label": "Chassis & Mounting",
+        "group": "CHASSIS_&_MOUNTING",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)+pdf-layers",
+        "confidence": "high",
+        "note": "Conformal coating is selected here (codes C/7/8/9); there is no separate coat digit. Selects the drawing set: H/3/5/7/9/C use i7073.E, 4/8 use i7074d.",
+        "options": {
+          "3": "3U Horizontal Panel Mount",
+          "4": "3U Vertical Panel Mount",
+          "5": "3U Horizontal Projection Panel Mount",
+          "7": "3U Horizontal Panel Mount and Conformally Coated Circuit Boards",
+          "8": "3U Vertical Panel Mount and Conformally Coated Circuit Boards",
+          "9": "3U Horizontal Projection Panel Mount and Conformally Coated Circuit Boards",
+          "H": "3U Horizontal Rack Mount",
+          "C": "3U Horizontal Rack Mount and Conformally Coated Circuit Boards"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "user_interface",
+        "label": "User Interface",
+        "group": "USER_INTERFACE",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)+pdf-layers",
+        "confidence": "high",
+        "note": "Codes 3-7 are legacy (pre-USB) options retained from the drawing layers; current ordering offers A-E (all include USB).",
+        "options": {
+          "3": "Standard Interface (legacy)",
+          "4": "Standard plus Configurable Labels (legacy)",
+          "5": "Standard plus Indoor SafeLock TC Pushbuttons (legacy)",
+          "6": "Standard plus Indoor SafeLock TC Pushbuttons and Configurable Labels (legacy)",
+          "7": "Standard plus Outdoor SafeLock TC Pushbuttons and Configurable Labels (legacy)",
+          "A": "Standard Interface including USB",
+          "B": "Standard Interface including USB plus Configurable Labels",
+          "C": "Standard Interface including USB plus Indoor SafeLock Trip/Close Pushbuttons",
+          "D": "Standard Interface including USB plus Indoor SafeLock Trip/Close Pushbuttons and Configurable Labels",
+          "E": "Standard Interface including USB plus Outdoor SafeLock Trip/Close Pushbuttons and Configurable Labels"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
+        "confidence": "high",
+        "options": {
+          "2": "24/48 Vdc",
+          "3": "48/125 Vdc or 120 Vac",
+          "4": "125/250 Vdc or 120/230 Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "communications_interface",
+        "label": "Communications Interface",
+        "group": "COMMUNICATIONS_INTERFACE",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "A": "(1) 10/100Base-T",
+          "B": "(1) 10/100Base-T, EIA-485",
+          "C": "(1) 100Base-FX MM LC",
+          "D": "(1) 100Base-FX MM LC, EIA-485",
+          "E": "(2) 10/100Base-T, EIA-485",
+          "F": "(2) 100Base-FX MM LC, EIA-485",
+          "G": "(1) 10/100Base-T, (1) FO MM ST serial port",
+          "H": "(1) 10/100Base-T, (1) 100Base-FX MM LC, (1) FO MM ST serial port",
+          "J": "(2) 10/100Base-T, (1) FO MM ST serial port",
+          "K": "(2) 100Base-FX MM LC, (1) FO MM ST serial port"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A phase, 1 A neutral",
+          "5": "5 A phase, 5 A neutral",
+          "6": "5 A phase, 1 A neutral",
+          "8": "1 A phase, 0.05 A neutral (nondirectional SEF)",
+          "9": "5 A phase, 0.05 A neutral (nondirectional SEF)",
+          "A": "1 A phase, 0.2 A neutral (directional, various grounding)",
+          "B": "5 A phase, 0.2 A neutral (directional, various grounding)"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc",
+          "3": "110 Vdc",
+          "4": "125 Vdc",
+          "5": "220 Vdc",
+          "6": "250 Vdc"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "io_board",
+        "label": "Additional I/O Board",
+        "group": "IO_BOARD",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "2": "Additional 12 standard outputs, 8 inputs",
+          "4": "Additional 4 standard outputs, 16 inputs",
+          "6": "Additional 12 high-interrupting-current outputs, 8 inputs",
+          "X": "No additional I/O"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
+        "confidence": "high",
+        "options": {
+          "1": "Standard protocols (DNP3, Modbus, C37.118, etc.)",
+          "2": "Standard plus IEC 61850"
+        }
+      }
+    ]
+  }
+}

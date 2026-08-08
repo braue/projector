@@ -1,0 +1,231 @@
+{
+  "device": "2730M",
+  "model_to_drawings": {
+    "front_and_rear": []
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {}
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETHF",
+        "label": "Front Ethernet Port",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2730M manual: front Ethernet port",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "id": "ETH1-ETH4",
+        "label": "Ethernet Ports 1-4",
+        "transport": "ethernet",
+        "connector": "SFP",
+        "evidence_layer": "SEL-2730M manual: Ports 1-4 SFP",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "4"
+          },
+          {
+            "label": "Speed",
+            "value": "100/1000BASE SFP"
+          }
+        ]
+      },
+      {
+        "id": "ETH5-ETH8",
+        "label": "Ethernet Ports 5-8",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2730M manual: Ports 5-8 gigabit copper",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "4"
+          },
+          {
+            "label": "Speed",
+            "value": "100/1000BASE-T"
+          }
+        ]
+      },
+      {
+        "id": "ETH9-ETH24",
+        "label": "Ethernet Ports 9-24",
+        "transport": "ethernet",
+        "connector": "RJ45 / fiber module",
+        "evidence_layer": "SEL-2730M manual: Ports 9-24 10/100 copper or fiber modules",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "16"
+          },
+          {
+            "label": "Speed",
+            "value": "10/100 Mbps"
+          },
+          {
+            "label": "Options",
+            "value": "Copper or fiber modules by ordering option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2730M",
+    "product": "SEL-2730M 24-Port Managed Ethernet Switch",
+    "length": 19,
+    "prefix": {
+      "positions": "1-7",
+      "value": "2730M0A",
+      "description": "SEL-2730M Managed Ethernet Switch (fixed model/generation prefix; 24 ports: 4 SFP cages [Ports 1-4], 4 copper 10/100/1000BASE-T [Ports 5-8], 16 configurable 10/100 Mbps [Ports 9-24])"
+    },
+    "note": "19-digit Model Option Table from WI-9662. No SEL-2730M drawing layers exist and no genuine part number was available to calibrate against, so option codes are taken from the ordering document and digit positions are calibrated by column-alignment against the WI-9662 part-number template grid; all option-bearing positions are marked low confidence. Positions 1-7 are the fixed 2730M0A prefix. Ports 9-24 (positions 11-14) is one 4-digit combined selection, not four independent digits. Ports 5-8 are fixed copper gigabit and Ports 1-4 SFP cages are populated via the Installed SFPs field / accessory SFP part numbers (8115/8130/8131), not by a config digit.",
+    "references": [
+      "SEL-2730M Ordering Information (WI-9662, 20210802)",
+      "SEL-2730M Managed Ethernet Switch Instruction Manual (2730M_IM_20250217)"
+    ],
+    "positions": [
+      {
+        "position": 8,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-2730M Ordering Information (WI-9662)",
+        "confidence": "low",
+        "note": "Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "options": {
+          "R": "Rack Mount (Front or Rear Cabled)",
+          "W": "Wall / Surface Mount",
+          "P": "Panel-Mount"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "power_supply_a",
+        "label": "Power Supply A",
+        "source": "SEL-2730M Ordering Information (WI-9662)",
+        "confidence": "low",
+        "note": "Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "options": {
+          "C": "24/48 Vdc",
+          "A": "125/250 Vdc or Vac, Euro-style Connector"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "power_supply_b",
+        "label": "Power Supply B (redundant)",
+        "source": "SEL-2730M Ordering Information (WI-9662)",
+        "confidence": "low",
+        "note": "Second (redundant) power supply. Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "options": {
+          "X": "None",
+          "C": "24/48 Vdc",
+          "A": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 4,
+        "field": "ports_9_24",
+        "label": "Ports 9-24 media configuration",
+        "source": "SEL-2730M Ordering Information (WI-9662)",
+        "confidence": "low",
+        "note": "Single 4-digit combined selection for the sixteen 10/100 Mbps ports 9-24 (copper 10/100BASE-T, 100BASE-FX multimode [1300 nm LC, 2 km], and/or 100BASE-LX10 single-mode [1310 nm LC, 15 km]). Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "options": {
+          "1111": "16 10/100BASE-T",
+          "1112": "12 10/100BASE-T, 4 100BASE-FX Multimode",
+          "1113": "12 10/100BASE-T, 4 100BASE-LX10 Single-Mode",
+          "1122": "8 10/100BASE-T, 8 100BASE-FX Multimode",
+          "1123": "8 10/100BASE-T, 4 100BASE-FX Multimode, 4 100BASE-LX10 Single-Mode",
+          "1133": "8 10/100BASE-T, 8 100BASE-LX10 Single-Mode",
+          "1142": "10 10/100BASE-T, 6 100BASE-FX Multimode",
+          "1222": "4 10/100BASE-T, 12 100BASE-FX Multimode",
+          "1223": "4 10/100BASE-T, 8 100BASE-FX Multimode, 4 100BASE-LX10 Single-Mode",
+          "1233": "4 10/100BASE-T, 4 100BASE-FX Multimode, 8 100BASE-LX10 Single-Mode",
+          "1333": "4 10/100BASE-T, 12 100BASE-LX10 Single-Mode",
+          "2222": "16 100BASE-FX Multimode",
+          "2223": "12 100BASE-FX Multimode, 4 100BASE-LX10 Single-Mode",
+          "2233": "8 100BASE-FX Multimode, 8 100BASE-LX10 Single-Mode",
+          "2333": "4 100BASE-FX Multimode, 12 100BASE-LX10 Single-Mode",
+          "3333": "16 100BASE-LX10 Single-Mode"
+        }
+      },
+      {
+        "position": 15,
+        "length": 4,
+        "field": "installed_sfps",
+        "label": "Installed SFPs (Slots 1-4)",
+        "source": "SEL-2730M Ordering Information (WI-9662)",
+        "confidence": "low",
+        "note": "One digit per SFP cage (Ports 1-4). The MOT documents only the copper (8115-01) SFP as a factory-installed option; other SFP transceivers (8130/8131 accessory part numbers) are ordered separately and field-installed. WI-9662 shows the all-none (AAAA) and all-copper (CCCC) rows; per-slot mixing is represented here as independent digits. Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "SFP cage 1 (Port 1)",
+            "options": {
+              "A": "No SFP installed",
+              "C": "10/100/1000BASE-T copper SFP, RJ45 (SEL-8115-01)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "SFP cage 2 (Port 2)",
+            "options": {
+              "A": "No SFP installed",
+              "C": "10/100/1000BASE-T copper SFP, RJ45 (SEL-8115-01)"
+            }
+          },
+          {
+            "offset": 2,
+            "length": 1,
+            "label": "SFP cage 3 (Port 3)",
+            "options": {
+              "A": "No SFP installed",
+              "C": "10/100/1000BASE-T copper SFP, RJ45 (SEL-8115-01)"
+            }
+          },
+          {
+            "offset": 3,
+            "length": 1,
+            "label": "SFP cage 4 (Port 4)",
+            "options": {
+              "A": "No SFP installed",
+              "C": "10/100/1000BASE-T copper SFP, RJ45 (SEL-8115-01)"
+            }
+          }
+        ]
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-2730M Ordering Information (WI-9662)",
+        "confidence": "low",
+        "note": "Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "options": {
+          "0": "None",
+          "1": "Conformally Coated Circuit Boards"
+        }
+      }
+    ]
+  }
+}

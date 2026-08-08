@@ -1,0 +1,1117 @@
+{
+  "device": "400G",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_17": [
+            "6"
+          ]
+        },
+        "front_pdf": "i7307.B.pdf",
+        "rear_pdf": "i7307.B.pdf"
+      },
+      {
+        "when": {
+          "position_17": [
+            "7"
+          ]
+        },
+        "front_pdf": "i7308.B.pdf",
+        "rear_pdf": "i7308.B.pdf"
+      },
+      {
+        "when": {},
+        "front_pdf": "i7200.C.pdf",
+        "rear_pdf": "i7200.C.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7200.C.pdf": {
+        "always": [
+          {
+            "name": "7.0_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "6.0_____[SLOT D]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "5.0_____[SLOT C]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT B]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "68 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "options": {
+              "0": [
+                {
+                  "name": "6.1__0__Empty",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "6.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "6.4__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard & (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "6.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "6.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.5__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 22
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard & (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "45 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard & (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack",
+                  "object_id": "58 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.5__9__(2) 100-1000BASE & (3) 100BASE-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "64 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized Relay",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__Screw Terminal Block",
+                  "object_id": "67 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          }
+        }
+      },
+      "i7307.B.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT B]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "50 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard & (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "34 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.5__9__(2) 100-1000BASE & (3) 100BASE-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized Relay",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__Screw Terminal Block",
+                  "object_id": "49 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          }
+        }
+      },
+      "i7308.B.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "5.0_____[SLOT C]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "4.0_____[SLOT B]",
+            "object_id": "47 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "50 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "59 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__Empty",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "5.2__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "5.4__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard & (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "5.3__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "5.6__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.5__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 20
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.3__4__(24) Optoisolated Level-Sensitive Inputs. (2) Standard & (6) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "4.2__7__(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.5__8__(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.4__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "43 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack",
+                  "object_id": "49 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 16
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "6": [
+                {
+                  "name": "2.2__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.3__7__(4) 100BASE-FX Connectors",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.4__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.5__9__(2) 100-1000BASE & (3) 100BASE-SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "55 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized Relay",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__Screw Terminal Block",
+                  "object_id": "58 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7200.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            198,
+            286.29,
+            1684.29,
+            1444
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1892.29,
+            345.71,
+            3193.29,
+            1382.43
+          ]
+        }
+      },
+      "i7307.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            206.71,
+            534,
+            1684.29,
+            1446.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1887.71,
+            588.86,
+            3195.57,
+            1389.29
+          ]
+        }
+      },
+      "i7308.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            199.86,
+            402.14,
+            1688.86,
+            1455.43
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1887.71,
+            466.14,
+            3195.57,
+            1384.71
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "400G",
+    "product": "SEL-400G Advanced Generator Protection System",
+    "length": 23,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0400G",
+      "description": "SEL-400G Advanced Generator Protection System (product identifier)"
+    },
+    "note": "23-character SEL-400 series MOT string. NO relay Model Option Table (ordering-information) document exists for the SEL-400G — the only 400G ordering doc in the corpus, WI-16396, is the Connectorized wiring harness (Part Number WA0400GA...) and was rejected. Positions were derived from the master-configuration drawing layers (i7200.C / i7307.B / i7308.B), the IM “Models and Options” section (1.12–1.14), and observed part numbers. Drawing-anchored positions (high confidence): 7 (connector type), 8 (Ethernet), 16 (mounting), 18/20/22 (interface board slots B/C/D). Position 17 (rack size 6U/7U/8U) is cross-validated: PNs with 17=6 select the 6U drawing (Slot B only), 17=7 the 7U drawing (Slots B+C), 17=8 the 8U drawing (Slots B+C+D). Positions 9, 10, 13, 14, 15 encode the analog/current, power-supply and conformal-coat sub-options; without a coded MOT their digit→value mappings could not be resolved (they are firmware-masked as 'X' in the sample CONFIGURATION INFO part number), so they are marked low confidence with the values observed. Slot-B/C/D input-voltage sub-codes (19/21/23) are likewise inferred (low).",
+    "references": [
+      "SEL-400G Instruction Manual PM400G-01 (400G_IM_20250919), Models and Options 1.12–1.14; CONFIGURATION INFO screen (real part number)",
+      "SEL-400G Data Sheet (400G_DS_20250214)",
+      "SEL-400G master configuration drawings i7200.C / i7307.B / i7308.B (drawing layers)",
+      "WI-16396 rejected: Connectorized SEL-400G wiring harness (WA0400GA...), not the relay MOT"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0400G0X6XX1B8XXH8242424",
+        "note": "Real part number read from the IM CONFIGURATION INFO front-panel screen. 8U rack (pos17=8), screw-terminal, (4) 10-100BASE-T Ethernet, all-5 A current inputs (pos11=1, matches the shown all-5 A analog boards), horizontal rack, three INT2 boards at 125 Vdc in Slots B/C/D. 'X' digits (9,10,14,15) are firmware-masked, not literal options."
+      },
+      {
+        "part_number": "0400G0X6X11B6XXH824240X",
+        "note": "8U drawing example (i7200.C): Slots B=INT2/125V, C=INT2/125V, D=Empty."
+      },
+      {
+        "part_number": "0400G0X6X11B6XXH674XXXX",
+        "note": "6U drawing example (i7307.B): rack 6U (pos17=6), Slot B=INT7/125V only."
+      },
+      {
+        "part_number": "0400G0X6X11B6XXH72424XX",
+        "note": "7U drawing example (i7308.B): rack 7U (pos17=7), Slots B=INT2/125V, C=INT2/125V."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware_autosync",
+        "label": "Firmware / Autosynchronizer Option",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "high",
+        "note": "Constant '0' in all observed part numbers; '1' adds the autosynchronizer per the IM Firmware Options.",
+        "options": {
+          "0": "SEL-400G-0: Advanced Generator Protection System",
+          "1": "SEL-400G-1: Advanced Generator Protection System and Autosynchronizer"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "group": "GROUP_1",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "2": "Connectorized Relay",
+          "X": "Screw Terminal Block"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "ethernet",
+        "label": "Ethernet Connection Options",
+        "group": "GROUP_2",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "6": "(4) 10-100BASE-T Connectors",
+          "7": "(4) 100BASE-FX Connectors",
+          "8": "(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+          "9": "(2) 100-1000BASE & (3) 100BASE-SFP Ports (order SFP transceivers separately)",
+          "X": "None"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "reserved_09",
+        "label": "Reserved / fixed placeholder",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "Constant 'X' in every observed part number; treated as a fixed placeholder. Meaning not determined (no coded MOT).",
+        "options": {
+          "X": "Not used (fixed placeholder)"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "analog_option_10",
+        "label": "Analog / current selection (undetermined)",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "'1' in the drawing-example part numbers, firmware-masked 'X' in the sample relay. Likely part of the analog/current or power-supply selection; exact meaning unresolved without a coded MOT.",
+        "options": {
+          "1": "Value '1' observed in drawing examples",
+          "X": "Not reported by firmware"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "current_channel",
+        "label": "CT Secondary Current Selection",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "IM Table 1.1 'Supported 1 A/5 A Terminal Combinations' (Terminals S/T/U and W/X/IY1/IY2/IY3). Real PN pos11=1 corresponds to all-5 A, matching the sample relay's all-5 A analog boards; the remaining digit→combination assignments are inferred from Table 1.1 row order and are low confidence.",
+        "options": {
+          "1": "S/T/U = 5 A; W/X = 5 A; IY1/IY2/IY3 = 5 A/5 A/5 A",
+          "2": "S/T/U = 1 A; W/X = 5 A; IY1/IY2/IY3 = 1 A/1 A/1 A",
+          "3": "S/T/U = 1 A; W/X = 1 A; IY1/IY2/IY3 = 1 A/1 A/1 A",
+          "4": "S/T/U = 5 A; W/X = 5 A; IY1/IY2/IY3 = 5 A/1 A/1 A",
+          "5": "S/T/U = 5 A; W/X = 5 A; IY1/IY2/IY3 = 0.2 A/0.2 A/0.2 A",
+          "6": "S/T/U = 1 A; W/X = 1 A; IY1/IY2/IY3 = 0.2 A/0.2 A/0.2 A",
+          "7": "S/T/U = 5 A; W/X = 5 A; IY1/IY2/IY3 = 5 A/5 A/0.2 A",
+          "8": "S/T/U = 5 A; W/X = 5 A; IY1/IY2/IY3 = 1 A/1 A/0.2 A"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "voltage_channel",
+        "label": "Voltage Channel Option",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "Constant 'B' in all observed part numbers. The SEL-400G offers only 300 V phase-to-neutral wye PT inputs, so this digit is effectively fixed; the code letter 'B' is not confirmed against a coded MOT.",
+        "options": {
+          "B": "300 V phase-to-neutral wye configuration PT inputs"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "hardware_option_13",
+        "label": "Power supply / analog option (undetermined)",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "Real option digit — observed '6' in drawing-example part numbers and '8' in the sample relay. Likely the power-supply option (24-48 / 48-125 or 110-120 Vac / 125-250 or 110-240 Vac) or an analog-board selection; not resolvable to a specific value without a coded MOT.",
+        "options": {
+          "6": "Value '6' observed in drawing-example part numbers",
+          "8": "Value '8' observed in the sample relay part number"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "reserved_14",
+        "label": "Reserved / fixed placeholder",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "Constant 'X' in every observed part number; treated as a fixed placeholder. Meaning not determined.",
+        "options": {
+          "X": "Not used (fixed placeholder)"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved_15",
+        "label": "Reserved / fixed placeholder",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”",
+        "confidence": "low",
+        "note": "Constant 'X' in every observed part number; treated as a fixed placeholder. Meaning not determined.",
+        "options": {
+          "X": "Not used (fixed placeholder)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_3",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel",
+          "H": "Horizontal Rack"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "rack_size",
+        "label": "Chassis / Rack Size (interface board capacity)",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "note": "Cross-validated against the drawing selection: 6→6U (i7307.B, Slot B only), 7→7U (i7308.B, Slots B+C), 8→8U (i7200.C, Slots B+C+D). Matches the IM 6U/7U/8U description (one/two/three interface boards).",
+        "options": {
+          "6": "6U chassis — one interface board (Slot B only)",
+          "7": "7U chassis — up to two interface boards (Slots B, C)",
+          "8": "8U chassis — up to three interface boards (Slots B, C, D)"
+        }
+      },
+      {
+        "position": 18,
+        "length": 2,
+        "field": "slot_b",
+        "label": "Interface Board Slot B (board type | input voltage)",
+        "group": "GROUP_4",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = interface board type (drawing layer GROUP_4, source position 18 — confirmed). Second digit = optoisolated-input control voltage; the digit→voltage mapping is inferred from the IM voltage list (24/48/110/125/220/250 Vdc) because the SEL-400G has no published coded Model Option Table, so treat the voltage sub-code as low confidence. Slot B is always populated (no empty option).",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Interface board type",
+            "options": {
+              "2": "INT2: (8) optoisolated independent level-sensitive inputs, (13) Standard Form A, (2) Standard Form C outputs",
+              "4": "INT4: (24) optoisolated level-sensitive inputs, (2) Standard & (6) High-Speed High-Current Interrupting Form A outputs",
+              "7": "INT7: (8) optoisolated independent level-sensitive inputs, (13) High-Current Interrupting Form A, (2) Standard Form C outputs",
+              "8": "INT8: (8) optoisolated independent level-sensitive inputs, (8) High-Speed High-Current Interrupting Form A outputs",
+              "D": "INTD: (24) optoisolated common level-sensitive inputs, (8) Standard Form A outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Optoisolated input control voltage",
+            "options": {
+              "0": "None / not applicable (empty slot)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None / not reported by firmware"
+            }
+          }
+        ]
+      },
+      {
+        "position": 20,
+        "length": 2,
+        "field": "slot_c",
+        "label": "Interface Board Slot C (board type | input voltage)",
+        "group": "GROUP_5",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = interface board type (drawing layer GROUP_5, source position 20 — confirmed). Second digit = optoisolated-input control voltage; the digit→voltage mapping is inferred from the IM voltage list (24/48/110/125/220/250 Vdc) because the SEL-400G has no published coded Model Option Table, so treat the voltage sub-code as low confidence.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Interface board type",
+            "options": {
+              "0": "Empty (no interface board)",
+              "2": "INT2: (8) optoisolated independent level-sensitive inputs, (13) Standard Form A, (2) Standard Form C outputs",
+              "4": "INT4: (24) optoisolated level-sensitive inputs, (2) Standard & (6) High-Speed High-Current Interrupting Form A outputs",
+              "7": "INT7: (8) optoisolated independent level-sensitive inputs, (13) High-Current Interrupting Form A, (2) Standard Form C outputs",
+              "8": "INT8: (8) optoisolated independent level-sensitive inputs, (8) High-Speed High-Current Interrupting Form A outputs",
+              "D": "INTD: (24) optoisolated common level-sensitive inputs, (8) Standard Form A outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Optoisolated input control voltage",
+            "options": {
+              "0": "None / not applicable (empty slot)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None / not reported by firmware"
+            }
+          }
+        ]
+      },
+      {
+        "position": 22,
+        "length": 2,
+        "field": "slot_d",
+        "label": "Interface Board Slot D (board type | input voltage)",
+        "group": "GROUP_6",
+        "source": "SEL-400G Instruction Manual (PM400G-01, 400G_IM_20250919) “Models and Options”+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = interface board type (drawing layer GROUP_6, source position 22 — confirmed). Second digit = optoisolated-input control voltage; the digit→voltage mapping is inferred from the IM voltage list (24/48/110/125/220/250 Vdc) because the SEL-400G has no published coded Model Option Table, so treat the voltage sub-code as low confidence.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Interface board type",
+            "options": {
+              "0": "Empty (no interface board)",
+              "2": "INT2: (8) optoisolated independent level-sensitive inputs, (13) Standard Form A, (2) Standard Form C outputs",
+              "4": "INT4: (24) optoisolated level-sensitive inputs, (2) Standard & (6) High-Speed High-Current Interrupting Form A outputs",
+              "7": "INT7: (8) optoisolated independent level-sensitive inputs, (13) High-Current Interrupting Form A, (2) Standard Form C outputs",
+              "8": "INT8: (8) optoisolated independent level-sensitive inputs, (8) High-Speed High-Current Interrupting Form A outputs",
+              "D": "INTD: (24) optoisolated common level-sensitive inputs, (8) Standard Form A outputs"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Optoisolated input control voltage",
+            "options": {
+              "0": "None / not applicable (empty slot)",
+              "1": "24 Vdc",
+              "2": "48 Vdc",
+              "3": "110 Vdc",
+              "4": "125 Vdc",
+              "5": "220 Vdc",
+              "6": "250 Vdc",
+              "X": "None / not reported by firmware"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { aggregateSettings } from '../api'
+import { errorMessage } from '../lib/errors'
 import type { AggregateResult, ProjectTree } from '../types'
 import { TreePane, TreeRows } from './FileTree'
 import { Button, DataTable, SectionHeader, TextArea, type TableRow } from './ui'
@@ -73,14 +74,16 @@ export function AggregateView({ project, tree }: { project: string; tree: Projec
       setResult(await aggregateSettings(project, terms, [...checked]))
     } catch (err) {
       setResult(null)
-      setError(err instanceof Error ? err.message : String(err))
+      setError(errorMessage(err))
     } finally {
       setRunning(false)
     }
   }, [project, termsText, checked])
 
-  return (
-    <>
+  // The tree pane and result table don't depend on the terms text — keep
+  // them referentially stable so typing re-renders only the controls.
+  const treePane = useMemo(
+    () => (
       <TreePane
         header={
           <>
@@ -90,14 +93,16 @@ export function AggregateView({ project, tree }: { project: string; tree: Projec
         }
         footer={checked.size ? `${checked.size} objects in scope` : 'whole project in scope'}
       >
-        <TreeRows
-          nodes={tree.tree}
-          selected={null}
-          onSelect={() => {}}
-          checked={checked}
-          onToggleCheck={onToggleCheck}
-        />
+        <TreeRows nodes={tree.tree} checked={checked} onToggleCheck={onToggleCheck} />
       </TreePane>
+    ),
+    [tree, checked, onToggleCheck],
+  )
+  const rows = useMemo(() => (result ? resultRows(result) : []), [result])
+
+  return (
+    <>
+      {treePane}
 
       <main className="preview aggregate">
         <div className="aggregate-controls">
@@ -135,7 +140,7 @@ export function AggregateView({ project, tree }: { project: string; tree: Projec
                   { key: 'kind', label: 'Kind' },
                   ...result.terms.map((term) => ({ key: term, label: term })),
                 ]}
-                rows={resultRows(result)}
+                rows={rows}
               />
             )}
           </>

@@ -1,0 +1,322 @@
+{
+  "device": "3620",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7222b.pdf",
+        "rear_pdf": "i7222b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7222b.pdf": {
+        "always": [
+          {
+            "name": "3.0_____DWG",
+            "object_id": "30 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "1.0_____[MOUNTING]",
+            "object_id": "39 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.1__0__(2) 10-100 Base-T",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__1__(1) 10-100 Base-T. (1) 100 Base-FX",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.3__2__(2) 100 Base-FX",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.4__3__(1) 10-100 Base-T. (1) 100 Base-LX10",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.5__4__(2) 100 Base-LX10",
+                  "object_id": "31 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "3": [
+                {
+                  "name": "1.2__3__PANEL",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "1.1__H__RACK",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7222b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            122.29,
+            977.29,
+            1602.29,
+            1250
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1654,
+            1031.44,
+            2933,
+            1190.44
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETHF",
+        "label": "Front Ethernet Port",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3620 manual: front Ethernet port",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10 or 100 Mbps"
+          }
+        ]
+      },
+      {
+        "id": "ETH1-ETH2",
+        "label": "Rear Ethernet Ports 1-2",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "SEL-3620 manual and drawing: two rear Ethernet ports, copper or LC fiber by option",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T or 100BASE-FX/LX10"
+          }
+        ]
+      },
+      {
+        "id": "SER1-SER16",
+        "label": "Serial Ports 1-16",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-3620 manual: EIA-232/EIA-422/EIA-485 serial Ports 1-16",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "16"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232/EIA-422/EIA-485"
+          }
+        ],
+        "interface": "EIA-232 / EIA-422 / EIA-485"
+      },
+      {
+        "id": "SER17",
+        "label": "Isolated Serial Port 17",
+        "transport": "serial",
+        "connector": "8-pin isolated",
+        "evidence_layer": "SEL-3620 manual: isolated serial Port 17",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232/EIA-422/EIA-485"
+          }
+        ],
+        "interface": "EIA-232 / EIA-422 / EIA-485"
+      },
+      {
+        "id": "USB",
+        "label": "USB Ports",
+        "transport": "usb",
+        "connector": "USB Type A / Type B",
+        "evidence_layer": "SEL-3620 manual: Type A host and Type B device USB ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Function",
+            "value": "Type B supports USB networking for out-of-band management"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "3620",
+    "product": "SEL-3620 Ethernet Security Gateway",
+    "length": 12,
+    "prefix": {
+      "positions": "1-4",
+      "value": "3620",
+      "description": "SEL-3620 Ethernet Security Gateway"
+    },
+    "note": "SEL publishes no Ordering Information (Model Option Table) document for the SEL-3620, and neither the SEL-3620 Data Sheet nor the SEL-3610/3620/3622 Instruction Manual contains an ordering/MOT appendix. The part-number format is taken directly from the master configurable drawing i7222b, whose digit template shows 12 slots: prefix 3620 (1-4), literal '-' fillers at 5, 7, 9, 10, 11 (drawing note 5: dashed slots are non-configurable and do not affect graphics), and three configurable slots at 6, 8, and 12. Only two are labeled on the drawing: MOUNTING (digit 6) and ETHERNET CONNECTION (digit 8); digit 12 is a configurable slot with no documented option list. Canonical/decoded form is the dashed 12-character string, e.g. 3620-H-0---X. NOTE: the metadata model_to_layers source.position priors (MOUNTING=8, ETHERNET=9) are off - the drawing template places MOUNTING at digit 6 and ETHERNET at digit 8, and each labeled option must land on a blank (configurable) slot rather than a '-' filler, so the drawing positions are used. No real SEL-3620 part number was found in the corpus to calibrate against.",
+    "references": [
+      "SEL-3620 master configurable drawing i7222b (digit template + drawing layers)",
+      "SEL-3620 Data Sheet (3620_DS_20221003)"
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "separator_1",
+        "label": "Separator",
+        "source": "SEL-3620 master configurable drawing i7222b",
+        "confidence": "high",
+        "note": "Fixed '-' filler slot (drawing note 5: dashed slots are non-configurable).",
+        "options": {
+          "-": "Fixed separator"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_1",
+        "source": "SEL-3620 master configurable drawing i7222b+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing MOUNTING slot. Layer source.position prior (8) corrected to drawing digit 6.",
+        "options": {
+          "3": "Panel mount",
+          "H": "Rack mount"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "separator_2",
+        "label": "Separator",
+        "source": "SEL-3620 master configurable drawing i7222b",
+        "confidence": "high",
+        "note": "Fixed '-' filler slot (drawing note 5: dashed slots are non-configurable).",
+        "options": {
+          "-": "Fixed separator"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "ethernet_connection",
+        "label": "Ethernet Connection",
+        "group": "GROUP_2",
+        "source": "SEL-3620 master configurable drawing i7222b+pdf-layers",
+        "confidence": "high",
+        "note": "Two rear Ethernet ports. Layer source.position prior (9) corrected to drawing digit 8.",
+        "options": {
+          "0": "(2) 10/100BASE-T",
+          "1": "(1) 10/100BASE-T, (1) 100BASE-FX",
+          "2": "(2) 100BASE-FX",
+          "3": "(1) 10/100BASE-T, (1) 100BASE-LX10",
+          "4": "(2) 100BASE-LX10"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "separator_3",
+        "label": "Separator",
+        "source": "SEL-3620 master configurable drawing i7222b",
+        "confidence": "high",
+        "note": "Fixed '-' filler slot (drawing note 5: dashed slots are non-configurable).",
+        "options": {
+          "-": "Fixed separator"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "separator_4",
+        "label": "Separator",
+        "source": "SEL-3620 master configurable drawing i7222b",
+        "confidence": "high",
+        "note": "Fixed '-' filler slot (drawing note 5: dashed slots are non-configurable).",
+        "options": {
+          "-": "Fixed separator"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "separator_5",
+        "label": "Separator",
+        "source": "SEL-3620 master configurable drawing i7222b",
+        "confidence": "high",
+        "note": "Fixed '-' filler slot (drawing note 5: dashed slots are non-configurable).",
+        "options": {
+          "-": "Fixed separator"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "option_12",
+        "label": "Option (undocumented)",
+        "source": "SEL-3620 master configurable drawing i7222b",
+        "confidence": "low",
+        "note": "Configurable (blank) slot on the drawing with no label and no drawing layer; option codes are not documented in any available SEL-3620 source, so meanings are unknown.",
+        "options": {}
+      }
+    ]
+  }
+}

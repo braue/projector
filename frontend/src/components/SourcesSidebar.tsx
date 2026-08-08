@@ -8,9 +8,9 @@ import { Button, Spinner } from './ui'
 // databases and lists their relay profiles; SCD lands in phase 3. Ready
 // items drag onto the canvas and click-select for Inspect.
 //
-// Drag payload: JSON DeviceSource under application/gridlink-source.
+// Drag payload: JSON DeviceSource under application/purview-source.
 
-export const SOURCE_MIME = 'application/gridlink-source'
+export const SOURCE_MIME = 'application/purview-source'
 
 const TABS: { key: SourceType; label: string }[] = [
   { key: 'rtac', label: 'RTAC' },

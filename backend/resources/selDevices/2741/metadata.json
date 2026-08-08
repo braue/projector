@@ -1,0 +1,487 @@
+{
+  "device": "2741",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7173a.pdf",
+        "rear_pdf": "i7173a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7173a.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "4.0____[PORTS]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "3.0____[POWER SUPPLY B]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "2.0____[POWER SUPPLY A]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "1.0____[MOUNTING]",
+            "object_id": "53 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "1-24": [
+                {
+                  "name": "4.1__1-24 100-1000BASE-T",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "100-1000BASE-T": [
+                {
+                  "name": "4.1__1-24 100-1000BASE-T",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "None": [
+                {
+                  "name": "3.1__None",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac Euro-style Connector",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac Euro-style Connector",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac Euro-style Connector",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac Euro-style Connector",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Euro-style": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac Euro-style Connector",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Connector": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac Euro-style Connector",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Rack": [
+                {
+                  "name": "1.1__Rack Mount (Front or Rear Cabled)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.1__Rack Mount (Front or Rear Cabled)",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-24"
+            }
+          },
+          "2": {
+            "options": {
+              "1-20": [
+                {
+                  "name": "4.2__1-20 100-1000BASE-T & 21-24 100-1000BASE SFP",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "100-1000BASE-T": [
+                {
+                  "name": "4.2__1-20 100-1000BASE-T & 21-24 100-1000BASE SFP",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "&": [
+                {
+                  "name": "4.2__1-20 100-1000BASE-T & 21-24 100-1000BASE SFP",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "21-24": [
+                {
+                  "name": "4.2__1-20 100-1000BASE-T & 21-24 100-1000BASE SFP",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.2__1-20 100-1000BASE-T & 21-24 100-1000BASE SFP",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.2__1-20 100-1000BASE-T & 21-24 100-1000BASE SFP",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "24-48": [
+                {
+                  "name": "3.2__24-48 Vdc",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "2.2__24-48 Vdc",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "3.2__24-48 Vdc",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "2.2__24-48 Vdc",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "Wall-Surface": [
+                {
+                  "name": "1.2__Wall-Surface Mount",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.2__Wall-Surface Mount",
+                  "object_id": "51 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-20"
+            }
+          },
+          "3": {
+            "options": {
+              "1-16": [
+                {
+                  "name": "4.3__1-16 100-1000BASE-T & 17-24 100-1000BASE SFP",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "100-1000BASE-T": [
+                {
+                  "name": "4.3__1-16 100-1000BASE-T & 17-24 100-1000BASE SFP",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "&": [
+                {
+                  "name": "4.3__1-16 100-1000BASE-T & 17-24 100-1000BASE SFP",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "17-24": [
+                {
+                  "name": "4.3__1-16 100-1000BASE-T & 17-24 100-1000BASE SFP",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.3__1-16 100-1000BASE-T & 17-24 100-1000BASE SFP",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.3__1-16 100-1000BASE-T & 17-24 100-1000BASE SFP",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Panel": [
+                {
+                  "name": "1.3__Panel Mount",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.3__Panel Mount",
+                  "object_id": "50 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-16"
+            }
+          },
+          "4": {
+            "options": {
+              "1-12": [
+                {
+                  "name": "4.4__1-12 100-1000BASE-T & 13-24 100-1000BASE SFP",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "100-1000BASE-T": [
+                {
+                  "name": "4.4__1-12 100-1000BASE-T & 13-24 100-1000BASE SFP",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "&": [
+                {
+                  "name": "4.4__1-12 100-1000BASE-T & 13-24 100-1000BASE SFP",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "13-24": [
+                {
+                  "name": "4.4__1-12 100-1000BASE-T & 13-24 100-1000BASE SFP",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.4__1-12 100-1000BASE-T & 13-24 100-1000BASE SFP",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.4__1-12 100-1000BASE-T & 13-24 100-1000BASE SFP",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-12"
+            }
+          },
+          "5": {
+            "options": {
+              "1-8": [
+                {
+                  "name": "4.5__1-8 100-1000BASE-T & 9-24 100-1000BASE SFP",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "100-1000BASE-T": [
+                {
+                  "name": "4.5__1-8 100-1000BASE-T & 9-24 100-1000BASE SFP",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "&": [
+                {
+                  "name": "4.5__1-8 100-1000BASE-T & 9-24 100-1000BASE SFP",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "9-24": [
+                {
+                  "name": "4.5__1-8 100-1000BASE-T & 9-24 100-1000BASE SFP",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.5__1-8 100-1000BASE-T & 9-24 100-1000BASE SFP",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.5__1-8 100-1000BASE-T & 9-24 100-1000BASE SFP",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-8"
+            }
+          },
+          "6": {
+            "options": {
+              "1-4": [
+                {
+                  "name": "4.6__1-4 100-1000BASE-T & 5-24 100-1000BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "100-1000BASE-T": [
+                {
+                  "name": "4.6__1-4 100-1000BASE-T & 5-24 100-1000BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "&": [
+                {
+                  "name": "4.6__1-4 100-1000BASE-T & 5-24 100-1000BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "5-24": [
+                {
+                  "name": "4.6__1-4 100-1000BASE-T & 5-24 100-1000BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.6__1-4 100-1000BASE-T & 5-24 100-1000BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.6__1-4 100-1000BASE-T & 5-24 100-1000BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-4"
+            }
+          },
+          "7": {
+            "options": {
+              "1-24": [
+                {
+                  "name": "4.7__1-24 100-1000BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.7__1-24 100-1000BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.7__1-24 100-1000BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-24"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7173a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            165.43,
+            1135.71,
+            1637.57,
+            1437
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1914,
+            1214,
+            3197,
+            1377
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETH1-ETH24",
+        "label": "Ethernet Ports 1-24",
+        "transport": "ethernet",
+        "connector": "RJ45 / SFP",
+        "evidence_layer": "SEL-2741 manual: 24-port Ethernet switch with RJ45/SFP ordering options",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "24"
+          },
+          {
+            "label": "Options",
+            "value": "0-24 RJ45 and 0-24 SFP by ordering option, in sets of four"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2741",
+    "product": "SEL-2741 Ethernet Switch (24-port all-gigabit managed switch)",
+    "length": null,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2741",
+      "description": "SEL-2741 Ethernet Switch base model"
+    },
+    "note": "No per-digit Model Option Table (MOT) digit template could be resolved. The SEL-2741 is a configurable managed Ethernet switch ordered through SEL's online Model Option Table configurator; SEL's instruction manual lists the ordering DIMENSIONS but not a positional part-number string, and no genuine part number, ordering-doc MOT, or digit-position drawing anchor was available to calibrate against (the drawing layers key off text labels, not digit positions). No positions are asserted to avoid inventing them. Configurable ordering dimensions per Table 3 of the instruction manual: (1) Conformal Coat Yes/No; (2) Power Supply Position One and (3) Position Two, each independently Low Voltage 24-48 Vdc or High Voltage 125-250 Vdc / 120-240 Vac (redundant supplies); (4) Communication Ports 1=24x100/1000BASE-T + 0 SFP, 2=20 T + 4 SFP, 3=16 T + 8 SFP, 4=12 T + 12 SFP, 5=8 T + 16 SFP, 6=4 T + 20 SFP, 7=0 T + 24 SFP (100/1000BASE SFP cages); (5) Digital Input 1=24 V, 2=48 V, 3=125 V, 4=250 V; (6) Ethernet Switching Technology RSTP / OT SDN (Unmanaged is a future release); (7) Mounting Rack / Panel / Surface.",
+    "references": [
+      "SEL-2741 Ethernet Switch Instruction Manual (2741_IM_20250220), Table 3 Ordering Options",
+      "SEL-2741 Model Option Table / ordering configurator (selinc.com/products/2741)"
+    ],
+    "positions": []
+  }
+}

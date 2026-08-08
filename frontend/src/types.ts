@@ -51,18 +51,20 @@ export type TreeNode = TreeFolderNode | TreeItemNode
 
 export interface ProjectSummary {
   files: number
-  connections: number
-  clients: number
-  servers: number
-  peers: number
-  totalPoints: number
-  protocols: string[]
+  // RTAC exports only — absent for RDB profiles.
+  connections?: number
+  clients?: number
+  servers?: number
+  peers?: number
+  totalPoints?: number
+  protocols?: string[]
 }
 
 export interface ProjectTree {
   name: string
   schema: string | null
-  deviceMOT: string | null
+  /** Display name of the device, e.g. "SEL-3555" or "SEL-735". */
+  deviceLabel: string | null
   summary: ProjectSummary
   errors: { file: string; error: string }[]
   tree: TreeNode[]
@@ -96,13 +98,16 @@ export interface ProjectItem {
   category: ItemCategory
   kindLabel: string
   name: string | null
-  schema: string | null
-  deviceMOT: string | null
   settings: Record<string, string>
   points: Point[]
   pointCount: number
   pages: SettingPage[]
-  hasControllerPou: boolean
+  // RTAC exports only
+  schema?: string | null
+  deviceMOT?: string | null
+  hasControllerPou?: boolean
+  // RDB panel drawings: the item is a generated image, served at `url`.
+  image?: { url: string; view?: string } | null
   // connection
   protocol?: string | null
   protocolFamily?: string | null
@@ -214,6 +219,9 @@ export interface DeviceSource {
   type: SourceType
   ref: string
 }
+
+/** An rdb ref is "<fileId>::<profileName>" (see backend/services/rdb.js). */
+export const REF_SEPARATOR = '::'
 
 export interface RdbProfileEntry {
   name: string

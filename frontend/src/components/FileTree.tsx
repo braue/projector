@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react'
-import type { ItemCategory, ProjectTree, TreeItemNode, TreeNode } from '../types'
+import { useMemo, useState, type ReactNode } from 'react'
+import type { ItemCategory, ProjectTree, TreeNode } from '../types'
 import { Checkbox } from './ui'
 
 // Small colored glyph per item category so the tree reads at a glance.
@@ -21,8 +21,8 @@ function itemPaths(node: TreeNode): string[] {
 }
 
 interface RowsProps {
-  selected: string | null
-  onSelect: (path: string) => void
+  selected?: string | null
+  onSelect?: (path: string) => void
   // aggregate mode: object-range checkboxes
   checked?: Set<string>
   onToggleCheck?: (paths: string[], value: boolean) => void
@@ -39,9 +39,13 @@ function TreeEntry({
   const [open, setOpen] = useState(true)
   const indent = { paddingLeft: `${8 + depth * 14}px` }
   const checkable = checked !== undefined && onToggleCheck !== undefined
+  // The subtree flatten is only needed to drive the folder checkbox.
+  const paths = useMemo(
+    () => (checkable && node.type === 'folder' ? itemPaths(node) : []),
+    [checkable, node],
+  )
 
   if (node.type === 'folder') {
-    const paths = itemPaths(node)
     const allChecked = paths.length > 0 && paths.every((path) => checked?.has(path))
     const someChecked = !allChecked && paths.some((path) => checked?.has(path))
     return (
@@ -89,7 +93,7 @@ function TreeEntry({
           ? `${node.name}: ${node.error}`
           : `${node.kindLabel}${node.protocol ? ` · ${node.protocol}` : ''}${node.status && node.status !== 'unchanged' ? ` · ${node.status}` : ''}`
       }
-      onClick={() => onSelect(node.path)}
+      onClick={() => onSelect?.(node.path)}
     >
       {checkable && (
         <Checkbox
@@ -147,9 +151,11 @@ export function FileTree({
   tree,
   selected,
   onSelect,
-  checked,
-  onToggleCheck,
-}: RowsProps & { tree: ProjectTree }) {
+}: {
+  tree: ProjectTree
+  selected: string | null
+  onSelect: (path: string) => void
+}) {
   const { summary } = tree
   return (
     <TreePane
@@ -157,25 +163,18 @@ export function FileTree({
         <>
           <div className="tree-title">{tree.name}</div>
           <div className="tree-subtitle">
-            SEL-{tree.deviceMOT ?? '?'} · schema {tree.schema ?? '?'}
+            {tree.deviceLabel ?? 'Unknown device'}
+            {tree.schema && ` · schema ${tree.schema}`}
           </div>
         </>
       }
       footer={
-        <>
-          {summary.connections} connections · {summary.totalPoints} points · {summary.files} files
-        </>
+        summary.connections !== undefined
+          ? `${summary.connections} connections · ${summary.totalPoints} points · ${summary.files} files`
+          : `${summary.files} sections`
       }
     >
-      <TreeRows
-        nodes={tree.tree}
-        selected={selected}
-        onSelect={onSelect}
-        checked={checked}
-        onToggleCheck={onToggleCheck}
-      />
+      <TreeRows nodes={tree.tree} selected={selected} onSelect={onSelect} />
     </TreePane>
   )
 }
-
-export type { TreeItemNode }

@@ -1,0 +1,866 @@
+{
+  "device": "3350",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "Chassis and Mounting": [
+                  "Horizontal 1U Rack Mount",
+                  "Horizontal 1U Panel Mount"
+                ],
+                "Expansion Slot 2": [
+                  "None"
+                ],
+                "Expansion Slot 1": [
+                  "None"
+                ],
+                "Power Supply B": [
+                  "None"
+                ]
+              },
+              "example_answer_string": "1-1,2-1,3-5,4-1,5-1,6-2,7-1,9-1,11-1,12-1,13-1,14-1,16-1,17-1,18-1,19-1,20-1,29-1,30-1,31-1,32-1,33-1,34-1,35-1,43-1,36-1,37-1,38-1,39-1,40-1,41-1,42-1,62-1,44-1,57-1,58-1,65-1,66-1,52-1,51-1,46-1,47-1,50-1,60-1,63-1,64-1,53-1,54-2,55-1,56-1,21-1,22-1,23-1,26-1,27-1,48-1,28-1"
+            }
+          ]
+        },
+        "front_pdf": "i7225.E.pdf",
+        "rear_pdf": "i7225.E.pdf"
+      },
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "Chassis and Mounting": [
+                  "Horizontal 3U Panel Mount"
+                ],
+                "SSD Slot 2": [
+                  "None"
+                ],
+                "Operating System": [
+                  "None"
+                ]
+              },
+              "example_answer_string": "1-1,2-1,3-5,4-1,5-1,6-4,7-1,9-1,11-1,12-1,13-1,14-1,16-1,17-1,18-1,19-1,20-1,29-1,30-1,31-1,32-1,33-1,34-1,35-1,43-1,36-1,37-1,38-1,39-1,40-1,41-1,42-1,62-1,44-1,57-1,58-1,65-1,66-1,52-1,51-1,46-1,47-1,50-1,60-1,63-1,64-1,53-1,54-2,55-1,56-1,21-1,22-1,23-1,26-1,27-1,48-1,28-1"
+            },
+            {
+              "model_config": {
+                "Chassis and Mounting": [
+                  "Horizontal 3U Rack Mount"
+                ],
+                "SSD Slot 2": [
+                  "None"
+                ],
+                "Operating System": [
+                  "None"
+                ]
+              },
+              "example_answer_string": "1-1,2-1,3-5,4-1,5-1,6-3,7-1,9-1,11-1,12-1,13-1,14-1,16-1,17-1,18-1,19-1,20-1,29-1,30-1,31-1,32-1,33-1,34-1,35-1,43-1,36-1,37-1,38-1,39-1,40-1,41-1,42-1,62-1,44-1,57-1,58-1,65-1,66-1,52-1,51-1,46-1,47-1,50-1,60-1,63-1,64-1,53-1,54-2,55-1,56-1,21-1,22-1,23-1,26-1,27-1,48-1,28-1"
+            }
+          ]
+        },
+        "front_pdf": "i7319.A.pdf",
+        "rear_pdf": "i7319.A.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7225.E.pdf": {
+        "always": [
+          {
+            "name": "4.0_____[DWG]",
+            "object_id": "28 0 R"
+          },
+          {
+            "name": "3.0_____[REAR ETHERNET PORT]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "2.0_____[MOUNTING]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "1.0_____[OPERATING SYSTEM]",
+            "object_id": "39 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "Rack": [
+                {
+                  "name": "2.1__Rack Mount",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "2.1__Rack Mount",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "None": [
+                {
+                  "name": "1.1__None",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "RACK"
+            }
+          },
+          "2": {
+            "options": {
+              "Panel": [
+                {
+                  "name": "2.2__Panel Mount",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "2.2__Panel Mount",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "RTAC": [
+                {
+                  "name": "1.2__RTAC (Real-Time Automation Controller)",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "PANEL"
+            }
+          },
+          "3": {
+            "options": {
+              "Blueframe": [
+                {
+                  "name": "1.3__Blueframe",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "BLUEFRAME"
+            }
+          }
+        }
+      },
+      "i7319.A.pdf": {
+        "always": [
+          {
+            "name": "8.0____DWG",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "7.0____[REAR ETHERNET PORT CONFIGURATION]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "6.0____[EXPANSION SLOT 2]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "5.0____[EXPANSION SLOT 1]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "4.0____[POWER SUPPLY B]",
+            "object_id": "48 0 R"
+          },
+          {
+            "name": "3.0____[POWER SUPPLY A]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "2.0____[CHASSIS & MOUNTING]",
+            "object_id": "55 0 R"
+          },
+          {
+            "name": "1.0____[OPERATING SYSTEM]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "8.0____DWG",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "7.0____[REAR ETHERNET PORT CONFIGURATION]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "6.0____[EXPANSION SLOT 2]",
+            "object_id": "68 0 R"
+          },
+          {
+            "name": "5.0____[EXPANSION SLOT 1]",
+            "object_id": "71 0 R"
+          },
+          {
+            "name": "4.0____[POWER SUPPLY B]",
+            "object_id": "76 0 R"
+          },
+          {
+            "name": "3.0____[POWER SUPPLY A]",
+            "object_id": "80 0 R"
+          },
+          {
+            "name": "2.0____[CHASSIS & MOUNTING]",
+            "object_id": "83 0 R"
+          },
+          {
+            "name": "1.0____[OPERATING SYSTEM]",
+            "object_id": "88 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "None": [
+                {
+                  "name": "6.1__None",
+                  "object_id": "39 0 R"
+                },
+                {
+                  "name": "5.1__None",
+                  "object_id": "42 0 R"
+                },
+                {
+                  "name": "4.1__None",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "1.1__None",
+                  "object_id": "59 0 R"
+                },
+                {
+                  "name": "6.1__None",
+                  "object_id": "67 0 R"
+                },
+                {
+                  "name": "5.1__None",
+                  "object_id": "70 0 R"
+                },
+                {
+                  "name": "4.1__None",
+                  "object_id": "75 0 R"
+                },
+                {
+                  "name": "1.1__None",
+                  "object_id": "87 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "51 0 R"
+                },
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "51 0 R"
+                },
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "51 0 R"
+                },
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "120-240": [
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "51 0 R"
+                },
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "51 0 R"
+                },
+                {
+                  "name": "3.1__125-250 Vdc or 120-240 Vac",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "Rack": [
+                {
+                  "name": "2.1__Rack Mount",
+                  "object_id": "54 0 R"
+                },
+                {
+                  "name": "2.1__Rack Mount",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "2.1__Rack Mount",
+                  "object_id": "54 0 R"
+                },
+                {
+                  "name": "2.1__Rack Mount",
+                  "object_id": "82 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "NONE"
+            }
+          },
+          "2": {
+            "options": {
+              "32": [
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "120": [
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "Port": [
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "Serial": [
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "Expansion": [
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "Board": [
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "5.2__32 Port Serial Expansion Board",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "74 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "74 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "120-240": [
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "4.2__125-250 Vdc or 120-240 Vac",
+                  "object_id": "74 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "48-125": [
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "3.2__48-125 Vdc or 120 Vac",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "Panel": [
+                {
+                  "name": "2.2__Panel Mount",
+                  "object_id": "53 0 R"
+                },
+                {
+                  "name": "2.2__Panel Mount",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "2.2__Panel Mount",
+                  "object_id": "53 0 R"
+                },
+                {
+                  "name": "2.2__Panel Mount",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "SEL": [
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "Real-Time": [
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "Automation": [
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "Controller": [
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "1.2__SEL Real-Time Automation Controller (RTAC)",
+                  "object_id": "86 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "32"
+            }
+          },
+          "3": {
+            "options": {
+              "120": [
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "48-125": [
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "3.3__24-48 Vdc",
+                  "object_id": "49 0 R"
+                },
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "73 0 R"
+                },
+                {
+                  "name": "3.3__24-48 Vdc",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "Vac": [
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.3__48-125 Vdc or 120 Vac",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "24-48": [
+                {
+                  "name": "3.3__24-48 Vdc",
+                  "object_id": "49 0 R"
+                },
+                {
+                  "name": "3.3__24-48 Vdc",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "SEL": [
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "57 0 R"
+                },
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "Blueframe": [
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "57 0 R"
+                },
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "Application": [
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "57 0 R"
+                },
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "Platform": [
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "57 0 R"
+                },
+                {
+                  "name": "1.3__SEL Blueframe Application Platform",
+                  "object_id": "85 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "120"
+            }
+          },
+          "4": {
+            "options": {
+              "24-48": [
+                {
+                  "name": "4.4__24-48 Vdc",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "4.4__24-48 Vdc",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "4.4__24-48 Vdc",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "4.4__24-48 Vdc",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "Microsoft": [
+                {
+                  "name": "1.4__Microsoft Windows",
+                  "object_id": "56 0 R"
+                },
+                {
+                  "name": "1.4__Microsoft Windows",
+                  "object_id": "84 0 R"
+                }
+              ],
+              "Windows": [
+                {
+                  "name": "1.4__Microsoft Windows",
+                  "object_id": "56 0 R"
+                },
+                {
+                  "name": "1.4__Microsoft Windows",
+                  "object_id": "84 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "24-48"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7225.E.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            173.14,
+            944,
+            1646.29,
+            1212.57
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1860,
+            994.53,
+            3143.71,
+            1172.1
+          ]
+        }
+      },
+      "i7319.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            300,
+            1025.14,
+            1772.57,
+            1551.43
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1797.51,
+            1080.77,
+            3080.94,
+            1493.91
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETHF",
+        "label": "Front Ethernet Port",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3350 manual: front 10/100/1000 Ethernet port",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100/1000BASE-T"
+          }
+        ]
+      },
+      {
+        "id": "ETH1-ETH4",
+        "label": "Rear Ethernet Ports 1-4",
+        "transport": "ethernet",
+        "connector": "RJ45 / SFP",
+        "evidence_layer": "SEL-3350 manual: four rear Ethernet ports, RJ45 or SFP by option",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "4"
+          },
+          {
+            "label": "Speed",
+            "value": "Gigabit Ethernet"
+          }
+        ]
+      },
+      {
+        "id": "SER1-SER16",
+        "label": "Standard Serial Ports 1-16",
+        "transport": "serial",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3350 manual: standard 16 serial RJ45 ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "16"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232/EIA-422/EIA-485"
+          }
+        ],
+        "interface": "EIA-232 / EIA-422 / EIA-485"
+      },
+      {
+        "id": "SER17-SER48",
+        "label": "Optional Serial Ports 17-48",
+        "transport": "serial",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3350 manual: optional 3U serial expansion ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "32"
+          },
+          {
+            "label": "Configuration",
+            "value": "Optional on 3U chassis"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232/EIA-422/EIA-485"
+          }
+        ],
+        "interface": "EIA-232 / EIA-422 / EIA-485"
+      },
+      {
+        "id": "USB",
+        "label": "USB Ports",
+        "transport": "usb",
+        "connector": "USB Type A",
+        "evidence_layer": "SEL-3350 manual: front, rear, and internal USB ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "7"
+          },
+          {
+            "label": "Layout",
+            "value": "2 front USB 3.2, 4 rear USB 2.0, 1 internal Type A"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "3350",
+    "product": "SEL-3350-1 Automation Controller (industrial computing platform)",
+    "length": null,
+    "prefix": {
+      "positions": "1-4",
+      "value": "3350",
+      "description": "SEL-3350 / SEL-3350-1 Automation Controller base platform"
+    },
+    "note": "No per-digit Model Option Table is published in the available documentation, so no decodable part-number positions are asserted. The SEL-3350-1 instruction manual (3350-1_IM_20260324.pdf), under 'Models and Options', lists the configurable options only in prose (Operating System: none / SEL RTAC / SEL Blueframe / Microsoft Windows; conformal coating; Chassis and Mounting: horizontal 1U or 3U 19-inch rack or panel; Power Supply: 24-48 Vdc, 48-125 Vdc or 110-120 Vac, 125-250 Vdc or 120-240 Vac, plus optional dual hot-swappable supplies on 3U; Rear Ethernet: 4 RJ45, 4 SFP, or 2 RJ45 + 2 SFP; up to two SATA/SSD drives; optional 32-port serial expansion and 8-output contact I/O board on 3U) and states \"You can find the latest options and features at selinc.com\" -- it contains no ordering appendix or per-digit part-number template. No SEL-3350 ordering-information or data-sheet document exists in the corpus (sel_index.sqlite has none), and no genuine SEL-3350 option-code part number was found in any document or in the RDB uploads to calibrate positions (the only 3350 part number in the IM, PM3350-01, is a manufacturer/component label, not the configurable model part number). The unit is configurator/quote-driven -- consistent with the configurator Q&A answer strings recorded elsewhere in this metadata -- rather than encoded as a decodable option-table digit string, matching the sibling SEL-3355 platform. Drawing-layer anchors were intentionally not used per task scope.",
+    "references": [
+      "SEL-3350-1 Instruction Manual (3350-1_IM_20260324.pdf) - Models and Options section lists options in prose and defers latest options to selinc.com; no part-number digit template",
+      "No SEL-3350 ordering-information or data-sheet document present in the SEL documentation corpus (sel_index.sqlite)"
+    ],
+    "positions": []
+  }
+}

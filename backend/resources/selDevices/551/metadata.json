@@ -1,0 +1,224 @@
+{
+  "device": "551",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7231b.pdf",
+        "rear_pdf": "i7231b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7231b.pdf": {
+        "always": [
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "1.0_____[PACKAGING]",
+            "object_id": "38 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_1": {
+            "options": {
+              "3": [
+                {
+                  "name": "1.5__3__(1) Panel Mount",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.6__5__(1) Projection Panel Mount",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "1.4__C__(1) Rack Mount w Cutout for Test Switch",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.3__B__(1) Rack Mount w Bracket",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "1.2__P__(2) Rack Mount",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__(1) Rack Mount",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7231b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            180.7,
+            741.69,
+            1622,
+            1138.3
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1877.7,
+            793.3,
+            3166,
+            1084.3
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "rear serial Port 1 ordered as EIA-232 or EIA-485"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "front EIA-232 serial Port F"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "551",
+    "product": "SEL-551 Overcurrent and Reclosing Relay",
+    "length": 10,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0551",
+      "description": "SEL-551 Overcurrent and Reclosing Relay"
+    },
+    "note": "10-digit MOT string of the form 0551 P C S K M I: positions 1-4 are the fixed model designator 0551, then Power Supply (5), Conformal Coat (6), Secondary Input Current (7), Packaging/Mounting (8), Communications Port (9), and Control Input Voltage (10). Packaging (position 8) is anchored by the i7231b drawing layers (option group GROUP_1). Option codes and descriptions are taken from the SEL-551 ordering information (WI-1023). The WI-1023 sheet documents the Connectorized variant, whose part number inserts a fixed '0 W' after 0551 and therefore shifts every option two digits to the right (packaging at digit 10); the standard SEL-551 has no such prefix, so packaging sits at digit 8 exactly as the drawing layers assert.",
+    "references": [
+      "SEL-551 Ordering Information (WI-1023, 20190711)",
+      "SEL-551/SEL-551C Data Sheet (551-551C_DS_20221103)",
+      "SEL-551 connection drawing i7231b (drawing layers; packaging position anchor = 8)"
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-551 Ordering Information (WI-1023, 20190711)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "3": "48/125 Vdc or 125 Vac",
+          "6": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-551 Ordering Information (WI-1023, 20190711)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformally coated circuit boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-551 Ordering Information (WI-1023, 20190711)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A phase, 1 A neutral",
+          "5": "5 A phase, 5 A neutral",
+          "6": "5 A phase, 1 A neutral"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "packaging",
+        "label": "Packaging / Mounting",
+        "group": "GROUP_1",
+        "source": "SEL-551 Ordering Information (WI-1023, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "Anchored by the i7231b drawing layers (option group GROUP_1).",
+        "options": {
+          "3": "Horizontal panel mount",
+          "5": "Horizontal projection panel mount",
+          "X": "Horizontal rack mount (single relay)",
+          "P": "Part of two-relay rack mount package",
+          "B": "Single relay with rack mount bracket 9100 (bracket on right side in front view)",
+          "C": "Single relay with rack mount bracket 9102 with cutout for test switch (bracket on right side in front view)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "communications_port",
+        "label": "Communications Port",
+        "source": "SEL-551 Ordering Information (WI-1023, 20190711)",
+        "confidence": "high",
+        "note": "EIA-485 is for special applications only; SEL recommends EIA-232.",
+        "options": {
+          "1": "EIA-232",
+          "2": "EIA-485"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-551 Ordering Information (WI-1023, 20190711)",
+        "confidence": "high",
+        "note": "Codes 1/2/3/4/6 confirmed by WI-1023 (level-sensitive optoisolated inputs except 24 Vdc). Code 5 (220 Vdc) is inferred from the SEL-551/SEL-551C data sheet level-sensitive input list and is not shown on the connectorized WI-1023 sheet.",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc (level-sensitive inputs)",
+          "3": "110 Vdc (level-sensitive inputs)",
+          "4": "125 Vdc (level-sensitive inputs)",
+          "5": "220 Vdc (level-sensitive inputs)",
+          "6": "250 Vdc (level-sensitive inputs)"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,953 @@
+{
+  "device": "700BT",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_13": [
+            "L"
+          ]
+        },
+        "front_pdf": "i7224.C.pdf",
+        "rear_pdf": "i7224.C.pdf"
+      },
+      {
+        "when": {},
+        "front_pdf": "i7320.B.pdf",
+        "rear_pdf": "i7320.B.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7224.C.pdf": {
+        "always": [
+          {
+            "name": "5.00_____DWG",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "4.00____[SLOT Z]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "3.00____[SLOT D]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "2.00____[SLOT C]",
+            "object_id": "67 0 R"
+          },
+          {
+            "name": "1.00____[COMBINED SLOT B. ETHERNET & SERIAL PORT]",
+            "object_id": "75 0 R"
+          }
+        ],
+        "by_option_group": {
+          "SLOT_Z": {
+            "options": {
+              "81": [
+                {
+                  "name": "4.01__81__3-Phase 1 Amp AC Current Input - 1 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "82": [
+                {
+                  "name": "4.03__82__3-Phase 1 Amp AC Current Input - 5 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "85": [
+                {
+                  "name": "4.02__85__3-Phase 5 Amp AC Current Input - 5 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "86": [
+                {
+                  "name": "4.04__86__3-Phase 5 Amp AC Current Input - 1 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "L1": [
+                {
+                  "name": "4.05__L1__3-Phase 1-Neutral Rogowski Coil or Low Power Current Transformer (RJ45 Inputs) - 3-Phase LEA Voltage Sensor (RJ45 Inputs) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15,
+              "length": 2
+            }
+          },
+          "SLOT_D": {
+            "options": {
+              "2": [
+                {
+                  "name": "3.06__2__(8) DO  Electromechanical (Form A)",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "9-": [
+                {
+                  "name": "3.10__9-__(10) RTD Inputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.09__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "3.08__4-__(14) DI",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.07__3-__(8) DI",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.05__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.03__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.01__0-__Empty",
+                  "object_id": "55 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11,
+              "length": 2
+            }
+          },
+          "SLOT_C": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.07__2__(8) DO  Electromechanical (Form A)",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "2.10__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "2.09__4-__(14) DI",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.08__3-__(8) DI",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "2.06__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.05__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.04__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.03__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "2.02__A-__Serial Communications (EIA-232-485)",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__Empty",
+                  "object_id": "66 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9,
+              "length": 2
+            }
+          },
+          "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT": {
+            "options": {
+              "8-": [
+                {
+                  "name": "1.07__8-__(2) 100Base-FX MM LC Ethernet. EIA-232",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "1.06__6-__(2) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "1.05__4-__(1) 100Base-FX MM LC Ethernet. EIA-232",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "1.04__3-__(1) 10-100Base-T Ethernet. EIA-485",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "1.03__2-__(1) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "1.02__1-__None. EIA-485",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "1.01__0-__None. EIA-232",
+                  "object_id": "74 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18,
+              "length": 2
+            }
+          }
+        }
+      },
+      "i7320.B.pdf": {
+        "always": [
+          {
+            "name": "5.00_____DWG",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "4.00____[SLOT Z]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "3.00____[SLOT D]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "2.00____[SLOT C]",
+            "object_id": "67 0 R"
+          },
+          {
+            "name": "1.00____[COMBINED SLOT B. ETHERNET & SERIAL PORT]",
+            "object_id": "75 0 R"
+          }
+        ],
+        "by_option_group": {
+          "SLOT_Z": {
+            "options": {
+              "81": [
+                {
+                  "name": "4.01__81__3-Phase 1 Amp AC Current Input - 1 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "82": [
+                {
+                  "name": "4.03__82__3-Phase 1 Amp AC Current Input - 5 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "85": [
+                {
+                  "name": "4.02__85__3-Phase 5 Amp AC Current Input - 5 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "86": [
+                {
+                  "name": "4.04__86__3-Phase 5 Amp AC Current Input - 1 Amp Neutral AC Current Input - 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "L1": [
+                {
+                  "name": "4.05__L1__3-Phase 1-Neutral Rogowski Coil or Low Power Current Transformer (RJ45 Inputs) - 3-Phase LEA Voltage Sensor (RJ45 Inputs) (SELECT 4 ACI - 3 AVI)",
+                  "object_id": "40 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 15,
+              "length": 2
+            }
+          },
+          "SLOT_D": {
+            "options": {
+              "2": [
+                {
+                  "name": "3.06__2__(8) DO  Electromechanical (Form A)",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "9-": [
+                {
+                  "name": "3.10__9-__(10) RTD Inputs",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.09__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "3.08__4-__(14) DI",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.07__3-__(8) DI",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.05__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.03__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.01__0-__Empty",
+                  "object_id": "55 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 11,
+              "length": 2
+            }
+          },
+          "SLOT_C": {
+            "options": {
+              "2": [
+                {
+                  "name": "2.07__2__(8) DO  Electromechanical (Form A)",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "2.10__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "2.09__4-__(14) DI",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.08__3-__(8) DI",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "2.06__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.05__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.04__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.03__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "2.02__A-__Serial Communications (EIA-232-485)",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__Empty",
+                  "object_id": "66 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9,
+              "length": 2
+            }
+          },
+          "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT": {
+            "options": {
+              "8-": [
+                {
+                  "name": "1.07__8-__(2) 100Base-FX MM LC Ethernet. EIA-232",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "1.06__6-__(2) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "1.05__4-__(1) 100Base-FX MM LC Ethernet. EIA-232",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "1.04__3-__(1) 10-100Base-T Ethernet. EIA-485",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "1.03__2-__(1) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "1.02__1-__None. EIA-485",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "1.01__0-__None. EIA-232",
+                  "object_id": "74 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 18,
+              "length": 2
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7224.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60.8,
+            92.2,
+            490.29,
+            658.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1258.08,
+            92.2,
+            1665.28,
+            658.5
+          ]
+        }
+      },
+      "i7320.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60.8,
+            92.2,
+            490.29,
+            658.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1260,
+            92.2,
+            1667.2,
+            658.5
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|1|A|B)-?$",
+            "transport": "serial",
+            "connector": "DB9",
+            "evidence_layer": "no Ethernet option; Port 1 serial"
+          },
+          {
+            "match": "^(2|3|C|D)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "single 10-100Base-T Ethernet Port 1 option"
+          },
+          {
+            "match": "^(4|E)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "single 100Base-FX Ethernet Port 1 option"
+          },
+          {
+            "match": "^(6|F)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 1A/1B option"
+          },
+          {
+            "match": "^(8|G)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 1A/1B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P1A"
+        ],
+        "source": {
+          "option_group": "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT"
+        },
+        "option_patterns": [
+          {
+            "match": "^(6|F)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 1A option"
+          },
+          {
+            "match": "^(8|G)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 1A option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P1B"
+        ],
+        "source": {
+          "option_group": "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT"
+        },
+        "option_patterns": [
+          {
+            "match": "^(6|F)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 1B option"
+          },
+          {
+            "match": "^(8|G)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 1B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P2"
+        ],
+        "source": {
+          "option_group": "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|1|2|3|4|6|8|A|B|C|D|E|F|G)-?$",
+            "transport": "serial",
+            "connector": "ST fiber",
+            "evidence_layer": "fiber-optic serial Port 2 option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P4"
+        ],
+        "source": {
+          "option_group": "SLOT_C"
+        },
+        "option_patterns": [
+          {
+            "match": "^A[0-]?$",
+            "transport": "serial",
+            "connector": "DB9 / 5-pin Euro",
+            "evidence_layer": "Slot C serial communications card"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "700BT",
+    "product": "SEL-700BT Motor Bus Transfer Relay",
+    "length": 20,
+    "prefix": {
+      "positions": "1-6",
+      "value": "0700BT",
+      "description": "SEL-700BT Motor Bus Transfer Relay"
+    },
+    "note": "20-digit MOT string. Positions 9-10 (Slot C), 11-12 (Slot D) and 15-16 (Slot Z) are anchored by the drawing option-group layers and confirmed by real part numbers. Positions 7-8 (Slot A power supply / digital-input voltage), 13-14 (Slot E), 17 (front panel), 18 (Slot B Ethernet), 19 (protocols) and 20 (conformal coat) come from the ordering information and are confirmed against real part numbers. LAYER-ANCHOR CORRECTION: the drawing's COMBINED_SLOT_B (Ethernet & Serial) option group records source.position 7, but real part numbers put Slot A power supply at position 7 and the Slot B Ethernet/Rear-Serial digit at position 18; the drawing anchor is off. QuickSet-generated part-number dumps sometimes emit 'X'/'0' placeholders in positions 12/17/20 for don't-care digits.",
+    "references": [
+      "SEL-700BT Ordering Information (WI-16376, 20241021)",
+      "SEL-700BT Instruction Manual (700BT_IM_20250731) ordering appendix (real part numbers)",
+      "SEL-700BT master configuration drawings i7224.C / i7320.B (drawing layers: SLOT_C@9, SLOT_D@11, SLOT_Z@15)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0700BT1ABA4A7585A670",
+        "note": "IM Relay MOT: 110-250V PS, 125V DI; Slot C 3DI/4DO/1AO@125V; Slot D 14DI@125V; Slot E 3-ph 5A ACI/3-ph AVI; Slot Z 3-ph 5A ACI/5A neutral/3-ph AVI; English front panel; dual 10/100Base-T; IEC61850|DNP3|103; no conformal coat"
+      },
+      {
+        "part_number": "0700BT1A1ABAL185A630",
+        "note": "IM Relay MOT: LEA on Slot E (Rogowski/LPCT + LEA voltage), 4 ACI/3 AVI on Slot Z (85); Slot C 4DI/4DO@125V; Slot D 3DI/4DO/1AO@125V; dual 10/100Base-T; IEC61850|DNP3"
+      },
+      {
+        "part_number": "0700BT1B0X4X7181A8FX",
+        "note": "Real QuickSet PARTNO: single 100Base-FX MM LC Slot B Ethernet (8) with all four protocols (F = IEC61850|DNP3|IEC60870-5-103|EtherNet/IP); trailing X are QuickSet don't-care placeholders"
+      }
+    ],
+    "positions": [
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply_voltage",
+        "label": "Slot A Power Supply Voltage",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "note": "Slot A is a base-unit slot (power supply + 2 DI / 3 DO). Paired with position 8 in the doc as 'Slot A Power Supply Voltage | Slot A Digital Input Voltage'.",
+        "options": {
+          "1": "110-250 Vdc / 110-240 Vac",
+          "2": "24-48 Vdc"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "slot_a_digital_input_voltage",
+        "label": "Slot A Digital Input Voltage",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "options": {
+          "A": "125 Vdc/Vac",
+          "B": "24 Vdc/Vac",
+          "C": "48 Vdc/Vac",
+          "D": "110 Vdc/Vac",
+          "G": "220 Vdc/Vac",
+          "H": "250 Vdc/Vac"
+        }
+      },
+      {
+        "position": 9,
+        "length": 2,
+        "field": "slot_c",
+        "label": "Slot C card | DI voltage",
+        "group": "SLOT_C",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = digital-input voltage (X/0 = None for empty/serial/AO-only cards). Only one 3 DI/4 DO/1 AO and one 4 AI/4 AO card per chassis.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO Electromechanical (Form A)",
+              "2": "8 DO Electromechanical (Form A)",
+              "3": "8 DI",
+              "4": "14 DI",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "A": "Serial Communications (EIA-232/485)",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA)",
+              "C": "4 DI / 4 DO Fast High-Current Hybrid (Form A)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "0": "None",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 11,
+        "length": 2,
+        "field": "slot_d",
+        "label": "Slot D card | DI voltage",
+        "group": "SLOT_D",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = digital-input voltage (X/0 = None). 10 RTD card (9) is Slot D only; no serial-comm card (A) in Slot D.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO Electromechanical (Form A)",
+              "2": "8 DO Electromechanical (Form A)",
+              "3": "8 DI",
+              "4": "14 DI",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "9": "10 RTD Inputs",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA)",
+              "C": "4 DI / 4 DO Fast High-Current Hybrid (Form A)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "0": "None",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 13,
+        "length": 2,
+        "field": "slot_e",
+        "label": "Slot E Current and Voltage Inputs",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "note": "Two-digit atomic code. Slot E selects 3 ACI / 4 AVI (Vsync included). Not covered by a drawing option-group layer; confirmed by real part numbers.",
+        "options": {
+          "71": "3-Phase 1 A AC Current Input / 3-Phase AC Voltage (300 Vac) + Vsync (3 ACI / 4 AVI)",
+          "75": "3-Phase 5 A AC Current Input / 3-Phase AC Voltage (300 Vac) + Vsync (3 ACI / 4 AVI)",
+          "L1": "3-Phase Rogowski Coil / Low-Power CT (RJ45) + 3-Phase LEA Voltage Sensor (RJ45) + Vsync (3 ACI / 4 AVI)"
+        }
+      },
+      {
+        "position": 15,
+        "length": 2,
+        "field": "slot_z",
+        "label": "Slot Z Current and Voltage Inputs",
+        "group": "SLOT_Z",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)+pdf-layers",
+        "confidence": "high",
+        "note": "Two-digit atomic code. Slot Z selects 4 ACI / 3 AVI. Base-unit current/voltage bank.",
+        "options": {
+          "81": "3-Phase 1 A phase / 1 A neutral AC Current Input, 3-Phase AC Voltage (300 Vac) (4 ACI / 3 AVI)",
+          "82": "3-Phase 1 A phase / 5 A neutral AC Current Input, 3-Phase AC Voltage (300 Vac) (4 ACI / 3 AVI)",
+          "85": "3-Phase 5 A phase / 5 A neutral AC Current Input, 3-Phase AC Voltage (300 Vac) (4 ACI / 3 AVI)",
+          "86": "3-Phase 5 A phase / 1 A neutral AC Current Input, 3-Phase AC Voltage (300 Vac) (4 ACI / 3 AVI)",
+          "L1": "3-Phase / 1-Neutral Rogowski Coil / Low-Power CT (RJ45) + 3-Phase LEA Voltage Sensor (RJ45) (4 ACI / 3 AVI)"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "front_panel_language",
+        "label": "User Interface | Front Panel",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "note": "5-inch color touchscreen with 8 pushbuttons on all models; this digit selects the language. QuickSet part-number dumps may emit '0' as a placeholder here.",
+        "options": {
+          "A": "English (5 in color touchscreen with 8 pushbuttons)",
+          "B": "Spanish (5 in color touchscreen with 8 pushbuttons)"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "slot_b_ethernet",
+        "label": "Slot B Ethernet (Port 1) | Rear Serial (Port 3)",
+        "group": "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "note": "Base unit includes Slot B EIA-232 (Port 3). EIA-485 rear serial available only with No Ethernet or Single 10/100BASE-T options. LAYER-ANCHOR CORRECTION: the drawing COMBINED_SLOT_B option group records position 7, but real part numbers place this Ethernet/serial digit at position 18 (position 7 is Slot A power supply); the option descriptions still come from that drawing group.",
+        "options": {
+          "0": "None | EIA-232 rear",
+          "1": "None | EIA-485 rear",
+          "2": "Single 10/100BASE-T | EIA-232 rear",
+          "3": "Single 10/100BASE-T | EIA-485 rear",
+          "4": "Single 100BASE-FX MM LC | EIA-232 rear",
+          "6": "Dual 10/100BASE-T | EIA-232 rear",
+          "8": "Dual 100BASE-FX MM LC | EIA-232 rear"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "protocol",
+        "label": "IEC 61850 | DNP3 | IEC 60870-5-103 | EtherNet/IP Protocol",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "note": "IEC 61850 and EtherNet/IP require an Ethernet option in Slot B (position 18).",
+        "options": {
+          "0": "None",
+          "1": "IEC 61850",
+          "2": "DNP3",
+          "3": "IEC 61850 | DNP3",
+          "4": "IEC 60870-5-103",
+          "5": "IEC 61850 | IEC 60870-5-103",
+          "6": "DNP3 | IEC 60870-5-103",
+          "7": "IEC 61850 | DNP3 | IEC 60870-5-103",
+          "8": "EtherNet/IP",
+          "9": "IEC 61850 | EtherNet/IP",
+          "A": "DNP3 | EtherNet/IP",
+          "B": "IEC 60870-5-103 | EtherNet/IP",
+          "C": "IEC 61850 | DNP3 | EtherNet/IP",
+          "D": "IEC 61850 | IEC 60870-5-103 | EtherNet/IP",
+          "E": "DNP3 | IEC 60870-5-103 | EtherNet/IP",
+          "F": "IEC 61850 | DNP3 | IEC 60870-5-103 | EtherNet/IP"
+        }
+      },
+      {
+        "position": 20,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-700BT Ordering Information (WI-16376, 20241021)",
+        "confidence": "high",
+        "note": "QuickSet part-number dumps may emit 'X' as a don't-care placeholder here.",
+        "options": {
+          "0": "None",
+          "1": "Conformally coated circuit boards"
+        }
+      }
+    ]
+  }
+}

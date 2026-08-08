@@ -1,0 +1,422 @@
+{
+  "device": "2440",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7179b.pdf",
+        "rear_pdf": "i7179b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7179b.pdf": {
+        "always": [
+          {
+            "name": "5.00_____[DWG]",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "4.00_____[ETHERNET CONNECTION]",
+            "object_id": "21 0 R"
+          },
+          {
+            "name": "3.00_____[SERIAL PORT 2]",
+            "object_id": "22 0 R"
+          },
+          {
+            "name": "2.00_____[IO OPTIONS]",
+            "object_id": "23 0 R"
+          },
+          {
+            "name": "1.00_____[MOUNTING]",
+            "object_id": "24 0 R"
+          }
+        ],
+        "by_option_group": {
+          "ETHERNET_CONNECTION": {
+            "options": {
+              "6": [
+                {
+                  "name": "4.01__6__(2) 10-100Base-T",
+                  "object_id": "7 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.02__8__(2) 100Base-FX  LC",
+                  "object_id": "6 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "SERIAL_PORT_2": {
+            "options": {
+              "1": [
+                {
+                  "name": "3.01__1__EIA 232",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "3.02__2__EIA 485",
+                  "object_id": "9 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "3.03__4__ST 62.5μm Multimode Fiber",
+                  "object_id": "8 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12
+            }
+          },
+          "IO_OPTIONS": {
+            "options": {
+              "61": [
+                {
+                  "name": "2.04__1-61__(16) HCI DI. (32)DO",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "62": [
+                {
+                  "name": "2.05__1-62__(16) DI. (16) DO. (10) FHCDO",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "63": [
+                {
+                  "name": "2.06__2-63__(32) DI. (10) FHCDO",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "6X": [
+                {
+                  "name": "2.03__1-6X__(16) DI. (32) DO",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.02__1-1-__(32) DI. (16) DO",
+                  "object_id": "15 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10,
+              "length": 2
+            }
+          },
+          "MOUNTING": {
+            "options": {
+              "3": [
+                {
+                  "name": "1.03__3__Panel Mount",
+                  "object_id": "17 0 R"
+                }
+              ],
+              "W": [
+                {
+                  "name": "1.02__W__Surface Mount",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "1.01__H__Rack Mount",
+                  "object_id": "19 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 6
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7179b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            199.43,
+            387.15,
+            1672.57,
+            780.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1882,
+            442,
+            3165,
+            725
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "PF",
+        "label": "Front USB Serial Port",
+        "transport": "usb",
+        "connector": "USB Type B",
+        "evidence_layer": "SEL-2440 manual: front USB serial bridge",
+        "specs": [
+          {
+            "label": "Function",
+            "value": "USB-to-serial bridge"
+          }
+        ]
+      },
+      {
+        "id": "P1A",
+        "label": "Port 1A Ethernet",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2440 manual: two 10/100BASE-T Ethernet ports",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T"
+          }
+        ]
+      },
+      {
+        "id": "P1B",
+        "label": "Port 1B Ethernet",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2440 manual: two 10/100BASE-T Ethernet ports",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T"
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "label": "Port 2 Serial",
+        "transport": "serial",
+        "connector": "DB9 / EIA-485 / ST fiber",
+        "evidence_layer": "SEL-2440 manual: rear Port 2 serial options",
+        "specs": [
+          {
+            "label": "Options",
+            "value": "EIA-232, EIA-485, or ST fiber"
+          }
+        ],
+        "interface": "EIA-232 / EIA-485 / fiber-optic serial"
+      },
+      {
+        "id": "P3",
+        "label": "Port 3 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2440 manual: rear Port 3 EIA-232 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2440",
+    "product": "SEL-2440 Discrete Programmable Automation Controller (DPAC)",
+    "length": 16,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2440",
+      "description": "SEL-2440 Discrete Programmable Automation Controller (DPAC)"
+    },
+    "note": "16-digit MOT string. No dedicated SEL-2440 DPAC ordering-information document exists in the corpus (WI-11970 is for the Axion 2245 analog module), so this block is derived from the master configurable drawing i7179b (drawing layer option groups), the SEL-2440 DPAC Data Sheet, and two real PARTNO values embedded in the Instruction Manual (24402H11A1A11640, 24402H12B6314840). Drawing-layer option groups: MOUNTING (layer records digit 7), IO_OPTIONS (digit 8, length 4), SERIAL_PORT_2 (digit 12), ETHERNET_CONNECTION (digit 14). The two real part numbers place the mounting code (H = rack) at digit 6, not digit 7, so mounting is decoded at digit 6 here. Digits 5, 7, 13, 15, 16 are fixed or undocumented in the available references.",
+    "references": [
+      "SEL-2440 DPAC Data Sheet (2440_DS_20250228)",
+      "SEL-2440 master configurable drawing i7179b (drawing layers)",
+      "SEL-2440 DPAC Instruction Manual (2440_IM_20250414) — example part numbers"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "24402H11A1A11640",
+        "note": "Real PARTNO from an SEL-2440 CID in the Instruction Manual: rack mount; I/O 1-1- = (32) DI + (16) DO at 125 Vdc/Vac (digit 9 = A); Port 2 EIA-232; (2) 10/100Base-T copper Ethernet."
+      },
+      {
+        "part_number": "24402H12B6314840",
+        "note": "Real PARTNO from an SEL-2440 RDB in the Instruction Manual: rack mount; I/O 2-63 = (32) DI + (10) fast high-current DO at 24 Vdc/Vac (digit 9 = B); Port 2 EIA-232; (2) 100Base-FX LC multimode fiber Ethernet."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "base_digit_5",
+        "label": "Base configuration digit",
+        "source": "SEL-2440 DPAC Instruction Manual (2440_IM_20250414) example part numbers",
+        "confidence": "low",
+        "note": "Fixed '2' in both known part numbers; not documented in the available references.",
+        "options": {
+          "2": "Base configuration (fixed in known part numbers)"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "MOUNTING",
+        "source": "SEL-2440 master configurable drawing i7179b (drawing layers)+IM example part numbers",
+        "confidence": "high",
+        "note": "Drawing layer group MOUNTING records digit 7, but both known part numbers place the mounting code (H = rack mount) at digit 6, so it is decoded here at digit 6.",
+        "options": {
+          "3": "Panel Mount",
+          "H": "Rack Mount",
+          "W": "Surface Mount"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "base_digit_7",
+        "label": "Base configuration digit",
+        "source": "SEL-2440 DPAC Instruction Manual (2440_IM_20250414) example part numbers",
+        "confidence": "low",
+        "note": "Fixed '1' in both known part numbers; not documented in the available references.",
+        "options": {
+          "1": "Base configuration (fixed in known part numbers)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 4,
+        "field": "io_options",
+        "label": "I/O configuration | Digital input voltage",
+        "group": "IO_OPTIONS",
+        "source": "SEL-2440 master configurable drawing i7179b (drawing layers)+IM example part numbers",
+        "confidence": "high",
+        "note": "4-digit I/O field. Digit 8 = discrete-input group, digit 9 = digital input voltage, digits 10-11 = output configuration. Authoritative combined configurations from the drawing IO_OPTIONS layer (dash = digital-input-voltage wildcard): 2-1- = (48) DI; 1-1- = (32) DI + (16) DO; 1-6X = (16) DI + (32) DO; 1-61 = (16) HCI DI + (32) DO; 1-62 = (16) DI + (16) DO + (10) FHCDO; 2-63 = (32) DI + (10) FHCDO. Data sheet I/O quantity options: Standard 32 in/16 out, Option 1 16/32, Option 2 48/0, Option 3 16/32 (16 std + 16 HCI), Option 4 16/26, Option 5 32/10 fast high-current.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Discrete input group",
+            "options": {
+              "1": "16 or 32 discrete input base",
+              "2": "32 or 48 discrete input base"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          },
+          {
+            "offset": 2,
+            "length": 2,
+            "label": "Output configuration",
+            "options": {
+              "61": "(32) DO with (16) high-current-interrupting inputs",
+              "62": "(16) DO plus (10) fast high-current DO",
+              "63": "(10) fast high-current DO",
+              "1-": "(16) DO, or DI-only (no outputs) for the 48 DI configuration",
+              "6X": "(32) DO"
+            }
+          }
+        ]
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "serial_port_2",
+        "label": "Serial Port 2 physical interface",
+        "group": "SERIAL_PORT_2",
+        "source": "SEL-2440 master configurable drawing i7179b (drawing layers)",
+        "confidence": "high",
+        "options": {
+          "1": "EIA-232",
+          "2": "EIA-485",
+          "4": "ST 62.5 μm multimode fiber"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "comm_option_13",
+        "label": "Additional communications option",
+        "source": "SEL-2440 DPAC Instruction Manual (2440_IM_20250414) example part numbers",
+        "confidence": "low",
+        "note": "Varies between the two known part numbers (1 and 4); meaning not documented in the available references. Values resemble serial/fiber interface codes but are unresolved.",
+        "options": {}
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "ethernet_connection",
+        "label": "Port 1 Ethernet connection",
+        "group": "ETHERNET_CONNECTION",
+        "source": "SEL-2440 master configurable drawing i7179b (drawing layers)+IM example part numbers",
+        "confidence": "high",
+        "options": {
+          "6": "(2) 10/100Base-T (copper)",
+          "8": "(2) 100Base-FX LC (multimode fiber)"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "base_digit_15",
+        "label": "Base configuration digit",
+        "source": "SEL-2440 DPAC Instruction Manual (2440_IM_20250414) example part numbers",
+        "confidence": "low",
+        "note": "Fixed '4' in both known part numbers; not documented in the available references.",
+        "options": {
+          "4": "Base configuration (fixed in known part numbers)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL part-number convention (inferred)",
+        "confidence": "low",
+        "note": "Inferred from SEL part-number convention; '0' (none) in both known part numbers.",
+        "options": {
+          "0": "None",
+          "1": "Conformally coated circuit boards"
+        }
+      }
+    ]
+  }
+}

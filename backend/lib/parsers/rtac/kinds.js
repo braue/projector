@@ -28,16 +28,6 @@ import { cdata, findFirst, text, toArray } from './xml.js';
 //   extension  — custom applications and their definitions
 //   meta       — project-level files (project info, navigator layout)
 //   other      — anything this registry has never heard of
-const CATEGORIES = [
-  'connection',
-  'tagList',
-  'logic',
-  'system',
-  'hardware',
-  'extension',
-  'meta',
-  'other',
-];
 
 // --- kind-specific extractors -----------------------------------------------
 
@@ -166,4 +156,4 @@ function describeKind(kind) {
   return KIND_REGISTRY.get(kind) ?? { category: 'other', label: kind };
 }
 
-export { CATEGORIES, KIND_REGISTRY, NON_KIND_CHILDREN, describeKind };
+export { NON_KIND_CHILDREN, describeKind };

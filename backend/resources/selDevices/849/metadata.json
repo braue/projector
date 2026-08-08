@@ -1,0 +1,342 @@
+{
+  "device": "849",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7086j.pdf",
+        "rear_pdf": "i7086j.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7086j.pdf": {
+        "always": [
+          {
+            "name": "4.00____[DWG]",
+            "object_id": "20 0 R"
+          },
+          {
+            "name": "3.00____[COMMUNICATIONS OPTIONS]",
+            "object_id": "9 0 R"
+          },
+          {
+            "name": "2.00____DIGITAL INPUTS-ANALOG OUTPUTS]",
+            "object_id": "16 0 R"
+          },
+          {
+            "name": "1.00____[VOLTAGE INPUTS]",
+            "object_id": "19 0 R"
+          }
+        ],
+        "by_option_group": {
+          "COMMUNICATIONS_OPTIONS": {
+            "options": {
+              "0": [
+                {
+                  "name": "3.01__0__(1) 10-100Base-T",
+                  "object_id": "8 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "3.02__1__(2) 10-100Base-T",
+                  "object_id": "7 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "3.03__2__EIA-232 EIA-485 Serial",
+                  "object_id": "6 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "0"
+            }
+          },
+          "DIGITAL_INPUTS_ANALOG_OUTPUTS": {
+            "options": {
+              "10": [
+                {
+                  "name": "2.02__10__(12) Int. Wet. 24 Vdc (1) AO 0-20mA",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "3B": [
+                {
+                  "name": "2.06__3B__(6) Std. Ext. Wet. 24-48 Vdc (1) AO 0-20mA",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "2.05__2B__(6) Std. Ext. Wet. 24-48 Vdc",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "3A": [
+                {
+                  "name": "2.04__3A__(6) Std. Ext. Wet. 110-125 Vdc (1) AO 0-20mA",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "2.03__2A__(6) Std. Ext. Wet. 110-125 Vdc",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "00": [
+                {
+                  "name": "2.01__00__(6) Std. Int. Wet. 24 Vdc",
+                  "object_id": "15 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "10"
+            }
+          },
+          "VOLTAGE_INPUTS": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.01__0__None",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.02__1__690 V Direct-Connect (line-to-line)",
+                  "object_id": "17 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "0"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7086j.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            692.65,
+            537.71,
+            1191.4,
+            773.66
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            687.6,
+            140.9,
+            1191.4,
+            536.84
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "terminal block",
+        "evidence_layer": "standard Port 1 EIA-232/EIA-485 terminal block"
+      },
+      {
+        "ports": [
+          "P2",
+          "P2A"
+        ],
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "standard Port 2 10-100Base-T Ethernet"
+      },
+      {
+        "ports": [
+          "P2B"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^1$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P3"
+        ],
+        "source": {
+          "option_group": "COMMUNICATIONS_OPTIONS"
+        },
+        "option_patterns": [
+          {
+            "match": "^2$",
+            "transport": "serial",
+            "connector": "terminal block",
+            "evidence_layer": "optional EIA-232/EIA-485 serial Port 3 option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "849",
+    "product": "SEL-849 Motor Management Relay",
+    "length": 15,
+    "prefix": {
+      "positions": "1-6",
+      "value": "084900",
+      "description": "SEL-849 Motor Management Relay fixed model prefix (constant across all real part numbers)"
+    },
+    "note": "15-digit Model Option Table string. Positions 7, 9, 10-11, 13-14 and 15 are configurable; positions 1-6, 8 and 12 are fixed template digits. Calibrated against the WI-9600 ordering doc and three real PART NUM strings from the SEL-849 instruction manual (084900100000000, 084900101100000, 0849001002B0200) rather than the drawing layers -- the i7086j.pdf model_to_layers model communications/digital-input options as single-digit groups, which do not match the 2-digit MOT columns, so no drawing-layer anchors were used.",
+    "references": [
+      "SEL-849 Ordering Information (WI-9600, 20250213)",
+      "SEL-849 Instruction Manual (849_IM_20250117.pdf) PART NUM examples"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "084900100000000",
+        "note": "Instruction-manual base PART NUM: 125-250 Vdc PS, no voltage inputs, 6 Standard Internally Wetted 24 Vdc DI (no AO), Single 10/100BASE-T no protocol, no conformal coat."
+      },
+      {
+        "part_number": "084900101100000",
+        "note": "Instruction-manual PART NUM (checksum 0569): 125-250 Vdc PS, 690 V direct-connect voltage inputs, 6 Standard Plus 6 Additional Internally Wetted 24 Vdc + 1 AO, Single 10/100BASE-T no protocol, no conformal coat."
+      },
+      {
+        "part_number": "0849001002B0200",
+        "note": "Instruction-manual PART NUM (checksum 057D): 125-250 Vdc PS, no voltage inputs, 6 Standard Externally Wetted 24/48 Vdc/Vac DI (no AO), EIA-232/EIA-485 Serial no protocol, no conformal coat."
+      }
+    ],
+    "positions": [
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "options": {
+          "1": "125-250 Vdc (110-240 Vac); 50/60 Hz",
+          "2": "24-48 Vdc"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "fixed_digit_8",
+        "label": "Fixed digit",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "note": "Fixed template digit; constant 0 across all part numbers.",
+        "options": {
+          "0": "Fixed"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "voltage_inputs",
+        "label": "Voltage Inputs",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "690 V Direct-Connect (line-to-line)"
+        }
+      },
+      {
+        "position": 10,
+        "length": 2,
+        "field": "digital_inputs",
+        "label": "Digital Inputs | Digital Input Voltage | Analog Output",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "note": "2-digit combined code: first digit = digital-input configuration + analog output, second digit = digital-input voltage/wetting. Only the six combinations below are offered.",
+        "options": {
+          "10": "6 Standard Plus 6 Additional Internally Wetted | 24 Vdc | 1 Analog Output 0-20 mA",
+          "00": "6 Standard Internally Wetted | 24 Vdc | No Analog Output",
+          "2A": "6 Standard Externally Wetted | 110/125 Vdc/Vac | No Analog Output",
+          "3A": "6 Standard Externally Wetted | 110/125 Vdc/Vac | 1 Analog Output 0-20 mA",
+          "2B": "6 Standard Externally Wetted | 24/48 Vdc/Vac | No Analog Output",
+          "3B": "6 Standard Externally Wetted | 24/48 Vdc/Vac | 1 Analog Output 0-20 mA"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "fixed_digit_12",
+        "label": "Fixed digit",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "note": "Fixed template digit; constant 0 across all part numbers.",
+        "options": {
+          "0": "Fixed"
+        }
+      },
+      {
+        "position": 13,
+        "length": 2,
+        "field": "communications",
+        "label": "Communications Options | PRP | IEC 61850 | DNP3 | EtherNet/IP",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "note": "2-digit combined code: first digit = Ethernet/serial hardware (0 = Single 10/100BASE-T, 1 = Dual 10/100BASE-T, 2 = EIA-232/EIA-485 Serial), second digit = protocol package. PRP, IEC 61850 and EtherNet/IP require an Ethernet model.",
+        "options": {
+          "10": "Dual 10/100BASE-T | PRP",
+          "11": "Dual 10/100BASE-T | IEC 61850 Protocol",
+          "12": "Dual 10/100BASE-T | DNP3 Protocol",
+          "13": "Dual 10/100BASE-T | IEC 61850 Protocol | DNP3 Protocol",
+          "18": "Dual 10/100BASE-T | EtherNet/IP Protocol",
+          "19": "Dual 10/100BASE-T | IEC 61850 Protocol | EtherNet/IP Protocol",
+          "20": "EIA-232/EIA-485 Serial | No Protocol",
+          "22": "EIA-232/EIA-485 Serial | DNP3 Protocol",
+          "00": "Single 10/100BASE-T | No Protocol",
+          "01": "Single 10/100BASE-T | IEC 61850 Protocol",
+          "02": "Single 10/100BASE-T | DNP3 Protocol",
+          "03": "Single 10/100BASE-T | IEC 61850 Protocol | DNP3 Protocol",
+          "08": "Single 10/100BASE-T | EtherNet/IP Protocol",
+          "09": "Single 10/100BASE-T | IEC 61850 Protocol | EtherNet/IP Protocol",
+          "0A": "Single 10/100BASE-T | DNP3 Protocol | EtherNet/IP Protocol",
+          "0C": "Single 10/100BASE-T | IEC 61850 Protocol | DNP3 Protocol | EtherNet/IP Protocol",
+          "1A": "Dual 10/100BASE-T | DNP3 Protocol | EtherNet/IP Protocol",
+          "1C": "Dual 10/100BASE-T | IEC 61850 Protocol | DNP3 Protocol | EtherNet/IP Protocol"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-849 Ordering Information (WI-9600, 20250213)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "Conformally Coated Circuit Boards"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,592 @@
+{
+  "device": "2411P",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7195d.pdf",
+        "rear_pdf": "i7195d.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7195d.pdf": {
+        "always": [
+          {
+            "name": "3.00_____[DWG]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "2.00_____[SLOT Z]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "1.00_____[SLOT E]",
+            "object_id": "35 0 R"
+          }
+        ],
+        "by_option_group": {
+          "SLOT_Z": {
+            "options": {
+              "52": [
+                {
+                  "name": "2.11__52__(8) AI",
+                  "object_id": "7 0 R"
+                }
+              ],
+              "6X": [
+                {
+                  "name": "2.12__6X__(4) AO (4) AI",
+                  "object_id": "6 0 R"
+                }
+              ],
+              "5X": [
+                {
+                  "name": "2.10__5X__(8) AI",
+                  "object_id": "8 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.09__3-__(8) DI",
+                  "object_id": "9 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "2.08__2C__(8) DO (STD (2) Form A. (6) Form B)",
+                  "object_id": "10 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "2.07__2B__(8) DO (STD (6) Form A. (2) Form B)",
+                  "object_id": "11 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "2.06__2A__(8) DO (STD Form B)",
+                  "object_id": "12 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "2.05__2X__(8) DO (STD Form A)",
+                  "object_id": "13 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.04__C-__(4) DI (3) DO",
+                  "object_id": "14 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.03__B-__(4) DI (4) DO (FHCI)",
+                  "object_id": "15 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.02__1-__(4) DI (4) DO (STD)",
+                  "object_id": "16 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__No Card",
+                  "object_id": "17 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14,
+              "length": 2
+            }
+          },
+          "SLOT_E": {
+            "options": {
+              "71": [
+                {
+                  "name": "1.02__71__(3) AVI",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "73": [
+                {
+                  "name": "1.03__73__(3) ACI (3) AVI (8 Vac max)",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "74": [
+                {
+                  "name": "1.04__74__(3) ACI (3) AVI (300 Vac max)",
+                  "object_id": "29 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "1.15__6-__(4) AI (4) AO",
+                  "object_id": "18 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "1.14__5-__(8) AI",
+                  "object_id": "19 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "1.13__D-__(14) DI",
+                  "object_id": "20 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "1.12__3-__(8) DI",
+                  "object_id": "21 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "1.11__2C__(8) DO (STD (2) Form A. (6) Form B)",
+                  "object_id": "22 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "1.10__2B__(8) DO (STD (6) Form A. (2) Form B)",
+                  "object_id": "23 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "1.09__2A__(8) DO (STD Form B)",
+                  "object_id": "24 0 R"
+                }
+              ],
+              "2X": [
+                {
+                  "name": "1.08__2X__(8) DO (STD Form A)",
+                  "object_id": "25 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "1.07__C-__(4) DI (3) DO",
+                  "object_id": "26 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "1.06__B-__(4) DI (4) DO (FHCI)",
+                  "object_id": "27 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "1.05__1-__(4) DI (4) DO (STD)",
+                  "object_id": "28 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "1.01__0-__No Card",
+                  "object_id": "32 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 12,
+              "length": 2
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7195d.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            50,
+            82,
+            504.43,
+            669
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1244.29,
+            88.67,
+            1680.29,
+            663.53
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "P1A",
+        "label": "Port 1A Ethernet",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2411P manual: Slot B required two 10/100BASE-T Ethernet ports",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T"
+          }
+        ]
+      },
+      {
+        "id": "P1B",
+        "label": "Port 1B Ethernet",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2411P manual: Slot B required two 10/100BASE-T Ethernet ports",
+        "specs": [
+          {
+            "label": "Speed",
+            "value": "10/100BASE-T"
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "label": "Port 3 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2411P manual: Port 3 EIA-232 DB-9 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "PF",
+        "label": "Front Port F Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-2411P manual: Port F EIA-232 DB-9 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "USB",
+        "label": "USB Host Port",
+        "transport": "usb",
+        "connector": "USB Type A",
+        "evidence_layer": "SEL-2411P manual: USB 2.0 Type A host port",
+        "specs": [
+          {
+            "label": "Version",
+            "value": "USB 2.0"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2411P",
+    "product": "SEL-2411P Pump Automation Controller",
+    "length": 19,
+    "prefix": {
+      "positions": "1-5",
+      "value": "2411P",
+      "description": "SEL-2411P Pump Automation Controller (vertical panel-mount chassis). Device firmware stores '0' at position 5 in place of the literal 'P' shown in the ordering template."
+    },
+    "note": "19-digit MOT string. Slot order in the part number is A (6-7), C (8-9), D (10-11), E (12-13), Z (14-15), then the Slot B processor/communications block (16-18) and conformal coat (19). Positions 12 (Slot E) and 14 (Slot Z) are anchored by the drawing layers; the remaining slot/field positions are calibrated against real part numbers from the SEL-2411P instruction manual, which cleanly confirm the whole layout (all slots empty => 0X at 8/10/12/14).",
+    "references": [
+      "SEL-2411P Ordering Information (WI-16358, 20210430)",
+      "SEL-2411P master configuration drawing i7195d.pdf (drawing layers: SLOT_E pos 12, SLOT_Z pos 14)",
+      "SEL-2411P Instruction Manual (2411P_IM_20241120) ordering/example part numbers"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "241101A0X0X0X0X1000",
+        "note": "Real PN from the SEL-2411P instruction manual (SEL-2411P-R300). Base chassis: 125-250 Vdc PS / 125 V DI (1A); Slots C/D/E/Z all empty (0X); no conformal coat. Slot B block shows legacy code 100 (not in the current ordering menu, which fixes Slot B at 063)."
+      },
+      {
+        "part_number": "241101A329X73851140",
+        "note": "Real PN from the SEL-2411P instruction manual reconfiguration example (SEL-2411P-R300). Slot E = 73 (3 ACI / 3 AVI, 8 Vac). Slot C (32), Slot D (9X), Slot Z (85 = legacy 4 ACI current card) and Slot B (114) reflect older R300 cards/comms outside the current WI-16358 ordering menu."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 2,
+        "field": "slot_a_power_supply",
+        "label": "Slot A Power Supply | Digital Input Voltage",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)",
+        "confidence": "high",
+        "note": "First digit = power-supply voltage, second digit = Slot A digital-input voltage. Slot A is the base power-supply card (2 DI / 3 DO).",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Power supply voltage",
+            "options": {
+              "1": "125-250 Vdc / 120-240 Vac, 50/60 Hz",
+              "2": "24-48 Vdc"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Slot A digital input voltage",
+            "options": {
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 8,
+        "length": 2,
+        "field": "slot_c",
+        "label": "Slot C I/O expansion card | DI voltage",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = digital-input voltage (or form/variant for DO/AI cards). Standard ordered card is 14 DI (D-); slots are field-installable so the full I/O card menu is decodable. Empty (0X) confirmed by real PN.",
+        "options": {
+          "52": "8 AI (4 Inputs ±20 mA/±10 V Selectable + 4 Inputs ±300 V Only)",
+          "0X": "No card (empty)",
+          "1B": "4 DI / 4 DO (Standard) | 24 Vdc/Vac",
+          "1C": "4 DI / 4 DO (Standard) | 48 Vdc/Vac",
+          "1D": "4 DI / 4 DO (Standard) | 110 Vdc/Vac",
+          "1A": "4 DI / 4 DO (Standard) | 125 Vdc/Vac",
+          "1G": "4 DI / 4 DO (Standard) | 220 Vdc/Vac",
+          "1H": "4 DI / 4 DO (Standard) | 250 Vdc/Vac",
+          "BB": "4 DI / 4 DO (Fast High-Current Interrupting) | 24 Vdc/Vac",
+          "BC": "4 DI / 4 DO (Fast High-Current Interrupting) | 48 Vdc/Vac",
+          "BD": "4 DI / 4 DO (Fast High-Current Interrupting) | 110 Vdc/Vac",
+          "BA": "4 DI / 4 DO (Fast High-Current Interrupting) | 125 Vdc/Vac",
+          "BG": "4 DI / 4 DO (Fast High-Current Interrupting) | 220 Vdc/Vac",
+          "BH": "4 DI / 4 DO (Fast High-Current Interrupting) | 250 Vdc/Vac",
+          "CB": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 24 Vdc/Vac",
+          "CC": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 48 Vdc/Vac",
+          "CD": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 110 Vdc/Vac",
+          "CA": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 125 Vdc/Vac",
+          "CG": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 220 Vdc/Vac",
+          "CH": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 250 Vdc/Vac",
+          "2X": "8 DO (Standard Form A)",
+          "2A": "8 DO (Standard Form B)",
+          "2B": "8 DO (Standard, 6 Form A + 2 Form B)",
+          "2C": "8 DO (Standard, 2 Form A + 6 Form B)",
+          "3B": "8 DI | 24 Vdc/Vac",
+          "3C": "8 DI | 48 Vdc/Vac",
+          "3D": "8 DI | 110 Vdc/Vac",
+          "3A": "8 DI | 125 Vdc/Vac",
+          "3G": "8 DI | 220 Vdc/Vac",
+          "3H": "8 DI | 250 Vdc/Vac",
+          "DB": "14 DI | 24 Vdc/Vac",
+          "DC": "14 DI | 48 Vdc/Vac",
+          "DD": "14 DI | 110 Vdc/Vac",
+          "DA": "14 DI | 125 Vdc/Vac",
+          "DG": "14 DI | 220 Vdc/Vac",
+          "DH": "14 DI | 250 Vdc/Vac",
+          "5X": "8 AI (±20 mA or ±10 V Selectable)",
+          "6X": "4 AI / 4 AO (±20 mA or ±10 V Selectable)"
+        }
+      },
+      {
+        "position": 10,
+        "length": 2,
+        "field": "slot_d",
+        "label": "Slot D I/O expansion card | DI voltage",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = digital-input voltage (or form/variant). Standard ordered card is 4 DI / 4 DO FHCI (B-); full I/O menu decodable. Empty (0X) confirmed by real PN.",
+        "options": {
+          "52": "8 AI (4 Inputs ±20 mA/±10 V Selectable + 4 Inputs ±300 V Only)",
+          "0X": "No card (empty)",
+          "1B": "4 DI / 4 DO (Standard) | 24 Vdc/Vac",
+          "1C": "4 DI / 4 DO (Standard) | 48 Vdc/Vac",
+          "1D": "4 DI / 4 DO (Standard) | 110 Vdc/Vac",
+          "1A": "4 DI / 4 DO (Standard) | 125 Vdc/Vac",
+          "1G": "4 DI / 4 DO (Standard) | 220 Vdc/Vac",
+          "1H": "4 DI / 4 DO (Standard) | 250 Vdc/Vac",
+          "BB": "4 DI / 4 DO (Fast High-Current Interrupting) | 24 Vdc/Vac",
+          "BC": "4 DI / 4 DO (Fast High-Current Interrupting) | 48 Vdc/Vac",
+          "BD": "4 DI / 4 DO (Fast High-Current Interrupting) | 110 Vdc/Vac",
+          "BA": "4 DI / 4 DO (Fast High-Current Interrupting) | 125 Vdc/Vac",
+          "BG": "4 DI / 4 DO (Fast High-Current Interrupting) | 220 Vdc/Vac",
+          "BH": "4 DI / 4 DO (Fast High-Current Interrupting) | 250 Vdc/Vac",
+          "CB": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 24 Vdc/Vac",
+          "CC": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 48 Vdc/Vac",
+          "CD": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 110 Vdc/Vac",
+          "CA": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 125 Vdc/Vac",
+          "CG": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 220 Vdc/Vac",
+          "CH": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 250 Vdc/Vac",
+          "2X": "8 DO (Standard Form A)",
+          "2A": "8 DO (Standard Form B)",
+          "2B": "8 DO (Standard, 6 Form A + 2 Form B)",
+          "2C": "8 DO (Standard, 2 Form A + 6 Form B)",
+          "3B": "8 DI | 24 Vdc/Vac",
+          "3C": "8 DI | 48 Vdc/Vac",
+          "3D": "8 DI | 110 Vdc/Vac",
+          "3A": "8 DI | 125 Vdc/Vac",
+          "3G": "8 DI | 220 Vdc/Vac",
+          "3H": "8 DI | 250 Vdc/Vac",
+          "DB": "14 DI | 24 Vdc/Vac",
+          "DC": "14 DI | 48 Vdc/Vac",
+          "DD": "14 DI | 110 Vdc/Vac",
+          "DA": "14 DI | 125 Vdc/Vac",
+          "DG": "14 DI | 220 Vdc/Vac",
+          "DH": "14 DI | 250 Vdc/Vac",
+          "5X": "8 AI (±20 mA or ±10 V Selectable)",
+          "6X": "4 AI / 4 AO (±20 mA or ±10 V Selectable)"
+        }
+      },
+      {
+        "position": 12,
+        "length": 2,
+        "field": "slot_e",
+        "label": "Slot E I/O expansion card | DI voltage / variant",
+        "group": "SLOT_E",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing-layer anchored (SLOT_E, position 12). First digit = card type, second digit = DI voltage or, for the 7- AC voltage/current cards, the AVI/ACI variant. Confirmed by real PN (73 = 3 ACI / 3 AVI).",
+        "options": {
+          "52": "8 AI (4 Inputs ±20 mA/±10 V Selectable + 4 Inputs ±300 V Only)",
+          "71": "3 AVI (300 Vac Max)",
+          "73": "3 ACI / 3 AVI (8 Vac Max, 5 A Phase)",
+          "74": "3 ACI / 3 AVI (300 Vac Max, 5 A Phase)",
+          "0X": "No card (empty)",
+          "1B": "4 DI / 4 DO (Standard) | 24 Vdc/Vac",
+          "1C": "4 DI / 4 DO (Standard) | 48 Vdc/Vac",
+          "1D": "4 DI / 4 DO (Standard) | 110 Vdc/Vac",
+          "1A": "4 DI / 4 DO (Standard) | 125 Vdc/Vac",
+          "1G": "4 DI / 4 DO (Standard) | 220 Vdc/Vac",
+          "1H": "4 DI / 4 DO (Standard) | 250 Vdc/Vac",
+          "BB": "4 DI / 4 DO (Fast High-Current Interrupting) | 24 Vdc/Vac",
+          "BC": "4 DI / 4 DO (Fast High-Current Interrupting) | 48 Vdc/Vac",
+          "BD": "4 DI / 4 DO (Fast High-Current Interrupting) | 110 Vdc/Vac",
+          "BA": "4 DI / 4 DO (Fast High-Current Interrupting) | 125 Vdc/Vac",
+          "BG": "4 DI / 4 DO (Fast High-Current Interrupting) | 220 Vdc/Vac",
+          "BH": "4 DI / 4 DO (Fast High-Current Interrupting) | 250 Vdc/Vac",
+          "CB": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 24 Vdc/Vac",
+          "CC": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 48 Vdc/Vac",
+          "CD": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 110 Vdc/Vac",
+          "CA": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 125 Vdc/Vac",
+          "CG": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 220 Vdc/Vac",
+          "CH": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 250 Vdc/Vac",
+          "2X": "8 DO (Standard Form A)",
+          "2A": "8 DO (Standard Form B)",
+          "2B": "8 DO (Standard, 6 Form A + 2 Form B)",
+          "2C": "8 DO (Standard, 2 Form A + 6 Form B)",
+          "3B": "8 DI | 24 Vdc/Vac",
+          "3C": "8 DI | 48 Vdc/Vac",
+          "3D": "8 DI | 110 Vdc/Vac",
+          "3A": "8 DI | 125 Vdc/Vac",
+          "3G": "8 DI | 220 Vdc/Vac",
+          "3H": "8 DI | 250 Vdc/Vac",
+          "DB": "14 DI | 24 Vdc/Vac",
+          "DC": "14 DI | 48 Vdc/Vac",
+          "DD": "14 DI | 110 Vdc/Vac",
+          "DA": "14 DI | 125 Vdc/Vac",
+          "DG": "14 DI | 220 Vdc/Vac",
+          "DH": "14 DI | 250 Vdc/Vac",
+          "5X": "8 AI (±20 mA or ±10 V Selectable)",
+          "6X": "4 AI / 4 AO (±20 mA or ±10 V Selectable)"
+        }
+      },
+      {
+        "position": 14,
+        "length": 2,
+        "field": "slot_z",
+        "label": "Slot Z I/O expansion card | DI voltage",
+        "group": "SLOT_Z",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing-layer anchored (SLOT_Z, position 14). First digit = card type, second digit = DI voltage or form/variant. Slot Z does not offer the 14 DI (D-) or AVI (7-) cards in the current menu. Empty (0X) confirmed by real PN. Legacy R300 units may report a 4 ACI current card here (e.g. 85).",
+        "options": {
+          "52": "8 AI (4 Inputs ±20 mA/±10 V Selectable + 4 Inputs ±300 V Only)",
+          "0X": "No card (empty)",
+          "1B": "4 DI / 4 DO (Standard) | 24 Vdc/Vac",
+          "1C": "4 DI / 4 DO (Standard) | 48 Vdc/Vac",
+          "1D": "4 DI / 4 DO (Standard) | 110 Vdc/Vac",
+          "1A": "4 DI / 4 DO (Standard) | 125 Vdc/Vac",
+          "1G": "4 DI / 4 DO (Standard) | 220 Vdc/Vac",
+          "1H": "4 DI / 4 DO (Standard) | 250 Vdc/Vac",
+          "BB": "4 DI / 4 DO (Fast High-Current Interrupting) | 24 Vdc/Vac",
+          "BC": "4 DI / 4 DO (Fast High-Current Interrupting) | 48 Vdc/Vac",
+          "BD": "4 DI / 4 DO (Fast High-Current Interrupting) | 110 Vdc/Vac",
+          "BA": "4 DI / 4 DO (Fast High-Current Interrupting) | 125 Vdc/Vac",
+          "BG": "4 DI / 4 DO (Fast High-Current Interrupting) | 220 Vdc/Vac",
+          "BH": "4 DI / 4 DO (Fast High-Current Interrupting) | 250 Vdc/Vac",
+          "CB": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 24 Vdc/Vac",
+          "CC": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 48 Vdc/Vac",
+          "CD": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 110 Vdc/Vac",
+          "CA": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 125 Vdc/Vac",
+          "CG": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 220 Vdc/Vac",
+          "CH": "4 DI / 3 DO (Standard, 2 Form C + 1 Form B) | 250 Vdc/Vac",
+          "2X": "8 DO (Standard Form A)",
+          "2A": "8 DO (Standard Form B)",
+          "2B": "8 DO (Standard, 6 Form A + 2 Form B)",
+          "2C": "8 DO (Standard, 2 Form A + 6 Form B)",
+          "3B": "8 DI | 24 Vdc/Vac",
+          "3C": "8 DI | 48 Vdc/Vac",
+          "3D": "8 DI | 110 Vdc/Vac",
+          "3A": "8 DI | 125 Vdc/Vac",
+          "3G": "8 DI | 220 Vdc/Vac",
+          "3H": "8 DI | 250 Vdc/Vac",
+          "5X": "8 AI (±20 mA or ±10 V Selectable)",
+          "6X": "4 AI / 4 AO (±20 mA or ±10 V Selectable)"
+        }
+      },
+      {
+        "position": 16,
+        "length": 3,
+        "field": "slot_b_communications",
+        "label": "Slot B Processor and Communications Card",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)",
+        "confidence": "high",
+        "note": "Current chassis fixes Slot B at 063: Ethernet (dual 10/100BASE-T), EIA-232 with no IRIG connector, SEL protocols + Modbus + DNP3. Legacy SEL-2411P-R300 units report other 3-digit codes (e.g. 100, 114) whose sub-structure is not in the current ordering menu.",
+        "options": {
+          "100": "Legacy SEL-2411P-R300 communications configuration (undocumented in current menu)",
+          "114": "Legacy SEL-2411P-R300 communications configuration (undocumented in current menu)",
+          "063": "Ethernet (dual 10/100BASE-T), EIA-232 (no IRIG connector), SEL Protocols + Modbus + DNP3"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-2411P Ordering Information (WI-16358, 20210430)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "Conformally coated circuit boards"
+        }
+      }
+    ]
+  }
+}

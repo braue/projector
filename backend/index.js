@@ -1,4 +1,4 @@
-// gridlink backend — settings-truth communications canvas.
+// purview backend — settings-truth communications canvas.
 //
 // Loopback-only Express app: the Vite dev server proxies /api here. State is
 // a data directory (artifact exports + workspace JSON) plus in-memory status.
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import express from 'express';
 
-import { createAcRtacClient } from './lib/acrtac/index.js';
+import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
 import { extractRdbProfile } from './lib/comm/extract/rdb.js';
 import { extractRtacProfile } from './lib/comm/extract/rtac.js';
 import { compareRoutes } from './routes/compare.js';
@@ -21,22 +21,12 @@ import { RdbService } from './services/rdb.js';
 import { WorkspaceService } from './services/workspaces.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 3003;
+const PORT = Number(process.env.PURVIEW_API_PORT ?? process.env.PORT ?? 3003);
 const DATA_DIR = path.join(HERE, 'data');
 
 const client = createAcRtacClient();
 const projects = new ProjectService({ client, dataDir: DATA_DIR });
-await projects.init();
-if (projects.listError) {
-  console.warn(
-    `Could not list projects from the AcRTAC database: ${projects.listError}\n` +
-      'Serving previously exported projects; retry from the UI once the database is reachable.',
-  );
-}
-
 const rdb = new RdbService({ dataDir: DATA_DIR });
-await rdb.init();
-
 const workspaces = new WorkspaceService({
   dataDir: DATA_DIR,
   resolvers: {
@@ -44,7 +34,19 @@ const workspaces = new WorkspaceService({
     rdb: async (ref) => extractRdbProfile(rdb.profile(ref), ref),
   },
 });
-await workspaces.init();
+await Promise.all([projects.init(), rdb.init(), workspaces.init()]);
+
+// The database list can take a while (it spawns the Python bridge) and the
+// server is useful without it — exports on disk, RDB uploads, workspaces —
+// so refresh it in the background rather than blocking listen().
+projects.refreshList().then((listError) => {
+  if (listError) {
+    console.warn(
+      `Could not list projects from the AcRTAC database: ${listError}\n` +
+        'Serving previously exported projects; retry from the UI once the database is reachable.',
+    );
+  }
+});
 
 const app = express();
 app.use(cors());
@@ -75,5 +77,5 @@ process.on('uncaughtException', (err) => {
 });
 
 app.listen(PORT, '127.0.0.1', () => {
-  console.log(`gridlink backend on http://127.0.0.1:${PORT}`);
+  console.log(`purview backend on http://127.0.0.1:${PORT}`);
 });

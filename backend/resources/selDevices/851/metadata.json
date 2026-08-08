@@ -1,0 +1,406 @@
+{
+  "device": "851",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7237b.pdf",
+        "rear_pdf": "i7237b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7237b.pdf": {
+        "always": [
+          {
+            "name": "6.0____[DWG]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "5.0_____[ADDITIONAL COMM PORTS]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0____[DIGITAL INPUT WETTING & ADD IO]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "3.0___[ARC FLASH INPUTS]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "2.0____[VOLTAGE INPUTS]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "1.0____[MOUNTING]",
+            "object_id": "50 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_5": {
+            "options": {
+              "0": [
+                {
+                  "name": "5.1__0__None",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "5.2__1__(1) 10-100 BaseT",
+                  "object_id": "30 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 13
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "10": [
+                {
+                  "name": "4.3__10__External Universal Binary",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "11": [
+                {
+                  "name": "4.4__11__External Universal Binary. (6) Inputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "01": [
+                {
+                  "name": "4.2__01__Internal. (6) Inputs",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "00": [
+                {
+                  "name": "4.1__00__Internal",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 10,
+              "length": 2
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "0": [
+                {
+                  "name": "3.1__0__None",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "3.2__1__(4) Arc-Flash Inputs",
+                  "object_id": "38 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "0": [
+                {
+                  "name": "2.1__0__None",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__1__3-Phase AC Voltage",
+                  "object_id": "41 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "0": [
+                {
+                  "name": "1.1__0__Horizontal Mount",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.2__1__Horizontal Mount w Cover",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.3__2__Horizontal Panel Mount w Frame",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "1.4__3__Ganged Rack Mount Left",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "1.5__4__Ganged Rack Mount Right",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.6__5__19in Horizontal Rack Mount w Adapter",
+                  "object_id": "44 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7237b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            170.2,
+            384.6,
+            1608.4,
+            793.3
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1762.9,
+            446.9,
+            2417.5,
+            731
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "USB-C",
+        "evidence_layer": "standard front-panel USB-C serial Port F"
+      },
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "RJ45",
+        "evidence_layer": "standard EIA-232/EIA-485 serial Port 1"
+      },
+      {
+        "ports": [
+          "P2",
+          "P2A"
+        ],
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "standard 10-100Base-T Ethernet Port 2A"
+      },
+      {
+        "ports": [
+          "P2B"
+        ],
+        "source": {
+          "option_group": "GROUP_5"
+        },
+        "option_patterns": [
+          {
+            "match": "^1$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "optional dual 10-100Base-T Ethernet Port 2B"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "851",
+    "product": "SEL-851 Feeder Protection Relay",
+    "length": 15,
+    "prefix": {
+      "positions": "1-6",
+      "value": "085100",
+      "description": "SEL-851 Feeder Protection Relay (fixed model/prefix digits)"
+    },
+    "note": "15-digit MOT string beginning with the fixed prefix 085100. Positions 7-11 and 13 correspond to the drawing layer groups GROUP_1..GROUP_5, but the layer source.position numbers are shifted: layers number Mounting at 6, so the real string positions are +1 (Mounting=7, Voltage=8, Arc-Flash=9, Digital-Input-Wetting=10, Additional-I/O=11) and Additional-Comm-Port is +2 (layer position 11 -> string position 13) because a fixed '0' digit sits at position 12 that the layer numbering does not count. Position 12 is a constant '0' (confirmed across all real part numbers). Positions 14-15 (Additional Communication Protocols, Conformal Coat) come from ordering-information page 2. All positions verified against real part numbers from the SEL-851 instruction manual.",
+    "references": [
+      "SEL-851 Ordering Information (WI-16472, 20240201)",
+      "SEL-851 master configuration drawing i7237b (drawing layers)",
+      "SEL-851 Instruction Manual (851_IM_20240412) example part numbers"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "085100011110130",
+        "note": "Real PN from SEL-851 IM: Horizontal Mount, 3-Phase AC Voltage, 4 Arc-Flash Inputs, External Universal Binary DI wetting, 6 Additional Inputs, Additional 10/100BASE-T, IEC 61850+DNP3, no conformal coat"
+      },
+      {
+        "part_number": "085100011010130",
+        "note": "Real PN from SEL-851 IM: Horizontal Mount, 3-Phase AC Voltage, 4 Arc-Flash Inputs, Internal 24 Vdc DI wetting, 6 Additional Inputs, Additional 10/100BASE-T, IEC 61850+DNP3, no conformal coat"
+      },
+      {
+        "part_number": "085100011000130",
+        "note": "Real PN from SEL-851 IM: Horizontal Mount, 3-Phase AC Voltage, 4 Arc-Flash Inputs, Internal 24 Vdc DI wetting, no additional I/O, Additional 10/100BASE-T, IEC 61850+DNP3, no conformal coat"
+      }
+    ],
+    "positions": [
+      {
+        "position": 7,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_1",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "0": "Horizontal Mount",
+          "1": "Horizontal Mount With Front Cover",
+          "2": "Horizontal Panel Mount (With Picture Frame)",
+          "3": "Ganged Rack Mount (Left)",
+          "4": "Ganged Rack Mount (Right)",
+          "5": "19 in Horizontal Rack Mount With Adapter Plate"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "voltage_inputs",
+        "label": "Voltage Inputs",
+        "group": "GROUP_2",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "3-Phase AC Voltage (300 Vac)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "arc_flash_inputs",
+        "label": "Arc-Flash Inputs",
+        "group": "GROUP_3",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "4 Arc-Flash Inputs"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "digital_input_wetting",
+        "label": "Digital Input Wetting | Voltage",
+        "group": "GROUP_4",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit of drawing layer GROUP_4 (Digital Input Wetting & Additional I/O).",
+        "options": {
+          "0": "Internal | 24 Vdc",
+          "1": "External Universal Binary | 24-250 Vdc/Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "additional_io",
+        "label": "Additional Inputs/Outputs",
+        "group": "GROUP_4",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)+pdf-layers",
+        "confidence": "high",
+        "note": "Second digit of drawing layer GROUP_4. Standard includes 4 Digital Inputs and 5 Digital Outputs (1 Form C, 2 Form A Standard, 2 Form A Hybrid).",
+        "options": {
+          "0": "None",
+          "1": "6 Additional Inputs"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "reserved",
+        "label": "Reserved (fixed)",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)",
+        "confidence": "high",
+        "note": "Fixed digit '0', constant across all real part numbers; not an orderable option in the MOT.",
+        "options": {
+          "0": "Fixed"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "additional_comm_port",
+        "label": "Additional Communications Port",
+        "group": "GROUP_5",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)+pdf-layers",
+        "confidence": "high",
+        "note": "Standard includes USB-C Front Port, EIA-232/EIA-485 Rear Serial Port, and a Single 10/100BASE-T Ethernet Port.",
+        "options": {
+          "0": "None",
+          "1": "Additional 10/100BASE-T"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "additional_comm_protocols",
+        "label": "Additional Communication Protocols",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)",
+        "confidence": "high",
+        "note": "Standard includes SEL Protocols, Modbus RTU, Modbus TCP, Telnet, FTP, HTTP/HTTPS Web Server, and SNTP.",
+        "options": {
+          "0": "None",
+          "1": "IEC 61850",
+          "2": "DNP3 Protocol",
+          "3": "IEC 61850 | DNP3 Protocol"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-851 Ordering Information (WI-16472, 20240201)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "Conformally Coated Circuit Boards"
+        }
+      }
+    ]
+  }
+}

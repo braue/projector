@@ -1,0 +1,129 @@
+{
+  "device": "TWFL",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i6465.A.pdf",
+        "rear_pdf": "i6465.A.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i6465.A.pdf": {
+        "always": [
+          {
+            "name": "DWG",
+            "object_id": "6 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i6465.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            180.8,
+            658.5,
+            1517.2,
+            1043.2
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            243.8,
+            240.8,
+            1462.29,
+            614.2
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "transport": "serial",
+        "connector": "fiber-optic",
+        "evidence_layer": "fiber-optic communications ports"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "USB",
+        "evidence_layer": "front-panel USB Port F"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "transport": "ethernet",
+        "connector": "SFP fiber",
+        "evidence_layer": "100BASE-FX Ethernet Port 5"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "TWFL",
+    "product": "SEL-TWFL Dual Traveling-Wave Fault Locator and 12-Channel MHz Recorder",
+    "length": 9,
+    "prefix": {
+      "positions": "1-5",
+      "value": "TWFL#",
+      "description": "SEL-TWFL Dual Traveling-Wave Fault Locator (fixed 'TWFL#' literal, followed by a 4-digit catalog model code)"
+    },
+    "note": "The SEL-TWFL is NOT a per-digit configurable Model Option Table. It is a fixed catalog: the model string is 'TWFL#' followed by a 4-digit code that selects one predefined combination of AC current-input rating, power-supply rating, and contact (digital) input voltage. Only the enumerated codes exist (0001-0012 and 0019). Confirmed against the IM CID block (PARTNO=TWFL#0001) and IM Table 1.2 'SEL-TWFL Models'. There are no drawing option-group layers to anchor against; calibration is entirely from the genuine catalog codes.",
+    "references": [
+      "SEL-TWFL Instruction Manual (TWFL_IM_20240213), Table 1.2 'SEL-TWFL Models'; CID PARTNO=TWFL#0001",
+      "SEL-TWFL Ordering Information (TWFL_Models_20240208), 'SEL-TWFL Models' table",
+      "SEL-TWFL Data Sheet (TWFL_DS_20240213)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "TWFL#0001",
+        "note": "Genuine model from IM CID (PARTNO=TWFL#0001) and Table 1.2: 5 A current input, 125-250 Vdc / 110-240 Vac power supply, 125 Vdc contact inputs"
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 4,
+        "field": "model_option",
+        "label": "Catalog model code (current rating | power supply | contact-input voltage)",
+        "source": "SEL-TWFL Instruction Manual (TWFL_IM_20240213) Table 1.2 + Ordering Information (TWFL_Models_20240208)",
+        "confidence": "high",
+        "note": "Fixed catalog code. Each code maps to one predefined {AC current input rating, power-supply rating, contact-input voltage} combination; only the listed codes are valid.",
+        "options": {
+          "0001": "5 A current input; 125-250 Vdc / 110-240 Vac power supply; 125 Vdc contact inputs",
+          "0002": "1 A current input; 125-250 Vdc / 110-240 Vac power supply; 125 Vdc contact inputs",
+          "0003": "5 A current input; 125-250 Vdc / 110-240 Vac power supply; 110 Vdc contact inputs",
+          "0004": "1 A current input; 125-250 Vdc / 110-240 Vac power supply; 110 Vdc contact inputs",
+          "0005": "5 A current input; 48-125 Vdc / 110-120 Vac power supply; 48 Vdc contact inputs",
+          "0006": "1 A current input; 48-125 Vdc / 110-120 Vac power supply; 48 Vdc contact inputs",
+          "0007": "5 A current input; 48-125 Vdc / 110-120 Vac power supply; 125 Vdc contact inputs",
+          "0008": "1 A current input; 48-125 Vdc / 110-120 Vac power supply; 125 Vdc contact inputs",
+          "0009": "5 A current input; 48-125 Vdc / 110-120 Vac power supply; 110 Vdc contact inputs",
+          "0010": "1 A current input; 48-125 Vdc / 110-120 Vac power supply; 110 Vdc contact inputs",
+          "0011": "5 A current input; 125-250 Vdc / 110-240 Vac power supply; 250 Vdc contact inputs",
+          "0012": "1 A current input; 125-250 Vdc / 110-240 Vac power supply; 220 Vdc contact inputs",
+          "0019": "5 A current input; 48-125 Vdc / 110-120 Vac power supply; 250 Vdc contact inputs"
+        }
+      }
+    ]
+  }
+}

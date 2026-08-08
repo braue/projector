@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 
 import { linkProfiles } from '../lib/comm/linker.js';
+import { httpError, resolveChild } from '../lib/http.js';
 
 const DEFAULT_WORKSPACE = 'Default';
 
@@ -28,11 +29,7 @@ class WorkspaceService {
   }
 
   #file(name) {
-    const file = path.resolve(this.dir, `${name}.json`);
-    if (path.dirname(file) !== path.resolve(this.dir)) {
-      throw Object.assign(new Error(`invalid workspace name: ${name}`), { status: 400 });
-    }
-    return file;
+    return resolveChild(this.dir, `${name}.json`, `invalid workspace name: ${name}`);
   }
 
   async #names() {
@@ -51,7 +48,7 @@ class WorkspaceService {
       return JSON.parse(await readFile(this.#file(name), 'utf8'));
     } catch (err) {
       if (err?.code === 'ENOENT') {
-        throw Object.assign(new Error(`unknown workspace: ${name}`), { status: 404 });
+        throw httpError(404, `unknown workspace: ${name}`);
       }
       throw err;
     }
@@ -62,8 +59,12 @@ class WorkspaceService {
   }
 
   async create(name) {
-    if (!name?.trim()) throw Object.assign(new Error('workspace name required'), { status: 400 });
-    const workspace = { name: name.trim(), devices: [], manualLinks: [] };
+    const trimmed = name?.trim();
+    if (!trimmed) throw httpError(400, 'workspace name required');
+    if ((await this.#names()).includes(trimmed)) {
+      throw httpError(409, `workspace already exists: ${trimmed}`);
+    }
+    const workspace = { name: trimmed, devices: [], manualLinks: [] };
     await this.#save(workspace);
     return workspace;
   }
@@ -76,10 +77,10 @@ class WorkspaceService {
   // placing it again just moves it.
   async addDevice(name, { source, x = 120, y = 120 }) {
     if (!source?.type || !source?.ref) {
-      throw Object.assign(new Error('source { type, ref } required'), { status: 400 });
+      throw httpError(400, 'source { type, ref } required');
     }
     if (!this.resolvers[source.type]) {
-      throw Object.assign(new Error(`unsupported source type: ${source.type}`), { status: 400 });
+      throw httpError(400, `unsupported source type: ${source.type}`);
     }
     const workspace = await this.#load(name);
     const existing = workspace.devices.find(
@@ -100,7 +101,7 @@ class WorkspaceService {
   async moveDevice(name, deviceId, { x, y }) {
     const workspace = await this.#load(name);
     const device = workspace.devices.find((candidate) => candidate.id === deviceId);
-    if (!device) throw Object.assign(new Error(`unknown device: ${deviceId}`), { status: 404 });
+    if (!device) throw httpError(404, `unknown device: ${deviceId}`);
     device.x = x;
     device.y = y;
     await this.#save(workspace);
@@ -122,26 +123,28 @@ class WorkspaceService {
   // attached rather than vanishing.
   async graph(name) {
     const workspace = await this.#load(name);
-    const resolved = [];
-    const broken = [];
 
-    for (const device of workspace.devices) {
+    // Devices resolve independently (each may trigger a project parse), so
+    // resolve them concurrently; order is preserved by Promise.all.
+    const results = await Promise.all(workspace.devices.map(async (device) => {
       try {
         const resolver = this.resolvers[device.source.type];
         if (!resolver) throw new Error(`unsupported source type: ${device.source.type}`);
-        const profile = await resolver(device.source.ref);
-        resolved.push({ device, profile });
+        return { device, profile: await resolver(device.source.ref) };
       } catch (err) {
-        broken.push({ device, error: err?.message ?? String(err) });
+        return { device, error: err?.message ?? String(err) };
       }
-    }
+    }));
+    const resolved = results.filter((result) => 'profile' in result);
+    const broken = results.filter((result) => 'error' in result);
 
     const { links, ghosts } = linkProfiles(
       resolved.map(({ device, profile }) => ({ id: device.id, profile })),
       workspace.manualLinks ?? [],
     );
 
-    const count = (tier) => links.filter((link) => link.tier === tier).length;
+    const tiers = { confirmed: 0, conflict: 0, probable: 0, declared: 0, manual: 0 };
+    for (const link of links) tiers[link.tier] += 1;
 
     return {
       name: workspace.name,
@@ -169,14 +172,14 @@ class WorkspaceService {
       links,
       summary: {
         devices: workspace.devices.length,
-        confirmed: count('confirmed'),
-        conflicts: count('conflict'),
-        probable: count('probable'),
-        declared: count('declared'),
-        manual: count('manual'),
+        confirmed: tiers.confirmed,
+        conflicts: tiers.conflict,
+        probable: tiers.probable,
+        declared: tiers.declared,
+        manual: tiers.manual,
       },
     };
   }
 }
 
-export { DEFAULT_WORKSPACE, WorkspaceService };
+export { WorkspaceService };

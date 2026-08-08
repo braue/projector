@@ -1,0 +1,593 @@
+{
+  "device": "3355",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7192e.pdf",
+        "rear_pdf": "i7192e.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7192e.pdf": {
+        "always": [
+          {
+            "name": "13.0_____[DWG]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "12.0_____[SLOT 5 3390T PORT CONFIGURATION]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "11.0_____[SLOT 5 3390E4 PORT CONFIGURATION]",
+            "object_id": "44 0 R"
+          },
+          {
+            "name": "10.0_____[PCI SLOT 5]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "9.0_____[SLOT 4 3390E4 PORT CONFIGURATION]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "8.0_____[PCI SLOT 4]",
+            "object_id": "57 0 R"
+          },
+          {
+            "name": "7.0_____[PCI SLOT 3]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "6.0_____[PCI SLOT 2]",
+            "object_id": "63 0 R"
+          },
+          {
+            "name": "5.0_____[PCI SLOT 1 - NONE]",
+            "object_id": "64 0 R"
+          },
+          {
+            "name": "4.0_____[POWER SUPPLY B SEL-9331]",
+            "object_id": "69 0 R"
+          },
+          {
+            "name": "3.0_____[POWER SUPPLY A SEL-9331]",
+            "object_id": "73 0 R"
+          },
+          {
+            "name": "2.0_____[MOUNTING]",
+            "object_id": "76 0 R"
+          },
+          {
+            "name": "1.0_____[OPERATING SYSTEM]",
+            "object_id": "79 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "None": [
+                {
+                  "name": "10.1__None",
+                  "object_id": "48 0 R"
+                },
+                {
+                  "name": "8.1__None",
+                  "object_id": "56 0 R"
+                },
+                {
+                  "name": "7.1__None",
+                  "object_id": "59 0 R"
+                },
+                {
+                  "name": "6.1__None",
+                  "object_id": "62 0 R"
+                },
+                {
+                  "name": "4.1__None",
+                  "object_id": "68 0 R"
+                },
+                {
+                  "name": "1.1__None",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "HV": [
+                {
+                  "name": "3.1__HV Pwr Supply Euro TB",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "Pwr": [
+                {
+                  "name": "3.1__HV Pwr Supply Euro TB",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "Supply": [
+                {
+                  "name": "3.1__HV Pwr Supply Euro TB",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "Euro": [
+                {
+                  "name": "3.1__HV Pwr Supply Euro TB",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "TB": [
+                {
+                  "name": "3.1__HV Pwr Supply Euro TB",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "Panel": [
+                {
+                  "name": "2.1__Panel Mount",
+                  "object_id": "75 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "2.1__Panel Mount",
+                  "object_id": "75 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "NONE"
+            }
+          },
+          "2": {
+            "options": {
+              "SEL-3390S8": [
+                {
+                  "name": "10.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "8.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "55 0 R"
+                },
+                {
+                  "name": "7.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "6.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "PCIe": [
+                {
+                  "name": "10.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "8.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "55 0 R"
+                },
+                {
+                  "name": "7.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "6.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "Serial": [
+                {
+                  "name": "10.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "8.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "55 0 R"
+                },
+                {
+                  "name": "7.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "6.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "Card": [
+                {
+                  "name": "10.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "8.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "55 0 R"
+                },
+                {
+                  "name": "7.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "58 0 R"
+                },
+                {
+                  "name": "6.2__SEL-3390S8 PCIe Serial Card",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "HV": [
+                {
+                  "name": "4.2__HV Pwr Supply Euro TB",
+                  "object_id": "67 0 R"
+                },
+                {
+                  "name": "3.2__HV Pwr Supply IEC Inlet",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "Pwr": [
+                {
+                  "name": "4.2__HV Pwr Supply Euro TB",
+                  "object_id": "67 0 R"
+                },
+                {
+                  "name": "3.2__HV Pwr Supply IEC Inlet",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "Supply": [
+                {
+                  "name": "4.2__HV Pwr Supply Euro TB",
+                  "object_id": "67 0 R"
+                },
+                {
+                  "name": "3.2__HV Pwr Supply IEC Inlet",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "Euro": [
+                {
+                  "name": "4.2__HV Pwr Supply Euro TB",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "TB": [
+                {
+                  "name": "4.2__HV Pwr Supply Euro TB",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "IEC": [
+                {
+                  "name": "3.2__HV Pwr Supply IEC Inlet",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "Inlet": [
+                {
+                  "name": "3.2__HV Pwr Supply IEC Inlet",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "Rack": [
+                {
+                  "name": "2.2__Rack Mount",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "2.2__Rack Mount",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "Blueframe": [
+                {
+                  "name": "1.2__Blueframe",
+                  "object_id": "77 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "SEL-3390S8"
+            }
+          },
+          "3": {
+            "options": {
+              "SEL-3390E4": [
+                {
+                  "name": "10.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "8.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "PCIe": [
+                {
+                  "name": "10.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "8.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "Ethernet": [
+                {
+                  "name": "10.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "8.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "Card": [
+                {
+                  "name": "10.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "8.3__SEL-3390E4 PCIe Ethernet Card",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "HV": [
+                {
+                  "name": "4.3__HV Pwr Supply IEC Inlet",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "Pwr": [
+                {
+                  "name": "4.3__HV Pwr Supply IEC Inlet",
+                  "object_id": "66 0 R"
+                },
+                {
+                  "name": "3.3__LV Pwr Supply Euro TB",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "Supply": [
+                {
+                  "name": "4.3__HV Pwr Supply IEC Inlet",
+                  "object_id": "66 0 R"
+                },
+                {
+                  "name": "3.3__LV Pwr Supply Euro TB",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "IEC": [
+                {
+                  "name": "4.3__HV Pwr Supply IEC Inlet",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "Inlet": [
+                {
+                  "name": "4.3__HV Pwr Supply IEC Inlet",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "LV": [
+                {
+                  "name": "3.3__LV Pwr Supply Euro TB",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "Euro": [
+                {
+                  "name": "3.3__LV Pwr Supply Euro TB",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "TB": [
+                {
+                  "name": "3.3__LV Pwr Supply Euro TB",
+                  "object_id": "70 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "SEL-3390E4"
+            }
+          },
+          "4": {
+            "options": {
+              "SEL-3390T": [
+                {
+                  "name": "10.4__SEL-3390T PCle Time & Ethernet Card",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "PCle": [
+                {
+                  "name": "10.4__SEL-3390T PCle Time & Ethernet Card",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "Time": [
+                {
+                  "name": "10.4__SEL-3390T PCle Time & Ethernet Card",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "&": [
+                {
+                  "name": "10.4__SEL-3390T PCle Time & Ethernet Card",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "Ethernet": [
+                {
+                  "name": "10.4__SEL-3390T PCle Time & Ethernet Card",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "Card": [
+                {
+                  "name": "10.4__SEL-3390T PCle Time & Ethernet Card",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "LV": [
+                {
+                  "name": "4.4__LV Pwr Supply Euro TB",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "Pwr": [
+                {
+                  "name": "4.4__LV Pwr Supply Euro TB",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "Supply": [
+                {
+                  "name": "4.4__LV Pwr Supply Euro TB",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "Euro": [
+                {
+                  "name": "4.4__LV Pwr Supply Euro TB",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "TB": [
+                {
+                  "name": "4.4__LV Pwr Supply Euro TB",
+                  "object_id": "65 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "SEL-3390T"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7192e.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            166,
+            459.96,
+            1639.29,
+            985.25
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1810,
+            515.48,
+            3097,
+            930.48
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETH1-ETH2",
+        "label": "Built-In Rear Ethernet Ports 1-2",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-3355 manual: two rear 1 Gb RJ45 Ethernet ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Speed",
+            "value": "1 Gb"
+          }
+        ]
+      },
+      {
+        "id": "ETH-EXP",
+        "label": "Optional Ethernet Expansion Ports",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC SFP",
+        "evidence_layer": "SEL-3355 manual: optional quad gigabit Ethernet card",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "4"
+          },
+          {
+            "label": "Configuration",
+            "value": "Optional expansion card"
+          }
+        ]
+      },
+      {
+        "id": "SER1-SER2",
+        "label": "Serial Ports 1-2",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-3355 manual: two standard EIA-232 DB-9 serial ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "USB",
+        "label": "USB Ports",
+        "transport": "usb",
+        "connector": "USB",
+        "evidence_layer": "SEL-3355 manual: front, rear, and internal USB ports",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "8"
+          },
+          {
+            "label": "Layout",
+            "value": "2 front, 4 rear, 2 internal headers"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "3355",
+    "product": "SEL-3355-2 Automation Controller (industrial computer)",
+    "length": null,
+    "prefix": {
+      "positions": "1-4",
+      "value": "3355",
+      "description": "SEL-3355 / SEL-3355-2 Automation Controller base platform"
+    },
+    "note": "No per-digit Model Option Table is published in the available documentation. The SEL-3355-2 instruction manual (3355-2_IM_20260324_b.pdf) states under 'Models': \"Complete ordering information is not provided in this instruction manual. See the latest SEL-3355-2 Model Option Table at selinc.com.\" The 2026 and 2022 data sheets and instruction manuals contain only specifications (no ordering/part-number digit template), no SEL-3355 Model Option Table document exists in the ordering-information corpus (only accessory cable/module WIs), and no genuine SEL-3355 part number was found in any document or in the RDB uploads to calibrate positions. The unit is field-configurable (Intel Xeon E3-1505L/E3-1505M CPU, 8-64 GB RAM, up to four industrial SSD SATA drives with RAID, one or two SEL-9331 hot-swap power supplies, panel or rack mount, operating system, and up to four PCIe / one PCI expansion cards such as SEL-3390S8 / SEL-3390E4 / SEL-3390T), but the corresponding option-code digit positions are not obtainable from the on-hand sources, so no positions are asserted here. Drawing-layer anchors were intentionally not used per task scope.",
+    "references": [
+      "SEL-3355-2 Data Sheet (3355-2_DS_20260324.pdf)",
+      "SEL-3355-2 Instruction Manual (3355-2_IM_20260324_b.pdf) - Models section defers ordering info to the online Model Option Table",
+      "SEL-3355 Instruction Manual (3355_IM_20221221.pdf) - same deferral"
+    ],
+    "positions": []
+  }
+}

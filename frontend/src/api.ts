@@ -10,13 +10,27 @@ import type {
   WorkspaceGraph,
 } from './types'
 
-async function get<T>(url: string): Promise<T> {
-  const res = await fetch(url)
+// Every endpoint speaks JSON, including failures: { error } with a status.
+async function parse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => null)
     throw new Error(body?.error ?? `${res.status} ${res.statusText}`)
   }
   return res.json()
+}
+
+async function get<T>(url: string): Promise<T> {
+  return parse(await fetch(url))
+}
+
+async function send<T>(url: string, method: string, body?: unknown): Promise<T> {
+  const isForm = body instanceof FormData
+  const res = await fetch(url, {
+    method,
+    headers: body === undefined || isForm ? undefined : { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
+  })
+  return parse(res)
 }
 
 export function listProjects(): Promise<ProjectList> {
@@ -24,21 +38,12 @@ export function listProjects(): Promise<ProjectList> {
 }
 
 // Retry the database list after a failure.
-export async function refreshProjects(): Promise<ProjectList> {
-  const res = await fetch('/api/projects/refresh', { method: 'POST' })
-  if (!res.ok) {
-    const body = await res.json().catch(() => null)
-    throw new Error(body?.error ?? `${res.status} ${res.statusText}`)
-  }
-  return res.json()
+export function refreshProjects(): Promise<ProjectList> {
+  return send('/api/projects/refresh', 'POST')
 }
 
 export async function startExport(name: string): Promise<void> {
-  const res = await fetch(`/api/projects/${encodeURIComponent(name)}/export`, { method: 'POST' })
-  if (!res.ok) {
-    const body = await res.json().catch(() => null)
-    throw new Error(body?.error ?? `${res.status} ${res.statusText}`)
-  }
+  await send(`/api/projects/${encodeURIComponent(name)}/export`, 'POST')
 }
 
 export function fetchTree(name: string): Promise<ProjectTree> {
@@ -65,19 +70,6 @@ export function fetchCompareItem(
   )
 }
 
-async function send<T>(url: string, method: string, body?: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method,
-    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
-  if (!res.ok) {
-    const parsed = await res.json().catch(() => null)
-    throw new Error(parsed?.error ?? `${res.status} ${res.statusText}`)
-  }
-  return res.json()
-}
-
 export function aggregateSettings(
   name: string,
   terms: string[],
@@ -93,15 +85,10 @@ export async function listRdbFiles(): Promise<RdbFile[]> {
   return body.files
 }
 
-export async function uploadRdb(file: File): Promise<RdbFile> {
+export function uploadRdb(file: File): Promise<RdbFile> {
   const form = new FormData()
   form.append('file', file)
-  const res = await fetch('/api/rdb', { method: 'POST', body: form })
-  if (!res.ok) {
-    const body = await res.json().catch(() => null)
-    throw new Error(body?.error ?? `${res.status} ${res.statusText}`)
-  }
-  return res.json()
+  return send('/api/rdb', 'POST', form)
 }
 
 export function deleteRdbFile(id: string): Promise<unknown> {
@@ -126,6 +113,10 @@ export function fetchSourceItem(source: DeviceSource, file: string): Promise<Pro
 export async function listWorkspaces(): Promise<string[]> {
   const body = await get<{ workspaces: string[] }>('/api/workspaces')
   return body.workspaces
+}
+
+export function createWorkspace(name: string): Promise<{ name: string }> {
+  return send('/api/workspaces', 'POST', { name })
 }
 
 export function fetchGraph(workspace: string): Promise<WorkspaceGraph> {

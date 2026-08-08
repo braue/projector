@@ -1,0 +1,681 @@
+{
+  "device": "2731",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7295.A.pdf",
+        "rear_pdf": "i7295.A.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7295.A.pdf": {
+        "always": [
+          {
+            "name": "5.0____[DWG]",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "4.0__[PORTS]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "3.0____[POWER SUPPLY B]",
+            "object_id": "42 0 R"
+          },
+          {
+            "name": "2.0____[POWER SUPPLY A]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "1.0____[MOUNTING]",
+            "object_id": "49 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "1-4": [
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "5-8": [
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "Copper.": [
+                {
+                  "name": "4.1__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. and 9-24 Ports 100BASE Copper",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "None": [
+                {
+                  "name": "3.1__None",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "Vac.": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "Euro-style": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "Connector": [
+                {
+                  "name": "2.1__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "Rack": [
+                {
+                  "name": "1.1__Rack Mount (Front or Rear Cabled)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.1__Rack Mount (Front or Rear Cabled)",
+                  "object_id": "48 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-4"
+            }
+          },
+          "2": {
+            "options": {
+              "1-4": [
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                },
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                },
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "5-8": [
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "Copper.": [
+                {
+                  "name": "4.2__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "24-48": [
+                {
+                  "name": "3.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "2.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Vdc.": [
+                {
+                  "name": "3.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "2.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Euro-style": [
+                {
+                  "name": "3.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "2.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Connector": [
+                {
+                  "name": "3.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "2.2__24-48 Vdc. Euro-style Connector",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "Wall": [
+                {
+                  "name": "1.2__Wall - Surface Mount",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "-": [
+                {
+                  "name": "1.2__Wall - Surface Mount",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "Surface": [
+                {
+                  "name": "1.2__Wall - Surface Mount",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.2__Wall - Surface Mount",
+                  "object_id": "47 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-4"
+            }
+          },
+          "3": {
+            "options": {
+              "1-4": [
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                },
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                },
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "5-8": [
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "Copper.": [
+                {
+                  "name": "4.3__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "125-250": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "Vdc": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "or": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "Vac.": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "Euro-style": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "Connector": [
+                {
+                  "name": "3.3__125-250 Vdc or Vac. Euro-style Connector",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "Panel": [
+                {
+                  "name": "1.3__Panel Mount",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.3__Panel Mount",
+                  "object_id": "46 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-4"
+            }
+          },
+          "4": {
+            "options": {
+              "1-4": [
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                },
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                },
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "5-8": [
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "Copper.": [
+                {
+                  "name": "4.4__1-4 Ports 100-1000BASE SFP. 5-8 Ports 100-1000BASE Copper. 9-12 Ports 100BASE Copper. and 13-24 Ports 100BASE SFP",
+                  "object_id": "34 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-4"
+            }
+          },
+          "5": {
+            "options": {
+              "1-8": [
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "9-12": [
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "100BASE": [
+                {
+                  "name": "4.5__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. and 13-24 Ports 100BASE Copper",
+                  "object_id": "33 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-8"
+            }
+          },
+          "6": {
+            "options": {
+              "1-8": [
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                },
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                },
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "9-12": [
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "100BASE": [
+                {
+                  "name": "4.6__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-20 Ports 100BASE Copper. and 21-24 Ports 100BASE SFP",
+                  "object_id": "32 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-8"
+            }
+          },
+          "7": {
+            "options": {
+              "1-8": [
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                },
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                },
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "9-12": [
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "100BASE": [
+                {
+                  "name": "4.7__1-8 Ports 100-1000BASE SFP. 9-12 Ports 100BASE SFP. 13-16 Ports 100BASE Copper. and 17-24 Ports 100BASE SFP",
+                  "object_id": "31 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-8"
+            }
+          },
+          "8": {
+            "options": {
+              "1-8": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "Ports": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                },
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "100-1000BASE": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "SFP.": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "9-24": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "100BASE": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ],
+              "SFP": [
+                {
+                  "name": "4.8__1-8 Ports 100-1000BASE SFP. 9-24 Ports 100BASE SFP",
+                  "object_id": "30 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "1-8"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7295.A.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            215.43,
+            954.57,
+            1688.57,
+            1246.86
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1936,
+            1019.15,
+            3231.71,
+            1203.15
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETH1-ETH24",
+        "label": "Ethernet Ports 1-24",
+        "transport": "ethernet",
+        "connector": "RJ45 / SFP",
+        "evidence_layer": "SEL-2731 manual: 24-port Ethernet switch with RJ45/SFP ordering options",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "24"
+          },
+          {
+            "label": "Options",
+            "value": "100/1000BASE-T RJ45 and 100/1000BASE SFP in sets of four"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2731",
+    "product": "SEL-2731 24-Port 1U Ethernet Switch",
+    "length": null,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2731",
+      "description": "SEL-2731 24-Port 1U Ethernet Switch"
+    },
+    "note": "No positional Model Option Table available. The SEL-2731 IM (2731_IM_20240930.pdf, Table 3 'Ordering Options') lists the configurable dimensions but does not document a per-digit part-number encoding, no ordering-information MOT was used, and no genuine part number was found to calibrate against (the model_to_layers data for i7295.A.pdf is tokenized layer-name text with no source.position anchors, so it is unusable for positioning). Configurable ordering dimensions per the IM are: conformal coat (Yes/No); Power Supply Position One and Position Two, each Low Voltage 24-48 Vdc or High Voltage 125-250 Vdc / 120-240 Vac; Communication Ports options 1-8 (mixes of 100/1000BASE SFP, 100/1000BASE-T copper, 100BASE SFP, 100BASE-T copper); Ethernet switching technology (RSTP standard, Unmanaged future, OT SDN OpenFlow); Mounting (Rack / Panel / Surface). Covered-connector kit accessory 915900661. positions left empty because these cannot be mapped to fixed part-number digit positions without a genuine part number or ordering-information template.",
+    "references": [
+      "SEL-2731 Ethernet Switch Manual (2731_IM_20240930.pdf, Table 3 Ordering Options, pp.6-7)"
+    ],
+    "positions": []
+  }
+}

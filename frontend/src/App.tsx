@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
+  createWorkspace,
   deleteRdbFile,
   fetchSourceItem,
   fetchSourceTree,
   listProjects,
   listRdbFiles,
+  listWorkspaces,
   refreshProjects,
   startExport,
   uploadRdb,
@@ -16,18 +18,16 @@ import { CompareView } from './components/CompareView'
 import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { SourcesSidebar } from './components/SourcesSidebar'
+import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
 import { SegmentedControl } from './components/ui'
-import type {
-  DeviceSource,
-  ProjectEntry,
-  ProjectItem,
-  ProjectTree,
-  RdbFile,
-  WorkspaceGraph,
-} from './types'
+import { errorMessage } from './lib/errors'
+import { TIER_COLOR } from './lib/tiers'
+import { useFetch } from './lib/useFetch'
+import { REF_SEPARATOR } from './types'
+import type { DeviceSource, ProjectEntry, RdbFile, WorkspaceGraph } from './types'
 
 const POLL_MS = 1200
-const WORKSPACE = 'Default' // named workspaces get a switcher later
+const DEFAULT_WORKSPACE = 'Default'
 
 type Mode = 'canvas' | 'inspect' | 'compare'
 type InspectSub = 'browse' | 'aggregate'
@@ -46,24 +46,19 @@ export default function App() {
   const [rdbFiles, setRdbFiles] = useState<RdbFile[]>([])
   const [rdbError, setRdbError] = useState<string | null>(null)
   const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
-  const [tree, setTree] = useState<ProjectTree | null>(null)
-  const [treeError, setTreeError] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
-  const [item, setItem] = useState<ProjectItem | null>(null)
-  const [itemError, setItemError] = useState<string | null>(null)
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [graphVersion, setGraphVersion] = useState(0)
-  const pollTimer = useRef<number | null>(null)
+  const [workspace, setWorkspace] = useState(DEFAULT_WORKSPACE)
+  const [workspaces, setWorkspaces] = useState<string[]>([DEFAULT_WORKSPACE])
 
   const refresh = useCallback(async () => {
     try {
       const list = await listProjects()
       setProjects(list.projects)
       setListError(list.error)
-      return list.projects
     } catch (err) {
-      setListError(`Cannot reach the backend: ${err instanceof Error ? err.message : String(err)}`)
-      return []
+      setListError(`Cannot reach the backend: ${errorMessage(err)}`)
     }
   }, [])
 
@@ -71,7 +66,7 @@ export default function App() {
     try {
       setRdbFiles(await listRdbFiles())
     } catch (err) {
-      setRdbError(err instanceof Error ? err.message : String(err))
+      setRdbError(errorMessage(err))
     }
   }, [])
 
@@ -85,44 +80,48 @@ export default function App() {
     }
   }, [refresh])
 
-  // Poll while any export is in flight so spinners resolve on their own.
+  const refreshWorkspaces = useCallback(async () => {
+    try {
+      setWorkspaces(await listWorkspaces())
+    } catch {
+      // Backend unreachable: the sidebar already surfaces it; keep the list.
+    }
+  }, [])
+
   useEffect(() => {
-    let cancelled = false
-    const tick = async () => {
-      const list = await refresh()
-      if (cancelled) return
-      if (list.some((p) => p.status === 'exporting')) {
-        pollTimer.current = window.setTimeout(tick, POLL_MS)
-      }
-    }
-    tick()
+    refresh()
     refreshRdb()
-    return () => {
-      cancelled = true
-      if (pollTimer.current !== null) window.clearTimeout(pollTimer.current)
-    }
-  }, [refresh, refreshRdb])
+    refreshWorkspaces()
+  }, [refresh, refreshRdb, refreshWorkspaces])
+
+  const handleCreateWorkspace = useCallback(
+    async (name: string) => {
+      await createWorkspace(name)
+      await refreshWorkspaces()
+      setWorkspace(name)
+    },
+    [refreshWorkspaces],
+  )
+
+  // Poll while any export is in flight so spinners resolve on their own —
+  // each refresh replaces `projects`, which re-arms the timer.
+  const exporting = projects.some((p) => p.status === 'exporting')
+  useEffect(() => {
+    if (!exporting) return
+    const timer = window.setTimeout(refresh, POLL_MS)
+    return () => window.clearTimeout(timer)
+  }, [exporting, projects, refresh])
 
   const handleExport = useCallback(
     async (name: string) => {
       try {
         await startExport(name)
       } catch (err) {
-        setListError(
-          `Could not start the export of ${name}: ${err instanceof Error ? err.message : String(err)}`,
-        )
+        setListError(`Could not start the export of ${name}: ${errorMessage(err)}`)
         return
       }
       setSelectedSource((current) => (current?.type === 'rtac' && current.ref === name ? null : current))
-      const list = await refresh()
-      if (list.some((p) => p.status === 'exporting') && pollTimer.current === null) {
-        pollTimer.current = window.setTimeout(async function tick() {
-          const next = await refresh()
-          pollTimer.current = next.some((p) => p.status === 'exporting')
-            ? window.setTimeout(tick, POLL_MS)
-            : null
-        }, POLL_MS)
-      }
+      await refresh()
     },
     [refresh],
   )
@@ -136,7 +135,7 @@ export default function App() {
         // New relay profiles may resolve existing ghosts — recompute the canvas.
         setGraphVersion((v) => v + 1)
       } catch (err) {
-        setRdbError(err instanceof Error ? err.message : String(err))
+        setRdbError(errorMessage(err))
       }
     },
     [refreshRdb],
@@ -147,10 +146,10 @@ export default function App() {
       try {
         await deleteRdbFile(id)
       } catch (err) {
-        setRdbError(err instanceof Error ? err.message : String(err))
+        setRdbError(errorMessage(err))
       }
       setSelectedSource((current) =>
-        current?.type === 'rdb' && current.ref.startsWith(`${id}::`) ? null : current,
+        current?.type === 'rdb' && current.ref.startsWith(`${id}${REF_SEPARATOR}`) ? null : current,
       )
       await refreshRdb()
       setGraphVersion((v) => v + 1)
@@ -158,12 +157,10 @@ export default function App() {
     [refreshRdb],
   )
 
-  // Selecting a source (sidebar click, or canvas node click via onInspect).
+  // Selecting a source (sidebar click, or canvas node double-click via onInspect).
   const handleSelectSource = useCallback((source: DeviceSource) => {
     setSelectedSource(source)
     setSelectedItem(null)
-    setItem(null)
-    setItemError(null)
     setInspectSub('browse')
   }, [])
 
@@ -175,36 +172,15 @@ export default function App() {
     [handleSelectSource],
   )
 
-  useEffect(() => {
-    if (!selectedSource) {
-      setTree(null)
-      return
-    }
-    let cancelled = false
-    setTree(null)
-    setTreeError(null)
-    fetchSourceTree(selectedSource)
-      .then((t) => !cancelled && setTree(t))
-      .catch((err) => !cancelled && setTreeError(err.message))
-    return () => {
-      cancelled = true
-    }
-  }, [selectedSource])
-
-  useEffect(() => {
-    if (!selectedSource || !selectedItem) {
-      setItem(null)
-      return
-    }
-    let cancelled = false
-    setItemError(null)
-    fetchSourceItem(selectedSource, selectedItem)
-      .then((i) => !cancelled && setItem(i))
-      .catch((err) => !cancelled && setItemError(err.message))
-    return () => {
-      cancelled = true
-    }
-  }, [selectedSource, selectedItem])
+  const { data: tree, error: treeError } = useFetch(
+    selectedSource ? () => fetchSourceTree(selectedSource) : null,
+    [selectedSource],
+  )
+  const { data: item, error: itemError } = useFetch(
+    selectedSource && selectedItem ? () => fetchSourceItem(selectedSource, selectedItem) : null,
+    [selectedSource, selectedItem],
+    { keepStale: true },
+  )
 
   const placedRefs = useMemo(
     () =>
@@ -218,14 +194,22 @@ export default function App() {
     mode === 'canvas' && graph
       ? `${graph.links?.length ?? 0} connections · ${graph.summary.conflicts} conflict${graph.summary.conflicts === 1 ? '' : 's'}`
       : mode === 'inspect' && selectedSource
-        ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace('::', ' · ') : selectedSource.ref} · read-only`
+        ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace(REF_SEPARATOR, ' · ') : selectedSource.ref} · read-only`
         : ''
 
   return (
     <>
       <header className="topbar">
-        <span className="brand">Gridlink</span>
+        <span className="brand">Purview</span>
         <SegmentedControl options={MODES} value={mode} onChange={setMode} />
+        {mode === 'canvas' && (
+          <WorkspaceSwitcher
+            current={workspace}
+            workspaces={workspaces}
+            onSelect={setWorkspace}
+            onCreate={handleCreateWorkspace}
+          />
+        )}
         {mode === 'inspect' && canAggregate && (
           <SegmentedControl
             options={[
@@ -264,7 +248,7 @@ export default function App() {
         {mode === 'canvas' && (
           <div className="canvas-column">
             <CanvasView
-              workspace={WORKSPACE}
+              workspace={workspace}
               reloadKey={graphVersion}
               onInspect={inspectFromCanvas}
               onGraph={setGraph}
@@ -273,9 +257,9 @@ export default function App() {
               {graph ? (
                 <>
                   <span><b>{graph.summary.devices}</b> devices</span>
-                  <span className="tierdot"><span className="d" style={{ background: '#1a9e5c' }} /><b>{graph.summary.confirmed}</b> confirmed</span>
-                  <span className="tierdot"><span className="d" style={{ background: '#d7930a' }} /><b>{graph.summary.probable}</b> suggested</span>
-                  <span className="tierdot"><span className="d" style={{ background: '#a9adb8' }} /><b>{graph.summary.declared}</b> declared</span>
+                  <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.confirmed }} /><b>{graph.summary.confirmed}</b> confirmed</span>
+                  <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.probable }} /><b>{graph.summary.probable}</b> suggested</span>
+                  <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.declared }} /><b>{graph.summary.declared}</b> declared</span>
                   <span className={graph.summary.conflicts ? 'conflict' : undefined}>
                     {graph.summary.conflicts} conflict{graph.summary.conflicts === 1 ? '' : 's'}
                   </span>

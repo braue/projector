@@ -1,0 +1,477 @@
+{
+  "device": "311L",
+  "model_to_drawings": {
+    "front": [
+      {
+        "when": {
+          "position_7": "4"
+        },
+        "pdf": "i3435a.pdf"
+      },
+      {
+        "when": {
+          "position_7": "H"
+        },
+        "pdf": "i3436a.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "3",
+            "5"
+          ]
+        },
+        "pdf": "i3437a.pdf"
+      },
+      {
+        "when": {
+          "position_7": "J"
+        },
+        "pdf": "i3671b.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "K",
+            "N"
+          ]
+        },
+        "pdf": "i3698a.pdf"
+      }
+    ],
+    "rear": [
+      {
+        "when": {
+          "position_7": [
+            "H",
+            "3",
+            "5",
+            "4"
+          ],
+          "position_14": "X"
+        },
+        "pdf": "i3442b.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "J",
+            "K",
+            "L",
+            "N"
+          ],
+          "position_14": "2"
+        },
+        "pdf": "i3681a.pdf"
+      },
+      {
+        "when": {
+          "position_8": [
+            "C",
+            "D",
+            "E"
+          ],
+          "position_9": [
+            "A",
+            "B"
+          ]
+        },
+        "pdf": "i3690a.pdf"
+      },
+      {
+        "when": {
+          "position_9": [
+            "B",
+            "C",
+            "D",
+            "E"
+          ]
+        },
+        "pdf": "i3691a.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "J",
+            "K",
+            "L",
+            "N"
+          ],
+          "position_14": "5"
+        },
+        "pdf": "i3692a.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "J",
+            "K",
+            "L",
+            "N"
+          ],
+          "position_14": "6"
+        },
+        "pdf": "i3697a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i3435a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            131.39,
+            396.1,
+            1595.34,
+            905.94
+          ]
+        }
+      },
+      "i3436a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            163.62,
+            444.75,
+            1568.52,
+            851.99
+          ]
+        }
+      },
+      "i3437a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            128.34,
+            398.55,
+            1593.54,
+            902.81
+          ]
+        }
+      },
+      "i3442b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            446.43,
+            1498.96,
+            849.88
+          ]
+        }
+      },
+      "i3671b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            217.62,
+            401.54,
+            1621.68,
+            928.84
+          ]
+        }
+      },
+      "i3681a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            383.54,
+            1500.11,
+            912.76
+          ]
+        }
+      },
+      "i3690a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            231.19,
+            383.54,
+            1501.25,
+            910.48
+          ]
+        }
+      },
+      "i3691a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            382.4,
+            1498.96,
+            916.19
+          ]
+        }
+      },
+      "i3692a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            384.69,
+            1498.96,
+            912.76
+          ]
+        }
+      },
+      "i3697a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            383.54,
+            1497.82,
+            911.62
+          ]
+        }
+      },
+      "i3698a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            136.15,
+            334.12,
+            1593.23,
+            959.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "5-pin Euro",
+        "evidence_layer": "fixed EIA-485 serial Port 1"
+      },
+      {
+        "ports": [
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial ports"
+      },
+      {
+        "ports": [
+          "P5",
+          "P6"
+        ],
+        "when": {
+          "position_7": [
+            "1",
+            "7"
+          ]
+        },
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "Ethernet communications ports on SEL-311L-1/-7 variants"
+      },
+      {
+        "ports": [
+          "P5",
+          "P6"
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "311L",
+    "product": "SEL-311L Current Differential Relay and Backup Distance Protection",
+    "length": 16,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0311L",
+      "description": "SEL-311L Line Current Differential Relay (0311L family prefix)"
+    },
+    "note": "16-digit MOT string per WI-2029 (SEL-311L-0,-6 relay Model Option Table). Positions 6-16 are the configurable digits. Position 11 (Secondary Input Voltage) is a fixed '2', and the trailing Conformal Coat digit (position 16) is often omitted on the nameplate/PARTNO string (the SEL-311L-0,-6 IM sample PARTNO 0311L0HDD4254XX is 15 chars, ending at the Communications Protocol digit). Firmware digit (position 6) selects the model variant: 0/6 are the WI-2029 -0/-6 relay; 1/7 are the -1/-7 relay (WI-5857) which shares this position layout but adds Failover Ethernet / IEC 61850 options not enumerated here. This device has no drawing layers (model_to_layers.has_layers = false); positions were calibrated against the real IM PARTNO and the WI-2029 Model Option Table, and independently corroborated by the model_to_drawings position_7 (mounting), position_8/9 (Channel X/Y comms media), and position_14 (I/O board) selectors.",
+    "references": [
+      "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+      "SEL-311L-1,-7 Ordering Information (WI-5857, 20180xxx) — firmware codes 1/7",
+      "SEL-311L,-6 Instruction Manual (311L-0-6_IM_20250127) — real PARTNO 0311L0HDD4254XX"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0311L0HDD4254XX",
+        "note": "Real PARTNO from the SEL-311L-0,-6 instruction manual: -0 firmware, 3U Horizontal Rack Mount, Channel X/Y both 1300nm Fiber, 125/250 V power supply, Wye secondary voltage, 5 A phase/polarizing, 125 Vdc control input, no additional I/O, standard (SEL ASCII) protocol. 15-char form (Conformal Coat digit omitted)."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware / Model Variant",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "Digit also identifies the model suffix (-0/-6 per WI-2029, -1/-7 per WI-5857).",
+        "options": {
+          "0": "SEL-311L-0: Standard, Three-Pole Differential and Distance Protection",
+          "1": "SEL-311L-1: Standard with Improved Functions",
+          "6": "SEL-311L-6: Standard plus Single-Pole Differential Protection",
+          "7": "SEL-311L-7: Standard with Improved Functions, Single-Pole Differential and Single-Pole Zone 1 Distance Backup Protection"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "3U mounts (H/3/4/5) force the I/O Board digit (position 14) to X; additional I/O (J/K/L/N) requires a 4U chassis. Corroborated by model_to_drawings position_7.",
+        "options": {
+          "3": "3U Horizontal Panel Mount",
+          "4": "3U Vertical Panel Mount",
+          "5": "3U Horizontal Projection Panel Mount",
+          "H": "3U Horizontal Rack Mount",
+          "J": "4U Horizontal Rack Mount",
+          "K": "4U Horizontal Panel Mount",
+          "L": "4U Vertical Panel Mount",
+          "N": "4U Horizontal Projection Panel Mount"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "comms_channel_x",
+        "label": "Line Current Differential Communications - Channel X media",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "First of the two comms-channel digits. Corroborated by model_to_drawings position_8.",
+        "options": {
+          "A": "Isolated EIA-422",
+          "B": "Isolated G.703 Co-Directional",
+          "C": "850nm IEEE C37.94 Fiber",
+          "D": "1300nm Fiber",
+          "E": "1550nm Fiber",
+          "H": "1300nm IEEE C37.94 Fiber"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "comms_channel_y",
+        "label": "Line Current Differential Communications - Channel Y media",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "Second comms-channel digit. Valid Channel Y media is the same as or lower than the Channel X media in the WI-2029 list. Corroborated by model_to_drawings position_9.",
+        "options": {
+          "0": "None (single channel)",
+          "A": "Isolated EIA-422",
+          "B": "Isolated G.703 Co-Directional",
+          "C": "850nm IEEE C37.94 Fiber",
+          "D": "1300nm Fiber",
+          "E": "1550nm Fiber",
+          "H": "1300nm IEEE C37.94 Fiber"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "options": {
+          "2": "24/48 Vdc",
+          "3": "48/125 Vdc or 125 Vac",
+          "4": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "secondary_input_voltage",
+        "label": "Secondary Input Voltage",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "Fixed digit '2' in WI-2029.",
+        "options": {
+          "2": "Wye-Connected Va, Vb, and Vc (150 Vac maximum phase-neutral; channel Vs also rated to 150 Vac)"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "options": {
+          "1": "1 Amp Phase and 1 Amp Polarizing Current Input",
+          "5": "5 Amp Phase and 5 Amp Polarizing Current Input"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc",
+          "3": "110 Vdc",
+          "4": "125 Vdc",
+          "5": "220 Vdc",
+          "6": "250 Vdc"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "io_board",
+        "label": "I/O Board",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "Additional I/O (2/5/6) requires a J/K/L/N (4U) mounting option; 3U chassis are limited to X. Corroborated by model_to_drawings position_14.",
+        "options": {
+          "2": "8 Inputs, 12 Standard Outputs",
+          "5": "8 Inputs, 8 Fast Hybrid High-Speed High-Current Interrupting Outputs",
+          "6": "8 Inputs, 12 High-Current Interrupting Outputs",
+          "X": "No Additional I/O (3U Chassis Only)"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "options": {
+          "1": "DNP3 Level 2 Slave (includes all standard SEL protocols)",
+          "X": "SEL ASCII, SEL Compressed ASCII, SEL Distributed Port Switch (LMD), SEL Fast Meter with Configuration, Fast Operate, Fast SER, and Mirrored Bits Communications"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-311L-0,-6 Ordering Information (WI-2029, 20130325)",
+        "confidence": "high",
+        "note": "Trailing digit; frequently omitted from the printed PARTNO string when 'None'.",
+        "options": {
+          "2": "Conformal Coated Circuit Boards",
+          "X": "None"
+        }
+      }
+    ]
+  }
+}

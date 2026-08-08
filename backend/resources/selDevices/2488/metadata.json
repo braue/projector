@@ -1,0 +1,532 @@
+{
+  "device": "2488",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7114.J.pdf",
+        "rear_pdf": "i7114.J.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7114.J.pdf": {
+        "always": [
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "5.0_____[FREQUENCY OUTPUTS]",
+            "object_id": "32 0 R"
+          },
+          {
+            "name": "4.0_____[ETHERNET PORTS]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "3.0_____[POWER SUPPLY B]",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "2.0_____[POWER SUPPLY A]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "1.0_____[MOUNTING]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "6.0_____[DWG]",
+            "object_id": "51 0 R"
+          },
+          {
+            "name": "5.0_____[FREQUENCY OUTPUTS]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "4.0_____[ETHERNET PORTS]",
+            "object_id": "60 0 R"
+          },
+          {
+            "name": "3.0_____[POWER SUPPLY B]",
+            "object_id": "64 0 R"
+          },
+          {
+            "name": "2.0_____[POWER SUPPLY A]",
+            "object_id": "67 0 R"
+          },
+          {
+            "name": "1.0_____[MOUNTING]",
+            "object_id": "70 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "R_Horizontal": [
+                {
+                  "name": "1.1__R_Horizontal Rack Mount",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "1.1__R_Horizontal Rack Mount",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "Rack": [
+                {
+                  "name": "1.1__R_Horizontal Rack Mount",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "1.1__R_Horizontal Rack Mount",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "Mount": [
+                {
+                  "name": "1.1__R_Horizontal Rack Mount",
+                  "object_id": "33 0 R"
+                },
+                {
+                  "name": "1.1__R_Horizontal Rack Mount",
+                  "object_id": "69 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "R_HORIZONTAL"
+            }
+          },
+          "GROUP_2": {
+            "options": {
+              "C": [
+                {
+                  "name": "2.1__C__24-48 Vdc",
+                  "object_id": "34 0 R"
+                },
+                {
+                  "name": "2.1__C__24-48 Vdc",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.2__A__125-250 Vdc or Vac",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "2.2__A__125-250 Vdc or Vac",
+                  "object_id": "65 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 7
+            }
+          },
+          "GROUP_3": {
+            "options": {
+              "X": [
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "36 0 R"
+                },
+                {
+                  "name": "3.1__X__None",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "3.2__C__24-48 Vdc",
+                  "object_id": "43 0 R"
+                },
+                {
+                  "name": "3.2__C__24-48 Vdc",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "3.3__A__125-250 Vdc or Vac",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "3.3__A__125-250 Vdc or Vac",
+                  "object_id": "61 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          },
+          "GROUP_4": {
+            "options": {
+              "11": [
+                {
+                  "name": "4.1__11__(4) 10-100Base-T",
+                  "object_id": "39 0 R"
+                },
+                {
+                  "name": "4.1__11__(4) 10-100Base-T",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "12": [
+                {
+                  "name": "4.2__12__(2) 10-100Base-T. (2) 100Base-FX (Multimode. LC Connector. 2km)",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.2__12__(2) 10-100Base-T. (2) 100Base-FX (Multimode. LC Connector. 2km)",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "13": [
+                {
+                  "name": "4.3__13__(2) 10-100Base-T. (2) 100Base-LX10 (Singlemode. LC Connector. 15km)",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "4.3__13__(2) 10-100Base-T. (2) 100Base-LX10 (Singlemode. LC Connector. 15km)",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "22": [
+                {
+                  "name": "4.4__22__(4) 100Base-FX (Multimode. LC Connector. 2km)",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "4.4__22__(4) 100Base-FX (Multimode. LC Connector. 2km)",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "33": [
+                {
+                  "name": "4.5__33__(4) 100Base-LX10 (Singlemode. LC Connector. 15km)",
+                  "object_id": "42 0 R"
+                },
+                {
+                  "name": "4.5__33__(4) 100Base-LX10 (Singlemode. LC Connector. 15km)",
+                  "object_id": "55 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 9,
+              "length": 2
+            }
+          },
+          "GROUP_5": {
+            "options": {
+              "X": [
+                {
+                  "name": "5.1__X__None",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "5.1__X__None",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "F": [
+                {
+                  "name": "5.2__F__(1) Square Wave . (5) 10MHz Sine Wave",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "5.2__F__(1) Square Wave . (5) 10MHz Sine Wave",
+                  "object_id": "52 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 14
+            }
+          },
+          "GROUP_1": {
+            "options": {
+              "P": [
+                {
+                  "name": "1.2__P__Horizontal Panel Mount",
+                  "object_id": "48 0 R"
+                },
+                {
+                  "name": "1.2__P__Horizontal Panel Mount",
+                  "object_id": "68 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "P"
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7114.J.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            129.43,
+            1022.86,
+            1602.28,
+            1291.72
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1878.57,
+            1072.29,
+            3165.14,
+            1238
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETHF",
+        "label": "Front Ethernet Port",
+        "transport": "ethernet",
+        "connector": "RJ45",
+        "evidence_layer": "SEL-2488 manual: front Ethernet ETH F",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "id": "ETH1-ETH4",
+        "label": "Rear Ethernet Ports 1-4",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "SEL-2488 manual: four rear Ethernet ports, copper or fiber by ordering option",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "4"
+          },
+          {
+            "label": "Speed",
+            "value": "10/100 Mbps"
+          },
+          {
+            "label": "Options",
+            "value": "Copper RJ45 or LC fiber"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "2488",
+    "product": "SEL-2488 Satellite-Synchronized Network Clock",
+    "length": 17,
+    "prefix": {
+      "positions": "1-4",
+      "value": "2488",
+      "description": "SEL-2488 Satellite-Synchronized Network Clock"
+    },
+    "note": "17-character part number. The SEL-2488 data sheet and instruction manual do NOT contain a printed Model Option Table (SEL publishes it only via their online configurator), so this block was calibrated against the master drawing i7114.J part-number template plus three real part numbers (2488PRAX1281AX2XX from the data-sheet web dashboard, 24880RAX1181AX2XX and 24880RAX1181BX23X from field units). Positions 1-4 (2488), 11 (8), 12 (1) and 15 (2) are FIXED template characters. The five graphic-affecting groups are anchored high-confidence: mounting (6), power supply A (7), power supply B (8), Ethernet ports (9-10) and frequency outputs (14). NOTE: the model_to_layers source.position values are all shifted low relative to the real part numbers - GROUP_2 (PS-A) is layer pos 6 but real pos 7; GROUP_3 (PS-B) layer pos 7 -> real 8; GROUP_4 (Ethernet) layer pos 8 -> real 9; GROUP_5 (frequency) layer pos 10 -> real 14. The real part numbers were trusted over the layer positions. Positions 5, 13, 16 and 17 are the drawing's 'dashed' (non-graphic) configurable slots; they are not tracked by the drawing layers and there is no MOT, so their meanings are inferred from the three real part numbers only and are LOW confidence.",
+    "references": [
+      "SEL-2488 Data Sheet (2488_DS_20250228)",
+      "SEL-2488 Instruction Manual (2488_IM_20250228)",
+      "SEL-2488 master configuration drawing i7114.J (part-number template + option layers)",
+      "Real part numbers: 2488PRAX1281AX2XX (data-sheet Fig 6 web dashboard), 24880RAX1181AX2XX, 24880RAX1181BX23X (field units)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "2488PRAX1281AX2XX",
+        "note": "SEL-2488 Data Sheet Figure 6 web dashboard. Rack mount, PS-A 125-250 V (SEL-9330-A), no PS-B, (2) 10/100Base-T + (2) 100Base-FX Ethernet (code 12), no frequency outputs, PTP grandmaster active (pos 5 = P)."
+      },
+      {
+        "part_number": "24880RAX1181AX2XX",
+        "note": "Field unit. Rack mount, PS-A 125-250 V, no PS-B, (4) 10/100Base-T Ethernet (code 11), no frequency outputs, no PTP (pos 5 = 0)."
+      },
+      {
+        "part_number": "24880RAX1181BX23X",
+        "note": "Field unit. Rack mount, PS-A 125-250 V, no PS-B, (4) 10/100Base-T Ethernet (code 11), no frequency outputs; pos 13 = B and pos 16 = 3 (non-graphic options, meaning unconfirmed)."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "ptp_option",
+        "label": "PTP Option (inferred)",
+        "source": "SEL-2488 real part numbers (2488PRAX1281AX2XX vs 24880RAX1181AX2XX)",
+        "confidence": "low",
+        "note": "Drawing 'dashed' (non-graphic) slot, not in the drawing layers and no MOT. Inferred to encode the IEEE 1588 PTP grandmaster firmware option: the data-sheet unit has pos 5 = P and its web dashboard shows PTP masters active on ETH1-4; both field units have pos 5 = 0 with no PTP. PTP is an ordering option that updates the part number (per the instruction manual). Meaning inferred, not doc-confirmed.",
+        "options": {
+          "0": "NTP only (no PTP)",
+          "P": "PTP grandmaster option enabled (IEEE 1588)"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "group": "GROUP_1",
+        "source": "SEL-2488 master configuration drawing i7114.J (drawing layers)+real part numbers",
+        "confidence": "high",
+        "note": "Graphic-affecting slot; merges layer groups '1' (R) and 'GROUP_1' (P). All three real part numbers use R (rack).",
+        "options": {
+          "R": "Horizontal Rack Mount",
+          "P": "Horizontal Panel Mount"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply_a",
+        "label": "Power Supply A",
+        "group": "GROUP_2",
+        "source": "SEL-2488 master configuration drawing i7114.J (drawing layers)+real part numbers",
+        "confidence": "high",
+        "note": "Standard power supply. Layer GROUP_2 lists position 6, but the real part numbers place it at position 7.",
+        "options": {
+          "A": "125-250 Vdc or Vac (SEL-9330-A)",
+          "C": "24-48 Vdc (SEL-9330-C)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "power_supply_b",
+        "label": "Power Supply B (redundant, optional)",
+        "group": "GROUP_3",
+        "source": "SEL-2488 master configuration drawing i7114.J (drawing layers)+real part numbers",
+        "confidence": "high",
+        "note": "Optional hot-swappable second power supply. Layer GROUP_3 lists position 7, real part numbers place it at position 8. All three samples = X (none).",
+        "options": {
+          "X": "None (single power supply)",
+          "A": "125-250 Vdc or Vac (SEL-9330-A)",
+          "C": "24-48 Vdc (SEL-9330-C)"
+        }
+      },
+      {
+        "position": 9,
+        "length": 2,
+        "field": "ethernet_ports",
+        "label": "Ethernet Ports (4 rear ports)",
+        "group": "GROUP_4",
+        "source": "SEL-2488 master configuration drawing i7114.J (drawing layers)+real part numbers",
+        "confidence": "high",
+        "note": "Two-character field for the four rear Ethernet ports. Layer GROUP_4 lists position 8, real part numbers place it at positions 9-10 (code 11 on both field units; code 12 on the data-sheet unit, matching its 2 copper + 2 fiber dashboard).",
+        "options": {
+          "11": "(4) 10-100Base-T (copper, RJ45)",
+          "12": "(2) 10-100Base-T, (2) 100Base-FX (Multimode, LC Connector, 2 km)",
+          "13": "(2) 10-100Base-T, (2) 100Base-LX10 (Singlemode, LC Connector, 15 km)",
+          "22": "(4) 100Base-FX (Multimode, LC Connector, 2 km)",
+          "33": "(4) 100Base-LX10 (Singlemode, LC Connector, 15 km)"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "fixed_8",
+        "label": "Fixed template digit",
+        "source": "SEL-2488 master configuration drawing i7114.J (part-number template)+real part numbers",
+        "confidence": "high",
+        "note": "Fixed digit (8) constant across the drawing template and all real part numbers.",
+        "options": {
+          "8": "Fixed"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "fixed_1",
+        "label": "Fixed template digit",
+        "source": "SEL-2488 master configuration drawing i7114.J (part-number template)+real part numbers",
+        "confidence": "high",
+        "note": "Fixed digit (1) constant across the drawing template and all real part numbers.",
+        "options": {
+          "1": "Fixed"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "holdover_oscillator",
+        "label": "Holdover Oscillator (inferred)",
+        "source": "SEL-2488 real part numbers",
+        "confidence": "low",
+        "note": "Drawing 'dashed' (non-graphic) slot, not in the drawing layers and no MOT. Best inference is the internal holdover oscillator option (the SEL-2488 offers standard TCXO plus optional OCXO and DOCXO). Observed A (two units) and B (one unit); the code->oscillator mapping is NOT confirmed and a third value (likely DOCXO) was not observed.",
+        "options": {
+          "A": "Holdover oscillator option A (likely TCXO / standard) - inferred, unconfirmed",
+          "B": "Holdover oscillator option B (likely OCXO) - inferred, unconfirmed"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "frequency_outputs",
+        "label": "Frequency Outputs",
+        "group": "GROUP_5",
+        "source": "SEL-2488 master configuration drawing i7114.J (drawing layers)+real part numbers",
+        "confidence": "high",
+        "note": "Optional 10 MHz frequency-output hardware. Layer GROUP_5 lists position 10, real part numbers place it at position 14. All three samples = X (none).",
+        "options": {
+          "X": "None",
+          "F": "(1) Square Wave, (5) 10 MHz Sine Wave"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "fixed_2",
+        "label": "Fixed template digit",
+        "source": "SEL-2488 master configuration drawing i7114.J (part-number template)+real part numbers",
+        "confidence": "high",
+        "note": "Fixed digit (2) constant across the drawing template and all real part numbers.",
+        "options": {
+          "2": "Fixed"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "option_16",
+        "label": "Option (position 16, meaning unconfirmed)",
+        "source": "SEL-2488 real part numbers",
+        "confidence": "low",
+        "note": "Drawing 'dashed' (non-graphic) slot, not in the drawing layers and no MOT. Observed X (two units) and 3 (one unit). Meaning could not be determined from available documentation.",
+        "options": {
+          "3": "Option 3 (observed; meaning unconfirmed)",
+          "X": "Default / none (observed)"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "option_17",
+        "label": "Option (position 17, meaning unconfirmed)",
+        "source": "SEL-2488 real part numbers",
+        "confidence": "low",
+        "note": "Drawing 'dashed' (non-graphic) slot, not in the drawing layers and no MOT. Constant X across all three real part numbers, so likely fixed/reserved, but this could not be confirmed.",
+        "options": {
+          "X": "Fixed / reserved (observed constant)"
+        }
+      }
+    ]
+  }
+}

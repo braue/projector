@@ -1,0 +1,1629 @@
+{
+  "device": "487B",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "position_6": "1",
+          "position_18": [
+            "7",
+            "8"
+          ]
+        },
+        "front_pdf": "i7093.E.pdf",
+        "rear_pdf": "i7093.E.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_18": [
+            "9",
+            "A"
+          ]
+        },
+        "front_pdf": "i7094.D.pdf",
+        "rear_pdf": "i7094.D.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_17": "H"
+        },
+        "front_pdf": "i7289.C.pdf",
+        "rear_pdf": "i7289.C.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_17": "V"
+        },
+        "front_pdf": "i7290.C.pdf",
+        "rear_pdf": "i7290.C.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7093.E.pdf": {
+        "always": [
+          {
+            "name": "7.0_____DWG",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "6.0____[I-O BOARD SLOT C CONTACT OUTPUTS]",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "5.0____[I-O BOARD SLOT B CONTACT OUTPUTS]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "46 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "57 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "60 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_6": {
+            "source": {
+              "position": 20
+            },
+            "options": {
+              "B": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "37 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "6.1__X__NA",
+                  "object_id": "38 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_5": {
+            "source": {
+              "position": 19
+            },
+            "options": {
+              "B": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.1__X__NA",
+                  "object_id": "42 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 18
+            },
+            "options": {
+              "7": [
+                {
+                  "name": "4.1__7__7U.Front Panel with (16) Target LEDs. (8) Operator Control Pushbuttons.",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "4.2__8__7U.Front Panel with (24) Target LEDs. (12) Operator Control Pushbuttons & Tri-Color LEDS.",
+                  "object_id": "44 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "value": "H"
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "48 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__0__Ports 5C. 5D-  Ethernet Card With (2) 10-100BASE-T Connectors",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__1__Ports 5A. 5B With PTP-  Ethernet Card With (2) 10-100BASE-T Connectors",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__2__Ports 5C. 5D-  Ethernet Card With (2) 100BASE-FX Connectors",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__3__Ports 5A. 5B With PTP-  Ethernet Card With (2) 100BASE-FX Connectors",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__4__Ports 5C. 5D-  Ethernet Card With (1) 10-100BASE-T. (1) 100BASE-FX Connector",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__5__Ports 5A. 5B With PTP-  Ethernet Card With (1) 10-100BASE-T. (1) 100BASE-FX Connector",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "56 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized Relay (Harness Configured Separately)",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__Screw Terminal Block",
+                  "object_id": "59 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7094.D.pdf": {
+        "always": [
+          {
+            "name": "9.0_____DWG",
+            "object_id": "37 0 R"
+          },
+          {
+            "name": "8.0____[I-O BOARD SLOT E CONTACT OUTPUTS]",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "7.0____[I-O BOARD SLOT D CONTACT OUTPUTS]",
+            "object_id": "45 0 R"
+          },
+          {
+            "name": "6.0____[I-O BOARD SLOT C CONTACT OUTPUTS]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "5.0____[I-O BOARD SLOT B CONTACT OUTPUTS]",
+            "object_id": "53 0 R"
+          },
+          {
+            "name": "4.0____[CHASSIS]",
+            "object_id": "56 0 R"
+          },
+          {
+            "name": "3.0____[MOUNTING]",
+            "object_id": "59 0 R"
+          },
+          {
+            "name": "2.0____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "67 0 R"
+          },
+          {
+            "name": "1.0____[CONNECTOR TYPE]",
+            "object_id": "70 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_8": {
+            "source": {
+              "position": 22
+            },
+            "options": {
+              "B": [
+                {
+                  "name": "8.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "8.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "8.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "8.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "8.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "8.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "38 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "8.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "8.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "8.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "8.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "8.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "8.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "39 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "8.1__X__NA",
+                  "object_id": "40 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_7": {
+            "source": {
+              "position": 21
+            },
+            "options": {
+              "B": [
+                {
+                  "name": "7.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "7.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "7.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "7.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "7.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "7.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "7.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "7.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "7.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "7.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "7.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "7.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "7.1__X__NA",
+                  "object_id": "44 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_6": {
+            "source": {
+              "position": 20
+            },
+            "options": {
+              "B": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "6.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "6.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "6.1__X__NA",
+                  "object_id": "48 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_5": {
+            "source": {
+              "position": 19
+            },
+            "options": {
+              "B": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "G": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "5.3__B C D E G H__(6) High Speed & (2) Standard Output Contacts",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "5.2__K M N P R T__(8) Standard Output Contacts",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "5.1__X__NA",
+                  "object_id": "52 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_4": {
+            "source": {
+              "position": 18
+            },
+            "options": {
+              "9": [
+                {
+                  "name": "4.1__9__9U.Front Panel with (16) Target LEDs. (8) Operator Control Pushbuttons.",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "4.2__A__9U.Front Panel with (24) Target LEDs. (12) Operator Control Pushbuttons & Tri-Color LEDS.",
+                  "object_id": "54 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "value": "H"
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "58 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "2.5__0__Ports 5C. 5D-  Ethernet Card With (2) 10-100BASE-T Connectors",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.2__1__Ports 5A. 5B With PTP-  Ethernet Card With (2) 10-100BASE-T Connectors",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "2.6__2__Ports 5C. 5D-  Ethernet Card With (2) 100BASE-FX Connectors",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "2.3__3__Ports 5A. 5B With PTP-  Ethernet Card With (2) 100BASE-FX Connectors",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "2.7__4__Ports 5C. 5D-  Ethernet Card With (1) 10-100BASE-T. (1) 100BASE-FX Connector",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "2.4__5__Ports 5A. 5B With PTP-  Ethernet Card With (1) 10-100BASE-T. (1) 100BASE-FX Connector",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "2.1__X__None",
+                  "object_id": "66 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "2": [
+                {
+                  "name": "1.2__2__Connectorized Relay (Harness Configured Separately)",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__Screw Terminal Block",
+                  "object_id": "69 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7289.C.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "46 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "source": {
+              "position": 18
+            },
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.3__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "32 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "value": "H"
+            },
+            "options": {
+              "3": [
+                {
+                  "name": "3.2__3__Horizontal Panel Mount",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "H": [
+                {
+                  "name": "3.1__H__Horizontal Rack Mount",
+                  "object_id": "37 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 16
+            },
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "39 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "T": [
+                {
+                  "name": "1.2__T__Time-Domain Link (TiDL with SFPs )",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None (SV Subscriber)",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7290.C.pdf": {
+        "always": [
+          {
+            "name": "5.0_____[DWG]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "4.0_____[IO BOARD POSITION B]",
+            "object_id": "35 0 R"
+          },
+          {
+            "name": "3.0_____[MOUNTING]",
+            "object_id": "38 0 R"
+          },
+          {
+            "name": "2.0_____[ETHERNET CONNECTION OPTIONS]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "1.0_____[CONNECTOR TYPE]",
+            "object_id": "46 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_4": {
+            "source": {
+              "position": 18
+            },
+            "options": {
+              "2": [
+                {
+                  "name": "4.1__2__(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "4.2__4__(18) Common Inputs. (6) Independent Inputs. (6) High-Speed High-Current Interrupting Form A Outputs. (2) Standard Form A Outputs",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "4.3__D__(24) Optoisolated Level-Sensitive Inputs. (8) Standard Form A Outputs",
+                  "object_id": "32 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_3": {
+            "source": {
+              "value": "V"
+            },
+            "options": {
+              "4": [
+                {
+                  "name": "3.2__4__Vertical Panel Mount",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "3.1__V__Vertical Rack Mount",
+                  "object_id": "37 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_2": {
+            "source": {
+              "position": 16
+            },
+            "options": {
+              "6": [
+                {
+                  "name": "2.1__6__(4) 10-100BASE-T Connectors",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "2.2__7__(4) 100BASE-FX Connectors",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "2.3__8__(2) 10-100BASE-T & (2) 100BASE-FX Connectors",
+                  "object_id": "40 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "2.4__9__(2) 100-1000BASE & (3) 100BASE SFP Ports (Order SFP Transceivers Separately)",
+                  "object_id": "39 0 R"
+                }
+              ]
+            }
+          },
+          "GROUP_1": {
+            "source": {
+              "position": 14
+            },
+            "options": {
+              "T": [
+                {
+                  "name": "1.2__T__Time-Domain Link (TiDL with SFPs )",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__None (SV Subscriber)",
+                  "object_id": "45 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7093.E.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            102.8,
+            355.5,
+            1566.8,
+            1383.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1923,
+            420.8,
+            3203.2,
+            1325.2
+          ]
+        }
+      },
+      "i7094.D.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            104.2,
+            113.2,
+            1568.2,
+            1386.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1923.8,
+            171.8,
+            3204,
+            1328.2
+          ]
+        }
+      },
+      "i7289.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            132,
+            665.2,
+            1596,
+            1308.8
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1951.5,
+            726,
+            3231.8,
+            1247.2
+          ]
+        }
+      },
+      "i7290.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            611.2,
+            186,
+            1254.8,
+            1650
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2400,
+            277.5,
+            2922,
+            1557.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1",
+          "P2",
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P5"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^[0-9]$",
+            "transport": "ethernet",
+            "connector": "Ethernet card",
+            "evidence_layer": "Ethernet Port 5 card option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5A"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8|9)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5A copper Ethernet option"
+          },
+          {
+            "match": "^(3|7)$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "Port 5A fiber Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5B"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(1|6|8)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5B copper Ethernet option"
+          },
+          {
+            "match": "^(3|7|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5B fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^5$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5A/5B copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5C"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5C copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5C fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P5D"
+        ],
+        "source": {
+          "option_group": "GROUP_2"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|6)$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "Port 5D copper Ethernet option"
+          },
+          {
+            "match": "^(2|7|8|9)$",
+            "transport": "ethernet",
+            "connector": "LC fiber / SFP",
+            "evidence_layer": "Port 5D fiber/SFP Ethernet option"
+          },
+          {
+            "match": "^4$",
+            "transport": "ethernet",
+            "connector": "RJ45 / LC fiber pair",
+            "evidence_layer": "Port 5C/5D copper/fiber Ethernet pair option"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "487B",
+    "product": "SEL-487B-1 Bus Differential, Overcurrent and Breaker Failure Protection Relay",
+    "length": 23,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0487B",
+      "description": "SEL-487B-1 (leading 0 is part of the ordering-guide part number; stored/CID part numbers include it, e.g. 0487B1...)"
+    },
+    "note": "23-character SEL-487B-1 MOT (WI-8928). Anchored by the master drawing layers (metadata model_to_layers for i7093.E/i7094.D): connector=9 (GROUP_1), Ethernet connection=14 (GROUP_2), chassis/front panel=18 (GROUP_4), I/O slots B/C/D/E=19/20/21/22 (GROUP_5-8). Mounting (GROUP_3) is stored in the drawing as a derived value (H) rather than a position; the MOT places it at position 17. Positions 12, 15 and 23 are fixed 'X' filler digits (constant in the MOT header and in the real part number). I/O slots are single characters that jointly encode output type + control input voltage, so they use `options` (not `components`). This block describes the SEL-487B-1 only; the SEL-487B-2 (WI-15512, drawings i7289.C/i7290.C) uses a DIFFERENT MOT layout where position 14=TiDL and position 16=Ethernet.",
+    "references": [
+      "SEL-487B-1 Ordering Information (WI-8928, 20190711) — Model Option Table",
+      "SEL-487B master configuration drawings i7093.E / i7094.D (drawing layers)",
+      "SEL-487B-1 Instruction Manual (487B-1_IM_20250919) — PARTNO 0487B1X6X52XB0XEX9EEEEX"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "0487B1X6X52XB0XEX9EEEEX",
+        "note": "Real part number (found in uploaded RDBs and the SEL-487B-1 IM). Decodes: Standard firmware, no conformal coat, 125-250 Vdc PS, screw terminals, 5 A phase, 3 AC Voltage/21 AC Current, Ethernet FTP/Telnet/DNP3 with two 10/100BASE-T (Ports 5C/5D), 125 Vdc mainboard, 9U chassis (16 target LEDs), and I/O boards B/C/D/E all 125 Vdc/Vac High-Speed. Mounting position (17) is left as wildcard X in this stored PN."
+      }
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Only Standard firmware is offered.",
+        "options": {
+          "1": "Standard"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "2": "Conformally coated circuit boards"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "options": {
+          "2": "24-48 Vdc",
+          "4": "48-125 Vdc or 110-120 Vac",
+          "6": "125-250 Vdc or 110-240 Vac"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "connector_type",
+        "label": "Connector Type",
+        "group": "GROUP_1",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "options": {
+          "X": "Screw Terminal Block",
+          "2": "Connectorized Relay (harness ordered separately)"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_inputs",
+        "label": "Secondary Inputs (current rating)",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A Phase",
+          "5": "5 A Phase"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "ac_input_channels",
+        "label": "AC Input Channels",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Fixed: SEL-487B-1 has 3 AC Voltage and 21 AC Current channels.",
+        "options": {
+          "2": "3 AC Voltage, 21 AC Current"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "reserved_12",
+        "label": "Reserved / filler",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Fixed 'X' filler digit (constant in the MOT header and real part numbers).",
+        "options": {
+          "X": "Fixed filler"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "ethernet_comms_protocols",
+        "label": "Ethernet Communications Protocols",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "options": {
+          "X": "None",
+          "B": "FTP, Telnet, and DNP3 LAN/WAN",
+          "C": "FTP, Telnet, DNP3 LAN/WAN, and IEC 61850"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "ethernet_connection_options",
+        "label": "Ethernet Connection Options",
+        "group": "GROUP_2",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "Only two Ethernet ports are populated. PTP (IEEE 1588) is available only on Ports 5A/5B (options 1/3/5).",
+        "options": {
+          "X": "None",
+          "1": "Ports 5A, 5B with PTP: two 10/100BASE-T connectors",
+          "3": "Ports 5A, 5B with PTP: two 100BASE-FX connectors",
+          "5": "Ports 5A, 5B with PTP: one 10/100BASE-T, one 100BASE-FX connector",
+          "0": "Ports 5C, 5D: two 10/100BASE-T connectors",
+          "2": "Ports 5C, 5D: two 100BASE-FX connectors",
+          "4": "Ports 5C, 5D: one 10/100BASE-T, one 100BASE-FX connector"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "reserved_15",
+        "label": "Reserved / filler",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Fixed 'X' filler digit (constant in the MOT header and real part numbers).",
+        "options": {
+          "X": "Fixed filler"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "mainboard_input_voltage",
+        "label": "Mainboard Control Input Voltage",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Control input voltage for the mainboard optoisolated inputs (3 HCI + 2 Form A + 3 Form C outputs, 7 level-sensitive inputs).",
+        "options": {
+          "B": "24 Vdc",
+          "C": "48 Vdc",
+          "D": "110 Vdc",
+          "E": "125 Vdc",
+          "G": "220 Vdc",
+          "H": "250 Vdc"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Drawing layers encode mounting as a derived value (GROUP_3 value 'H'), not a position; the MOT places it at position 17.",
+        "options": {
+          "H": "Horizontal Rack Mount",
+          "3": "Horizontal Panel Mount"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "chassis_front_panel",
+        "label": "Chassis / Front Panel",
+        "group": "GROUP_4",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "7U supports up to 2 I/O boards (slots B, C); 9U supports up to 4 (slots B, C, D, E).",
+        "options": {
+          "7": "7U, front panel with 16 target LEDs, 8 operator control pushbuttons",
+          "8": "7U, front panel with 24 target LEDs, 12 operator control pushbuttons, and tri-color LEDs",
+          "9": "9U, front panel with 16 target LEDs, 8 operator control pushbuttons",
+          "A": "9U, front panel with 24 target LEDs, 12 operator control pushbuttons, and tri-color LEDs"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "io_slot_b",
+        "label": "I/O Board Slot B (control input voltage / output type)",
+        "group": "GROUP_5",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "7U or 9U chassis. Single character encodes output type + control input voltage.",
+        "options": {
+          "X": "No I/O board",
+          "B": "24 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "C": "48 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "D": "110 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "E": "125 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "G": "220 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "H": "250 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "K": "24 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "M": "48 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "N": "110 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "P": "125 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "R": "220 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "T": "250 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)"
+        }
+      },
+      {
+        "position": 20,
+        "length": 1,
+        "field": "io_slot_c",
+        "label": "I/O Board Slot C (control input voltage / output type)",
+        "group": "GROUP_6",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "7U or 9U chassis. Single character encodes output type + control input voltage.",
+        "options": {
+          "X": "No I/O board",
+          "B": "24 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "C": "48 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "D": "110 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "E": "125 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "G": "220 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "H": "250 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "K": "24 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "M": "48 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "N": "110 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "P": "125 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "R": "220 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "T": "250 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)"
+        }
+      },
+      {
+        "position": 21,
+        "length": 1,
+        "field": "io_slot_d",
+        "label": "I/O Board Slot D (control input voltage / output type)",
+        "group": "GROUP_7",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "9U chassis only. Single character encodes output type + control input voltage.",
+        "options": {
+          "X": "No I/O board",
+          "B": "24 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "C": "48 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "D": "110 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "E": "125 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "G": "220 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "H": "250 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "K": "24 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "M": "48 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "N": "110 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "P": "125 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "R": "220 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "T": "250 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)"
+        }
+      },
+      {
+        "position": 22,
+        "length": 1,
+        "field": "io_slot_e",
+        "label": "I/O Board Slot E (control input voltage / output type)",
+        "group": "GROUP_8",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)+pdf-layers",
+        "confidence": "high",
+        "note": "9U chassis only. Single character encodes output type + control input voltage.",
+        "options": {
+          "X": "No I/O board",
+          "B": "24 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "C": "48 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "D": "110 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "E": "125 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "G": "220 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "H": "250 Vdc/Vac control input; 6 High-Speed High-Current Interrupting Form A + 2 Standard Form A outputs (18 common + 6 independent inputs)",
+          "K": "24 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "M": "48 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "N": "110 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "P": "125 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "R": "220 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)",
+          "T": "250 Vdc/Vac control input; 8 Standard Form A outputs (18 common + 6 independent inputs)"
+        }
+      },
+      {
+        "position": 23,
+        "length": 1,
+        "field": "reserved_23",
+        "label": "Reserved / filler",
+        "source": "SEL-487B-1 Ordering Information (WI-8928, 20190711)",
+        "confidence": "high",
+        "note": "Fixed 'X' filler digit (constant in the MOT header and real part numbers).",
+        "options": {
+          "X": "Fixed filler"
+        }
+      }
+    ]
+  }
+}

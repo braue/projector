@@ -1,0 +1,252 @@
+{
+  "device": "3505",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "drawing result": [
+                  "This set was observed, but no small single-option discriminator was isolated by the sweep. Use the example model number as the reproducible selector."
+                ]
+              },
+              "example_answer_string": "1-1,2-2,3-1,4-1,6-1,7-1,19-1,8-1,9-1,20-1,10-1,11-1,21-1,12-1,13-1,14-1,15-1,16-1,22-1"
+            }
+          ]
+        },
+        "front_pdf": "i7185a.pdf",
+        "rear_pdf": "i7185a.pdf"
+      },
+      {
+        "when": {
+          "observed_configurations": [
+            {
+              "model_config": {
+                "drawing result": [
+                  "This set was observed, but no small single-option discriminator was isolated by the sweep. Use the example model number as the reproducible selector."
+                ]
+              },
+              "example_answer_string": "1-1,2-3,3-1,5-1,6-1,18-1,7-1,8-1,19-1,9-1,10-1,20-1,11-1,12-1,13-1,14-1,15-1,21-1"
+            }
+          ]
+        },
+        "front_pdf": "i7186b.pdf",
+        "rear_pdf": "i7186b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7185a.pdf": {
+        "always": [
+          {
+            "name": "MECH - REMOVE B4 SENDING -",
+            "object_id": "29 0 R"
+          },
+          {
+            "name": "3.0_____[DWG]",
+            "object_id": "30 0 R"
+          },
+          {
+            "name": "2.0_____[V.92 ANALOG MODEM]",
+            "object_id": "33 0 R"
+          },
+          {
+            "name": "1.0_____[REAR ETHERNET CONNECTIONS]",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "3.0_____[DWG]",
+            "object_id": "40 0 R"
+          },
+          {
+            "name": "2.0_____[V.92 ANALOG MODEM]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "1.0_____[REAR ETHERNET CONNECTIONS]",
+            "object_id": "49 0 R"
+          }
+        ],
+        "by_option_group": {
+          "1": {
+            "options": {
+              "No": [
+                {
+                  "name": "2.1__No",
+                  "object_id": "32 0 R"
+                },
+                {
+                  "name": "2.1__No",
+                  "object_id": "42 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "NO"
+            }
+          },
+          "2": {
+            "options": {
+              "Yes": [
+                {
+                  "name": "2.2__Yes",
+                  "object_id": "31 0 R"
+                },
+                {
+                  "name": "2.2__Yes",
+                  "object_id": "41 0 R"
+                }
+              ]
+            },
+            "source": {
+              "value": "YES"
+            }
+          }
+        }
+      },
+      "i7186b.pdf": {
+        "always": [
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "11 0 R"
+          },
+          {
+            "name": "1.0_____[ETHERNET]",
+            "object_id": "12 0 R"
+          }
+        ]
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7185a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            692.86,
+            216.28,
+            1114.14,
+            385.57
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1222,
+            218,
+            1657,
+            385
+          ]
+        }
+      },
+      "i7186b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            290,
+            31.71,
+            725,
+            191.29
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            834,
+            30.57,
+            1258.71,
+            195.86
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "ETH1-ETH2",
+        "label": "Rear Ethernet Ports 1-2",
+        "transport": "ethernet",
+        "connector": "RJ45 / LC fiber",
+        "evidence_layer": "SEL-3505 manual: two rear Ethernet ports, RJ45 or LC fiber by option",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "id": "USB",
+        "label": "Front USB Port",
+        "transport": "usb",
+        "connector": "USB Type B",
+        "evidence_layer": "SEL-3505 manual: front USB Type B port",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "id": "P1-P2",
+        "label": "Serial Ports 1-2",
+        "transport": "serial",
+        "connector": "DB9 / terminal",
+        "evidence_layer": "SEL-3505 manual: Ports 1 and 2 software-selectable EIA-232/EIA-485",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232/EIA-485"
+          }
+        ],
+        "interface": "EIA-232 / EIA-485"
+      },
+      {
+        "id": "P3-P4",
+        "label": "Serial Ports 3-4",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-3505 manual: Ports 3 and 4 EIA-232 serial",
+        "specs": [
+          {
+            "label": "Count",
+            "value": "2"
+          },
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "3505",
+    "product": "SEL-3505 / SEL-3505-3 Real-Time Automation Controller (RTAC)",
+    "length": null,
+    "prefix": {
+      "positions": "1-8",
+      "value": "SEL-3505",
+      "description": "SEL-3505 / SEL-3505-3 Real-Time Automation Controller (RTAC). Two base products: SEL-3505 (four serial ports, optional integrated 56 kbps dial-up modem) and SEL-3505-3 (three serial ports, eight digital inputs, three Form C binary outputs)."
+    },
+    "note": "No per-digit Model Option Table (MOT) and no genuine part number are available in the local documentation, so no positions can be decoded. The SEL-3505/SEL-3505-3 Instruction Manual states it 'does not provide complete ordering information' and defers to the latest SEL-3505 / SEL-3505-3 Model Option Tables at selinc.com (Literature > Model Option Table). The data sheet Table 1 'Ordering Options' and the IM 'Models, Options, and Accessories' section list only feature-level ordering choices (no digit template, no option codes): Ethernet communication (two rear ports as 10/100BASE-T copper, 100BASE-FX multimode fiber, one copper + one 100BASE-FX, 100BASE-LX10 single-mode fiber, or one copper + one 100BASE-LX10); power supply (12-24 Vdc or 24-48 Vdc); mounting (surface or DIN-rail); optional conformal coating for chemically harsh/high-moisture environments; optional integrated 56 kbps internal dial-up modem (SEL-3505 only); and (SEL-3505-3) selectable digital-input rating (12/24/48/125 Vdc). Because the digit positions and option codes are not in the available docs and no real part number was found to anchor them (uploaded RDB blobs contain only binary data), positions is intentionally empty.",
+    "references": [
+      "SEL-3505/SEL-3505-3 Data Sheet (3505_DS_20241010.pdf), Table 1 'SEL-3505 Ordering Options'",
+      "SEL-3505/SEL-3505-3 RTAC Instruction Manual (3505_IM_20241217_20260313.pdf), 'Models, Options, and Accessories' - defers to online SEL Model Option Tables for complete ordering information"
+    ],
+    "positions": []
+  }
+}

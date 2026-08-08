@@ -1,0 +1,343 @@
+{
+  "device": "587",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {
+          "examples": [
+            "0587001X1X1"
+          ]
+        },
+        "front_pdf": "i7233b.pdf",
+        "rear_pdf": "i7233b.pdf"
+      },
+      {
+        "when": {
+          "examples": [
+            "05870W1X1X11"
+          ]
+        },
+        "front_pdf": "i7234b.pdf",
+        "rear_pdf": "i7234b.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7233b.pdf": {
+        "always": [
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "31 0 R"
+          },
+          {
+            "name": "1.0_____[PACKAGING]",
+            "object_id": "38 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_1": {
+            "options": {
+              "3": [
+                {
+                  "name": "1.5__3__(1) Panel Mount",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.6__5__(1) Projection Panel Mount",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "1.4__C__(1) Rack Mount w Cutout for Test Switch",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.3__B__(1) Rack Mount w Bracket",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "1.2__P__(2) Rack Mount",
+                  "object_id": "36 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__(1) Rack Mount",
+                  "object_id": "37 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          }
+        }
+      },
+      "i7234b.pdf": {
+        "always": [
+          {
+            "name": "2.0_____[DWG]",
+            "object_id": "30 0 R"
+          },
+          {
+            "name": "1.0_____[PACKAGING]",
+            "object_id": "37 0 R"
+          }
+        ],
+        "by_option_group": {
+          "GROUP_1": {
+            "options": {
+              "3": [
+                {
+                  "name": "1.5__3__(1) Panel Mount",
+                  "object_id": "32 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.6__5__(1) Projection Panel Mount",
+                  "object_id": "31 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "1.4__C__(1) Rack Mount w Cutout for Test Switch",
+                  "object_id": "33 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "1.3__B__(1) Rack Mount w Bracket",
+                  "object_id": "34 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "1.2__P__(2) Rack Mount",
+                  "object_id": "35 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "1.1__X__(1) Rack Mount",
+                  "object_id": "36 0 R"
+                }
+              ]
+            },
+            "source": {
+              "position": 8
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7233b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            179.2,
+            737.1,
+            1620.5,
+            1136
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1877,
+            791.1,
+            3163.8,
+            1082
+          ]
+        }
+      },
+      "i7234b.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            180.7,
+            739.4,
+            1622,
+            1138.3
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1877.7,
+            792.6,
+            3165.3,
+            1084.3
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "rear serial Port 1 ordered as EIA-232 or EIA-485"
+      },
+      {
+        "ports": [
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "front EIA-232 serial Port F"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "587",
+    "product": "SEL-587-0, -1 Current Differential Relay (Connectorized)",
+    "length": 12,
+    "prefix": {
+      "positions": "1-4",
+      "value": "0587",
+      "description": "SEL-587 Current Differential Relay (part number begins 0587)"
+    },
+    "note": "12-digit MOT string for the SEL-587-0/-1 Connectorized variant. Positions map to the ordering-information Model Option Table columns measured directly from WI-1025 page 1: 5 firmware, 6 connection-type/conformal-coat, 7 power supply, 8 communications protocol, 9 secondary input current, 10 packaging, 11 communications port, 12 control input voltage. LAYER-ANCHOR CORRECTION: model_to_layers GROUP_1 (packaging) carries source.position 8, but the WI-1025 grid places the packaging box two columns to the right at position 10 (position 8 is the communications-protocol digit); position 10 is confirmed by the real part number 05870W1X1X11, which decodes to all-valid options only with packaging at 10. The conventional-terminal-block SEL-587 (drawing i7233b, e.g. 0587001X1X1) uses an 11-digit template that omits the connection-type/conformal-coat digit; this block describes the 12-digit Connectorized template.",
+    "references": [
+      "SEL-587-0, -1 Connectorized Ordering Information (WI-1025, 20190711)",
+      "SEL-587 master configuration drawing i7234b (drawing layers, GROUP_1 packaging)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "05870W1X1X11",
+        "note": "Connectorized example from device drawing-selection metadata (i7234b): Standard firmware, Connectorized/no conformal coat, 24 Vdc PS, Standard protocol, 1 A phase, Horizontal Rack Mount, EIA-232, 24 Vdc control input. Decodes cleanly against this block."
+      }
+    ],
+    "positions": [
+      {
+        "position": 5,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "note": "Modbus protocol (position 8 = 2) requires the -1 firmware (option 1).",
+        "options": {
+          "0": "Standard",
+          "1": "Standard plus Harmonic Restraint, Trip Unlatch, and Zero-Sequence Removal"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "connection_type_conformal_coat",
+        "label": "Connection Type; Conformal Coat",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "note": "Present only on the Connectorized (-0/-1) template.",
+        "options": {
+          "W": "Connectorized; No Conformal Coat",
+          "S": "Connectorized; Conformal Coated Circuit Boards"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "power_supply_voltage",
+        "label": "Power Supply",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "3": "48/125 Vdc or 125 Vac",
+          "6": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "note": "Standard plus Modbus available only in the SEL-587-1 (firmware option 1).",
+        "options": {
+          "X": "Standard",
+          "2": "Standard plus Modbus"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A Phase",
+          "5": "5 A Phase"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "packaging",
+        "label": "Packaging",
+        "group": "GROUP_1",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)+pdf-layers",
+        "confidence": "high",
+        "note": "Drawing layer GROUP_1 labels this source.position 8, but the WI-1025 grid and the real part number place it at position 10 (anchor corrected).",
+        "options": {
+          "X": "Horizontal Rack Mount",
+          "P": "Part of Two-Relay Rack Mount Package",
+          "B": "Single Relay Assembled With Rack Mount Bracket 9100 (bracket on right side, front view)",
+          "C": "Single Relay With Rack Mount Bracket 9102 w/Cutout for Test Switch (bracket on right side, front view)",
+          "3": "Horizontal Panel Mount",
+          "5": "Horizontal Projection Panel Mount"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "communications_port",
+        "label": "Communications Port",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "note": "EIA-485 is for special applications only; SEL recommends EIA-232.",
+        "options": {
+          "1": "EIA-232",
+          "2": "EIA-485"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control Input Voltage",
+        "source": "SEL-587-0, -1 Ordering Information (WI-1025)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc (level sensitive inputs)",
+          "3": "110 Vdc (level sensitive inputs)",
+          "4": "125 Vdc (level sensitive inputs)",
+          "6": "250 Vdc (level sensitive inputs)"
+        }
+      }
+    ]
+  }
+}

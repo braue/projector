@@ -32,7 +32,8 @@ test('list failure is non-fatal, served, and recoverable', async () => {
 
     const client = flakyClient();
     const service = new ProjectService({ client, dataDir });
-    await service.init(); // must not throw
+    await service.init();
+    await service.refreshList(); // the failure lands in listError, never throws
 
     let list = service.list();
     assert.match(list.error, /database unreachable/);

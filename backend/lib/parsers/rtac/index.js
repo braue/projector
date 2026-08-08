@@ -41,4 +41,4 @@ function parseRtacProject(files) {
   };
 }
 
-export { RTAC_MODEL_VERSION, parseRtacProject };
+export { parseRtacProject };

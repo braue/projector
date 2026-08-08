@@ -1,0 +1,2880 @@
+{
+  "device": "751",
+  "model_to_drawings": {
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7182.C.pdf",
+        "rear_pdf": "i7182.C.pdf"
+      },
+      {
+        "when": {
+          "position_5": [
+            "S",
+            "F",
+            "P"
+          ]
+        },
+        "front_pdf": "i7213.C.pdf",
+        "rear_pdf": "i7213.C.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7182.C.pdf": {
+        "always": [
+          {
+            "name": "10.00_____[DWG]",
+            "object_id": "76 0 R"
+          },
+          {
+            "name": "9.00____EXTENDED IO (SLOTS 1.2.3.4)",
+            "object_id": "92 0 R"
+          },
+          {
+            "name": "8.00_____[SLOT Z]",
+            "object_id": "97 0 R"
+          },
+          {
+            "name": "7.00_____[SLOT E]",
+            "object_id": "117 0 R"
+          },
+          {
+            "name": "6.00_____[COMBINED SLOT D  OPTION__9-  &  SLOT E]",
+            "object_id": "137 0 R"
+          },
+          {
+            "name": "5.00_____[SLOT D]",
+            "object_id": "152 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT C]",
+            "object_id": "168 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT B]",
+            "object_id": "183 0 R"
+          },
+          {
+            "name": "2.00_____[FRONT PANEL]",
+            "object_id": "188 0 R"
+          },
+          {
+            "name": "1.00_____[ADVANCED FEATURES]",
+            "object_id": "198 0 R"
+          }
+        ],
+        "by_option_group": {
+          "EXTENDED_IO_(SLOTS_1.2.3.4)": {
+            "source": {
+              "position": 5
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "9.01__0__None",
+                  "object_id": "91 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "9.02__1__21 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "90 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "9.03__2__42 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "89 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "9.04__3__63 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "88 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "9.05__4__84 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "87 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "9.06__5__21 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "9.07__6__21 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "9.08__7__21 Universal Binary Inputs (24-250 Vdc-Vac). 36 Electromechanical Digital Outputs",
+                  "object_id": "84 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "9.09__8__42 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "83 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "9.10__9__42 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "9.15__E__48 Electromechanical Digital Outputs",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "9.14__D__36 Electromechanical Digital Outputs",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "9.13__C__24 Electromechanical Digital Outputs",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "9.12__B__12 Electromechanical Digital Outputs",
+                  "object_id": "80 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "81 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_Z": {
+            "source": {
+              "position": 14,
+              "length": 2
+            },
+            "options": {
+              "7-": [
+                {
+                  "name": "8.04__7-__(4) ACI & (3) LEA AVI",
+                  "object_id": "93 0 R"
+                }
+              ],
+              "L-": [
+                {
+                  "name": "8.03__L-__(4) ACI & (3) LEA AVI",
+                  "object_id": "94 0 R"
+                }
+              ],
+              "8-": [
+                {
+                  "name": "8.02__8-__(4) ACI & (3) AVI",
+                  "object_id": "95 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "8.01__A-__(4) ACI",
+                  "object_id": "96 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_E": {
+            "source": {
+              "position": 12,
+              "length": 2
+            },
+            "options": {
+              "70": [
+                {
+                  "name": "7.15__70__(2) AVI & (4) AFDI",
+                  "object_id": "102 0 R"
+                }
+              ],
+              "77": [
+                {
+                  "name": "7.17__77__(8) AFDI",
+                  "object_id": "100 0 R"
+                }
+              ],
+              "L-": [
+                {
+                  "name": "7.19__L-__(2) AVI & (7) DI",
+                  "object_id": "98 0 R"
+                }
+              ],
+              "7-": [
+                {
+                  "name": "7.18__7-__(2) AVI & (7) DI",
+                  "object_id": "99 0 R"
+                }
+              ],
+              "L0": [
+                {
+                  "name": "7.16__L0__(2) LEA AVI & (4) AFDI",
+                  "object_id": "101 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "7.14__6-__(4) AI & (4) AO",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "7.13__5-__(8) AI",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "7.12__4-__(14) DI",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "7.11__3-__(8) DI",
+                  "object_id": "106 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "7.10__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "107 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "7.09__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "108 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "7.08__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "109 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "7.07__2B__(8) Form B DO",
+                  "object_id": "110 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "7.06__2A__(8) Form A DO",
+                  "object_id": "111 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "7.05__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "112 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "7.04__C-__(4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "113 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "7.03__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "114 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "7.02__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "115 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "7.01__0-__Empty",
+                  "object_id": "116 0 R"
+                }
+              ]
+            }
+          },
+          "COMBINED_SLOT_D_OPTION_9_&_SLOT_E": {
+            "source": {
+              "position": 12,
+              "length": 2
+            },
+            "options": {
+              "70": [
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "122 0 R"
+                }
+              ],
+              "77": [
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "120 0 R"
+                }
+              ],
+              "9-": [
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "118 0 R"
+                },
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "119 0 R"
+                },
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "120 0 R"
+                },
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "121 0 R"
+                },
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "122 0 R"
+                },
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "123 0 R"
+                },
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "124 0 R"
+                },
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "125 0 R"
+                },
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "126 0 R"
+                },
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "127 0 R"
+                },
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "128 0 R"
+                },
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "129 0 R"
+                },
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "130 0 R"
+                },
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "131 0 R"
+                },
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "132 0 R"
+                },
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "133 0 R"
+                },
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "134 0 R"
+                },
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "135 0 R"
+                },
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "136 0 R"
+                }
+              ],
+              "L-": [
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "118 0 R"
+                }
+              ],
+              "7-": [
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "119 0 R"
+                }
+              ],
+              "L0": [
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "121 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "123 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "124 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "125 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "126 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "127 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "128 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "129 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "130 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "131 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "132 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "133 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "134 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "135 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "136 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_D": {
+            "source": {
+              "position": 10,
+              "length": 2
+            },
+            "options": {
+              "6-": [
+                {
+                  "name": "5.14__6-__(4) AI & (4) AO",
+                  "object_id": "138 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "5.13__5-__(8) AI",
+                  "object_id": "139 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "5.12__4-__(14) DI",
+                  "object_id": "140 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "5.11__3-__(8) DI",
+                  "object_id": "141 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "5.10__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "142 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "5.09__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "143 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "5.08__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "144 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "5.07__2B__(8) Form B DO",
+                  "object_id": "145 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "5.06__2A__(8) Form A DO",
+                  "object_id": "146 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "5.05__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "147 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "5.04__C-__(4) DI. (4) DO (Fast HC interrupting)",
+                  "object_id": "148 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "5.03__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "149 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "5.02__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "150 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "5.01__0-__Empty",
+                  "object_id": "151 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_C": {
+            "source": {
+              "position": 8,
+              "length": 2
+            },
+            "options": {
+              "6-": [
+                {
+                  "name": "4.15__6-__(4) AI & (4) AO",
+                  "object_id": "153 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "4.14__5-__(8) AI",
+                  "object_id": "154 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "4.13__4-__(14) DI",
+                  "object_id": "155 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "4.12__3-__(8) DI",
+                  "object_id": "156 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "4.11__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "157 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "4.10__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "158 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "4.09__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "159 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "4.08__2B__(8) Form B DO",
+                  "object_id": "160 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "4.07__2A__(8) Form A DO",
+                  "object_id": "161 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "4.06__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "162 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "4.05__C-__(4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "163 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "4.04__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "164 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "4.03__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "165 0 R"
+                }
+              ],
+              "A0": [
+                {
+                  "name": "4.02__A0__Serial Communications",
+                  "object_id": "166 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "4.01__0-__Empty",
+                  "object_id": "167 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_B": {
+            "source": {
+              "position": 17
+            },
+            "options": {
+              "8-": [
+                {
+                  "name": "3.14__8-__(2) 100Base-FX MM LC Eth. EIA-232 Rear",
+                  "object_id": "169 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.13__6-__(2) 10-100Base-T Eth. EIA-232 Rear",
+                  "object_id": "170 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "3.12__4-__(1) 100BaseFX MM LC Eth. EIA-232 Rear",
+                  "object_id": "171 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.11__3-__(1) 10-100Base-T Eth. EIA-485 Rear",
+                  "object_id": "172 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "3.10__2-__(1) 10-100Base-T Eth. EIA-232 Rear",
+                  "object_id": "173 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.09__1-__No Eth. EIA-485 Rear",
+                  "object_id": "174 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.08__0-__No Eth. EIA-232 Rear",
+                  "object_id": "175 0 R"
+                }
+              ],
+              "G-": [
+                {
+                  "name": "3.07__G-__(2) 100Base-FX MM LC Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "176 0 R"
+                }
+              ],
+              "F-": [
+                {
+                  "name": "3.06__F-__(2) 10-100Base-T Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "177 0 R"
+                }
+              ],
+              "E-": [
+                {
+                  "name": "3.05__E-__(1) 100BaseFX MM LC Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "178 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.04__D-__(1) 10-100Base-T Eth. EIA-485 Rear Without ST FO Serial Port",
+                  "object_id": "179 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.03__C-__(1) 10-100Base-T Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "180 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__No Eth. EIA-485 Rear Without ST FO Serial Port",
+                  "object_id": "181 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "3.01__A-__No Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "182 0 R"
+                }
+              ]
+            }
+          },
+          "FRONT_PANEL": {
+            "source": {
+              "position": 16
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "2.02__0__2x16 LCD With (8) Pushbuttons",
+                  "object_id": "186 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.01__1__2x16 LCD With (4) Pushbuttons",
+                  "object_id": "187 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.04__A__5-inch Color Touchscreen Display With (8) Pushbuttons",
+                  "object_id": "184 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "2.03__B__5-inch Color Touchscreen With (4) Pushbuttons",
+                  "object_id": "185 0 R"
+                }
+              ]
+            }
+          },
+          "ADVANCED_FEATURES": {
+            "source": {
+              "position": 4
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "1.01__0__None",
+                  "object_id": "197 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.02__1__Reclosing",
+                  "object_id": "196 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.03__2__Directional",
+                  "object_id": "195 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "1.04__3__Arc Sense Tech",
+                  "object_id": "194 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "1.05__4__Reclosing & Directional",
+                  "object_id": "193 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.06__5__Reclosing. Directional & Arc Sense",
+                  "object_id": "192 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.07__6__Advanced Directional",
+                  "object_id": "191 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "1.08__7__Reclosing & Advanced Directional",
+                  "object_id": "190 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "1.09__8__Reclosing. Advanced Directional & Arc Sense",
+                  "object_id": "189 0 R"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "i7213.C.pdf": {
+        "always": [
+          {
+            "name": "10.00_____[DWG]",
+            "object_id": "80 0 R"
+          },
+          {
+            "name": "9.00____EXTENDED IO (SLOTS 1.2.3.4)",
+            "object_id": "96 0 R"
+          },
+          {
+            "name": "8.00_____[SLOT Z]",
+            "object_id": "101 0 R"
+          },
+          {
+            "name": "7.00_____[SLOT E]",
+            "object_id": "121 0 R"
+          },
+          {
+            "name": "6.00_____[COMBINED SLOT D  OPTION__9-  &  SLOT E]",
+            "object_id": "141 0 R"
+          },
+          {
+            "name": "5.00_____[SLOT D]",
+            "object_id": "156 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT C]",
+            "object_id": "172 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT B]",
+            "object_id": "187 0 R"
+          },
+          {
+            "name": "2.00_____[FRONT PANEL]",
+            "object_id": "192 0 R"
+          },
+          {
+            "name": "1.00_____[ADVANCED FEATURES]",
+            "object_id": "202 0 R"
+          },
+          {
+            "name": "10.00_____[DWG]",
+            "object_id": "203 0 R"
+          },
+          {
+            "name": "9.00____EXTENDED IO (SLOTS 1.2.3.4)",
+            "object_id": "219 0 R"
+          },
+          {
+            "name": "8.00_____[SLOT Z]",
+            "object_id": "224 0 R"
+          },
+          {
+            "name": "7.00_____[SLOT E]",
+            "object_id": "244 0 R"
+          },
+          {
+            "name": "6.00_____[COMBINED SLOT D  OPTION__9-  &  SLOT E]",
+            "object_id": "264 0 R"
+          },
+          {
+            "name": "5.00_____[SLOT D]",
+            "object_id": "279 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT C]",
+            "object_id": "295 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT B]",
+            "object_id": "310 0 R"
+          },
+          {
+            "name": "2.00_____[FRONT PANEL]",
+            "object_id": "315 0 R"
+          },
+          {
+            "name": "1.00_____[ADVANCED FEATURES]",
+            "object_id": "325 0 R"
+          }
+        ],
+        "by_option_group": {
+          "EXTENDED_IO_(SLOTS_1.2.3.4)": {
+            "source": {
+              "position": 5
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "9.01__0__None",
+                  "object_id": "95 0 R"
+                },
+                {
+                  "name": "9.01__0__None",
+                  "object_id": "218 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "9.02__1__21 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "94 0 R"
+                },
+                {
+                  "name": "9.02__1__21 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "217 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "9.03__2__42 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "93 0 R"
+                },
+                {
+                  "name": "9.03__2__42 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "216 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "9.04__3__63 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "92 0 R"
+                },
+                {
+                  "name": "9.04__3__63 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "215 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "9.05__4__84 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "91 0 R"
+                },
+                {
+                  "name": "9.05__4__84 Universal Binary Inputs (24-250 Vdc-Vac)",
+                  "object_id": "214 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "9.06__5__21 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "90 0 R"
+                },
+                {
+                  "name": "9.06__5__21 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "213 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "9.07__6__21 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "89 0 R"
+                },
+                {
+                  "name": "9.07__6__21 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "212 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "9.08__7__21 Universal Binary Inputs (24-250 Vdc-Vac). 36 Electromechanical Digital Outputs",
+                  "object_id": "88 0 R"
+                },
+                {
+                  "name": "9.08__7__21 Universal Binary Inputs (24-250 Vdc-Vac). 36 Electromechanical Digital Outputs",
+                  "object_id": "211 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "9.09__8__42 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "87 0 R"
+                },
+                {
+                  "name": "9.09__8__42 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "210 0 R"
+                }
+              ],
+              "9": [
+                {
+                  "name": "9.10__9__42 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "86 0 R"
+                },
+                {
+                  "name": "9.10__9__42 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "209 0 R"
+                }
+              ],
+              "E": [
+                {
+                  "name": "9.15__E__48 Electromechanical Digital Outputs",
+                  "object_id": "81 0 R"
+                },
+                {
+                  "name": "9.15__E__48 Electromechanical Digital Outputs",
+                  "object_id": "204 0 R"
+                }
+              ],
+              "D": [
+                {
+                  "name": "9.14__D__36 Electromechanical Digital Outputs",
+                  "object_id": "82 0 R"
+                },
+                {
+                  "name": "9.14__D__36 Electromechanical Digital Outputs",
+                  "object_id": "205 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "9.13__C__24 Electromechanical Digital Outputs",
+                  "object_id": "83 0 R"
+                },
+                {
+                  "name": "9.13__C__24 Electromechanical Digital Outputs",
+                  "object_id": "206 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "9.12__B__12 Electromechanical Digital Outputs",
+                  "object_id": "84 0 R"
+                },
+                {
+                  "name": "9.12__B__12 Electromechanical Digital Outputs",
+                  "object_id": "207 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "85 0 R"
+                },
+                {
+                  "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "208 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_Z": {
+            "source": {
+              "position": 14,
+              "length": 2
+            },
+            "options": {
+              "7-": [
+                {
+                  "name": "8.04__7-__(4) ACI & (3) LEA AVI",
+                  "object_id": "97 0 R"
+                },
+                {
+                  "name": "8.04__7-__(4) ACI & (3) LEA AVI",
+                  "object_id": "220 0 R"
+                }
+              ],
+              "L-": [
+                {
+                  "name": "8.03__L-__(4) ACI & (3) LEA AVI",
+                  "object_id": "98 0 R"
+                },
+                {
+                  "name": "8.03__L-__(4) ACI & (3) LEA AVI",
+                  "object_id": "221 0 R"
+                }
+              ],
+              "8-": [
+                {
+                  "name": "8.02__8-__(4) ACI & (3) AVI",
+                  "object_id": "99 0 R"
+                },
+                {
+                  "name": "8.02__8-__(4) ACI & (3) AVI",
+                  "object_id": "222 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "8.01__A-__(4) ACI",
+                  "object_id": "100 0 R"
+                },
+                {
+                  "name": "8.01__A-__(4) ACI",
+                  "object_id": "223 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_E": {
+            "source": {
+              "position": 12,
+              "length": 2
+            },
+            "options": {
+              "70": [
+                {
+                  "name": "7.15__70__(2) AVI & (4) AFDI",
+                  "object_id": "106 0 R"
+                },
+                {
+                  "name": "7.15__70__(2) AVI & (4) AFDI",
+                  "object_id": "229 0 R"
+                }
+              ],
+              "77": [
+                {
+                  "name": "7.17__77__(8) AFDI",
+                  "object_id": "104 0 R"
+                },
+                {
+                  "name": "7.17__77__(8) AFDI",
+                  "object_id": "227 0 R"
+                }
+              ],
+              "L-": [
+                {
+                  "name": "7.19__L-__(2) AVI & (7) DI",
+                  "object_id": "102 0 R"
+                },
+                {
+                  "name": "7.19__L-__(2) AVI & (7) DI",
+                  "object_id": "225 0 R"
+                }
+              ],
+              "7-": [
+                {
+                  "name": "7.18__7-__(2) AVI & (7) DI",
+                  "object_id": "103 0 R"
+                },
+                {
+                  "name": "7.18__7-__(2) AVI & (7) DI",
+                  "object_id": "226 0 R"
+                }
+              ],
+              "L0": [
+                {
+                  "name": "7.16__L0__(2) LEA AVI & (4) AFDI",
+                  "object_id": "105 0 R"
+                },
+                {
+                  "name": "7.16__L0__(2) LEA AVI & (4) AFDI",
+                  "object_id": "228 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "7.14__6-__(4) AI & (4) AO",
+                  "object_id": "107 0 R"
+                },
+                {
+                  "name": "7.14__6-__(4) AI & (4) AO",
+                  "object_id": "230 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "7.13__5-__(8) AI",
+                  "object_id": "108 0 R"
+                },
+                {
+                  "name": "7.13__5-__(8) AI",
+                  "object_id": "231 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "7.12__4-__(14) DI",
+                  "object_id": "109 0 R"
+                },
+                {
+                  "name": "7.12__4-__(14) DI",
+                  "object_id": "232 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "7.11__3-__(8) DI",
+                  "object_id": "110 0 R"
+                },
+                {
+                  "name": "7.11__3-__(8) DI",
+                  "object_id": "233 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "7.10__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "111 0 R"
+                },
+                {
+                  "name": "7.10__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "234 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "7.09__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "112 0 R"
+                },
+                {
+                  "name": "7.09__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "235 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "7.08__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "113 0 R"
+                },
+                {
+                  "name": "7.08__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "236 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "7.07__2B__(8) Form B DO",
+                  "object_id": "114 0 R"
+                },
+                {
+                  "name": "7.07__2B__(8) Form B DO",
+                  "object_id": "237 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "7.06__2A__(8) Form A DO",
+                  "object_id": "115 0 R"
+                },
+                {
+                  "name": "7.06__2A__(8) Form A DO",
+                  "object_id": "238 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "7.05__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "116 0 R"
+                },
+                {
+                  "name": "7.05__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "239 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "7.04__C-__(4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "117 0 R"
+                },
+                {
+                  "name": "7.04__C-__(4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "240 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "7.03__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "118 0 R"
+                },
+                {
+                  "name": "7.03__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "241 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "7.02__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "119 0 R"
+                },
+                {
+                  "name": "7.02__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "242 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "7.01__0-__Empty",
+                  "object_id": "120 0 R"
+                },
+                {
+                  "name": "7.01__0-__Empty",
+                  "object_id": "243 0 R"
+                }
+              ]
+            }
+          },
+          "COMBINED_SLOT_D_OPTION_9_&_SLOT_E": {
+            "source": {
+              "position": 12,
+              "length": 2
+            },
+            "options": {
+              "70": [
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "126 0 R"
+                },
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "249 0 R"
+                }
+              ],
+              "77": [
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "124 0 R"
+                },
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "247 0 R"
+                }
+              ],
+              "9-": [
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "122 0 R"
+                },
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "123 0 R"
+                },
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "124 0 R"
+                },
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "125 0 R"
+                },
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "126 0 R"
+                },
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "127 0 R"
+                },
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "128 0 R"
+                },
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "129 0 R"
+                },
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "130 0 R"
+                },
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "131 0 R"
+                },
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "132 0 R"
+                },
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "133 0 R"
+                },
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "134 0 R"
+                },
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "135 0 R"
+                },
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "136 0 R"
+                },
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "137 0 R"
+                },
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "138 0 R"
+                },
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "139 0 R"
+                },
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "140 0 R"
+                },
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "245 0 R"
+                },
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "246 0 R"
+                },
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "247 0 R"
+                },
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "248 0 R"
+                },
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "249 0 R"
+                },
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "250 0 R"
+                },
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "251 0 R"
+                },
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "252 0 R"
+                },
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "253 0 R"
+                },
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "254 0 R"
+                },
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "255 0 R"
+                },
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "256 0 R"
+                },
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "257 0 R"
+                },
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "258 0 R"
+                },
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "259 0 R"
+                },
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "260 0 R"
+                },
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "261 0 R"
+                },
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "262 0 R"
+                },
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "263 0 R"
+                }
+              ],
+              "L-": [
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "122 0 R"
+                },
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "245 0 R"
+                }
+              ],
+              "7-": [
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "123 0 R"
+                },
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "246 0 R"
+                }
+              ],
+              "L0": [
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "125 0 R"
+                },
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "248 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "127 0 R"
+                },
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "250 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "128 0 R"
+                },
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "251 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "129 0 R"
+                },
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "252 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "130 0 R"
+                },
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "253 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "131 0 R"
+                },
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "254 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "132 0 R"
+                },
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "255 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "133 0 R"
+                },
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "256 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "134 0 R"
+                },
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "257 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "135 0 R"
+                },
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "258 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "136 0 R"
+                },
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "259 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "137 0 R"
+                },
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "260 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "138 0 R"
+                },
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "261 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "139 0 R"
+                },
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "262 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "140 0 R"
+                },
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "263 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_D": {
+            "source": {
+              "position": 10,
+              "length": 2
+            },
+            "options": {
+              "6-": [
+                {
+                  "name": "5.14__6-__(4) AI & (4) AO",
+                  "object_id": "142 0 R"
+                },
+                {
+                  "name": "5.14__6-__(4) AI & (4) AO",
+                  "object_id": "265 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "5.13__5-__(8) AI",
+                  "object_id": "143 0 R"
+                },
+                {
+                  "name": "5.13__5-__(8) AI",
+                  "object_id": "266 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "5.12__4-__(14) DI",
+                  "object_id": "144 0 R"
+                },
+                {
+                  "name": "5.12__4-__(14) DI",
+                  "object_id": "267 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "5.11__3-__(8) DI",
+                  "object_id": "145 0 R"
+                },
+                {
+                  "name": "5.11__3-__(8) DI",
+                  "object_id": "268 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "5.10__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "146 0 R"
+                },
+                {
+                  "name": "5.10__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "269 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "5.09__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "147 0 R"
+                },
+                {
+                  "name": "5.09__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "270 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "5.08__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "148 0 R"
+                },
+                {
+                  "name": "5.08__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "271 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "5.07__2B__(8) Form B DO",
+                  "object_id": "149 0 R"
+                },
+                {
+                  "name": "5.07__2B__(8) Form B DO",
+                  "object_id": "272 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "5.06__2A__(8) Form A DO",
+                  "object_id": "150 0 R"
+                },
+                {
+                  "name": "5.06__2A__(8) Form A DO",
+                  "object_id": "273 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "5.05__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "151 0 R"
+                },
+                {
+                  "name": "5.05__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "274 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "5.04__C-__(4) DI. (4) DO (Fast HC interrupting)",
+                  "object_id": "152 0 R"
+                },
+                {
+                  "name": "5.04__C-__(4) DI. (4) DO (Fast HC interrupting)",
+                  "object_id": "275 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "5.03__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "153 0 R"
+                },
+                {
+                  "name": "5.03__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "276 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "5.02__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "154 0 R"
+                },
+                {
+                  "name": "5.02__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "277 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "5.01__0-__Empty",
+                  "object_id": "155 0 R"
+                },
+                {
+                  "name": "5.01__0-__Empty",
+                  "object_id": "278 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_C": {
+            "source": {
+              "position": 8,
+              "length": 2
+            },
+            "options": {
+              "6-": [
+                {
+                  "name": "4.15__6-__(4) AI & (4) AO",
+                  "object_id": "157 0 R"
+                },
+                {
+                  "name": "4.15__6-__(4) AI & (4) AO",
+                  "object_id": "280 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "4.14__5-__(8) AI",
+                  "object_id": "158 0 R"
+                },
+                {
+                  "name": "4.14__5-__(8) AI",
+                  "object_id": "281 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "4.13__4-__(14) DI",
+                  "object_id": "159 0 R"
+                },
+                {
+                  "name": "4.13__4-__(14) DI",
+                  "object_id": "282 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "4.12__3-__(8) DI",
+                  "object_id": "160 0 R"
+                },
+                {
+                  "name": "4.12__3-__(8) DI",
+                  "object_id": "283 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "4.11__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "161 0 R"
+                },
+                {
+                  "name": "4.11__2G__(8) DO (4) Form A. (4) Form B",
+                  "object_id": "284 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "4.10__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "162 0 R"
+                },
+                {
+                  "name": "4.10__2D__(8) DO (2) Form A. (6) Form B",
+                  "object_id": "285 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "4.09__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "163 0 R"
+                },
+                {
+                  "name": "4.09__2C__(8) DO (6) Form A. (2) Form B",
+                  "object_id": "286 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "4.08__2B__(8) Form B DO",
+                  "object_id": "164 0 R"
+                },
+                {
+                  "name": "4.08__2B__(8) Form B DO",
+                  "object_id": "287 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "4.07__2A__(8) Form A DO",
+                  "object_id": "165 0 R"
+                },
+                {
+                  "name": "4.07__2A__(8) Form A DO",
+                  "object_id": "288 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "4.06__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "166 0 R"
+                },
+                {
+                  "name": "4.06__D-__(4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "289 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "4.05__C-__(4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "167 0 R"
+                },
+                {
+                  "name": "4.05__C-__(4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "290 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "4.04__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "168 0 R"
+                },
+                {
+                  "name": "4.04__1-__(4) DI. (4) DO (Electromechanical)",
+                  "object_id": "291 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "4.03__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "169 0 R"
+                },
+                {
+                  "name": "4.03__B-__(3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "292 0 R"
+                }
+              ],
+              "A0": [
+                {
+                  "name": "4.02__A0__Serial Communications",
+                  "object_id": "170 0 R"
+                },
+                {
+                  "name": "4.02__A0__Serial Communications",
+                  "object_id": "293 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "4.01__0-__Empty",
+                  "object_id": "171 0 R"
+                },
+                {
+                  "name": "4.01__0-__Empty",
+                  "object_id": "294 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_B": {
+            "source": {
+              "position": 17
+            },
+            "options": {
+              "8-": [
+                {
+                  "name": "3.14__8-__(2) 100Base-FX MM LC Eth. EIA-232 Rear",
+                  "object_id": "173 0 R"
+                },
+                {
+                  "name": "3.14__8-__(2) 100Base-FX MM LC Eth. EIA-232 Rear",
+                  "object_id": "296 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.13__6-__(2) 10-100Base-T Eth. EIA-232 Rear",
+                  "object_id": "174 0 R"
+                },
+                {
+                  "name": "3.13__6-__(2) 10-100Base-T Eth. EIA-232 Rear",
+                  "object_id": "297 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "3.12__4-__(1) 100BaseFX MM LC Eth. EIA-232 Rear",
+                  "object_id": "175 0 R"
+                },
+                {
+                  "name": "3.12__4-__(1) 100BaseFX MM LC Eth. EIA-232 Rear",
+                  "object_id": "298 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.11__3-__(1) 10-100Base-T Eth. EIA-485 Rear",
+                  "object_id": "176 0 R"
+                },
+                {
+                  "name": "3.11__3-__(1) 10-100Base-T Eth. EIA-485 Rear",
+                  "object_id": "299 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "3.10__2-__(1) 10-100Base-T Eth. EIA-232 Rear",
+                  "object_id": "177 0 R"
+                },
+                {
+                  "name": "3.10__2-__(1) 10-100Base-T Eth. EIA-232 Rear",
+                  "object_id": "300 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.09__1-__No Eth. EIA-485 Rear",
+                  "object_id": "178 0 R"
+                },
+                {
+                  "name": "3.09__1-__No Eth. EIA-485 Rear",
+                  "object_id": "301 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.08__0-__No Eth. EIA-232 Rear",
+                  "object_id": "179 0 R"
+                },
+                {
+                  "name": "3.08__0-__No Eth. EIA-232 Rear",
+                  "object_id": "302 0 R"
+                }
+              ],
+              "G-": [
+                {
+                  "name": "3.07__G-__(2) 100Base-FX MM LC Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "180 0 R"
+                },
+                {
+                  "name": "3.07__G-__(2) 100Base-FX MM LC Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "303 0 R"
+                }
+              ],
+              "F-": [
+                {
+                  "name": "3.06__F-__(2) 10-100Base-T Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "181 0 R"
+                },
+                {
+                  "name": "3.06__F-__(2) 10-100Base-T Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "304 0 R"
+                }
+              ],
+              "E-": [
+                {
+                  "name": "3.05__E-__(1) 100BaseFX MM LC Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "182 0 R"
+                },
+                {
+                  "name": "3.05__E-__(1) 100BaseFX MM LC Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "305 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.04__D-__(1) 10-100Base-T Eth. EIA-485 Rear Without ST FO Serial Port",
+                  "object_id": "183 0 R"
+                },
+                {
+                  "name": "3.04__D-__(1) 10-100Base-T Eth. EIA-485 Rear Without ST FO Serial Port",
+                  "object_id": "306 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.03__C-__(1) 10-100Base-T Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "184 0 R"
+                },
+                {
+                  "name": "3.03__C-__(1) 10-100Base-T Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "307 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__No Eth. EIA-485 Rear Without ST FO Serial Port",
+                  "object_id": "185 0 R"
+                },
+                {
+                  "name": "3.02__B-__No Eth. EIA-485 Rear Without ST FO Serial Port",
+                  "object_id": "308 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "3.01__A-__No Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "186 0 R"
+                },
+                {
+                  "name": "3.01__A-__No Eth. EIA-232 Rear Without ST FO Serial Port",
+                  "object_id": "309 0 R"
+                }
+              ]
+            }
+          },
+          "FRONT_PANEL": {
+            "source": {
+              "position": 16
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "2.02__0__2x16 LCD With (8) Pushbuttons",
+                  "object_id": "190 0 R"
+                },
+                {
+                  "name": "2.02__0__2x16 LCD With (8) Pushbuttons",
+                  "object_id": "313 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "2.01__1__2x16 LCD With (4) Pushbuttons",
+                  "object_id": "191 0 R"
+                },
+                {
+                  "name": "2.01__1__2x16 LCD With (4) Pushbuttons",
+                  "object_id": "314 0 R"
+                }
+              ],
+              "A": [
+                {
+                  "name": "2.04__A__5-inch Color Touchscreen Display With (8) Pushbuttons",
+                  "object_id": "188 0 R"
+                },
+                {
+                  "name": "2.04__A__5-inch Color Touchscreen Display With (8) Pushbuttons",
+                  "object_id": "311 0 R"
+                }
+              ],
+              "B": [
+                {
+                  "name": "2.03__B__5-inch Color Touchscreen With (4) Pushbuttons",
+                  "object_id": "189 0 R"
+                },
+                {
+                  "name": "2.03__B__5-inch Color Touchscreen With (4) Pushbuttons",
+                  "object_id": "312 0 R"
+                }
+              ]
+            }
+          },
+          "ADVANCED_FEATURES": {
+            "source": {
+              "position": 4
+            },
+            "options": {
+              "0": [
+                {
+                  "name": "1.01__0__None",
+                  "object_id": "201 0 R"
+                },
+                {
+                  "name": "1.01__0__None",
+                  "object_id": "324 0 R"
+                }
+              ],
+              "1": [
+                {
+                  "name": "1.02__1__Reclosing",
+                  "object_id": "200 0 R"
+                },
+                {
+                  "name": "1.02__1__Reclosing",
+                  "object_id": "323 0 R"
+                }
+              ],
+              "2": [
+                {
+                  "name": "1.03__2__Directional",
+                  "object_id": "199 0 R"
+                },
+                {
+                  "name": "1.03__2__Directional",
+                  "object_id": "322 0 R"
+                }
+              ],
+              "3": [
+                {
+                  "name": "1.04__3__Arc Sense Tech",
+                  "object_id": "198 0 R"
+                },
+                {
+                  "name": "1.04__3__Arc Sense Tech",
+                  "object_id": "321 0 R"
+                }
+              ],
+              "4": [
+                {
+                  "name": "1.05__4__Reclosing & Directional",
+                  "object_id": "197 0 R"
+                },
+                {
+                  "name": "1.05__4__Reclosing & Directional",
+                  "object_id": "320 0 R"
+                }
+              ],
+              "5": [
+                {
+                  "name": "1.06__5__Reclosing. Directional & Arc Sense",
+                  "object_id": "196 0 R"
+                },
+                {
+                  "name": "1.06__5__Reclosing. Directional & Arc Sense",
+                  "object_id": "319 0 R"
+                }
+              ],
+              "6": [
+                {
+                  "name": "1.07__6__Advanced Directional",
+                  "object_id": "195 0 R"
+                },
+                {
+                  "name": "1.07__6__Advanced Directional",
+                  "object_id": "318 0 R"
+                }
+              ],
+              "7": [
+                {
+                  "name": "1.08__7__Reclosing & Advanced Directional",
+                  "object_id": "194 0 R"
+                },
+                {
+                  "name": "1.08__7__Reclosing & Advanced Directional",
+                  "object_id": "317 0 R"
+                }
+              ],
+              "8": [
+                {
+                  "name": "1.09__8__Reclosing. Advanced Directional & Arc Sense",
+                  "object_id": "193 0 R"
+                },
+                {
+                  "name": "1.09__8__Reclosing. Advanced Directional & Arc Sense",
+                  "object_id": "316 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i7182.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1044.71,
+            675,
+            1751.2,
+            1258.5
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2565.37,
+            677.29,
+            3243.8,
+            1247.37
+          ]
+        }
+      },
+      "i7213.C.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            1042.43,
+            679.57,
+            1751.2,
+            1256.86
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            2560.8,
+            684.14,
+            3243.8,
+            1242.8
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "rules": [
+      {
+        "ports": [
+          "P1"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|1|A|B)-?$",
+            "transport": "serial",
+            "connector": "DB9",
+            "evidence_layer": "no Ethernet option; Port 1 serial"
+          },
+          {
+            "match": "^(2|3|C|D)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "single 10-100Base-T Ethernet Port 1 option"
+          },
+          {
+            "match": "^(4|E)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "single 100Base-FX Ethernet Port 1 option"
+          },
+          {
+            "match": "^(6|F)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 1A/1B option"
+          },
+          {
+            "match": "^(8|G)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 1A/1B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P1A"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "option_patterns": [
+          {
+            "match": "^(6|F)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 1A option"
+          },
+          {
+            "match": "^(8|G)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 1A option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P1B"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "option_patterns": [
+          {
+            "match": "^(6|F)-?$",
+            "transport": "ethernet",
+            "connector": "RJ45",
+            "evidence_layer": "dual 10-100Base-T Ethernet Port 1B option"
+          },
+          {
+            "match": "^(8|G)-?$",
+            "transport": "ethernet",
+            "connector": "LC fiber",
+            "evidence_layer": "dual 100Base-FX Ethernet Port 1B option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P2"
+        ],
+        "source": {
+          "option_group": "SLOT_B"
+        },
+        "option_patterns": [
+          {
+            "match": "^(0|1|2|3|4|6|8)-?$",
+            "transport": "serial",
+            "connector": "ST fiber",
+            "evidence_layer": "fiber-optic serial Port 2 option"
+          }
+        ]
+      },
+      {
+        "ports": [
+          "P3",
+          "PF"
+        ],
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "fixed EIA-232 serial port"
+      },
+      {
+        "ports": [
+          "P4"
+        ],
+        "source": {
+          "option_group": "SLOT_C"
+        },
+        "option_patterns": [
+          {
+            "match": "^A0$",
+            "transport": "serial",
+            "connector": "DB9 / 5-pin Euro",
+            "evidence_layer": "Slot C serial communications card"
+          }
+        ]
+      }
+    ]
+  },
+  "part_number": {
+    "model": "751",
+    "product": "SEL-751 Feeder Protection Relay",
+    "length": 19,
+    "prefix": {
+      "positions": "1-3",
+      "value": "751",
+      "description": "SEL-751 Feeder Protection Relay"
+    },
+    "note": "MOT = SEL Model Option Table. Position numbers are 1-based digit indices into the PARTNO string and match the layer 'source.position' values. Fully decoded from the official SEL Ordering Information; positions 8-15 are 2-digit composite fields (see 'components').",
+    "references": [
+      "SEL-751 Ordering Information (WI-9222, 20260520)",
+      "SEL-751 master configuration drawings i7182.C / i7213.C (drawing layers)"
+    ],
+    "example_part_numbers": [
+      {
+        "part_number": "751001B5X1X7086020X",
+        "note": "From SEL-751 Card Options; Slot C serial-comms card shows as empty"
+      },
+      {
+        "part_number": "751501A1A9X70850230",
+        "note": "Voltage option with arc-flash detector inputs"
+      }
+    ],
+    "positions": [
+      {
+        "position": 4,
+        "length": 1,
+        "field": "advanced_firmware_features",
+        "label": "Advanced Firmware Features",
+        "group": "ADVANCED_FEATURES",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "options": {
+          "0": "None",
+          "1": "Reclosing",
+          "2": "Directional (requires 4 ACI/3 AVI card in Slot Z)",
+          "3": "Arc Sense (requires 4 ACI/3 AVI card in Slot Z)",
+          "4": "Reclosing and Directional",
+          "5": "Reclosing, Directional, and Arc Sense",
+          "6": "Advanced Directional (200 mA neutral CT; ungrounded/low-Z/high-Z/Petersen coil)",
+          "7": "Reclosing and Advanced Directional",
+          "8": "Reclosing, Advanced Directional, and Arc Sense"
+        }
+      },
+      {
+        "position": 5,
+        "length": 1,
+        "field": "user_interface_extended_io",
+        "label": "User Interface (language) | Extended I/O (Slots 1, 2, 3, 4)",
+        "group": "EXTENDED_IO_(SLOTS_1.2.3.4)",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "note": "Combines front-panel overlay language (English/Spanish) with the extended-I/O card set. UBI = Universal Binary Inputs (24-250 Vdc/Vac); EM DO = Electromechanical Digital Outputs.",
+        "options": {
+          "0": "English | None",
+          "1": "English | 21 UBI (Slot 1)",
+          "2": "English | 42 UBI (Slots 1,2)",
+          "3": "English | 63 UBI (Slots 1,2,3)",
+          "4": "English | 84 UBI (Slots 1,2,3,4)",
+          "5": "English | 21 UBI + 12 EM DO",
+          "6": "English | 21 UBI + 24 EM DO",
+          "7": "English | 21 UBI + 36 EM DO",
+          "8": "English | 42 UBI + 12 EM DO",
+          "9": "English | 42 UBI + 24 EM DO",
+          "S": "Spanish | None",
+          "A": "English | 63 UBI + 12 EM DO",
+          "B": "English | 12 EM DO",
+          "C": "English | 24 EM DO",
+          "D": "English | 36 EM DO",
+          "E": "English | 48 EM DO",
+          "F": "Spanish | 21 UBI",
+          "G": "Spanish | 42 UBI",
+          "H": "Spanish | 63 UBI",
+          "J": "Spanish | 84 UBI",
+          "K": "Spanish | 21 UBI + 12 EM DO",
+          "L": "Spanish | 21 UBI + 24 EM DO",
+          "M": "Spanish | 21 UBI + 36 EM DO",
+          "N": "Spanish | 42 UBI + 12 EM DO",
+          "P": "Spanish | 42 UBI + 24 EM DO",
+          "Q": "Spanish | 63 UBI + 12 EM DO",
+          "R": "Spanish | 12 EM DO",
+          "T": "Spanish | 24 EM DO",
+          "U": "Spanish | 36 EM DO",
+          "V": "Spanish | 48 EM DO"
+        }
+      },
+      {
+        "position": 6,
+        "length": 1,
+        "field": "power_supply_voltage",
+        "label": "Slot A Power Supply Voltage",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "options": {
+          "1": "110-250 Vdc (110-240 Vac)",
+          "2": "24-48 Vdc"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "slot_a_digital_input_voltage",
+        "label": "Slot A Digital Input Voltage",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "options": {
+          "A": "125 Vdc/Vac",
+          "B": "24 Vdc/Vac",
+          "C": "48 Vdc/Vac",
+          "D": "110 Vdc/Vac",
+          "G": "220 Vdc/Vac",
+          "H": "250 Vdc/Vac"
+        }
+      },
+      {
+        "position": 8,
+        "length": 2,
+        "field": "slot_c",
+        "label": "Slot C card | DI voltage",
+        "source": "ordering-information (WI-9222)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Digital input voltage. Only one 3 DI/4 DO/1 AO card and one 4 AI/4 AO card allowed per chassis.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO (Electromechanical)",
+              "2": "8 DO (Electromechanical)",
+              "3": "8 DI",
+              "4": "14 DI",
+              "5": "8 AI (±20 mA or ±10 V)",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA range)",
+              "C": "4 DI / 4 DO (Fast High-Current Hybrid)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)",
+              "A": "Serial Communications (EIA-232/485)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "0": "None",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 10,
+        "length": 2,
+        "field": "slot_d",
+        "label": "Slot D card | DI voltage",
+        "source": "ordering-information (WI-9222)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Digital input voltage. 10 RTD card (9) is Slot D only.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO (Electromechanical)",
+              "2": "8 DO (Electromechanical)",
+              "3": "8 DI",
+              "4": "14 DI",
+              "5": "8 AI (±20 mA or ±10 V)",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "9": "10 RTD Input",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA range)",
+              "C": "4 DI / 4 DO (Fast High-Current Hybrid)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage",
+            "options": {
+              "0": "None",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 12,
+        "length": 2,
+        "field": "slot_e",
+        "label": "Slot E card | DI voltage",
+        "source": "ordering-information (WI-9222)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Digital input voltage / AFDI variant. Voltage/arc-flash (7) and LEA voltage (L) cards live here; MOT digits 12,13.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "0": "Empty",
+              "1": "4 DI / 4 DO (Electromechanical)",
+              "2": "8 DO (Electromechanical)",
+              "3": "8 DI",
+              "4": "14 DI",
+              "5": "8 AI (±20 mA or ±10 V)",
+              "6": "4 AI / 4 AO (±20 mA or ±10 V)",
+              "7": "Voltage/Arc-Flash or Voltage/7-DI card (Vsync 300 Vac / Vbat 300 Vdc)",
+              "B": "3 DI / 4 DO / 1 AO (4-20 mA range)",
+              "C": "4 DI / 4 DO (Fast High-Current Hybrid)",
+              "D": "4 DI / 3 DO Electromechanical (2 Form C, 1 Form B)",
+              "L": "LEA Voltage/Arc-Flash or LEA Voltage/7-DI card (Vsync 8 Vac / Vbat 300 Vdc)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Digital input voltage / AFDI variant",
+            "options": {
+              "0": "None / 4 AFDI variant",
+              "7": "8 AFDI",
+              "X": "None",
+              "A": "125 Vdc/Vac",
+              "B": "24 Vdc/Vac",
+              "C": "48 Vdc/Vac",
+              "D": "110 Vdc/Vac",
+              "G": "220 Vdc/Vac",
+              "H": "250 Vdc/Vac"
+            }
+          }
+        ]
+      },
+      {
+        "position": 14,
+        "length": 2,
+        "field": "slot_z",
+        "label": "Slot Z current & voltage inputs",
+        "source": "ordering-information (WI-9222)+pdf-layers",
+        "confidence": "high",
+        "note": "First digit = card type, second digit = Phase / neutral current rating. First digit = measurement family, second digit = phase/neutral current rating; MOT digits 14,15.",
+        "components": [
+          {
+            "offset": 0,
+            "length": 1,
+            "label": "Card type",
+            "options": {
+              "7": "4 ACI / 3 AVI LEA (Rogowski coil / LPCT, RJ45 inputs)",
+              "8": "4 ACI / 3 AVI (300 Vac)",
+              "A": "4 ACI (current only)",
+              "L": "4 ACI / 3 AVI LEA (8 Vac)"
+            }
+          },
+          {
+            "offset": 1,
+            "length": 1,
+            "label": "Phase / neutral current rating",
+            "options": {
+              "1": "1 A phase / 1 A neutral",
+              "2": "1 A phase / 5 A neutral",
+              "3": "1 A phase / 200 mA neutral",
+              "5": "5 A phase / 5 A neutral",
+              "6": "5 A phase / 1 A neutral",
+              "7": "5 A phase / 200 mA neutral",
+              "L": "Rogowski / LPCT phase, 200 mA neutral, LEA voltage"
+            }
+          }
+        ]
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "front_panel",
+        "label": "Front Panel",
+        "group": "FRONT_PANEL",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "options": {
+          "0": "2x16 LCD with (8) pushbuttons",
+          "1": "2x16 LCD with (4) pushbuttons",
+          "A": "5-inch color touchscreen with (8) pushbuttons",
+          "B": "5-inch color touchscreen with (4) pushbuttons"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "slot_b",
+        "label": "Slot B - Ethernet (Port 1) | Multimode Fiber ST (Port 2) | Rear Serial (Port 3)",
+        "group": "SLOT_B",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "note": "EIA-485 rear serial available only with No Ethernet or Single 10/100BASE-T in Slot B.",
+        "options": {
+          "0": "None | Single MM ST Fiber-Optic Serial | EIA-232",
+          "1": "None | Single MM ST Fiber-Optic Serial | EIA-485",
+          "2": "Single 10/100BASE-T | Single MM ST Fiber-Optic Serial | EIA-232",
+          "3": "Single 10/100BASE-T | Single MM ST Fiber-Optic Serial | EIA-485",
+          "4": "Single 100BASE-FX MM LC | Single MM ST Fiber-Optic Serial | EIA-232",
+          "6": "Dual 10/100BASE-T | Single MM ST Fiber-Optic Serial | EIA-232",
+          "8": "Dual 100BASE-FX MM LC | Single MM ST Fiber-Optic Serial | EIA-232",
+          "A": "None | None | EIA-232",
+          "B": "None | None | EIA-485",
+          "C": "Single 10/100BASE-T | None | EIA-232",
+          "D": "Single 10/100BASE-T | None | EIA-485",
+          "E": "Single 100BASE-FX MM LC | None | EIA-232",
+          "F": "Dual 10/100BASE-T | None | EIA-232",
+          "G": "Dual 100BASE-FX MM LC | None | EIA-232"
+        }
+      },
+      {
+        "position": 18,
+        "length": 1,
+        "field": "protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "note": "IEC 61850 and EtherNet/IP available only for models with Ethernet options in Slot B.",
+        "options": {
+          "0": "None",
+          "1": "IEC 61850",
+          "2": "DNP3",
+          "3": "IEC 61850 + DNP3",
+          "4": "IEC 60870-5-103",
+          "5": "IEC 61850 + IEC 60870-5-103",
+          "6": "DNP3 + IEC 60870-5-103",
+          "7": "IEC 61850 + DNP3 + IEC 60870-5-103",
+          "8": "EtherNet/IP",
+          "9": "IEC 61850 + EtherNet/IP",
+          "A": "DNP3 + EtherNet/IP",
+          "B": "IEC 60870-5-103 + EtherNet/IP",
+          "C": "IEC 61850 + DNP3 + EtherNet/IP",
+          "D": "IEC 61850 + IEC 60870-5-103 + EtherNet/IP",
+          "E": "DNP3 + IEC 60870-5-103 + EtherNet/IP",
+          "F": "IEC 61850 + DNP3 + IEC 60870-5-103 + EtherNet/IP"
+        }
+      },
+      {
+        "position": 19,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-751 Ordering Information (WI-9222, 20260520)",
+        "confidence": "high",
+        "note": "Current ordering uses 0 = None; older part numbers use X for None.",
+        "options": {
+          "0": "None",
+          "1": "Conformally coated circuit boards",
+          "X": "None"
+        }
+      }
+    ]
+  }
+}

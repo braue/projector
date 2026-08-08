@@ -1,0 +1,788 @@
+{
+  "device": "300G",
+  "model_to_drawings": {
+    "front": [
+      {
+        "when": {
+          "position_7": [
+            "0",
+            "W"
+          ],
+          "position_8": "H"
+        },
+        "pdf": "i3048a.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "0",
+            "W"
+          ],
+          "position_8": "3"
+        },
+        "pdf": "i3053a.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "1",
+            "Y"
+          ],
+          "position_8": "H"
+        },
+        "pdf": "i3054a.pdf"
+      },
+      {
+        "when": {
+          "position_7": [
+            "1",
+            "Y"
+          ],
+          "position_8": "3"
+        },
+        "pdf": "i3055a.pdf"
+      }
+    ],
+    "rear": [
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "0"
+        },
+        "pdf": "i3049b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": "0"
+        },
+        "pdf": "i3050b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_7": "0"
+        },
+        "pdf": "i3051b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "3",
+          "position_7": "0"
+        },
+        "pdf": "i3052b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "W"
+        },
+        "pdf": "i3125a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": "W"
+        },
+        "pdf": "i3126a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_7": "W"
+        },
+        "pdf": "i3127a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "3",
+          "position_7": "W"
+        },
+        "pdf": "i3128a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "1",
+          "position_15": "2"
+        },
+        "pdf": "i3056b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": "1",
+          "position_15": "2"
+        },
+        "pdf": "i3057b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_7": "1",
+          "position_15": "2"
+        },
+        "pdf": "i3058b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "3",
+          "position_7": "1",
+          "position_15": "2"
+        },
+        "pdf": "i3059b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "1",
+          "position_15": "6"
+        },
+        "pdf": "i3060b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": "1",
+          "position_15": "6"
+        },
+        "pdf": "i3061b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_7": "1",
+          "position_15": "6"
+        },
+        "pdf": "i3062b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "3",
+          "position_7": "1",
+          "position_15": "6"
+        },
+        "pdf": "i3063b.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "Y",
+          "position_15": "2"
+        },
+        "pdf": "i3129a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": "Y",
+          "position_15": "2"
+        },
+        "pdf": "i3130a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_7": "Y",
+          "position_15": "2"
+        },
+        "pdf": "i3131a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "3",
+          "position_7": "Y",
+          "position_15": "2"
+        },
+        "pdf": "i3132a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "0",
+          "position_7": "Y",
+          "position_15": "6"
+        },
+        "pdf": "i3133a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "1",
+          "position_7": "Y",
+          "position_15": "6"
+        },
+        "pdf": "i3134a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "2",
+          "position_7": "Y",
+          "position_15": "6"
+        },
+        "pdf": "i3135a.pdf"
+      },
+      {
+        "when": {
+          "position_6": "3",
+          "position_7": "Y",
+          "position_15": "6"
+        },
+        "pdf": "i3136a.pdf"
+      }
+    ]
+  },
+  "model_to_layers": {
+    "has_layers": false
+  },
+  "crops": {
+    "units": "PDF points",
+    "origin": "bottom_left",
+    "views_by_pdf": {
+      "i3048a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            156.76,
+            510.58,
+            1573.09,
+            786.1
+          ]
+        }
+      },
+      "i3049b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            226.44,
+            507.15,
+            1501.07,
+            789.17
+          ]
+        }
+      },
+      "i3050b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.25,
+            512.23,
+            1501.53,
+            785.37
+          ]
+        }
+      },
+      "i3051b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            509.43,
+            1502.39,
+            786.88
+          ]
+        }
+      },
+      "i3052b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            228.91,
+            510.58,
+            1500.11,
+            788.03
+          ]
+        }
+      },
+      "i3053a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            132.53,
+            460.54,
+            1592.75,
+            839.51
+          ]
+        }
+      },
+      "i3054a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            165.91,
+            446.07,
+            1565.09,
+            849.88
+          ]
+        }
+      },
+      "i3055a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            130.63,
+            396.27,
+            1591.26,
+            902.81
+          ]
+        }
+      },
+      "i3056b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            446.43,
+            1498.96,
+            849.88
+          ]
+        }
+      },
+      "i3057b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            446.43,
+            1498.96,
+            849.88
+          ]
+        }
+      },
+      "i3058b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            229.57,
+            446.43,
+            1500.77,
+            849.88
+          ]
+        }
+      },
+      "i3059b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            446.43,
+            1501.25,
+            852.17
+          ]
+        }
+      },
+      "i3060b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            226.62,
+            446.25,
+            1501.25,
+            849.7
+          ]
+        }
+      },
+      "i3061b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.95,
+            446.91,
+            1502.58,
+            849.22
+          ]
+        }
+      },
+      "i3062b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            446.43,
+            1501.25,
+            849.88
+          ]
+        }
+      },
+      "i3063b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            446.43,
+            1500.11,
+            849.88
+          ]
+        }
+      },
+      "i3125a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            231.19,
+            508.29,
+            1497.82,
+            785.74
+          ]
+        }
+      },
+      "i3126a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            226.62,
+            509.73,
+            1503.54,
+            786.1
+          ]
+        }
+      },
+      "i3127a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            510.58,
+            1498.96,
+            784.6
+          ]
+        }
+      },
+      "i3128a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            231.37,
+            508.11,
+            1500.29,
+            787.84
+          ]
+        }
+      },
+      "i3129a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            446.43,
+            1500.11,
+            850.71
+          ]
+        }
+      },
+      "i3130a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.05,
+            445.77,
+            1500.11,
+            849.22
+          ]
+        }
+      },
+      "i3131a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            228.91,
+            445.29,
+            1501.25,
+            850.6
+          ]
+        }
+      },
+      "i3132a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.76,
+            446.43,
+            1501.25,
+            850.23
+          ]
+        }
+      },
+      "i3133a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            226.62,
+            446.43,
+            1501.25,
+            851.66
+          ]
+        }
+      },
+      "i3134a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            226.62,
+            446.43,
+            1502.39,
+            852.17
+          ]
+        }
+      },
+      "i3135a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            227.43,
+            444.98,
+            1500.57,
+            850.7
+          ]
+        }
+      },
+      "i3136a.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            226.96,
+            445.29,
+            1501.59,
+            852.51
+          ]
+        }
+      }
+    }
+  },
+  "port_transports": {
+    "ports": [
+      {
+        "id": "P1",
+        "label": "Port 1 Serial",
+        "transport": "serial",
+        "connector": "EIA-485 terminal",
+        "evidence_layer": "SEL-300G manual: Port 1 EIA-485 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-485"
+          }
+        ],
+        "interface": "EIA-485"
+      },
+      {
+        "id": "P2",
+        "label": "Port 2 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-300G manual: Port 2 EIA-232 DB-9 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "P3",
+        "label": "Port 3 Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-300G manual: Port 3 EIA-232 DB-9 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      },
+      {
+        "id": "PF",
+        "label": "Front Port F Serial",
+        "transport": "serial",
+        "connector": "DB9",
+        "evidence_layer": "SEL-300G manual: Port F EIA-232 DB-9 serial",
+        "specs": [
+          {
+            "label": "Interface",
+            "value": "EIA-232"
+          }
+        ],
+        "interface": "EIA-232"
+      }
+    ]
+  },
+  "part_number": {
+    "model": "300G",
+    "product": "SEL-300G Generator Relay",
+    "length": 17,
+    "prefix": {
+      "positions": "1-5",
+      "value": "0300G",
+      "description": "SEL-300G Generator Relay product family"
+    },
+    "note": "17-character Model Option Table string beginning with the fixed prefix 0300G. Calibrated entirely against the ordering-information Model Option Table (WI-0642, conventional terminal blocks) and cross-checked against WI-1744 (connectorized variant, same column layout); the device has no drawing layers (model_to_layers.has_layers=false) and no genuine part number was found in the RDB uploads or instruction manual, so no positions could be anchored to a real string. Two digits are always fixed: position 10 (Secondary Input Voltage = 2) and position 17 (trailing X). Firmware feature set (position 6) corresponds to the -0/-1/-2/-3 model suffix. The I/O board digit (position 7) and the high-interrupting-current indicator (position 12) are separate columns: 0/1 = conventional terminal blocks, W/Y = connectorized plug-in connectors. NOTE: the model_to_drawings block in this metadata references the high-I/C 2/6 digit as position_15, but both WI-0642 and WI-1744 place it at MOT column 12 (positions 15/16 are Communications Protocol / Conformal Coat); model_to_drawings position_15 appears to be an index mistake.",
+    "references": [
+      "SEL-300G Ordering Information (WI-0642, 20120213) - conventional terminal blocks Model Option Table",
+      "SEL-300G-0/-1/-2/-3 Connectorized Ordering Information (WI-1744, 20190711) - cross-check for W/Y I/O board codes",
+      "SEL-300G Instruction Manual (300G_IM_20250124) - model designations 0300G_0H/_03/_1H/_13/_WH/_W3/_YH/_Y3"
+    ],
+    "positions": [
+      {
+        "position": 6,
+        "length": 1,
+        "field": "firmware",
+        "label": "Firmware feature set",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "note": "Corresponds to the SEL-300G-0/-1/-2/-3 model suffix. The SEL-2600 Series compatibility sub-option of these firmware rows is carried separately at position 13.",
+        "options": {
+          "0": "Standard",
+          "1": "Standard plus Differential (87)",
+          "2": "Standard plus Synch-Check (25)",
+          "3": "Standard plus Synch-Check (25) and Differential (87)"
+        }
+      },
+      {
+        "position": 7,
+        "length": 1,
+        "field": "io_board_chassis",
+        "label": "I/O Board / Chassis / Terminal type",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "note": "0/1 = conventional terminal blocks (WI-0642); W/Y = connectorized plug-in connectors (WI-1744). 0/W = 2U with no additional I/O; 1/Y = 3U with additional I/O. Number/interrupting-rating of the additional outputs is encoded at position 12.",
+        "options": {
+          "0": "No additional I/O, 2U chassis, conventional terminal blocks",
+          "1": "Additional 12 outputs / 8 inputs, 3U chassis, conventional terminal blocks",
+          "W": "No additional I/O, 2U chassis, connectorized (plug-in connectors)",
+          "Y": "Additional 12 outputs / 8 inputs, 3U chassis, connectorized (plug-in connectors)"
+        }
+      },
+      {
+        "position": 8,
+        "length": 1,
+        "field": "mounting",
+        "label": "Mounting",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "options": {
+          "3": "Horizontal Panel Mount",
+          "5": "Horizontal Projection Panel Mount",
+          "H": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "position": 9,
+        "length": 1,
+        "field": "power_supply",
+        "label": "Power Supply",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "options": {
+          "2": "24/48 Vdc",
+          "3": "48/125 Vdc or 125 Vac",
+          "4": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "position": 10,
+        "length": 1,
+        "field": "secondary_input_voltage",
+        "label": "Secondary Input Voltage",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "note": "Fixed digit (only one option in the MOT).",
+        "options": {
+          "2": "Wye-Connected Va, Vb, Vc or Delta-Connected Vab and Vbc"
+        }
+      },
+      {
+        "position": 11,
+        "length": 1,
+        "field": "secondary_input_current",
+        "label": "Secondary Input Current",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "options": {
+          "1": "1 A Phase, 1 A Neutral",
+          "5": "5 A Phase, 5 A Neutral",
+          "6": "5 A Phase, 1 A Neutral"
+        }
+      },
+      {
+        "position": 12,
+        "length": 1,
+        "field": "io_output_option",
+        "label": "Additional I/O output option",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "note": "Interrupting-current class of the additional outputs selected by position 7 (1/Y). X when position 7 is 0/W (no additional I/O). Confirmed at this column in both WI-0642 and WI-1744; model_to_drawings refers to this digit as position_15 (index mistake).",
+        "options": {
+          "2": "Additional 12 standard outputs, 8 inputs",
+          "6": "Additional 12 high interrupting-current (High I/C) outputs, 8 inputs",
+          "X": "No additional I/O (2U base unit)"
+        }
+      },
+      {
+        "position": 13,
+        "length": 1,
+        "field": "sel_2600_compatibility",
+        "label": "SEL-2600 Series Compatibility",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "note": "Sub-option of the Firmware section (position 6). SEL-2600 Series compatibility adds RTD-based thermal / field-ground module support.",
+        "options": {
+          "1": "SEL-2600 Series compatibility",
+          "X": "None"
+        }
+      },
+      {
+        "position": 14,
+        "length": 1,
+        "field": "control_input_voltage",
+        "label": "Control (Digital) Input Voltage",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "options": {
+          "1": "24 Vdc",
+          "2": "48 Vdc",
+          "3": "110 Vdc",
+          "4": "125 Vdc",
+          "5": "220 Vdc",
+          "6": "250 Vdc"
+        }
+      },
+      {
+        "position": 15,
+        "length": 1,
+        "field": "communications_protocol",
+        "label": "Communications Protocol",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "options": {
+          "2": "Standard plus Modbus",
+          "X": "Standard"
+        }
+      },
+      {
+        "position": 16,
+        "length": 1,
+        "field": "conformal_coat",
+        "label": "Conformal Coat",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "options": {
+          "2": "Conformal Coated Circuit Boards",
+          "X": "None"
+        }
+      },
+      {
+        "position": 17,
+        "length": 1,
+        "field": "reserved",
+        "label": "Reserved / trailing digit",
+        "source": "SEL-300G Ordering Information (WI-0642, 20120213)",
+        "confidence": "high",
+        "note": "Fixed trailing digit shown as X in the MOT template.",
+        "options": {
+          "X": "Fixed placeholder"
+        }
+      }
+    ]
+  }
+}

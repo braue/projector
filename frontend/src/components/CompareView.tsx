@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 
 import { fetchCompareItem, fetchCompareTree } from '../api'
-import type { CompareItem, CompareTree, ProjectEntry } from '../types'
+import { useFetch } from '../lib/useFetch'
+import type { ProjectEntry } from '../types'
 import { DiffPreview } from './DiffPreview'
 import { TreePane, TreeRows } from './FileTree'
 import { Select } from './ui'
@@ -14,46 +15,23 @@ export function CompareView({ projects }: { projects: ProjectEntry[] }) {
   const ready = projects.filter((p) => p.status === 'ready').map((p) => p.name)
   const [original, setOriginal] = useState<string>('')
   const [updated, setUpdated] = useState<string>('')
-  const [tree, setTree] = useState<CompareTree | null>(null)
-  const [treeError, setTreeError] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
-  const [compareItem, setCompareItem] = useState<CompareItem | null>(null)
-  const [itemError, setItemError] = useState<string | null>(null)
 
-  const bothPicked = original && updated && original !== updated
+  const bothPicked = Boolean(original && updated && original !== updated)
 
   useEffect(() => {
-    if (!bothPicked) {
-      setTree(null)
-      setSelected(null)
-      return
-    }
-    let cancelled = false
-    setTree(null)
-    setTreeError(null)
     setSelected(null)
-    fetchCompareTree(original, updated)
-      .then((t) => !cancelled && setTree(t))
-      .catch((err) => !cancelled && setTreeError(err.message))
-    return () => {
-      cancelled = true
-    }
-  }, [original, updated, bothPicked])
+  }, [original, updated])
 
-  useEffect(() => {
-    if (!bothPicked || !selected) {
-      setCompareItem(null)
-      return
-    }
-    let cancelled = false
-    setItemError(null)
-    fetchCompareItem(original, updated, selected)
-      .then((d) => !cancelled && setCompareItem(d))
-      .catch((err) => !cancelled && setItemError(err.message))
-    return () => {
-      cancelled = true
-    }
-  }, [original, updated, selected, bothPicked])
+  const { data: tree, error: treeError } = useFetch(
+    bothPicked ? () => fetchCompareTree(original, updated) : null,
+    [original, updated, bothPicked],
+  )
+  const { data: compareItem, error: itemError } = useFetch(
+    bothPicked && selected ? () => fetchCompareItem(original, updated, selected) : null,
+    [original, updated, selected, bothPicked],
+    { keepStale: true },
+  )
 
   return (
     <>
