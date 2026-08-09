@@ -10,6 +10,13 @@
 //     source: { type: 'rtac' | 'rdb' | 'scd', ref },
 //     interfaces: [ { kind: 'ethernet' | 'serial', name, ip?, mask?, mac? } ],
 //     endpoints:  [ Endpoint ],
+//     // Declared-link evidence, when the artifact names both ends of a link
+//     // (SCL Inputs today). `identity` is who this profile is within its
+//     // document's namespace; each subscription names a publisher in that
+//     // same namespace. The linker joins the two — no format knowledge.
+//     identity?: { namespace, name },
+//     subscriptions?: [ { publisher, serviceType, control,
+//                         publisherEndpointId?, points } ],
 //   }
 //
 //   Endpoint {

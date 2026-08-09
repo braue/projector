@@ -2,15 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   createWorkspace,
-  deleteRdbFile,
+  deleteUpload,
   fetchSourceItem,
   fetchSourceTree,
   listProjects,
-  listRdbFiles,
+  listUploads,
   listWorkspaces,
   refreshProjects,
   startExport,
-  uploadRdb,
+  uploadSourceFile,
 } from './api'
 import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
@@ -21,10 +21,17 @@ import { SourcesSidebar } from './components/SourcesSidebar'
 import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
 import { SegmentedControl } from './components/ui'
 import { errorMessage } from './lib/errors'
+import { sourceKey } from './lib/sources'
 import { TIER_COLOR } from './lib/tiers'
 import { useFetch } from './lib/useFetch'
 import { REF_SEPARATOR } from './types'
-import type { DeviceSource, ProjectEntry, RdbFile, WorkspaceGraph } from './types'
+import type {
+  DeviceSource,
+  ProjectEntry,
+  UploadSourceType,
+  UploadedFile,
+  WorkspaceGraph,
+} from './types'
 
 const POLL_MS = 1200
 const DEFAULT_WORKSPACE = 'Default'
@@ -43,8 +50,9 @@ export default function App() {
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
   const [projects, setProjects] = useState<ProjectEntry[]>([])
   const [listError, setListError] = useState<string | null>(null)
-  const [rdbFiles, setRdbFiles] = useState<RdbFile[]>([])
-  const [rdbError, setRdbError] = useState<string | null>(null)
+  const [uploads, setUploads] = useState<
+    Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
+  >({ rdb: { files: [], error: null }, scd: { files: [], error: null } })
   const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
@@ -62,11 +70,15 @@ export default function App() {
     }
   }, [])
 
-  const refreshRdb = useCallback(async () => {
+  const refreshUploads = useCallback(async (type: UploadSourceType) => {
     try {
-      setRdbFiles(await listRdbFiles())
+      const files = await listUploads(type)
+      setUploads((current) => ({ ...current, [type]: { ...current[type], files } }))
     } catch (err) {
-      setRdbError(errorMessage(err))
+      setUploads((current) => ({
+        ...current,
+        [type]: { ...current[type], error: errorMessage(err) },
+      }))
     }
   }, [])
 
@@ -90,9 +102,10 @@ export default function App() {
 
   useEffect(() => {
     refresh()
-    refreshRdb()
+    refreshUploads('rdb')
+    refreshUploads('scd')
     refreshWorkspaces()
-  }, [refresh, refreshRdb, refreshWorkspaces])
+  }, [refresh, refreshUploads, refreshWorkspaces])
 
   const handleCreateWorkspace = useCallback(
     async (name: string) => {
@@ -126,35 +139,40 @@ export default function App() {
     [refresh],
   )
 
-  const handleUploadRdb = useCallback(
-    async (file: File) => {
-      setRdbError(null)
+  const setUploadError = useCallback((type: UploadSourceType, error: string | null) => {
+    setUploads((current) => ({ ...current, [type]: { ...current[type], error } }))
+  }, [])
+
+  const handleUpload = useCallback(
+    async (type: UploadSourceType, file: File) => {
+      setUploadError(type, null)
       try {
-        await uploadRdb(file)
-        await refreshRdb()
-        // New relay profiles may resolve existing ghosts — recompute the canvas.
+        await uploadSourceFile(type, file)
+        await refreshUploads(type)
+        // New profiles may resolve existing ghosts (or re-resolve a deleted
+        // file's attachments after a re-upload) — recompute the canvas.
         setGraphVersion((v) => v + 1)
       } catch (err) {
-        setRdbError(errorMessage(err))
+        setUploadError(type, errorMessage(err))
       }
     },
-    [refreshRdb],
+    [refreshUploads, setUploadError],
   )
 
-  const handleDeleteRdb = useCallback(
-    async (id: string) => {
+  const handleDeleteUpload = useCallback(
+    async (type: UploadSourceType, id: string) => {
       try {
-        await deleteRdbFile(id)
+        await deleteUpload(type, id)
       } catch (err) {
-        setRdbError(errorMessage(err))
+        setUploadError(type, errorMessage(err))
       }
       setSelectedSource((current) =>
-        current?.type === 'rdb' && current.ref.startsWith(`${id}${REF_SEPARATOR}`) ? null : current,
+        current?.type === type && current.ref.startsWith(`${id}${REF_SEPARATOR}`) ? null : current,
       )
-      await refreshRdb()
+      await refreshUploads(type)
       setGraphVersion((v) => v + 1)
     },
-    [refreshRdb],
+    [refreshUploads, setUploadError],
   )
 
   // Selecting a source (sidebar click, or canvas node double-click via onInspect).
@@ -183,8 +201,7 @@ export default function App() {
   )
 
   const placedRefs = useMemo(
-    () =>
-      new Set((graph?.devices ?? []).map((device) => `${device.source.type}:${device.source.ref}`)),
+    () => new Set((graph?.devices ?? []).map((device) => sourceKey(device.source))),
     [graph],
   )
 
@@ -229,10 +246,9 @@ export default function App() {
             projects={projects}
             listError={listError}
             onRetryList={retryList}
-            rdbFiles={rdbFiles}
-            rdbError={rdbError}
-            onUploadRdb={handleUploadRdb}
-            onDeleteRdb={handleDeleteRdb}
+            uploads={uploads}
+            onUpload={handleUpload}
+            onDeleteUpload={handleDeleteUpload}
             selected={mode === 'inspect' ? selectedSource : null}
             onSelect={handleSelectSource}
             onExport={handleExport}
@@ -303,7 +319,7 @@ export default function App() {
             </>
           ))}
 
-        {mode === 'compare' && <CompareView projects={projects} />}
+        {mode === 'compare' && <CompareView projects={projects} uploads={uploads} />}
       </div>
     </>
   )

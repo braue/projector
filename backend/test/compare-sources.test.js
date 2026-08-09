@@ -1,0 +1,125 @@
+// Generic compare across source types: RDB relay profiles and SCD IEDs run
+// through the same CompareService the RTAC path uses (whose adapter is a thin
+// wrapper over the parse cache, exercised by the sample-based tests).
+
+import assert from 'node:assert/strict';
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+
+import { CompareService } from '../services/compare.js';
+import { RdbService } from '../services/rdb.js';
+import { ScdService } from '../services/scd.js';
+import { makeRdb } from './helpers/makeRdb.js';
+import { MINI_SCL } from './helpers/miniScl.js';
+
+async function fixture(tmp) {
+  const rdb = new RdbService({ dataDir: tmp });
+  await rdb.init();
+  await rdb.upload('pair.rdb', makeRdb([
+    {
+      name: 'OLD_UNIT',
+      relayType: 'SEL-451',
+      sections: [
+        { key: 'P5', desc: 'Port 5', settings: { IPADDR: '10.0.0.5', SUBNETM: '255.255.255.0' } },
+        { key: 'G', desc: 'Global', settings: { TID: 'UNIT' } },
+      ],
+    },
+    {
+      name: 'NEW_UNIT',
+      relayType: 'SEL-451',
+      sections: [
+        { key: 'P5', desc: 'Port 5', settings: { IPADDR: '10.0.0.9', SUBNETM: '255.255.255.0' } },
+        { key: 'M1', desc: 'Modbus', settings: { MODADR: '3' } },
+      ],
+    },
+  ]));
+
+  const scd = new ScdService({ dataDir: tmp });
+  await scd.init();
+  await scd.upload('mini.scd', Buffer.from(MINI_SCL));
+
+  return new CompareService({
+    adapters: {
+      rdb: (ref) => rdb.comparable(ref),
+      scd: (ref) => scd.comparable(ref),
+    },
+  });
+}
+
+test('rdb profile vs rdb profile: section union with statuses, settings diff', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  try {
+    const compare = await fixture(tmp);
+    const a = { type: 'rdb', ref: 'pair::OLD_UNIT' };
+    const b = { type: 'rdb', ref: 'pair::NEW_UNIT' };
+
+    const result = await compare.compare(a, b);
+    assert.deepEqual(result.summary, { added: 1, removed: 1, edited: 1, unchanged: 0 });
+    const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
+    assert.equal(byPath.get('P5'), 'edited');
+    assert.equal(byPath.get('M1'), 'added');
+    assert.equal(byPath.get('G'), 'removed');
+
+    const item = await compare.compareItem(a, b, 'P5');
+    assert.equal(item.status, 'edited');
+    const ip = item.diff.settings.find((row) => row.key === 'IPADDR');
+    assert.deepEqual({ original: ip.original, updated: ip.updated }, { original: '10.0.0.5', updated: '10.0.0.9' });
+
+    const removed = await compare.compareItem(a, b, 'G');
+    assert.equal(removed.status, 'removed');
+    assert.equal(removed.updated, null);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('reordered settings are not an edit: signatures are key-sorted', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  try {
+    const rdb = new RdbService({ dataDir: tmp });
+    await rdb.init();
+    // Same section, same settings, opposite key order in the file.
+    await rdb.upload('order.rdb', makeRdb([
+      { name: 'A_UNIT', relayType: 'SEL-451', sections: [{ key: 'G', desc: 'Global', settings: { TID: 'X', SID: 'Y' } }] },
+      { name: 'B_UNIT', relayType: 'SEL-451', sections: [{ key: 'G', desc: 'Global', settings: { SID: 'Y', TID: 'X' } }] },
+    ]));
+    const compare = new CompareService({ adapters: { rdb: (ref) => rdb.comparable(ref) } });
+
+    const result = await compare.compare(
+      { type: 'rdb', ref: 'order::A_UNIT' },
+      { type: 'rdb', ref: 'order::B_UNIT' },
+    );
+    assert.deepEqual(result.summary, { added: 0, removed: 0, edited: 0, unchanged: 1 });
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('scd ied vs scd ied compares inspect items; mixed types are rejected', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  try {
+    const compare = await fixture(tmp);
+    const relay = { type: 'scd', ref: 'mini::RELAY_1' };
+    const rtu = { type: 'scd', ref: 'mini::RTU_1' };
+
+    const result = await compare.compare(relay, rtu);
+    const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
+    assert.equal(byPath.get('network'), 'edited'); // RELAY_1 has addresses, RTU_1 none
+    assert.equal(byPath.get('subscriptions'), 'added');
+    assert.equal(byPath.get('ld:S1:CFG'), 'removed');
+    assert.equal(byPath.get('ld:S1:ANN'), 'added');
+
+    await assert.rejects(
+      () => compare.compare(relay, { type: 'rdb', ref: 'pair::OLD_UNIT' }),
+      /same type/,
+    );
+    await assert.rejects(
+      () => compare.compare({ type: 'nope', ref: 'x' }, { type: 'nope', ref: 'y' }),
+      /unsupported compare type/,
+    );
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});

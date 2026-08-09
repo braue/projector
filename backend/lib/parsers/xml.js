@@ -1,7 +1,6 @@
-// XML helpers for the SEL AcSELerator RTAC project-export parser.
+// XML helpers shared by the settings-artifact parsers (RTAC exports, SCL/SCD
+// files) — all UTF-8 XML, some files carrying a BOM.
 //
-// An export is a folder of UTF-8 files (some carry a BOM), one <RTACModule>
-// root per file, with repeated <SettingPage>/<Row>/<Setting> elements.
 // fast-xml-parser collapses a single repeated element to an object instead of
 // an array, so every access to a "list" node must go through toArray().
 
@@ -26,6 +25,13 @@ function stripBom(value) {
 
 function parseXml(xmlString) {
   return parser.parse(stripBom(xmlString));
+}
+
+// Attribute value ('@_' prefix per the parser config above); null when the
+// attribute is absent or empty.
+function attr(node, name) {
+  const value = node?.[`@_${name}`];
+  return value === undefined || value === '' ? null : String(value);
 }
 
 // Normalize fast-xml-parser output (object | array | undefined) to an array.
@@ -79,4 +85,4 @@ function findFirst(obj, key) {
   return undefined;
 }
 
-export { cdata, collect, findFirst, parseXml, text, toArray };
+export { attr, cdata, collect, findFirst, parseXml, text, toArray };

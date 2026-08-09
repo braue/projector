@@ -17,7 +17,7 @@
 // are captured by the generic path in parseModule.js. Adding first-class
 // support for a new RTAC object type is one entry in this table.
 
-import { cdata, findFirst, text, toArray } from './xml.js';
+import { cdata, findFirst, text, toArray } from '../xml.js';
 
 // Categories the rest of the pipeline understands:
 //   connection — a protocol client/server/peer (Device files)

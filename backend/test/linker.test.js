@@ -112,6 +112,37 @@ test('linker: probable when the IP owner states no matching server', () => {
   assert.equal(c1.warnings[0].kind, 'warning');
 });
 
+test('contested IP ownership warns instead of silently shadowing', () => {
+  const { links } = linkProfiles([
+    { id: 'rtac', profile: rtacProfile },
+    { id: 'feeder', profile: relay('FEEDER_1', '10.10.1.21') },
+    { id: 'twin', profile: relay('FEEDER_TWIN', '10.10.1.21') },
+  ]);
+  const c1 = links.find((link) => link.id === 'rtac:c1');
+  assert.equal(c1.targetDeviceId, 'feeder'); // still matched
+  const texts = c1.warnings.map((w) => w.text).join(' | ');
+  assert.match(texts, /10\.10\.1\.21 is also claimed by FEEDER_TWIN/);
+});
+
+test('a device dialing an address it also claims still links to the other claimant', () => {
+  // The RTAC owns 10.10.1.21 itself (an SCD gave it interfaces) while its
+  // client c1 dials that address — and a relay claims it too.
+  const selfOwning = {
+    ...rtacProfile,
+    interfaces: [{ kind: 'ethernet', name: 'Eth_01', ip: '10.10.1.21' }],
+  };
+  const { links } = linkProfiles([
+    { id: 'rtac', profile: selfOwning },
+    { id: 'feeder', profile: relay('FEEDER_1', '10.10.1.21') },
+  ]);
+  const c1 = links.find((link) => link.id === 'rtac:c1');
+  assert.equal(c1.targetDeviceId, 'feeder'); // not ghosted at itself
+  assert.match(
+    c1.warnings.map((w) => w.text).join(' | '),
+    /also claimed by RTAC_MAIN \(this device\)/,
+  );
+});
+
 test('manual serial links validate baud agreement', () => {
   const meter = {
     name: 'METER_3', model: 'SEL-735', source: { type: 'rdb', ref: 'm.rdb' }, interfaces: [],

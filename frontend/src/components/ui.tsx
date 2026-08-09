@@ -65,7 +65,10 @@ export function SegmentedControl<T extends string>({
 
 // --- form controls -----------------------------------------------------------
 
-/** Labeled dropdown. `onChange` receives the selected value directly. */
+/**
+ * Labeled dropdown. `onChange` receives the selected value directly. Options
+ * are plain strings, or { value, label } pairs when the two differ.
+ */
 export function Select({
   label,
   value,
@@ -76,17 +79,20 @@ export function Select({
   label?: string
   value: string
   onChange: (value: string) => void
-  options: string[]
+  options: (string | { value: string; label: string })[]
   placeholder?: string
 }) {
   const select = (
     <select value={value} onChange={(e) => onChange(e.target.value)} className="ui-select">
       {placeholder !== undefined && <option value="">{placeholder}</option>}
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
+      {options.map((raw) => {
+        const { value, label } = typeof raw === 'string' ? { value: raw, label: raw } : raw
+        return (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        )
+      })}
     </select>
   )
   if (!label) return select

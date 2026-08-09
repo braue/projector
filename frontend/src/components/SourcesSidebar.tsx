@@ -1,22 +1,40 @@
 import { useRef, useState } from 'react'
 
-import type { DeviceSource, ProjectEntry, RdbFile, SourceType } from '../types'
+import { SOURCE_MIME, SOURCE_TABS, sourceKey } from '../lib/sources'
+import type {
+  DeviceSource,
+  ProjectEntry,
+  SourceType,
+  UploadSourceType,
+  UploadedFile,
+} from '../types'
 import { Button, Spinner } from './ui'
 
 // The left rail: three source tabs. RTAC carries the full AcRTAC flow
-// (grey → double-click download → spinner → ready); RDB uploads QuickSet
-// databases and lists their relay profiles; SCD lands in phase 3. Ready
-// items drag onto the canvas and click-select for Inspect.
-//
-// Drag payload: JSON DeviceSource under application/purview-source.
+// (grey → double-click download → spinner → ready); RDB and SCD are
+// upload-backed and share one pane (drop zone + file cards + profile rows).
+// Ready items drag onto the canvas (an SCD profile can also drop ONTO a
+// device to augment it) and click-select for Inspect.
 
-export const SOURCE_MIME = 'application/purview-source'
-
-const TABS: { key: SourceType; label: string }[] = [
-  { key: 'rtac', label: 'RTAC' },
-  { key: 'rdb', label: 'RDB' },
-  { key: 'scd', label: 'SCD' },
-]
+const UPLOAD_META: Record<UploadSourceType, {
+  accept: string
+  dropLabel: string
+  dropHint: string
+  dragHint: string
+}> = {
+  rdb: {
+    accept: '.rdb',
+    dropLabel: 'Drop .rdb here',
+    dropHint: 'QuickSet database, or click to browse',
+    dragHint: 'drag to canvas, click to inspect',
+  },
+  scd: {
+    accept: '.scd,.ssd,.sed,.cid,.icd',
+    dropLabel: 'Drop .scd / .cid here',
+    dropHint: 'SEL Architect · IEC 61850',
+    dragHint: 'drag to canvas (onto a device to augment it), click to inspect',
+  },
+}
 
 function dragProps(source: DeviceSource) {
   return {
@@ -28,14 +46,36 @@ function dragProps(source: DeviceSource) {
   }
 }
 
+/** The RTAC/RDB/SCD tab strip — shared with the compare rail. */
+export function SourceTabs({
+  tab,
+  onPick,
+}: {
+  tab: SourceType
+  onPick: (tab: SourceType) => void
+}) {
+  return (
+    <div className="source-tabs">
+      {SOURCE_TABS.map(({ key, label }) => (
+        <button
+          key={key}
+          className={tab === key ? 'source-tab on' : 'source-tab'}
+          onClick={() => onPick(key)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function SourcesSidebar({
   projects,
   listError,
   onRetryList,
-  rdbFiles,
-  rdbError,
-  onUploadRdb,
-  onDeleteRdb,
+  uploads,
+  onUpload,
+  onDeleteUpload,
   selected,
   onSelect,
   onExport,
@@ -45,14 +85,13 @@ export function SourcesSidebar({
   projects: ProjectEntry[]
   listError: string | null
   onRetryList: () => void
-  rdbFiles: RdbFile[]
-  rdbError: string | null
-  onUploadRdb: (file: File) => void
-  onDeleteRdb: (id: string) => void
+  uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
+  onUpload: (type: UploadSourceType, file: File) => void
+  onDeleteUpload: (type: UploadSourceType, id: string) => void
   selected: DeviceSource | null
   onSelect: (source: DeviceSource) => void
   onExport: (name: string) => void
-  /** "type:ref" keys already on the canvas — shown with a dot. */
+  /** sourceKey() values already on the canvas — shown with a dot. */
   placedRefs: Set<string>
   footer: string
 }) {
@@ -62,19 +101,11 @@ export function SourcesSidebar({
   const isSelected = (source: DeviceSource) =>
     selected?.type === source.type && selected?.ref === source.ref
 
+  const uploadTab = tab === 'rtac' ? null : (tab as UploadSourceType)
+
   return (
     <aside className="sources">
-      <div className="source-tabs">
-        {TABS.map(({ key, label }) => (
-          <button
-            key={key}
-            className={tab === key ? 'source-tab on' : 'source-tab'}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <SourceTabs tab={tab} onPick={setTab} />
 
       {tab === 'rtac' && (
         <>
@@ -110,7 +141,7 @@ export function SourcesSidebar({
                     <span className="project-name">{name}</span>
                     {status === 'exporting' && <Spinner />}
                     {status === 'error' && <span className="error-mark">!</span>}
-                    {ready && placedRefs.has(`rtac:${name}`) && <span className="on-canvas" />}
+                    {ready && placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
                   </button>
                 </li>
               )
@@ -119,16 +150,16 @@ export function SourcesSidebar({
         </>
       )}
 
-      {tab === 'rdb' && (
+      {uploadTab && (
         <div className="source-scroll">
           <input
             ref={fileInput}
             type="file"
-            accept=".rdb"
+            accept={UPLOAD_META[uploadTab].accept}
             style={{ display: 'none' }}
             onChange={(e) => {
               const file = e.target.files?.[0]
-              if (file) onUploadRdb(file)
+              if (file) onUpload(uploadTab, file)
               e.target.value = ''
             }}
           />
@@ -139,31 +170,31 @@ export function SourcesSidebar({
             onDrop={(e) => {
               e.preventDefault()
               const file = e.dataTransfer.files?.[0]
-              if (file) onUploadRdb(file)
+              if (file) onUpload(uploadTab, file)
             }}
           >
-            <b>Drop .rdb here</b>
-            QuickSet database, or click to browse
+            <b>{UPLOAD_META[uploadTab].dropLabel}</b>
+            {UPLOAD_META[uploadTab].dropHint}
           </button>
-          {rdbError && (
+          {uploads[uploadTab].error && (
             <div className="list-error">
-              <div className="list-error-text">{rdbError}</div>
+              <div className="list-error-text">{uploads[uploadTab].error}</div>
             </div>
           )}
-          {rdbFiles.map((file) => (
+          {uploads[uploadTab].files.map((file) => (
             <div key={file.id} className="rdb-file">
               <div className="rdb-file-name">
                 <span className="mono">{file.fileName}</span>
                 <button
                   className="rdb-delete"
                   title="Remove this file and its devices"
-                  onClick={() => onDeleteRdb(file.id)}
+                  onClick={() => onDeleteUpload(uploadTab, file.id)}
                 >
                   ✕
                 </button>
               </div>
               {file.profiles.map((profile) => {
-                const source: DeviceSource = { type: 'rdb', ref: profile.ref }
+                const source: DeviceSource = { type: uploadTab, ref: profile.ref }
                 const classes = ['project-entry', 'status-ready', 'profile-row']
                 if (isSelected(source)) classes.push('selected')
                 return (
@@ -171,28 +202,18 @@ export function SourcesSidebar({
                     key={profile.ref}
                     className={classes.join(' ')}
                     {...dragProps(source)}
-                    title={`${profile.name} — drag to canvas, click to inspect`}
+                    title={`${profile.name} — ${UPLOAD_META[uploadTab].dragHint}`}
                     onClick={() => onSelect(source)}
                   >
                     <span className="grip">⠿</span>
                     <span className="project-name">{profile.name}</span>
-                    {profile.relayType && <span className="relay-type">{profile.relayType}</span>}
-                    {placedRefs.has(`rdb:${profile.ref}`) && <span className="on-canvas" />}
+                    {profile.deviceType && <span className="relay-type">{profile.deviceType}</span>}
+                    {placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
                   </button>
                 )
               })}
             </div>
           ))}
-        </div>
-      )}
-
-      {tab === 'scd' && (
-        <div className="source-placeholder">
-          <div className="drop-zone">
-            <b>Drop .scd / .cid here</b>
-            SEL Architect · IEC 61850
-          </div>
-          <p className="phase-note">SCL support lands in phase 3, pending example exports.</p>
         </div>
       )}
 

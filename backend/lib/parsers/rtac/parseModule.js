@@ -12,7 +12,7 @@
 // pulled by the extractor registered for that kind in kinds.js.
 
 import { describeKind, NON_KIND_CHILDREN } from './kinds.js';
-import { collect, findFirst, parseXml, text, toArray } from './xml.js';
+import { collect, findFirst, parseXml, text, toArray } from '../xml.js';
 
 // Parse one <SettingPage> into { name, addItems?, columns, rows }. A row is an
 // object keyed by <Column> text -> <Value> text; column order is captured

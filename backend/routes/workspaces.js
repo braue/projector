@@ -36,6 +36,15 @@ function workspaceRoutes(service) {
     res.json({ ok: true });
   });
 
+  // SCD augmentation: attach a second document to a placed device.
+  router.post('/:name/devices/:id/scd', async (req, res) => {
+    res.json(await service.attachScd(req.params.name, req.params.id, req.body?.ref));
+  });
+
+  router.delete('/:name/devices/:id/scd', async (req, res) => {
+    res.json(await service.detachScd(req.params.name, req.params.id));
+  });
+
   return router;
 }
 

@@ -14,11 +14,14 @@ const DEFAULT_WORKSPACE = 'Default';
 
 class WorkspaceService {
   // `resolvers` maps a source type to an async (ref) => DeviceProfile — one
-  // per artifact kind (rtac, rdb; scd in phase 3). Built in index.js so this
-  // service stays ignorant of parsers and other services.
-  constructor({ dataDir, resolvers }) {
+  // per artifact kind (rtac, rdb, scd). `augment` merges an attached second
+  // document into a base profile: async (profile, ref) => { profile,
+  // warning }. Both are built in index.js so this service stays ignorant of
+  // parsers, extractors, and other services.
+  constructor({ dataDir, resolvers, augment }) {
     this.dir = path.join(dataDir, 'workspaces');
     this.resolvers = resolvers;
+    this.augment = augment;
   }
 
   async init() {
@@ -98,14 +101,37 @@ class WorkspaceService {
     return device;
   }
 
-  async moveDevice(name, deviceId, { x, y }) {
+  // Find a placed device, apply a mutation, persist, return it.
+  async #withDevice(name, deviceId, mutate) {
     const workspace = await this.#load(name);
     const device = workspace.devices.find((candidate) => candidate.id === deviceId);
     if (!device) throw httpError(404, `unknown device: ${deviceId}`);
-    device.x = x;
-    device.y = y;
+    mutate(device);
     await this.#save(workspace);
     return device;
+  }
+
+  async moveDevice(name, deviceId, { x, y }) {
+    return this.#withDevice(name, deviceId, (device) => {
+      device.x = x;
+      device.y = y;
+    });
+  }
+
+  // Attach an SCD profile to an already-placed device: the same physical
+  // device seen by a second document. One attachment per device — dropping
+  // another replaces it.
+  async attachScd(name, deviceId, ref) {
+    if (!ref) throw httpError(400, 'scd ref required');
+    return this.#withDevice(name, deviceId, (device) => {
+      device.scdRef = ref;
+    });
+  }
+
+  async detachScd(name, deviceId) {
+    return this.#withDevice(name, deviceId, (device) => {
+      delete device.scdRef;
+    });
   }
 
   async removeDevice(name, deviceId) {
@@ -125,12 +151,24 @@ class WorkspaceService {
     const workspace = await this.#load(name);
 
     // Devices resolve independently (each may trigger a project parse), so
-    // resolve them concurrently; order is preserved by Promise.all.
+    // resolve them concurrently; order is preserved by Promise.all. An SCD
+    // attachment augments the base profile; a broken attachment (deleted
+    // upload) degrades to the base profile with the failure noted.
     const results = await Promise.all(workspace.devices.map(async (device) => {
       try {
         const resolver = this.resolvers[device.source.type];
         if (!resolver) throw new Error(`unsupported source type: ${device.source.type}`);
-        return { device, profile: await resolver(device.source.ref) };
+        let profile = await resolver(device.source.ref);
+        let scdError;
+        let scdWarning;
+        if (device.scdRef) {
+          try {
+            ({ profile, warning: scdWarning } = await this.augment(profile, device.scdRef));
+          } catch (err) {
+            scdError = err?.message ?? String(err);
+          }
+        }
+        return { device, profile, scdError, scdWarning };
       } catch (err) {
         return { device, error: err?.message ?? String(err) };
       }
@@ -149,7 +187,7 @@ class WorkspaceService {
     return {
       name: workspace.name,
       devices: [
-        ...resolved.map(({ device, profile }) => ({
+        ...resolved.map(({ device, profile, scdError, scdWarning }) => ({
           id: device.id,
           x: device.x,
           y: device.y,
@@ -157,6 +195,13 @@ class WorkspaceService {
           name: profile.name,
           model: profile.model,
           endpointCount: profile.endpoints.length,
+          scd: device.scdRef
+            ? {
+                ref: device.scdRef,
+                ...(scdError ? { error: scdError } : {}),
+                ...(scdWarning ? { warning: scdWarning } : {}),
+              }
+            : null,
         })),
         ...broken.map(({ device, error }) => ({
           id: device.id,

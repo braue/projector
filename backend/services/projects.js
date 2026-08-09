@@ -16,10 +16,10 @@ import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
-import { compareHashes, diffItems, STATUS } from '../lib/compare.js';
 import { httpError, resolveChild } from '../lib/http.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
 import { moduleBaseName } from '../lib/parsers/rtac/project.js';
+import { foldTree } from '../lib/tree.js';
 
 const EXPORTABLE = /\.xml$/i;
 
@@ -191,58 +191,6 @@ class ProjectService {
     };
   }
 
-  // Fold item nodes (plus parse errors) into a nested folder tree.
-  static #foldTree(nodes, errors) {
-    const root = { type: 'folder', name: '', path: '', children: [] };
-    const folders = new Map([['', root]]);
-
-    const folderFor = (dirPath) => {
-      const existing = folders.get(dirPath);
-      if (existing) return existing;
-      const parent = folderFor(dirPath.split('/').slice(0, -1).join('/'));
-      const folder = {
-        type: 'folder',
-        name: dirPath.split('/').pop(),
-        path: dirPath,
-        children: [],
-      };
-      parent.children.push(folder);
-      folders.set(dirPath, folder);
-      return folder;
-    };
-
-    const place = (node) => {
-      const dir = node.path.split('/').slice(0, -1).join('/');
-      folderFor(dir).children.push(node);
-    };
-
-    for (const node of nodes) place(node);
-
-    // Files the parser rejected still appear — visibility beats silently
-    // shrinking the tree.
-    for (const { file, error } of errors) {
-      place({
-        type: 'item',
-        name: file.split('/').pop(),
-        path: file,
-        kind: 'ParseError',
-        kindLabel: 'Unparseable file',
-        category: 'other',
-        error,
-      });
-    }
-
-    const sortTree = (node) => {
-      node.children.sort((a, b) => {
-        if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-        return a.name.localeCompare(b.name, undefined, { numeric: true });
-      });
-      for (const child of node.children) if (child.type === 'folder') sortTree(child);
-    };
-    sortTree(root);
-    return root.children;
-  }
-
   // The full export as a nested tree — folders, programs, connections, all of
   // it.
   async tree(name) {
@@ -255,7 +203,7 @@ class ProjectService {
       deviceLabel: model.deviceMOT ? `SEL-${model.deviceMOT}` : null,
       summary: model.summary,
       errors: model.errors,
-      tree: ProjectService.#foldTree(nodes, model.errors),
+      tree: foldTree(nodes, model.errors),
     };
   }
 
@@ -268,71 +216,18 @@ class ProjectService {
 
   // --- compare ---------------------------------------------------------------
 
-  // The union of both projects' trees, each item row carrying its status:
-  // added / removed / edited / unchanged. Removed files render from the
-  // original's item summary; everything else from the updated project's.
-  async compare(originalName, updatedName) {
-    const [original, updated] = await Promise.all([
-      this.#parsed(originalName),
-      this.#parsed(updatedName),
-    ]);
-    const status = compareHashes(original.hashes, updated.hashes);
-
-    const nodes = [];
-    for (const item of updated.model.items) {
-      nodes.push(ProjectService.#itemNode(item, { status: status.get(item.file) }));
-    }
-    for (const item of original.model.items) {
-      if (status.get(item.file) === STATUS.REMOVED) {
-        nodes.push(ProjectService.#itemNode(item, { status: STATUS.REMOVED }));
-      }
-    }
-
-    const summary = { added: 0, removed: 0, edited: 0, unchanged: 0 };
-    for (const value of status.values()) summary[value] += 1;
-
-    // Parse errors from both sides; a file that fails on either side still
-    // needs a row for its status to hang on.
-    const errors = [...updated.model.errors];
-    const seen = new Set(errors.map((e) => e.file));
-    for (const error of original.model.errors) {
-      if (!seen.has(error.file) && !original.byFile.has(error.file)) errors.push(error);
-    }
-
+  // Compare adapter entries: one per export file, signature = raw content
+  // hash so an edit the parser doesn't model (a CFC blob) still reads edited.
+  async comparable(name) {
+    const { model, hashes } = await this.#parsed(name);
     return {
-      original: { name: original.model.name ?? originalName },
-      updated: { name: updated.model.name ?? updatedName },
-      summary,
-      tree: ProjectService.#foldTree(nodes, []),
-    };
-  }
-
-  // Structured diff of one file across the two projects.
-  async compareItem(originalName, updatedName, file) {
-    const [original, updated] = await Promise.all([
-      this.#parsed(originalName),
-      this.#parsed(updatedName),
-    ]);
-    const originalItem = original.byFile.get(file) ?? null;
-    const updatedItem = updated.byFile.get(file) ?? null;
-    if (!originalItem && !updatedItem) {
-      throw httpError(404, `no such item: ${file}`);
-    }
-
-    const before = original.hashes.get(file);
-    const after = updated.hashes.get(file);
-    const status =
-      before === undefined ? STATUS.ADDED
-      : after === undefined ? STATUS.REMOVED
-      : before === after ? STATUS.UNCHANGED
-      : STATUS.EDITED;
-
-    return {
-      file,
-      status,
-      original: originalItem,
-      updated: updatedItem,
-      diff: diffItems(originalItem, updatedItem),
+      label: model.name ?? name,
+      entries: model.items.map((item) => ({
+        path: item.file,
+        name: item.name ?? moduleBaseName(item.file),
+        item,
+        signature: hashes.get(item.file),
+      })),
     };
   }
 

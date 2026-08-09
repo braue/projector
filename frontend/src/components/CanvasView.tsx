@@ -14,26 +14,29 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-import { fetchGraph, moveDevice, placeDevice, removeDevice } from '../api'
+import { attachScd, detachScd, fetchGraph, moveDevice, placeDevice, removeDevice } from '../api'
 import { errorMessage } from '../lib/errors'
+import { SOURCE_MIME } from '../lib/sources'
 import { TIER_COLOR, TIER_DASH } from '../lib/tiers'
 import { REF_SEPARATOR } from '../types'
 import type { DeviceSource, GraphDevice, GraphLink, WorkspaceGraph } from '../types'
 import { FloatingEdge } from './FloatingEdge'
-import { SOURCE_MIME } from './SourcesSidebar'
 
 // The canvas: boxes and colored wires, nothing else. All written detail lives
 // in the click popup. Wires are inferred server-side on every graph read —
 // the canvas never stores a link.
 
-type DeviceNodeData = { name: string; sub: string; ghost?: boolean }
+type DeviceNodeData = { name: string; sub: string; ghost?: boolean; scd?: boolean }
 type DeviceNode = Node<DeviceNodeData, 'device'>
 
 function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
   return (
     <div className={data.ghost ? 'canvas-node ghost' : 'canvas-node'}>
       <Handle type="target" position={Position.Left} className="node-handle" />
-      <div className="nm">{data.name}</div>
+      <div className="nm">
+        {data.name}
+        {data.scd && <span className="node-scd">SCD</span>}
+      </div>
       <div className="sub">{data.sub}</div>
       <Handle type="source" position={Position.Right} className="node-handle" />
     </div>
@@ -46,19 +49,34 @@ const EDGE_TYPES = { floating: FloatingEdge }
 type PopupState = { link: GraphLink; x: number; y: number }
 type NodePopupState = { device: GraphDevice; x: number; y: number }
 
-// Which settings artifact a canvas node is built from, as one line.
+// Which settings artifact a canvas node is built from, as one line. Upload
+// refs are "<fileId>::<profileName>" — the fileId is shown as-is (its real
+// extension was stripped at upload; fabricating one here would lie about
+// .cid/.icd files).
+const PROFILE_NOUN: Partial<Record<DeviceSource['type'], string>> = {
+  rdb: 'profile',
+  scd: 'IED',
+}
+
 function sourceLine(source: DeviceSource): string {
-  if (source.type === 'rdb') {
-    const at = source.ref.indexOf(REF_SEPARATOR)
-    if (at > 0) {
-      return `${source.ref.slice(0, at)}.rdb · profile ${source.ref.slice(at + REF_SEPARATOR.length)}`
-    }
+  const noun = PROFILE_NOUN[source.type]
+  const at = source.ref.indexOf(REF_SEPARATOR)
+  if (noun && at > 0) {
+    return `${source.ref.slice(0, at)} · ${noun} ${source.ref.slice(at + REF_SEPARATOR.length)}`
   }
   if (source.type === 'rtac') return `RTAC export · ${source.ref}`
   return `${source.type} · ${source.ref}`
 }
 
-function NodePopup({ popup, onClose }: { popup: NodePopupState; onClose: () => void }) {
+function NodePopup({
+  popup,
+  onClose,
+  onDetachScd,
+}: {
+  popup: NodePopupState
+  onClose: () => void
+  onDetachScd: (deviceId: string) => void
+}) {
   const { device } = popup
   return (
     <div className="link-popup" style={{ left: popup.x, top: popup.y }}>
@@ -75,6 +93,19 @@ function NodePopup({ popup, onClose }: { popup: NodePopupState; onClose: () => v
       <div className="endinfo">
         <div>{sourceLine(device.source)}</div>
       </div>
+      {device.scd && (
+        <>
+          <div className="endlabel">SCD attachment</div>
+          <div className="endinfo scd-attachment">
+            <div>{sourceLine({ type: 'scd', ref: device.scd.ref })}</div>
+            <button className="x" title="Detach the SCD profile" onClick={() => onDetachScd(device.id)}>
+              ✕
+            </button>
+          </div>
+          {device.scd.error && <div className="warn bad">{device.scd.error}</div>}
+          {device.scd.warning && <div className="warn warnc">{device.scd.warning}</div>}
+        </>
+      )}
       {device.error ? (
         <div className="warn bad">{device.error}</div>
       ) : (
@@ -161,6 +192,7 @@ function CanvasInner({
           data: {
             name: device.name,
             sub: device.error ?? `${device.model ?? device.source.type.toUpperCase()} · ${device.source.ref}`,
+            scd: Boolean(device.scd),
           },
         })),
         ...next.ghosts.map<DeviceNode>((ghost, i) => ({
@@ -221,6 +253,17 @@ function CanvasInner({
         if (!raw) return
         e.preventDefault()
         const source = JSON.parse(raw)
+
+        // An SCD profile dropped ONTO a placed device augments it — the same
+        // physical device seen by a second document. Anywhere else (including
+        // any non-SCD source) places a node as usual.
+        const nodeId = (e.target as HTMLElement).closest('.react-flow__node')?.getAttribute('data-id')
+        if (source.type === 'scd' && nodeId && graph?.devices.some((d) => d.id === nodeId)) {
+          await attachScd(workspace, nodeId, source.ref).catch((err) => setError(errorMessage(err)))
+          await load()
+          return
+        }
+
         const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
         await placeDevice(workspace, source, Math.round(position.x), Math.round(position.y)).catch(
           (err) => setError(errorMessage(err)),
@@ -297,7 +340,17 @@ function CanvasInner({
         <Background gap={26} size={1.5} color="#dfe2e8" />
       </ReactFlow>
       {popup && <LinkPopup popup={popup} onClose={() => setPopup(null)} />}
-      {nodePopup && <NodePopup popup={nodePopup} onClose={() => setNodePopup(null)} />}
+      {nodePopup && (
+        <NodePopup
+          popup={nodePopup}
+          onClose={() => setNodePopup(null)}
+          onDetachScd={async (deviceId) => {
+            setNodePopup(null)
+            await detachScd(workspace, deviceId).catch((err) => setError(errorMessage(err)))
+            await load()
+          }}
+        />
+      )}
     </div>
   )
 }

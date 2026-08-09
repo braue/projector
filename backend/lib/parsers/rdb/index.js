@@ -14,6 +14,8 @@
 
 import CFB from 'cfb';
 
+import { uniqueName } from '../../names.js';
+
 const PROFILE_ROOT_PREFIX = 'Root Entry/Relays/';
 
 const MAX_SETTING_VALUE_LENGTH = 4096;
@@ -29,17 +31,6 @@ const SKIP_FILES = new Set([
 
 function sanitizeName(raw) {
   return (raw ?? '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '').trim();
-}
-
-// First of base, base-2, base-3, ... that isUsed accepts as free.
-function uniqueName(base, isUsed) {
-  let candidate = base;
-  let suffix = 2;
-  while (isUsed(candidate)) {
-    candidate = `${base}-${suffix}`;
-    suffix += 1;
-  }
-  return candidate;
 }
 
 function uniqueProfileName(rawName, usedNames, index) {
@@ -192,4 +183,4 @@ function parseRdb(buffer) {
   return { profiles };
 }
 
-export { parseRdb, relayType, uniqueName };
+export { parseRdb, relayType };

@@ -19,16 +19,22 @@ function normalizeIp(value) {
   return (value ?? '').trim();
 }
 
-// Who owns an IP: a device whose interfaces carry it. (RTAC profiles carry no
-// interfaces yet, so today this resolves against RDB/SCD-style profiles and
-// the machinery is exercised by tests; the canvas mostly draws ghosts until
-// phase 2 loads relays.)
+// Who owns an IP: every device whose interfaces carry it. ALL claimants are
+// kept — duplicate ownership (the same physical device placed via two
+// artifacts, or a genuine misconfiguration) must surface as a warning on the
+// links matched through that address, never be silently shadowed by whichever
+// device happened to come first.
 function buildAddressIndex(devices) {
   const byIp = new Map();
   for (const { id, profile } of devices) {
     for (const iface of profile.interfaces ?? []) {
       const ip = normalizeIp(iface.ip);
-      if (ip && !byIp.has(ip)) byIp.set(ip, { deviceId: id, profile, iface });
+      if (!ip) continue;
+      if (!byIp.has(ip)) byIp.set(ip, []);
+      const claimants = byIp.get(ip);
+      if (!claimants.some((claimant) => claimant.deviceId === id)) {
+        claimants.push({ deviceId: id, profile, iface });
+      }
     }
   }
   return byIp;
@@ -110,8 +116,12 @@ function linkProfiles(devices, manualLinks = []) {
       const address = normalizeIp(endpoint.remoteAddress);
       if (!address) continue; // nothing dialed — nothing to draw
 
-      const owner = byIp.get(address);
-      if (!owner || owner.deviceId === deviceId) {
+      // Prefer an owner other than the dialer itself (a device can end up
+      // claiming an address its own clients dial once an SCD supplies its
+      // interfaces).
+      const claimants = byIp.get(address) ?? [];
+      const owner = claimants.find((claimant) => claimant.deviceId !== deviceId);
+      if (!owner) {
         const ghost = ghostFor(
           address,
           address,
@@ -174,6 +184,20 @@ function linkProfiles(devices, manualLinks = []) {
         });
       }
 
+      // Contested ownership: other artifacts also claim this address (the
+      // same physical device placed twice, or a real address collision).
+      const otherClaimants = claimants
+        .filter((claimant) => claimant !== owner)
+        .map((claimant) =>
+          claimant.deviceId === deviceId ? `${profile.name} (this device)` : claimant.profile.name,
+        );
+      if (otherClaimants.length) {
+        warnings.push({
+          kind: 'warning',
+          text: `${address} is also claimed by ${otherClaimants.join(', ')} — matched against ${owner.profile.name}`,
+        });
+      }
+
       links.push({
         ...base,
         targetDeviceId: owner.deviceId,
@@ -186,6 +210,83 @@ function linkProfiles(devices, manualLinks = []) {
             : [`${owner.iface.name ?? 'port'} · ${address}`],
         },
         warnings,
+      });
+    }
+  }
+
+  // Declared subscriptions: an artifact that names both ends of a link (see
+  // `identity`/`subscriptions` in model.js). A device whose identity matches
+  // the named publisher — within the same document namespace — confirms the
+  // link; a publisher nobody carries becomes a ghost.
+  for (const { id: deviceId, profile } of devices) {
+    const namespace = profile.identity?.namespace;
+    if (!namespace) continue;
+
+    for (const sub of profile.subscriptions ?? []) {
+      const serviceType = sub.serviceType ?? 'unknown service';
+      const aSide = {
+        label: `${profile.name} · subscriber`,
+        lines: [
+          sub.control ? `subscribes to ${sub.control}` : `subscribes via ${serviceType}`,
+          `${sub.points} point${sub.points === 1 ? '' : 's'} bound`,
+        ],
+      };
+      const base = {
+        id: `${deviceId}:sub:${sub.publisher}:${sub.control ?? serviceType}`,
+        sourceDeviceId: deviceId,
+        protocol: serviceType,
+        transport: 'ethernet',
+        a: aSide,
+      };
+
+      // Every canvas device carrying the publisher's identity (standalone or
+      // as an attachment). More than one means the same identity is placed
+      // twice — matched against the first, surfaced like contested IPs.
+      const owners = devices.filter(
+        (device) => device.id !== deviceId
+          && device.profile.identity?.namespace === namespace
+          && device.profile.identity?.name === sub.publisher,
+      );
+      const owner = owners[0];
+
+      if (!owner) {
+        const ghost = ghostFor(
+          `${namespace}:${sub.publisher}`,
+          sub.publisher,
+          `${serviceType} · declared by ${profile.name}`,
+          [sub.control ? `publishes ${sub.control}` : `${serviceType} publisher`],
+        );
+        links.push({
+          ...base,
+          targetGhostId: ghost.id,
+          tier: 'declared',
+          summary: `${serviceType} subscription · publisher not on canvas`,
+          b: { label: `${sub.publisher} · not on canvas`, lines: ghost.lines },
+          warnings: [
+            { kind: 'warning', text: `${sub.publisher} is declared in the same document — place it (or attach it to its device) to resolve this link` },
+          ],
+        });
+        continue;
+      }
+
+      const publication = sub.publisherEndpointId
+        ? (owner.profile.endpoints ?? []).find((endpoint) => endpoint.id === sub.publisherEndpointId)
+        : null;
+      links.push({
+        ...base,
+        targetDeviceId: owner.id,
+        tier: 'confirmed',
+        summary: `${serviceType} publication → subscriber · declared in the source document`,
+        b: {
+          label: `${owner.profile.name} · publisher${sub.control ? ` · ${sub.control}` : ''}`,
+          lines: publication?.lines ?? [`publishes ${sub.control ?? serviceType}`],
+        },
+        warnings: owners.length > 1
+          ? [{
+              kind: 'warning',
+              text: `${sub.publisher} is carried by ${owners.length} canvas devices (${owners.map((device) => device.profile.name).join(', ')}) — matched against ${owner.profile.name}`,
+            }]
+          : [],
       });
     }
   }

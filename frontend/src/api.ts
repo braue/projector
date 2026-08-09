@@ -6,7 +6,8 @@ import type {
   ProjectItem,
   ProjectList,
   ProjectTree,
-  RdbFile,
+  UploadSourceType,
+  UploadedFile,
   WorkspaceGraph,
 } from './types'
 
@@ -54,20 +55,21 @@ export function fetchItem(name: string, file: string): Promise<ProjectItem> {
   return get(`/api/projects/${encodeURIComponent(name)}/item?file=${encodeURIComponent(file)}`)
 }
 
-export function fetchCompareTree(original: string, updated: string): Promise<CompareTree> {
-  return get(
-    `/api/compare/tree?original=${encodeURIComponent(original)}&updated=${encodeURIComponent(updated)}`,
-  )
+function comparePair(original: DeviceSource, updated: DeviceSource): string {
+  return `originalType=${encodeURIComponent(original.type)}&original=${encodeURIComponent(original.ref)}`
+    + `&updatedType=${encodeURIComponent(updated.type)}&updated=${encodeURIComponent(updated.ref)}`
+}
+
+export function fetchCompareTree(original: DeviceSource, updated: DeviceSource): Promise<CompareTree> {
+  return get(`/api/compare/tree?${comparePair(original, updated)}`)
 }
 
 export function fetchCompareItem(
-  original: string,
-  updated: string,
+  original: DeviceSource,
+  updated: DeviceSource,
   file: string,
 ): Promise<CompareItem> {
-  return get(
-    `/api/compare/item?original=${encodeURIComponent(original)}&updated=${encodeURIComponent(updated)}&file=${encodeURIComponent(file)}`,
-  )
+  return get(`/api/compare/item?${comparePair(original, updated)}&file=${encodeURIComponent(file)}`)
 }
 
 export function aggregateSettings(
@@ -78,32 +80,34 @@ export function aggregateSettings(
   return send(`/api/projects/${encodeURIComponent(name)}/aggregate`, 'POST', { terms, files })
 }
 
-// --- rdb ----------------------------------------------------------------------
+// --- uploads (rdb, scd — same route shapes) -----------------------------------
 
-export async function listRdbFiles(): Promise<RdbFile[]> {
-  const body = await get<{ files: RdbFile[] }>('/api/rdb')
+export async function listUploads(type: UploadSourceType): Promise<UploadedFile[]> {
+  const body = await get<{ files: UploadedFile[] }>(`/api/${type}`)
   return body.files
 }
 
-export function uploadRdb(file: File): Promise<RdbFile> {
+export function uploadSourceFile(type: UploadSourceType, file: File): Promise<UploadedFile> {
   const form = new FormData()
   form.append('file', file)
-  return send('/api/rdb', 'POST', form)
+  return send(`/api/${type}`, 'POST', form)
 }
 
-export function deleteRdbFile(id: string): Promise<unknown> {
-  return send(`/api/rdb/${encodeURIComponent(id)}`, 'DELETE')
+export function deleteUpload(type: UploadSourceType, id: string): Promise<unknown> {
+  return send(`/api/${type}/${encodeURIComponent(id)}`, 'DELETE')
 }
 
 // Inspect works for any source type — same shapes, per-type endpoints.
 export function fetchSourceTree(source: DeviceSource): Promise<ProjectTree> {
-  if (source.type === 'rdb') return get(`/api/rdb/tree?ref=${encodeURIComponent(source.ref)}`)
+  if (source.type === 'rdb' || source.type === 'scd') {
+    return get(`/api/${source.type}/tree?ref=${encodeURIComponent(source.ref)}`)
+  }
   return fetchTree(source.ref)
 }
 
 export function fetchSourceItem(source: DeviceSource, file: string): Promise<ProjectItem> {
-  if (source.type === 'rdb') {
-    return get(`/api/rdb/item?ref=${encodeURIComponent(source.ref)}&file=${encodeURIComponent(file)}`)
+  if (source.type === 'rdb' || source.type === 'scd') {
+    return get(`/api/${source.type}/item?ref=${encodeURIComponent(source.ref)}&file=${encodeURIComponent(file)}`)
   }
   return fetchItem(source.ref, file)
 }
@@ -148,6 +152,21 @@ export function moveDevice(
 export function removeDevice(workspace: string, deviceId: string): Promise<unknown> {
   return send(
     `/api/workspaces/${encodeURIComponent(workspace)}/devices/${encodeURIComponent(deviceId)}`,
+    'DELETE',
+  )
+}
+
+export function attachScd(workspace: string, deviceId: string, ref: string): Promise<unknown> {
+  return send(
+    `/api/workspaces/${encodeURIComponent(workspace)}/devices/${encodeURIComponent(deviceId)}/scd`,
+    'POST',
+    { ref },
+  )
+}
+
+export function detachScd(workspace: string, deviceId: string): Promise<unknown> {
+  return send(
+    `/api/workspaces/${encodeURIComponent(workspace)}/devices/${encodeURIComponent(deviceId)}/scd`,
     'DELETE',
   )
 }

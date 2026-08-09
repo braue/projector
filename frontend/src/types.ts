@@ -223,16 +223,20 @@ export interface DeviceSource {
 /** An rdb ref is "<fileId>::<profileName>" (see backend/services/rdb.js). */
 export const REF_SEPARATOR = '::'
 
-export interface RdbProfileEntry {
+/** The upload-backed source types (RTAC projects come from the database). */
+export type UploadSourceType = 'rdb' | 'scd'
+
+export interface UploadProfileEntry {
   name: string
   ref: string
-  relayType: string | null
+  /** Device model/type badge: relay type for RDB, IED type for SCD. */
+  deviceType: string | null
 }
 
-export interface RdbFile {
+export interface UploadedFile {
   id: string
   fileName: string
-  profiles: RdbProfileEntry[]
+  profiles: UploadProfileEntry[]
 }
 
 export type LinkTier = 'confirmed' | 'conflict' | 'probable' | 'declared' | 'manual'
@@ -246,6 +250,8 @@ export interface GraphDevice {
   model: string | null
   endpointCount?: number
   error?: string
+  /** SCD profile augmenting this device, when one is attached. */
+  scd?: { ref: string; error?: string; warning?: string } | null
 }
 
 export interface GraphGhost {
