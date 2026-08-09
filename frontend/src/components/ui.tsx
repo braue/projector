@@ -104,9 +104,19 @@ export function Select({
   )
 }
 
-/** Single-line text input (settings search). */
-export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input type="text" className="ui-input" {...props} />
+/** Single-line text input (settings search); `label` wraps it like Select's. */
+export function TextInput({
+  label,
+  ...rest
+}: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+  const input = <input type="text" className="ui-input" {...rest} />
+  if (!label) return input
+  return (
+    <label className="ui-labeled">
+      <span className="ui-label">{label}</span>
+      {input}
+    </label>
+  )
 }
 
 /** Multi-line text input (aggregate term list). */

@@ -7,6 +7,7 @@ export const SOURCE_TABS: { key: SourceType; label: string }[] = [
   { key: 'rtac', label: 'RTAC' },
   { key: 'rdb', label: 'RDB' },
   { key: 'scd', label: 'SCD' },
+  { key: 'sw', label: 'SW' },
 ]
 
 /** Drag payload: JSON DeviceSource under this MIME. */

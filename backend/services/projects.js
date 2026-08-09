@@ -128,9 +128,18 @@ class ProjectService {
       throw httpError(409, `project ${name} is not exported yet`);
     }
 
-    const cached = this.parseCache.get(name);
-    if (cached) return cached;
+    // The cache holds the in-flight promise, not the settled result, so two
+    // concurrent readers of an uncached project (canvas graph racing an
+    // Inspect fetch) share one parse instead of each walking every XML file.
+    if (!this.parseCache.has(name)) {
+      const pending = this.#parse(name);
+      this.parseCache.set(name, pending);
+      pending.catch(() => this.parseCache.delete(name));
+    }
+    return this.parseCache.get(name);
+  }
 
+  async #parse(name) {
     const root = this.#dir(name);
     const files = [];
     const walk = async (dir, rel) => {
@@ -163,9 +172,7 @@ class ProjectService {
     );
 
     const model = parseRtacProject(files);
-    const parsed = { model, byFile: new Map(model.items.map((item) => [item.file, item])), hashes };
-    this.parseCache.set(name, parsed);
-    return parsed;
+    return { model, byFile: new Map(model.items.map((item) => [item.file, item])), hashes };
   }
 
   // Public read of the parsed project model — the comm extractors consume it.

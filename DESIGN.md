@@ -117,19 +117,41 @@ backend/
   lib/parsers/rtac/      carried over (kind registry, loss-tolerant)
   lib/parsers/rdb/       ported from Volture (CFB/QuickSet; [INFO] block,
                          settings sections, Cfg.txt name translations)
-  lib/parsers/scd/       new SCL/XML parser (fast-xml-parser; stub until
-                         example files are provided)
+  lib/parsers/scd/       SCL/XML parser (fast-xml-parser), sectioned like the
+                         Architect workbook extractor: Network, per-dataset
+                         FCDA→sAddr source resolution, GOOSE TX (wire + SEL
+                         privates), GOOSE RX (formatted ExtRefs), Reports
+  lib/parsers/sw/        SEL managed-switch settings XML (SEL-2730M):
+                         nameplate, physical ports, VLAN plan, management
+                         interfaces — switches place on the canvas as network
+                         fabric and take manually drawn port connections.
+                         GOOSE links are VLAN-checked through the drawn
+                         fabric: SCL VLAN-IDs (3 hex digits) decode to the
+                         VLAN the publication rides, and a switch port or
+                         trunk that drops it turns the link into a conflict
   lib/comm/model.js      CommModel — the shared normalized shape
   lib/comm/extract/      one extractor per source type → CommModel
-  lib/comm/linker.js     pure matcher: (profiles, manualLinks) → links
-  services/sources.js    RTAC pipeline (as built) + RDB/SCD uploads
+  lib/comm/linker.js     pure matcher: (profiles, manualLinks) → links +
+                         network review — GOOSE VLAN paths walked across
+                         drawn access ports and trunk chains (BFS), IP route
+                         sanity (off-subnet with no gateway), same-subnet L2
+                         reachability, and workspace diagnostics (duplicate
+                         IPs, GOOSE APPID/MAC collisions; same-identity
+                         placements never collide with themselves)
+  lib/uploadService.js   the upload-source lifecycle, once: versioned
+                         background re-parse, upload/list/profile refs, and
+                         the tree→item compare adapter — a service supplies
+                         parse/profilesOf/findProfile + its inspect sections
+  lib/inspect.js         the inspect-item shapes (section nodes, table
+                         pages, item defaults) all services build from
+  services/sources.js    RTAC pipeline (as built) + RDB/SCD/SW uploads
   services/workspaces.js named canvases: placements, manual links, notes
                          (JSON per workspace under data/)
   routes/                sources, workspaces, links, compare
 frontend/
   components/ui.tsx      primitive seam, carried over
   canvas/                React Flow graph, nodes, edges, inspector
-  sources/               3-tab sidebar
+  sources/               source-tab sidebar (RTAC / RDB / SCD / SW)
   compare/               per-source compare views
 ```
 

@@ -30,7 +30,8 @@ export interface TreeItemNode {
   type: 'item'
   name: string
   path: string
-  kind: string
+  /** RTAC/RDB only — upload sections carry kindLabel/category alone. */
+  kind?: string
   kindLabel: string
   category: ItemCategory
   protocol?: string | null
@@ -213,7 +214,7 @@ export interface AggregateResult {
 
 // --- canvas / workspaces ------------------------------------------------------
 
-export type SourceType = 'rtac' | 'rdb' | 'scd'
+export type SourceType = 'rtac' | 'rdb' | 'scd' | 'sw'
 
 export interface DeviceSource {
   type: SourceType
@@ -224,7 +225,7 @@ export interface DeviceSource {
 export const REF_SEPARATOR = '::'
 
 /** The upload-backed source types (RTAC projects come from the database). */
-export type UploadSourceType = 'rdb' | 'scd'
+export type UploadSourceType = 'rdb' | 'scd' | 'sw'
 
 export interface UploadProfileEntry {
   name: string
@@ -241,6 +242,8 @@ export interface UploadedFile {
 
 export type LinkTier = 'confirmed' | 'conflict' | 'probable' | 'declared' | 'manual'
 
+// Mirrors graphDevice() in backend/lib/comm/model.js — the projection is the
+// contract; change the two together.
 export interface GraphDevice {
   id: string
   x: number
@@ -250,8 +253,20 @@ export interface GraphDevice {
   model: string | null
   endpointCount?: number
   error?: string
+  /** Network fabric ('switch') vs an end device (absent). */
+  kind?: string
+  /** Physical port inventory — the connect dialog's choices (switches). */
+  ports?: { id: string; name: string | null; enabled: boolean }[]
+  /** Serial lines the connect dialog can pair by hand. */
+  serialEndpoints?: { id: string; name: string; detail: string | null }[]
   /** SCD profile augmenting this device, when one is attached. */
   scd?: { ref: string; error?: string; warning?: string } | null
+}
+
+/** A workspace-wide settings finding (duplicate IP, GOOSE wire collision). */
+export interface NetworkDiagnostic {
+  severity: 'error' | 'warning'
+  text: string
 }
 
 export interface GraphGhost {
@@ -268,6 +283,8 @@ export interface LinkWarning {
 
 export interface GraphLink {
   id: string
+  /** Set on user-drawn links — its presence enables "Remove connection". */
+  manualId?: string
   sourceDeviceId: string
   targetDeviceId?: string
   targetGhostId?: string
@@ -285,6 +302,7 @@ export interface WorkspaceGraph {
   devices: GraphDevice[]
   ghosts: GraphGhost[]
   links: GraphLink[]
+  diagnostics: NetworkDiagnostic[]
   summary: {
     devices: number
     confirmed: number

@@ -34,6 +34,12 @@ const UPLOAD_META: Record<UploadSourceType, {
     dropHint: 'SEL Architect · IEC 61850',
     dragHint: 'drag to canvas (onto a device to augment it), click to inspect',
   },
+  sw: {
+    accept: '.xml,.txt,.cfg,.bin',
+    dropLabel: 'Drop switch settings here',
+    dropHint: 'SEL-2730M settings export (XML)',
+    dragHint: 'drag to canvas, click to inspect',
+  },
 }
 
 function dragProps(source: DeviceSource) {

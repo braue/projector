@@ -107,9 +107,11 @@ test('scd ied vs scd ied compares inspect items; mixed types are rejected', asyn
     const result = await compare.compare(relay, rtu);
     const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
     assert.equal(byPath.get('network'), 'edited'); // RELAY_1 has addresses, RTU_1 none
-    assert.equal(byPath.get('subscriptions'), 'added');
-    assert.equal(byPath.get('ld:S1:CFG'), 'removed');
-    assert.equal(byPath.get('ld:S1:ANN'), 'added');
+    assert.equal(byPath.get('subscriptions'), 'added'); // only RTU_1 receives
+    assert.equal(byPath.get('tx'), 'removed'); // only RELAY_1 publishes
+    assert.equal(byPath.get('reports'), 'removed');
+    assert.equal(byPath.get('ds:S1:CFG:GPDSet01'), 'removed');
+    assert.equal(byPath.get('structure'), 'edited'); // different logical devices
 
     await assert.rejects(
       () => compare.compare(relay, { type: 'rdb', ref: 'pair::OLD_UNIT' }),

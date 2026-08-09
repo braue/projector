@@ -14,27 +14,43 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-import { attachScd, detachScd, fetchGraph, moveDevice, placeDevice, removeDevice } from '../api'
+import {
+  addManualLink,
+  attachScd,
+  detachScd,
+  fetchGraph,
+  moveDevice,
+  placeDevice,
+  removeDevice,
+  removeManualLink,
+} from '../api'
 import { errorMessage } from '../lib/errors'
 import { SOURCE_MIME } from '../lib/sources'
 import { TIER_COLOR, TIER_DASH } from '../lib/tiers'
 import { REF_SEPARATOR } from '../types'
 import type { DeviceSource, GraphDevice, GraphLink, WorkspaceGraph } from '../types'
 import { FloatingEdge } from './FloatingEdge'
+import { Button, SegmentedControl, Select, TextInput } from './ui'
 
 // The canvas: boxes and colored wires, nothing else. All written detail lives
 // in the click popup. Wires are inferred server-side on every graph read —
-// the canvas never stores a link.
+// the canvas never stores a link. The one exception the user draws by hand:
+// dragging from one node's edge to another opens the connect dialog (pick the
+// ports), which stores a manual link the linker then validates like any other.
 
-type DeviceNodeData = { name: string; sub: string; ghost?: boolean; scd?: boolean }
+type DeviceNodeData = { name: string; sub: string; ghost?: boolean; scd?: boolean; switch?: boolean }
 type DeviceNode = Node<DeviceNodeData, 'device'>
 
 function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
+  const classes = ['canvas-node']
+  if (data.ghost) classes.push('ghost')
+  if (data.switch) classes.push('switch')
   return (
-    <div className={data.ghost ? 'canvas-node ghost' : 'canvas-node'}>
+    <div className={classes.join(' ')}>
       <Handle type="target" position={Position.Left} className="node-handle" />
       <div className="nm">
         {data.name}
+        {data.switch && <span className="node-scd">SW</span>}
         {data.scd && <span className="node-scd">SCD</span>}
       </div>
       <div className="sub">{data.sub}</div>
@@ -48,6 +64,13 @@ const EDGE_TYPES = { floating: FloatingEdge }
 
 type PopupState = { link: GraphLink; x: number; y: number }
 type NodePopupState = { device: GraphDevice; x: number; y: number }
+
+// Popup geometry: .link-popup is 348px wide; keep it 8px inside the canvas.
+const POPUP_WIDTH = 348
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+
+/** What kind of box this is, when the profile states nothing better. */
+const deviceModelLabel = (device: GraphDevice) => device.model ?? device.source.type.toUpperCase()
 
 // Which settings artifact a canvas node is built from, as one line. Upload
 // refs are "<fileId>::<profileName>" — the fileId is shown as-is (its real
@@ -85,7 +108,7 @@ function NodePopup({
         <button className="x" onClick={onClose} title="Close">✕</button>
       </div>
       <div className="summary">
-        {device.model ?? device.source.type.toUpperCase()}
+        {deviceModelLabel(device)}
         {device.endpointCount !== undefined &&
           ` · ${device.endpointCount} comm endpoint${device.endpointCount === 1 ? '' : 's'}`}
       </div>
@@ -115,7 +138,16 @@ function NodePopup({
   )
 }
 
-function LinkPopup({ popup, onClose }: { popup: PopupState; onClose: () => void }) {
+function LinkPopup({
+  popup,
+  onClose,
+  onRemove,
+}: {
+  popup: PopupState
+  onClose: () => void
+  /** Present only for user-drawn links — inferred wires cannot be removed. */
+  onRemove: (manualId: string) => void
+}) {
   const { link } = popup
   const errors = link.warnings.filter((w) => w.kind === 'error')
   const tone = errors.length ? 'bad' : link.warnings.length ? 'warnc' : 'okc'
@@ -149,6 +181,165 @@ function LinkPopup({ popup, onClose }: { popup: PopupState; onClose: () => void 
       ) : (
         <div className="clean">No warnings — both ends agree.</div>
       )}
+      {link.manualId && (
+        <div className="popup-actions">
+          <Button onClick={() => onRemove(link.manualId!)}>Remove connection</Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// --- drawing a connection ------------------------------------------------------
+
+type PendingConnect = { a: GraphDevice; b: GraphDevice }
+
+// One side's port choice: a dropdown when the device states its ports (a
+// switch's eth1..ethN), free text otherwise (a relay's own port label).
+function PortField({
+  device,
+  value,
+  onChange,
+}: {
+  device: GraphDevice
+  value: string
+  onChange: (value: string) => void
+}) {
+  if (device.ports?.length) {
+    return (
+      <Select
+        label={`${device.name} port`}
+        value={value}
+        onChange={onChange}
+        placeholder="— pick a port —"
+        options={device.ports.map((port) => ({
+          value: port.id,
+          label: [
+            port.id,
+            port.name && `— ${port.name}`,
+            !port.enabled && '(disabled)',
+          ].filter(Boolean).join(' '),
+        }))}
+      />
+    )
+  }
+  return (
+    <TextInput
+      label={`${device.name} port`}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="optional — e.g. Port 5"
+    />
+  )
+}
+
+// One side's serial line choice, from the device's own serial endpoints.
+function SerialField({
+  device,
+  value,
+  onChange,
+}: {
+  device: GraphDevice
+  value: string
+  onChange: (value: string) => void
+}) {
+  return (
+    <Select
+      label={`${device.name} serial line`}
+      value={value}
+      onChange={onChange}
+      placeholder="— pick a line —"
+      options={(device.serialEndpoints ?? []).map((endpoint) => ({
+        value: endpoint.id,
+        label: endpoint.detail ? `${endpoint.name} — ${endpoint.detail}` : endpoint.name,
+      }))}
+    />
+  )
+}
+
+type ConnectRequest =
+  | { type: 'ethernet'; aPort?: string; bPort?: string }
+  | { type: 'serial'; aEndpointId: string; bEndpointId: string }
+
+function ConnectDialog({
+  pending,
+  onCancel,
+  onConnect,
+}: {
+  pending: PendingConnect
+  onCancel: () => void
+  onConnect: (request: ConnectRequest) => void
+}) {
+  // Serial pairing is offered when both ends state serial lines and neither
+  // is a switch; two relays wired directly usually means a serial run.
+  const serialPossible = Boolean(
+    pending.a.serialEndpoints?.length
+      && pending.b.serialEndpoints?.length
+      && pending.a.kind !== 'switch'
+      && pending.b.kind !== 'switch',
+  )
+  const [mode, setMode] = useState<'ethernet' | 'serial'>(
+    serialPossible && !pending.a.ports?.length && !pending.b.ports?.length ? 'serial' : 'ethernet',
+  )
+  const [aPort, setAPort] = useState('')
+  const [bPort, setBPort] = useState('')
+  const [aEndpoint, setAEndpoint] = useState('')
+  const [bEndpoint, setBEndpoint] = useState('')
+  // Ethernet: a device that states its ports must have one picked; free text
+  // is optional. Serial: both lines must be picked.
+  const ready = mode === 'ethernet'
+    ? (!pending.a.ports?.length || aPort) && (!pending.b.ports?.length || bPort)
+    : aEndpoint && bEndpoint
+  return (
+    <div className="connect-overlay" onClick={onCancel}>
+      <div className="link-popup connect-dialog" onClick={(e) => e.stopPropagation()}>
+        <div className="ph">
+          <span className="t">{pending.a.name} ⇄ {pending.b.name}</span>
+          <button className="x" onClick={onCancel} title="Cancel">✕</button>
+        </div>
+        <div className="summary">
+          {mode === 'ethernet'
+            ? 'Draw a physical connection — pick the port on each end.'
+            : 'Pair two serial lines — pick the line on each end.'}
+        </div>
+        <div className="connect-fields">
+          {serialPossible && (
+            <SegmentedControl
+              options={[
+                { value: 'ethernet' as const, label: 'Ethernet' },
+                { value: 'serial' as const, label: 'Serial' },
+              ]}
+              value={mode}
+              onChange={setMode}
+            />
+          )}
+          {mode === 'ethernet' ? (
+            <>
+              <PortField device={pending.a} value={aPort} onChange={setAPort} />
+              <PortField device={pending.b} value={bPort} onChange={setBPort} />
+            </>
+          ) : (
+            <>
+              <SerialField device={pending.a} value={aEndpoint} onChange={setAEndpoint} />
+              <SerialField device={pending.b} value={bEndpoint} onChange={setBEndpoint} />
+            </>
+          )}
+        </div>
+        <div className="popup-actions">
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button
+            variant="primary"
+            disabled={!ready}
+            onClick={() => onConnect(
+              mode === 'ethernet'
+                ? { type: 'ethernet', aPort: aPort || undefined, bPort: bPort || undefined }
+                : { type: 'serial', aEndpointId: aEndpoint, bEndpointId: bEndpoint },
+            )}
+          >
+            Connect
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -170,6 +361,7 @@ function CanvasInner({
   const [nodes, setNodes] = useState<DeviceNode[]>([])
   const [popup, setPopup] = useState<PopupState | null>(null)
   const [nodePopup, setNodePopup] = useState<NodePopupState | null>(null)
+  const [pendingConnect, setPendingConnect] = useState<PendingConnect | null>(null)
   const { screenToFlowPosition } = useReactFlow()
   // Loads can overlap (StrictMode double-mount, drop + upload back to back);
   // only the latest response may write state, or React Flow can validate
@@ -191,8 +383,9 @@ function CanvasInner({
           position: { x: device.x, y: device.y },
           data: {
             name: device.name,
-            sub: device.error ?? `${device.model ?? device.source.type.toUpperCase()} · ${device.source.ref}`,
+            sub: device.error ?? `${deviceModelLabel(device)} · ${device.source.ref}`,
             scd: Boolean(device.scd),
+            switch: device.kind === 'switch',
           },
         })),
         ...next.ghosts.map<DeviceNode>((ghost, i) => ({
@@ -201,6 +394,7 @@ function CanvasInner({
           // Ghosts have no stored position: park them in a column to the right.
           position: { x: 720, y: 60 + i * 96 },
           data: { name: ghost.label, sub: ghost.sublabel, ghost: true },
+          connectable: false,
         })),
       ])
     } catch (err) {
@@ -296,10 +490,10 @@ function CanvasInner({
           const rightOf = nodeRect.right - wrap.left + 10
           setNodePopup({
             device,
-            x: rightOf > wrap.width - 356
-              ? Math.max(nodeRect.left - wrap.left - 358, 8)
+            x: rightOf > wrap.width - (POPUP_WIDTH + 8)
+              ? Math.max(nodeRect.left - wrap.left - (POPUP_WIDTH + 10), 8)
               : rightOf,
-            y: Math.min(Math.max(nodeRect.top - wrap.top, 8), wrap.height - 190),
+            y: clamp(nodeRect.top - wrap.top, 8, wrap.height - 190),
           })
         }}
         onNodeDoubleClick={(_e, node) => {
@@ -317,9 +511,18 @@ function CanvasInner({
           setNodePopup(null)
           setPopup({
             link,
-            x: Math.min(Math.max(e.clientX - wrap.left - 170, 8), wrap.width - 356),
-            y: Math.min(Math.max(e.clientY - wrap.top - 30, 8), wrap.height - 300),
+            x: clamp(e.clientX - wrap.left - 170, 8, wrap.width - (POPUP_WIDTH + 8)),
+            y: clamp(e.clientY - wrap.top - 30, 8, wrap.height - 300),
           })
+        }}
+        onConnect={({ source, target }) => {
+          if (!source || !target || source === target) return
+          const a = graph?.devices.find((d) => d.id === source)
+          const b = graph?.devices.find((d) => d.id === target)
+          if (!a || !b) return // ghosts (and unknown ids) take no drawn wires
+          setPopup(null)
+          setNodePopup(null)
+          setPendingConnect({ a, b })
         }}
         onPaneClick={() => {
           setPopup(null)
@@ -339,7 +542,32 @@ function CanvasInner({
       >
         <Background gap={26} size={1.5} color="#dfe2e8" />
       </ReactFlow>
-      {popup && <LinkPopup popup={popup} onClose={() => setPopup(null)} />}
+      {popup && (
+        <LinkPopup
+          popup={popup}
+          onClose={() => setPopup(null)}
+          onRemove={async (manualId) => {
+            setPopup(null)
+            await removeManualLink(workspace, manualId).catch((err) => setError(errorMessage(err)))
+            await load()
+          }}
+        />
+      )}
+      {pendingConnect && (
+        <ConnectDialog
+          pending={pendingConnect}
+          onCancel={() => setPendingConnect(null)}
+          onConnect={async (request) => {
+            setPendingConnect(null)
+            await addManualLink(workspace, {
+              ...request,
+              aDeviceId: pendingConnect.a.id,
+              bDeviceId: pendingConnect.b.id,
+            }).catch((err) => setError(errorMessage(err)))
+            await load()
+          }}
+        />
+      )}
       {nodePopup && (
         <NodePopup
           popup={nodePopup}

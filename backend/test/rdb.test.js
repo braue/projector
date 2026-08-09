@@ -44,7 +44,7 @@ test('extractRdbProfile: interfaces, servers, serial from the rule table', () =>
 
   assert.equal(profile.model, 'SEL-751A');
   assert.deepEqual(profile.interfaces, [
-    { kind: 'ethernet', name: 'Port 5', ip: '123.123.123.123', mask: '255.255.255.0' },
+    { kind: 'ethernet', name: 'Port 5', ip: '123.123.123.123', mask: '255.255.255.0', gateway: null },
   ]);
 
   const dnp = profile.endpoints.find((e) => e.protocol === 'DNP' && e.transport === 'tcp');

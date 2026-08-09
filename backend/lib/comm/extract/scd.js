@@ -13,47 +13,56 @@
 // device seen by two documents (an RDB says what the relay is set to, the
 // SCD says where it sits on the 61850 network).
 
-import { connectedAps } from '../../parsers/scd/index.js';
+import { connectedAps, ldevicesOf, wireAddressFor } from '../../parsers/scd/index.js';
+
+// SCL states VLAN-IDs as three hex digits (the SCL XSD pattern is
+// [0-9A-F]{3}): "014" is VLAN 20, "3E8" is VLAN 1000. "000" means the
+// publication is untagged — no VLAN to check. The decoded number is what the
+// linker compares against switch VLAN tables, which are decimal.
+function sclVlanNumber(raw) {
+  if (!raw || !/^[0-9A-Fa-f]{1,3}$/.test(raw)) return null;
+  const vlan = parseInt(raw, 16);
+  return vlan >= 1 && vlan <= 4094 ? vlan : null;
+}
 
 function gooseEndpoints(ied, aps) {
   const wires = aps.flatMap((ap) => ap.gses);
   const endpoints = [];
 
-  for (const accessPoint of ied.accessPoints) {
-    for (const ldevice of accessPoint.ldevices) {
-      for (const cb of ldevice.gooseControls) {
-        const wire = wires.find(
-          (candidate) => candidate.cbName === cb.name
-            && (!candidate.ldInst || candidate.ldInst === ldevice.inst),
-        );
-        const lines = [`publishes dataset ${cb.datSet ?? '?'}${cb.appId ? ` · APPID ${cb.appId}` : ''}`];
-        if (wire) {
-          const mac = wire.address['MAC-Address'];
-          const vlan = wire.address['VLAN-ID'];
-          lines.push([mac && `multicast ${mac}`, vlan && `VLAN ${vlan}`].filter(Boolean).join(' · '));
-        }
-        endpoints.push({
-          id: `goose:${ldevice.inst}/${cb.name}`,
-          name: cb.name,
-          role: 'server',
-          protocol: 'GOOSE',
-          transport: 'ethernet',
-          remoteAddress: null,
-          remotePort: null,
-          localPort: null,
-          serial: null,
-          addressing: {},
-          goose: wire ? { mac: wire.address['MAC-Address'] ?? null, appId: wire.address.APPID ?? null } : null,
-          lines: lines.filter(Boolean),
-        });
+  for (const { ldevice } of ldevicesOf(ied)) {
+    for (const cb of ldevice.gooseControls) {
+      const { address } = wireAddressFor(wires, ldevice, cb);
+      const lines = [`Publishes dataset ${cb.datSet ?? '?'}${cb.appId ? ` · APPID ${cb.appId}` : ''}`];
+      if (address) {
+        const mac = address['MAC-Address'];
+        const vlan = address['VLAN-ID'];
+        lines.push([mac && `Multicast ${mac}`, vlan && `VLAN ${vlan}`].filter(Boolean).join(' · '));
       }
+      endpoints.push({
+        id: `goose:${ldevice.inst}/${cb.name}`,
+        name: cb.name,
+        role: 'server',
+        protocol: 'GOOSE',
+        transport: 'ethernet',
+        addressing: {},
+        goose: address
+          ? {
+              mac: address['MAC-Address'] ?? null,
+              appId: address.APPID ?? null,
+              vlanId: address['VLAN-ID'] ?? null,
+              vlan: sclVlanNumber(address['VLAN-ID']),
+            }
+          : null,
+        lines: lines.filter(Boolean),
+      });
     }
   }
   return endpoints;
 }
 
-// `profile` is ScdService.profile(ref) output: { fileId, model, ied }.
-function extractScdProfile({ fileId, model, ied }, ref) {
+// Input is ScdService.profile(ref) output: { fileId, model, profile } —
+// `profile` being the IED.
+function extractScdProfile({ fileId, model, profile: ied }, ref) {
   const aps = connectedAps(model, ied.name).map(({ ap }) => ap);
 
   return {
@@ -66,6 +75,7 @@ function extractScdProfile({ fileId, model, ied }, ref) {
       name: ap.apName,
       ip: ap.address.IP ?? null,
       mask: ap.address['IP-SUBNET'] ?? null,
+      gateway: ap.address['IP-GATEWAY'] ?? null,
     })),
     endpoints: gooseEndpoints(ied, aps),
     identity: { namespace: `scd:${fileId}`, name: ied.name },

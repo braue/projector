@@ -52,11 +52,16 @@ export default function App() {
   const [listError, setListError] = useState<string | null>(null)
   const [uploads, setUploads] = useState<
     Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
-  >({ rdb: { files: [], error: null }, scd: { files: [], error: null } })
+  >({
+    rdb: { files: [], error: null },
+    scd: { files: [], error: null },
+    sw: { files: [], error: null },
+  })
   const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [graphVersion, setGraphVersion] = useState(0)
+  const [showFindings, setShowFindings] = useState(false)
   const [workspace, setWorkspace] = useState(DEFAULT_WORKSPACE)
   const [workspaces, setWorkspaces] = useState<string[]>([DEFAULT_WORKSPACE])
 
@@ -104,6 +109,7 @@ export default function App() {
     refresh()
     refreshUploads('rdb')
     refreshUploads('scd')
+    refreshUploads('sw')
     refreshWorkspaces()
   }, [refresh, refreshUploads, refreshWorkspaces])
 
@@ -269,6 +275,19 @@ export default function App() {
               onInspect={inspectFromCanvas}
               onGraph={setGraph}
             />
+            {showFindings && graph && graph.diagnostics.length > 0 && (
+              <div className="findings-panel">
+                <div className="findings-head">
+                  <span>Network review — {graph.diagnostics.length} finding{graph.diagnostics.length === 1 ? '' : 's'}</span>
+                  <button className="x" onClick={() => setShowFindings(false)} title="Close">✕</button>
+                </div>
+                {graph.diagnostics.map((finding, i) => (
+                  <div key={i} className={`finding ${finding.severity === 'error' ? 'bad' : 'warnc'}`}>
+                    {finding.text}
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="status-bar">
               {graph ? (
                 <>
@@ -276,9 +295,20 @@ export default function App() {
                   <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.confirmed }} /><b>{graph.summary.confirmed}</b> confirmed</span>
                   <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.probable }} /><b>{graph.summary.probable}</b> suggested</span>
                   <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.declared }} /><b>{graph.summary.declared}</b> declared</span>
+                  {graph.summary.manual > 0 && (
+                    <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.manual }} /><b>{graph.summary.manual}</b> drawn</span>
+                  )}
                   <span className={graph.summary.conflicts ? 'conflict' : undefined}>
                     {graph.summary.conflicts} conflict{graph.summary.conflicts === 1 ? '' : 's'}
                   </span>
+                  {graph.diagnostics.length > 0 && (
+                    <button
+                      className={showFindings ? 'findings-chip on' : 'findings-chip'}
+                      onClick={() => setShowFindings((current) => !current)}
+                    >
+                      ⚠ {graph.diagnostics.length} network finding{graph.diagnostics.length === 1 ? '' : 's'}
+                    </button>
+                  )}
                 </>
               ) : (
                 <span>Drag a downloaded project onto the canvas to begin.</span>

@@ -1,151 +1,109 @@
 // SCD source service — uploaded IEC 61850 SCL substation configurations.
 //
-// Storage rides the shared UploadStore (DATA_DIR/scd/<id>/, parsed.json
-// rehydration, unique ids); this service owns parsing and the inspect/compare
-// shaping. A profile — one IED — is addressed "<fileId>::<iedName>". An SCD
-// profile can stand alone on the canvas or augment a device placed from
-// another artifact (the same physical device seen by two documents).
+// Lifecycle (storage, versioned re-parse, refs, compare adapter) lives in
+// lib/uploadService.js; this service owns only what is SCD-shaped: which
+// profiles a file carries (its IEDs) and the inspect sections. A profile —
+// one IED — is addressed "<fileId>::<iedName>". An SCD profile can stand
+// alone on the canvas or augment a device placed from another artifact (the
+// same physical device seen by two documents).
 
-import { settingsSignature } from '../lib/compare.js';
 import { httpError } from '../lib/http.js';
-import { connectedAps, parseScd } from '../lib/parsers/scd/index.js';
-import { REF_SEPARATOR, splitRef as splitSourceRef } from '../lib/refs.js';
-import { UploadStore } from '../lib/uploadStore.js';
+import { flag, sectionItem, sectionNode, tablePage } from '../lib/inspect.js';
+import { connectedAps, ldevicesOf, parseScd, wireAddressFor } from '../lib/parsers/scd/index.js';
+import { UploadService } from '../lib/uploadService.js';
 
-const splitRef = (ref) => splitSourceRef(ref, 'scd');
+// Bumped when the parsed model's shape changes; stale uploads re-parse from
+// their original bytes in the background on startup.
+const MODEL_VERSION = 2;
 
-class ScdService {
-  // Compare entries per IED object — models are immutable per upload.
-  #comparableCache = new WeakMap();
-
+class ScdService extends UploadService {
   constructor({ dataDir }) {
-    this.store = new UploadStore({
+    super({
       dataDir,
       label: 'scd',
       extension: /\.(scd|ssd|sed|cid|icd)$/i,
       originalName: 'original.scd',
+      modelVersion: MODEL_VERSION,
+      uploadErrorLabel: 'not a readable SCL file',
     });
   }
 
-  async init() {
-    await this.store.init();
+  parse(buffer) {
+    return parseScd(buffer.toString('utf8'));
   }
 
-  async upload(fileName, buffer) {
-    let model;
-    try {
-      model = parseScd(buffer.toString('utf8'));
-    } catch (err) {
-      throw httpError(400, `not a readable SCL file: ${err?.message ?? err}`);
-    }
+  validate(model) {
     if (!model.ieds.length) {
       throw httpError(400, 'the SCL file declares no IEDs');
     }
-
-    const stored = { fileName, model };
-    const id = await this.store.add(fileName, buffer, stored);
-    return this.#summary(id, stored);
   }
 
-  async remove(fileId) {
-    await this.store.remove(fileId);
+  profilesOf(model) {
+    return model.ieds.map((ied) => ({ name: ied.name, deviceType: ied.type }));
   }
 
-  #summary(id, stored) {
-    return {
-      id,
-      fileName: stored.fileName,
-      profiles: stored.model.ieds.map((ied) => ({
-        name: ied.name,
-        ref: `${id}${REF_SEPARATOR}${ied.name}`,
-        deviceType: ied.type,
-      })),
-    };
-  }
-
-  list() {
-    return [...this.store.entries()].map(([id, stored]) => this.#summary(id, stored));
-  }
-
-  // The IED plus everything the extractor needs alongside it (the model's
-  // Communication section names the IED's addresses).
-  profile(ref) {
-    const { fileId, profileName } = splitRef(ref);
-    const stored = this.store.get(fileId);
-    const ied = stored?.model.ieds.find((candidate) => candidate.name === profileName);
-    if (!ied) {
-      throw httpError(404, `unknown scd profile: ${ref}`);
-    }
-    return { fileId, fileName: stored.fileName, model: stored.model, ied };
-  }
-
-  // Compare adapter entries: the IED's inspect items (network, subscriptions,
-  // logical devices), signature = canonical (key-sorted) JSON of each item's
-  // settings. Cached per IED object.
-  comparable(ref) {
-    const { fileName, ied } = this.profile(ref);
-    if (!this.#comparableCache.has(ied)) {
-      this.#comparableCache.set(ied, this.tree(ref).tree.map((treeNode) => {
-        const item = this.item(ref, treeNode.path);
-        return {
-          path: treeNode.path,
-          name: treeNode.name,
-          item,
-          signature: settingsSignature(item.settings),
-        };
-      }));
-    }
-    return { label: `${fileName} · ${ied.name}`, entries: this.#comparableCache.get(ied) };
+  findProfile(model, name) {
+    return model.ieds.find((ied) => ied.name === name) ?? null;
   }
 
   // --- inspect mapping --------------------------------------------------------
-  // Same shapes as RTAC/RDB: one item per logical device, plus a Network item
-  // for the IED's access-point addresses and a Subscriptions item when the
-  // file binds any.
+  // Sectioned the way the Architect workbook extractor sections an IED — the
+  // five comm truths an engineer audits, each a table, not a settings soup:
+  //
+  //   Network          access points with IP/subnet/gateway per port
+  //   GOOSE Transmit   control blocks merged with their wire addresses
+  //   GOOSE Receive    bound ExtRefs point-by-point (path 'subscriptions' —
+  //                    the same declared links the canvas linker consumes)
+  //   Reports          full trigger/option configuration per ReportControl
+  //   one per dataset  every FCDA resolved to 61850 path + device source
+  //
+  // plus a Logical devices roll-up (LN counts, unbound template slots).
+  // Settings mirror each table's identity for compare signatures; pages carry
+  // the full rows for the inspect sheets.
 
   tree(ref) {
-    const { ied, model } = this.profile(ref);
-    const ldevices = ied.accessPoints.flatMap((accessPoint) =>
-      accessPoint.ldevices.map((ldevice) => ({ accessPoint, ldevice })),
-    );
+    const { profile: ied, model } = this.profile(ref);
+    const ldevices = ldevicesOf(ied);
+    const pick = (of) => ldevices.flatMap(({ ldevice }) => of(ldevice));
+    const gooseControls = pick((ld) => ld.gooseControls);
+    const reportControls = pick((ld) => ld.reportControls);
+    const boundPoints = pick((ld) => ld.extRefs).length;
 
     const items = [
-      {
-        type: 'item',
-        name: 'Network',
-        path: 'network',
-        kind: 'ScdNetwork',
-        kindLabel: 'Connected access points',
-        category: 'connection',
-        protocol: null,
-        connectionType: null,
-        pointCount: connectedAps(model, ied.name).length,
-      },
-      ...(ied.subscriptions.length
-        ? [{
-            type: 'item',
-            name: 'Subscriptions',
-            path: 'subscriptions',
-            kind: 'ScdSubscriptions',
-            kindLabel: 'Bound ExtRefs',
-            category: 'connection',
-            protocol: null,
-            connectionType: null,
-            pointCount: ied.subscriptions.reduce((total, sub) => total + sub.points, 0),
-          }]
+      sectionNode({
+        name: 'Network', path: 'network', kindLabel: 'Connected access points',
+        category: 'connection', pointCount: connectedAps(model, ied.name).length,
+      }),
+      ...(gooseControls.length
+        ? [sectionNode({
+            name: 'GOOSE Transmit', path: 'tx', kindLabel: 'GOOSE control blocks',
+            category: 'connection', pointCount: gooseControls.length,
+          })]
         : []),
-      ...ldevices.map(({ accessPoint, ldevice }) => ({
-        type: 'item',
-        name: ldevice.desc ? `${ldevice.inst} — ${ldevice.desc}` : ldevice.inst,
-        // No '/' — that reads as a folder separator when compare folds paths.
-        path: `ld:${accessPoint.name}:${ldevice.inst}`,
-        kind: 'LDevice',
-        kindLabel: 'Logical device',
-        category: 'system',
-        protocol: null,
-        connectionType: null,
-        pointCount: ldevice.logicalNodes,
-      })),
+      ...(boundPoints
+        ? [sectionNode({
+            name: 'GOOSE Receive', path: 'subscriptions', kindLabel: 'Bound ExtRefs',
+            category: 'connection', pointCount: boundPoints,
+          })]
+        : []),
+      ...(reportControls.length
+        ? [sectionNode({
+            name: 'Reports', path: 'reports', kindLabel: 'Report control blocks',
+            category: 'connection', pointCount: reportControls.length,
+          })]
+        : []),
+      ...ldevices.flatMap(({ accessPoint, ldevice }) =>
+        ldevice.datasets.map((ds) =>
+          // No '/' — that reads as a folder separator when compare folds paths.
+          sectionNode({
+            name: ds.desc ? `${ds.name} — ${ds.desc}` : ds.name,
+            path: `ds:${accessPoint.name}:${ldevice.inst}:${ds.name}`,
+            kindLabel: 'Dataset', category: 'tagList', pointCount: ds.points.length,
+          }))),
+      sectionNode({
+        name: 'Logical devices', path: 'structure', kindLabel: 'Logical devices',
+        category: 'system', pointCount: ldevices.length,
+      }),
     ];
 
     return {
@@ -159,71 +117,188 @@ class ScdService {
   }
 
   item(ref, key) {
-    const { ied, model } = this.profile(ref);
-    const base = {
-      kind: 'ScdSection',
-      category: 'system',
-      schema: null,
-      points: [],
-      pointCount: 0,
-      pages: [],
-    };
+    const { profile: ied, model } = this.profile(ref);
+    const ldevices = ldevicesOf(ied);
+    const scdItem = (overrides) => sectionItem('ScdSection', overrides);
 
     if (key === 'network') {
+      // One row per connected access point; GOOSE wire addresses live with
+      // their control blocks in `tx`.
+      const aps = connectedAps(model, ied.name);
       const settings = {};
-      for (const { subNetwork, ap } of connectedAps(model, ied.name)) {
-        settings[`${ap.apName} · subnetwork`] = `${subNetwork.name}${subNetwork.type ? ` (${subNetwork.type})` : ''}`;
+      const rows = [];
+      for (const { subNetwork, ap } of aps) {
+        const subnet = `${subNetwork.name ?? ''}${subNetwork.type ? ` (${subNetwork.type})` : ''}`;
+        settings[`${ap.apName} · subnetwork`] = subnet;
         for (const [type, value] of Object.entries(ap.address)) {
           settings[`${ap.apName} · ${type}`] = value;
         }
-        for (const gse of ap.gses) {
-          for (const [type, value] of Object.entries(gse.address)) {
-            settings[`${ap.apName} · GOOSE ${gse.cbName} · ${type}`] = value;
-          }
+        rows.push([
+          ap.apName, subnet, ap.address.IP, ap.address['IP-SUBNET'], ap.address['IP-GATEWAY'],
+          ap.ports.join(', '),
+        ]);
+      }
+      return scdItem({
+        id: key,
+        file: 'Communication',
+        kindLabel: 'Connected access points',
+        name: 'Network',
+        settings,
+        pointCount: aps.length,
+        pages: [tablePage('Access points',
+          ['Access point', 'Subnetwork', 'IP', 'Subnet', 'Gateway', 'Physical ports'], rows)],
+      });
+    }
+
+    if (key === 'tx') {
+      const wires = connectedAps(model, ied.name)
+        .flatMap(({ ap }) => ap.gses.map((gse) => ({ apName: ap.apName, ...gse })));
+      const settings = {};
+      const rows = [];
+      for (const { ldevice } of ldevices) {
+        for (const cb of ldevice.gooseControls) {
+          const { wire, address: wireAddress } = wireAddressFor(wires, ldevice, cb);
+          const address = wireAddress ?? {};
+          rows.push([
+            cb.name, cb.datSet, cb.appId, wire?.ldInst ?? ldevice.inst, wire?.apName,
+            address['MAC-Address'], address.APPID, address['VLAN-ID'], address['VLAN-PRIORITY'],
+            cb.minTime, cb.maxTime, cb.confRev,
+          ]);
+          settings[`GOOSE ${cb.name}`] = [
+            `dataset ${cb.datSet ?? '?'}`,
+            cb.appId && `App ID ${cb.appId}`,
+            address['MAC-Address'] && `MAC ${address['MAC-Address']}`,
+            address.APPID && `APPID ${address.APPID}`,
+            address['VLAN-ID'] && `VLAN ${address['VLAN-ID']}`,
+          ].filter(Boolean).join(' · ');
         }
       }
-      return { ...base, id: key, file: 'Communication', kindLabel: 'Connected access points', name: 'Network', category: 'connection', settings };
+      return scdItem({
+        id: key,
+        file: 'GSEControl + Communication',
+        kindLabel: 'GOOSE control blocks',
+        name: 'GOOSE Transmit',
+        protocol: 'GOOSE',
+        settings,
+        pointCount: rows.length,
+        pages: [tablePage('Transmit',
+          ['Control', 'Dataset', 'App ID', 'LDevice', 'Interface', 'MAC', 'APPID', 'VLAN ID',
+            'VLAN priority', 'Min time (ms)', 'Max time (ms)', 'Conf rev'], rows)],
+      });
     }
 
     if (key === 'subscriptions') {
+      // Grouped per publisher control block for compare and the linker's
+      // summary; the page lists every bound point in receive-map order.
       const settings = {};
       for (const sub of ied.subscriptions) {
         settings[`${sub.publisher}${sub.control ? ` · ${sub.control}` : ''}`] =
           `${sub.serviceType ?? '?'} · ${sub.points} point${sub.points === 1 ? '' : 's'} bound`;
       }
-      return { ...base, id: key, file: 'Inputs/ExtRef', kindLabel: 'Bound ExtRefs', name: 'Subscriptions', category: 'connection', settings };
+      const rows = ldevices.flatMap(({ ldevice }) =>
+        ldevice.extRefs.map((ext) => [ext.intAddr, ext.source, ext.serviceType]));
+      return scdItem({
+        id: key,
+        file: 'Inputs/ExtRef',
+        kindLabel: 'Bound ExtRefs',
+        name: 'GOOSE Receive',
+        protocol: 'GOOSE',
+        settings,
+        pointCount: rows.length,
+        pages: [tablePage('Received points', ['Internal address', 'Source', 'Service'], rows)],
+      });
     }
 
-    if (key.startsWith('ld:')) {
-      const [apName, inst] = key.slice(3).split(':');
-      const accessPoint = ied.accessPoints.find((candidate) => candidate.name === apName);
-      const ldevice = accessPoint?.ldevices.find((candidate) => candidate.inst === inst);
-      if (ldevice) {
-        const settings = {};
-        for (const ds of ldevice.datasets) {
-          settings[`DataSet ${ds.name}`] = `${ds.points} point${ds.points === 1 ? '' : 's'}${ds.desc ? ` · ${ds.desc}` : ''}`;
-        }
-        for (const cb of ldevice.gooseControls) {
-          settings[`GOOSE ${cb.name}`] = `dataset ${cb.datSet ?? '?'}${cb.appId ? ` · APPID ${cb.appId}` : ''}`;
-        }
+    if (key === 'reports') {
+      const settings = {};
+      const rows = [];
+      for (const { ldevice } of ldevices) {
         for (const cb of ldevice.reportControls) {
-          settings[`Report ${cb.name}`] = `dataset ${cb.datSet ?? '?'} · ${cb.buffered ? 'buffered' : 'unbuffered'}`;
+          rows.push([
+            cb.name, cb.datSet, cb.rptId, flag(cb.buffered), cb.bufTime,
+            flag(cb.trgOps.dchg), flag(cb.trgOps.qchg), flag(cb.trgOps.dupd), flag(cb.trgOps.period),
+            cb.intgPd,
+            Object.entries(cb.optFields).filter(([, on]) => on).map(([name]) => name).join(', '),
+            cb.maxClients, cb.confRev,
+          ]);
+          settings[`Report ${cb.name}`] = [
+            `dataset ${cb.datSet ?? '?'}`,
+            cb.buffered ? 'buffered' : 'unbuffered',
+            cb.bufTime && `buf ${cb.bufTime} ms`,
+            `triggers ${['dchg', 'qchg', 'dupd', 'period'].filter((t) => cb.trgOps[t]).join('+') || 'none'}`,
+            cb.intgPd && `integrity ${cb.intgPd} ms`,
+          ].filter(Boolean).join(' · ');
         }
-        for (const cb of ldevice.smvControls) {
-          settings[`SMV ${cb.name}`] = `dataset ${cb.datSet ?? '?'}`;
+      }
+      return scdItem({
+        id: key,
+        file: 'ReportControl',
+        kindLabel: 'Report control blocks',
+        name: 'Reports',
+        settings,
+        pointCount: rows.length,
+        pages: [tablePage('Reports',
+          ['Report', 'Dataset', 'Report ID', 'Buffered', 'Buf time (ms)', 'Trig dchg', 'Trig qchg',
+            'Trig dupd', 'Trig period', 'Integrity (ms)', 'Option fields', 'Max clients', 'Conf rev'],
+          rows)],
+      });
+    }
+
+    if (key.startsWith('ds:')) {
+      const parts = key.slice(3).split(':');
+      const [apName, inst] = parts;
+      const dsName = parts.slice(2).join(':');
+      const ldevice = ied.accessPoints
+        .find((candidate) => candidate.name === apName)
+        ?.ldevices.find((candidate) => candidate.inst === inst);
+      const ds = ldevice?.datasets.find((candidate) => candidate.name === dsName);
+      if (ds) {
+        // Settings keyed by 61850 path so compare diffs point membership and
+        // source mapping directly.
+        const settings = {};
+        for (const point of ds.points) {
+          settings[point.path] = [point.source ?? 'unresolved', point.units].filter(Boolean).join(' · ');
         }
-        if (ldevice.unboundExtRefs) {
-          settings['Unbound ExtRef slots'] = String(ldevice.unboundExtRefs);
-        }
-        return {
-          ...base,
+        return scdItem({
           id: key,
           file: `${apName}/${inst}`,
-          kindLabel: 'Logical device',
-          name: ldevice.desc ? `${inst} — ${ldevice.desc}` : inst,
+          category: 'tagList',
+          kindLabel: 'Dataset',
+          name: ds.desc ? `${ds.name} — ${ds.desc}` : ds.name,
           settings,
-        };
+          pointCount: ds.points.length,
+          pages: [tablePage(ds.name, ['61850 path', 'FC', 'Source', 'Units'],
+            ds.points.map((point) => [point.path, point.fc, point.source, point.units]))],
+        });
       }
+    }
+
+    if (key === 'structure') {
+      const settings = {};
+      const rows = [];
+      for (const { accessPoint, ldevice } of ldevices) {
+        settings[`${accessPoint.name}/${ldevice.inst}`] = [
+          `${ldevice.logicalNodes} logical node${ldevice.logicalNodes === 1 ? '' : 's'}`,
+          ldevice.datasets.length && `${ldevice.datasets.length} dataset${ldevice.datasets.length === 1 ? '' : 's'}`,
+          ldevice.unboundExtRefs && `${ldevice.unboundExtRefs} unbound ExtRef slots`,
+        ].filter(Boolean).join(' · ');
+        rows.push([
+          accessPoint.name, ldevice.inst, ldevice.desc, String(ldevice.logicalNodes),
+          String(ldevice.datasets.length), String(ldevice.unboundExtRefs),
+        ]);
+      }
+      return scdItem({
+        id: key,
+        file: 'IED/AccessPoint/Server',
+        category: 'system',
+        kindLabel: 'Logical devices',
+        name: 'Logical devices',
+        settings,
+        pointCount: rows.length,
+        pages: [tablePage('Logical devices',
+          ['Access point', 'LDevice', 'Description', 'Logical nodes', 'Datasets', 'Unbound ExtRef slots'],
+          rows)],
+      });
     }
 
     throw httpError(404, `no such item in ${ref}: ${key}`);

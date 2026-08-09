@@ -18,6 +18,9 @@ class UploadStore {
     this.originalName = originalName;
     // fileId -> stored (the parsed.json contents; shape is the service's)
     this.files = new Map();
+    // Ids evicted pending a background re-parse: not served, but still
+    // reserved so a concurrent upload cannot claim the name.
+    this.evicted = new Set();
   }
 
   async init() {
@@ -49,7 +52,7 @@ class UploadStore {
   // Store a new upload (original bytes + parsed.json); returns the new id.
   async add(fileName, buffer, stored) {
     const base = fileName.replace(this.extension, '').replace(/[^\w.-]+/g, '_') || 'upload';
-    const id = uniqueName(base, (candidate) => this.files.has(candidate));
+    const id = uniqueName(base, (candidate) => this.files.has(candidate) || this.evicted.has(candidate));
     const dir = this.dir(id);
     await mkdir(dir, { recursive: true });
     await Promise.all([
@@ -60,9 +63,17 @@ class UploadStore {
     return id;
   }
 
+  // Pull an entry from service (stale shape awaiting re-parse) without
+  // touching disk; saveParsed brings it back.
+  evict(fileId) {
+    this.files.delete(fileId);
+    this.evicted.add(fileId);
+  }
+
   // Re-persist an entry the service enriched after add (e.g. drawings).
   async saveParsed(fileId, stored) {
     this.files.set(fileId, stored);
+    this.evicted.delete(fileId);
     await writeFile(path.join(this.dir(fileId), 'parsed.json'), JSON.stringify(stored));
   }
 

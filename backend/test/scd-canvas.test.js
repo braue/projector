@@ -33,14 +33,35 @@ test('scd service: upload, list, inspect shapes', async () => {
 
     const tree = service.tree('mini::RELAY_1');
     assert.equal(tree.deviceLabel, 'TEST');
-    assert.ok(tree.tree.some((item) => item.path === 'network'));
+    assert.deepEqual(
+      tree.tree.map((item) => item.path),
+      ['network', 'tx', 'reports', 'ds:S1:CFG:GPDSet01', 'structure'],
+    );
 
     const network = service.item('mini::RELAY_1', 'network');
     assert.equal(network.settings['S1 · IP'], '10.0.0.5');
-    assert.equal(network.settings['S1 · GOOSE GPub01 · MAC-Address'], '01-0C-CD-01-00-01');
+    assert.equal(network.pages[0].rows[0].IP, '10.0.0.5');
+
+    // The GOOSE wire address rides the transmit table, merged from the
+    // Communication section onto its control block.
+    const tx = service.item('mini::RELAY_1', 'tx');
+    assert.match(tx.settings['GOOSE GPub01'], /MAC 01-0C-CD-01-00-01/);
+    assert.equal(tx.pages[0].rows[0].MAC, '01-0C-CD-01-00-01');
+    assert.equal(tx.pages[0].rows[0]['Min time (ms)'], '4');
+
+    // Datasets resolve member-by-member to device sources.
+    const ds = service.item('mini::RELAY_1', 'ds:S1:CFG:GPDSet01');
+    assert.equal(ds.pointCount, 3);
+    assert.equal(ds.pages[0].rows[0]['61850 path'], 'CFG.GGIO1.Ind001.stVal');
+    assert.equal(ds.pages[0].rows[0].Source, 'IN101');
 
     const subs = service.item('mini::RTU_1', 'subscriptions');
     assert.match(subs.settings['RELAY_1 · CFG/GPub01'], /GOOSE · 1 point/);
+    assert.deepEqual(subs.pages[0].rows[0], {
+      'Internal address': 'SPS001.stVal',
+      Source: 'RELAY_1/CFG/LLN0/GPub01.CFG.GGIO1.Ind001.stVal',
+      Service: 'GOOSE',
+    });
 
     assert.throws(() => service.profile('mini::NOPE'), /unknown scd profile/);
   } finally {
@@ -56,11 +77,14 @@ test('scd extractor: interfaces, GOOSE publications, subscription fragment', asy
     const relay = extractScdProfile(service.profile('mini::RELAY_1'), 'mini::RELAY_1');
     assert.equal(relay.name, 'RELAY_1');
     assert.deepEqual(relay.interfaces, [
-      { kind: 'ethernet', name: 'S1', ip: '10.0.0.5', mask: '255.255.255.0' },
+      { kind: 'ethernet', name: 'S1', ip: '10.0.0.5', mask: '255.255.255.0', gateway: null },
     ]);
     assert.equal(relay.endpoints.length, 1);
     assert.equal(relay.endpoints[0].protocol, 'GOOSE');
-    assert.deepEqual(relay.endpoints[0].goose, { mac: '01-0C-CD-01-00-01', appId: '1001' });
+    // VLAN-ID decodes from SCL's three-hex-digit form: "014" is VLAN 20.
+    assert.deepEqual(relay.endpoints[0].goose, {
+      mac: '01-0C-CD-01-00-01', appId: '1001', vlanId: '014', vlan: 20,
+    });
     assert.deepEqual(relay.identity, { namespace: 'scd:mini', name: 'RELAY_1' });
 
     const rtu = extractScdProfile(service.profile('mini::RTU_1'), 'mini::RTU_1');
@@ -93,7 +117,7 @@ test('linker: same-SCD subscription confirms; missing publisher ghosts', async (
     assert.equal(goose.tier, 'confirmed');
     assert.equal(goose.sourceDeviceId, 'rtu');
     assert.equal(goose.targetDeviceId, 'relay');
-    assert.match(goose.b.lines.join(' | '), /multicast 01-0C-CD-01-00-01/);
+    assert.match(goose.b.lines.join(' | '), /Multicast 01-0C-CD-01-00-01/);
 
     const alone = linkProfiles([{ id: 'rtu', profile: rtu }]);
     const ghosted = alone.links.find((link) => link.protocol === 'GOOSE');

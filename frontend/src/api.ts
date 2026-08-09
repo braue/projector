@@ -98,15 +98,16 @@ export function deleteUpload(type: UploadSourceType, id: string): Promise<unknow
 }
 
 // Inspect works for any source type — same shapes, per-type endpoints.
+// Upload-backed types (rdb, scd, sw) share the ?ref= route shape.
 export function fetchSourceTree(source: DeviceSource): Promise<ProjectTree> {
-  if (source.type === 'rdb' || source.type === 'scd') {
+  if (source.type !== 'rtac') {
     return get(`/api/${source.type}/tree?ref=${encodeURIComponent(source.ref)}`)
   }
   return fetchTree(source.ref)
 }
 
 export function fetchSourceItem(source: DeviceSource, file: string): Promise<ProjectItem> {
-  if (source.type === 'rdb' || source.type === 'scd') {
+  if (source.type !== 'rtac') {
     return get(`/api/${source.type}/item?ref=${encodeURIComponent(source.ref)}&file=${encodeURIComponent(file)}`)
   }
   return fetchItem(source.ref, file)
@@ -152,6 +153,30 @@ export function moveDevice(
 export function removeDevice(workspace: string, deviceId: string): Promise<unknown> {
   return send(
     `/api/workspaces/${encodeURIComponent(workspace)}/devices/${encodeURIComponent(deviceId)}`,
+    'DELETE',
+  )
+}
+
+/** Draw a connection between two placed devices: an ethernet port run
+ * (aPort/bPort) or a serial pair (aEndpointId/bEndpointId). */
+export function addManualLink(
+  workspace: string,
+  link: {
+    type: 'ethernet' | 'serial'
+    aDeviceId: string
+    bDeviceId: string
+    aPort?: string
+    bPort?: string
+    aEndpointId?: string
+    bEndpointId?: string
+  },
+): Promise<{ id: string }> {
+  return send(`/api/workspaces/${encodeURIComponent(workspace)}/links`, 'POST', link)
+}
+
+export function removeManualLink(workspace: string, linkId: string): Promise<unknown> {
+  return send(
+    `/api/workspaces/${encodeURIComponent(workspace)}/links/${encodeURIComponent(linkId)}`,
     'DELETE',
   )
 }

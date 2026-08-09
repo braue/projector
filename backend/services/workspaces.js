@@ -7,7 +7,8 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 
-import { linkProfiles } from '../lib/comm/linker.js';
+import { linkProfiles, normalizeManualLink } from '../lib/comm/linker.js';
+import { graphDevice } from '../lib/comm/model.js';
 import { httpError, resolveChild } from '../lib/http.js';
 
 const DEFAULT_WORKSPACE = 'Default';
@@ -138,8 +139,57 @@ class WorkspaceService {
     const workspace = await this.#load(name);
     workspace.devices = workspace.devices.filter((device) => device.id !== deviceId);
     workspace.manualLinks = (workspace.manualLinks ?? []).filter(
-      (link) => link.aDeviceId !== deviceId && link.bDeviceId !== deviceId,
+      (link) => !normalizeManualLink(link).ends.some((end) => end.deviceId === deviceId),
     );
+    await this.#save(workspace);
+  }
+
+  // A connection the user drew between two placed devices. `type: 'ethernet'`
+  // carries a port label per end (a switch port id like "eth3", or free text
+  // for a device that states no ports); `type: 'serial'` carries endpoint
+  // ids. Stored in canonical ends form as the user's claim — the linker
+  // validates it on every read.
+  async addManualLink(name, { type = 'ethernet', aDeviceId, bDeviceId, aPort, bPort, aEndpointId, bEndpointId }) {
+    if (type !== 'ethernet' && type !== 'serial') {
+      throw httpError(400, `unsupported link type: ${type}`);
+    }
+    if (!aDeviceId || !bDeviceId) throw httpError(400, 'aDeviceId and bDeviceId required');
+    if (aDeviceId === bDeviceId) throw httpError(400, 'a device cannot connect to itself');
+    if (type === 'serial' && (!aEndpointId || !bEndpointId)) {
+      throw httpError(400, 'a serial pair names an endpoint on both sides');
+    }
+    const workspace = await this.#load(name);
+    for (const id of [aDeviceId, bDeviceId]) {
+      if (!workspace.devices.some((device) => device.id === id)) {
+        throw httpError(404, `unknown device: ${id}`);
+      }
+    }
+    const link = normalizeManualLink({
+      id: randomUUID(), type, aDeviceId, bDeviceId, aPort, bPort, aEndpointId, bEndpointId,
+    });
+    // The same wire drawn twice is a slip, not a second connection.
+    const endsKey = (candidate) => candidate.ends
+      .map((end) => `${end.deviceId}|${end.port ?? ''}|${end.endpointId ?? ''}`)
+      .sort()
+      .join('~');
+    if ((workspace.manualLinks ?? []).some((existing) => {
+      const normalized = normalizeManualLink(existing);
+      return normalized.type === link.type && endsKey(normalized) === endsKey(link);
+    })) {
+      throw httpError(409, 'this connection is already drawn');
+    }
+    workspace.manualLinks = [...(workspace.manualLinks ?? []), link];
+    await this.#save(workspace);
+    return link;
+  }
+
+  async removeManualLink(name, linkId) {
+    const workspace = await this.#load(name);
+    const remaining = (workspace.manualLinks ?? []).filter((link) => link.id !== linkId);
+    if (remaining.length === (workspace.manualLinks ?? []).length) {
+      throw httpError(404, `unknown manual link: ${linkId}`);
+    }
+    workspace.manualLinks = remaining;
     await this.#save(workspace);
   }
 
@@ -176,7 +226,7 @@ class WorkspaceService {
     const resolved = results.filter((result) => 'profile' in result);
     const broken = results.filter((result) => 'error' in result);
 
-    const { links, ghosts } = linkProfiles(
+    const { links, ghosts, diagnostics } = linkProfiles(
       resolved.map(({ device, profile }) => ({ id: device.id, profile })),
       workspace.manualLinks ?? [],
     );
@@ -187,22 +237,17 @@ class WorkspaceService {
     return {
       name: workspace.name,
       devices: [
-        ...resolved.map(({ device, profile, scdError, scdWarning }) => ({
-          id: device.id,
-          x: device.x,
-          y: device.y,
-          source: device.source,
-          name: profile.name,
-          model: profile.model,
-          endpointCount: profile.endpoints.length,
-          scd: device.scdRef
+        ...resolved.map(({ device, profile, scdError, scdWarning }) => graphDevice(
+          device,
+          profile,
+          device.scdRef
             ? {
                 ref: device.scdRef,
                 ...(scdError ? { error: scdError } : {}),
                 ...(scdWarning ? { warning: scdWarning } : {}),
               }
             : null,
-        })),
+        )),
         ...broken.map(({ device, error }) => ({
           id: device.id,
           x: device.x,
@@ -215,6 +260,7 @@ class WorkspaceService {
       ],
       ghosts,
       links,
+      diagnostics,
       summary: {
         devices: workspace.devices.length,
         confirmed: tiers.confirmed,

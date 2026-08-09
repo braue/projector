@@ -1,46 +1,76 @@
 // RDB source service — uploaded QuickSet relay databases.
 //
-// Storage rides the shared UploadStore (DATA_DIR/rdb/<id>/, parsed.json
-// rehydration, unique ids); this service owns parsing, panel drawings, and
-// the inspect/compare shaping. A profile is addressed "<fileId>::<profileName>"
-// (see lib/refs.js).
+// Lifecycle lives in lib/uploadService.js; this service owns the RDB-shaped
+// parts: which profiles a file carries (its relays), the inspect sections,
+// and the generated panel drawings. A profile is addressed
+// "<fileId>::<profileName>" (see lib/refs.js).
 
 import path from 'node:path';
 
-import { settingsSignature } from '../lib/compare.js';
 import { createImages } from '../lib/drawings/createImages.js';
 import { httpError } from '../lib/http.js';
 import { parseRdb, relayType } from '../lib/parsers/rdb/index.js';
 import { REF_SEPARATOR, splitRef as splitSourceRef } from '../lib/refs.js';
-import { UploadStore } from '../lib/uploadStore.js';
+import { UploadService } from '../lib/uploadService.js';
 
 const DRAWING_LABEL = { front: 'Front view', rear: 'Rear view' };
 const DRAWING_PREFIX = 'drawing:';
 
 const splitRef = (ref) => splitSourceRef(ref, 'rdb');
 
-class RdbService {
-  // Compare entries per profile object — profiles are immutable per upload,
-  // so the cache lives and dies with them.
-  #comparableCache = new WeakMap();
+// Bumped when the parsed model's shape changes; stale uploads (including
+// pre-versioning ones) re-parse from their original bytes in the background.
+const MODEL_VERSION = 1;
 
+class RdbService extends UploadService {
   constructor({ dataDir, selDevicesDir }) {
-    this.store = new UploadStore({
+    super({
       dataDir,
       label: 'rdb',
       extension: /\.rdb$/i,
       originalName: 'original.rdb',
+      modelVersion: MODEL_VERSION,
+      uploadErrorLabel: 'not a readable .rdb (OLE compound) file',
     });
     // Passed through to the drawing generator; undefined = its bundled default.
     this.selDevicesDir = selDevicesDir;
   }
 
+  parse(buffer) {
+    return parseRdb(buffer);
+  }
+
+  validate(model) {
+    if (!model.profiles.length) {
+      throw httpError(
+        400,
+        'no relay profiles found under Root Entry/Relays/ — is this a QuickSet database?',
+      );
+    }
+  }
+
+  profilesOf(model) {
+    return model.profiles.map((profile) => ({
+      name: profile.name,
+      deviceType: relayType(profile),
+    }));
+  }
+
+  findProfile(model, name) {
+    return model.profiles.find((profile) => profile.name === name) ?? null;
+  }
+
   async init() {
-    await this.store.init();
+    await super.init();
     // Uploads from before drawings existed (or whose drawings failed because a
-    // PDF was missing at the time) retry in the background — dropping a
-    // drawing PDF into resources/selDevices/<model>/ heals on next start.
-    this.#backfillDrawings();
+    // PDF was missing at the time) retry after any model migration — dropping
+    // a drawing PDF into resources/selDevices/<model>/ heals on next start.
+    this.migrated = this.migrated.then(() => this.#backfillDrawings());
+  }
+
+  async afterUpload(id, stored) {
+    stored.drawings = await this.#generateDrawings(id, stored.model.profiles);
+    await this.store.saveParsed(id, stored);
   }
 
   // --- panel drawings ---------------------------------------------------------
@@ -69,10 +99,10 @@ class RdbService {
   async #backfillDrawings() {
     for (const [fileId, stored] of this.store.entries()) {
       const missing = !stored.drawings
-        || stored.profiles.some((profile) => !stored.drawings[profile.name]?.length);
+        || stored.model.profiles.some((profile) => !stored.drawings[profile.name]?.length);
       if (!missing) continue;
       try {
-        stored.drawings = await this.#generateDrawings(fileId, stored.profiles);
+        stored.drawings = await this.#generateDrawings(fileId, stored.model.profiles);
         await this.store.saveParsed(fileId, stored);
       } catch (err) {
         console.warn(`drawing backfill failed for ${fileId}: ${err?.message ?? err}`);
@@ -94,78 +124,6 @@ class RdbService {
     return path.join(this.store.dir(fileId), 'drawings', profileName, `${view}.png`);
   }
 
-  // --- upload / list ----------------------------------------------------------
-
-  async upload(fileName, buffer) {
-    let parsed;
-    try {
-      parsed = parseRdb(buffer);
-    } catch (err) {
-      throw httpError(400, `not a readable .rdb (OLE compound) file: ${err?.message ?? err}`);
-    }
-    if (!parsed.profiles.length) {
-      throw httpError(
-        400,
-        'no relay profiles found under Root Entry/Relays/ — is this a QuickSet database?',
-      );
-    }
-
-    const stored = { fileName, profiles: parsed.profiles, drawings: {} };
-    const id = await this.store.add(fileName, buffer, stored);
-    stored.drawings = await this.#generateDrawings(id, stored.profiles);
-    await this.store.saveParsed(id, stored);
-    return this.#summary(id, stored);
-  }
-
-  async remove(fileId) {
-    await this.store.remove(fileId);
-  }
-
-  #summary(id, stored) {
-    return {
-      id,
-      fileName: stored.fileName,
-      profiles: stored.profiles.map((profile) => ({
-        name: profile.name,
-        ref: `${id}${REF_SEPARATOR}${profile.name}`,
-        deviceType: relayType(profile),
-      })),
-    };
-  }
-
-  list() {
-    return [...this.store.entries()].map(([id, stored]) => this.#summary(id, stored));
-  }
-
-  profile(ref) {
-    const { fileId, profileName } = splitRef(ref);
-    const stored = this.store.get(fileId);
-    const profile = stored?.profiles.find((candidate) => candidate.name === profileName);
-    if (!profile) {
-      throw httpError(404, `unknown rdb profile: ${ref}`);
-    }
-    return profile;
-  }
-
-  // Compare adapter entries: one per settings section, signature = canonical
-  // (key-sorted) JSON of the section's settings. Cached per profile object.
-  comparable(ref) {
-    const { fileId } = splitRef(ref);
-    const profile = this.profile(ref);
-    if (!this.#comparableCache.has(profile)) {
-      this.#comparableCache.set(profile, profile.sections.map((section) => ({
-        path: section.key,
-        name: section.desc,
-        item: this.item(ref, section.key),
-        signature: settingsSignature(section.settings),
-      })));
-    }
-    return {
-      label: `${this.store.get(fileId).fileName} · ${profile.name}`,
-      entries: this.#comparableCache.get(profile),
-    };
-  }
-
   // --- inspect mapping --------------------------------------------------------
   // The Inspect UI speaks the RTAC tree/item shapes; an RDB profile maps onto
   // them naturally: one item per settings section, the section's key/value
@@ -174,7 +132,7 @@ class RdbService {
 
   tree(ref) {
     const { fileId, profileName } = splitRef(ref);
-    const profile = this.profile(ref);
+    const { profile } = this.profile(ref);
     const views = this.#views(fileId, profileName);
 
     // Generated panel drawings lead the tree in their own section; the
@@ -186,8 +144,6 @@ class RdbService {
       kind: 'Drawing',
       kindLabel: 'Panel drawing',
       category: 'hardware',
-      protocol: null,
-      connectionType: null,
     }));
 
     return {
@@ -207,8 +163,6 @@ class RdbService {
           kind: 'Section',
           kindLabel: section.key === section.desc ? 'Settings section' : section.key,
           category: 'system',
-          protocol: null,
-          connectionType: null,
           pointCount: Object.keys(section.settings).length,
         })),
       ],
@@ -216,7 +170,7 @@ class RdbService {
   }
 
   item(ref, sectionKey) {
-    const profile = this.profile(ref);
+    const { profile } = this.profile(ref);
 
     if (sectionKey.startsWith(DRAWING_PREFIX)) {
       const view = sectionKey.slice(DRAWING_PREFIX.length);

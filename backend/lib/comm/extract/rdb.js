@@ -17,6 +17,7 @@ import { endpointLines } from '../model.js';
 // A section owning any of these declares an ethernet interface.
 const IP_KEYS = ['IPADDR'];
 const MASK_KEYS = ['SUBNETM', 'SUBMASK', 'SUBNETMASK'];
+const GATEWAY_KEYS = ['DEFRTR', 'GATEWAY', 'IPGATE', 'DEFGW'];
 
 // Protocol servers a relay can expose, recognized by their address/enable
 // settings. `port` lists known port-setting spellings, first hit wins.
@@ -62,6 +63,7 @@ function extractRdbProfile(profile, ref) {
         name: sectionName,
         ip,
         mask: firstSetting(settings, MASK_KEYS),
+        gateway: firstSetting(settings, GATEWAY_KEYS),
       });
     }
 

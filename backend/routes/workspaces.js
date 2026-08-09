@@ -45,6 +45,16 @@ function workspaceRoutes(service) {
     res.json(await service.detachScd(req.params.name, req.params.id));
   });
 
+  // Manual links: connections the user drew (ethernet port runs, serial pairs).
+  router.post('/:name/links', async (req, res) => {
+    res.status(201).json(await service.addManualLink(req.params.name, req.body ?? {}));
+  });
+
+  router.delete('/:name/links/:id', async (req, res) => {
+    await service.removeManualLink(req.params.name, req.params.id);
+    res.json({ ok: true });
+  });
+
   return router;
 }
 

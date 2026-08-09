@@ -2,16 +2,21 @@
 // like AcSELerator Architect produce (and, same schema at different scopes,
 // .icd/.cid/.ssd device and instance files).
 //
-// Comm-truth focused: it models the sections purview links on —
+// Modeled on the proven Architect workbook extractor: each IED is read as the
+// five comm truths an engineer actually audits —
 //
-//   IED             who exists (name, type, manufacturer, logical devices,
-//                   what they publish: GOOSE/Report/SMV control blocks over
-//                   named datasets)
-//   Communication   where they sit (subnetworks, access-point addresses, and
-//                   the multicast MAC/APPID/VLAN each GOOSE/SMV publication
-//                   uses on the wire)
-//   Inputs/ExtRef   what they consume (a bound ExtRef names the publishing
-//                   IED and control block — that is a declared link)
+//   Network        where it sits (subnetworks, access-point IP/subnet/gateway,
+//                  and the multicast MAC/APPID/VLAN each publication uses)
+//   Datasets       what it packages — every FCDA resolved to its 61850 path
+//                  AND, when the file carries DOI/DAI address maps, the
+//                  device-native source tag (sAddr / esel:datasrc) plus units
+//   GOOSE TX       what it publishes (GSEControl merged with its wire address,
+//                  SEL min/max retransmission times included)
+//   GOOSE RX       what it consumes point-by-point (bound ExtRefs formatted
+//                  as publisher control block -> data path, sorted by the
+//                  subscriber's internal address)
+//   Reports        client-facing ReportControl blocks with their full trigger
+//                  and option field configuration
 //
 // Loss-tolerant like the RTAC parser: any section or attribute the schema
 // allows to be absent simply yields null/empty, and unknown elements are
@@ -23,9 +28,10 @@
 import { attr, parseXml, text, toArray } from '../xml.js';
 
 // <P type="IP">1.2.3.4</P> siblings -> { IP: '1.2.3.4', ... }; first wins.
+// Also reads the esel:P namespaced variant SEL privates use.
 function pValues(container) {
   const out = {};
-  for (const p of toArray(container?.P)) {
+  for (const p of [...toArray(container?.P), ...toArray(container?.['esel:P'])]) {
     const type = attr(p, 'type');
     if (type && !(type in out)) out[type] = text(p);
   }
@@ -64,11 +70,177 @@ function parseSubNetworks(communication) {
   }));
 }
 
+// --- FCDA -> device source resolution -----------------------------------------
+//
+// Architect exports embed each IED's full instantiated data model: DOI/SDI/DAI
+// trees whose leaves carry sAddr (or esel:datasrc) — the device-native tag a
+// 61850 point actually reads ("db:LOC" -> relay word bit LOC). Walking the
+// FCDA's do/da path through that tree turns an opaque dataset entry into the
+// signal an engineer can find in the relay's own settings.
+
+// The IED's LN lookup: ldInst -> [{prefix, lnClass, inst, node}].
+function buildLnIndex(iedNode) {
+  const byLd = new Map();
+  for (const accessPoint of toArray(iedNode.AccessPoint)) {
+    for (const ldevice of toArray(accessPoint.Server?.LDevice)) {
+      const lns = [...toArray(ldevice.LN0), ...toArray(ldevice.LN)].map((ln) => ({
+        prefix: attr(ln, 'prefix') ?? '',
+        lnClass: attr(ln, 'lnClass') ?? '',
+        inst: attr(ln, 'inst') ?? '',
+        node: ln,
+      }));
+      byLd.set(attr(ldevice, 'inst') ?? '', lns);
+    }
+  }
+  return byLd;
+}
+
+function namedChild(node, tag, name) {
+  return toArray(node?.[tag]).find((child) => attr(child, 'name') === name) ?? null;
+}
+
+// A node's raw source attribute (esel:datasrc preferred, sAddr otherwise),
+// and the addressing-scheme prefix ("db:", "tag:") stripped from it.
+function rawSource(node) {
+  return attr(node, 'esel:datasrc') ?? attr(node, 'sAddr');
+}
+
+function stripScheme(raw) {
+  const colon = raw.indexOf(':');
+  return colon === -1 ? raw : raw.slice(colon + 1);
+}
+
+// A leaf's device-native source, or null when it states none.
+function sourceOf(node) {
+  const raw = rawSource(node);
+  return raw ? stripScheme(raw) : null;
+}
+
+// Every source anywhere under `node`, immediates ("imm:...") excluded — the
+// DO-level answer when an FCDA names no specific attribute.
+function collectSources(node, out = []) {
+  if (node === null || typeof node !== 'object') return out;
+  for (const child of Array.isArray(node) ? node : Object.values(node)) {
+    collectSources(child, out);
+  }
+  if (!Array.isArray(node)) {
+    const raw = rawSource(node);
+    if (raw && !raw.includes('imm')) out.push(stripScheme(raw));
+  }
+  return out;
+}
+
+// Units live beside the value: an SDI named "units" holding SIUnit and
+// multiplier DAIs ("k" + "W" -> "kW").
+function unitsOf(node) {
+  const unitSdi = namedChild(node, 'SDI', 'units');
+  if (!unitSdi) return null;
+  const si = text(toArray(namedChild(unitSdi, 'DAI', 'SIUnit')?.Val)[0]);
+  const multiplier = text(toArray(namedChild(unitSdi, 'DAI', 'multiplier')?.Val)[0]);
+  return si ? `${multiplier}${si}` : null;
+}
+
+// One dataset member resolved: the 61850 path it names, the device source it
+// maps to (null when the file carries no address model for it), and units.
+function resolveFcda(lnIndex, fcda) {
+  const doParts = fcda.doName ? fcda.doName.split('.') : [];
+  const daParts = fcda.daName ? fcda.daName.split('.') : null;
+  const lnRef = `${fcda.ldInst ?? ''}.${fcda.prefix}${fcda.lnClass ?? ''}${fcda.lnInst}`;
+  const pathFor = (parts, tail) =>
+    `${lnRef}${parts.length ? `.${parts.join('.')}` : ''}${tail}`;
+
+  const ln = (lnIndex.get(fcda.ldInst ?? '') ?? []).find(
+    (candidate) =>
+      candidate.inst === fcda.lnInst
+      && candidate.lnClass === (fcda.lnClass ?? '')
+      && candidate.prefix === fcda.prefix,
+  );
+  const doi = ln && doParts.length ? namedChild(ln.node, 'DOI', doParts[0]) : null;
+
+  if (!doi) {
+    return { path: pathFor(doParts, daParts ? `.${daParts.join('.')}` : '.*'), source: null, units: null };
+  }
+
+  if (!daParts) {
+    // DO-level member: every non-immediate source under the DO rides along.
+    const sources = [...new Set(collectSources(doi))];
+    return {
+      path: pathFor(doParts, '.*'),
+      source: sources.length ? sources.join(', ') : null,
+      units: null,
+    };
+  }
+
+  // Attribute-level member: descend named SDIs for the deeper doName parts,
+  // then DAI/SDI links for each daName part.
+  let current = doi;
+  for (const part of doParts.slice(1)) {
+    current = namedChild(current, 'SDI', part);
+    if (!current) break;
+  }
+  const units = current ? unitsOf(current) : null;
+  for (const part of current ? daParts : []) {
+    current = namedChild(current, 'DAI', part) ?? namedChild(current, 'SDI', part);
+    if (!current) break;
+  }
+
+  return {
+    path: pathFor(doParts, `.${daParts.join('.')}`),
+    source: current ? sourceOf(current) : null,
+    units,
+  };
+}
+
 // --- IED section -------------------------------------------------------------
+
+function parseFcda(fcda) {
+  return {
+    ldInst: attr(fcda, 'ldInst'),
+    prefix: attr(fcda, 'prefix') ?? '',
+    lnClass: attr(fcda, 'lnClass'),
+    lnInst: attr(fcda, 'lnInst') ?? '',
+    doName: attr(fcda, 'doName'),
+    daName: attr(fcda, 'daName'),
+    fc: attr(fcda, 'fc'),
+  };
+}
+
+// SEL wraps per-control transmit parameters in Private elements.
+function parseGoosePrivates(cb) {
+  let txAddress = null;
+  let minTime = null;
+  let maxTime = null;
+  for (const priv of toArray(cb.Private)) {
+    switch (attr(priv, 'type')) {
+      case 'SEL_GOOSETXAddress':
+        txAddress = pValues(priv['esel:Address']);
+        break;
+      case 'SEL_GOOSETXMinTime':
+        minTime = text(priv['esel:MinTime']);
+        break;
+      case 'SEL_GOOSETXMaxTime':
+        maxTime = text(priv['esel:MaxTime']);
+        break;
+      default:
+        break;
+    }
+  }
+  return { txAddress, minTime: minTime || null, maxTime: maxTime || null };
+}
+
+// <TrgOps dchg="true"/> style option elements: attribute map, or {} when the
+// element is absent/empty (fast-xml-parser yields '' for a bare element).
+function optionAttrs(node, names) {
+  const out = {};
+  for (const name of names) {
+    out[name] = node && typeof node === 'object' ? attr(node, name) === 'true' : false;
+  }
+  return out;
+}
 
 // Control blocks and datasets sit on LN0 by the letter of the schema, but the
 // standard allows them on any LN — collect from every logical node alike.
-function parseControls(logicalNodes) {
+function parseControls(logicalNodes, lnIndex) {
   const datasets = [];
   const gooseControls = [];
   const reportControls = [];
@@ -76,10 +248,11 @@ function parseControls(logicalNodes) {
 
   for (const ln of logicalNodes) {
     for (const ds of toArray(ln.DataSet)) {
+      const members = toArray(ds.FCDA).map(parseFcda);
       datasets.push({
         name: attr(ds, 'name'),
         desc: attr(ds, 'desc'),
-        points: toArray(ds.FCDA).length,
+        points: members.map((fcda) => ({ fc: fcda.fc, ...resolveFcda(lnIndex, fcda) })),
       });
     }
     for (const cb of toArray(ln.GSEControl)) {
@@ -89,6 +262,7 @@ function parseControls(logicalNodes) {
         datSet: attr(cb, 'datSet'),
         appId: attr(cb, 'appID'),
         confRev: attr(cb, 'confRev'),
+        ...parseGoosePrivates(cb),
       });
     }
     for (const cb of toArray(ln.ReportControl)) {
@@ -98,7 +272,14 @@ function parseControls(logicalNodes) {
         datSet: attr(cb, 'datSet'),
         rptId: attr(cb, 'rptID'),
         buffered: attr(cb, 'buffered') === 'true',
+        bufTime: attr(cb, 'bufTime'),
         confRev: attr(cb, 'confRev'),
+        intgPd: cb.TrgOps && typeof cb.TrgOps === 'object' ? attr(cb.TrgOps, 'intgPd') : null,
+        trgOps: optionAttrs(cb.TrgOps, ['dchg', 'dupd', 'qchg', 'period']),
+        optFields: optionAttrs(cb.OptFields, [
+          'seqNum', 'timeStamp', 'dataSet', 'reasonCode', 'dataRef', 'bufOvfl', 'entryID', 'configRef',
+        ]),
+        maxClients: cb.RptEnabled && typeof cb.RptEnabled === 'object' ? attr(cb.RptEnabled, 'max') : null,
       });
     }
     for (const cb of toArray(ln.SampledValueControl)) {
@@ -115,6 +296,23 @@ function parseControls(logicalNodes) {
   return { datasets, gooseControls, reportControls, smvControls };
 }
 
+// The received point's data path, publisher-side: which control block carries
+// it and which named data it is. A ref without publisher coordinates beyond
+// the control block is that block's message quality.
+function extRefSource(ref) {
+  const control = `${ref.publisher}/${ref.srcLDInst ?? ''}/${ref.srcLNClass ?? ''}/${ref.srcCBName ?? ''}`;
+  if (!ref.ldInst) return `${control} - message quality`;
+  const data = `${ref.ldInst}.${ref.prefix ?? ''}${ref.lnClass ?? ''}${ref.lnInst ?? ''}.${ref.doName ?? ''}`;
+  return `${control}.${data}.${ref.daName ?? '*'}`;
+}
+
+// "SPS001.stVal" -> ["SPS", 1]: the subscriber's internal-address family and
+// slot number, the order the receive map is authored in.
+function splitIntAddr(intAddr) {
+  const match = /^(\D*)(\d*)/.exec(intAddr ?? '');
+  return [match[1], match[2] ? Number(match[2]) : 0];
+}
+
 // A bound ExtRef names the data it consumes (publisher-side coordinates) and
 // the control block that carries it; an unbound one is an empty template slot.
 function parseExtRefs(logicalNodes) {
@@ -129,7 +327,7 @@ function parseExtRefs(logicalNodes) {
           unbound += 1;
           continue;
         }
-        bound.push({
+        const parsed = {
           publisher,
           serviceType: attr(ref, 'serviceType'),
           ldInst: attr(ref, 'ldInst'),
@@ -141,23 +339,31 @@ function parseExtRefs(logicalNodes) {
           srcLDInst: attr(ref, 'srcLDInst'),
           srcLNClass: attr(ref, 'srcLNClass'),
           srcCBName: attr(ref, 'srcCBName'),
-          intAddr: attr(ref, 'intAddr'),
-        });
+          intAddr: (attr(ref, 'intAddr') ?? '').split('|')[0] || null,
+        };
+        bound.push({ ...parsed, source: extRefSource(parsed) });
       }
     }
   }
 
+  // Receive-map order: internal-address family, then slot number.
+  bound.sort((a, b) => {
+    const [aFamily, aSlot] = splitIntAddr(a.intAddr);
+    const [bFamily, bSlot] = splitIntAddr(b.intAddr);
+    return aFamily < bFamily ? -1 : aFamily > bFamily ? 1 : aSlot - bSlot;
+  });
+
   return { bound, unbound };
 }
 
-function parseLDevice(ldevice) {
+function parseLDevice(ldevice, lnIndex) {
   const logicalNodes = [...toArray(ldevice.LN0), ...toArray(ldevice.LN)];
   const { bound, unbound } = parseExtRefs(logicalNodes);
   return {
     inst: attr(ldevice, 'inst'),
     desc: attr(ldevice, 'desc'),
     logicalNodes: logicalNodes.length,
-    ...parseControls(logicalNodes),
+    ...parseControls(logicalNodes, lnIndex),
     extRefs: bound,
     unboundExtRefs: unbound,
   };
@@ -189,11 +395,28 @@ function summarizeSubscriptions(ldevices) {
   return [...groups.values()];
 }
 
+// SEL_IedInfo Private: the device pedigree Architect stamps on each IED —
+// child elements, ModelNumber repeated once per compatible model.
+function parseIedInfo(ied) {
+  for (const priv of toArray(ied.Private)) {
+    if (attr(priv, 'type') === 'SEL_IedInfo') {
+      return {
+        firmware: text(toArray(priv['esel:ModelVersionMin'])[0]) || null,
+        classVersion: text(toArray(priv['esel:ClassFileVersion'])[0]) || null,
+        modelNumbers: toArray(priv['esel:ModelNumber']).map((node) => text(node)).filter(Boolean),
+        icdFile: text(toArray(priv['esel:IcdFilePath'])[0]) || null,
+      };
+    }
+  }
+  return { firmware: null, classVersion: null, modelNumbers: [], icdFile: null };
+}
+
 function parseIed(ied) {
+  const lnIndex = buildLnIndex(ied);
   const accessPoints = toArray(ied.AccessPoint).map((accessPoint) => ({
     name: attr(accessPoint, 'name'),
     desc: attr(accessPoint, 'desc'),
-    ldevices: toArray(accessPoint.Server?.LDevice).map(parseLDevice),
+    ldevices: toArray(accessPoint.Server?.LDevice).map((ldevice) => parseLDevice(ldevice, lnIndex)),
   }));
   const ldevices = accessPoints.flatMap((accessPoint) => accessPoint.ldevices);
 
@@ -203,6 +426,7 @@ function parseIed(ied) {
     type: attr(ied, 'type'),
     manufacturer: attr(ied, 'manufacturer'),
     configVersion: attr(ied, 'configVersion'),
+    ...parseIedInfo(ied),
     accessPoints,
     subscriptions: summarizeSubscriptions(ldevices),
   };
@@ -223,6 +447,25 @@ function connectedAps(model, iedName) {
   return model.subNetworks
     .flatMap((subNetwork) => subNetwork.connectedAps.map((ap) => ({ subNetwork, ap })))
     .filter(({ ap }) => ap.iedName === iedName);
+}
+
+// Every (accessPoint, ldevice) pair of a parsed IED, tree order — the
+// traversal the inspect sections and the extractor share.
+function ldevicesOf(ied) {
+  return ied.accessPoints.flatMap((accessPoint) =>
+    accessPoint.ldevices.map((ldevice) => ({ accessPoint, ldevice })));
+}
+
+// The wire address of one GOOSE publication: the Communication section's GSE
+// entry when present (matched by control-block name; ldInst wildcarded when
+// the entry omits it), the SEL private on the control block otherwise. The
+// trickiest merge rule in the SCD path — inspect and the canvas share it.
+function wireAddressFor(gses, ldevice, cb) {
+  const wire = gses.find(
+    (candidate) => candidate.cbName === cb.name
+      && (!candidate.ldInst || candidate.ldInst === ldevice.inst),
+  ) ?? null;
+  return { wire, address: wire?.address ?? cb.txAddress ?? null };
 }
 
 // Parse one SCL document (raw XML string) into the SCD model.
@@ -262,4 +505,4 @@ function parseScd(xmlString) {
   };
 }
 
-export { connectedAps, parseScd };
+export { connectedAps, ldevicesOf, parseScd, wireAddressFor };

@@ -13,15 +13,18 @@ import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
 import { extractRdbProfile } from './lib/comm/extract/rdb.js';
 import { extractRtacProfile } from './lib/comm/extract/rtac.js';
 import { attachmentWarning, augmentProfile, extractScdProfile } from './lib/comm/extract/scd.js';
+import { extractSwProfile } from './lib/comm/extract/sw.js';
 import { compareRoutes } from './routes/compare.js';
 import { projectRoutes } from './routes/projects.js';
 import { rdbRoutes } from './routes/rdb.js';
 import { scdRoutes } from './routes/scd.js';
+import { swRoutes } from './routes/sw.js';
 import { workspaceRoutes } from './routes/workspaces.js';
 import { CompareService } from './services/compare.js';
 import { ProjectService } from './services/projects.js';
 import { RdbService } from './services/rdb.js';
 import { ScdService } from './services/scd.js';
+import { SwService } from './services/sw.js';
 import { WorkspaceService } from './services/workspaces.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -32,12 +35,14 @@ const client = createAcRtacClient();
 const projects = new ProjectService({ client, dataDir: DATA_DIR });
 const rdb = new RdbService({ dataDir: DATA_DIR });
 const scd = new ScdService({ dataDir: DATA_DIR });
+const sw = new SwService({ dataDir: DATA_DIR });
 const workspaces = new WorkspaceService({
   dataDir: DATA_DIR,
   resolvers: {
     rtac: async (ref) => extractRtacProfile(await projects.model(ref), ref),
-    rdb: async (ref) => extractRdbProfile(rdb.profile(ref), ref),
+    rdb: async (ref) => extractRdbProfile(rdb.profile(ref).profile, ref),
     scd: async (ref) => extractScdProfile(scd.profile(ref), ref),
+    sw: async (ref) => extractSwProfile(sw.profile(ref), ref),
   },
   augment: async (baseProfile, ref) => {
     const scdProfile = extractScdProfile(scd.profile(ref), ref);
@@ -52,9 +57,10 @@ const compare = new CompareService({
     rtac: (ref) => projects.comparable(ref),
     rdb: (ref) => rdb.comparable(ref),
     scd: (ref) => scd.comparable(ref),
+    sw: (ref) => sw.comparable(ref),
   },
 });
-await Promise.all([projects.init(), rdb.init(), scd.init(), workspaces.init()]);
+await Promise.all([projects.init(), rdb.init(), scd.init(), sw.init(), workspaces.init()]);
 
 // The database list can take a while (it spawns the Python bridge) and the
 // server is useful without it — exports on disk, RDB uploads, workspaces —
@@ -79,6 +85,7 @@ app.use('/api/projects', projectRoutes(projects));
 app.use('/api/compare', compareRoutes(compare));
 app.use('/api/rdb', rdbRoutes(rdb));
 app.use('/api/scd', scdRoutes(scd));
+app.use('/api/sw', swRoutes(sw));
 app.use('/api/workspaces', workspaceRoutes(workspaces));
 
 // The API always speaks JSON, including for failures the routers never see.

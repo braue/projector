@@ -361,7 +361,7 @@ button.ui-section-header:hover { color: var(--ink); }
 
 /* --- canvas ----------------------------------------------------------------- */
 
-.canvas-column { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.canvas-column { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
 .canvas-wrap { position: relative; flex: 1; min-height: 0; background: var(--bg); }
 .canvas-error {
   position: absolute; z-index: 20; top: 10px; left: 50%; transform: translateX(-50%);
@@ -369,16 +369,27 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 
 .canvas-node {
-  width: 176px; padding: 11px 14px; background: var(--card);
+  width: max-content; min-width: 176px; padding: 11px 14px; background: var(--card);
   border: 1px solid var(--border); border-radius: 11px;
   box-shadow: 0 1px 3px rgba(15,18,26,0.07); font-size: 13px; cursor: grab;
 }
 .canvas-node:active { cursor: grabbing; }
 .canvas-node .nm { font-weight: 650; }
-.canvas-node .sub { font-size: 11px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.canvas-node .sub { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; }
 .canvas-node.ghost { border-style: dashed; background: rgba(255,255,255,0.65); box-shadow: none; }
 .canvas-node.ghost .nm { font-weight: 550; color: var(--muted); }
-.node-handle { opacity: 0; width: 6px; height: 6px; pointer-events: none; }
+/* Network fabric (switches): darker card so wiring hubs read at a glance. */
+.canvas-node.switch { background: #eef1f6; border-color: #c4cad6; }
+/* Connection grips: invisible until the node is hovered (or a wire is being
+   dragged), then a small dot you can drag a connection from / drop onto. */
+.node-handle {
+  opacity: 0; width: 10px; height: 10px;
+  background: var(--ink); border: 2px solid var(--card); border-radius: 50%;
+}
+.react-flow__node:hover .node-handle,
+.react-flow__pane.dragging .node-handle,
+.node-handle.connectingto, .node-handle.connectingfrom { opacity: 1; }
+.canvas-node.ghost .node-handle { display: none; }
 
 /* selection ring from React Flow */
 .react-flow__node.selected .canvas-node { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
@@ -391,6 +402,29 @@ button.ui-section-header:hover { color: var(--ink); }
 .status-bar .tierdot { display: inline-flex; align-items: center; gap: 6px; }
 .status-bar .d { width: 8px; height: 8px; border-radius: 50%; }
 .status-bar .conflict { color: var(--bad); font-weight: 600; }
+
+/* network review findings (workspace-wide diagnostics) */
+.findings-chip {
+  margin-left: auto; padding: 3px 10px; font-size: 12px; font-weight: 600;
+  border: 1px solid #e8c98a; border-radius: 8px; background: #fdf5e0; color: #8a6d1d; cursor: pointer;
+}
+.findings-chip:hover, .findings-chip.on { background: #f8ecc9; }
+.findings-panel {
+  position: absolute; right: 14px; bottom: 46px; z-index: 15; width: 420px;
+  max-height: 45%; overflow-y: auto; background: var(--card);
+  border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(15,18,26,0.16); font-size: 12.5px;
+}
+.findings-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 8px; font-weight: 650; border-bottom: 1px solid var(--border-soft);
+}
+.findings-head .x { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
+.findings-head .x:hover { background: var(--fill); }
+.findings-panel .finding { margin: 6px 12px; padding: 7px 11px; border-radius: 8px; }
+.findings-panel .finding.bad { background: #fcecec; color: #a02c2c; }
+.findings-panel .finding.warnc { background: #fdf5e0; color: #8a6d1d; }
+.findings-panel > :last-child { margin-bottom: 12px; }
 
 /* workspace switcher (canvas areas) */
 .ws-switch { position: relative; }
@@ -422,7 +456,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .ws-error { padding: 4px 6px 2px; font-size: 12px; color: var(--bad); }
 
 /* scd augmentation */
-.canvas-node .nm { display: flex; align-items: center; gap: 6px; }
+.canvas-node .nm { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .node-scd {
   flex: none; font-size: 9.5px; font-weight: 650; letter-spacing: 0.02em;
   padding: 1px 5px; border-radius: 5px; background: var(--fill); color: #4b5160;
@@ -461,6 +495,21 @@ button.ui-section-header:hover { color: var(--ink); }
 .link-popup .warn.warnc { background: #fdf5e0; color: #8a6d1d; }
 .link-popup .clean { margin: 5px 14px 12px; font-size: 12.5px; color: var(--ok); }
 .link-popup > :last-child { margin-bottom: 12px; }
+.link-popup .popup-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 10px 14px 2px; border-top: 1px solid var(--border-soft); margin-top: 6px;
+}
+
+/* connect dialog (drawing a manual connection) */
+.connect-overlay {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(15,18,26,0.18);
+}
+.connect-dialog { position: static; width: 380px; }
+.connect-dialog .connect-fields {
+  display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 4px;
+}
 
 /* --- crash screen ----------------------------------------------------------- */
 
