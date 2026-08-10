@@ -28,6 +28,10 @@ function projectRoutes(projects, catalog) {
     res.json({ ok: true });
   });
 
+  router.patch('/:project', async (req, res) => {
+    res.json(await projects.rename(req.params.project, req.body?.name));
+  });
+
   const bundle = (req) => projects.bundle(req.params.project);
   const scoped = Router({ mergeParams: true });
   scoped.use('/rtac', rtacRoutes(async (req) => (await bundle(req)).rtac, catalog));

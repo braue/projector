@@ -10,6 +10,7 @@ import {
   listProjects,
   listRtacProjects,
   listUploads,
+  renameProject,
   startExport,
   uploadRtacFolder,
   uploadSourceFile,
@@ -143,6 +144,15 @@ export default function App() {
       await createProject(name)
       await refreshProjects()
       setProject(name)
+    },
+    [refreshProjects],
+  )
+
+  const handleRenameProject = useCallback(
+    async (name: string, nextName: string) => {
+      const renamed = await renameProject(name, nextName)
+      await refreshProjects()
+      setProject((current) => (current === name ? renamed.name : current))
     },
     [refreshProjects],
   )
@@ -336,6 +346,7 @@ export default function App() {
           projects={projects}
           onSelect={setProject}
           onCreate={handleCreateProject}
+          onRename={handleRenameProject}
           onDelete={handleDeleteProject}
         />
         {mode === 'inspect' && canAggregate && (

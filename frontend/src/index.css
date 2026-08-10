@@ -228,9 +228,12 @@ button.ui-section-header:hover { color: var(--ink); }
 .onboard-form .ui-input { flex: 1; }
 .onboard-error { margin-bottom: 12px; }
 
-/* project rows in the switcher also take the hover ✕ */
+/* project rows in the switcher take hover ✎ / ✕ actions */
 .ws-item:hover .entry-delete { opacity: 1; }
 .ws-item { display: flex; align-items: center; gap: 6px; }
+.ws-item .entry-rename { margin-left: auto; }
+.ws-item .entry-rename + .entry-delete { margin-left: 0; }
+.entry-rename:hover { color: var(--ink); }
 
 .source-tabs { display: flex; gap: 2px; margin: 10px 10px 6px; background: var(--fill); border-radius: 8px; padding: 3px; flex: none; }
 .source-tab {

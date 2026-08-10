@@ -12,7 +12,7 @@
 // compare), built lazily on first touch and cached; the AcRTAC database
 // catalog is the one machine-global piece, shared across bundles.
 
-import { mkdir, readdir, rm } from 'node:fs/promises';
+import { mkdir, readdir, rename, rm } from 'node:fs/promises';
 import path from 'node:path';
 
 import { attachmentWarning, augmentProfile, extractScdProfile } from '../lib/comm/extract/scd.js';
@@ -68,6 +68,22 @@ class ProjectsService {
   async remove(name) {
     await rm(this.dir(name), { recursive: true, force: true });
     this.bundles.delete(name);
+  }
+
+  // Rename = move the folder. The old bundle is dropped (its services point
+  // at the old directory and its RDB drawing URLs bake in the old name); the
+  // new one builds lazily on first touch.
+  async rename(name, nextName) {
+    const trimmed = nextName?.trim();
+    if (!trimmed) throw httpError(400, 'project name required');
+    const names = await this.list();
+    if (!names.includes(name)) throw httpError(404, `unknown project: ${name}`);
+    if (trimmed === name) return { name: trimmed };
+    if (names.includes(trimmed)) throw httpError(409, `project already exists: ${trimmed}`);
+    const to = this.dir(trimmed);
+    this.bundles.delete(name);
+    await rename(this.dir(name), to);
+    return { name: trimmed };
   }
 
   // The project's service bundle, built on first touch. 404s for a project

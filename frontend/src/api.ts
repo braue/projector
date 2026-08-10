@@ -54,6 +54,10 @@ export function deleteProject(name: string): Promise<unknown> {
   return send(`/api/projects/${encodeURIComponent(name)}`, 'DELETE')
 }
 
+export function renameProject(name: string, nextName: string): Promise<{ name: string }> {
+  return send(`/api/projects/${encodeURIComponent(name)}`, 'PATCH', { name: nextName })
+}
+
 // --- RTAC (the machine-global catalog, exported per project) -------------------
 
 /** The RTAC exports in this project (the sidebar list). */
