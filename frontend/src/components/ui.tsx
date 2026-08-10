@@ -17,7 +17,7 @@
 //   - pane scaffolding (headers/footers/three-pane flex) is layout, not a
 //     control.
 
-import { useState, type ReactElement, type ReactNode } from 'react'
+import { useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 import { errorMessage } from '../lib/errors'
 
@@ -139,18 +139,34 @@ export function InlineNameForm({
   // Commits mutate identity (renames, creates) — a repeat Enter during the
   // await must not fire a second one.
   const [pending, setPending] = useState(false)
+  // Set once the form is finished (Escape, or a successful commit) so the
+  // trailing blur cannot fire a second action.
+  const done = useRef(false)
+
   const commit = async () => {
     const trimmed = value.trim()
-    if (!trimmed || pending) return
+    if (!trimmed || pending || done.current) return
     setPending(true)
     try {
       await onCommit(trimmed)
+      done.current = true
     } catch (err) {
       setError(errorMessage(err))
     } finally {
       setPending(false)
     }
   }
+
+  // Clicking away saves a rename — Enter must not be required. An unchanged
+  // or emptied name, or a create form (no initial), just closes: abandoning
+  // a create by clicking away must not silently create something.
+  const blur = () => {
+    if (done.current || pending) return
+    const trimmed = value.trim()
+    if (initial && trimmed && trimmed !== initial) commit()
+    else onCancel()
+  }
+
   return (
     <div className="side-form">
       <TextInput
@@ -159,9 +175,13 @@ export function InlineNameForm({
         placeholder={placeholder}
         disabled={pending}
         onChange={(e) => setValue(e.target.value)}
+        onBlur={blur}
         onKeyDown={(e) => {
           if (e.key === 'Enter') commit()
-          if (e.key === 'Escape') onCancel()
+          if (e.key === 'Escape') {
+            done.current = true
+            onCancel()
+          }
         }}
       />
       {error && <div className="side-form-error">{error}</div>}
