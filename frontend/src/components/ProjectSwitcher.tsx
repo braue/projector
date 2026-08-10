@@ -12,11 +12,13 @@ export function ProjectSwitcher({
   projects,
   onSelect,
   onCreate,
+  onDelete,
 }: {
   current: string
   projects: string[]
   onSelect: (name: string) => void
   onCreate: (name: string) => Promise<void>
+  onDelete: (name: string) => void
 }) {
   const [open, setOpen] = useState(false)
   const [naming, setNaming] = useState(false)
@@ -69,6 +71,17 @@ export function ProjectSwitcher({
             >
               {ws}
               {ws === current && <span className="ws-check">✓</span>}
+              <span
+                className="entry-delete"
+                title={`Delete project ${ws}`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setOpen(false)
+                  onDelete(ws)
+                }}
+              >
+                ✕
+              </span>
             </button>
           ))}
           <div className="ws-divider" />

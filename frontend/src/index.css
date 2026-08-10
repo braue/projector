@@ -221,6 +221,17 @@ button.ui-section-header:hover { color: var(--ink); }
   padding: 10px 14px; border-top: 1px solid var(--border-soft);
 }
 
+/* first-run gate: name a project before any work */
+.onboard { align-items: center; justify-content: center; }
+.onboard-card { width: 400px; }
+.onboard-form { display: flex; gap: 8px; padding: 14px; }
+.onboard-form .ui-input { flex: 1; }
+.onboard-error { margin-bottom: 12px; }
+
+/* project rows in the switcher also take the hover ✕ */
+.ws-item:hover .entry-delete { opacity: 1; }
+.ws-item { display: flex; align-items: center; gap: 6px; }
+
 .source-tabs { display: flex; gap: 2px; margin: 10px 10px 6px; background: var(--fill); border-radius: 8px; padding: 3px; flex: none; }
 .source-tab {
   flex: 1; text-align: center; padding: 4px 0; border: 0; border-radius: 6px; background: none;

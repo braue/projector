@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   createProject,
+  deleteProject,
   deleteRtacExport,
   deleteUpload,
   fetchSourceItem,
@@ -20,7 +21,7 @@ import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
 import { SourcesSidebar } from './components/SourcesSidebar'
-import { SegmentedControl } from './components/ui'
+import { Button, SegmentedControl, TextInput } from './components/ui'
 import { errorMessage } from './lib/errors'
 import { sourceKey } from './lib/sources'
 import { TIER_COLOR } from './lib/tiers'
@@ -35,7 +36,7 @@ import type {
 } from './types'
 
 const POLL_MS = 1200
-const DEFAULT_PROJECT = 'Default'
+const PROJECT_KEY = 'purview-project'
 
 type Mode = 'canvas' | 'inspect' | 'compare'
 type InspectSub = 'browse' | 'aggregate'
@@ -56,8 +57,10 @@ export default function App() {
   const [mode, setMode] = useState<Mode>('canvas')
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
   // The current project scopes every source, canvas, and compare below.
-  const [project, setProject] = useState(DEFAULT_PROJECT)
-  const [projects, setProjects] = useState<string[]>([DEFAULT_PROJECT])
+  // null projects = still loading the list; null project + loaded list =
+  // nothing exists yet, so the user names their first project before work.
+  const [project, setProject] = useState<string | null>(null)
+  const [projects, setProjects] = useState<string[] | null>(null)
   const [rtacProjects, setRtacProjects] = useState<ProjectEntry[]>([])
   const [listError, setListError] = useState<string | null>(null)
   const [uploads, setUploads] = useState(EMPTY_UPLOADS)
@@ -68,6 +71,7 @@ export default function App() {
   const [showFindings, setShowFindings] = useState(false)
 
   const refreshRtac = useCallback(async () => {
+    if (!project) return
     try {
       const list = await listRtacProjects(project)
       setRtacProjects(list.projects)
@@ -78,6 +82,7 @@ export default function App() {
   }, [project])
 
   const refreshUploads = useCallback(async (type: UploadSourceType) => {
+    if (!project) return
     try {
       const files = await listUploads(project, type)
       setUploads((current) => ({ ...current, [type]: { ...current[type], files } }))
@@ -96,20 +101,27 @@ export default function App() {
   const refreshProjects = useCallback(async () => {
     try {
       const names = await listProjects()
-      if (names.length) setProjects(names)
+      setProjects(names)
       return names
     } catch {
       // Backend unreachable: the sidebar already surfaces it; keep the list.
-      return []
+      return null
     }
   }, [])
 
-  // Startup: pick a real project (the backend guarantees at least one).
+  // Startup: restore the last-used project if it still exists, otherwise the
+  // first one; none at all leaves `project` null and gates on naming one.
   useEffect(() => {
     refreshProjects().then((names) => {
-      if (names.length && !names.includes(DEFAULT_PROJECT)) setProject(names[0])
+      if (!names) return
+      const remembered = localStorage.getItem(PROJECT_KEY)
+      setProject(remembered && names.includes(remembered) ? remembered : names[0] ?? null)
     })
   }, [refreshProjects])
+
+  useEffect(() => {
+    if (project) localStorage.setItem(PROJECT_KEY, project)
+  }, [project])
 
   // Switching projects swaps every source list and clears per-project state.
   useEffect(() => {
@@ -119,6 +131,7 @@ export default function App() {
     setSelectedItem(null)
     setGraph(null)
     setShowFindings(false)
+    if (!project) return
     refreshRtac()
     refreshUploads('rdb')
     refreshUploads('scd')
@@ -134,6 +147,25 @@ export default function App() {
     [refreshProjects],
   )
 
+  const handleDeleteProject = useCallback(
+    async (name: string) => {
+      if (!window.confirm(`Delete project "${name}" and all of its sources? This cannot be undone.`)) {
+        return
+      }
+      try {
+        await deleteProject(name)
+      } catch (err) {
+        setListError(errorMessage(err))
+        return
+      }
+      const names = (await refreshProjects()) ?? []
+      setProject((current) =>
+        current === name ? names[0] ?? null : current,
+      )
+    },
+    [refreshProjects],
+  )
+
   // Poll while any export is in flight so spinners resolve on their own —
   // each refresh replaces `rtacProjects`, which re-arms the timer.
   const exporting = rtacProjects.some((p) => p.status === 'exporting')
@@ -145,6 +177,7 @@ export default function App() {
 
   const handleExport = useCallback(
     async (name: string) => {
+      if (!project) return
       try {
         await startExport(project, name)
       } catch (err) {
@@ -161,6 +194,7 @@ export default function App() {
   const [rtacBusy, setRtacBusy] = useState(false)
   const handleUploadRtacFolder = useCallback(
     async (files: File[]) => {
+      if (!project) return
       setRtacBusy(true)
       setListError(null)
       try {
@@ -178,6 +212,7 @@ export default function App() {
 
   const handleDeleteRtac = useCallback(
     async (name: string) => {
+      if (!project) return
       try {
         await deleteRtacExport(project, name)
       } catch (err) {
@@ -203,6 +238,7 @@ export default function App() {
 
   const handleUpload = useCallback(
     async (type: UploadSourceType, file: File) => {
+      if (!project) return
       setUploadError(type, null)
       try {
         await uploadSourceFile(project, type, file)
@@ -219,6 +255,7 @@ export default function App() {
 
   const handleDeleteUpload = useCallback(
     async (type: UploadSourceType, id: string) => {
+      if (!project) return
       try {
         await deleteUpload(project, type, id)
       } catch (err) {
@@ -249,11 +286,13 @@ export default function App() {
   )
 
   const { data: tree, error: treeError } = useFetch(
-    selectedSource ? () => fetchSourceTree(project, selectedSource) : null,
+    project && selectedSource ? () => fetchSourceTree(project, selectedSource) : null,
     [project, selectedSource],
   )
   const { data: item, error: itemError } = useFetch(
-    selectedSource && selectedItem ? () => fetchSourceItem(project, selectedSource, selectedItem) : null,
+    project && selectedSource && selectedItem
+      ? () => fetchSourceItem(project, selectedSource, selectedItem)
+      : null,
     [project, selectedSource, selectedItem],
     { keepStale: true },
   )
@@ -272,6 +311,21 @@ export default function App() {
         ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace(REF_SEPARATOR, ' · ') : selectedSource.ref} · read-only`
         : ''
 
+  // Still loading the project list: just the shell, no flash of onboarding.
+  if (projects === null) {
+    return (
+      <header className="topbar">
+        <span className="brand">Purview</span>
+      </header>
+    )
+  }
+
+  // Nothing exists yet (first run, or everything deleted): name a project
+  // before any work starts.
+  if (project === null) {
+    return <FirstProject onCreate={handleCreateProject} />
+  }
+
   return (
     <>
       <header className="topbar">
@@ -282,6 +336,7 @@ export default function App() {
           projects={projects}
           onSelect={setProject}
           onCreate={handleCreateProject}
+          onDelete={handleDeleteProject}
         />
         {mode === 'inspect' && canAggregate && (
           <SegmentedControl
@@ -408,6 +463,60 @@ export default function App() {
         {mode === 'compare' && (
           <CompareView key={project} project={project} projects={rtacProjects} uploads={uploads} />
         )}
+      </div>
+    </>
+  )
+}
+
+// The first-run gate: nothing exists until the user names a project.
+function FirstProject({ onCreate }: { onCreate: (name: string) => Promise<void> }) {
+  const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const create = async () => {
+    const trimmed = name.trim()
+    if (!trimmed || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      await onCreate(trimmed)
+    } catch (err) {
+      setError(errorMessage(err))
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <header className="topbar">
+        <span className="brand">Purview</span>
+      </header>
+      <div className="app onboard">
+        <div className="modal-card onboard-card">
+          <div className="modal-head">
+            <span className="t">Name your first project</span>
+          </div>
+          <div className="modal-sub">
+            A project holds its own RTAC exports, settings uploads, and canvas —
+            everything scoped to one job.
+          </div>
+          <div className="onboard-form">
+            <TextInput
+              autoFocus
+              value={name}
+              placeholder="e.g. Substation 12 upgrade"
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') create()
+              }}
+            />
+            <Button variant="primary" disabled={!name.trim() || busy} onClick={create}>
+              Create project
+            </Button>
+          </div>
+          {error && <div className="modal-error onboard-error">{error}</div>}
+        </div>
       </div>
     </>
   )

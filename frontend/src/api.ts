@@ -49,6 +49,11 @@ export function createProject(name: string): Promise<{ name: string }> {
   return send('/api/projects', 'POST', { name })
 }
 
+/** Delete a project and everything in it (sources, canvas). */
+export function deleteProject(name: string): Promise<unknown> {
+  return send(`/api/projects/${encodeURIComponent(name)}`, 'DELETE')
+}
+
 // --- RTAC (the machine-global catalog, exported per project) -------------------
 
 /** The RTAC exports in this project (the sidebar list). */

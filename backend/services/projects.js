@@ -27,8 +27,6 @@ import { RtacService } from './rtac.js';
 import { ScdService } from './scd.js';
 import { SwService } from './sw.js';
 
-const DEFAULT_PROJECT = 'Default';
-
 class ProjectsService {
   constructor({ dataDir, catalog, selDevicesDir }) {
     this.root = path.join(dataDir, 'projects');
@@ -38,11 +36,10 @@ class ProjectsService {
     this.bundles = new Map();
   }
 
+  // No default project: the UI makes the user name their first one before
+  // any work starts.
   async init() {
     await mkdir(this.root, { recursive: true });
-    if (!(await this.list()).length) {
-      await this.create(DEFAULT_PROJECT);
-    }
   }
 
   dir(name) {
