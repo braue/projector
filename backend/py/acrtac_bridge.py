@@ -15,21 +15,17 @@ import sys
 from selacrtac.acrtac import AcRTAC
 
 
-def make_client():
-    cli = AcRTAC()
-    cli.login("admin", "TAIL").wait()
-    return cli
-
-
-def cmd_list(_args):
-    cli = make_client()
+def cmd_list(cli, _args):
     available_projects = cli.listprojects()
     return {"projects": [{"name": p.name} for p in available_projects]}
 
 
-def cmd_export(args):
-    cli = make_client()
-    cli.exportxml(directory=args.directory, name=args.name, project_password=None)
+def cmd_export(cli, args):
+    job = cli.exportxml(directory=args.directory, name=args.name, project_password=None)
+    # login() hands back a waitable job; if exportxml does too, the export
+    # must finish before the with-block in main() tears the CLI process down.
+    if hasattr(job, "wait"):
+        job.wait()
     return {"ok": True}
 
 
@@ -47,7 +43,13 @@ def main():
     handler = {"list": cmd_list, "export": cmd_export}[args.command]
 
     try:
-        result = handler(args)
+        # AcRTAC only works as a context manager: __enter__ starts the CLI
+        # process and registers its alias, __exit__ tears it down. The whole
+        # command therefore runs inside the with-block — a client that
+        # escapes it is talking to a process that no longer exists.
+        with AcRTAC() as cli:
+            cli.login("admin", "TAIL").wait()
+            result = handler(cli, args)
     except Exception as exc:  # surface any selacrtac failure as the process error
         print(str(exc), file=sys.stderr)
         sys.exit(1)
