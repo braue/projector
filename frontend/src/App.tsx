@@ -25,7 +25,6 @@ import { SourcesSidebar } from './components/SourcesSidebar'
 import { Button, SegmentedControl, TextInput } from './components/ui'
 import { errorMessage } from './lib/errors'
 import { sourceKey } from './lib/sources'
-import { TIER_COLOR } from './lib/tiers'
 import { useFetch } from './lib/useFetch'
 import { REF_SEPARATOR } from './types'
 import type {
@@ -358,6 +357,14 @@ export default function App() {
           />
         )}
         <span className="topbar-info">{topbarInfo}</span>
+        {mode === 'canvas' && graph && graph.diagnostics.length > 0 && (
+          <button
+            className={showFindings ? 'findings-chip on' : 'findings-chip'}
+            onClick={() => setShowFindings((current) => !current)}
+          >
+            ⚠ {graph.diagnostics.length} network finding{graph.diagnostics.length === 1 ? '' : 's'}
+          </button>
+        )}
       </header>
 
       <div className="app">
@@ -402,30 +409,6 @@ export default function App() {
                 ))}
               </div>
             )}
-            <div className="status-bar">
-              {graph && (
-                <>
-                  <span><b>{graph.summary.devices}</b> devices</span>
-                  <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.confirmed }} /><b>{graph.summary.confirmed}</b> confirmed</span>
-                  <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.probable }} /><b>{graph.summary.probable}</b> suggested</span>
-                  <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.declared }} /><b>{graph.summary.declared}</b> declared</span>
-                  {graph.summary.manual > 0 && (
-                    <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.manual }} /><b>{graph.summary.manual}</b> drawn</span>
-                  )}
-                  <span className={graph.summary.conflicts ? 'conflict' : undefined}>
-                    {graph.summary.conflicts} conflict{graph.summary.conflicts === 1 ? '' : 's'}
-                  </span>
-                  {graph.diagnostics.length > 0 && (
-                    <button
-                      className={showFindings ? 'findings-chip on' : 'findings-chip'}
-                      onClick={() => setShowFindings((current) => !current)}
-                    >
-                      ⚠ {graph.diagnostics.length} network finding{graph.diagnostics.length === 1 ? '' : 's'}
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
           </div>
         )}
 
