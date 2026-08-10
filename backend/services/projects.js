@@ -139,19 +139,7 @@ class ProjectsService {
       sw: (ref) => sw.comparable(ref),
     };
     const compare = new CompareService({ adapters });
-    const search = new SearchService({
-      adapters,
-      // Everything searchable in the project right now: ready RTAC exports
-      // and every profile of every upload.
-      sources: async () => [
-        ...rtac.list().projects
-          .filter((entry) => entry.status === 'ready')
-          .map((entry) => ({ type: 'rtac', ref: entry.name })),
-        ...[['rdb', rdb], ['scd', scd], ['sw', sw]].flatMap(([type, service]) =>
-          service.list().flatMap((file) =>
-            file.profiles.map((profile) => ({ type, ref: profile.ref })))),
-      ],
-    });
+    const search = new SearchService({ adapters });
 
     const notes = new NotesService({ file: path.join(projectDir, 'notes.json') });
     const files = new FilesService({ dataDir: projectDir });

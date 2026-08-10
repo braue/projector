@@ -1,4 +1,4 @@
-// Project-wide search: ?q=<string> sweeps every source in the project.
+// Per-source search: ?type=&ref=&q= searches one source's parsed items.
 // `resolve(req)` supplies the project's SearchService.
 
 import { Router } from 'express';
@@ -9,7 +9,8 @@ function searchRoutes(resolve) {
   const router = Router({ mergeParams: true });
 
   router.get('/', async (req, res) => {
-    res.json(await (await resolve(req)).search(requireQuery(req, 'q')));
+    const source = { type: requireQuery(req, 'type'), ref: requireQuery(req, 'ref') };
+    res.json(await (await resolve(req)).search(source, requireQuery(req, 'q')));
   });
 
   return router;

@@ -1,4 +1,4 @@
-// Free-text search over the shared compare/search adapter.
+// Free-text per-source search over the shared compare/search adapter.
 
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -10,7 +10,7 @@ import { RdbService } from '../services/rdb.js';
 import { SearchService } from '../services/search.js';
 import { makeRdb } from './helpers/makeRdb.js';
 
-test('search sweeps every source and reports object + location per match', async () => {
+test('search scopes to one source and reports object + location per match', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-search-'));
   try {
     const rdb = new RdbService({ dataDir: tmp });
@@ -32,26 +32,25 @@ test('search sweeps every source and reports object + location per match', async
         ],
       },
     ]));
-    const search = new SearchService({
-      adapters: { rdb: (ref) => rdb.comparable(ref) },
-      sources: async () =>
-        rdb.list().flatMap((file) => file.profiles.map((profile) => ({ type: 'rdb', ref: profile.ref }))),
-    });
+    const search = new SearchService({ adapters: { rdb: (ref) => rdb.comparable(ref) } });
+    const source = { type: 'rdb', ref: 'unit::FEEDER_1' };
 
-    // Project-wide: both profiles hit, each grouped under its own source.
-    const byValue = await search.search('10.0.0');
-    assert.equal(byValue.totalMatches, 2);
-    assert.deepEqual(byValue.sources.map((s) => s.ref), ['unit::FEEDER_1', 'unit::FEEDER_2']);
-    assert.deepEqual(byValue.sources[0].results[0].matches[0], {
+    // Value match — only the scoped profile hits, not the sibling FEEDER_2.
+    const byValue = await search.search(source, '10.0.0');
+    assert.equal(byValue.totalMatches, 1);
+    assert.equal(byValue.results.length, 1);
+    assert.equal(byValue.results[0].path, 'P5');
+    assert.deepEqual(byValue.results[0].matches[0], {
       where: 'setting', location: 'IPADDR', text: 'IPADDR = 10.0.0.5',
     });
 
     // Key match, case-insensitive.
-    const byKey = await search.search('subnetm');
-    assert.equal(byKey.sources.length, 1);
-    assert.equal(byKey.sources[0].results[0].matches[0].location, 'SUBNETM');
+    const byKey = await search.search(source, 'subnetm');
+    assert.equal(byKey.results.length, 1);
+    assert.equal(byKey.results[0].matches[0].location, 'SUBNETM');
 
-    await assert.rejects(() => search.search('   '), /search string is required/);
+    await assert.rejects(() => search.search(source, '   '), /search string is required/);
+    await assert.rejects(() => search.search({ type: 'nope', ref: 'x' }, 'ip'), /unknown source type/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

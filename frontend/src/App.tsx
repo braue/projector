@@ -21,7 +21,9 @@ import {
 import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
 import { CompareView } from './components/CompareView'
+import { FilesSearchView } from './components/FilesSearchView'
 import { FilesView } from './components/FilesView'
+import { NotesSearchView } from './components/NotesSearchView'
 import { NotesView } from './components/NotesView'
 import { SearchView } from './components/SearchView'
 import { FileTree } from './components/FileTree'
@@ -47,6 +49,8 @@ const PROJECT_KEY = 'purview-project'
 
 type Mode = 'canvas' | 'inspect' | 'compare' | 'notes' | 'files'
 type InspectSub = 'browse' | 'aggregate' | 'search'
+type NotesSub = 'create' | 'search'
+type FilesSub = 'navigate' | 'search'
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'canvas', label: 'Canvas' },
@@ -69,6 +73,12 @@ const UPLOAD_TYPES = Object.keys(EMPTY_UPLOADS) as UploadSourceType[]
 export default function App() {
   const [mode, setMode] = useState<Mode>('canvas')
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
+  // Notes and Files each split into their working view and a full-pane
+  // search; the jump targets carry a search hit's selection into the view.
+  const [notesSub, setNotesSub] = useState<NotesSub>('create')
+  const [filesSub, setFilesSub] = useState<FilesSub>('navigate')
+  const [notesJumpId, setNotesJumpId] = useState<string | null>(null)
+  const [filesJumpPath, setFilesJumpPath] = useState<string | null>(null)
   // The current project scopes every source, canvas, and compare below.
   // null projects = still loading the list; null project + loaded list =
   // nothing exists yet, so the user names their first project before work.
@@ -140,6 +150,10 @@ export default function App() {
     setSelectedItem(null)
     setGraph(null)
     setShowFindings(false)
+    setNotesSub('create')
+    setFilesSub('navigate')
+    setNotesJumpId(null)
+    setFilesJumpPath(null)
     if (!project) return
     refreshRtac()
     for (const type of UPLOAD_TYPES) refreshUploads(type)
@@ -320,6 +334,15 @@ export default function App() {
     [project, refreshUploads, setUploadError],
   )
 
+  // Entering a mode always lands on its working view, not a stale search.
+  const changeMode = useCallback((next: Mode) => {
+    setMode(next)
+    setNotesSub('create')
+    setFilesSub('navigate')
+    setNotesJumpId(null)
+    setFilesJumpPath(null)
+  }, [])
+
   // Selecting a source (sidebar click, or canvas node double-click via onInspect).
   const handleSelectSource = useCallback((source: DeviceSource) => {
     setSelectedSource(source)
@@ -378,7 +401,7 @@ export default function App() {
   return (
     <>
       <header className="topbar">
-        <SegmentedControl options={MODES} value={mode} onChange={setMode} />
+        <SegmentedControl options={MODES} value={mode} onChange={changeMode} />
         <ProjectSwitcher
           current={project}
           projects={projects}
@@ -387,7 +410,7 @@ export default function App() {
           onRename={handleRenameProject}
           onDelete={handleDeleteProject}
         />
-        {mode === 'inspect' && (
+        {mode === 'inspect' && selectedSource && (
           <SegmentedControl
             options={[
               { value: 'browse' as InspectSub, label: 'Browse' },
@@ -396,6 +419,32 @@ export default function App() {
             ]}
             value={inspectSub}
             onChange={setInspectSub}
+          />
+        )}
+        {mode === 'notes' && (
+          <SegmentedControl
+            options={[
+              { value: 'create' as NotesSub, label: 'Create' },
+              { value: 'search' as NotesSub, label: 'Search' },
+            ]}
+            value={notesSub}
+            onChange={(sub) => {
+              if (sub === 'search') setNotesJumpId(null)
+              setNotesSub(sub)
+            }}
+          />
+        )}
+        {mode === 'files' && (
+          <SegmentedControl
+            options={[
+              { value: 'navigate' as FilesSub, label: 'Navigate' },
+              { value: 'search' as FilesSub, label: 'Search' },
+            ]}
+            value={filesSub}
+            onChange={(sub) => {
+              if (sub === 'search') setFilesJumpPath(null)
+              setFilesSub(sub)
+            }}
           />
         )}
         <span className="topbar-info">{topbarInfo}</span>
@@ -457,12 +506,12 @@ export default function App() {
         )}
 
         {mode === 'inspect' &&
-          (inspectSub === 'search' ? (
+          (selectedSource && inspectSub === 'search' ? (
             <SearchView
-              key={project}
+              key={`${project}:${sourceKey(selectedSource)}`}
               project={project}
-              onOpen={(source, path) => {
-                setSelectedSource(source)
+              source={selectedSource}
+              onOpen={(path) => {
                 setSelectedItem(path)
                 setInspectSub('browse')
               }}
@@ -503,9 +552,33 @@ export default function App() {
           <CompareView key={project} project={project} projects={rtacProjects} uploads={uploads} />
         )}
 
-        {mode === 'notes' && <NotesView key={project} project={project} />}
+        {mode === 'notes' &&
+          (notesSub === 'search' ? (
+            <NotesSearchView
+              key={project}
+              project={project}
+              onOpen={(id) => {
+                setNotesJumpId(id)
+                setNotesSub('create')
+              }}
+            />
+          ) : (
+            <NotesView key={project} project={project} initialSelectedId={notesJumpId} />
+          ))}
 
-        {mode === 'files' && <FilesView key={project} project={project} />}
+        {mode === 'files' &&
+          (filesSub === 'search' ? (
+            <FilesSearchView
+              key={project}
+              project={project}
+              onOpen={(path) => {
+                setFilesJumpPath(path)
+                setFilesSub('navigate')
+              }}
+            />
+          ) : (
+            <FilesView key={project} project={project} initialSelected={filesJumpPath} />
+          ))}
       </div>
     </>
   )

@@ -188,7 +188,10 @@ button.ui-section-header:hover { color: var(--ink); }
 .entry-delete:hover { background: var(--fill); color: var(--bad); }
 /* Only the first trailing icon/count keeps the auto margin that pushes the
  * group right; anything after it sits flush. */
-.project-entry :is(.entry-rename, .note-count) ~ .entry-delete { margin-left: 0; }
+/* Rows with a trailing icon group (✎ ✕, sometimes a count): only the FIRST
+ * trailing element keeps the auto margin that pushes the group right — two
+ * auto margins would split the free space and strand the ✎ mid-row. */
+:is(.project-entry, .file-row) :is(.entry-rename, .note-count) ~ .entry-delete { margin-left: 0; }
 
 /* Inline rename/create form (ui.tsx InlineNameForm) in sidebar rows and menus. */
 .side-form { padding: 6px 10px; }
@@ -634,7 +637,7 @@ button.ui-section-header:hover { color: var(--ink); }
   align-items: flex-start; gap: 9px; font-size: 13px;
 }
 
-/* --- inspect search ------------------------------------------------------------ */
+/* --- search panes (inspect / notes / files) ------------------------------------ */
 
 .search-bar { display: flex; gap: 8px; }
 .search-bar .ui-input { flex: 1; width: auto; }
@@ -653,9 +656,12 @@ button.ui-section-header:hover { color: var(--ink); }
 .search-text { min-width: 0; overflow-wrap: anywhere; }
 .search-text mark { background: #fdf0c2; color: inherit; border-radius: 3px; padding: 0 1px; }
 .search-more { padding: 2px 16px 6px; font-size: 11.5px; color: var(--muted); }
-.search-source { border-bottom: 1px solid var(--border); }
-.search-source-head {
-  display: flex; align-items: center; gap: 10px; padding: 11px 16px 4px;
-  font-size: 12px; font-weight: 600; color: var(--muted);
+/* Clickable result rows (Notes line hits, Files entries). */
+.search-match.as-row { width: 100%; border: 0; background: none; cursor: pointer; text-align: left; }
+.search-match.as-row:hover { background: var(--fill); }
+.file-hit { align-items: center; padding: 4px 16px; }
+.search-path {
+  margin-left: auto; flex: none; max-width: 45%; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.search-source-label { color: var(--ink); font-size: 12.5px; }
+.search-size { flex: none; color: var(--muted); }

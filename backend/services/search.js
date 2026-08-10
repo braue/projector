@@ -1,7 +1,6 @@
-// Free-text search over the WHOLE project — "where does this string appear,
-// in what object, in which source". Sweeps every source at once (each RTAC
-// export, every uploaded RDB/SCD/SW profile) via the same per-type adapters
-// compare uses (entries carry the full inspect item).
+// Free-text search within ONE settings source — "where does this string
+// appear in this export/profile, and in what object". Runs over the same
+// per-type adapter compare uses (entries carry the full inspect item).
 //
 // Matching is case-insensitive substring, over everything an engineer can
 // see in Inspect: the object's name, settings keys and values, point rows,
@@ -72,61 +71,42 @@ function matchItem(item, needle, out) {
 
 class SearchService {
   // adapters: type -> async (ref) => { label, entries: [{ path, name, item }] }
-  // sources:  async () => [{ type, ref }] — every searchable source in the
-  //           project right now, supplied by the bundle.
-  constructor({ adapters, sources }) {
+  constructor({ adapters }) {
     this.adapters = adapters;
-    this.sources = sources;
   }
 
-  async search(query) {
+  async search({ type, ref }, query) {
     const q = String(query ?? '').trim();
     if (!q) throw httpError(400, 'a search string is required');
+    const adapter = this.adapters[type];
+    if (!adapter) throw httpError(400, `unknown source type: ${type}`);
     const needle = q.toLowerCase();
 
-    const sources = [];
+    const { label, entries } = await adapter(ref);
+
+    const results = [];
     let totalMatches = 0;
-    let carried = 0;
     let truncated = false;
-
-    for (const source of await this.sources()) {
-      const adapter = this.adapters[source.type];
-      if (!adapter) continue;
-      // A source that fails to load (mid-export, vanished) skips rather than
-      // failing the whole sweep.
-      let loaded;
-      try {
-        loaded = await adapter(source.ref);
-      } catch {
-        continue;
+    for (const entry of entries) {
+      const matches = matchItem(entry.item, needle, []);
+      if (!matches.length) continue;
+      totalMatches += matches.length;
+      if (results.length >= MAX_ITEMS) {
+        truncated = true;
+        continue; // keep counting matches, stop carrying detail
       }
-
-      const results = [];
-      for (const entry of loaded.entries) {
-        const matches = matchItem(entry.item, needle, []);
-        if (!matches.length) continue;
-        totalMatches += matches.length;
-        if (carried >= MAX_ITEMS) {
-          truncated = true;
-          continue; // keep counting matches, stop carrying detail
-        }
-        carried += 1;
-        results.push({
-          path: entry.path,
-          name: entry.name,
-          kindLabel: entry.item.kindLabel,
-          category: entry.item.category,
-          protocol: entry.item.protocol ?? null,
-          matches: matches.slice(0, MAX_MATCHES_PER_ITEM),
-          truncated: matches.length > MAX_MATCHES_PER_ITEM,
-        });
-      }
-      if (results.length) {
-        sources.push({ type: source.type, ref: source.ref, label: loaded.label, results });
-      }
+      results.push({
+        path: entry.path,
+        name: entry.name,
+        kindLabel: entry.item.kindLabel,
+        category: entry.item.category,
+        protocol: entry.item.protocol ?? null,
+        matches: matches.slice(0, MAX_MATCHES_PER_ITEM),
+        truncated: matches.length > MAX_MATCHES_PER_ITEM,
+      });
     }
 
-    return { query: q, sources, totalMatches, truncated };
+    return { query: q, label, results, totalMatches, truncated };
   }
 }
 

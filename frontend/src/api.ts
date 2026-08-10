@@ -273,9 +273,10 @@ export function fetchSourceItem(
 
 // --- search -------------------------------------------------------------------
 
-/** Project-wide: sweeps every source (RTAC exports and upload profiles). */
-export function searchProject(project: string, query: string): Promise<SearchResults> {
-  return get(`${base(project)}/search?q=${encodeURIComponent(query)}`)
+/** Search one source's parsed items (names, settings, points, tables, logic). */
+export function searchSource(project: string, source: DeviceSource, query: string): Promise<SearchResults> {
+  const params = new URLSearchParams({ type: source.type, ref: source.ref, q: query })
+  return get(`${base(project)}/search?${params}`)
 }
 
 // --- canvas -------------------------------------------------------------------

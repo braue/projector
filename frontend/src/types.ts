@@ -243,17 +243,11 @@ export interface SearchHit {
   truncated: boolean
 }
 
-export interface SearchSource {
-  type: SourceType
-  ref: string
-  label: string
-  results: SearchHit[]
-}
-
 export interface SearchResults {
   query: string
-  /** Every source in the project with at least one match. */
-  sources: SearchSource[]
+  /** Display label of the searched source. */
+  label: string
+  results: SearchHit[]
   totalMatches: number
   /** More matching objects existed than the payload carries. */
   truncated: boolean

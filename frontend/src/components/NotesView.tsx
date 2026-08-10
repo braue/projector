@@ -41,9 +41,18 @@ function checkCounts(note: Note): string | null {
   return `${done}/${checks.length}`
 }
 
-export function NotesView({ project }: { project: string }) {
+export function NotesView({
+  project,
+  initialSelectedId = null,
+}: {
+  project: string
+  /** Select this note once the list loads (a jump from Notes › Search). */
+  initialSelectedId?: string | null
+}) {
   const [notes, setNotes] = useState<Note[] | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  // Starts on the jump target (the view remounts per sub-mode toggle, so a
+  // mount-time initializer is enough); load() drops it if it no longer exists.
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId)
   const [error, setError] = useState<string | null>(null)
   // The InlineNameForm owns its value and error; these just mark which row
   // (or the create slot) is editing.
@@ -74,7 +83,6 @@ export function NotesView({ project }: { project: string }) {
 
   useEffect(() => {
     setNotes(null)
-    setSelectedId(null)
     load()
   }, [load])
 

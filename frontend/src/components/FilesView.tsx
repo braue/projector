@@ -10,6 +10,7 @@ import {
   uploadFiles,
 } from '../api'
 import { errorMessage } from '../lib/errors'
+import { formatSize } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type { FileNode } from '../types'
 import { Button, InlineNameForm } from './ui'
@@ -28,12 +29,6 @@ import { Button, InlineNameForm } from './ui'
 
 const ENTRY_MIME = 'application/purview-file-entry'
 
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
 function findNode(nodes: FileNode[], path: string): FileNode | null {
   for (const node of nodes) {
     if (node.path === path) return node
@@ -45,10 +40,19 @@ function findNode(nodes: FileNode[], path: string): FileNode | null {
   return null
 }
 
-export function FilesView({ project }: { project: string }) {
+export function FilesView({
+  project,
+  initialSelected = null,
+}: {
+  project: string
+  /** Select this entry once the tree loads (a jump from Files › Search). */
+  initialSelected?: string | null
+}) {
   const [tree, setTree] = useState<FileNode[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [selected, setSelected] = useState<string | null>(null)
+  // Starts on the jump target (the view remounts per sub-mode toggle, so a
+  // mount-time initializer is enough); a path absent from the tree is inert.
+  const [selected, setSelected] = useState<string | null>(initialSelected)
   // Which folder row (or '' = the rail root) is lit as a drop target.
   const [dropTarget, setDropTarget] = useState<string | null>(null)
   // Inline forms: a rename on one path, or a new folder under one dir.
@@ -68,7 +72,6 @@ export function FilesView({ project }: { project: string }) {
 
   useEffect(() => {
     setTree(null)
-    setSelected(null)
     load()
   }, [load])
 
