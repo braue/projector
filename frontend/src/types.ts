@@ -223,6 +223,48 @@ export interface Note {
   text: string
 }
 
+// --- search -------------------------------------------------------------------
+
+export interface SearchMatch {
+  where: 'name' | 'setting' | 'point' | 'page' | 'logic'
+  /** Where inside the object: setting key, "page · row · column", "line N". */
+  location: string
+  text: string
+}
+
+export interface SearchHit {
+  path: string
+  name: string
+  kindLabel: string
+  category: ItemCategory
+  protocol: string | null
+  matches: SearchMatch[]
+  /** More matches existed in this object than the payload carries. */
+  truncated: boolean
+}
+
+export interface SearchSource {
+  type: SourceType
+  ref: string
+  label: string
+  results: SearchHit[]
+}
+
+export interface SearchResults {
+  query: string
+  /** Every source in the project with at least one match. */
+  sources: SearchSource[]
+  totalMatches: number
+  /** More matching objects existed than the payload carries. */
+  truncated: boolean
+}
+
+// --- project files ------------------------------------------------------------
+
+export type FileNode =
+  | { type: 'folder'; name: string; path: string; children: FileNode[] }
+  | { type: 'file'; name: string; path: string; size: number; modifiedAt: string }
+
 // --- canvas / workspaces ------------------------------------------------------
 
 export type SourceType = 'rtac' | 'rdb' | 'scd' | 'sw'

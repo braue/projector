@@ -27,4 +27,15 @@ function resolveChild(baseDir, name, message) {
   return resolved;
 }
 
-export { httpError, requireQuery, resolveChild };
+// A user-supplied RELATIVE path (any depth, '' = the base itself) resolved
+// under `baseDir` — refuse anything that escapes it.
+function resolveWithin(baseDir, relPath, message) {
+  const base = path.resolve(baseDir);
+  const resolved = path.resolve(base, relPath ?? '');
+  if (resolved !== base && !resolved.startsWith(base + path.sep)) {
+    throw httpError(400, message);
+  }
+  return resolved;
+}
+
+export { httpError, requireQuery, resolveChild, resolveWithin };

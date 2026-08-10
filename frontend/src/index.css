@@ -619,3 +619,43 @@ button.ui-section-header:hover { color: var(--ink); }
 .note-checkbox { pointer-events: auto; cursor: pointer; border-radius: 4px; }
 .note-checkbox:hover { background: rgba(75,81,96,0.14); }
 .note-empty { margin: auto; color: var(--muted); font-size: 13px; }
+
+/* --- project files ------------------------------------------------------------ */
+
+.files-root.file-drop { background: var(--fill); }
+.files-toolbar { padding: 0 16px 8px; display: flex; }
+.files-toolbar .ui-button { flex: 1; }
+.files-tree { display: flex; flex-direction: column; padding-bottom: 12px; }
+.file-row:hover .entry-delete { opacity: 1; }
+.file-row.file-drop { background: var(--fill); box-shadow: inset 0 0 0 1.5px var(--ghost); }
+.file-glyph { flex: none; width: 14px; color: var(--muted); font-size: 11px; }
+.files-detail {
+  padding: 18px 20px; display: flex; flex-direction: column;
+  align-items: flex-start; gap: 9px; font-size: 13px;
+}
+
+/* --- inspect search ------------------------------------------------------------ */
+
+.search-bar { display: flex; gap: 8px; }
+.search-bar .ui-input { flex: 1; width: auto; }
+.search-hit { border-bottom: 1px solid var(--border-soft); padding-bottom: 6px; }
+.search-hit-head {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 9px 16px 5px; border: 0; background: none; cursor: pointer; text-align: left;
+}
+.search-hit-head:hover .search-hit-name { text-decoration: underline; }
+.search-hit-name { font-weight: 650; font-size: 13px; }
+.search-hit-kind { font-size: 11px; color: var(--muted); }
+.search-match {
+  display: flex; gap: 12px; padding: 2px 16px; font-family: var(--font-mono); font-size: 11.5px;
+}
+.search-where { flex: none; width: 300px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-text { min-width: 0; overflow-wrap: anywhere; }
+.search-text mark { background: #fdf0c2; color: inherit; border-radius: 3px; padding: 0 1px; }
+.search-more { padding: 2px 16px 6px; font-size: 11.5px; color: var(--muted); }
+.search-source { border-bottom: 1px solid var(--border); }
+.search-source-head {
+  display: flex; align-items: center; gap: 10px; padding: 11px 16px 4px;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+}
+.search-source-label { color: var(--ink); font-size: 12.5px; }

@@ -23,7 +23,9 @@ import { httpError, resolveChild } from '../lib/http.js';
 import { replaceRefFile } from '../lib/refs.js';
 import { CanvasService } from './canvas.js';
 import { CompareService } from './compare.js';
+import { FilesService } from './files.js';
 import { NotesService } from './notes.js';
+import { SearchService } from './search.js';
 import { RdbService } from './rdb.js';
 import { RtacService } from './rtac.js';
 import { ScdService } from './scd.js';
@@ -128,16 +130,31 @@ class ProjectsService {
       },
     });
 
-    const compare = new CompareService({
-      adapters: {
-        rtac: (ref) => rtac.comparable(ref),
-        rdb: (ref) => rdb.comparable(ref),
-        scd: (ref) => scd.comparable(ref),
-        sw: (ref) => sw.comparable(ref),
-      },
+    // Compare and search consume the same per-type adapter: every parsed
+    // item of a source, in the shared inspect shape.
+    const adapters = {
+      rtac: (ref) => rtac.comparable(ref),
+      rdb: (ref) => rdb.comparable(ref),
+      scd: (ref) => scd.comparable(ref),
+      sw: (ref) => sw.comparable(ref),
+    };
+    const compare = new CompareService({ adapters });
+    const search = new SearchService({
+      adapters,
+      // Everything searchable in the project right now: ready RTAC exports
+      // and every profile of every upload.
+      sources: async () => [
+        ...rtac.list().projects
+          .filter((entry) => entry.status === 'ready')
+          .map((entry) => ({ type: 'rtac', ref: entry.name })),
+        ...[['rdb', rdb], ['scd', scd], ['sw', sw]].flatMap(([type, service]) =>
+          service.list().flatMap((file) =>
+            file.profiles.map((profile) => ({ type, ref: profile.ref })))),
+      ],
     });
 
     const notes = new NotesService({ file: path.join(projectDir, 'notes.json') });
+    const files = new FilesService({ dataDir: projectDir });
 
     // A renamed source must drag its canvas refs along: the rename lives in
     // the service, the rewrite in the canvas, and this bundle is where the
@@ -149,8 +166,8 @@ class ProjectsService {
         canvas.renameRefs(type, (ref) => replaceRefFile(ref, fromId, toId));
     }
 
-    await Promise.all([rtac.init(), rdb.init(), scd.init(), sw.init(), canvas.init()]);
-    return { rtac, rdb, scd, sw, canvas, compare, notes };
+    await Promise.all([rtac.init(), rdb.init(), scd.init(), sw.init(), canvas.init(), files.init()]);
+    return { rtac, rdb, scd, sw, canvas, compare, search, notes, files };
   }
 }
 

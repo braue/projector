@@ -3,11 +3,13 @@ import type {
   CompareItem,
   CompareTree,
   DeviceSource,
+  FileNode,
   Note,
   ProjectItem,
   ProjectList,
   ProjectTree,
   RtacAvailableList,
+  SearchResults,
   UploadSourceType,
   UploadedFile,
   WorkspaceGraph,
@@ -209,6 +211,42 @@ export function deleteNote(project: string, id: string): Promise<unknown> {
   return send(`${base(project)}/notes/${encodeURIComponent(id)}`, 'DELETE')
 }
 
+// --- project files -------------------------------------------------------------
+// Entry paths are store-relative with forward slashes ('' = the root).
+
+export async function listFiles(project: string): Promise<FileNode[]> {
+  const body = await get<{ tree: FileNode[] }>(`${base(project)}/files`)
+  return body.tree
+}
+
+export function uploadFiles(project: string, dir: string, files: File[]): Promise<{ added: string[] }> {
+  const form = new FormData()
+  form.append('dir', dir)
+  for (const file of files) form.append('files', file)
+  return send(`${base(project)}/files/upload`, 'POST', form)
+}
+
+export function createFileFolder(project: string, dir: string, name: string): Promise<unknown> {
+  return send(`${base(project)}/files/folder`, 'POST', { dir, name })
+}
+
+export function renameFileEntry(project: string, path: string, name: string): Promise<unknown> {
+  return send(`${base(project)}/files/entry`, 'PATCH', { path, name })
+}
+
+export function moveFileEntry(project: string, path: string, to: string): Promise<unknown> {
+  return send(`${base(project)}/files/move`, 'POST', { path, to })
+}
+
+export function deleteFileEntry(project: string, path: string): Promise<unknown> {
+  return send(`${base(project)}/files/entry?path=${encodeURIComponent(path)}`, 'DELETE')
+}
+
+/** Open the file with the OS default app (the backend runs on this machine). */
+export function openFileEntry(project: string, path: string): Promise<unknown> {
+  return send(`${base(project)}/files/open`, 'POST', { path })
+}
+
 // Inspect works for any source type — same shapes, per-type endpoints. RTAC
 // refs are a path segment; upload-backed types (rdb, scd, sw) share the ?ref=
 // route shape.
@@ -231,6 +269,13 @@ export function fetchSourceItem(
   file: string,
 ): Promise<ProjectItem> {
   return get(inspectUrl(project, source, 'item', { file }))
+}
+
+// --- search -------------------------------------------------------------------
+
+/** Project-wide: sweeps every source (RTAC exports and upload profiles). */
+export function searchProject(project: string, query: string): Promise<SearchResults> {
+  return get(`${base(project)}/search?q=${encodeURIComponent(query)}`)
 }
 
 // --- canvas -------------------------------------------------------------------

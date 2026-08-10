@@ -21,7 +21,9 @@ import {
 import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
 import { CompareView } from './components/CompareView'
+import { FilesView } from './components/FilesView'
 import { NotesView } from './components/NotesView'
+import { SearchView } from './components/SearchView'
 import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
@@ -43,15 +45,19 @@ import type {
 const POLL_MS = 1200
 const PROJECT_KEY = 'purview-project'
 
-type Mode = 'canvas' | 'inspect' | 'compare' | 'notes'
-type InspectSub = 'browse' | 'aggregate'
+type Mode = 'canvas' | 'inspect' | 'compare' | 'notes' | 'files'
+type InspectSub = 'browse' | 'aggregate' | 'search'
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'canvas', label: 'Canvas' },
   { value: 'inspect', label: 'Inspect' },
   { value: 'compare', label: 'Compare' },
   { value: 'notes', label: 'Notes' },
+  { value: 'files', label: 'Files' },
 ]
+
+/** Modes that bring their own left rail instead of the sources sidebar. */
+const OWN_RAIL: Mode[] = ['compare', 'notes', 'files']
 
 const EMPTY_UPLOADS: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }> = {
   rdb: { files: [], error: null },
@@ -381,11 +387,12 @@ export default function App() {
           onRename={handleRenameProject}
           onDelete={handleDeleteProject}
         />
-        {mode === 'inspect' && canAggregate && (
+        {mode === 'inspect' && (
           <SegmentedControl
             options={[
               { value: 'browse' as InspectSub, label: 'Browse' },
-              { value: 'aggregate' as InspectSub, label: 'Aggregate' },
+              ...(canAggregate ? [{ value: 'aggregate' as InspectSub, label: 'Aggregate' }] : []),
+              { value: 'search' as InspectSub, label: 'Search' },
             ]}
             value={inspectSub}
             onChange={setInspectSub}
@@ -403,7 +410,7 @@ export default function App() {
       </header>
 
       <div className="app">
-        {mode !== 'compare' && mode !== 'notes' && (
+        {!OWN_RAIL.includes(mode) && (
           <SourcesSidebar
             project={project}
             projects={rtacProjects}
@@ -450,7 +457,17 @@ export default function App() {
         )}
 
         {mode === 'inspect' &&
-          (selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
+          (inspectSub === 'search' ? (
+            <SearchView
+              key={project}
+              project={project}
+              onOpen={(source, path) => {
+                setSelectedSource(source)
+                setSelectedItem(path)
+                setInspectSub('browse')
+              }}
+            />
+          ) : selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
             <AggregateView
               key={`${project}:${selectedSource.ref}`}
               project={project}
@@ -487,6 +504,8 @@ export default function App() {
         )}
 
         {mode === 'notes' && <NotesView key={project} project={project} />}
+
+        {mode === 'files' && <FilesView key={project} project={project} />}
       </div>
     </>
   )
