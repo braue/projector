@@ -1,11 +1,13 @@
 {
   "_comment": [
-    "Expected SEL drawing PDFs. The PDFs themselves are SEL copyrighted works and are",
-    "not redistributed here; fetch them with your own mySEL account via",
-    "scripts/fetch-sel-drawings.mjs. sha256 pins the exact revision the crop",
-    "rectangles and layer rules in each metadata.json were authored against - a newer",
-    "revision of the same drawing number will render misaligned, so mismatches are",
-    "reported rather than silently accepted.",
+    "Expected SEL drawing PDFs, committed alongside their metadata so the repo",
+    "is self-contained. They are SEL copyrighted works: keep this repository",
+    "private and do not redistribute them from here. sha256 pins the exact",
+    "revision the crop rectangles and layer rules in each metadata.json were",
+    "authored against - a newer revision of the same drawing number will render",
+    "misaligned, so mismatches are reported rather than silently accepted. To",
+    "refresh or add drawings, use scripts/fetch-sel-drawings.mjs with your own",
+    "mySEL account.",
     "selDocumentId is the numeric id in https://selinc.com/api/download/<id>/ and is",
     "filled in by `node scripts/fetch-sel-drawings.mjs --discover`."
   ],
