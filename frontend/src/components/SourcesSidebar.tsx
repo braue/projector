@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 
 import { SOURCE_MIME, SOURCE_TABS, sourceKey } from '../lib/sources'
+import { useSidebarWidth } from '../lib/useSidebarWidth'
 import type {
   DeviceSource,
   ProjectEntry,
@@ -103,6 +104,7 @@ export function SourcesSidebar({
 }) {
   const [tab, setTab] = useState<SourceType>('rtac')
   const fileInput = useRef<HTMLInputElement>(null)
+  const { width, startResize } = useSidebarWidth()
 
   const isSelected = (source: DeviceSource) =>
     selected?.type === source.type && selected?.ref === source.ref
@@ -110,7 +112,8 @@ export function SourcesSidebar({
   const uploadTab = tab === 'rtac' ? null : (tab as UploadSourceType)
 
   return (
-    <aside className="sources">
+    <aside className="sources" style={{ width }}>
+      <div className="sidebar-resize" onMouseDown={startResize} title="Drag to resize" />
       <SourceTabs tab={tab} onPick={setTab} />
 
       {tab === 'rtac' && (

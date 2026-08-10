@@ -10,12 +10,9 @@
 //
 // Each project gets its own service bundle (rtac, rdb, scd, sw, canvas,
 // compare), built lazily on first touch and cached; the AcRTAC database
-// catalog is the one machine-global piece, shared across bundles. The old
-// layout (global rdb/scd/sw/exports pools + named workspace canvases)
-// migrates on startup: every workspace becomes a project carrying a copy of
-// the then-global sources, so existing refs keep resolving.
+// catalog is the one machine-global piece, shared across bundles.
 
-import { cp, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 
 import { attachmentWarning, augmentProfile, extractScdProfile } from '../lib/comm/extract/scd.js';
@@ -34,7 +31,6 @@ const DEFAULT_PROJECT = 'Default';
 
 class ProjectsService {
   constructor({ dataDir, catalog, selDevicesDir }) {
-    this.dataDir = dataDir;
     this.root = path.join(dataDir, 'projects');
     this.catalog = catalog;
     this.selDevicesDir = selDevicesDir;
@@ -44,51 +40,8 @@ class ProjectsService {
 
   async init() {
     await mkdir(this.root, { recursive: true });
-    await this.#migrateLegacyLayout();
     if (!(await this.list()).length) {
       await this.create(DEFAULT_PROJECT);
-    }
-  }
-
-  // The pre-project layout: one global pool of sources beside named workspace
-  // canvases. Every workspace becomes a project owning a COPY of the pool
-  // (sources were shared, so each canvas's refs must keep resolving), then
-  // the legacy directories are removed.
-  async #migrateLegacyLayout() {
-    const legacy = {
-      workspaces: path.join(this.dataDir, 'workspaces'),
-      sources: ['rdb', 'scd', 'sw'].map((label) => ({ label, dir: path.join(this.dataDir, label) })),
-      exports: path.join(this.dataDir, 'exports'),
-    };
-    const exists = async (target) => readdir(target).then(() => true, () => false);
-    if (!(await exists(legacy.workspaces))) return;
-
-    const workspaceFiles = (await readdir(legacy.workspaces)).filter((file) => file.endsWith('.json'));
-    for (const file of workspaceFiles) {
-      const name = file.replace(/\.json$/, '');
-      const projectDir = resolveChild(this.root, name, `invalid project name: ${name}`);
-      await mkdir(projectDir, { recursive: true });
-
-      for (const { label, dir } of legacy.sources) {
-        if (await exists(dir)) await cp(dir, path.join(projectDir, label), { recursive: true });
-      }
-      if (await exists(legacy.exports)) {
-        await cp(legacy.exports, path.join(projectDir, 'rtac'), { recursive: true });
-      }
-
-      const workspace = JSON.parse(await readFile(path.join(legacy.workspaces, file), 'utf8'));
-      await writeFile(
-        path.join(projectDir, 'canvas.json'),
-        JSON.stringify({ devices: workspace.devices ?? [], manualLinks: workspace.manualLinks ?? [] }, null, 2),
-      );
-      console.log(`migrated workspace "${name}" to a project`);
-    }
-
-    // Keep one recovery copy rather than deleting outright.
-    const backup = path.join(this.dataDir, 'legacy-backup');
-    await mkdir(backup, { recursive: true });
-    for (const dir of [legacy.workspaces, legacy.exports, ...legacy.sources.map((s) => s.dir)]) {
-      if (await exists(dir)) await rename(dir, path.join(backup, path.basename(dir)));
     }
   }
 

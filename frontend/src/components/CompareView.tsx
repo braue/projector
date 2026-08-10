@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { fetchCompareItem, fetchCompareTree } from '../api'
 import { SOURCE_TABS } from '../lib/sources'
 import { useFetch } from '../lib/useFetch'
+import { useSidebarWidth } from '../lib/useSidebarWidth'
 import type {
   DeviceSource,
   ProjectEntry,
@@ -75,10 +76,12 @@ export function CompareView({
   )
 
   const tabLabel = SOURCE_TABS.find((t) => t.key === tab)?.label ?? tab
+  const { width, startResize } = useSidebarWidth()
 
   return (
     <>
-      <aside className="sources">
+      <aside className="sources" style={{ width }}>
+        <div className="sidebar-resize" onMouseDown={startResize} title="Drag to resize" />
         <SourceTabs tab={tab} onPick={pickTab} />
 
         <div className="compare-picker">

@@ -170,8 +170,15 @@ button.ui-section-header:hover { color: var(--ink); }
   display: flex; flex-direction: column; background: var(--card);
   border-right: 1px solid var(--border); min-height: 0;
 }
-.sources { width: 224px; flex: none; }
+.sources { width: 224px; flex: none; position: relative; }
 .file-tree { width: 320px; flex: none; }
+
+/* drag grip on the source rail's right edge (width persists per browser) */
+.sidebar-resize {
+  position: absolute; top: 0; right: -3px; width: 6px; height: 100%;
+  cursor: col-resize; z-index: 5;
+}
+.sidebar-resize:hover, .sidebar-resize:active { background: rgba(75,81,96,0.18); }
 
 .source-tabs { display: flex; gap: 2px; margin: 10px 10px 6px; background: var(--fill); border-radius: 8px; padding: 3px; flex: none; }
 .source-tab {

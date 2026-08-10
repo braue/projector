@@ -41,13 +41,13 @@ function buildAddressIndex(devices) {
 }
 
 // A manual link in canonical form: `{ id, type, ends: [{ deviceId, port?,
-// endpointId? }, ...] }`. The single home for the legacy spellings still on
-// disk in workspace JSON: sided fields (aPort/bEndpointId/...), and a missing
-// type meaning serial — the only kind that existed before drawn ethernet.
+// endpointId? }, ...] }`. The sided spelling (aPort/bEndpointId/...) is the
+// API wire format the connect dialog sends; this converter is its single
+// home.
 function normalizeManualLink(link) {
   return {
     id: link.id,
-    type: link.type ?? 'serial',
+    type: link.type,
     ends: link.ends ?? [
       { deviceId: link.aDeviceId, port: link.aPort, endpointId: link.aEndpointId },
       { deviceId: link.bDeviceId, port: link.bPort, endpointId: link.bEndpointId },

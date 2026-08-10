@@ -150,7 +150,7 @@ test('manual serial links validate baud agreement', () => {
   };
   const { links } = linkProfiles(
     [{ id: 'rtac', profile: rtacProfile }, { id: 'meter', profile: meter }],
-    [{ id: 'm1', aDeviceId: 'rtac', aEndpointId: 's1', bDeviceId: 'meter', bEndpointId: 'p3' }],
+    [{ id: 'm1', type: 'serial', aDeviceId: 'rtac', aEndpointId: 's1', bDeviceId: 'meter', bEndpointId: 'p3' }],
   );
   const manual = links.find((link) => link.id === 'manual:m1');
   assert.equal(manual.tier, 'conflict');
