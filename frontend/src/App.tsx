@@ -389,9 +389,7 @@ export default function App() {
   const topbarInfo =
     mode === 'canvas' && graph
       ? `${graph.links.length} connections · ${count(graph.summary.conflicts, 'conflict')}`
-      : mode === 'inspect' && selectedSource
-        ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace(REF_SEPARATOR, ' · ') : selectedSource.ref} · read-only`
-        : ''
+      : ''
 
   // Still loading the project list: just the shell, no flash of onboarding.
   if (projects === null) {
