@@ -234,7 +234,9 @@ button.ui-section-header:hover { color: var(--ink); }
 .ws-item .entry-rename + .entry-delete { margin-left: 0; }
 .entry-rename:hover { color: var(--ink); }
 
-.source-tabs { display: flex; gap: 2px; margin: 10px 10px 6px; background: var(--fill); border-radius: 8px; padding: 3px; flex: none; }
+/* 16px side margins line the strip's left edge up with the topbar's
+   mode selector (the topbar runs 16px side padding). */
+.source-tabs { display: flex; gap: 2px; margin: 10px 16px 6px; background: var(--fill); border-radius: 8px; padding: 3px; flex: none; }
 .source-tab {
   flex: 1; text-align: center; padding: 4px 0; border: 0; border-radius: 6px; background: none;
   font-size: 12.5px; font-weight: 550; color: var(--muted); cursor: pointer;
