@@ -86,6 +86,24 @@ test('ArchivedContent on a connection is RTAC plumbing, not user logic', () => {
   assert.equal(item.archivedContentHash, undefined);
 });
 
+test('row matching is content-first: a shifted table is one added row', () => {
+  // Rows with EMPTY lead cells previously fell back to positional identity,
+  // so inserting one row at the top flagged every row below it as modified.
+  const page = (rows) => [{ name: 'Map', columns: ['Dest', 'Src'], rows }];
+  const shifted = diffItems(
+    { settings: {}, points: [], pages: page([
+      { Dest: '', Src: 'A' }, { Dest: '', Src: 'B' }, { Dest: '', Src: 'C' },
+    ]) },
+    { settings: {}, points: [], pages: page([
+      { Dest: '', Src: 'NEW' }, { Dest: '', Src: 'A' }, { Dest: '', Src: 'B' }, { Dest: '', Src: 'C' },
+    ]) },
+  );
+  assert.equal(shifted.pages[0].status, 'changed');
+  assert.deepEqual(shifted.pages[0].added, ['NEW']);
+  assert.deepEqual(shifted.pages[0].removed, []);
+  assert.deepEqual(shifted.pages[0].changed, []);
+});
+
 test('an unrelated replaced row reads as removed + added, not changed', () => {
   const page = (rows) => [{ name: 'T', columns: ['Name', 'Val'], rows }];
   const diff = diffItems(

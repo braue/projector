@@ -216,22 +216,11 @@ export interface AggregateResult {
 
 // --- notes --------------------------------------------------------------------
 
-export type NoteKind = 'text' | 'check' | 'bullet' | 'number'
-
-export interface NoteItem {
-  id: string
-  text: string
-  /** Line style; `checked` only means anything on 'check' lines. */
-  kind: NoteKind
-  checked: boolean
-  /** 0 = top level, 1 = sub-line (rendered tabbed in). */
-  level: 0 | 1
-}
-
 export interface Note {
   id: string
   name: string
-  items: NoteItem[]
+  /** One free-form text blob; list markers ("[ ]", "-", "1.") are plain text. */
+  text: string
 }
 
 // --- canvas / workspaces ------------------------------------------------------

@@ -101,7 +101,7 @@ test('a model-blind file reads edited when only its raw config changes', async (
   }
 });
 
-test('notes: create, rename, items round-trip with kinds, delete', async () => {
+test('notes: create, rename, text round-trip, delete', async () => {
   const tmp = await tmpDir();
   try {
     const notes = new NotesService({ file: path.join(tmp, 'notes.json') });
@@ -109,44 +109,29 @@ test('notes: create, rename, items round-trip with kinds, delete', async () => {
 
     const created = await notes.create('Commissioning');
     assert.equal(created.name, 'Commissioning');
+    assert.equal(created.text, '');
 
     await notes.rename(created.id, 'Site acceptance');
-    const updated = await notes.setItems(created.id, [
-      { text: 'Observations', kind: 'text', level: 0 },
-      { text: 'Verify relay settings', kind: 'check', checked: true, level: 0 },
-      { text: 'Check DNP map', kind: 'check', checked: false, level: 1 },
-      { text: 'breaker slow to close', kind: 'bullet', level: 1 },
-      { text: 'Energize bus', kind: 'number', level: 0 },
-      { text: 42, kind: 'nope', checked: 'yes', level: 9 }, // hostile shapes sanitize
-    ]);
+    const body = 'Observations\n[x] Verify relay settings\n\t[ ] Check DNP map\n- breaker slow to close\n1. Energize bus';
+    const updated = await notes.setText(created.id, body);
     assert.equal(updated.name, 'Site acceptance');
-    assert.deepEqual(
-      updated.items.map(({ text, kind, checked, level }) => ({ text, kind, checked, level })),
-      [
-        { text: 'Observations', kind: 'text', checked: false, level: 0 },
-        { text: 'Verify relay settings', kind: 'check', checked: true, level: 0 },
-        { text: 'Check DNP map', kind: 'check', checked: false, level: 1 },
-        { text: 'breaker slow to close', kind: 'bullet', checked: false, level: 1 },
-        { text: 'Energize bus', kind: 'number', checked: false, level: 0 },
-        { text: '42', kind: 'text', checked: true, level: 0 },
-      ],
-    );
-    assert.ok(updated.items.every((item) => typeof item.id === 'string' && item.id));
+    assert.equal(updated.text, body);
+    await assert.rejects(() => notes.setText(created.id, 42), /text must be a string/);
 
     // Persisted: a fresh service reads the same file.
     const reread = new NotesService({ file: path.join(tmp, 'notes.json') });
-    assert.equal((await reread.list())[0].items.length, 6);
+    assert.equal((await reread.list())[0].text, body);
 
     // Concurrent mutations serialize — neither write is lost to the other's
     // read-modify-write.
     const parallel = await notes.create('Parallel');
     await Promise.all([
-      notes.setItems(parallel.id, [{ text: 'kept', kind: 'text', level: 0 }]),
+      notes.setText(parallel.id, 'kept'),
       notes.rename(parallel.id, 'Parallel renamed'),
     ]);
     const after = (await notes.list()).find((note) => note.id === parallel.id);
     assert.equal(after.name, 'Parallel renamed');
-    assert.equal(after.items[0].text, 'kept');
+    assert.equal(after.text, 'kept');
     await notes.remove(parallel.id);
 
     await notes.remove(created.id);

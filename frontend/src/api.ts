@@ -4,7 +4,6 @@ import type {
   CompareTree,
   DeviceSource,
   Note,
-  NoteItem,
   ProjectItem,
   ProjectList,
   ProjectTree,
@@ -202,8 +201,8 @@ export function renameNote(project: string, id: string, name: string): Promise<N
   return send(`${base(project)}/notes/${encodeURIComponent(id)}`, 'PATCH', { name })
 }
 
-export function saveNoteItems(project: string, id: string, items: NoteItem[]): Promise<Note> {
-  return send(`${base(project)}/notes/${encodeURIComponent(id)}/items`, 'PUT', { items })
+export function saveNoteText(project: string, id: string, text: string): Promise<Note> {
+  return send(`${base(project)}/notes/${encodeURIComponent(id)}/text`, 'PUT', { text })
 }
 
 export function deleteNote(project: string, id: string): Promise<unknown> {

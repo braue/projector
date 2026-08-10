@@ -108,13 +108,16 @@ function diffPoints(aPoints = [], bPoints = []) {
 }
 
 // A generic page's rows, each labeled by its first-column value — these
-// tables lead with a name-ish column. Duplicates get an ordinal; an empty
-// lead cell falls back to the row's position.
+// tables lead with a name-ish column. An empty lead cell falls back to the
+// first non-empty cell (content identity), then to the row's position;
+// duplicates get an ordinal.
 function pageRows(page) {
   const first = page.columns?.[0];
   const seen = new Map();
   return page.rows.map((row, index) => {
-    const base = (first && row[first]) || `#${index + 1}`;
+    const base = (first && row[first])
+      || (page.columns ?? []).map((column) => row[column]).find((value) => value)
+      || `#${index + 1}`;
     const ordinal = (seen.get(base) ?? 0) + 1;
     seen.set(base, ordinal);
     return { label: ordinal > 1 ? `${base} (${ordinal})` : base, row };
@@ -131,20 +134,40 @@ function rowFields(aRow, bRow) {
   return fields;
 }
 
-// Row-level diff of one generic page. Rows match by label first; the
-// leftovers on both sides then pair up positionally, so an edit to the lead
-// column reads as one changed row instead of an unrelated add + remove.
+// Row-level diff of one generic page. Row identity is CONTENT-first, so the
+// diff is row-number agnostic: identical rows pair off wherever they sit (a
+// table shifted down a row is not N edits). Leftovers then match by
+// lead-column label, and what remains pairs positionally — with pairs
+// sharing no column value reading as removed + added.
 function diffPageRows(aPage, bPage) {
   const aRows = pageRows(aPage);
   const bRows = pageRows(bPage);
-  const byLabel = new Map(aRows.map((entry) => [entry.label, entry]));
   const matchedA = new Set();
   const unmatchedB = [];
   const changed = [];
   const added = [];
   const removed = [];
 
+  // 1. Exact-content multiset match, position-blind.
+  const byContent = new Map();
+  for (const a of aRows) {
+    const key = modelSignature(a.row);
+    if (!byContent.has(key)) byContent.set(key, []);
+    byContent.get(key).push(a);
+  }
+  const labelCandidatesB = [];
   for (const b of bRows) {
+    const bucket = byContent.get(modelSignature(b.row));
+    if (bucket?.length) matchedA.add(bucket.pop());
+    else labelCandidatesB.push(b);
+  }
+
+  // 2. Lead-column label match over what content couldn't pair.
+  const byLabel = new Map();
+  for (const a of aRows) {
+    if (!matchedA.has(a) && !byLabel.has(a.label)) byLabel.set(a.label, a);
+  }
+  for (const b of labelCandidatesB) {
     const a = byLabel.get(b.label);
     if (a && !matchedA.has(a)) {
       matchedA.add(a);

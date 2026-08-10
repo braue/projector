@@ -1,31 +1,15 @@
 // Notes — the engineer's own working notes beside the evidence, one set per
 // project. Nothing here reads settings artifacts.
 //
-// Stored whole in <project>/notes.json:
-//   [{ id, name, items: [{ id, text, kind, checked, level }] }]
-// A line's `kind` is 'text' (plain), 'check' (checkbox), 'bullet', or
-// 'number'; `checked` only means anything on check lines. `level` is 0 or 1 —
-// sub-lines render tabbed in. The editor replaces a note's items wholesale
-// (they are tiny), so there is no per-item API.
+// Stored whole in <project>/notes.json: [{ id, name, text }]. The body is
+// ONE free-form text blob — exactly what the editor shows. List markers
+// ("[ ]", "[x]", "-", "1.") are plain-text conventions the frontend assists
+// with, not structure the backend understands.
 
 import { randomUUID } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 
 import { httpError } from '../lib/http.js';
-
-const KINDS = new Set(['text', 'check', 'bullet', 'number']);
-
-// Whatever the client sent, reduced to the stored item shape.
-function sanitizeItems(items) {
-  if (!Array.isArray(items)) throw httpError(400, 'items must be an array');
-  return items.map((item) => ({
-    id: typeof item?.id === 'string' && item.id ? item.id : randomUUID(),
-    text: String(item?.text ?? ''),
-    kind: KINDS.has(item?.kind) ? item.kind : 'text',
-    checked: Boolean(item?.checked),
-    level: item?.level === 1 ? 1 : 0,
-  }));
-}
 
 class NotesService {
   // Mutations serialize through one chain: every mutator is a whole-file
@@ -73,7 +57,7 @@ class NotesService {
     if (!trimmed) throw httpError(400, 'note name required');
     return this.#serialized(async () => {
       const notes = await this.#load();
-      const note = { id: randomUUID(), name: trimmed, items: [] };
+      const note = { id: randomUUID(), name: trimmed, text: '' };
       notes.push(note);
       await this.#save(notes);
       return note;
@@ -92,12 +76,12 @@ class NotesService {
     });
   }
 
-  setItems(id, items) {
-    const sanitized = sanitizeItems(items);
+  setText(id, text) {
     return this.#serialized(async () => {
+      if (typeof text !== 'string') throw httpError(400, 'text must be a string');
       const notes = await this.#load();
       const note = this.#find(notes, id);
-      note.items = sanitized;
+      note.text = text;
       await this.#save(notes);
       return note;
     });

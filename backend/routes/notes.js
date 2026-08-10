@@ -1,4 +1,4 @@
-// Notes surface for one project: CRUD plus wholesale item replacement.
+// Notes surface for one project: CRUD plus wholesale text replacement.
 // `resolve(req)` supplies the project's NotesService.
 
 import { Router } from 'express';
@@ -18,8 +18,8 @@ function noteRoutes(resolve) {
     res.json(await (await resolve(req)).rename(req.params.id, req.body?.name));
   });
 
-  router.put('/:id/items', async (req, res) => {
-    res.json(await (await resolve(req)).setItems(req.params.id, req.body?.items));
+  router.put('/:id/text', async (req, res) => {
+    res.json(await (await resolve(req)).setText(req.params.id, req.body?.text));
   });
 
   router.delete('/:id', async (req, res) => {

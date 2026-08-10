@@ -598,23 +598,24 @@ button.ui-section-header:hover { color: var(--ink); }
   font-variant-numeric: tabular-nums;
 }
 .preview-title-row .note-count { margin-left: 10px; }
-.note-body { padding: 16px 20px 28px; max-width: 720px; }
-.note-row { display: flex; align-items: center; gap: 9px; padding: 2px 0; }
-.note-row.sub { padding-left: 28px; }
-.note-row.done .note-text { color: var(--muted); text-decoration: line-through; }
-.note-glyph {
-  flex: none; min-width: 13px; text-align: center; color: var(--muted);
-  font-size: 12.5px; font-variant-numeric: tabular-nums; user-select: none;
+.note-editor-wrap { position: relative; flex: 1; min-height: 0; display: flex; }
+/* The textarea and its overlay MUST share every text metric (font, size,
+ * line-height, padding, tab-size, wrap, scrollbar gutter) — the overlay's
+ * checkbox tokens sit exactly over their characters. */
+.note-editor, .note-overlay {
+  padding: 16px 20px 28px; font: inherit; font-size: 13.5px; line-height: 1.65;
+  tab-size: 4; scrollbar-gutter: stable;
 }
-.note-text {
-  flex: 1; min-width: 0; border: 0; background: none; font: inherit;
-  font-size: 13.5px; color: var(--ink); outline: none; padding: 4px 6px; border-radius: 6px;
+.note-editor {
+  flex: 1; min-width: 0; border: 0; outline: none; resize: none;
+  background: none; color: var(--ink); overflow-y: auto;
 }
-.note-text:focus { background: var(--fill); }
-.note-text::placeholder { color: #b6bac4; }
-.note-add {
-  margin-top: 10px; border: 0; background: none; color: var(--muted);
-  cursor: pointer; font-size: 12.5px; padding: 4px 6px; border-radius: 6px;
+.note-editor::placeholder { color: #b6bac4; }
+.note-overlay {
+  position: absolute; inset: 0; overflow: hidden;
+  white-space: pre-wrap; overflow-wrap: break-word;
+  color: transparent; pointer-events: none; user-select: none;
 }
-.note-add:hover { color: var(--ink); background: var(--fill); }
+.note-checkbox { pointer-events: auto; cursor: pointer; border-radius: 4px; }
+.note-checkbox:hover { background: rgba(75,81,96,0.14); }
 .note-empty { margin: auto; color: var(--muted); font-size: 13px; }
