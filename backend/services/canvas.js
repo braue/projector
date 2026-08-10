@@ -4,7 +4,7 @@
 // over the current artifacts, so a re-exported or re-uploaded source
 // immediately re-links.
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, rename, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 
 import { linkProfiles, normalizeManualLink } from '../lib/comm/linker.js';
@@ -35,8 +35,13 @@ class CanvasService {
     return JSON.parse(await readFile(this.file, 'utf8'));
   }
 
+  // Atomic: write beside, then rename over. A process killed mid-write must
+  // never leave a truncated canvas.json — that would break every graph read
+  // of the project with a JSON parse error.
   async #save(canvas) {
-    await writeFile(this.file, JSON.stringify(canvas, null, 2));
+    const tmp = `${this.file}.tmp`;
+    await writeFile(tmp, JSON.stringify(canvas, null, 2));
+    await rename(tmp, this.file);
   }
 
   // Place an artifact on the canvas. One node per artifact per canvas —

@@ -52,30 +52,19 @@ class RtacService {
     this.parseCache = new Map();
   }
 
-  // Pre-warms run one at a time — parses are CPU-bound, and a project full of
-  // exports must not stampede startup.
-  #warmChain = Promise.resolve();
-
   // Local state only — the (possibly slow) database list is the catalog's
   // concern, so opening a project never blocks on the database.
   async init() {
     await mkdir(this.exportsDir, { recursive: true });
 
     // Anything already exported in a previous run is immediately browsable —
-    // even if the database turns out to be unreachable.
+    // even if the database turns out to be unreachable. Parsing is LAZY: the
+    // first read of an export pays the parse (promise-cached, so concurrent
+    // readers share it) — no background pre-warm.
     const onDisk = await readdir(this.exportsDir, { withFileTypes: true });
     for (const entry of onDisk) {
       if (entry.isDirectory()) this.state.set(entry.name, { status: 'ready' });
     }
-    for (const name of this.state.keys()) this.#warm(name);
-  }
-
-  // Pre-warm the parse cache in the background so the first Inspect click (or
-  // canvas graph read) doesn't pay the full parse. Failures stay silent here —
-  // the same error surfaces on the first real read, where it has a requester
-  // to report to.
-  #warm(name) {
-    this.#warmChain = this.#warmChain.then(() => this.#parsed(name)).catch(() => {});
   }
 
   // Only what this project holds (or is fetching right now) — the sidebar
@@ -131,7 +120,6 @@ class RtacService {
         await rm(directory, { recursive: true, force: true });
         await this.catalog.client.exportXml({ name, directory });
         this.state.set(name, { status: 'ready' });
-        this.#warm(name);
       } catch (err) {
         this.state.set(name, { status: 'error', error: err?.message ?? String(err) });
       }
@@ -171,7 +159,6 @@ class RtacService {
       }
       this.state.set(name, { status: 'ready' });
       this.parseCache.delete(name);
-      this.#warm(name);
       added.push({ name, files: entries.length });
     }
     return { added };
@@ -203,9 +190,8 @@ class RtacService {
     this.state.set(trimmed, state);
     // Never carry the cached parse across: it may be an IN-FLIGHT promise
     // that the folder move just doomed, and its eviction handler is keyed to
-    // the old name. Re-parse under the new name instead.
+    // the old name. Re-parse under the new name on its next read.
     this.parseCache.delete(name);
-    this.#warm(trimmed);
     // The name is the canvas ref — the project bundle wires this hook to
     // rewrite placements. The rename is already committed above, so a failed
     // rewrite must not report failure; a canvas too broken to rewrite will
@@ -239,8 +225,8 @@ class RtacService {
     }
 
     // A hand-deleted export must drop out of the project even when a parsed
-    // model is cached — and the pre-warm below means the cache is almost
-    // always hot, so an existence check per read is the only reliable tell.
+    // model is cached, so an existence check per read is the only reliable
+    // tell.
     // ONLY a missing folder means deleted: a transient EPERM/EBUSY (AV scan,
     // network share) must fail this one read, never remove the export.
     try {
