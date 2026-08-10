@@ -325,7 +325,6 @@ export default function App() {
   if (projects === null) {
     return (
       <header className="topbar">
-        <span className="brand">Purview</span>
       </header>
     )
   }
@@ -339,7 +338,6 @@ export default function App() {
   return (
     <>
       <header className="topbar">
-        <span className="brand">Purview</span>
         <SegmentedControl options={MODES} value={mode} onChange={setMode} />
         <ProjectSwitcher
           current={project}
@@ -501,7 +499,6 @@ function FirstProject({ onCreate }: { onCreate: (name: string) => Promise<void> 
   return (
     <>
       <header className="topbar">
-        <span className="brand">Purview</span>
       </header>
       <div className="app onboard">
         <div className="modal-card onboard-card">

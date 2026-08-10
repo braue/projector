@@ -159,7 +159,6 @@ button.ui-section-header:hover { color: var(--ink); }
   display: flex; align-items: center; gap: 14px; height: 52px; flex: none;
   padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--card);
 }
-.brand { font-weight: 650; font-size: 15px; letter-spacing: -0.01em; }
 .topbar-info { margin-left: auto; font-size: 13px; color: var(--muted); }
 
 .app { flex: 1; display: flex; min-height: 0; }
