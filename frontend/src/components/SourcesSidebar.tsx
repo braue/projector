@@ -95,7 +95,6 @@ export function SourcesSidebar({
   onSelect,
   onExport,
   placedRefs,
-  footer,
 }: {
   /** The current purview project every source below belongs to. */
   project: string
@@ -116,7 +115,6 @@ export function SourcesSidebar({
   onExport: (name: string) => void
   /** sourceKey() values already on the canvas — shown with a dot. */
   placedRefs: Set<string>
-  footer: string
 }) {
   const [tab, setTab] = useState<SourceType>('rtac')
   const [dbOpen, setDbOpen] = useState(false)
@@ -214,11 +212,6 @@ export function SourcesSidebar({
                 )
               })}
             </ul>
-            {!projects.length && (
-              <div className="pane-message">
-                No RTAC projects here yet — browse the database or upload a folder.
-              </div>
-            )}
           </div>
           {dbOpen && (
             <RtacDatabaseModal
@@ -296,8 +289,6 @@ export function SourcesSidebar({
           ))}
         </div>
       )}
-
-      <div className="pane-footer">{footer}</div>
     </aside>
   )
 }

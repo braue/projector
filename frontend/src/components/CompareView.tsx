@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { fetchCompareItem, fetchCompareTree } from '../api'
-import { SOURCE_TABS } from '../lib/sources'
 import { useFetch } from '../lib/useFetch'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
@@ -75,7 +74,6 @@ export function CompareView({
     { keepStale: true },
   )
 
-  const tabLabel = SOURCE_TABS.find((t) => t.key === tab)?.label ?? tab
   const { width, startResize } = useSidebarWidth()
 
   return (
@@ -99,14 +97,7 @@ export function CompareView({
             options={options}
             placeholder="— select —"
           />
-          {options.length === 0 && (
-            <p className="compare-empty">
-              No {tabLabel} sources loaded yet — add them from the Canvas or Inspect sidebar.
-            </p>
-          )}
         </div>
-
-        <div className="pane-footer">Compare two {tabLabel} sources</div>
       </aside>
 
       <TreePane

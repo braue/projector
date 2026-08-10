@@ -378,11 +378,6 @@ export default function App() {
             onSelect={handleSelectSource}
             onExport={handleExport}
             placedRefs={placedRefs}
-            footer={
-              mode === 'canvas'
-                ? 'Double-click to download · drag to canvas'
-                : 'Click to inspect'
-            }
           />
         )}
 
@@ -408,7 +403,7 @@ export default function App() {
               </div>
             )}
             <div className="status-bar">
-              {graph ? (
+              {graph && (
                 <>
                   <span><b>{graph.summary.devices}</b> devices</span>
                   <span className="tierdot"><span className="d" style={{ background: TIER_COLOR.confirmed }} /><b>{graph.summary.confirmed}</b> confirmed</span>
@@ -429,8 +424,6 @@ export default function App() {
                     </button>
                   )}
                 </>
-              ) : (
-                <span>Drag a downloaded project onto the canvas to begin.</span>
               )}
             </div>
           </div>
