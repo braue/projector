@@ -5,8 +5,8 @@ import { uploadSourceRoutes } from './uploads.js';
 
 const MAX_UPLOAD_BYTES = 128 * 1024 * 1024;
 
-function scdRoutes(service) {
-  return uploadSourceRoutes(service, { maxBytes: MAX_UPLOAD_BYTES });
+function scdRoutes(resolve) {
+  return uploadSourceRoutes(resolve, { maxBytes: MAX_UPLOAD_BYTES });
 }
 
 export { scdRoutes };

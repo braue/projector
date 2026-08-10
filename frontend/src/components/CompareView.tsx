@@ -22,9 +22,12 @@ import { Select } from './ui'
 // tints; click a row for the structured diff.
 
 export function CompareView({
+  project,
   projects,
   uploads,
 }: {
+  /** The purview project every ref below lives in. */
+  project: string
   projects: ProjectEntry[]
   uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
 }) {
@@ -62,12 +65,12 @@ export function CompareView({
   }, [original, updated])
 
   const { data: tree, error: treeError } = useFetch(
-    bothPicked ? () => fetchCompareTree(a, b) : null,
-    [tab, original, updated, bothPicked],
+    bothPicked ? () => fetchCompareTree(project, a, b) : null,
+    [project, tab, original, updated, bothPicked],
   )
   const { data: compareItem, error: itemError } = useFetch(
-    bothPicked && selected ? () => fetchCompareItem(a, b, selected) : null,
-    [tab, original, updated, selected, bothPicked],
+    bothPicked && selected ? () => fetchCompareItem(project, a, b, selected) : null,
+    [project, tab, original, updated, selected, bothPicked],
     { keepStale: true },
   )
 

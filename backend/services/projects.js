@@ -1,291 +1,177 @@
-// Project service — owns the lifecycle every sidebar entry moves through:
+// Purview projects — the top-level container everything now lives in. A
+// project is a folder under DATA_DIR/projects/<name>/ holding that project's
+// own sources and canvas:
 //
-//   available --double-click--> exporting --> ready --click--> tree/preview
-//                                   \--> error (kept, shown, retryable)
+//   <name>/rtac/<rtacProject>/   RTAC exports the user pulled into this project
+//   <name>/rdb/<uploadId>/       relay database uploads
+//   <name>/scd/<uploadId>/       SCL/SCD uploads
+//   <name>/sw/<uploadId>/        switch settings uploads
+//   <name>/canvas.json           placements + manual links
 //
-// Exports land under DATA_DIR/exports/<project>/ as the folder-of-XML format
-// cli.exportxml produces. A project already on disk is 'ready' at startup, so
-// restarts don't force a re-download. Parsed models are cached per project and
-// invalidated by a fresh export.
-//
-// On top of browsing, two analysis features work across the cached models:
-// compare (two projects, file statuses + per-item structured diff) and
-// aggregate (one project, a list of setting names pivoted across objects).
+// Each project gets its own service bundle (rtac, rdb, scd, sw, canvas,
+// compare), built lazily on first touch and cached; the AcRTAC database
+// catalog is the one machine-global piece, shared across bundles. The old
+// layout (global rdb/scd/sw/exports pools + named workspace canvases)
+// migrates on startup: every workspace becomes a project carrying a copy of
+// the then-global sources, so existing refs keep resolving.
 
-import { createHash } from 'node:crypto';
-import { mkdir, readdir, readFile, rm } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { attachmentWarning, augmentProfile, extractScdProfile } from '../lib/comm/extract/scd.js';
+import { extractRdbProfile } from '../lib/comm/extract/rdb.js';
+import { extractRtacProfile } from '../lib/comm/extract/rtac.js';
+import { extractSwProfile } from '../lib/comm/extract/sw.js';
 import { httpError, resolveChild } from '../lib/http.js';
-import { parseRtacProject } from '../lib/parsers/rtac/index.js';
-import { moduleBaseName } from '../lib/parsers/rtac/project.js';
-import { foldTree } from '../lib/tree.js';
+import { CanvasService } from './canvas.js';
+import { CompareService } from './compare.js';
+import { RdbService } from './rdb.js';
+import { RtacService } from './rtac.js';
+import { ScdService } from './scd.js';
+import { SwService } from './sw.js';
 
-const EXPORTABLE = /\.xml$/i;
+const DEFAULT_PROJECT = 'Default';
 
-class ProjectService {
-  constructor({ client, dataDir }) {
-    this.client = client;
-    this.exportsDir = path.join(dataDir, 'exports');
-    // name -> { status: 'available'|'exporting'|'ready'|'error', error? }
-    this.state = new Map();
-    // name -> { model, byFile: Map<file, item>, hashes: Map<file, sha1> }
-    this.parseCache = new Map();
-    this.names = [];
-    // Last listprojects failure, or null; served beside the list.
-    this.listError = null;
+class ProjectsService {
+  constructor({ dataDir, catalog, selDevicesDir }) {
+    this.dataDir = dataDir;
+    this.root = path.join(dataDir, 'projects');
+    this.catalog = catalog;
+    this.selDevicesDir = selDevicesDir;
+    // name -> Promise<bundle> — built once per project per process.
+    this.bundles = new Map();
   }
 
-  // Local state only — the (possibly slow) database list is refreshed
-  // separately so startup never blocks on the database.
   async init() {
-    await mkdir(this.exportsDir, { recursive: true });
-
-    // Anything already exported in a previous run is immediately browsable —
-    // even if the database turns out to be unreachable.
-    const onDisk = await readdir(this.exportsDir, { withFileTypes: true });
-    for (const entry of onDisk) {
-      if (entry.isDirectory()) this.state.set(entry.name, { status: 'ready' });
+    await mkdir(this.root, { recursive: true });
+    await this.#migrateLegacyLayout();
+    if (!(await this.list()).length) {
+      await this.create(DEFAULT_PROJECT);
     }
-    this.names = [...this.state.keys()];
   }
 
-  // (Re-)query the database's project list. Never throws: a failure lands in
-  // `listError`, which the API returns beside the (possibly disk-only) list,
-  // and the UI offers a retry that calls this again.
-  async refreshList() {
-    try {
-      const projects = await this.client.listProjects();
-      this.listError = null;
+  // The pre-project layout: one global pool of sources beside named workspace
+  // canvases. Every workspace becomes a project owning a COPY of the pool
+  // (sources were shared, so each canvas's refs must keep resolving), then
+  // the legacy directories are removed.
+  async #migrateLegacyLayout() {
+    const legacy = {
+      workspaces: path.join(this.dataDir, 'workspaces'),
+      sources: ['rdb', 'scd', 'sw'].map((label) => ({ label, dir: path.join(this.dataDir, label) })),
+      exports: path.join(this.dataDir, 'exports'),
+    };
+    const exists = async (target) => readdir(target).then(() => true, () => false);
+    if (!(await exists(legacy.workspaces))) return;
 
-      const dbNames = projects.map((p) => p.name);
-      for (const name of dbNames) {
-        if (!this.state.has(name)) this.state.set(name, { status: 'available' });
+    const workspaceFiles = (await readdir(legacy.workspaces)).filter((file) => file.endsWith('.json'));
+    for (const file of workspaceFiles) {
+      const name = file.replace(/\.json$/, '');
+      const projectDir = resolveChild(this.root, name, `invalid project name: ${name}`);
+      await mkdir(projectDir, { recursive: true });
+
+      for (const { label, dir } of legacy.sources) {
+        if (await exists(dir)) await cp(dir, path.join(projectDir, label), { recursive: true });
       }
-      // Database order first; exports on disk that the database no longer
-      // lists stay visible after it (they are still browsable).
-      const dbSet = new Set(dbNames);
-      const extras = [...this.state.keys()].filter((name) => !dbSet.has(name));
-      this.names = [...dbNames, ...extras];
-    } catch (err) {
-      this.listError = err?.message ?? String(err);
-    }
-    return this.listError;
-  }
-
-  list() {
-    return {
-      projects: this.names.map((name) => ({ name, ...this.state.get(name) })),
-      error: this.listError ?? null,
-    };
-  }
-
-  // Names come from the AcRTAC database, but they become a path segment here.
-  #dir(name) {
-    return resolveChild(this.exportsDir, name, `invalid project name: ${name}`);
-  }
-
-  #known(name) {
-    const state = this.state.get(name);
-    if (!state) throw httpError(404, `unknown project: ${name}`);
-    return state;
-  }
-
-  // Kick off (or restart, after an error / for a refresh) an export. Returns
-  // the new state immediately; completion is observed by polling list().
-  startExport(name) {
-    const state = this.#known(name);
-    if (state.status === 'exporting') return state;
-
-    const directory = this.#dir(name);
-    this.state.set(name, { status: 'exporting' });
-    this.parseCache.delete(name);
-
-    // Fire-and-forget on purpose: the request returns 202 and the sidebar
-    // spinner polls. Failures land in state as 'error' rather than throwing.
-    (async () => {
-      try {
-        await rm(directory, { recursive: true, force: true });
-        await this.client.exportXml({ name, directory });
-        this.state.set(name, { status: 'ready' });
-      } catch (err) {
-        this.state.set(name, { status: 'error', error: err?.message ?? String(err) });
+      if (await exists(legacy.exports)) {
+        await cp(legacy.exports, path.join(projectDir, 'rtac'), { recursive: true });
       }
-    })();
 
-    return this.state.get(name);
-  }
-
-  // Parse the exported folder into { model, byFile, hashes } (cached until the
-  // next export). Reads every .xml under the export root, keyed by
-  // forward-slash relative path — the identity the parser, the diff, and the
-  // UI all share. The hash is of the raw bytes: it decides edited/unchanged in
-  // a compare, so it must see changes the parser doesn't model (e.g. CFC
-  // blobs).
-  async #parsed(name) {
-    const state = this.#known(name);
-    if (state.status !== 'ready') {
-      throw httpError(409, `project ${name} is not exported yet`);
-    }
-
-    // The cache holds the in-flight promise, not the settled result, so two
-    // concurrent readers of an uncached project (canvas graph racing an
-    // Inspect fetch) share one parse instead of each walking every XML file.
-    if (!this.parseCache.has(name)) {
-      const pending = this.#parse(name);
-      this.parseCache.set(name, pending);
-      pending.catch(() => this.parseCache.delete(name));
-    }
-    return this.parseCache.get(name);
-  }
-
-  async #parse(name) {
-    const root = this.#dir(name);
-    const files = [];
-    const walk = async (dir, rel) => {
-      const entries = await readdir(dir, { withFileTypes: true });
-      await Promise.all(entries.map(async (entry) => {
-        const relPath = rel ? `${rel}/${entry.name}` : entry.name;
-        if (entry.isDirectory()) await walk(path.join(dir, entry.name), relPath);
-        else if (EXPORTABLE.test(entry.name)) {
-          const xml = await readFile(path.join(dir, entry.name), 'utf8');
-          files.push({ file: relPath, xml });
-        }
-      }));
-    };
-    try {
-      await walk(root, '');
-    } catch (err) {
-      if (err?.code === 'ENOENT') {
-        // The export vanished from disk (deleted by hand). Drop back to
-        // 'available' so the sidebar greys it out for a fresh download.
-        this.state.set(name, { status: 'available' });
-        throw httpError(409, `the export of ${name} is missing on disk — download it again`);
-      }
-      throw err;
-    }
-
-    // Reads run concurrently, so impose a stable order before parsing.
-    files.sort((a, b) => a.file.localeCompare(b.file));
-    const hashes = new Map(
-      files.map(({ file, xml }) => [file, createHash('sha1').update(xml).digest('hex')]),
-    );
-
-    const model = parseRtacProject(files);
-    return { model, byFile: new Map(model.items.map((item) => [item.file, item])), hashes };
-  }
-
-  // Public read of the parsed project model — the comm extractors consume it.
-  async model(name) {
-    return (await this.#parsed(name)).model;
-  }
-
-  // --- tree ------------------------------------------------------------------
-
-  // A light tree node for one item; the heavy body stays behind item().
-  static #itemNode(item, extra = {}) {
-    return {
-      type: 'item',
-      name: item.name ?? moduleBaseName(item.file),
-      path: item.file,
-      kind: item.kind,
-      kindLabel: item.kindLabel,
-      category: item.category,
-      protocol: item.protocol ?? null,
-      connectionType: item.connectionType ?? null,
-      pointCount: item.pointCount,
-      ...extra,
-    };
-  }
-
-  // The full export as a nested tree — folders, programs, connections, all of
-  // it.
-  async tree(name) {
-    const model = await this.model(name);
-    const nodes = model.items.map((item) => ProjectService.#itemNode(item));
-
-    return {
-      name: model.name ?? name,
-      schema: model.schema,
-      deviceLabel: model.deviceMOT ? `SEL-${model.deviceMOT}` : null,
-      summary: model.summary,
-      errors: model.errors,
-      tree: foldTree(nodes, model.errors),
-    };
-  }
-
-  // Full parsed body of one export file, for the preview pane.
-  async item(name, file) {
-    const item = (await this.#parsed(name)).byFile.get(file);
-    if (!item) throw httpError(404, `no such item in ${name}: ${file}`);
-    return item;
-  }
-
-  // --- compare ---------------------------------------------------------------
-
-  // Compare adapter entries: one per export file, signature = raw content
-  // hash so an edit the parser doesn't model (a CFC blob) still reads edited.
-  async comparable(name) {
-    const { model, hashes } = await this.#parsed(name);
-    return {
-      label: model.name ?? name,
-      entries: model.items.map((item) => ({
-        path: item.file,
-        name: item.name ?? moduleBaseName(item.file),
-        item,
-        signature: hashes.get(item.file),
-      })),
-    };
-  }
-
-  // --- aggregate -------------------------------------------------------------
-
-  // Pivot a list of setting names across a range of objects: for each object
-  // in scope, the value of every setting whose name matches each term
-  // (case-insensitive; exact name or substring). Only objects with at least
-  // one match make a row — the table answers "what is X set to, everywhere".
-  async aggregate(name, { terms = [], files = [] } = {}) {
-    const model = await this.model(name);
-    const wanted = terms.map((term) => String(term).trim()).filter(Boolean);
-    if (!wanted.length) {
-      throw httpError(400, 'at least one setting name is required');
-    }
-    const lowered = wanted.map((term) => term.toLowerCase());
-
-    const scope = files.length ? new Set(files) : null;
-    const rows = [];
-
-    for (const item of model.items) {
-      if (scope && !scope.has(item.file)) continue;
-
-      const entries = Object.entries(item.settings).map(
-        ([key, value]) => [key.toLowerCase(), key, value],
+      const workspace = JSON.parse(await readFile(path.join(legacy.workspaces, file), 'utf8'));
+      await writeFile(
+        path.join(projectDir, 'canvas.json'),
+        JSON.stringify({ devices: workspace.devices ?? [], manualLinks: workspace.manualLinks ?? [] }, null, 2),
       );
-      const values = {};
-      let matched = false;
-      for (const [index, term] of wanted.entries()) {
-        const lower = lowered[index];
-        const matches = entries
-          .filter(([keyLower]) => keyLower.includes(lower))
-          .map(([, key, value]) => ({ name: key, value }));
-        if (matches.length) matched = true;
-        values[term] = matches;
-      }
-
-      if (matched) {
-        rows.push({
-          file: item.file,
-          name: item.name ?? item.file,
-          kindLabel: item.kindLabel,
-          category: item.category,
-          protocol: item.protocol ?? null,
-          values,
-        });
-      }
+      console.log(`migrated workspace "${name}" to a project`);
     }
 
-    return { terms: wanted, scoped: Boolean(scope), rows };
+    // Keep one recovery copy rather than deleting outright.
+    const backup = path.join(this.dataDir, 'legacy-backup');
+    await mkdir(backup, { recursive: true });
+    for (const dir of [legacy.workspaces, legacy.exports, ...legacy.sources.map((s) => s.dir)]) {
+      if (await exists(dir)) await rename(dir, path.join(backup, path.basename(dir)));
+    }
+  }
+
+  dir(name) {
+    return resolveChild(this.root, name, `invalid project name: ${name}`);
+  }
+
+  async list() {
+    const entries = await readdir(this.root, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort((a, b) => a.localeCompare(b));
+  }
+
+  async create(name) {
+    const trimmed = name?.trim();
+    if (!trimmed) throw httpError(400, 'project name required');
+    const projectDir = this.dir(trimmed);
+    if ((await this.list()).includes(trimmed)) {
+      throw httpError(409, `project already exists: ${trimmed}`);
+    }
+    await mkdir(projectDir, { recursive: true });
+    return { name: trimmed };
+  }
+
+  async remove(name) {
+    await rm(this.dir(name), { recursive: true, force: true });
+    this.bundles.delete(name);
+  }
+
+  // The project's service bundle, built on first touch. 404s for a project
+  // folder that does not exist — refs must never mint directories.
+  async bundle(name) {
+    if (!(await this.list()).includes(name)) {
+      throw httpError(404, `unknown project: ${name}`);
+    }
+    if (!this.bundles.has(name)) {
+      const pending = this.#build(name);
+      this.bundles.set(name, pending);
+      pending.catch(() => this.bundles.delete(name));
+    }
+    return this.bundles.get(name);
+  }
+
+  async #build(name) {
+    const projectDir = this.dir(name);
+    const apiBase = `/api/projects/${encodeURIComponent(name)}`;
+
+    const rtac = new RtacService({ catalog: this.catalog, dataDir: path.join(projectDir, 'rtac') });
+    const rdb = new RdbService({ dataDir: projectDir, selDevicesDir: this.selDevicesDir, apiBase });
+    const scd = new ScdService({ dataDir: projectDir });
+    const sw = new SwService({ dataDir: projectDir });
+
+    const canvas = new CanvasService({
+      file: path.join(projectDir, 'canvas.json'),
+      resolvers: {
+        rtac: async (ref) => extractRtacProfile(await rtac.model(ref), ref),
+        rdb: async (ref) => extractRdbProfile(rdb.profile(ref).profile, ref),
+        scd: async (ref) => extractScdProfile(scd.profile(ref), ref),
+        sw: async (ref) => extractSwProfile(sw.profile(ref), ref),
+      },
+      augment: async (baseProfile, ref) => {
+        const scdProfile = extractScdProfile(scd.profile(ref), ref);
+        return {
+          profile: augmentProfile(baseProfile, scdProfile),
+          warning: attachmentWarning(baseProfile, scdProfile),
+        };
+      },
+    });
+
+    const compare = new CompareService({
+      adapters: {
+        rtac: (ref) => rtac.comparable(ref),
+        rdb: (ref) => rdb.comparable(ref),
+        scd: (ref) => scd.comparable(ref),
+        sw: (ref) => sw.comparable(ref),
+      },
+    });
+
+    await Promise.all([rtac.init(), rdb.init(), scd.init(), sw.init(), canvas.init()]);
+    return { rtac, rdb, scd, sw, canvas, compare };
   }
 }
 
-export { ProjectService };
+export { ProjectsService };

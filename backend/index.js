@@ -1,7 +1,8 @@
 // purview backend — settings-truth communications canvas.
 //
 // Loopback-only Express app: the Vite dev server proxies /api here. State is
-// a data directory (artifact exports + workspace JSON) plus in-memory status.
+// a data directory of self-contained projects (each holding its own RTAC
+// exports, uploads, and canvas) plus the machine-global AcRTAC catalog.
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,62 +11,22 @@ import cors from 'cors';
 import express from 'express';
 
 import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
-import { extractRdbProfile } from './lib/comm/extract/rdb.js';
-import { extractRtacProfile } from './lib/comm/extract/rtac.js';
-import { attachmentWarning, augmentProfile, extractScdProfile } from './lib/comm/extract/scd.js';
-import { extractSwProfile } from './lib/comm/extract/sw.js';
-import { compareRoutes } from './routes/compare.js';
 import { projectRoutes } from './routes/projects.js';
-import { rdbRoutes } from './routes/rdb.js';
-import { scdRoutes } from './routes/scd.js';
-import { swRoutes } from './routes/sw.js';
-import { workspaceRoutes } from './routes/workspaces.js';
-import { CompareService } from './services/compare.js';
-import { ProjectService } from './services/projects.js';
-import { RdbService } from './services/rdb.js';
-import { ScdService } from './services/scd.js';
-import { SwService } from './services/sw.js';
-import { WorkspaceService } from './services/workspaces.js';
+import { ProjectsService } from './services/projects.js';
+import { RtacCatalog } from './services/rtacCatalog.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PURVIEW_API_PORT ?? process.env.PORT ?? 3003);
 const DATA_DIR = path.join(HERE, 'data');
 
-const client = createAcRtacClient();
-const projects = new ProjectService({ client, dataDir: DATA_DIR });
-const rdb = new RdbService({ dataDir: DATA_DIR });
-const scd = new ScdService({ dataDir: DATA_DIR });
-const sw = new SwService({ dataDir: DATA_DIR });
-const workspaces = new WorkspaceService({
-  dataDir: DATA_DIR,
-  resolvers: {
-    rtac: async (ref) => extractRtacProfile(await projects.model(ref), ref),
-    rdb: async (ref) => extractRdbProfile(rdb.profile(ref).profile, ref),
-    scd: async (ref) => extractScdProfile(scd.profile(ref), ref),
-    sw: async (ref) => extractSwProfile(sw.profile(ref), ref),
-  },
-  augment: async (baseProfile, ref) => {
-    const scdProfile = extractScdProfile(scd.profile(ref), ref);
-    return {
-      profile: augmentProfile(baseProfile, scdProfile),
-      warning: attachmentWarning(baseProfile, scdProfile),
-    };
-  },
-});
-const compare = new CompareService({
-  adapters: {
-    rtac: (ref) => projects.comparable(ref),
-    rdb: (ref) => rdb.comparable(ref),
-    scd: (ref) => scd.comparable(ref),
-    sw: (ref) => sw.comparable(ref),
-  },
-});
-await Promise.all([projects.init(), rdb.init(), scd.init(), sw.init(), workspaces.init()]);
+const catalog = new RtacCatalog({ client: createAcRtacClient() });
+const projects = new ProjectsService({ dataDir: DATA_DIR, catalog });
+await projects.init();
 
 // The database list can take a while (it spawns the Python bridge) and the
-// server is useful without it — exports on disk, RDB uploads, workspaces —
-// so refresh it in the background rather than blocking listen().
-projects.refreshList().then((listError) => {
+// server is useful without it — projects on disk are fully browsable — so
+// refresh it in the background rather than blocking listen().
+catalog.refresh().then((listError) => {
   if (listError) {
     console.warn(
       `Could not list projects from the AcRTAC database: ${listError}\n` +
@@ -81,12 +42,7 @@ app.use(express.json());
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
-app.use('/api/projects', projectRoutes(projects));
-app.use('/api/compare', compareRoutes(compare));
-app.use('/api/rdb', rdbRoutes(rdb));
-app.use('/api/scd', scdRoutes(scd));
-app.use('/api/sw', swRoutes(sw));
-app.use('/api/workspaces', workspaceRoutes(workspaces));
+app.use('/api/projects', projectRoutes(projects, catalog));
 
 // The API always speaks JSON, including for failures the routers never see.
 app.use('/api', (_req, res) => {

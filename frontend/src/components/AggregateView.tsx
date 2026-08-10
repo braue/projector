@@ -41,7 +41,17 @@ function resultRows(result: AggregateResult): TableRow[] {
   }))
 }
 
-export function AggregateView({ project, tree }: { project: string; tree: ProjectTree }) {
+export function AggregateView({
+  project,
+  name,
+  tree,
+}: {
+  /** The purview project scope. */
+  project: string
+  /** The RTAC project whose settings are pivoted. */
+  name: string
+  tree: ProjectTree
+}) {
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [termsText, setTermsText] = useState('')
   const [result, setResult] = useState<AggregateResult | null>(null)
@@ -71,14 +81,14 @@ export function AggregateView({ project, tree }: { project: string; tree: Projec
     setRunning(true)
     setError(null)
     try {
-      setResult(await aggregateSettings(project, terms, [...checked]))
+      setResult(await aggregateSettings(project, name, terms, [...checked]))
     } catch (err) {
       setResult(null)
       setError(errorMessage(err))
     } finally {
       setRunning(false)
     }
-  }, [project, termsText, checked])
+  }, [project, name, termsText, checked])
 
   // The tree pane and result table don't depend on the terms text — keep
   // them referentially stable so typing re-renders only the controls.

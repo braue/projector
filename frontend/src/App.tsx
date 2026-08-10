@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
-  createWorkspace,
+  createProject,
   deleteUpload,
   fetchSourceItem,
   fetchSourceTree,
   listProjects,
+  listRtacProjects,
   listUploads,
-  listWorkspaces,
-  refreshProjects,
+  refreshRtacProjects,
   startExport,
   uploadSourceFile,
 } from './api'
@@ -17,8 +17,8 @@ import { CanvasView } from './components/CanvasView'
 import { CompareView } from './components/CompareView'
 import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
+import { ProjectSwitcher } from './components/ProjectSwitcher'
 import { SourcesSidebar } from './components/SourcesSidebar'
-import { WorkspaceSwitcher } from './components/WorkspaceSwitcher'
 import { SegmentedControl } from './components/ui'
 import { errorMessage } from './lib/errors'
 import { sourceKey } from './lib/sources'
@@ -34,7 +34,7 @@ import type {
 } from './types'
 
 const POLL_MS = 1200
-const DEFAULT_WORKSPACE = 'Default'
+const DEFAULT_PROJECT = 'Default'
 
 type Mode = 'canvas' | 'inspect' | 'compare'
 type InspectSub = 'browse' | 'aggregate'
@@ -45,39 +45,40 @@ const MODES: { value: Mode; label: string }[] = [
   { value: 'compare', label: 'Compare' },
 ]
 
+const EMPTY_UPLOADS: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }> = {
+  rdb: { files: [], error: null },
+  scd: { files: [], error: null },
+  sw: { files: [], error: null },
+}
+
 export default function App() {
   const [mode, setMode] = useState<Mode>('canvas')
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
-  const [projects, setProjects] = useState<ProjectEntry[]>([])
+  // The current project scopes every source, canvas, and compare below.
+  const [project, setProject] = useState(DEFAULT_PROJECT)
+  const [projects, setProjects] = useState<string[]>([DEFAULT_PROJECT])
+  const [rtacProjects, setRtacProjects] = useState<ProjectEntry[]>([])
   const [listError, setListError] = useState<string | null>(null)
-  const [uploads, setUploads] = useState<
-    Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
-  >({
-    rdb: { files: [], error: null },
-    scd: { files: [], error: null },
-    sw: { files: [], error: null },
-  })
+  const [uploads, setUploads] = useState(EMPTY_UPLOADS)
   const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [graphVersion, setGraphVersion] = useState(0)
   const [showFindings, setShowFindings] = useState(false)
-  const [workspace, setWorkspace] = useState(DEFAULT_WORKSPACE)
-  const [workspaces, setWorkspaces] = useState<string[]>([DEFAULT_WORKSPACE])
 
-  const refresh = useCallback(async () => {
+  const refreshRtac = useCallback(async () => {
     try {
-      const list = await listProjects()
-      setProjects(list.projects)
+      const list = await listRtacProjects(project)
+      setRtacProjects(list.projects)
       setListError(list.error)
     } catch (err) {
       setListError(`Cannot reach the backend: ${errorMessage(err)}`)
     }
-  }, [])
+  }, [project])
 
   const refreshUploads = useCallback(async (type: UploadSourceType) => {
     try {
-      const files = await listUploads(type)
+      const files = await listUploads(project, type)
       setUploads((current) => ({ ...current, [type]: { ...current[type], files } }))
     } catch (err) {
       setUploads((current) => ({
@@ -85,64 +86,80 @@ export default function App() {
         [type]: { ...current[type], error: errorMessage(err) },
       }))
     }
-  }, [])
+  }, [project])
 
   const retryList = useCallback(async () => {
     try {
-      const list = await refreshProjects()
-      setProjects(list.projects)
+      const list = await refreshRtacProjects(project)
+      setRtacProjects(list.projects)
       setListError(list.error)
     } catch {
-      await refresh()
+      await refreshRtac()
     }
-  }, [refresh])
+  }, [project, refreshRtac])
 
-  const refreshWorkspaces = useCallback(async () => {
+  const refreshProjects = useCallback(async () => {
     try {
-      setWorkspaces(await listWorkspaces())
+      const names = await listProjects()
+      if (names.length) setProjects(names)
+      return names
     } catch {
       // Backend unreachable: the sidebar already surfaces it; keep the list.
+      return []
     }
   }, [])
 
+  // Startup: pick a real project (the backend guarantees at least one).
   useEffect(() => {
-    refresh()
+    refreshProjects().then((names) => {
+      if (names.length && !names.includes(DEFAULT_PROJECT)) setProject(names[0])
+    })
+  }, [refreshProjects])
+
+  // Switching projects swaps every source list and clears per-project state.
+  useEffect(() => {
+    setRtacProjects([])
+    setUploads(EMPTY_UPLOADS)
+    setSelectedSource(null)
+    setSelectedItem(null)
+    setGraph(null)
+    setShowFindings(false)
+    refreshRtac()
     refreshUploads('rdb')
     refreshUploads('scd')
     refreshUploads('sw')
-    refreshWorkspaces()
-  }, [refresh, refreshUploads, refreshWorkspaces])
+  }, [project, refreshRtac, refreshUploads])
 
-  const handleCreateWorkspace = useCallback(
+  const handleCreateProject = useCallback(
     async (name: string) => {
-      await createWorkspace(name)
-      await refreshWorkspaces()
-      setWorkspace(name)
+      await createProject(name)
+      await refreshProjects()
+      setProject(name)
     },
-    [refreshWorkspaces],
+    [refreshProjects],
   )
 
   // Poll while any export is in flight so spinners resolve on their own —
-  // each refresh replaces `projects`, which re-arms the timer.
-  const exporting = projects.some((p) => p.status === 'exporting')
+  // each refresh replaces `rtacProjects`, which re-arms the timer.
+  const exporting = rtacProjects.some((p) => p.status === 'exporting')
   useEffect(() => {
     if (!exporting) return
-    const timer = window.setTimeout(refresh, POLL_MS)
+    const timer = window.setTimeout(refreshRtac, POLL_MS)
     return () => window.clearTimeout(timer)
-  }, [exporting, projects, refresh])
+  }, [exporting, rtacProjects, refreshRtac])
 
   const handleExport = useCallback(
     async (name: string) => {
       try {
-        await startExport(name)
+        await startExport(project, name)
       } catch (err) {
         setListError(`Could not start the export of ${name}: ${errorMessage(err)}`)
         return
       }
       setSelectedSource((current) => (current?.type === 'rtac' && current.ref === name ? null : current))
-      await refresh()
+      await refreshRtac()
     },
-    [refresh],
+    [project, refreshRtac],
   )
 
   const setUploadError = useCallback((type: UploadSourceType, error: string | null) => {
@@ -153,7 +170,7 @@ export default function App() {
     async (type: UploadSourceType, file: File) => {
       setUploadError(type, null)
       try {
-        await uploadSourceFile(type, file)
+        await uploadSourceFile(project, type, file)
         await refreshUploads(type)
         // New profiles may resolve existing ghosts (or re-resolve a deleted
         // file's attachments after a re-upload) — recompute the canvas.
@@ -162,13 +179,13 @@ export default function App() {
         setUploadError(type, errorMessage(err))
       }
     },
-    [refreshUploads, setUploadError],
+    [project, refreshUploads, setUploadError],
   )
 
   const handleDeleteUpload = useCallback(
     async (type: UploadSourceType, id: string) => {
       try {
-        await deleteUpload(type, id)
+        await deleteUpload(project, type, id)
       } catch (err) {
         setUploadError(type, errorMessage(err))
       }
@@ -178,7 +195,7 @@ export default function App() {
       await refreshUploads(type)
       setGraphVersion((v) => v + 1)
     },
-    [refreshUploads, setUploadError],
+    [project, refreshUploads, setUploadError],
   )
 
   // Selecting a source (sidebar click, or canvas node double-click via onInspect).
@@ -197,12 +214,12 @@ export default function App() {
   )
 
   const { data: tree, error: treeError } = useFetch(
-    selectedSource ? () => fetchSourceTree(selectedSource) : null,
-    [selectedSource],
+    selectedSource ? () => fetchSourceTree(project, selectedSource) : null,
+    [project, selectedSource],
   )
   const { data: item, error: itemError } = useFetch(
-    selectedSource && selectedItem ? () => fetchSourceItem(selectedSource, selectedItem) : null,
-    [selectedSource, selectedItem],
+    selectedSource && selectedItem ? () => fetchSourceItem(project, selectedSource, selectedItem) : null,
+    [project, selectedSource, selectedItem],
     { keepStale: true },
   )
 
@@ -225,14 +242,12 @@ export default function App() {
       <header className="topbar">
         <span className="brand">Purview</span>
         <SegmentedControl options={MODES} value={mode} onChange={setMode} />
-        {mode === 'canvas' && (
-          <WorkspaceSwitcher
-            current={workspace}
-            workspaces={workspaces}
-            onSelect={setWorkspace}
-            onCreate={handleCreateWorkspace}
-          />
-        )}
+        <ProjectSwitcher
+          current={project}
+          projects={projects}
+          onSelect={setProject}
+          onCreate={handleCreateProject}
+        />
         {mode === 'inspect' && canAggregate && (
           <SegmentedControl
             options={[
@@ -249,7 +264,7 @@ export default function App() {
       <div className="app">
         {mode !== 'compare' && (
           <SourcesSidebar
-            projects={projects}
+            projects={rtacProjects}
             listError={listError}
             onRetryList={retryList}
             uploads={uploads}
@@ -270,7 +285,7 @@ export default function App() {
         {mode === 'canvas' && (
           <div className="canvas-column">
             <CanvasView
-              workspace={workspace}
+              project={project}
               reloadKey={graphVersion}
               onInspect={inspectFromCanvas}
               onGraph={setGraph}
@@ -320,8 +335,9 @@ export default function App() {
         {mode === 'inspect' &&
           (selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
             <AggregateView
-              key={selectedSource.ref}
-              project={selectedSource.ref}
+              key={`${project}:${selectedSource.ref}`}
+              project={project}
+              name={selectedSource.ref}
               tree={tree}
             />
           ) : (
@@ -349,7 +365,9 @@ export default function App() {
             </>
           ))}
 
-        {mode === 'compare' && <CompareView projects={projects} uploads={uploads} />}
+        {mode === 'compare' && (
+          <CompareView key={project} project={project} projects={rtacProjects} uploads={uploads} />
+        )}
       </div>
     </>
   )

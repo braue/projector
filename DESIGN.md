@@ -58,7 +58,7 @@ name and the RDB profile name yields "probable" suggestions.
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ topbar: brand · [Canvas | Inspect | Compare] · workspace   │
+│ topbar: brand · [Canvas | Inspect | Compare] · project     │
 ├──────────┬─────────────────────────────────────┬───────────┤
 │ Sources  │            CANVAS                   │ Inspector │
 │ tabs:    │                                     │ (drawer,  │
@@ -145,9 +145,15 @@ backend/
   lib/inspect.js         the inspect-item shapes (section nodes, table
                          pages, item defaults) all services build from
   services/sources.js    RTAC pipeline (as built) + RDB/SCD/SW uploads
-  services/workspaces.js named canvases: placements, manual links, notes
-                         (JSON per workspace under data/)
-  routes/                sources, workspaces, links, compare
+  services/projects.js   purview projects — the top-level container. Each is
+                         a folder under data/projects/<name>/ holding ITS OWN
+                         sources and canvas: rtac/<export>/, rdb|scd|sw/
+                         uploads, canvas.json. Lazy per-project service
+                         bundles; the AcRTAC catalog (rtacCatalog.js) is the
+                         one machine-global piece. Legacy global-pool layout
+                         migrates on startup (a project per old workspace).
+  services/canvas.js     one canvas per project: placements + manual links
+  routes/                everything scoped /api/projects/:project/...
 frontend/
   components/ui.tsx      primitive seam, carried over
   canvas/                React Flow graph, nodes, edges, inspector

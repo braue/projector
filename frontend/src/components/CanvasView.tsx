@@ -345,12 +345,12 @@ function ConnectDialog({
 }
 
 function CanvasInner({
-  workspace,
+  project,
   reloadKey,
   onInspect,
   onGraph,
 }: {
-  workspace: string
+  project: string
   /** Bump to force a graph reload (e.g. after an RDB upload resolves ghosts). */
   reloadKey: number
   onInspect: (source: DeviceSource) => void
@@ -371,7 +371,7 @@ function CanvasInner({
   const load = useCallback(async () => {
     const seq = ++loadSeq.current
     try {
-      const next = await fetchGraph(workspace)
+      const next = await fetchGraph(project)
       if (seq !== loadSeq.current) return
       setGraph(next)
       setError(null)
@@ -402,7 +402,7 @@ function CanvasInner({
       setError(errorMessage(err))
       onGraph(null)
     }
-  }, [workspace, onGraph])
+  }, [project, onGraph])
 
   useEffect(() => {
     setPopup(null)
@@ -453,13 +453,13 @@ function CanvasInner({
         // any non-SCD source) places a node as usual.
         const nodeId = (e.target as HTMLElement).closest('.react-flow__node')?.getAttribute('data-id')
         if (source.type === 'scd' && nodeId && graph?.devices.some((d) => d.id === nodeId)) {
-          await attachScd(workspace, nodeId, source.ref).catch((err) => setError(errorMessage(err)))
+          await attachScd(project, nodeId, source.ref).catch((err) => setError(errorMessage(err)))
           await load()
           return
         }
 
         const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
-        await placeDevice(workspace, source, Math.round(position.x), Math.round(position.y)).catch(
+        await placeDevice(project, source, Math.round(position.x), Math.round(position.y)).catch(
           (err) => setError(errorMessage(err)),
         )
         await load()
@@ -474,7 +474,7 @@ function CanvasInner({
         onNodesChange={onNodesChange}
         onNodeDragStop={(_e, node) => {
           if (!node.data.ghost) {
-            moveDevice(workspace, node.id, Math.round(node.position.x), Math.round(node.position.y)).catch(() => undefined)
+            moveDevice(project, node.id, Math.round(node.position.x), Math.round(node.position.y)).catch(() => undefined)
           }
         }}
         onNodeClick={(e, node) => {
@@ -532,7 +532,7 @@ function CanvasInner({
           await Promise.all(
             deleted
               .filter((node) => !node.data.ghost)
-              .map((node) => removeDevice(workspace, node.id).catch(() => undefined)),
+              .map((node) => removeDevice(project, node.id).catch(() => undefined)),
           )
           await load()
         }}
@@ -548,7 +548,7 @@ function CanvasInner({
           onClose={() => setPopup(null)}
           onRemove={async (manualId) => {
             setPopup(null)
-            await removeManualLink(workspace, manualId).catch((err) => setError(errorMessage(err)))
+            await removeManualLink(project, manualId).catch((err) => setError(errorMessage(err)))
             await load()
           }}
         />
@@ -559,7 +559,7 @@ function CanvasInner({
           onCancel={() => setPendingConnect(null)}
           onConnect={async (request) => {
             setPendingConnect(null)
-            await addManualLink(workspace, {
+            await addManualLink(project, {
               ...request,
               aDeviceId: pendingConnect.a.id,
               bDeviceId: pendingConnect.b.id,
@@ -574,7 +574,7 @@ function CanvasInner({
           onClose={() => setNodePopup(null)}
           onDetachScd={async (deviceId) => {
             setNodePopup(null)
-            await detachScd(workspace, deviceId).catch((err) => setError(errorMessage(err)))
+            await detachScd(project, deviceId).catch((err) => setError(errorMessage(err)))
             await load()
           }}
         />
@@ -584,7 +584,7 @@ function CanvasInner({
 }
 
 export function CanvasView(props: {
-  workspace: string
+  project: string
   reloadKey: number
   onInspect: (source: DeviceSource) => void
   onGraph: (graph: WorkspaceGraph | null) => void

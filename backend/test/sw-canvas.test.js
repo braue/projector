@@ -11,7 +11,7 @@ import test from 'node:test';
 import { extractSwProfile } from '../lib/comm/extract/sw.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { SwService } from '../services/sw.js';
-import { WorkspaceService } from '../services/workspaces.js';
+import { CanvasService } from '../services/canvas.js';
 import { MINI_SW } from './helpers/miniSw.js';
 
 async function serviceWithMini(tmp) {
@@ -145,34 +145,34 @@ test('linker: drawn ethernet connections validate against the port inventory', a
   }
 });
 
-test('workspace flow: draw a connection, see it in the graph, remove it', async () => {
+test('canvas flow: draw a connection, see it in the graph, remove it', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-sw-'));
   try {
     const sw = await serviceWithMini(tmp);
-    const workspaces = new WorkspaceService({
-      dataDir: tmp,
+    const canvas = new CanvasService({
+      file: path.join(tmp, 'canvas.json'),
       resolvers: {
         sw: async (ref) => extractSwProfile(sw.profile(ref), ref),
         rdb: async () => RELAY_PROFILE,
       },
     });
-    await workspaces.init();
+    await canvas.init();
 
-    const swDevice = await workspaces.addDevice('Default', {
+    const swDevice = await canvas.addDevice({
       source: { type: 'sw', ref: 'station_a::SW-STATION-A' },
     });
-    const relayDevice = await workspaces.addDevice('Default', {
+    const relayDevice = await canvas.addDevice({
       source: { type: 'rdb', ref: 'demo::FEEDER_1' },
     });
 
-    const manual = await workspaces.addManualLink('Default', {
+    const manual = await canvas.addManualLink({
       type: 'ethernet',
       aDeviceId: relayDevice.id,
       bDeviceId: swDevice.id,
       bPort: 'eth1',
     });
 
-    const graph = await workspaces.graph('Default');
+    const graph = await canvas.graph();
     // The switch node carries its kind and port inventory for the canvas.
     const swNode = graph.devices.find((device) => device.id === swDevice.id);
     assert.equal(swNode.kind, 'switch');
@@ -187,28 +187,28 @@ test('workspace flow: draw a connection, see it in the graph, remove it', async 
 
     // Self-connections and unknown devices are rejected.
     await assert.rejects(
-      () => workspaces.addManualLink('Default', { aDeviceId: swDevice.id, bDeviceId: swDevice.id }),
+      () => canvas.addManualLink({ aDeviceId: swDevice.id, bDeviceId: swDevice.id }),
       /cannot connect to itself/,
     );
     await assert.rejects(
-      () => workspaces.addManualLink('Default', { aDeviceId: swDevice.id, bDeviceId: 'nope' }),
+      () => canvas.addManualLink({ aDeviceId: swDevice.id, bDeviceId: 'nope' }),
       /unknown device/,
     );
 
-    await workspaces.removeManualLink('Default', manual.id);
-    const after = await workspaces.graph('Default');
+    await canvas.removeManualLink(manual.id);
+    const after = await canvas.graph();
     assert.equal(after.links.length, 0);
     await assert.rejects(
-      () => workspaces.removeManualLink('Default', manual.id),
+      () => canvas.removeManualLink(manual.id),
       /unknown manual link/,
     );
 
     // Removing a device cascades its drawn connections.
-    const again = await workspaces.addManualLink('Default', {
+    const again = await canvas.addManualLink({
       type: 'ethernet', aDeviceId: relayDevice.id, bDeviceId: swDevice.id, bPort: 'eth2',
     });
-    await workspaces.removeDevice('Default', relayDevice.id);
-    const cascaded = await workspaces.graph('Default');
+    await canvas.removeDevice(relayDevice.id);
+    const cascaded = await canvas.graph();
     assert.ok(!cascaded.links.some((link) => link.manualId === again.id));
   } finally {
     await rm(tmp, { recursive: true, force: true });

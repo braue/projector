@@ -1,51 +1,42 @@
-// REST surface over the project service. All handlers are thin: translate
-// HTTP to service calls; thrown coded errors ({ status }) become JSON in the
-// app-level error middleware.
+// The project surface — everything is scoped to /api/projects/:project/...
+// A project bundles its own sources (rtac exports, rdb/scd/sw uploads),
+// canvas, and compare; this router owns project CRUD and mounts each
+// sub-surface with a per-request bundle resolver.
 
 import { Router } from 'express';
 
-import { requireQuery } from '../lib/http.js';
+import { canvasRoutes } from './canvas.js';
+import { compareRoutes } from './compare.js';
+import { rdbRoutes } from './rdb.js';
+import { rtacRoutes } from './rtac.js';
+import { scdRoutes } from './scd.js';
+import { swRoutes } from './sw.js';
 
-function projectRoutes(service) {
+function projectRoutes(projects, catalog) {
   const router = Router();
 
-  // Sidebar list: every AcRTAC project with its export state, plus the last
-  // database-list error (null when the list is healthy).
-  router.get('/', (_req, res) => {
-    res.json(service.list());
+  router.get('/', async (_req, res) => {
+    res.json({ projects: await projects.list() });
   });
 
-  // Retry the database list after a failure.
-  router.post('/refresh', async (_req, res) => {
-    await service.refreshList();
-    res.json(service.list());
+  router.post('/', async (req, res) => {
+    res.status(201).json(await projects.create(req.body?.name));
   });
 
-  // Double-click: start (or retry) the export. 202 — completion is polled.
-  router.post('/:name/export', (req, res) => {
-    res.status(202).json(service.startExport(req.params.name));
+  router.delete('/:project', async (req, res) => {
+    await projects.remove(req.params.project);
+    res.json({ ok: true });
   });
 
-  // File-tree sidebar for an exported project.
-  router.get('/:name/tree', async (req, res) => {
-    res.json(await service.tree(req.params.name));
-  });
-
-  // Preview pane: one item's full parsed body. The file path arrives as a
-  // query param because it contains slashes.
-  router.get('/:name/item', async (req, res) => {
-    res.json(await service.item(req.params.name, requireQuery(req, 'file')));
-  });
-
-  // Aggregate a list of setting names across a range of objects.
-  // Body: { terms: string[], files?: string[] } — empty files = whole project.
-  router.post('/:name/aggregate', async (req, res) => {
-    const { terms, files } = req.body ?? {};
-    res.json(await service.aggregate(req.params.name, {
-      terms: Array.isArray(terms) ? terms : [],
-      files: Array.isArray(files) ? files : [],
-    }));
-  });
+  const bundle = (req) => projects.bundle(req.params.project);
+  const scoped = Router({ mergeParams: true });
+  scoped.use('/rtac', rtacRoutes(async (req) => (await bundle(req)).rtac, catalog));
+  scoped.use('/rdb', rdbRoutes(async (req) => (await bundle(req)).rdb));
+  scoped.use('/scd', scdRoutes(async (req) => (await bundle(req)).scd));
+  scoped.use('/sw', swRoutes(async (req) => (await bundle(req)).sw));
+  scoped.use('/compare', compareRoutes(async (req) => (await bundle(req)).compare));
+  scoped.use('/', canvasRoutes(async (req) => (await bundle(req)).canvas));
+  router.use('/:project', scoped);
 
   return router;
 }

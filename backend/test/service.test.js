@@ -1,6 +1,6 @@
-// Project-list failure handling: the service must start (and keep serving
-// previously exported projects) when listprojects fails, expose the error,
-// and recover on refreshList once the database is back.
+// RTAC catalog + per-project export service: the catalog must absorb a
+// listprojects failure (previously exported projects stay browsable), expose
+// the error, and recover on refresh once the database is back.
 
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
@@ -8,7 +8,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { ProjectService } from '../services/projects.js';
+import { RtacService } from '../services/rtac.js';
+import { RtacCatalog } from '../services/rtacCatalog.js';
 
 function flakyClient() {
   const client = {
@@ -25,15 +26,15 @@ function flakyClient() {
 }
 
 test('list failure is non-fatal, served, and recoverable', async () => {
-  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'rtac-explorer-test-'));
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
   try {
-    // "Beta" was exported in a previous run.
-    await mkdir(path.join(dataDir, 'exports', 'Beta'), { recursive: true });
+    // "Beta" was exported into this project in a previous run.
+    await mkdir(path.join(dataDir, 'Beta'), { recursive: true });
 
-    const client = flakyClient();
-    const service = new ProjectService({ client, dataDir });
+    const catalog = new RtacCatalog({ client: flakyClient() });
+    const service = new RtacService({ catalog, dataDir });
     await service.init();
-    await service.refreshList(); // the failure lands in listError, never throws
+    await catalog.refresh(); // the failure lands in catalog.error, never throws
 
     let list = service.list();
     assert.match(list.error, /database unreachable/);
@@ -41,8 +42,8 @@ test('list failure is non-fatal, served, and recoverable', async () => {
     assert.deepEqual(list.projects, [{ name: 'Beta', status: 'ready' }]);
 
     // Database comes back; retry merges the real list, keeping Beta ready.
-    client.failing = false;
-    await service.refreshList();
+    catalog.client.failing = false;
+    await catalog.refresh();
     list = service.list();
     assert.equal(list.error, null);
     assert.deepEqual(list.projects, [
@@ -55,15 +56,16 @@ test('list failure is non-fatal, served, and recoverable', async () => {
 });
 
 test('a ready project whose export vanished from disk resets to available', async () => {
-  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'rtac-explorer-test-'));
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
   try {
-    await mkdir(path.join(dataDir, 'exports', 'Beta'), { recursive: true });
-    const client = flakyClient();
-    client.failing = false;
-    const service = new ProjectService({ client, dataDir });
+    await mkdir(path.join(dataDir, 'Beta'), { recursive: true });
+    const catalog = new RtacCatalog({ client: flakyClient() });
+    catalog.client.failing = false;
+    await catalog.refresh();
+    const service = new RtacService({ catalog, dataDir });
     await service.init();
 
-    await rm(path.join(dataDir, 'exports', 'Beta'), { recursive: true });
+    await rm(path.join(dataDir, 'Beta'), { recursive: true });
 
     await assert.rejects(() => service.tree('Beta'), /missing on disk/);
     const { projects } = service.list();

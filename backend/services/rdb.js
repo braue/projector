@@ -23,7 +23,7 @@ const splitRef = (ref) => splitSourceRef(ref, 'rdb');
 const MODEL_VERSION = 1;
 
 class RdbService extends UploadService {
-  constructor({ dataDir, selDevicesDir }) {
+  constructor({ dataDir, selDevicesDir, apiBase = '/api' }) {
     super({
       dataDir,
       label: 'rdb',
@@ -34,6 +34,9 @@ class RdbService extends UploadService {
     });
     // Passed through to the drawing generator; undefined = its bundled default.
     this.selDevicesDir = selDevicesDir;
+    // Prefix for the drawing-image URLs baked into item payloads — projects
+    // scope the route, so the service must know where it is mounted.
+    this.apiBase = apiBase;
   }
 
   parse(buffer) {
@@ -188,7 +191,7 @@ class RdbService extends UploadService {
         pointCount: 0,
         pages: [],
         image: {
-          url: `/api/rdb/drawing?ref=${encodeURIComponent(ref)}&view=${encodeURIComponent(view)}`,
+          url: `${this.apiBase}/rdb/drawing?ref=${encodeURIComponent(ref)}&view=${encodeURIComponent(view)}`,
           view,
         },
       };

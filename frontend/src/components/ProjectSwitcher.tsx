@@ -3,18 +3,18 @@ import { useEffect, useRef, useState } from 'react'
 import { errorMessage } from '../lib/errors'
 import { TextInput } from './ui'
 
-// Topbar dropdown for canvas areas (workspaces): pick one, or create a new
+// Topbar dropdown for projects: pick one, or create a new
 // one from the "+" row at the bottom, which turns into an inline name input.
 // App-specific rows like the sidebar's — styled by LAYOUT css, not a ui.tsx
 // primitive.
-export function WorkspaceSwitcher({
+export function ProjectSwitcher({
   current,
-  workspaces,
+  projects,
   onSelect,
   onCreate,
 }: {
   current: string
-  workspaces: string[]
+  projects: string[]
   onSelect: (name: string) => void
   onCreate: (name: string) => Promise<void>
 }) {
@@ -52,13 +52,13 @@ export function WorkspaceSwitcher({
 
   return (
     <div className="ws-switch" ref={wrap}>
-      <button className="ws-trigger" onClick={() => setOpen(!open)} title="Switch canvas area">
+      <button className="ws-trigger" onClick={() => setOpen(!open)} title="Switch project">
         <span>{current}</span>
         <span className="ws-caret">▾</span>
       </button>
       {open && (
         <div className="ws-menu">
-          {workspaces.map((ws) => (
+          {projects.map((ws) => (
             <button
               key={ws}
               className={ws === current ? 'ws-item active' : 'ws-item'}
@@ -77,7 +77,7 @@ export function WorkspaceSwitcher({
               <TextInput
                 autoFocus
                 value={name}
-                placeholder="Area name — Enter to create"
+                placeholder="Project name — Enter to create"
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') create()
@@ -88,7 +88,7 @@ export function WorkspaceSwitcher({
             </div>
           ) : (
             <button className="ws-item ws-new" onClick={() => setNaming(true)}>
-              <span className="ws-plus">+</span> New area
+              <span className="ws-plus">+</span> New project
             </button>
           )}
         </div>

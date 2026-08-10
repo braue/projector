@@ -11,7 +11,7 @@ import test from 'node:test';
 import { attachmentWarning, augmentProfile, extractScdProfile } from '../lib/comm/extract/scd.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { ScdService } from '../services/scd.js';
-import { WorkspaceService } from '../services/workspaces.js';
+import { CanvasService } from '../services/canvas.js';
 import { MINI_SCL } from './helpers/miniScl.js';
 
 async function serviceWithMini(tmp) {
@@ -155,7 +155,7 @@ test('attachmentWarning: fires only on comparable, disagreeing models', () => {
   assert.equal(attachmentWarning(base('SEL-735'), scd('IED')), null);
 });
 
-test('workspace attach flow: augmented device links to a standalone scd node', async () => {
+test('canvas attach flow: augmented device links to a standalone scd node', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-scd-'));
   try {
     const scd = await serviceWithMini(tmp);
@@ -170,13 +170,13 @@ test('workspace attach flow: augmented device links to a standalone scd node', a
       interfaces: [],
       endpoints: [],
     };
-    const workspaces = new WorkspaceService({
-      dataDir: tmp,
+    const canvas = new CanvasService({
+      file: path.join(tmp, 'canvas.json'),
       resolvers: {
         rtac: async () => baseProfile,
         scd: async (ref) => extractScdProfile(scd.profile(ref), ref),
       },
-      // Same composition index.js does.
+      // Same composition the project registry does.
       augment: async (profile, ref) => {
         const scdProfile = extractScdProfile(scd.profile(ref), ref);
         return {
@@ -185,15 +185,15 @@ test('workspace attach flow: augmented device links to a standalone scd node', a
         };
       },
     });
-    await workspaces.init();
+    await canvas.init();
 
-    const rtuDevice = await workspaces.addDevice('Default', {
+    const rtuDevice = await canvas.addDevice({
       source: { type: 'rtac', ref: 'STATION_RTU' },
     });
-    await workspaces.addDevice('Default', { source: { type: 'scd', ref: 'mini::RELAY_1' } });
-    await workspaces.attachScd('Default', rtuDevice.id, 'mini::RTU_1');
+    await canvas.addDevice({ source: { type: 'scd', ref: 'mini::RELAY_1' } });
+    await canvas.attachScd(rtuDevice.id, 'mini::RTU_1');
 
-    const graph = await workspaces.graph('Default');
+    const graph = await canvas.graph();
     const rtuNode = graph.devices.find((device) => device.id === rtuDevice.id);
     assert.deepEqual(rtuNode.scd, { ref: 'mini::RTU_1' });
     assert.equal(rtuNode.name, 'STATION_RTU'); // base identity survives augmentation
@@ -204,8 +204,8 @@ test('workspace attach flow: augmented device links to a standalone scd node', a
     assert.equal(graph.summary.confirmed, 1);
 
     // Detach: the link degrades to a ghost-less canvas (no scd fragment left).
-    await workspaces.detachScd('Default', rtuDevice.id);
-    const after = await workspaces.graph('Default');
+    await canvas.detachScd(rtuDevice.id);
+    const after = await canvas.graph();
     assert.ok(!after.links.some((link) => link.protocol === 'GOOSE'));
     assert.equal(after.devices.find((device) => device.id === rtuDevice.id).scd, null);
   } finally {
