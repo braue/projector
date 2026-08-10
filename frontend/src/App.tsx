@@ -411,14 +411,6 @@ export default function App() {
     <>
       <header className="topbar">
         <SegmentedControl options={MODES} value={mode} onChange={changeMode} />
-        <ProjectSwitcher
-          current={project}
-          projects={projects}
-          onSelect={setProject}
-          onCreate={handleCreateProject}
-          onRename={handleRenameProject}
-          onDelete={handleDeleteProject}
-        />
         {mode === 'inspect' && selectedSource && (
           <SegmentedControl
             options={[
@@ -459,6 +451,14 @@ export default function App() {
             ⚠ {count(graph.diagnostics.length, 'network finding')}
           </button>
         )}
+        <ProjectSwitcher
+          current={project}
+          projects={projects}
+          onSelect={setProject}
+          onCreate={handleCreateProject}
+          onRename={handleRenameProject}
+          onDelete={handleDeleteProject}
+        />
       </header>
 
       <div className="app">

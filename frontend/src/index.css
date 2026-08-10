@@ -505,7 +505,8 @@ button.ui-section-header:hover { color: var(--ink); }
 .ws-trigger:hover { background: var(--fill); }
 .ws-caret { font-size: 10px; color: var(--muted); }
 .ws-menu {
-  position: absolute; top: calc(100% + 6px); left: 0; z-index: 40; min-width: 200px;
+  /* Right-anchored: the switcher lives in the topbar's right corner. */
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 40; min-width: 200px;
   padding: 5px; background: var(--card); border: 1px solid var(--border);
   border-radius: 11px; box-shadow: 0 10px 32px rgba(15,18,26,0.14);
 }
