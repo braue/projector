@@ -52,6 +52,7 @@ const EMPTY_UPLOADS: Record<UploadSourceType, { files: UploadedFile[]; error: st
   scd: { files: [], error: null },
   sw: { files: [], error: null },
 }
+const UPLOAD_TYPES = Object.keys(EMPTY_UPLOADS) as UploadSourceType[]
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('canvas')
@@ -94,10 +95,6 @@ export default function App() {
     }
   }, [project])
 
-  // Database-list errors live in the browser modal now; the sidebar banner
-  // only reports the backend being unreachable, and Retry refetches.
-  const retryList = refreshRtac
-
   const refreshProjects = useCallback(async () => {
     try {
       const names = await listProjects()
@@ -133,9 +130,7 @@ export default function App() {
     setShowFindings(false)
     if (!project) return
     refreshRtac()
-    refreshUploads('rdb')
-    refreshUploads('scd')
-    refreshUploads('sw')
+    for (const type of UPLOAD_TYPES) refreshUploads(type)
   }, [project, refreshRtac, refreshUploads])
 
   const handleCreateProject = useCallback(
@@ -315,7 +310,7 @@ export default function App() {
 
   const topbarInfo =
     mode === 'canvas' && graph
-      ? `${graph.links?.length ?? 0} connections · ${graph.summary.conflicts} conflict${graph.summary.conflicts === 1 ? '' : 's'}`
+      ? `${graph.links.length} connections · ${graph.summary.conflicts} conflict${graph.summary.conflicts === 1 ? '' : 's'}`
       : mode === 'inspect' && selectedSource
         ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace(REF_SEPARATOR, ' · ') : selectedSource.ref} · read-only`
         : ''
@@ -373,7 +368,7 @@ export default function App() {
             project={project}
             projects={rtacProjects}
             listError={listError}
-            onRetryList={retryList}
+            onRetryList={refreshRtac}
             uploads={uploads}
             onUpload={handleUpload}
             onDeleteUpload={handleDeleteUpload}

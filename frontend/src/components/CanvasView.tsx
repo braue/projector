@@ -5,11 +5,10 @@ import {
   Position,
   ReactFlow,
   ReactFlowProvider,
+  useNodesState,
   useReactFlow,
-  applyNodeChanges,
   type Edge,
   type Node,
-  type NodeChange,
   type NodeProps,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -358,7 +357,7 @@ function CanvasInner({
 }) {
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [nodes, setNodes] = useState<DeviceNode[]>([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<DeviceNode>([])
   const [popup, setPopup] = useState<PopupState | null>(null)
   const [nodePopup, setNodePopup] = useState<NodePopupState | null>(null)
   const [pendingConnect, setPendingConnect] = useState<PendingConnect | null>(null)
@@ -402,7 +401,7 @@ function CanvasInner({
       setError(errorMessage(err))
       onGraph(null)
     }
-  }, [project, onGraph])
+  }, [project, onGraph, setNodes])
 
   useEffect(() => {
     setPopup(null)
@@ -426,11 +425,6 @@ function CanvasInner({
         interactionWidth: 16,
       })),
     [graph],
-  )
-
-  const onNodesChange = useCallback(
-    (changes: NodeChange<DeviceNode>[]) => setNodes((current) => applyNodeChanges(changes, current)),
-    [],
   )
 
   return (

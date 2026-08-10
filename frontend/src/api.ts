@@ -100,14 +100,6 @@ export function deleteRtacExport(project: string, name: string): Promise<unknown
   return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'DELETE')
 }
 
-export function fetchTree(project: string, name: string): Promise<ProjectTree> {
-  return get(`${base(project)}/rtac/${encodeURIComponent(name)}/tree`)
-}
-
-export function fetchItem(project: string, name: string, file: string): Promise<ProjectItem> {
-  return get(`${base(project)}/rtac/${encodeURIComponent(name)}/item?file=${encodeURIComponent(file)}`)
-}
-
 export function aggregateSettings(
   project: string,
   name: string,
@@ -162,13 +154,20 @@ export function deleteUpload(project: string, type: UploadSourceType, id: string
   return send(`${base(project)}/${type}/${encodeURIComponent(id)}`, 'DELETE')
 }
 
-// Inspect works for any source type — same shapes, per-type endpoints.
-// Upload-backed types (rdb, scd, sw) share the ?ref= route shape.
+// Inspect works for any source type — same shapes, per-type endpoints. RTAC
+// refs are a path segment; upload-backed types (rdb, scd, sw) share the ?ref=
+// route shape.
+function inspectUrl(project: string, source: DeviceSource, leaf: string, query?: Record<string, string>): string {
+  const params = new URLSearchParams(source.type === 'rtac' ? query : { ref: source.ref, ...query })
+  const path = source.type === 'rtac'
+    ? `${base(project)}/rtac/${encodeURIComponent(source.ref)}/${leaf}`
+    : `${base(project)}/${source.type}/${leaf}`
+  const qs = params.toString()
+  return qs ? `${path}?${qs}` : path
+}
+
 export function fetchSourceTree(project: string, source: DeviceSource): Promise<ProjectTree> {
-  if (source.type !== 'rtac') {
-    return get(`${base(project)}/${source.type}/tree?ref=${encodeURIComponent(source.ref)}`)
-  }
-  return fetchTree(project, source.ref)
+  return get(inspectUrl(project, source, 'tree'))
 }
 
 export function fetchSourceItem(
@@ -176,10 +175,7 @@ export function fetchSourceItem(
   source: DeviceSource,
   file: string,
 ): Promise<ProjectItem> {
-  if (source.type !== 'rtac') {
-    return get(`${base(project)}/${source.type}/item?ref=${encodeURIComponent(source.ref)}&file=${encodeURIComponent(file)}`)
-  }
-  return fetchItem(project, source.ref, file)
+  return get(inspectUrl(project, source, 'item', { file }))
 }
 
 // --- canvas -------------------------------------------------------------------

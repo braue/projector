@@ -29,14 +29,8 @@ interface RowsProps {
   onToggleCheck?: (paths: string[], value: boolean) => void
 }
 
-function TreeEntry({
-  node,
-  depth,
-  selected,
-  onSelect,
-  checked,
-  onToggleCheck,
-}: RowsProps & { node: TreeNode; depth: number }) {
+function TreeEntry(props: RowsProps & { node: TreeNode; depth: number }) {
+  const { node, depth, selected, onSelect, checked, onToggleCheck } = props
   const [open, setOpen] = useState(true)
   const indent = { paddingLeft: `${8 + depth * 14}px` }
   const checkable = checked !== undefined && onToggleCheck !== undefined
@@ -65,15 +59,7 @@ function TreeEntry({
         </button>
         {open &&
           node.children.map((child) => (
-            <TreeEntry
-              key={child.path}
-              node={child}
-              depth={depth + 1}
-              selected={selected}
-              onSelect={onSelect}
-              checked={checked}
-              onToggleCheck={onToggleCheck}
-            />
+            <TreeEntry {...props} key={child.path} node={child} depth={depth + 1} />
           ))}
       </>
     )

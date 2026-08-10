@@ -23,21 +23,20 @@ export function RtacDatabaseModal({
   onStarted: () => void
 }) {
   const [entries, setEntries] = useState<RtacAvailableEntry[] | null>(null)
-  const [dbError, setDbError] = useState<string | null>(null)
-  const [fetchError, setFetchError] = useState<string | null>(null)
+  // The database's own list error, or a fetch failure — shown the same way.
+  const [error, setError] = useState<string | null>(null)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [starting, setStarting] = useState(false)
 
   const load = useCallback(async (refresh: boolean) => {
     setEntries(null)
-    setFetchError(null)
     try {
       const list = refresh ? await refreshRtacAvailable(project) : await fetchRtacAvailable(project)
       setEntries(list.projects)
-      setDbError(list.error)
+      setError(list.error)
     } catch (err) {
       setEntries([])
-      setFetchError(errorMessage(err))
+      setError(errorMessage(err))
     }
   }, [project])
 
@@ -63,7 +62,7 @@ export function RtacDatabaseModal({
       onStarted()
       onClose()
     } catch (err) {
-      setFetchError(errorMessage(err))
+      setError(errorMessage(err))
       setStarting(false)
     }
   }
@@ -85,9 +84,7 @@ export function RtacDatabaseModal({
           </div>
         ) : (
           <>
-            {(dbError ?? fetchError) && (
-              <div className="modal-error">{dbError ?? fetchError}</div>
-            )}
+            {error && <div className="modal-error">{error}</div>}
             <div className="modal-list">
               {entries.map((entry) => (
                 <label
@@ -102,7 +99,7 @@ export function RtacDatabaseModal({
                   {entry.inProject && <span className="modal-badge">in project</span>}
                 </label>
               ))}
-              {!entries.length && !(dbError ?? fetchError) && (
+              {!entries.length && !error && (
                 <div className="modal-empty">The database lists no projects.</div>
               )}
             </div>

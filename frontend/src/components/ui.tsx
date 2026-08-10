@@ -17,7 +17,7 @@
 //   - pane scaffolding (headers/footers/three-pane flex) is layout, not a
 //     control.
 
-import { useState, type ReactNode } from 'react'
+import { useState, type ReactElement, type ReactNode } from 'react'
 
 // --- buttons -----------------------------------------------------------------
 
@@ -65,6 +65,17 @@ export function SegmentedControl<T extends string>({
 
 // --- form controls -----------------------------------------------------------
 
+/** Shared label layout for form controls; a bare control when `label` is unset. */
+function withLabel(label: string | undefined, control: ReactElement) {
+  if (!label) return control
+  return (
+    <label className="ui-labeled">
+      <span className="ui-label">{label}</span>
+      {control}
+    </label>
+  )
+}
+
 /**
  * Labeled dropdown. `onChange` receives the selected value directly. Options
  * are plain strings, or { value, label } pairs when the two differ.
@@ -82,7 +93,7 @@ export function Select({
   options: (string | { value: string; label: string })[]
   placeholder?: string
 }) {
-  const select = (
+  return withLabel(label, (
     <select value={value} onChange={(e) => onChange(e.target.value)} className="ui-select">
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((raw) => {
@@ -94,14 +105,7 @@ export function Select({
         )
       })}
     </select>
-  )
-  if (!label) return select
-  return (
-    <label className="ui-labeled">
-      <span className="ui-label">{label}</span>
-      {select}
-    </label>
-  )
+  ))
 }
 
 /** Single-line text input (settings search); `label` wraps it like Select's. */
@@ -109,14 +113,7 @@ export function TextInput({
   label,
   ...rest
 }: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
-  const input = <input type="text" className="ui-input" {...rest} />
-  if (!label) return input
-  return (
-    <label className="ui-labeled">
-      <span className="ui-label">{label}</span>
-      {input}
-    </label>
-  )
+  return withLabel(label, <input type="text" className="ui-input" {...rest} />)
 }
 
 /** Multi-line text input (aggregate term list). */
@@ -186,8 +183,8 @@ export function Chip({
 // --- structure ---------------------------------------------------------------
 
 /**
- * Uppercase strip heading a block of content. With `onToggle` semantics
- * (default) it collapses; `static` renders a non-interactive label strip.
+ * Uppercase strip heading a block of content. With `onClick` it renders as a
+ * button (the collapse toggle); without, a non-interactive label strip.
  */
 export function SectionHeader({
   title,

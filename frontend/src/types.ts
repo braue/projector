@@ -1,4 +1,6 @@
-// Shapes served by the rtac-explorer backend (see backend/services/projects.js).
+// Shapes served by the purview backend (see backend/services/projects.js).
+// Only the fields the UI actually reads are typed — the API returns more; see
+// the backend services for the full payloads.
 
 export type ProjectStatus = 'exporting' | 'ready' | 'error'
 
@@ -42,12 +44,9 @@ export interface TreeItemNode {
   type: 'item'
   name: string
   path: string
-  /** RTAC/RDB only — upload sections carry kindLabel/category alone. */
-  kind?: string
   kindLabel: string
   category: ItemCategory
   protocol?: string | null
-  connectionType?: string | null
   pointCount?: number
   error?: string
   status?: FileStatus
@@ -66,11 +65,7 @@ export interface ProjectSummary {
   files: number
   // RTAC exports only — absent for RDB profiles.
   connections?: number
-  clients?: number
-  servers?: number
-  peers?: number
   totalPoints?: number
-  protocols?: string[]
 }
 
 export interface ProjectTree {
@@ -79,7 +74,6 @@ export interface ProjectTree {
   /** Display name of the device, e.g. "SEL-3555" or "SEL-735". */
   deviceLabel: string | null
   summary: ProjectSummary
-  errors: { file: string; error: string }[]
   tree: TreeNode[]
 }
 
@@ -87,49 +81,33 @@ export interface SettingPage {
   name: string
   columns: string[]
   rows: Record<string, string>[]
-  addItems?: { start: string; quantity: string }
 }
 
+/** One normalized point; the preview renders its page's sheet from `raw`. */
 export interface Point {
   page: string
-  tagName: string | null
-  tagType: string | null
-  alias: string | null
-  enabled: boolean | null
-  addressColumn: string | null
-  address: string | null
-  comment: string | null
   raw: Record<string, string>
 }
 
 // One export file, fully parsed. Kind-specific fields are optional — the
 // preview renders whatever is present.
 export interface ProjectItem {
-  id: string
   file: string
-  kind: string
   category: ItemCategory
   kindLabel: string
   name: string | null
   settings: Record<string, string>
   points: Point[]
-  pointCount: number
   pages: SettingPage[]
-  // RTAC exports only
-  schema?: string | null
-  deviceMOT?: string | null
-  hasControllerPou?: boolean
   // RDB panel drawings: the item is a generated image, served at `url`.
   image?: { url: string; view?: string } | null
   // connection
   protocol?: string | null
-  protocolFamily?: string | null
   role?: string | null
   connectionType?: string | null
   manufacturer?: string | null
   model?: string | null
   endpoint?: string | null
-  sharedMapRef?: string | null
   sharedMap?: { file: string; name: string | null; points: Point[] } | null
   // tag list
   tagListType?: string | null
@@ -285,7 +263,6 @@ export interface GraphGhost {
   id: string
   label: string
   sublabel: string
-  lines: string[]
 }
 
 export interface LinkWarning {
@@ -301,8 +278,6 @@ export interface GraphLink {
   targetDeviceId?: string
   targetGhostId?: string
   tier: LinkTier
-  protocol: string | null
-  transport: string
   summary: string
   a: { label: string; lines: string[] }
   b: { label: string; lines: string[] }
@@ -315,12 +290,6 @@ export interface WorkspaceGraph {
   ghosts: GraphGhost[]
   links: GraphLink[]
   diagnostics: NetworkDiagnostic[]
-  summary: {
-    devices: number
-    confirmed: number
-    conflicts: number
-    probable: number
-    declared: number
-    manual: number
-  }
+  /** The linker's tier tallies; the topbar reads only the conflict count. */
+  summary: { conflicts: number }
 }
