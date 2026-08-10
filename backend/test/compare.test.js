@@ -99,7 +99,7 @@ test('row matching is content-first: a shifted table is one added row', () => {
     ]) },
   );
   assert.equal(shifted.pages[0].status, 'changed');
-  assert.deepEqual(shifted.pages[0].added, ['NEW']);
+  assert.deepEqual(shifted.pages[0].added, ['Src = NEW']);
   assert.deepEqual(shifted.pages[0].removed, []);
   assert.deepEqual(shifted.pages[0].changed, []);
 });
@@ -111,9 +111,10 @@ test('an unrelated replaced row reads as removed + added, not changed', () => {
     { settings: {}, points: [], pages: page([{ Name: 'Alpha', Val: '1' }, { Name: 'Charlie', Val: '9' }]) },
   );
   // Bravo and Charlie share no column value — a delete plus an addition,
-  // which positional pairing must not fold into one "changed" row.
-  assert.deepEqual(diff.pages[0].added, ['Charlie']);
-  assert.deepEqual(diff.pages[0].removed, ['Bravo']);
+  // which positional pairing must not fold into one "changed" row. Both
+  // report their whole row.
+  assert.deepEqual(diff.pages[0].added, ['Name = Charlie · Val = 9']);
+  assert.deepEqual(diff.pages[0].removed, ['Name = Bravo · Val = 2']);
   assert.deepEqual(diff.pages[0].changed, []);
 });
 
@@ -159,8 +160,8 @@ test('diffItems reports settings, points, and code changes', () => {
     name: 'Extra',
     status: 'changed',
     rows: 1,
-    added: ['2'],
-    removed: ['1'],
+    added: ['X = 2'],
+    removed: ['X = 1'],
     changed: [],
   }]);
   assert.match(diff.code.updated, /new;/);
@@ -184,22 +185,19 @@ test('generic page diff pinpoints rows and fields', () => {
 
   const [tags] = diff.pages;
   assert.equal(tags.status, 'changed');
-  // BRK_2's source and quality changed, field by field.
+  // Changed rows carry the WHOLE row on both sides — a row referenced only by
+  // its label and a column is unreadable in review.
   assert.deepEqual(tags.changed, [
     {
       row: 'BRK_2',
-      fields: [
-        { column: 'Source', original: 'SEL_451.BR2', updated: 'SEL_735.BR2' },
-        { column: 'Quality', original: 'True', updated: 'False' },
-      ],
+      original: 'Destination = BRK_2 · Source = SEL_451.BR2 · Quality = True',
+      updated: 'Destination = BRK_2 · Source = SEL_735.BR2 · Quality = False',
     },
     // Unmatched leftovers pair positionally: OLD_TAG became NEW_TAG.
     {
       row: 'NEW_TAG',
-      fields: [
-        { column: 'Destination', original: 'OLD_TAG', updated: 'NEW_TAG' },
-        { column: 'Source', original: 'SEL_451.X', updated: 'SEL_451.Y' },
-      ],
+      original: 'Destination = OLD_TAG · Source = SEL_451.X · Quality = True',
+      updated: 'Destination = NEW_TAG · Source = SEL_451.Y · Quality = True',
     },
   ]);
   assert.deepEqual(tags.added, []);

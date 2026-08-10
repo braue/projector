@@ -172,10 +172,13 @@ export interface ItemDiff {
     /** 'reordered' = same rows, different order — no row-level detail. */
     status: 'added' | 'removed' | 'changed' | 'reordered'
     rows: number
-    /** Row-level detail, present on changed pages: labels are the lead-column value. */
+    /** Row-level detail, present on changed pages. Every entry carries the
+     * WHOLE row's rendered text ("Col = value · …") — added/removed in full,
+     * changed on both sides. (The payload also carries the matcher's row
+     * label; the UI shows the full rows instead.) */
     added?: string[]
     removed?: string[]
-    changed?: { row: string; fields: PointFieldDiff[] }[]
+    changed?: { original: string; updated: string }[]
   }[]
   code: { original: string | null; updated: string | null } | null
   /** Graphical (CFC/LD) logic body — only its fingerprint is modeled, so the

@@ -7,7 +7,7 @@
 // page tables, and logic source (with line numbers).
 
 import { httpError } from '../lib/http.js';
-import { itemSummary } from '../lib/inspect.js';
+import { itemSummary, rowText } from '../lib/inspect.js';
 
 // Payload guards — a short string can match tens of thousands of points.
 const MAX_MATCHES_PER_ITEM = 50;
@@ -53,11 +53,12 @@ function matchItem(item, needle, limit) {
     }
   }
 
+  // One hit per matching page ROW, carrying the whole row — a Tag Processor
+  // row referenced as "row N · column" alone is unreadable.
   for (const page of item.pages ?? []) {
     page.rows.forEach((row, index) => {
-      for (const [column, value] of Object.entries(row)) {
-        if (hit(value)) found('page', `${page.name} · row ${index + 1} · ${column}`, value);
-      }
+      if (!Object.values(row).some(hit)) return;
+      found('page', `${page.name} · row ${index + 1}`, rowText(row));
     });
   }
 

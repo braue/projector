@@ -15,6 +15,8 @@
 //   by field name, so a new extractor's output is at worst reported coarsely,
 //   never dropped.
 
+import { rowText } from './inspect.js';
+
 // --- file status -------------------------------------------------------------
 
 const STATUS = {
@@ -139,6 +141,10 @@ function rowFields(aRow, bRow) {
 // table shifted down a row is not N edits). Leftovers then match by
 // lead-column label, and what remains pairs positionally — with pairs
 // sharing no column value reading as removed + added.
+//
+// Every reported row carries its WHOLE rendered text (rowText) — changed rows
+// on both sides, added/removed rows in full — because a row named only by its
+// lead cell or position is unreadable in review (Tag Processor especially).
 function diffPageRows(aPage, bPage) {
   const aRows = pageRows(aPage);
   const bRows = pageRows(bPage);
@@ -171,8 +177,9 @@ function diffPageRows(aPage, bPage) {
     const a = byLabel.get(b.label);
     if (a && !matchedA.has(a)) {
       matchedA.add(a);
-      const fields = rowFields(a.row, b.row);
-      if (fields.length) changed.push({ row: b.label, fields });
+      if (rowFields(a.row, b.row).length) {
+        changed.push({ row: b.label, original: rowText(a.row), updated: rowText(b.row) });
+      }
     } else {
       unmatchedB.push(b);
     }
@@ -187,16 +194,20 @@ function diffPageRows(aPage, bPage) {
     // the removal entirely.
     const columns = new Set([...Object.keys(unmatchedA[i].row), ...Object.keys(unmatchedB[i].row)]).size;
     if (fields.length >= columns) {
-      removed.push(unmatchedA[i].label);
-      added.push(unmatchedB[i].label);
+      removed.push(rowText(unmatchedA[i].row));
+      added.push(rowText(unmatchedB[i].row));
     } else if (fields.length) {
-      changed.push({ row: unmatchedB[i].label, fields });
+      changed.push({
+        row: unmatchedB[i].label,
+        original: rowText(unmatchedA[i].row),
+        updated: rowText(unmatchedB[i].row),
+      });
     }
   }
 
   return {
-    added: [...added, ...unmatchedB.slice(pairs).map((b) => b.label)],
-    removed: [...removed, ...unmatchedA.slice(pairs).map((a) => a.label)],
+    added: [...added, ...unmatchedB.slice(pairs).map((b) => rowText(b.row))],
+    removed: [...removed, ...unmatchedA.slice(pairs).map((a) => rowText(a.row))],
     changed,
   };
 }

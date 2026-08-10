@@ -40,9 +40,9 @@ function SettingsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   )
 }
 
-// The one shape both row-level diffs share (point maps, generic page tables):
-// added/removed identities as chips, changed rows flattened to one table row
-// per field.
+// Point maps: added/removed identities as chips, changed rows flattened to
+// one table row per field (a point row is identified by its tag name, so the
+// column-level view stays readable there).
 function RowDiffSection({
   title,
   idLabel,
@@ -51,7 +51,7 @@ function RowDiffSection({
   changed,
 }: {
   title: string
-  /** Header of the identity column: "Tag" for points, "Row" for pages. */
+  /** Header of the identity column: "Tag" for points. */
   idLabel: string
   added: string[]
   removed: string[]
@@ -120,19 +120,55 @@ function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   )
 }
 
+// Generic page tables (Tag Processor and friends): every reference shows the
+// WHOLE row — added/removed chips carry the full row text, and changed rows
+// render the complete original and updated row side by side.
 function PagesDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   // 'changed' pages carry row detail; added/removed/reordered pages read as
   // one line in Extras.
   const pages = diff.pages.filter((page) => page.status === 'changed')
+  const added = pages.flatMap((page) => (page.added ?? []).map((row) => `${page.name} · ${row}`))
+  const removed = pages.flatMap((page) => (page.removed ?? []).map((row) => `${page.name} · ${row}`))
+  // No identity column: the whole-row text leads with the row's own cells,
+  // and generic-page labels (the lead cell) are often meaningless — Tag
+  // Processor rows all lead with Build = True.
+  const changedRows: TableRow[] = pages.flatMap((page) =>
+    (page.changed ?? []).map((row, i) => ({
+      id: `${page.name}:${i}`,
+      tone: 'edited' as const,
+      cells: { page: page.name, original: row.original, updated: row.updated },
+      titles: { original: row.original, updated: row.updated },
+    })))
+  if (!added.length && !removed.length && !changedRows.length) return null
+
   return (
-    <RowDiffSection
-      title="Table Changes"
-      idLabel="Row"
-      added={pages.flatMap((page) => (page.added ?? []).map((row) => `${page.name} · ${row}`))}
-      removed={pages.flatMap((page) => (page.removed ?? []).map((row) => `${page.name} · ${row}`))}
-      changed={pages.flatMap((page) =>
-        (page.changed ?? []).map((row) => ({ page: page.name, id: row.row, fields: row.fields })))}
-    />
+    <section>
+      <SectionHeader
+        title="Table Changes"
+        count={`+${added.length} −${removed.length} ~${changedRows.length}`}
+      />
+      {(added.length > 0 || removed.length > 0) && (
+        <div className="point-lists">
+          {added.map((label, i) => (
+            <Chip key={`a${i}`} tone="added">+ {label}</Chip>
+          ))}
+          {removed.map((label, i) => (
+            <Chip key={`r${i}`} tone="removed">− {label}</Chip>
+          ))}
+        </div>
+      )}
+      {changedRows.length > 0 && (
+        <DataTable
+          columns={[
+            { key: 'page', label: 'Page' },
+            { key: 'original', label: 'Original' },
+            { key: 'updated', label: 'New' },
+          ]}
+          rows={changedRows}
+          maxHeight="45vh"
+        />
+      )}
+    </section>
   )
 }
 

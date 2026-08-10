@@ -55,3 +55,38 @@ test('search scopes to one source and reports object + location per match', asyn
     await rm(tmp, { recursive: true, force: true });
   }
 });
+
+test('a page-row hit reports the whole row, once per row', async () => {
+  const search = new SearchService({
+    adapters: {
+      fake: async () => ({
+        label: 'fake',
+        entries: [{
+          path: 'tp',
+          name: 'Tag Processor',
+          item: {
+            kindLabel: 'Tag Processor',
+            category: 'system',
+            pages: [{
+              name: 'Tags',
+              columns: ['Destination', 'Source', 'Quality'],
+              rows: [
+                // Two matching cells in one row must still be ONE hit.
+                { Destination: 'SEL_451.BR1', Source: 'SEL_451.MV01', Quality: '' },
+                { Destination: 'DNP.AI02', Source: 'SEL_735.MV02', Quality: 'True' },
+              ],
+            }],
+          },
+        }],
+      }),
+    },
+  });
+
+  const result = await search.search({ type: 'fake', ref: 'r' }, 'sel_451');
+  assert.equal(result.totalMatches, 1);
+  assert.deepEqual(result.results[0].matches, [{
+    where: 'page',
+    location: 'Tags · row 1',
+    text: 'Destination = SEL_451.BR1 · Source = SEL_451.MV01',
+  }]);
+});

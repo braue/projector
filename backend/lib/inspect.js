@@ -51,4 +51,15 @@ function flag(value) {
   return value ? 'true' : 'false';
 }
 
-export { flag, itemSummary, sectionItem, sectionNode, tablePage };
+/** One page row as display text: its non-empty cells, "Col = value" joined.
+ * How search hits and compare row diffs reference a table row — a row named
+ * only by number and column is unreadable (Tag Processor tables especially),
+ * so every reference carries the whole row. */
+function rowText(row) {
+  return Object.entries(row)
+    .filter(([, value]) => String(value ?? '') !== '')
+    .map(([column, value]) => `${column} = ${value}`)
+    .join(' · ');
+}
+
+export { flag, itemSummary, rowText, sectionItem, sectionNode, tablePage };
