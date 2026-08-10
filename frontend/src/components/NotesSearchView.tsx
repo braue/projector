@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { listNotes } from '../api'
-import { errorMessage } from '../lib/errors'
-import { useDebounced } from '../lib/useDebounced'
+import { count } from '../lib/format'
+import { useFetch } from '../lib/useFetch'
+import { useSearchQuery } from '../lib/useSearchQuery'
 import type { Note } from '../types'
 import { Highlight } from './Highlight'
-import { TextInput } from './ui'
+import { MatchRow, SearchHit, SearchPane } from './SearchShell'
 
 // Notes › Search: live case-insensitive substring over every note in the
 // project. The notes list already carries each note's full text, so this is
@@ -26,14 +27,8 @@ export function NotesSearchView({
   /** Jump to a note in Create. */
   onOpen: (id: string) => void
 }) {
-  const [notes, setNotes] = useState<Note[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
-  const needle = useDebounced(query, 200).trim().toLowerCase()
-
-  useEffect(() => {
-    listNotes(project).then(setNotes, (err) => setError(errorMessage(err)))
-  }, [project])
+  const { data: notes, error } = useFetch(() => listNotes(project), [project])
+  const { query, setQuery, needle } = useSearchQuery()
 
   const hits = useMemo<NoteHits[]>(() => {
     if (!notes || !needle) return []
@@ -50,58 +45,41 @@ export function NotesSearchView({
 
   const totalLines = hits.reduce((total, hit) => total + hit.lines.length, 0)
 
+  const message = error
+    ?? (!needle
+      ? notes && !notes.length
+        ? 'No notes yet — switch to Create to write one.'
+        : 'Searches every note in the project as you type.'
+      : notes && hits.length === 0 ? `No matches for "${query.trim()}".` : null)
+
   return (
-    <main className="preview search-view">
-      <header className="preview-header">
-        <div className="search-bar">
-          <TextInput
-            autoFocus
-            value={query}
-            placeholder="Find a string in any note…"
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        {needle && (
-          <div className="preview-subtitle">
-            {totalLines} matching line{totalLines === 1 ? '' : 's'} in {hits.length}{' '}
-            note{hits.length === 1 ? '' : 's'}
-          </div>
-        )}
-      </header>
-      <div className="preview-scroll no-sheets">
-        {error && <div className="pane-message">{error}</div>}
-        {!error && notes && !needle && (
-          <div className="pane-message">
-            {notes.length
-              ? 'Searches every note in the project as you type.'
-              : 'No notes yet — switch to Create to write one.'}
-          </div>
-        )}
-        {!error && needle && notes && hits.length === 0 && (
-          <div className="pane-message">No matches for "{query.trim()}".</div>
-        )}
-        {hits.map(({ note, lines }) => (
-          <section key={note.id} className="search-hit">
-            <button className="search-hit-head" onClick={() => onOpen(note.id)} title="Open in Create">
-              <span className="search-hit-name">{note.name}</span>
-              <span className="ui-count">{lines.length}</span>
-            </button>
-            {lines.map((line) => (
-              <button
-                key={line.number}
-                className="search-match as-row"
-                onClick={() => onOpen(note.id)}
-                title="Open in Create"
-              >
-                <span className="search-where">line {line.number}</span>
-                <span className="search-text">
-                  <Highlight text={line.text} query={needle} />
-                </span>
-              </button>
-            ))}
-          </section>
-        ))}
-      </div>
-    </main>
+    <SearchPane
+      placeholder="Find a string in any note…"
+      query={query}
+      onQuery={setQuery}
+      subtitle={needle && `${count(totalLines, 'matching line')} in ${count(hits.length, 'note')}`}
+      message={message}
+    >
+      {hits.map(({ note, lines }) => (
+        <SearchHit
+          key={note.id}
+          name={note.name}
+          count={lines.length}
+          title="Open in Create"
+          onOpen={() => onOpen(note.id)}
+        >
+          {lines.map((line) => (
+            <MatchRow
+              key={line.number}
+              location={`line ${line.number}`}
+              title="Open in Create"
+              onClick={() => onOpen(note.id)}
+            >
+              <Highlight text={line.text} query={needle} />
+            </MatchRow>
+          ))}
+        </SearchHit>
+      ))}
+    </SearchPane>
   )
 }

@@ -4,7 +4,7 @@ import { createNote, deleteNote, listNotes, renameNote, saveNoteText } from '../
 import { errorMessage } from '../lib/errors'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type { Note } from '../types'
-import { InlineNameForm } from './ui'
+import { InlineNameForm, RowAction } from './ui'
 
 // Notes mode — the engineer's own working notes beside the evidence. Left
 // rail lists the project's notes (create / rename / delete); the pane is ONE
@@ -269,26 +269,8 @@ export function NotesView({
                   >
                     <span className="project-name">{note.name}</span>
                     <span className="note-count">{checkCounts(note)}</span>
-                    <span
-                      className="entry-delete entry-rename"
-                      title={`Rename ${note.name}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setRenamingId(note.id)
-                      }}
-                    >
-                      ✎
-                    </span>
-                    <span
-                      className="entry-delete"
-                      title={`Delete ${note.name}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        remove(note)
-                      }}
-                    >
-                      ✕
-                    </span>
+                    <RowAction kind="rename" title={`Rename ${note.name}`} onClick={() => setRenamingId(note.id)} />
+                    <RowAction kind="delete" title={`Delete ${note.name}`} onClick={() => remove(note)} />
                   </button>
                 </li>
               ),

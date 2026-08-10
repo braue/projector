@@ -13,7 +13,7 @@ import { errorMessage } from '../lib/errors'
 import { formatSize } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type { FileNode } from '../types'
-import { Button, InlineNameForm } from './ui'
+import { Button, InlineNameForm, RowAction } from './ui'
 
 // Files mode — generic project documents (PDFs, Word, Excel, anything) in a
 // user-shaped folder tree. The tree is a REAL directory under the project's
@@ -99,6 +99,12 @@ export function FilesView({
     if (files.length) act(() => uploadFiles(project, dir, files))
   }
 
+  const createIn = async (dir: string, value: string) => {
+    await createFileFolder(project, dir, value)
+    setCreatingIn(null)
+    await load()
+  }
+
   const handleDrop = (e: React.DragEvent, dir: string) => {
     e.preventDefault()
     e.stopPropagation()
@@ -127,29 +133,17 @@ export function FilesView({
 
   const rowActions = (node: FileNode) => (
     <>
-      <span
-        className="entry-delete entry-rename"
-        title={`Rename ${node.name}`}
-        onClick={(e) => {
-          e.stopPropagation()
-          setRenaming(node.path)
-        }}
-      >
-        ✎
-      </span>
-      <span
-        className="entry-delete"
+      <RowAction kind="rename" title={`Rename ${node.name}`} onClick={() => setRenaming(node.path)} />
+      <RowAction
+        kind="delete"
         title={`Delete ${node.name}`}
-        onClick={(e) => {
-          e.stopPropagation()
+        onClick={() => {
           const what = node.type === 'folder' ? `folder "${node.name}" and everything in it` : `"${node.name}"`
           if (!window.confirm(`Delete ${what}?`)) return
           if (selected === node.path) setSelected(null)
           act(() => deleteFileEntry(project, node.path))
         }}
-      >
-        ✕
-      </span>
+      />
     </>
   )
 
@@ -193,11 +187,7 @@ export function FilesView({
           actions={rowActions(node)}
           renderNode={renderNode}
           creatingIn={creatingIn}
-          onCreate={async (value) => {
-            await createFileFolder(project, node.path, value)
-            setCreatingIn(null)
-            await load()
-          }}
+          onCreate={(value) => createIn(node.path, value)}
           onCancelCreate={() => setCreatingIn(null)}
         />
       )
@@ -244,14 +234,10 @@ export function FilesView({
           <div className="files-toolbar">
             <Button onClick={() => setCreatingIn(targetDir)}>New folder</Button>
           </div>
-          {creatingIn === targetDir && (
+          {creatingIn === '' && (
             <InlineNameForm
-              placeholder={`Folder name${targetDir ? ` in ${targetDir}` : ''} — Enter to create`}
-              onCommit={async (value) => {
-                await createFileFolder(project, targetDir, value)
-                setCreatingIn(null)
-                await load()
-              }}
+              placeholder="Folder name — Enter to create"
+              onCommit={(value) => createIn('', value)}
               onCancel={() => setCreatingIn(null)}
             />
           )}

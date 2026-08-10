@@ -42,14 +42,18 @@ function foldTree(nodes, errors = []) {
   }
 
   const sortTree = (node) => {
-    node.children.sort((a, b) => {
-      if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-      return a.name.localeCompare(b.name, undefined, { numeric: true });
-    });
+    node.children.sort(treeOrder);
     for (const child of node.children) if (child.type === 'folder') sortTree(child);
   };
   sortTree(root);
   return root.children;
 }
 
-export { foldTree };
+// Folders first, then natural name order — the one ordering every tree
+// (inspect, compare, project files) shares.
+function treeOrder(a, b) {
+  if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+  return a.name.localeCompare(b.name, undefined, { numeric: true });
+}
+
+export { foldTree, treeOrder };

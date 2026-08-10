@@ -138,11 +138,15 @@ class UploadService {
         .filter((node) => node.type === 'item')
         .map((node) => {
           const item = this.item(ref, node.path);
+          // Lazy: search shares these entries and never reads signatures.
+          let signature;
           return {
             path: node.path,
             name: node.name,
             item,
-            signature: modelSignature(item),
+            get signature() {
+              return (signature ??= modelSignature(item));
+            },
           };
         }));
     }

@@ -9,6 +9,20 @@ function sectionNode({ name, path, kindLabel, category, pointCount = null }) {
   return { type: 'item', name, path, kindLabel, category, pointCount };
 }
 
+/** The light projection of an item that compare nodes, RTAC tree nodes,
+ * search hits, and aggregate rows all share — one field list, spread per
+ * site so the summary can grow without a four-file edit. */
+function itemSummary(item) {
+  return {
+    kind: item.kind,
+    kindLabel: item.kindLabel,
+    category: item.category,
+    protocol: item.protocol ?? null,
+    connectionType: item.connectionType ?? null,
+    pointCount: item.pointCount,
+  };
+}
+
 /** One tabular sheet: positional rows zipped into column-keyed records. */
 function tablePage(name, columns, rows) {
   return {
@@ -37,4 +51,4 @@ function flag(value) {
   return value ? 'true' : 'false';
 }
 
-export { flag, sectionItem, sectionNode, tablePage };
+export { flag, itemSummary, sectionItem, sectionNode, tablePage };

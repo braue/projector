@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { InlineNameForm } from './ui'
+import { InlineNameForm, RowAction } from './ui'
 
 // Topbar dropdown for projects: pick one, rename or delete from the hover
 // actions on each row, or create a new one from the "+" row at the bottom,
@@ -72,27 +72,15 @@ export function ProjectSwitcher({
               >
                 {ws}
                 {ws === current && <span className="ws-check">✓</span>}
-                <span
-                  className="entry-delete entry-rename"
-                  title={`Rename project ${ws}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setRenaming(ws)
-                  }}
-                >
-                  ✎
-                </span>
-                <span
-                  className="entry-delete"
+                <RowAction kind="rename" title={`Rename project ${ws}`} onClick={() => setRenaming(ws)} />
+                <RowAction
+                  kind="delete"
                   title={`Delete project ${ws}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
+                  onClick={() => {
                     setOpen(false)
                     onDelete(ws)
                   }}
-                >
-                  ✕
-                </span>
+                />
               </button>
             ),
           )}

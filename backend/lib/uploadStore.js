@@ -25,8 +25,9 @@ class UploadStore {
 
   async init() {
     await mkdir(this.root, { recursive: true });
-    for (const entry of await readdir(this.root, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
+    const entries = (await readdir(this.root, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory());
+    await Promise.all(entries.map(async (entry) => {
       try {
         this.files.set(entry.name, JSON.parse(
           await readFile(path.join(this.root, entry.name, 'parsed.json'), 'utf8'),
@@ -34,7 +35,7 @@ class UploadStore {
       } catch (err) {
         console.warn(`skipping unreadable ${this.label} upload ${entry.name}: ${err?.message ?? err}`);
       }
-    }
+    }));
   }
 
   dir(fileId) {

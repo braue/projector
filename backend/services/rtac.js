@@ -21,6 +21,7 @@ import path from 'node:path';
 
 import { modelSignature } from '../lib/compare.js';
 import { httpError, resolveChild } from '../lib/http.js';
+import { itemSummary } from '../lib/inspect.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
 import { moduleBaseName } from '../lib/parsers/rtac/project.js';
 import { foldTree } from '../lib/tree.js';
@@ -300,11 +301,12 @@ class RtacService {
     // raw-hash guarantee where it is blind. (ExportSource carries only
     // Schema/DeviceMOT — no volatile metadata to churn on.)
     const rawHashes = new Map();
+    const xmlByFile = new Map(files.map((f) => [f.file, f.xml]));
     const byFile = new Map();
     for (const item of model.items) {
       byFile.set(item.file, item);
       if (modelBlind(item)) {
-        const xml = files.find((f) => f.file === item.file)?.xml ?? '';
+        const xml = xmlByFile.get(item.file) ?? '';
         rawHashes.set(item.file, createHash('sha1').update(xml).digest('hex'));
       }
     }
@@ -324,12 +326,7 @@ class RtacService {
       type: 'item',
       name: item.name ?? moduleBaseName(item.file),
       path: item.file,
-      kind: item.kind,
-      kindLabel: item.kindLabel,
-      category: item.category,
-      protocol: item.protocol ?? null,
-      connectionType: item.connectionType ?? null,
-      pointCount: item.pointCount,
+      ...itemSummary(item),
       ...extra,
     };
   }
@@ -361,23 +358,33 @@ class RtacService {
 
   // Compare adapter entries: one per export file, signature = digest of the
   // canonical parsed item (plus the raw hash for model-blind files — see
-  // #parse). Computed on first compare and memoized on the parse-cache entry,
-  // so pre-warms never pay for a compare nobody opens.
+  // #parse). Signatures are expensive (canonical JSON + sha1 over full point
+  // maps), so each is computed on first READ and memoized on the parse-cache
+  // entry — search shares these entries but never touches signatures, and
+  // pre-warms never pay for a compare nobody opens.
   async comparable(name) {
     const parsed = await this.#parsed(name);
-    parsed.signatures ??= new Map(parsed.model.items.map((item) => {
-      const hash = createHash('sha1').update(modelSignature(item));
-      const raw = parsed.rawHashes.get(item.file);
-      if (raw) hash.update(raw);
-      return [item.file, hash.digest('hex')];
-    }));
+    parsed.signatures ??= new Map();
+    const signatureOf = (item) => {
+      let signature = parsed.signatures.get(item.file);
+      if (!signature) {
+        const hash = createHash('sha1').update(modelSignature(item));
+        const raw = parsed.rawHashes.get(item.file);
+        if (raw) hash.update(raw);
+        signature = hash.digest('hex');
+        parsed.signatures.set(item.file, signature);
+      }
+      return signature;
+    };
     return {
       label: parsed.model.name ?? name,
       entries: parsed.model.items.map((item) => ({
         path: item.file,
         name: item.name ?? moduleBaseName(item.file),
         item,
-        signature: parsed.signatures.get(item.file),
+        get signature() {
+          return signatureOf(item);
+        },
       })),
     };
   }
@@ -420,9 +427,7 @@ class RtacService {
         rows.push({
           file: item.file,
           name: item.name ?? item.file,
-          kindLabel: item.kindLabel,
-          category: item.category,
-          protocol: item.protocol ?? null,
+          ...itemSummary(item),
           values,
         });
       }

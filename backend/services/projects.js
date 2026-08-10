@@ -32,10 +32,9 @@ import { ScdService } from './scd.js';
 import { SwService } from './sw.js';
 
 class ProjectsService {
-  constructor({ dataDir, catalog, selDevicesDir }) {
+  constructor({ dataDir, catalog }) {
     this.root = path.join(dataDir, 'projects');
     this.catalog = catalog;
-    this.selDevicesDir = selDevicesDir;
     // name -> Promise<bundle> — built once per project per process.
     this.bundles = new Map();
   }
@@ -58,11 +57,15 @@ class ProjectsService {
       .sort((a, b) => a.localeCompare(b));
   }
 
+  async #exists(name) {
+    return (await this.list()).includes(name);
+  }
+
   async create(name) {
     const trimmed = name?.trim();
     if (!trimmed) throw httpError(400, 'project name required');
     const projectDir = this.dir(trimmed);
-    if ((await this.list()).includes(trimmed)) {
+    if (await this.#exists(trimmed)) {
       throw httpError(409, `project already exists: ${trimmed}`);
     }
     await mkdir(projectDir, { recursive: true });
@@ -93,7 +96,7 @@ class ProjectsService {
   // The project's service bundle, built on first touch. 404s for a project
   // folder that does not exist — refs must never mint directories.
   async bundle(name) {
-    if (!(await this.list()).includes(name)) {
+    if (!(await this.#exists(name))) {
       throw httpError(404, `unknown project: ${name}`);
     }
     if (!this.bundles.has(name)) {
@@ -109,7 +112,7 @@ class ProjectsService {
     const apiBase = `/api/projects/${encodeURIComponent(name)}`;
 
     const rtac = new RtacService({ catalog: this.catalog, dataDir: path.join(projectDir, 'rtac') });
-    const rdb = new RdbService({ dataDir: projectDir, selDevicesDir: this.selDevicesDir, apiBase });
+    const rdb = new RdbService({ dataDir: projectDir, apiBase });
     const scd = new ScdService({ dataDir: projectDir });
     const sw = new SwService({ dataDir: projectDir });
 

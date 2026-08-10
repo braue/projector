@@ -226,7 +226,6 @@ export interface Note {
 // --- search -------------------------------------------------------------------
 
 export interface SearchMatch {
-  where: 'name' | 'setting' | 'point' | 'page' | 'logic'
   /** Where inside the object: setting key, "page · row · column", "line N". */
   location: string
   text: string
@@ -236,7 +235,6 @@ export interface SearchHit {
   path: string
   name: string
   kindLabel: string
-  category: ItemCategory
   protocol: string | null
   matches: SearchMatch[]
   /** More matches existed in this object than the payload carries. */

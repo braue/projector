@@ -7,37 +7,48 @@
 // page tables, and logic source (with line numbers).
 
 import { httpError } from '../lib/http.js';
+import { itemSummary } from '../lib/inspect.js';
 
 // Payload guards — a short string can match tens of thousands of points.
 const MAX_MATCHES_PER_ITEM = 50;
 const MAX_ITEMS = 200;
 const MAX_TEXT = 220;
 
-function clip(value) {
+// Clip long values so the payload stays bounded — windowed around the first
+// hit when a head clip would cut it off (the frontend re-finds the needle to
+// highlight it, so the match must survive clipping).
+function clip(value, needle) {
   const text = String(value);
-  return text.length > MAX_TEXT ? `${text.slice(0, MAX_TEXT)}…` : text;
+  if (text.length <= MAX_TEXT) return text;
+  const at = text.toLowerCase().indexOf(needle);
+  if (at === -1 || at + needle.length <= MAX_TEXT) return `${text.slice(0, MAX_TEXT)}…`;
+  const start = Math.min(at - Math.floor(MAX_TEXT / 2), text.length - MAX_TEXT);
+  const end = start + MAX_TEXT;
+  return `…${text.slice(start, end)}${end < text.length ? '…' : ''}`;
 }
 
-function matchItem(item, needle, out) {
+// Scan one item. Counts every match but materializes detail (object + clip)
+// only up to `limit` — callers past the item cap pass 0 and just count.
+function matchItem(item, needle, limit) {
+  const matches = [];
+  let total = 0;
+  const found = (where, location, text) => {
+    total += 1;
+    if (matches.length < limit) matches.push({ where, location, text: clip(text, needle) });
+  };
   const hit = (value) => String(value ?? '').toLowerCase().includes(needle);
 
-  if (hit(item.name)) out.push({ where: 'name', location: 'object name', text: clip(item.name) });
+  if (hit(item.name)) found('name', 'object name', item.name);
 
   for (const [key, value] of Object.entries(item.settings ?? {})) {
-    if (hit(key) || hit(value)) {
-      out.push({ where: 'setting', location: key, text: clip(`${key} = ${value}`) });
-    }
+    if (hit(key) || hit(value)) found('setting', key, `${key} = ${value}`);
   }
 
   for (const point of item.points ?? []) {
     for (const [column, value] of Object.entries(point.raw ?? {})) {
       if (hit(value) || hit(column)) {
         const rowName = point.tagName ? ` · ${point.tagName}` : '';
-        out.push({
-          where: 'point',
-          location: `${point.page}${rowName} · ${column}`,
-          text: clip(value),
-        });
+        found('point', `${point.page}${rowName} · ${column}`, value);
       }
     }
   }
@@ -45,13 +56,7 @@ function matchItem(item, needle, out) {
   for (const page of item.pages ?? []) {
     page.rows.forEach((row, index) => {
       for (const [column, value] of Object.entries(row)) {
-        if (hit(value)) {
-          out.push({
-            where: 'page',
-            location: `${page.name} · row ${index + 1} · ${column}`,
-            text: clip(value),
-          });
-        }
+        if (hit(value)) found('page', `${page.name} · row ${index + 1} · ${column}`, value);
       }
     });
   }
@@ -60,13 +65,11 @@ function matchItem(item, needle, out) {
     const source = item.code?.[part];
     if (!source) continue;
     source.split('\n').forEach((line, index) => {
-      if (hit(line)) {
-        out.push({ where: 'logic', location: `${part} · line ${index + 1}`, text: clip(line.trim()) });
-      }
+      if (hit(line)) found('logic', `${part} · line ${index + 1}`, line.trim());
     });
   }
 
-  return out;
+  return { matches, total };
 }
 
 class SearchService {
@@ -88,21 +91,20 @@ class SearchService {
     let totalMatches = 0;
     let truncated = false;
     for (const entry of entries) {
-      const matches = matchItem(entry.item, needle, []);
-      if (!matches.length) continue;
-      totalMatches += matches.length;
-      if (results.length >= MAX_ITEMS) {
-        truncated = true;
-        continue; // keep counting matches, stop carrying detail
+      const budget = results.length < MAX_ITEMS ? MAX_MATCHES_PER_ITEM : 0;
+      const { matches, total } = matchItem(entry.item, needle, budget);
+      if (!total) continue;
+      totalMatches += total;
+      if (!budget) {
+        truncated = true; // keep counting matches, stop carrying detail
+        continue;
       }
       results.push({
         path: entry.path,
         name: entry.name,
-        kindLabel: entry.item.kindLabel,
-        category: entry.item.category,
-        protocol: entry.item.protocol ?? null,
-        matches: matches.slice(0, MAX_MATCHES_PER_ITEM),
-        truncated: matches.length > MAX_MATCHES_PER_ITEM,
+        ...itemSummary(entry.item),
+        matches,
+        truncated: total > matches.length,
       });
     }
 

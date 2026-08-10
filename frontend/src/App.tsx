@@ -33,6 +33,7 @@ import { SourcesSidebar } from './components/SourcesSidebar'
 import { Button, SegmentedControl, TextInput } from './components/ui'
 import { confirmOverwrite } from './lib/confirm'
 import { errorMessage } from './lib/errors'
+import { count } from './lib/format'
 import { replaceRefFile, sourceKey } from './lib/sources'
 import { useFetch } from './lib/useFetch'
 import { REF_SEPARATOR } from './types'
@@ -49,8 +50,19 @@ const PROJECT_KEY = 'purview-project'
 
 type Mode = 'canvas' | 'inspect' | 'compare' | 'notes' | 'files'
 type InspectSub = 'browse' | 'aggregate' | 'search'
-type NotesSub = 'create' | 'search'
-type FilesSub = 'navigate' | 'search'
+
+// A mode's working-view/search split (Notes, Files). One state object keeps
+// the coupling structural: entering search drops any pending jump target,
+// and opening a hit carries the target back into the working view.
+function useSubSearch<Jump>() {
+  const [state, setState] = useState<{ searching: boolean; jump: Jump | null }>({
+    searching: false,
+    jump: null,
+  })
+  const setSearching = useCallback((searching: boolean) => setState({ searching, jump: null }), [])
+  const openAt = useCallback((jump: Jump) => setState({ searching: false, jump }), [])
+  return { searching: state.searching, jump: state.jump, setSearching, openAt }
+}
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'canvas', label: 'Canvas' },
@@ -73,12 +85,13 @@ const UPLOAD_TYPES = Object.keys(EMPTY_UPLOADS) as UploadSourceType[]
 export default function App() {
   const [mode, setMode] = useState<Mode>('canvas')
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
-  // Notes and Files each split into their working view and a full-pane
-  // search; the jump targets carry a search hit's selection into the view.
-  const [notesSub, setNotesSub] = useState<NotesSub>('create')
-  const [filesSub, setFilesSub] = useState<FilesSub>('navigate')
-  const [notesJumpId, setNotesJumpId] = useState<string | null>(null)
-  const [filesJumpPath, setFilesJumpPath] = useState<string | null>(null)
+  // Notes and Files each split into their working view and a full-pane search.
+  const notesSearch = useSubSearch<string>()
+  const filesSearch = useSubSearch<string>()
+  // Destructured so effects can depend on the stable callbacks, not the
+  // per-render hook object.
+  const { setSearching: setNotesSearching } = notesSearch
+  const { setSearching: setFilesSearching } = filesSearch
   // The current project scopes every source, canvas, and compare below.
   // null projects = still loading the list; null project + loaded list =
   // nothing exists yet, so the user names their first project before work.
@@ -150,14 +163,12 @@ export default function App() {
     setSelectedItem(null)
     setGraph(null)
     setShowFindings(false)
-    setNotesSub('create')
-    setFilesSub('navigate')
-    setNotesJumpId(null)
-    setFilesJumpPath(null)
+    setNotesSearching(false)
+    setFilesSearching(false)
     if (!project) return
     refreshRtac()
     for (const type of UPLOAD_TYPES) refreshUploads(type)
-  }, [project, refreshRtac, refreshUploads])
+  }, [project, refreshRtac, refreshUploads, setNotesSearching, setFilesSearching])
 
   const handleCreateProject = useCallback(
     async (name: string) => {
@@ -337,11 +348,9 @@ export default function App() {
   // Entering a mode always lands on its working view, not a stale search.
   const changeMode = useCallback((next: Mode) => {
     setMode(next)
-    setNotesSub('create')
-    setFilesSub('navigate')
-    setNotesJumpId(null)
-    setFilesJumpPath(null)
-  }, [])
+    setNotesSearching(false)
+    setFilesSearching(false)
+  }, [setNotesSearching, setFilesSearching])
 
   // Selecting a source (sidebar click, or canvas node double-click via onInspect).
   const handleSelectSource = useCallback((source: DeviceSource) => {
@@ -379,7 +388,7 @@ export default function App() {
 
   const topbarInfo =
     mode === 'canvas' && graph
-      ? `${graph.links.length} connections · ${graph.summary.conflicts} conflict${graph.summary.conflicts === 1 ? '' : 's'}`
+      ? `${graph.links.length} connections · ${count(graph.summary.conflicts, 'conflict')}`
       : mode === 'inspect' && selectedSource
         ? `${selectedSource.type === 'rdb' ? selectedSource.ref.replace(REF_SEPARATOR, ' · ') : selectedSource.ref} · read-only`
         : ''
@@ -424,27 +433,21 @@ export default function App() {
         {mode === 'notes' && (
           <SegmentedControl
             options={[
-              { value: 'create' as NotesSub, label: 'Create' },
-              { value: 'search' as NotesSub, label: 'Search' },
+              { value: 'create', label: 'Create' },
+              { value: 'search', label: 'Search' },
             ]}
-            value={notesSub}
-            onChange={(sub) => {
-              if (sub === 'search') setNotesJumpId(null)
-              setNotesSub(sub)
-            }}
+            value={notesSearch.searching ? 'search' : 'create'}
+            onChange={(sub) => notesSearch.setSearching(sub === 'search')}
           />
         )}
         {mode === 'files' && (
           <SegmentedControl
             options={[
-              { value: 'navigate' as FilesSub, label: 'Navigate' },
-              { value: 'search' as FilesSub, label: 'Search' },
+              { value: 'navigate', label: 'Navigate' },
+              { value: 'search', label: 'Search' },
             ]}
-            value={filesSub}
-            onChange={(sub) => {
-              if (sub === 'search') setFilesJumpPath(null)
-              setFilesSub(sub)
-            }}
+            value={filesSearch.searching ? 'search' : 'navigate'}
+            onChange={(sub) => filesSearch.setSearching(sub === 'search')}
           />
         )}
         <span className="topbar-info">{topbarInfo}</span>
@@ -453,7 +456,7 @@ export default function App() {
             className={showFindings ? 'findings-chip on' : 'findings-chip'}
             onClick={() => setShowFindings((current) => !current)}
           >
-            ⚠ {graph.diagnostics.length} network finding{graph.diagnostics.length === 1 ? '' : 's'}
+            ⚠ {count(graph.diagnostics.length, 'network finding')}
           </button>
         )}
       </header>
@@ -492,7 +495,7 @@ export default function App() {
             {showFindings && graph && graph.diagnostics.length > 0 && (
               <div className="findings-panel">
                 <div className="findings-head">
-                  <span>Network review — {graph.diagnostics.length} finding{graph.diagnostics.length === 1 ? '' : 's'}</span>
+                  <span>Network review — {count(graph.diagnostics.length, 'finding')}</span>
                   <button className="x" onClick={() => setShowFindings(false)} title="Close">✕</button>
                 </div>
                 {graph.diagnostics.map((finding, i) => (
@@ -553,31 +556,17 @@ export default function App() {
         )}
 
         {mode === 'notes' &&
-          (notesSub === 'search' ? (
-            <NotesSearchView
-              key={project}
-              project={project}
-              onOpen={(id) => {
-                setNotesJumpId(id)
-                setNotesSub('create')
-              }}
-            />
+          (notesSearch.searching ? (
+            <NotesSearchView key={project} project={project} onOpen={notesSearch.openAt} />
           ) : (
-            <NotesView key={project} project={project} initialSelectedId={notesJumpId} />
+            <NotesView key={project} project={project} initialSelectedId={notesSearch.jump} />
           ))}
 
         {mode === 'files' &&
-          (filesSub === 'search' ? (
-            <FilesSearchView
-              key={project}
-              project={project}
-              onOpen={(path) => {
-                setFilesJumpPath(path)
-                setFilesSub('navigate')
-              }}
-            />
+          (filesSearch.searching ? (
+            <FilesSearchView key={project} project={project} onOpen={filesSearch.openAt} />
           ) : (
-            <FilesView key={project} project={project} initialSelected={filesJumpPath} />
+            <FilesView key={project} project={project} initialSelected={filesSearch.jump} />
           ))}
       </div>
     </>

@@ -17,6 +17,7 @@ import path from 'node:path';
 
 import { httpError, resolveWithin } from '../lib/http.js';
 import { uniqueName } from '../lib/names.js';
+import { treeOrder } from '../lib/tree.js';
 
 // Windows-invalid filename characters (also covers the path separators).
 const INVALID_NAME = /[<>:"/\\|?*\x00-\x1f]/g;
@@ -73,10 +74,7 @@ class FilesService {
           modifiedAt: info.mtime.toISOString(),
         };
       }));
-      return nodes.sort((a, b) => {
-        if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-        return a.name.localeCompare(b.name, undefined, { numeric: true });
-      });
+      return nodes.sort(treeOrder);
     };
     return walk(this.root, '');
   }
@@ -89,14 +87,15 @@ class FilesService {
       throw httpError(404, `no such folder: ${dirPath || '/'}`);
     }
     const added = [];
+    const existing = new Set(await readdir(dir));
     for (const file of files) {
       const name = cleanName(file.originalname);
       const extension = path.extname(name);
       const base = name.slice(0, name.length - extension.length);
-      const existing = new Set(await readdir(dir));
       const unique = uniqueName(base, (candidate) => existing.has(`${candidate}${extension}`));
       const finalName = `${unique}${extension}`;
       await writeFile(path.join(dir, finalName), file.buffer);
+      existing.add(finalName);
       added.push(dirPath ? `${dirPath}/${finalName}` : finalName);
     }
     return { added };

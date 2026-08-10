@@ -55,27 +55,28 @@ class SwService extends UploadService {
 
   tree(ref) {
     const { fileId, model } = this.profile(ref);
+    const sections = [
+      sectionNode({ name: 'Overview', path: 'overview', kindLabel: 'Switch identity', category: 'system' }),
+      sectionNode({
+        name: 'Network', path: 'network', kindLabel: 'Management interfaces', category: 'connection',
+        pointCount: model.interfaces.reduce((total, iface) => total + iface.addresses.length, 0),
+      }),
+      sectionNode({
+        name: 'Ports', path: 'ports', kindLabel: 'Physical ports', category: 'connection',
+        pointCount: model.ports.length,
+      }),
+      sectionNode({
+        name: 'VLANs', path: 'vlans', kindLabel: 'VLAN plan', category: 'connection',
+        pointCount: model.vlans.length,
+      }),
+    ];
     return {
       name: switchName(model, fileId),
       schema: null,
       deviceLabel: model.nameplate.type,
-      summary: { files: 4 },
+      summary: { files: sections.length },
       errors: [],
-      tree: [
-        sectionNode({ name: 'Overview', path: 'overview', kindLabel: 'Switch identity', category: 'system' }),
-        sectionNode({
-          name: 'Network', path: 'network', kindLabel: 'Management interfaces', category: 'connection',
-          pointCount: model.interfaces.reduce((total, iface) => total + iface.addresses.length, 0),
-        }),
-        sectionNode({
-          name: 'Ports', path: 'ports', kindLabel: 'Physical ports', category: 'connection',
-          pointCount: model.ports.length,
-        }),
-        sectionNode({
-          name: 'VLANs', path: 'vlans', kindLabel: 'VLAN plan', category: 'connection',
-          pointCount: model.vlans.length,
-        }),
-      ],
+      tree: sections,
     };
   }
 

@@ -369,3 +369,31 @@ export function DataTable({
     </div>
   )
 }
+
+/**
+ * The hover rename/delete icon on list rows (projects, sources, notes,
+ * files). A span, not a button - rows are already buttons; the click stops
+ * propagating so the row click survives underneath.
+ */
+export function RowAction({
+  kind,
+  title,
+  onClick,
+}: {
+  kind: 'rename' | 'delete'
+  title: string
+  onClick: () => void
+}) {
+  return (
+    <span
+      className={kind === 'rename' ? 'entry-delete entry-rename' : 'entry-delete'}
+      title={title}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
+    >
+      {kind === 'rename' ? '\u270E' : '\u2715'}
+    </span>
+  )
+}

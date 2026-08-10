@@ -10,7 +10,7 @@ import type {
   UploadedFile,
 } from '../types'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
-import { Button, InlineNameForm, Spinner } from './ui'
+import { Button, InlineNameForm, RowAction, Spinner } from './ui'
 
 // The left rail: four source tabs. Every source belongs to the CURRENT
 // purview project. RTAC exports arrive two ways — browse the machine's
@@ -222,28 +222,18 @@ export function SourcesSidebar({
                       {status === 'error' && <span className="error-mark">!</span>}
                       {ready && placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
                       {ready && (
-                        <span
-                          className="entry-delete entry-rename"
+                        <RowAction
+                          kind="rename"
                           title={`Rename ${name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setRenaming({ kind: 'rtac', name })
-                          }}
-                        >
-                          ✎
-                        </span>
+                          onClick={() => setRenaming({ kind: 'rtac', name })}
+                        />
                       )}
                       {status !== 'exporting' && (
-                        <span
-                          className="entry-delete"
+                        <RowAction
+                          kind="delete"
                           title="Remove this export from the project"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onDeleteRtac(name)
-                          }}
-                        >
-                          ✕
-                        </span>
+                          onClick={() => onDeleteRtac(name)}
+                        />
                       )}
                     </button>
                   </li>

@@ -70,6 +70,15 @@ const EDGE_TYPES = { floating: FloatingEdge }
 type PopupState = { link: GraphLink; x: number; y: number }
 type NodePopupState = { device: GraphDevice; x: number; y: number }
 
+// The three mutually exclusive canvas popups as one state — opening any one
+// structurally closes the others. A ghost popup's `links` carries a hub
+// WIRE's own source's declared links; null links = the hub node itself
+// (lists every referenced device).
+type ActivePopup =
+  | ({ kind: 'link' } & PopupState)
+  | ({ kind: 'node' } & NodePopupState)
+  | { kind: 'ghost'; x: number; y: number; links: GraphLink[] | null }
+
 // Popup geometry: .link-popup is 348px wide; keep it 8px inside the canvas.
 const POPUP_WIDTH = 348
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
@@ -432,11 +441,7 @@ function CanvasInner({
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<DeviceNode>([])
-  const [popup, setPopup] = useState<PopupState | null>(null)
-  const [nodePopup, setNodePopup] = useState<NodePopupState | null>(null)
-  // A hub WIRE's popup carries its own source's declared links; null links =
-  // the hub node itself (lists every referenced device).
-  const [ghostPopup, setGhostPopup] = useState<{ x: number; y: number; links: GraphLink[] | null } | null>(null)
+  const [activePopup, setActivePopup] = useState<ActivePopup | null>(null)
   const [pendingConnect, setPendingConnect] = useState<PendingConnect | null>(null)
   const { screenToFlowPosition } = useReactFlow()
   // Loads can overlap (StrictMode double-mount, drop + upload back to back);
@@ -487,9 +492,7 @@ function CanvasInner({
   }, [project, onGraph, setNodes])
 
   useEffect(() => {
-    setPopup(null)
-    setNodePopup(null)
-    setGhostPopup(null)
+    setActivePopup(null)
     load()
   }, [load, reloadKey])
 
@@ -588,22 +591,18 @@ function CanvasInner({
           const nodeRect = target.closest('.react-flow__node')?.getBoundingClientRect()
           if (!wrap || !nodeRect) return
           if (node.data.ghost) {
-            setPopup(null)
-            setNodePopup(null)
-            setGhostPopup({ ...besideNode(wrap, nodeRect), links: null })
+            setActivePopup({ kind: 'ghost', ...besideNode(wrap, nodeRect), links: null })
             return
           }
           const device = graph?.devices.find((d) => d.id === node.id)
           if (!device) return
-          setPopup(null)
-          setGhostPopup(null)
-          setNodePopup({ device, ...besideNode(wrap, nodeRect) })
+          setActivePopup({ kind: 'node', device, ...besideNode(wrap, nodeRect) })
         }}
         onNodeDoubleClick={(_e, node) => {
           if (node.data.ghost) return
           const device = graph?.devices.find((d) => d.id === node.id)
           if (device && !device.error) {
-            setNodePopup(null)
+            setActivePopup(null)
             onInspect(device.source)
           }
         }}
@@ -615,31 +614,23 @@ function CanvasInner({
             x: clamp(e.clientX - wrap.left - 170, 8, wrap.width - (POPUP_WIDTH + 8)),
             y: clamp(e.clientY - wrap.top - 30, 8, wrap.height - 300),
           }
-          setNodePopup(null)
           if (data?.hubLinks) {
             // The collapsed ghost wire lists its own source's declared links.
-            setPopup(null)
-            setGhostPopup({ ...at, links: data.hubLinks })
+            setActivePopup({ kind: 'ghost', ...at, links: data.hubLinks })
             return
           }
           if (!data?.link) return
-          setGhostPopup(null)
-          setPopup({ link: data.link, ...at })
+          setActivePopup({ kind: 'link', link: data.link, ...at })
         }}
         onConnect={({ source, target }) => {
           if (!source || !target || source === target) return
           const a = graph?.devices.find((d) => d.id === source)
           const b = graph?.devices.find((d) => d.id === target)
           if (!a || !b) return // ghosts (and unknown ids) take no drawn wires
-          setPopup(null)
-          setNodePopup(null)
+          setActivePopup(null)
           setPendingConnect({ a, b })
         }}
-        onPaneClick={() => {
-          setPopup(null)
-          setNodePopup(null)
-          setGhostPopup(null)
-        }}
+        onPaneClick={() => setActivePopup(null)}
         onNodesDelete={async (deleted) => {
           await Promise.all(
             deleted
@@ -654,12 +645,12 @@ function CanvasInner({
       >
         <Background gap={26} size={1.5} color="#dfe2e8" />
       </ReactFlow>
-      {popup && (
+      {activePopup?.kind === 'link' && (
         <LinkPopup
-          popup={popup}
-          onClose={() => setPopup(null)}
+          popup={activePopup}
+          onClose={() => setActivePopup(null)}
           onRemove={async (manualId) => {
-            setPopup(null)
+            setActivePopup(null)
             await removeManualLink(project, manualId).catch((err) => setError(errorMessage(err)))
             await load()
           }}
@@ -680,23 +671,23 @@ function CanvasInner({
           }}
         />
       )}
-      {nodePopup && (
+      {activePopup?.kind === 'node' && (
         <NodePopup
-          popup={nodePopup}
-          onClose={() => setNodePopup(null)}
+          popup={activePopup}
+          onClose={() => setActivePopup(null)}
           onDetachScd={async (deviceId) => {
-            setNodePopup(null)
+            setActivePopup(null)
             await detachScd(project, deviceId).catch((err) => setError(errorMessage(err)))
             await load()
           }}
         />
       )}
-      {ghostPopup && graph && (
+      {activePopup?.kind === 'ghost' && graph && (
         <GhostHubPopup
           ghosts={graph.ghosts}
-          links={ghostPopup.links}
-          pos={ghostPopup}
-          onClose={() => setGhostPopup(null)}
+          links={activePopup.links}
+          pos={activePopup}
+          onClose={() => setActivePopup(null)}
         />
       )}
     </div>

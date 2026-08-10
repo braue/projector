@@ -13,20 +13,15 @@
 
 import { compareSignatures, diffItems, STATUS } from '../lib/compare.js';
 import { httpError } from '../lib/http.js';
+import { itemSummary } from '../lib/inspect.js';
 import { foldTree } from '../lib/tree.js';
 
 function node(entry, status) {
-  const { item } = entry;
   return {
     type: 'item',
     name: entry.name,
     path: entry.path,
-    kind: item.kind,
-    kindLabel: item.kindLabel,
-    category: item.category,
-    protocol: item.protocol ?? null,
-    connectionType: item.connectionType ?? null,
-    pointCount: item.pointCount,
+    ...itemSummary(entry.item),
     status,
   };
 }

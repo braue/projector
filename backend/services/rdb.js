@@ -9,6 +9,7 @@ import path from 'node:path';
 
 import { createImages } from '../lib/drawings/createImages.js';
 import { httpError } from '../lib/http.js';
+import { sectionItem, sectionNode } from '../lib/inspect.js';
 import { parseRdb, relayType } from '../lib/parsers/rdb/index.js';
 import { REF_SEPARATOR, splitRef as splitSourceRef } from '../lib/refs.js';
 import { UploadService } from '../lib/uploadService.js';
@@ -140,11 +141,9 @@ class RdbService extends UploadService {
 
     // Generated panel drawings lead the tree in their own section; the
     // settings sections follow.
-    const drawingNodes = views.map((view) => ({
-      type: 'item',
+    const drawingNodes = views.map((view) => sectionNode({
       name: DRAWING_LABEL[view] ?? view,
       path: `${DRAWING_PREFIX}${view}`,
-      kind: 'Drawing',
       kindLabel: 'Panel drawing',
       category: 'hardware',
     }));
@@ -159,11 +158,9 @@ class RdbService extends UploadService {
         ...(drawingNodes.length
           ? [{ type: 'folder', name: 'Drawings', path: 'drawings', children: drawingNodes }]
           : []),
-        ...profile.sections.map((section) => ({
-          type: 'item',
+        ...profile.sections.map((section) => sectionNode({
           name: section.desc,
           path: section.key,
-          kind: 'Section',
           kindLabel: section.key === section.desc ? 'Settings section' : section.key,
           category: 'system',
           pointCount: Object.keys(section.settings).length,
@@ -179,40 +176,31 @@ class RdbService extends UploadService {
       const view = sectionKey.slice(DRAWING_PREFIX.length);
       // Validates the view exists (404s otherwise); the URL serves the PNG.
       this.drawingPath(ref, view);
-      return {
+      return sectionItem('Drawing', {
         id: sectionKey,
         file: `${view}.png`,
-        kind: 'Drawing',
         category: 'hardware',
         kindLabel: 'Panel drawing',
         name: DRAWING_LABEL[view] ?? view,
-        settings: {},
-        points: [],
-        pointCount: 0,
-        pages: [],
         image: {
           url: `${this.apiBase}/rdb/drawing?ref=${encodeURIComponent(ref)}&view=${encodeURIComponent(view)}`,
           view,
         },
-      };
+      });
     }
 
     const section = profile.sections.find((candidate) => candidate.key === sectionKey);
     if (!section) {
       throw httpError(404, `no such section in ${ref}: ${sectionKey}`);
     }
-    return {
+    return sectionItem('Section', {
       id: section.key,
       file: section.file,
-      kind: 'Section',
       category: 'system',
       kindLabel: section.key,
       name: section.desc,
       settings: section.settings,
-      points: [],
-      pointCount: 0,
-      pages: [],
-    };
+    });
   }
 }
 
