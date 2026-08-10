@@ -10,7 +10,7 @@ import type {
   UploadedFile,
 } from '../types'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
-import { Button, Spinner } from './ui'
+import { Button, InlineNameForm, Spinner } from './ui'
 
 // The left rail: four source tabs. Every source belongs to the CURRENT
 // purview project. RTAC exports arrive two ways — browse the machine's
@@ -87,6 +87,8 @@ export function SourcesSidebar({
   uploads,
   onUpload,
   onDeleteUpload,
+  onRenameRtac,
+  onRenameUpload,
   rtacBusy,
   onUploadRtacFolder,
   onDeleteRtac,
@@ -104,6 +106,9 @@ export function SourcesSidebar({
   uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
   onUpload: (type: UploadSourceType, file: File) => void
   onDeleteUpload: (type: UploadSourceType, id: string) => void
+  /** Identity renames — reject to surface an inline error in the form. */
+  onRenameRtac: (name: string, nextName: string) => Promise<void>
+  onRenameUpload: (type: UploadSourceType, id: string, name: string) => Promise<void>
   /** An XML-folder upload is in flight. */
   rtacBusy: boolean
   onUploadRtacFolder: (files: File[]) => void
@@ -121,6 +126,12 @@ export function SourcesSidebar({
   const fileInput = useRef<HTMLInputElement>(null)
   const folderInput = useRef<HTMLInputElement | null>(null)
   const { width, startResize } = useSidebarWidth()
+
+  // One rename form at a time, keyed by what it renames; the form owns the
+  // input value and any commit error.
+  const [renaming, setRenaming] = useState<
+    { kind: 'rtac'; name: string } | { kind: 'upload'; type: UploadSourceType; id: string } | null
+  >(null)
 
   const isSelected = (source: DeviceSource) =>
     selected?.type === source.type && selected?.ref === source.ref
@@ -175,6 +186,21 @@ export function SourcesSidebar({
                 const source: DeviceSource = { type: 'rtac', ref: name }
                 const classes = ['project-entry', `status-${status}`]
                 if (isSelected(source)) classes.push('selected')
+                if (renaming?.kind === 'rtac' && renaming.name === name) {
+                  return (
+                    <li key={name}>
+                      <InlineNameForm
+                        initial={name}
+                        placeholder="New name — Enter to rename"
+                        onCommit={async (value) => {
+                          await onRenameRtac(name, value)
+                          setRenaming(null)
+                        }}
+                        onCancel={() => setRenaming(null)}
+                      />
+                    </li>
+                  )
+                }
                 return (
                   <li key={name}>
                     <button
@@ -195,6 +221,18 @@ export function SourcesSidebar({
                       {status === 'exporting' && <Spinner />}
                       {status === 'error' && <span className="error-mark">!</span>}
                       {ready && placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
+                      {ready && (
+                        <span
+                          className="entry-delete entry-rename"
+                          title={`Rename ${name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setRenaming({ kind: 'rtac', name })
+                          }}
+                        >
+                          ✎
+                        </span>
+                      )}
                       {status !== 'exporting' && (
                         <span
                           className="entry-delete"
@@ -256,16 +294,35 @@ export function SourcesSidebar({
           )}
           {uploads[uploadTab].files.map((file) => (
             <div key={file.id} className="rdb-file">
-              <div className="rdb-file-name">
-                <span className="mono">{file.fileName}</span>
-                <button
-                  className="rdb-delete"
-                  title="Remove this file and its devices"
-                  onClick={() => onDeleteUpload(uploadTab, file.id)}
-                >
-                  ✕
-                </button>
-              </div>
+              {renaming?.kind === 'upload' && renaming.type === uploadTab && renaming.id === file.id ? (
+                <InlineNameForm
+                  initial={file.fileName}
+                  placeholder="New name — Enter to rename"
+                  onCommit={async (value) => {
+                    await onRenameUpload(uploadTab, file.id, value)
+                    setRenaming(null)
+                  }}
+                  onCancel={() => setRenaming(null)}
+                />
+              ) : (
+                <div className="rdb-file-name">
+                  <span className="mono">{file.fileName}</span>
+                  <button
+                    className="rdb-delete"
+                    title="Rename this file"
+                    onClick={() => setRenaming({ kind: 'upload', type: uploadTab, id: file.id })}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    className="rdb-delete"
+                    title="Remove this file and its devices"
+                    onClick={() => onDeleteUpload(uploadTab, file.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               {file.profiles.map((profile) => {
                 const source: DeviceSource = { type: uploadTab, ref: profile.ref }
                 const classes = ['project-entry', 'status-ready', 'profile-row']

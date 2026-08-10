@@ -46,11 +46,10 @@ function extractTagList(container) {
 
 // POU content comes in two shapes: plain ST as <Content><Interface>/
 // <Implementation> CDATA, or graphical CFC/LD as an <ArchivedContent> blob
-// (CoDeSys serialized XML). The blob is not human-readable source, so it is
-// flagged rather than dumped.
+// (CoDeSys serialized XML) — the blob's presence flag and fingerprint are
+// captured generically in parseModule.js.
 function extractPou(container) {
   const content = findFirst(container, 'Content');
-  const archived = findFirst(container, 'ArchivedContent');
   return {
     pouKind: text(findFirst(container, 'POUKind')) || null, // Program | FunctionBlock | ...
     code: content
@@ -59,7 +58,6 @@ function extractPou(container) {
           implementation: cdata(content.Implementation) || null,
         }
       : null,
-    hasArchivedContent: archived !== undefined, // graphical (CFC/LD) body
   };
 }
 

@@ -3,6 +3,8 @@ import type {
   CompareItem,
   CompareTree,
   DeviceSource,
+  Note,
+  NoteItem,
   ProjectItem,
   ProjectList,
   ProjectTree,
@@ -79,6 +81,18 @@ export async function startExport(project: string, name: string): Promise<void> 
   await send(`${base(project)}/rtac/${encodeURIComponent(name)}/export`, 'POST')
 }
 
+/** The export names a folder upload will create — the backend groups by the
+ * top path segment of each .xml (services/rtac.js uploadFolder; keep the two
+ * in step). Feeds the overwrite confirmation before uploadRtacFolder. */
+export function rtacExportNames(files: File[]): string[] {
+  return [...new Set(files
+    .map((file) => (file.webkitRelativePath || file.name)
+      .split(/[\\/]/)
+      .filter((segment) => segment && segment !== '.' && segment !== '..'))
+    .filter((segments) => segments.length >= 2 && /\.xml$/i.test(segments[segments.length - 1]))
+    .map((segments) => segments[0]))]
+}
+
 /** Upload an exported RTAC XML folder. Multer basenames filenames, so the
  * folder-relative paths ride in a parallel field, index-aligned. */
 export function uploadRtacFolder(
@@ -98,6 +112,15 @@ export function uploadRtacFolder(
 
 export function deleteRtacExport(project: string, name: string): Promise<unknown> {
   return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'DELETE')
+}
+
+/** Rename an export. The name is the ref — the backend rewrites canvas refs. */
+export function renameRtacExport(
+  project: string,
+  name: string,
+  nextName: string,
+): Promise<{ name: string }> {
+  return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'PATCH', { name: nextName })
 }
 
 export function aggregateSettings(
@@ -152,6 +175,39 @@ export function uploadSourceFile(
 
 export function deleteUpload(project: string, type: UploadSourceType, id: string): Promise<unknown> {
   return send(`${base(project)}/${type}/${encodeURIComponent(id)}`, 'DELETE')
+}
+
+/** Rename an upload: display name and id together; canvas refs follow. */
+export function renameUpload(
+  project: string,
+  type: UploadSourceType,
+  id: string,
+  name: string,
+): Promise<UploadedFile & { previousId: string }> {
+  return send(`${base(project)}/${type}/${encodeURIComponent(id)}`, 'PATCH', { name })
+}
+
+// --- notes --------------------------------------------------------------------
+
+export async function listNotes(project: string): Promise<Note[]> {
+  const body = await get<{ notes: Note[] }>(`${base(project)}/notes`)
+  return body.notes
+}
+
+export function createNote(project: string, name: string): Promise<Note> {
+  return send(`${base(project)}/notes`, 'POST', { name })
+}
+
+export function renameNote(project: string, id: string, name: string): Promise<Note> {
+  return send(`${base(project)}/notes/${encodeURIComponent(id)}`, 'PATCH', { name })
+}
+
+export function saveNoteItems(project: string, id: string, items: NoteItem[]): Promise<Note> {
+  return send(`${base(project)}/notes/${encodeURIComponent(id)}/items`, 'PUT', { items })
+}
+
+export function deleteNote(project: string, id: string): Promise<unknown> {
+  return send(`${base(project)}/notes/${encodeURIComponent(id)}`, 'DELETE')
 }
 
 // Inspect works for any source type — same shapes, per-type endpoints. RTAC

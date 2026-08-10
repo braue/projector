@@ -11,6 +11,9 @@ import {
   listRtacProjects,
   listUploads,
   renameProject,
+  renameRtacExport,
+  renameUpload,
+  rtacExportNames,
   startExport,
   uploadRtacFolder,
   uploadSourceFile,
@@ -18,13 +21,15 @@ import {
 import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
 import { CompareView } from './components/CompareView'
+import { NotesView } from './components/NotesView'
 import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
 import { SourcesSidebar } from './components/SourcesSidebar'
 import { Button, SegmentedControl, TextInput } from './components/ui'
+import { confirmOverwrite } from './lib/confirm'
 import { errorMessage } from './lib/errors'
-import { sourceKey } from './lib/sources'
+import { replaceRefFile, sourceKey } from './lib/sources'
 import { useFetch } from './lib/useFetch'
 import { REF_SEPARATOR } from './types'
 import type {
@@ -38,13 +43,14 @@ import type {
 const POLL_MS = 1200
 const PROJECT_KEY = 'purview-project'
 
-type Mode = 'canvas' | 'inspect' | 'compare'
+type Mode = 'canvas' | 'inspect' | 'compare' | 'notes'
 type InspectSub = 'browse' | 'aggregate'
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'canvas', label: 'Canvas' },
   { value: 'inspect', label: 'Inspect' },
   { value: 'compare', label: 'Compare' },
+  { value: 'notes', label: 'Notes' },
 ]
 
 const EMPTY_UPLOADS: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }> = {
@@ -199,6 +205,9 @@ export default function App() {
   const handleUploadRtacFolder = useCallback(
     async (files: File[]) => {
       if (!project) return
+      const overwriting = rtacExportNames(files)
+        .filter((name) => rtacProjects.some((entry) => entry.name === name))
+      if (!confirmOverwrite(overwriting, 'this upload')) return
       setRtacBusy(true)
       setListError(null)
       try {
@@ -211,7 +220,7 @@ export default function App() {
         setRtacBusy(false)
       }
     },
-    [project, refreshRtac],
+    [project, rtacProjects, refreshRtac],
   )
 
   const handleDeleteRtac = useCallback(
@@ -235,6 +244,37 @@ export default function App() {
     await refreshRtac()
     setGraphVersion((v) => v + 1)
   }, [refreshRtac])
+
+  // Renames are identity changes — the backend rewrites canvas refs, and the
+  // local selection follows the new ref. Failures throw so the sidebar's
+  // inline form can show them.
+  const handleRenameRtac = useCallback(
+    async (name: string, nextName: string) => {
+      if (!project) return
+      const renamed = await renameRtacExport(project, name, nextName)
+      setSelectedSource((current) =>
+        current?.type === 'rtac' && current.ref === name ? { type: 'rtac', ref: renamed.name } : current,
+      )
+      await refreshRtac()
+      setGraphVersion((v) => v + 1)
+    },
+    [project, refreshRtac],
+  )
+
+  const handleRenameUpload = useCallback(
+    async (type: UploadSourceType, id: string, name: string) => {
+      if (!project) return
+      const renamed = await renameUpload(project, type, id, name)
+      setSelectedSource((current) => {
+        if (current?.type !== type) return current
+        const ref = replaceRefFile(current.ref, id, renamed.id)
+        return ref === current.ref ? current : { type, ref }
+      })
+      await refreshUploads(type)
+      setGraphVersion((v) => v + 1)
+    },
+    [project, refreshUploads],
+  )
 
   const setUploadError = useCallback((type: UploadSourceType, error: string | null) => {
     setUploads((current) => ({ ...current, [type]: { ...current[type], error } }))
@@ -363,7 +403,7 @@ export default function App() {
       </header>
 
       <div className="app">
-        {mode !== 'compare' && (
+        {mode !== 'compare' && mode !== 'notes' && (
           <SourcesSidebar
             project={project}
             projects={rtacProjects}
@@ -372,6 +412,8 @@ export default function App() {
             uploads={uploads}
             onUpload={handleUpload}
             onDeleteUpload={handleDeleteUpload}
+            onRenameRtac={handleRenameRtac}
+            onRenameUpload={handleRenameUpload}
             rtacBusy={rtacBusy}
             onUploadRtacFolder={handleUploadRtacFolder}
             onDeleteRtac={handleDeleteRtac}
@@ -443,6 +485,8 @@ export default function App() {
         {mode === 'compare' && (
           <CompareView key={project} project={project} projects={rtacProjects} uploads={uploads} />
         )}
+
+        {mode === 'notes' && <NotesView key={project} project={project} />}
       </div>
     </>
   )

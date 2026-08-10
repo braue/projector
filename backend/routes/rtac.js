@@ -66,6 +66,12 @@ function rtacRoutes(resolve, catalog) {
     res.json({ ok: true });
   });
 
+  // Rename an export in this project. The name is the canvas ref; the
+  // service's onRenamed hook (wired by the project bundle) drags refs along.
+  router.patch('/:name', async (req, res) => {
+    res.json(await (await resolve(req)).rename(req.params.name, req.body?.name));
+  });
+
   // File-tree sidebar for an exported RTAC project.
   router.get('/:name/tree', async (req, res) => {
     res.json(await (await resolve(req)).tree(req.params.name));

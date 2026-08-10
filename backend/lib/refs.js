@@ -13,4 +13,12 @@ function splitRef(ref, label) {
   return { fileId: ref.slice(0, at), profileName: ref.slice(at + REF_SEPARATOR.length) };
 }
 
-export { REF_SEPARATOR, splitRef };
+// Swap the file-id half of a ref, preserving the profile — how stored refs
+// follow an upload rename. Refs under other ids come back unchanged.
+// (Mirrored in frontend/src/lib/sources.ts.)
+function replaceRefFile(ref, fromId, toId) {
+  const prefix = `${fromId}${REF_SEPARATOR}`;
+  return ref.startsWith(prefix) ? `${toId}${REF_SEPARATOR}${ref.slice(prefix.length)}` : ref;
+}
+
+export { REF_SEPARATOR, replaceRefFile, splitRef };

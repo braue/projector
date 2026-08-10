@@ -97,6 +97,19 @@ class CanvasService {
     });
   }
 
+  // Rewrite source refs after an identity rename (an RTAC export or an
+  // upload id changed). `mapRef` maps each ref of `type` to its replacement
+  // (returning the input for refs it doesn't touch); SCD attachments ride
+  // device.scdRef and are rewritten alongside scd sources.
+  async renameRefs(type, mapRef) {
+    const canvas = await this.#load();
+    for (const device of canvas.devices) {
+      if (device.source.type === type) device.source.ref = mapRef(device.source.ref);
+      if (type === 'scd' && device.scdRef) device.scdRef = mapRef(device.scdRef);
+    }
+    await this.#save(canvas);
+  }
+
   async removeDevice(deviceId) {
     const canvas = await this.#load();
     canvas.devices = canvas.devices.filter((device) => device.id !== deviceId);

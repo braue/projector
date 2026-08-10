@@ -13,7 +13,7 @@ const BRIDGE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..
 const PYTHON = 'python';
 
 // exportxml of a large project can take a while on a busy database.
-const BRIDGE_TIMEOUT_MS = 5 * 60 * 1000;
+const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
 
 function runBridge(args) {
   return new Promise((resolve, reject) => {

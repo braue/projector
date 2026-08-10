@@ -1,4 +1,4 @@
-import type { CompareItem, FileStatus } from '../types'
+import type { CompareItem, FileStatus, PointFieldDiff } from '../types'
 import { lineDiff } from '../lib/lineDiff'
 import { Preview } from './Preview'
 import { Chip, DataTable, SectionHeader, Tag, type TableRow } from './ui'
@@ -40,18 +40,32 @@ function SettingsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   )
 }
 
-function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
-  const { added, removed, changed } = diff.points
+// The one shape both row-level diffs share (point maps, generic page tables):
+// added/removed identities as chips, changed rows flattened to one table row
+// per field.
+function RowDiffSection({
+  title,
+  idLabel,
+  added,
+  removed,
+  changed,
+}: {
+  title: string
+  /** Header of the identity column: "Tag" for points, "Row" for pages. */
+  idLabel: string
+  added: string[]
+  removed: string[]
+  changed: { page: string; id: string; fields: PointFieldDiff[] }[]
+}) {
   if (!added.length && !removed.length && !changed.length) return null
 
-  // One row per changed field; page/tag repeat so the table stays flat.
-  const changedRows: TableRow[] = changed.flatMap((point, i) =>
-    point.fields.map((field, j) => ({
+  const changedRows: TableRow[] = changed.flatMap((entry, i) =>
+    entry.fields.map((field, j) => ({
       id: `${i}:${j}`,
       tone: 'edited' as const,
       cells: {
-        page: point.page,
-        tag: point.tag ?? '',
+        page: entry.page,
+        id: entry.id,
         column: field.column,
         original: field.original ?? '—',
         updated: field.updated ?? '—',
@@ -63,20 +77,16 @@ function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   return (
     <section>
       <SectionHeader
-        title="Point Changes"
+        title={title}
         count={`+${added.length} −${removed.length} ~${changed.length}`}
       />
       {(added.length > 0 || removed.length > 0) && (
         <div className="point-lists">
-          {added.map((point, i) => (
-            <Chip key={`a${i}`} tone="added">
-              + {point.page} · {point.tag}
-            </Chip>
+          {added.map((label, i) => (
+            <Chip key={`a${i}`} tone="added">+ {label}</Chip>
           ))}
-          {removed.map((point, i) => (
-            <Chip key={`r${i}`} tone="removed">
-              − {point.page} · {point.tag}
-            </Chip>
+          {removed.map((label, i) => (
+            <Chip key={`r${i}`} tone="removed">− {label}</Chip>
           ))}
         </div>
       )}
@@ -84,7 +94,7 @@ function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
         <DataTable
           columns={[
             { key: 'page', label: 'Page' },
-            { key: 'tag', label: 'Tag' },
+            { key: 'id', label: idLabel },
             { key: 'column', label: 'Column' },
             { key: 'original', label: 'Original' },
             { key: 'updated', label: 'New' },
@@ -93,6 +103,54 @@ function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
           maxHeight="45vh"
         />
       )}
+    </section>
+  )
+}
+
+function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
+  const { added, removed, changed } = diff.points
+  return (
+    <RowDiffSection
+      title="Point Changes"
+      idLabel="Tag"
+      added={added.map((point) => `${point.page} · ${point.tag ?? ''}`)}
+      removed={removed.map((point) => `${point.page} · ${point.tag ?? ''}`)}
+      changed={changed.map((point) => ({ page: point.page, id: point.tag ?? '', fields: point.fields }))}
+    />
+  )
+}
+
+function PagesDiffSection({ diff }: { diff: CompareItem['diff'] }) {
+  // 'changed' pages carry row detail; added/removed/reordered pages read as
+  // one line in Extras.
+  const pages = diff.pages.filter((page) => page.status === 'changed')
+  return (
+    <RowDiffSection
+      title="Table Changes"
+      idLabel="Row"
+      added={pages.flatMap((page) => (page.added ?? []).map((row) => `${page.name} · ${row}`))}
+      removed={pages.flatMap((page) => (page.removed ?? []).map((row) => `${page.name} · ${row}`))}
+      changed={pages.flatMap((page) =>
+        (page.changed ?? []).map((row) => ({ page: page.name, id: row.row, fields: row.fields })))}
+    />
+  )
+}
+
+const GRAPHICAL_LOGIC_COPY: Record<string, string> = {
+  added: 'A graphical logic body (CFC/LD) was added.',
+  removed: 'The graphical logic body (CFC/LD) was removed.',
+  changed: 'The graphical logic body (CFC/LD) changed.',
+}
+
+function GraphicalLogicSection({ diff }: { diff: CompareItem['diff'] }) {
+  if (!diff.graphicalLogic) return null
+  return (
+    <section>
+      <SectionHeader title="Graphical Logic" />
+      <p className="section-note">
+        {GRAPHICAL_LOGIC_COPY[diff.graphicalLogic]} The body is an archived blob this tool
+        cannot decode — open the project in AcSELerator RTAC to see what changed.
+      </p>
     </section>
   )
 }
@@ -118,14 +176,16 @@ function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
 }
 
 function ExtrasSection({ diff }: { diff: CompareItem['diff'] }) {
-  if (!diff.pages.length && !diff.otherFields.length) return null
+  const coarsePages = diff.pages.filter((page) => page.status !== 'changed')
+  if (!coarsePages.length && !diff.otherFields.length) return null
   return (
     <section>
       <SectionHeader title="Other Changes" />
       <ul className="file-list">
-        {diff.pages.map((page) => (
+        {coarsePages.map((page) => (
           <li key={page.name}>
-            Page <span className="mono">{page.name}</span> {page.status} ({page.rows} rows)
+            Page <span className="mono">{page.name}</span>{' '}
+            {page.status === 'reordered' ? 'rows reordered' : page.status} ({page.rows} rows)
           </li>
         ))}
         {diff.otherFields.map((field) => (
@@ -166,6 +226,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
     !diff.points.changed.length &&
     !diff.pages.length &&
     !diff.code &&
+    !diff.graphicalLogic &&
     !diff.otherFields.length
 
   return (
@@ -192,7 +253,9 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
             <>
               <SettingsDiffSection diff={diff} />
               <PointsDiffSection diff={diff} />
+              <PagesDiffSection diff={diff} />
               <CodeDiffSection diff={diff} />
+              <GraphicalLogicSection diff={diff} />
               <ExtrasSection diff={diff} />
             </>
           )}

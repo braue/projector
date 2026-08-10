@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { errorMessage } from '../lib/errors'
-import { TextInput } from './ui'
+import { InlineNameForm } from './ui'
 
 // Topbar dropdown for projects: pick one, rename or delete from the hover
 // actions on each row, or create a new one from the "+" row at the bottom,
@@ -23,20 +22,16 @@ export function ProjectSwitcher({
   onDelete: (name: string) => void
 }) {
   const [open, setOpen] = useState(false)
+  // The InlineNameForm owns the value and any commit error; these just mark
+  // which form is showing.
   const [naming, setNaming] = useState(false)
-  const [name, setName] = useState('')
   const [renaming, setRenaming] = useState<string | null>(null)
-  const [renameValue, setRenameValue] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const wrap = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) {
       setNaming(false)
-      setName('')
       setRenaming(null)
-      setRenameValue('')
-      setError(null)
       return
     }
     const close = (e: MouseEvent) => {
@@ -45,30 +40,6 @@ export function ProjectSwitcher({
     document.addEventListener('mousedown', close)
     return () => document.removeEventListener('mousedown', close)
   }, [open])
-
-  const create = async () => {
-    const trimmed = name.trim()
-    if (!trimmed) return
-    setError(null)
-    try {
-      await onCreate(trimmed)
-      setOpen(false)
-    } catch (err) {
-      setError(errorMessage(err))
-    }
-  }
-
-  const commitRename = async () => {
-    const trimmed = renameValue.trim()
-    if (!trimmed || !renaming) return
-    setError(null)
-    try {
-      await onRename(renaming, trimmed)
-      setOpen(false)
-    } catch (err) {
-      setError(errorMessage(err))
-    }
-  }
 
   return (
     <div className="ws-switch" ref={wrap}>
@@ -80,19 +51,16 @@ export function ProjectSwitcher({
         <div className="ws-menu">
           {projects.map((ws) =>
             renaming === ws ? (
-              <div className="ws-new-form" key={ws}>
-                <TextInput
-                  autoFocus
-                  value={renameValue}
-                  placeholder="New name — Enter to rename"
-                  onChange={(e) => setRenameValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitRename()
-                    if (e.key === 'Escape') setRenaming(null)
-                  }}
-                />
-                {error && <div className="ws-error">{error}</div>}
-              </div>
+              <InlineNameForm
+                key={ws}
+                initial={ws}
+                placeholder="New name — Enter to rename"
+                onCommit={async (value) => {
+                  await onRename(ws, value)
+                  setOpen(false)
+                }}
+                onCancel={() => setRenaming(null)}
+              />
             ) : (
               <button
                 key={ws}
@@ -109,9 +77,7 @@ export function ProjectSwitcher({
                   title={`Rename project ${ws}`}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setError(null)
                     setRenaming(ws)
-                    setRenameValue(ws)
                   }}
                 >
                   ✎
@@ -132,19 +98,14 @@ export function ProjectSwitcher({
           )}
           <div className="ws-divider" />
           {naming ? (
-            <div className="ws-new-form">
-              <TextInput
-                autoFocus
-                value={name}
-                placeholder="Project name — Enter to create"
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') create()
-                  if (e.key === 'Escape') setOpen(false)
-                }}
-              />
-              {error && <div className="ws-error">{error}</div>}
-            </div>
+            <InlineNameForm
+              placeholder="Project name — Enter to create"
+              onCommit={async (value) => {
+                await onCreate(value)
+                setOpen(false)
+              }}
+              onCancel={() => setOpen(false)}
+            />
           ) : (
             <button className="ws-item ws-new" onClick={() => setNaming(true)}>
               <span className="ws-plus">+</span> New project

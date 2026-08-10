@@ -16,15 +16,28 @@
 // the standard comparable() adapter.
 
 import { createHash } from 'node:crypto';
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { modelSignature } from '../lib/compare.js';
 import { httpError, resolveChild } from '../lib/http.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
 import { moduleBaseName } from '../lib/parsers/rtac/project.js';
 import { foldTree } from '../lib/tree.js';
 
 const EXPORTABLE = /\.xml$/i;
+
+// True when the parser captured no content-ful fields from an item — its
+// canonical signature would be constant however the file changes. Items with
+// kind-specific structure (EtherCAT nodes, navigator layout) may also match;
+// the raw fallback only ADDS sensitivity on top of the modeled signature.
+function modelBlind(item) {
+  return !Object.keys(item.settings).length
+    && !item.points.length
+    && !item.pages.length
+    && item.code == null
+    && item.archivedContentHash == null;
+}
 
 class RtacService {
   constructor({ catalog, dataDir }) {
@@ -33,9 +46,14 @@ class RtacService {
     // name -> { status: 'exporting'|'ready'|'error', error? } — only names
     // this project has touched; everything else in the catalog is 'available'.
     this.state = new Map();
-    // name -> { model, byFile: Map<file, item>, hashes: Map<file, sha1> }
+    // name -> { model, byFile: Map<file, item>, rawHashes: Map<file, sha1>,
+    // signatures?: Map<file, sha1> — filled lazily by comparable() }
     this.parseCache = new Map();
   }
+
+  // Pre-warms run one at a time — parses are CPU-bound, and a project full of
+  // exports must not stampede startup.
+  #warmChain = Promise.resolve();
 
   // Local state only — the (possibly slow) database list is the catalog's
   // concern, so opening a project never blocks on the database.
@@ -48,6 +66,15 @@ class RtacService {
     for (const entry of onDisk) {
       if (entry.isDirectory()) this.state.set(entry.name, { status: 'ready' });
     }
+    for (const name of this.state.keys()) this.#warm(name);
+  }
+
+  // Pre-warm the parse cache in the background so the first Inspect click (or
+  // canvas graph read) doesn't pay the full parse. Failures stay silent here —
+  // the same error surfaces on the first real read, where it has a requester
+  // to report to.
+  #warm(name) {
+    this.#warmChain = this.#warmChain.then(() => this.#parsed(name)).catch(() => {});
   }
 
   // Only what this project holds (or is fetching right now) — the sidebar
@@ -103,6 +130,7 @@ class RtacService {
         await rm(directory, { recursive: true, force: true });
         await this.catalog.client.exportXml({ name, directory });
         this.state.set(name, { status: 'ready' });
+        this.#warm(name);
       } catch (err) {
         this.state.set(name, { status: 'error', error: err?.message ?? String(err) });
       }
@@ -142,9 +170,51 @@ class RtacService {
       }
       this.state.set(name, { status: 'ready' });
       this.parseCache.delete(name);
+      this.#warm(name);
       added.push({ name, files: entries.length });
     }
     return { added };
+  }
+
+  // Rename an export within this project (folder move + caches). The caller
+  // rewrites canvas refs — the ref IS the name. A renamed export keeps no tie
+  // to its database identity: re-exporting from the database lands under the
+  // original catalog name as a separate entry.
+  async rename(name, nextName) {
+    const trimmed = nextName?.trim();
+    if (!trimmed) throw httpError(400, 'name required');
+    const state = this.state.get(name);
+    if (!state) throw httpError(404, `not in this project: ${name}`);
+    if (state.status === 'exporting') {
+      throw httpError(409, 'wait for the export to finish before renaming');
+    }
+    if (trimmed === name) return { name: trimmed };
+    if (this.state.has(trimmed)) throw httpError(409, `already in this project: ${trimmed}`);
+    const to = this.#dir(trimmed);
+    try {
+      await rename(this.#dir(name), to);
+    } catch (err) {
+      // EPERM/EBUSY (a read mid-walk, an AV scan): fail cleanly, and never
+      // leak raw filesystem paths in the response.
+      throw httpError(409, `could not rename ${name} — the export is busy, retry in a moment`);
+    }
+    this.state.delete(name);
+    this.state.set(trimmed, state);
+    // Never carry the cached parse across: it may be an IN-FLIGHT promise
+    // that the folder move just doomed, and its eviction handler is keyed to
+    // the old name. Re-parse under the new name instead.
+    this.parseCache.delete(name);
+    this.#warm(trimmed);
+    // The name is the canvas ref — the project bundle wires this hook to
+    // rewrite placements. The rename is already committed above, so a failed
+    // rewrite must not report failure; a canvas too broken to rewrite will
+    // surface on its next read.
+    try {
+      await this.onRenamed?.(name, trimmed);
+    } catch (err) {
+      console.warn(`canvas refs not rewritten for rename ${name} -> ${trimmed}: ${err?.message ?? err}`);
+    }
+    return { name: trimmed };
   }
 
   // Take an export out of this project (the database copy, if any, is
@@ -158,16 +228,27 @@ class RtacService {
     this.parseCache.delete(name);
   }
 
-  // Parse the exported folder into { model, byFile, hashes } (cached until the
-  // next export). Reads every .xml under the export root, keyed by
-  // forward-slash relative path — the identity the parser, the diff, and the
-  // UI all share. The hash is of the raw bytes: it decides edited/unchanged in
-  // a compare, so it must see changes the parser doesn't model (e.g. CFC
-  // blobs).
+  // Parse the exported folder into { model, byFile } (cached until the next
+  // export). Reads every .xml under the export root, keyed by forward-slash
+  // relative path — the identity the parser, the diff, and the UI all share.
   async #parsed(name) {
     const state = this.#known(name);
     if (state.status !== 'ready') {
       throw httpError(409, `RTAC project ${name} is not exported into this purview project yet`);
+    }
+
+    // A hand-deleted export must drop out of the project even when a parsed
+    // model is cached — and the pre-warm below means the cache is almost
+    // always hot, so an existence check per read is the only reliable tell.
+    // ONLY a missing folder means deleted: a transient EPERM/EBUSY (AV scan,
+    // network share) must fail this one read, never remove the export.
+    try {
+      await access(this.#dir(name));
+    } catch (err) {
+      if (err?.code !== 'ENOENT') throw err;
+      this.state.delete(name);
+      this.parseCache.delete(name);
+      throw httpError(409, `the export of ${name} is missing on disk — download it again`);
     }
 
     // The cache holds the in-flight promise, not the settled result, so two
@@ -209,12 +290,25 @@ class RtacService {
 
     // Reads run concurrently, so impose a stable order before parsing.
     files.sort((a, b) => a.file.localeCompare(b.file));
-    const hashes = new Map(
-      files.map(({ file, xml }) => [file, createHash('sha1').update(xml).digest('hex')]),
-    );
 
     const model = parseRtacProject(files);
-    return { model, byFile: new Map(model.items.map((item) => [item.file, item])), hashes };
+    // Raw-byte hashes for MODEL-BLIND items only: a file the parser models
+    // nothing content-ful from (Main Controller task config, a future object
+    // type) would otherwise carry a constant signature and its real edits
+    // could never read as edited. Folding the raw bytes in exactly there
+    // keeps noise-immunity everywhere the model can see, and the old
+    // raw-hash guarantee where it is blind. (ExportSource carries only
+    // Schema/DeviceMOT — no volatile metadata to churn on.)
+    const rawHashes = new Map();
+    const byFile = new Map();
+    for (const item of model.items) {
+      byFile.set(item.file, item);
+      if (modelBlind(item)) {
+        const xml = files.find((f) => f.file === item.file)?.xml ?? '';
+        rawHashes.set(item.file, createHash('sha1').update(xml).digest('hex'));
+      }
+    }
+    return { model, byFile, rawHashes };
   }
 
   // Public read of the parsed project model — the comm extractors consume it.
@@ -265,17 +359,25 @@ class RtacService {
 
   // --- compare ---------------------------------------------------------------
 
-  // Compare adapter entries: one per export file, signature = raw content
-  // hash so an edit the parser doesn't model (a CFC blob) still reads edited.
+  // Compare adapter entries: one per export file, signature = digest of the
+  // canonical parsed item (plus the raw hash for model-blind files — see
+  // #parse). Computed on first compare and memoized on the parse-cache entry,
+  // so pre-warms never pay for a compare nobody opens.
   async comparable(name) {
-    const { model, hashes } = await this.#parsed(name);
+    const parsed = await this.#parsed(name);
+    parsed.signatures ??= new Map(parsed.model.items.map((item) => {
+      const hash = createHash('sha1').update(modelSignature(item));
+      const raw = parsed.rawHashes.get(item.file);
+      if (raw) hash.update(raw);
+      return [item.file, hash.digest('hex')];
+    }));
     return {
-      label: model.name ?? name,
-      entries: model.items.map((item) => ({
+      label: parsed.model.name ?? name,
+      entries: parsed.model.items.map((item) => ({
         path: item.file,
         name: item.name ?? moduleBaseName(item.file),
         item,
-        signature: hashes.get(item.file),
+        signature: parsed.signatures.get(item.file),
       })),
     };
   }

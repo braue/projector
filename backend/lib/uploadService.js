@@ -24,7 +24,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { settingsSignature } from './compare.js';
+import { modelSignature } from './compare.js';
 import { httpError } from './http.js';
 import { REF_SEPARATOR, splitRef } from './refs.js';
 import { UploadStore } from './uploadStore.js';
@@ -79,6 +79,27 @@ class UploadService {
     await this.store.remove(fileId);
   }
 
+  // Rename an upload: display name and id together (the id is minted from
+  // the name, and it shows wherever refs do). The id is inside every ref, so
+  // the project bundle wires `onRenamed` to rewrite canvas placements.
+  async rename(fileId, nextName) {
+    const trimmed = nextName?.trim();
+    if (!trimmed) throw httpError(400, 'name required');
+    const stored = this.store.get(fileId);
+    if (!stored) throw httpError(404, `unknown ${this.label} file: ${fileId}`);
+    const id = await this.store.rename(fileId, trimmed);
+    stored.fileName = trimmed;
+    await this.store.saveParsed(id, stored);
+    // The rename is committed above — a failed ref rewrite must not report
+    // failure; a canvas too broken to rewrite surfaces on its next read.
+    try {
+      await this.onRenamed?.(fileId, id);
+    } catch (err) {
+      console.warn(`canvas refs not rewritten for ${this.label} rename ${fileId} -> ${id}: ${err?.message ?? err}`);
+    }
+    return { previousId: fileId, ...this.summary(id, stored) };
+  }
+
   summary(id, stored) {
     return {
       id,
@@ -105,8 +126,10 @@ class UploadService {
   }
 
   // Compare adapter entries: the profile's top-level inspect items, signature
-  // = canonical (key-sorted) JSON of each item's settings. Folder children
-  // (e.g. RDB panel drawings) are presentation, not compared settings.
+  // = canonical (key-sorted) JSON of the WHOLE item — SCD/SW items carry
+  // compare-relevant data in pages rows (Report IDs, option fields, port
+  // tables) that the settings summaries deliberately abbreviate. Folder
+  // children (e.g. RDB panel drawings) are presentation, not compared.
   comparable(ref) {
     const { fileName, profile } = this.profile(ref);
     const { profileName } = splitRef(ref, this.label);
@@ -119,7 +142,7 @@ class UploadService {
             path: node.path,
             name: node.name,
             item,
-            signature: settingsSignature(item.settings),
+            signature: modelSignature(item),
           };
         }));
     }

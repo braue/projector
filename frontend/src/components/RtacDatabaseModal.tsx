@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { fetchRtacAvailable, refreshRtacAvailable, startExport } from '../api'
+import { confirmOverwrite } from '../lib/confirm'
 import { errorMessage } from '../lib/errors'
 import type { RtacAvailableEntry } from '../types'
 import { Button, Checkbox, Spinner } from './ui'
@@ -54,6 +55,12 @@ export function RtacDatabaseModal({
   }
 
   const download = async () => {
+    // Same-name selections replace the project's existing export — never
+    // silently. Cancel aborts the whole download.
+    const overwriting = (entries ?? [])
+      .filter((entry) => checked.has(entry.name) && entry.inProject)
+      .map((entry) => entry.name)
+    if (!confirmOverwrite(overwriting, 'a fresh download')) return
     setStarting(true)
     try {
       for (const name of checked) {

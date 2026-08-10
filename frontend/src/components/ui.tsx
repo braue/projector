@@ -19,6 +19,8 @@
 
 import { useState, type ReactElement, type ReactNode } from 'react'
 
+import { errorMessage } from '../lib/errors'
+
 // --- buttons -----------------------------------------------------------------
 
 /** Push button. `variant="primary"` is the filled call-to-action. */
@@ -114,6 +116,57 @@ export function TextInput({
   ...rest
 }: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
   return withLabel(label, <input type="text" className="ui-input" {...rest} />)
+}
+
+/**
+ * Inline name form for list rows (create / rename): autofocused input, Enter
+ * commits the trimmed value, Escape cancels. Owns its value and shows the
+ * error a rejected onCommit throws — callers keep only an "editing" marker.
+ */
+export function InlineNameForm({
+  initial = '',
+  placeholder,
+  onCommit,
+  onCancel,
+}: {
+  initial?: string
+  placeholder: string
+  onCommit: (value: string) => Promise<void> | void
+  onCancel: () => void
+}) {
+  const [value, setValue] = useState(initial)
+  const [error, setError] = useState<string | null>(null)
+  // Commits mutate identity (renames, creates) — a repeat Enter during the
+  // await must not fire a second one.
+  const [pending, setPending] = useState(false)
+  const commit = async () => {
+    const trimmed = value.trim()
+    if (!trimmed || pending) return
+    setPending(true)
+    try {
+      await onCommit(trimmed)
+    } catch (err) {
+      setError(errorMessage(err))
+    } finally {
+      setPending(false)
+    }
+  }
+  return (
+    <div className="side-form">
+      <TextInput
+        autoFocus
+        value={value}
+        placeholder={placeholder}
+        disabled={pending}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commit()
+          if (e.key === 'Escape') onCancel()
+        }}
+      />
+      {error && <div className="side-form-error">{error}</div>}
+    </div>
+  )
 }
 
 /** Multi-line text input (aggregate term list). */

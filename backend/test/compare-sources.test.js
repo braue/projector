@@ -97,6 +97,28 @@ test('reordered settings are not an edit: signatures are key-sorted', async () =
   }
 });
 
+test('upload signatures cover page rows: a Report-ID-only edit reads edited', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  try {
+    const scd = new ScdService({ dataDir: tmp });
+    await scd.init();
+    // rptID lives only in the Reports page rows — the settings summary
+    // deliberately abbreviates it away.
+    await scd.upload('a.scd', Buffer.from(MINI_SCL));
+    await scd.upload('b.scd', Buffer.from(MINI_SCL.replace('rptID="BRep01"', 'rptID="BRep01_v2"')));
+    const compare = new CompareService({ adapters: { scd: (ref) => scd.comparable(ref) } });
+
+    const result = await compare.compare(
+      { type: 'scd', ref: 'a::RELAY_1' },
+      { type: 'scd', ref: 'b::RELAY_1' },
+    );
+    const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
+    assert.equal(byPath.get('reports'), 'edited');
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('scd ied vs scd ied compares inspect items; mixed types are rejected', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
   try {

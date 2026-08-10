@@ -167,8 +167,20 @@ export interface ItemDiff {
     removed: { page: string; tag: string | null }[]
     changed: { page: string; tag: string | null; fields: PointFieldDiff[] }[]
   }
-  pages: { name: string; status: 'added' | 'removed' | 'changed'; rows: number }[]
+  pages: {
+    name: string
+    /** 'reordered' = same rows, different order — no row-level detail. */
+    status: 'added' | 'removed' | 'changed' | 'reordered'
+    rows: number
+    /** Row-level detail, present on changed pages: labels are the lead-column value. */
+    added?: string[]
+    removed?: string[]
+    changed?: { row: string; fields: PointFieldDiff[] }[]
+  }[]
   code: { original: string | null; updated: string | null } | null
+  /** Graphical (CFC/LD) logic body — only its fingerprint is modeled, so the
+   * diff can say that it changed, never what. */
+  graphicalLogic: 'added' | 'removed' | 'changed' | null
   otherFields: string[]
 }
 
@@ -200,6 +212,26 @@ export interface AggregateResult {
   terms: string[]
   scoped: boolean
   rows: AggregateRow[]
+}
+
+// --- notes --------------------------------------------------------------------
+
+export type NoteKind = 'text' | 'check' | 'bullet' | 'number'
+
+export interface NoteItem {
+  id: string
+  text: string
+  /** Line style; `checked` only means anything on 'check' lines. */
+  kind: NoteKind
+  checked: boolean
+  /** 0 = top level, 1 = sub-line (rendered tabbed in). */
+  level: 0 | 1
+}
+
+export interface Note {
+  id: string
+  name: string
+  items: NoteItem[]
 }
 
 // --- canvas / workspaces ------------------------------------------------------
@@ -263,6 +295,8 @@ export interface GraphGhost {
   id: string
   label: string
   sublabel: string
+  /** Human-readable port/protocol statements, shown in the hub popup. */
+  lines: string[]
 }
 
 export interface LinkWarning {

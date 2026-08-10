@@ -20,8 +20,10 @@ import { extractRdbProfile } from '../lib/comm/extract/rdb.js';
 import { extractRtacProfile } from '../lib/comm/extract/rtac.js';
 import { extractSwProfile } from '../lib/comm/extract/sw.js';
 import { httpError, resolveChild } from '../lib/http.js';
+import { replaceRefFile } from '../lib/refs.js';
 import { CanvasService } from './canvas.js';
 import { CompareService } from './compare.js';
+import { NotesService } from './notes.js';
 import { RdbService } from './rdb.js';
 import { RtacService } from './rtac.js';
 import { ScdService } from './scd.js';
@@ -135,8 +137,20 @@ class ProjectsService {
       },
     });
 
+    const notes = new NotesService({ file: path.join(projectDir, 'notes.json') });
+
+    // A renamed source must drag its canvas refs along: the rename lives in
+    // the service, the rewrite in the canvas, and this bundle is where the
+    // two meet (the same pattern as `augment`).
+    rtac.onRenamed = (from, to) =>
+      canvas.renameRefs('rtac', (ref) => (ref === from ? to : ref));
+    for (const [type, service] of Object.entries({ rdb, scd, sw })) {
+      service.onRenamed = (fromId, toId) =>
+        canvas.renameRefs(type, (ref) => replaceRefFile(ref, fromId, toId));
+    }
+
     await Promise.all([rtac.init(), rdb.init(), scd.init(), sw.init(), canvas.init()]);
-    return { rtac, rdb, scd, sw, canvas, compare };
+    return { rtac, rdb, scd, sw, canvas, compare, notes };
   }
 }
 

@@ -9,7 +9,7 @@ import { XMLParser } from 'fast-xml-parser';
 // parseTagValue:false keeps every leaf as a raw string. That matters: point
 // numbers, IP addresses, "0"/"True"/"OFF" enums and comma lists must survive
 // verbatim so the semantic layer — not the XML layer — decides how to coerce.
-const parser = new XMLParser({
+const PARSER_OPTIONS = {
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
   parseTagValue: false,
@@ -17,14 +17,27 @@ const parser = new XMLParser({
   trimValues: true,
   cdataPropName: '__cdata',
   processEntities: true,
-});
+};
+
+// One parser instance per stopNodes config (options are fixed at construction).
+const parsers = new Map();
+
+function parserFor(stopNodes) {
+  const key = stopNodes?.join('|') ?? '';
+  if (!parsers.has(key)) {
+    parsers.set(key, new XMLParser(stopNodes ? { ...PARSER_OPTIONS, stopNodes } : PARSER_OPTIONS));
+  }
+  return parsers.get(key);
+}
 
 function stripBom(value) {
   return value.charCodeAt(0) === 0xfeff ? value.slice(1) : value;
 }
 
-function parseXml(xmlString) {
-  return parser.parse(stripBom(xmlString));
+// `stopNodes` (e.g. ['*.ControllerPOU']) names elements whose bodies are kept
+// as one unparsed string — presence stays exact, tokenization cost disappears.
+function parseXml(xmlString, stopNodes) {
+  return parserFor(stopNodes).parse(stripBom(xmlString));
 }
 
 // Attribute value ('@_' prefix per the parser config above); null when the

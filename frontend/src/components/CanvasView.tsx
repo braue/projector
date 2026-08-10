@@ -27,7 +27,7 @@ import { errorMessage } from '../lib/errors'
 import { SOURCE_MIME } from '../lib/sources'
 import { TIER_COLOR, TIER_DASH } from '../lib/tiers'
 import { REF_SEPARATOR } from '../types'
-import type { DeviceSource, GraphDevice, GraphLink, WorkspaceGraph } from '../types'
+import type { DeviceSource, GraphDevice, GraphGhost, GraphLink, WorkspaceGraph } from '../types'
 import { FloatingEdge } from './FloatingEdge'
 import { Button, SegmentedControl, Select, TextInput } from './ui'
 
@@ -39,6 +39,12 @@ import { Button, SegmentedControl, Select, TextInput } from './ui'
 
 type DeviceNodeData = { name: string; sub: string; ghost?: boolean; scd?: boolean; switch?: boolean }
 type DeviceNode = Node<DeviceNodeData, 'device'>
+
+// Every referenced-but-not-placed far end (the linker's ghosts) condenses
+// into ONE hub node — 150 individual ghost boxes would drown the canvas —
+// so `ghost` on a node means the hub. Its popup lists the referenced
+// devices; a hub WIRE's popup lists only its own source's.
+const GHOST_HUB_ID = 'ghost-hub'
 
 function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
   const classes = ['canvas-node']
@@ -67,6 +73,18 @@ type NodePopupState = { device: GraphDevice; x: number; y: number }
 // Popup geometry: .link-popup is 348px wide; keep it 8px inside the canvas.
 const POPUP_WIDTH = 348
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+
+// Beside the node, never under the cursor — the second click of a
+// double-click must still land on the node, not on the popup.
+function besideNode(wrap: DOMRect, nodeRect: DOMRect) {
+  const rightOf = nodeRect.right - wrap.left + 10
+  return {
+    x: rightOf > wrap.width - (POPUP_WIDTH + 8)
+      ? Math.max(nodeRect.left - wrap.left - (POPUP_WIDTH + 10), 8)
+      : rightOf,
+    y: clamp(nodeRect.top - wrap.top, 8, wrap.height - 190),
+  }
+}
 
 /** What kind of box this is, when the profile states nothing better. */
 const deviceModelLabel = (device: GraphDevice) => device.model ?? device.source.type.toUpperCase()
@@ -133,6 +151,62 @@ function NodePopup({
       ) : (
         <div className="endlabel">Double-click to open in Inspect</div>
       )}
+    </div>
+  )
+}
+
+// Two modes: from the hub NODE it lists every referenced device; from a hub
+// WIRE it lists that source's declared links — each with the linker's own
+// summary, far-end lines, and warnings, exactly what LinkPopup shows for a
+// resolved link.
+function GhostHubPopup({
+  ghosts,
+  links,
+  pos,
+  onClose,
+}: {
+  ghosts: GraphGhost[]
+  /** The clicked wire's declared links; null when opened from the hub node. */
+  links: GraphLink[] | null
+  pos: { x: number; y: number }
+  onClose: () => void
+}) {
+  return (
+    <div className="link-popup" style={{ left: pos.x, top: pos.y }}>
+      <div className="ph">
+        <span className="t">{links ? 'Declared connections' : 'Referenced devices'}</span>
+        <span className="tier-badge" style={{ color: TIER_COLOR.declared }}>declared</span>
+        <button className="x" onClick={onClose} title="Close">✕</button>
+      </div>
+      <div className="summary">
+        {links
+          ? `${links.length} declared connection${links.length === 1 ? '' : 's'} whose far end is not on the canvas.`
+          : `${ghosts.length} device${ghosts.length === 1 ? '' : 's'} named in loaded settings but not on the canvas — load or place their files to resolve the links.`}
+      </div>
+      <div className="ghost-list">
+        {links
+          ? links.map((link) => (
+              <div key={link.id} className="ghost-entry">
+                <div className="gname">{link.b.label}</div>
+                <div className="gsub">{link.summary}</div>
+                {link.a.lines.map((line, i) => (
+                  <div key={i} className="gline">{line}</div>
+                ))}
+                {link.warnings.map((w, i) => (
+                  <div key={`w${i}`} className={`warn ${w.kind === 'error' ? 'bad' : 'warnc'}`}>{w.text}</div>
+                ))}
+              </div>
+            ))
+          : ghosts.map((ghost) => (
+              <div key={ghost.id} className="ghost-entry">
+                <div className="gname">{ghost.label}</div>
+                <div className="gsub">{ghost.sublabel}</div>
+                {ghost.lines.map((line, i) => (
+                  <div key={i} className="gline">{line}</div>
+                ))}
+              </div>
+            ))}
+      </div>
     </div>
   )
 }
@@ -360,6 +434,9 @@ function CanvasInner({
   const [nodes, setNodes, onNodesChange] = useNodesState<DeviceNode>([])
   const [popup, setPopup] = useState<PopupState | null>(null)
   const [nodePopup, setNodePopup] = useState<NodePopupState | null>(null)
+  // A hub WIRE's popup carries its own source's declared links; null links =
+  // the hub node itself (lists every referenced device).
+  const [ghostPopup, setGhostPopup] = useState<{ x: number; y: number; links: GraphLink[] | null } | null>(null)
   const [pendingConnect, setPendingConnect] = useState<PendingConnect | null>(null)
   const { screenToFlowPosition } = useReactFlow()
   // Loads can overlap (StrictMode double-mount, drop + upload back to back);
@@ -387,14 +464,20 @@ function CanvasInner({
             switch: device.kind === 'switch',
           },
         })),
-        ...next.ghosts.map<DeviceNode>((ghost, i) => ({
-          id: ghost.id,
-          type: 'device',
-          // Ghosts have no stored position: park them in a column to the right.
-          position: { x: 720, y: 60 + i * 96 },
-          data: { name: ghost.label, sub: ghost.sublabel, ghost: true },
-          connectable: false,
-        })),
+        ...(next.ghosts.length
+          ? [{
+              id: GHOST_HUB_ID,
+              type: 'device' as const,
+              // The hub has no stored position: park it to the right.
+              position: { x: 720, y: 60 },
+              data: {
+                name: `${next.ghosts.length} referenced device${next.ghosts.length === 1 ? '' : 's'}`,
+                sub: 'declared in settings · not loaded',
+                ghost: true,
+              },
+              connectable: false,
+            }]
+          : []),
       ])
     } catch (err) {
       if (seq !== loadSeq.current) return
@@ -406,15 +489,27 @@ function CanvasInner({
   useEffect(() => {
     setPopup(null)
     setNodePopup(null)
+    setGhostPopup(null)
     load()
   }, [load, reloadKey])
 
-  const edges = useMemo<Edge[]>(
-    () =>
-      (graph?.links ?? []).map((link) => ({
+  const edges = useMemo<Edge[]>(() => {
+    const out: Edge[] = []
+    // Ghost-bound links collapse with their targets: one wire per source
+    // device to the hub, carrying its links so the wire's popup can show
+    // each declared connection's summary and warnings.
+    const toHub = new Map<string, GraphLink[]>()
+    for (const link of graph?.links ?? []) {
+      if (!link.targetDeviceId) {
+        const hubLinks = toHub.get(link.sourceDeviceId) ?? []
+        hubLinks.push(link)
+        toHub.set(link.sourceDeviceId, hubLinks)
+        continue
+      }
+      out.push({
         id: link.id,
         source: link.sourceDeviceId,
-        target: link.targetDeviceId ?? link.targetGhostId ?? '',
+        target: link.targetDeviceId,
         type: 'floating',
         style: {
           stroke: TIER_COLOR[link.tier],
@@ -423,9 +518,25 @@ function CanvasInner({
         },
         data: { link },
         interactionWidth: 16,
-      })),
-    [graph],
-  )
+      })
+    }
+    for (const [sourceId, hubLinks] of toHub) {
+      out.push({
+        id: `ghosts:${sourceId}`,
+        source: sourceId,
+        target: GHOST_HUB_ID,
+        type: 'floating',
+        style: {
+          stroke: TIER_COLOR.declared,
+          strokeWidth: 2,
+          strokeDasharray: TIER_DASH.declared,
+        },
+        data: { hubLinks },
+        interactionWidth: 16,
+      })
+    }
+    return out
+  }, [graph])
 
   return (
     <div
@@ -472,23 +583,21 @@ function CanvasInner({
           }
         }}
         onNodeClick={(e, node) => {
-          if (node.data.ghost) return
           const target = e.target as HTMLElement
           const wrap = target.closest('.canvas-wrap')?.getBoundingClientRect()
           const nodeRect = target.closest('.react-flow__node')?.getBoundingClientRect()
+          if (!wrap || !nodeRect) return
+          if (node.data.ghost) {
+            setPopup(null)
+            setNodePopup(null)
+            setGhostPopup({ ...besideNode(wrap, nodeRect), links: null })
+            return
+          }
           const device = graph?.devices.find((d) => d.id === node.id)
-          if (!device || !wrap || !nodeRect) return
+          if (!device) return
           setPopup(null)
-          // Beside the node, never under the cursor — the second click of a
-          // double-click must still land on the node, not on this popup.
-          const rightOf = nodeRect.right - wrap.left + 10
-          setNodePopup({
-            device,
-            x: rightOf > wrap.width - (POPUP_WIDTH + 8)
-              ? Math.max(nodeRect.left - wrap.left - (POPUP_WIDTH + 10), 8)
-              : rightOf,
-            y: clamp(nodeRect.top - wrap.top, 8, wrap.height - 190),
-          })
+          setGhostPopup(null)
+          setNodePopup({ device, ...besideNode(wrap, nodeRect) })
         }}
         onNodeDoubleClick={(_e, node) => {
           if (node.data.ghost) return
@@ -500,14 +609,22 @@ function CanvasInner({
         }}
         onEdgeClick={(e, edge) => {
           const wrap = (e.target as HTMLElement).closest('.canvas-wrap')?.getBoundingClientRect()
-          const link = (edge.data as { link: GraphLink } | undefined)?.link
-          if (!link || !wrap) return
-          setNodePopup(null)
-          setPopup({
-            link,
+          if (!wrap) return
+          const data = edge.data as { link?: GraphLink; hubLinks?: GraphLink[] } | undefined
+          const at = {
             x: clamp(e.clientX - wrap.left - 170, 8, wrap.width - (POPUP_WIDTH + 8)),
             y: clamp(e.clientY - wrap.top - 30, 8, wrap.height - 300),
-          })
+          }
+          setNodePopup(null)
+          if (data?.hubLinks) {
+            // The collapsed ghost wire lists its own source's declared links.
+            setPopup(null)
+            setGhostPopup({ ...at, links: data.hubLinks })
+            return
+          }
+          if (!data?.link) return
+          setGhostPopup(null)
+          setPopup({ link: data.link, ...at })
         }}
         onConnect={({ source, target }) => {
           if (!source || !target || source === target) return
@@ -521,6 +638,7 @@ function CanvasInner({
         onPaneClick={() => {
           setPopup(null)
           setNodePopup(null)
+          setGhostPopup(null)
         }}
         onNodesDelete={async (deleted) => {
           await Promise.all(
@@ -571,6 +689,14 @@ function CanvasInner({
             await detachScd(project, deviceId).catch((err) => setError(errorMessage(err)))
             await load()
           }}
+        />
+      )}
+      {ghostPopup && graph && (
+        <GhostHubPopup
+          ghosts={graph.ghosts}
+          links={ghostPopup.links}
+          pos={ghostPopup}
+          onClose={() => setGhostPopup(null)}
         />
       )}
     </div>

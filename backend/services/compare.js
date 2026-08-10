@@ -2,15 +2,16 @@
 // can enumerate its inspect items. Per-type adapters (injected from index.js)
 // supply { label, entries: [{ path, name, item, signature }] }:
 //
-//   signature decides added/removed/edited/unchanged. RTAC supplies the raw
-//   file hash, so an edit the parser doesn't model (a CFC blob) still reads
-//   edited; RDB/SCD supply canonical JSON of the parsed item.
+//   signature decides added/removed/edited/unchanged. Every type signs the
+//   whole canonical PARSED item — raw-XML noise the parser doesn't model
+//   never flags a file (RTAC folds a raw hash back in only for items the
+//   parser models nothing from; see services/rtac.js).
 //
 //   item is the shared inspect shape, so diffItems covers every type: flat
 //   settings for RDB sections and SCD logical devices, plus points/pages/
 //   logic source where the type has them.
 
-import { compareHashes, diffItems, STATUS } from '../lib/compare.js';
+import { compareSignatures, diffItems, STATUS } from '../lib/compare.js';
 import { httpError } from '../lib/http.js';
 import { foldTree } from '../lib/tree.js';
 
@@ -55,7 +56,7 @@ class CompareService {
 
   async compare(a, b) {
     const [original, updated] = await this.#pair(a, b);
-    const status = compareHashes(signatures(original.entries), signatures(updated.entries));
+    const status = compareSignatures(signatures(original.entries), signatures(updated.entries));
 
     const nodes = [
       ...updated.entries.map((entry) => node(entry, status.get(entry.path))),

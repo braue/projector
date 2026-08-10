@@ -4,7 +4,7 @@
 // sanitized upload name, unique-ified. Services own parsing and shaping —
 // this store owns the disk.
 
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveChild } from './http.js';
@@ -49,10 +49,15 @@ class UploadStore {
     return this.files.entries();
   }
 
+  // A display name reduced to a directory-safe id base.
+  #idBase(name) {
+    return name.replace(this.extension, '').replace(/[^\w.-]+/g, '_') || 'upload';
+  }
+
   // Store a new upload (original bytes + parsed.json); returns the new id.
   async add(fileName, buffer, stored) {
-    const base = fileName.replace(this.extension, '').replace(/[^\w.-]+/g, '_') || 'upload';
-    const id = uniqueName(base, (candidate) => this.files.has(candidate) || this.evicted.has(candidate));
+    const id = uniqueName(this.#idBase(fileName),
+      (candidate) => this.files.has(candidate) || this.evicted.has(candidate));
     const dir = this.dir(id);
     await mkdir(dir, { recursive: true });
     await Promise.all([
@@ -60,6 +65,21 @@ class UploadStore {
       writeFile(path.join(dir, 'parsed.json'), JSON.stringify(stored)),
     ]);
     this.files.set(id, stored);
+    return id;
+  }
+
+  // Move an entry to an id derived from a new display name; returns the new
+  // id (unchanged when the name already reduces to the current id).
+  async rename(fileId, nextName) {
+    const stored = this.files.get(fileId);
+    if (!stored) throw httpError(404, `unknown ${this.label} file: ${fileId}`);
+    const id = uniqueName(this.#idBase(nextName),
+      (candidate) => candidate !== fileId && (this.files.has(candidate) || this.evicted.has(candidate)));
+    if (id !== fileId) {
+      await rename(this.dir(fileId), this.dir(id));
+      this.files.set(id, stored);
+      this.files.delete(fileId);
+    }
     return id;
   }
 

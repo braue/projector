@@ -11,8 +11,10 @@
 // pages. Kind-specific structure (POU source, EtherCAT topology, ...) is
 // pulled by the extractor registered for that kind in kinds.js.
 
+import { createHash } from 'node:crypto';
+
 import { describeKind, NON_KIND_CHILDREN } from './kinds.js';
-import { collect, findFirst, parseXml, text, toArray } from '../xml.js';
+import { cdata, collect, findFirst, parseXml, text, toArray } from '../xml.js';
 
 // Parse one <SettingPage> into { name, addItems?, columns, rows }. A row is an
 // object keyed by <Column> text -> <Value> text; column order is captured
@@ -48,6 +50,14 @@ function parseSettingPage(settingPage) {
   return page;
 }
 
+// NOT user logic: the RTAC implements every protocol connection as a function
+// block, so a ControllerPOU (a CDATA blob of CoDeSys XML, tens of thousands
+// of lines) is present on essentially every connection and says nothing about
+// the project — but tokenizing it dominates parse time on large exports. A
+// stop node keeps it as one unparsed string: presence stays exact, cost
+// disappears. User-written ST/LD/CFC lives in its own POU modules, untouched.
+const STOP_NODES = ['*.ControllerPOU'];
+
 // The container is the first child element of <RTACModule> that is not
 // bookkeeping. Its element name is the module kind.
 function findContainer(rtac) {
@@ -61,7 +71,7 @@ function findContainer(rtac) {
 // Parse one export file (raw XML) into a structural module. `file` is the path
 // relative to the export root and doubles as the module's stable identity.
 function parseRtacModule(xmlString, file = '<memory>') {
-  const doc = parseXml(xmlString);
+  const doc = parseXml(xmlString, STOP_NODES);
   const rtac = doc.RTACModule;
   if (!rtac) {
     throw new Error(`${file}: missing <RTACModule> root`);
@@ -86,12 +96,23 @@ function parseRtacModule(xmlString, file = '<memory>') {
 
   module.settingPages = collect(container, 'SettingPage').map(parseSettingPage);
 
-  // NOT user logic: the RTAC implements every protocol connection as a function
-  // block, so a ControllerPOU (CDATA-wrapped XML, tens of thousands of lines) is
-  // present on essentially every connection and says nothing about the project.
-  // User-written ST/LD/CFC lives in its own POU modules. Recorded for fidelity;
-  // do not surface it as "this connection has logic".
+  // The blob rode through unparsed (STOP_NODES); recorded for fidelity — do
+  // not surface it as "this connection has logic".
   module.hasControllerPou = findFirst(container, 'ControllerPOU') !== undefined;
+
+  // Graphical logic (CFC/LD) ships as an ArchivedContent blob the parser
+  // cannot decode: presence for the UI, and a fingerprint so compare still
+  // sees edits inside it. LOGIC KINDS ONLY — protocol connections embed
+  // ArchivedContent blobs of their own (OPCUA data sources), which are the
+  // RTAC's plumbing: not user logic, and their regeneration is exactly the
+  // raw-blob noise signatures must not see.
+  if (spec.category === 'logic') {
+    const archived = findFirst(container, 'ArchivedContent');
+    if (archived !== undefined) {
+      module.hasArchivedContent = true;
+      module.archivedContentHash = createHash('sha1').update(cdata(archived)).digest('hex');
+    }
+  }
 
   // Kind-specific structure last, so an extractor may refine the defaults but
   // the generic capture above happens for every kind, known or not.

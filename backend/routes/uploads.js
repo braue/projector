@@ -29,6 +29,12 @@ function uploadSourceRoutes(resolve, { maxBytes }) {
     res.json({ ok: true });
   });
 
+  // Rename: display name and id move together; the service's onRenamed hook
+  // (wired by the project bundle) drags canvas refs along.
+  router.patch('/:id', async (req, res) => {
+    res.json(await (await resolve(req)).rename(req.params.id, req.body?.name));
+  });
+
   router.get('/tree', async (req, res) => {
     res.json((await resolve(req)).tree(requireQuery(req, 'ref')));
   });

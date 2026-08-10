@@ -7,6 +7,7 @@ import { Router } from 'express';
 
 import { canvasRoutes } from './canvas.js';
 import { compareRoutes } from './compare.js';
+import { noteRoutes } from './notes.js';
 import { rdbRoutes } from './rdb.js';
 import { rtacRoutes } from './rtac.js';
 import { scdRoutes } from './scd.js';
@@ -39,6 +40,7 @@ function projectRoutes(projects, catalog) {
   scoped.use('/scd', scdRoutes(async (req) => (await bundle(req)).scd));
   scoped.use('/sw', swRoutes(async (req) => (await bundle(req)).sw));
   scoped.use('/compare', compareRoutes(async (req) => (await bundle(req)).compare));
+  scoped.use('/notes', noteRoutes(async (req) => (await bundle(req)).notes));
   scoped.use('/', canvasRoutes(async (req) => (await bundle(req)).canvas));
   router.use('/:project', scoped);
 
