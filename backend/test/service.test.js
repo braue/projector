@@ -1,6 +1,8 @@
-// RTAC catalog + per-project export service: the catalog must absorb a
-// listprojects failure (previously exported projects stay browsable), expose
-// the error, and recover on refresh once the database is back.
+// RTAC catalog + per-project export service: the sidebar list is only what
+// the project holds; the database browser's available() merges the
+// machine-global catalog with in-project flags and must absorb a
+// listprojects failure (previously exported projects stay browsable) and
+// recover on refresh. The no-database path uploads an exported XML folder.
 
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
@@ -36,26 +38,27 @@ test('list failure is non-fatal, served, and recoverable', async () => {
     await service.init();
     await catalog.refresh(); // the failure lands in catalog.error, never throws
 
-    let list = service.list();
-    assert.match(list.error, /database unreachable/);
-    // The on-disk export is still there and browsable.
-    assert.deepEqual(list.projects, [{ name: 'Beta', status: 'ready' }]);
+    // The project's own list serves regardless of the database.
+    assert.deepEqual(service.list(), { projects: [{ name: 'Beta', status: 'ready' }] });
+    let available = service.available();
+    assert.match(available.error, /database unreachable/);
+    assert.deepEqual(available.projects, []);
 
-    // Database comes back; retry merges the real list, keeping Beta ready.
+    // Database comes back; the browser list merges with in-project flags.
     catalog.client.failing = false;
     await catalog.refresh();
-    list = service.list();
-    assert.equal(list.error, null);
-    assert.deepEqual(list.projects, [
-      { name: 'Alpha', status: 'available' },
-      { name: 'Beta', status: 'ready' },
+    available = service.available();
+    assert.equal(available.error, null);
+    assert.deepEqual(available.projects, [
+      { name: 'Alpha', inProject: false },
+      { name: 'Beta', inProject: true },
     ]);
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }
 });
 
-test('a ready project whose export vanished from disk resets to available', async () => {
+test('a ready export whose folder vanished from disk drops out of the project', async () => {
   const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
   try {
     await mkdir(path.join(dataDir, 'Beta'), { recursive: true });
@@ -68,8 +71,47 @@ test('a ready project whose export vanished from disk resets to available', asyn
     await rm(path.join(dataDir, 'Beta'), { recursive: true });
 
     await assert.rejects(() => service.tree('Beta'), /missing on disk/);
-    const { projects } = service.list();
-    assert.equal(projects.find((p) => p.name === 'Beta').status, 'available');
+    assert.deepEqual(service.list().projects, []);
+    assert.deepEqual(
+      service.available().projects.find((p) => p.name === 'Beta'),
+      { name: 'Beta', inProject: false },
+    );
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test('an exported XML folder uploads into the project without the database', async () => {
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
+  try {
+    const catalog = new RtacCatalog({ client: flakyClient() });
+    const service = new RtacService({ catalog, dataDir });
+    await service.init();
+
+    const xml = (name) => Buffer.from(`<?xml version="1.0"?><Root name="${name}" />`);
+    const result = await service.uploadFolder([
+      { path: 'StationA/SEL_RTAC/Devices.xml', buffer: xml('devices') },
+      { path: 'StationA/Tag Processor.xml', buffer: xml('tags') },
+      { path: 'StationA/readme.txt', buffer: Buffer.from('not xml — skipped') },
+      { path: 'StationA/../evil.xml', buffer: xml('evil') }, // '..' stripped, lands inside
+    ]);
+    assert.deepEqual(result.added, [{ name: 'StationA', files: 3 }]);
+    assert.deepEqual(service.list().projects, [{ name: 'StationA', status: 'ready' }]);
+
+    // The parse pipeline reads the uploaded files like any export.
+    const tree = await service.tree('StationA');
+    assert.equal(tree.name, 'StationA');
+
+    // Nothing but XML → a clear 400.
+    await assert.rejects(
+      () => service.uploadFolder([{ path: 'Empty/notes.txt', buffer: Buffer.from('x') }]),
+      /no \.xml files found/,
+    );
+
+    // Removal takes it back out of the project.
+    await service.remove('StationA');
+    assert.deepEqual(service.list().projects, []);
+    await assert.rejects(() => service.remove('StationA'), /not in this project/);
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }

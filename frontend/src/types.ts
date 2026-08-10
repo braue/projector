@@ -1,7 +1,8 @@
 // Shapes served by the rtac-explorer backend (see backend/services/projects.js).
 
-export type ProjectStatus = 'available' | 'exporting' | 'ready' | 'error'
+export type ProjectStatus = 'exporting' | 'ready' | 'error'
 
+/** One RTAC export in the current project. */
 export interface ProjectEntry {
   name: string
   status: ProjectStatus
@@ -10,6 +11,17 @@ export interface ProjectEntry {
 
 export interface ProjectList {
   projects: ProjectEntry[]
+}
+
+/** One AcRTAC database project, as the database browser lists it. */
+export interface RtacAvailableEntry {
+  name: string
+  /** Already exported into the current purview project. */
+  inProject: boolean
+}
+
+export interface RtacAvailableList {
+  projects: RtacAvailableEntry[]
   /** Last database-list failure, or null when the list is healthy. */
   error: string | null
 }

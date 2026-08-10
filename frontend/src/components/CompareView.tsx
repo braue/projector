@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { fetchCompareItem, fetchCompareTree } from '../api'
 import { SOURCE_TABS } from '../lib/sources'
 import { useFetch } from '../lib/useFetch'
-import { useSidebarWidth } from '../lib/useSidebarWidth'
+import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
   DeviceSource,
   ProjectEntry,

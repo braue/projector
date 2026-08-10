@@ -16,7 +16,7 @@
 // the standard comparable() adapter.
 
 import { createHash } from 'node:crypto';
-import { mkdir, readdir, readFile, rm } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveChild } from '../lib/http.js';
@@ -50,15 +50,24 @@ class RtacService {
     }
   }
 
-  // Catalog order first; exports in this project that the database no longer
-  // lists stay visible after it (they are still browsable).
+  // Only what this project holds (or is fetching right now) — the sidebar
+  // list. The full catalog lives behind available(), for the database
+  // browser.
   list() {
-    const dbSet = new Set(this.catalog.names);
-    const extras = [...this.state.keys()].filter((name) => !dbSet.has(name));
     return {
-      projects: [...this.catalog.names, ...extras].map((name) => ({
+      projects: [...this.state.entries()]
+        .map(([name, state]) => ({ name, ...state }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    };
+  }
+
+  // The machine-global AcRTAC catalog, flagged with what is already in this
+  // project — the database-browser modal's list.
+  available() {
+    return {
+      projects: this.catalog.names.map((name) => ({
         name,
-        ...(this.state.get(name) ?? { status: 'available' }),
+        inProject: this.state.has(name),
       })),
       error: this.catalog.error ?? null,
     };
@@ -102,6 +111,53 @@ class RtacService {
     return this.state.get(name);
   }
 
+  // An exported folder uploaded straight from disk — the no-database path.
+  // Files arrive with folder-relative paths as their names
+  // ("Export1/SEL_RTAC/Devices.xml"); the top segment names the export and
+  // the .xml files land under it, replacing any previous export of the same
+  // name. Multiple top-level folders in one upload become multiple exports.
+  async uploadFolder(files) {
+    const groups = new Map();
+    for (const file of files) {
+      const segments = String(file.path)
+        .split(/[\\/]/)
+        .filter((segment) => segment && segment !== '.' && segment !== '..');
+      if (segments.length < 2 || !EXPORTABLE.test(segments[segments.length - 1])) continue;
+      const [name, ...rest] = segments;
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push({ rest, buffer: file.buffer });
+    }
+    if (!groups.size) {
+      throw httpError(400, 'no .xml files found — upload the exported RTAC project folder itself');
+    }
+
+    const added = [];
+    for (const [name, entries] of groups) {
+      const dir = this.#dir(name);
+      await rm(dir, { recursive: true, force: true });
+      for (const entry of entries) {
+        const target = path.join(dir, ...entry.rest);
+        await mkdir(path.dirname(target), { recursive: true });
+        await writeFile(target, entry.buffer);
+      }
+      this.state.set(name, { status: 'ready' });
+      this.parseCache.delete(name);
+      added.push({ name, files: entries.length });
+    }
+    return { added };
+  }
+
+  // Take an export out of this project (the database copy, if any, is
+  // untouched — it can be downloaded again).
+  async remove(name) {
+    if (!this.state.has(name)) {
+      throw httpError(404, `not in this project: ${name}`);
+    }
+    await rm(this.#dir(name), { recursive: true, force: true });
+    this.state.delete(name);
+    this.parseCache.delete(name);
+  }
+
   // Parse the exported folder into { model, byFile, hashes } (cached until the
   // next export). Reads every .xml under the export root, keyed by
   // forward-slash relative path — the identity the parser, the diff, and the
@@ -143,9 +199,9 @@ class RtacService {
       await walk(root, '');
     } catch (err) {
       if (err?.code === 'ENOENT') {
-        // The export vanished from disk (deleted by hand). Drop back to
-        // 'available' so the sidebar greys it out for a fresh download.
-        this.state.set(name, { status: 'available' });
+        // The export vanished from disk (deleted by hand): it is no longer
+        // in this project — download or upload it again.
+        this.state.delete(name);
         throw httpError(409, `the export of ${name} is missing on disk — download it again`);
       }
       throw err;

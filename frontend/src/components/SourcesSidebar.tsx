@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 
 import { SOURCE_MIME, SOURCE_TABS, sourceKey } from '../lib/sources'
-import { useSidebarWidth } from '../lib/useSidebarWidth'
+import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
   DeviceSource,
   ProjectEntry,
@@ -9,13 +9,16 @@ import type {
   UploadSourceType,
   UploadedFile,
 } from '../types'
+import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { Button, Spinner } from './ui'
 
-// The left rail: three source tabs. RTAC carries the full AcRTAC flow
-// (grey → double-click download → spinner → ready); RDB and SCD are
-// upload-backed and share one pane (drop zone + file cards + profile rows).
-// Ready items drag onto the canvas (an SCD profile can also drop ONTO a
-// device to augment it) and click-select for Inspect.
+// The left rail: four source tabs. Every source belongs to the CURRENT
+// purview project. RTAC exports arrive two ways — browse the machine's
+// AcRTAC database in a window and download selections, or upload an
+// exported XML folder straight from disk. RDB/SCD/SW are upload-backed and
+// share one pane (drop zone + file cards + profile rows). Ready items drag
+// onto the canvas (an SCD profile can also drop ONTO a device to augment
+// it) and click-select for Inspect.
 
 const UPLOAD_META: Record<UploadSourceType, {
   accept: string
@@ -53,7 +56,7 @@ function dragProps(source: DeviceSource) {
   }
 }
 
-/** The RTAC/RDB/SCD tab strip — shared with the compare rail. */
+/** The RTAC/RDB/SCD/SW tab strip — shared with the compare rail. */
 export function SourceTabs({
   tab,
   onPick,
@@ -77,24 +80,37 @@ export function SourceTabs({
 }
 
 export function SourcesSidebar({
+  project,
   projects,
   listError,
   onRetryList,
   uploads,
   onUpload,
   onDeleteUpload,
+  rtacBusy,
+  onUploadRtacFolder,
+  onDeleteRtac,
+  onRtacChanged,
   selected,
   onSelect,
   onExport,
   placedRefs,
   footer,
 }: {
+  /** The current purview project every source below belongs to. */
+  project: string
   projects: ProjectEntry[]
   listError: string | null
   onRetryList: () => void
   uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
   onUpload: (type: UploadSourceType, file: File) => void
   onDeleteUpload: (type: UploadSourceType, id: string) => void
+  /** An XML-folder upload is in flight. */
+  rtacBusy: boolean
+  onUploadRtacFolder: (files: File[]) => void
+  onDeleteRtac: (name: string) => void
+  /** Database exports were kicked off — refresh the list and start polling. */
+  onRtacChanged: () => void
   selected: DeviceSource | null
   onSelect: (source: DeviceSource) => void
   onExport: (name: string) => void
@@ -103,7 +119,9 @@ export function SourcesSidebar({
   footer: string
 }) {
   const [tab, setTab] = useState<SourceType>('rtac')
+  const [dbOpen, setDbOpen] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
+  const folderInput = useRef<HTMLInputElement | null>(null)
   const { width, startResize } = useSidebarWidth()
 
   const isSelected = (source: DeviceSource) =>
@@ -124,38 +142,91 @@ export function SourcesSidebar({
               <Button onClick={onRetryList}>Retry</Button>
             </div>
           )}
-          <ul className="source-list">
-            {projects.map((project) => {
-              const { name, status, error } = project
-              const ready = status === 'ready'
-              const source: DeviceSource = { type: 'rtac', ref: name }
-              const classes = ['project-entry', `status-${status}`]
-              if (isSelected(source)) classes.push('selected')
-              return (
-                <li key={name}>
-                  <button
-                    className={classes.join(' ')}
-                    {...(ready ? dragProps(source) : {})}
-                    title={
-                      ready
-                        ? `${name} — drag to canvas, click to inspect`
-                        : status === 'error'
-                          ? `Export failed: ${error ?? 'unknown error'} — double-click to retry`
-                          : `${name} — double-click to download`
-                    }
-                    onClick={() => ready && onSelect(source)}
-                    onDoubleClick={() => (status === 'available' || status === 'error') && onExport(name)}
-                  >
-                    {ready && <span className="grip">⠿</span>}
-                    <span className="project-name">{name}</span>
-                    {status === 'exporting' && <Spinner />}
-                    {status === 'error' && <span className="error-mark">!</span>}
-                    {ready && placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+          <div className="source-scroll">
+            <button className="drop-zone as-button" onClick={() => setDbOpen(true)}>
+              <b>Browse AcRTAC database…</b>
+              select projects to download
+            </button>
+            <input
+              ref={(el) => {
+                folderInput.current = el
+                el?.setAttribute('webkitdirectory', '')
+              }}
+              type="file"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const files = [...(e.target.files ?? [])]
+                if (files.length) onUploadRtacFolder(files)
+                e.target.value = ''
+              }}
+            />
+            <button
+              className="drop-zone as-button"
+              onClick={() => folderInput.current?.click()}
+              disabled={rtacBusy}
+            >
+              <b>{rtacBusy ? 'Uploading folder…' : 'Upload exported XML folder'}</b>
+              {rtacBusy ? <Spinner /> : 'folder-of-XML from AcSELerator RTAC'}
+            </button>
+
+            <ul className="source-list">
+              {projects.map((entry) => {
+                const { name, status, error } = entry
+                const ready = status === 'ready'
+                const source: DeviceSource = { type: 'rtac', ref: name }
+                const classes = ['project-entry', `status-${status}`]
+                if (isSelected(source)) classes.push('selected')
+                return (
+                  <li key={name}>
+                    <button
+                      className={classes.join(' ')}
+                      {...(ready ? dragProps(source) : {})}
+                      title={
+                        ready
+                          ? `${name} — drag to canvas, click to inspect`
+                          : status === 'error'
+                            ? `Export failed: ${error ?? 'unknown error'} — double-click to retry`
+                            : `${name} — downloading…`
+                      }
+                      onClick={() => ready && onSelect(source)}
+                      onDoubleClick={() => status === 'error' && onExport(name)}
+                    >
+                      {ready && <span className="grip">⠿</span>}
+                      <span className="project-name">{name}</span>
+                      {status === 'exporting' && <Spinner />}
+                      {status === 'error' && <span className="error-mark">!</span>}
+                      {ready && placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
+                      {status !== 'exporting' && (
+                        <span
+                          className="entry-delete"
+                          title="Remove this export from the project"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onDeleteRtac(name)
+                          }}
+                        >
+                          ✕
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+            {!projects.length && (
+              <div className="pane-message">
+                No RTAC projects here yet — browse the database or upload a folder.
+              </div>
+            )}
+          </div>
+          {dbOpen && (
+            <RtacDatabaseModal
+              project={project}
+              onClose={() => setDbOpen(false)}
+              onStarted={onRtacChanged}
+            />
+          )}
         </>
       )}
 

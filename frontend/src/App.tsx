@@ -2,14 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   createProject,
+  deleteRtacExport,
   deleteUpload,
   fetchSourceItem,
   fetchSourceTree,
   listProjects,
   listRtacProjects,
   listUploads,
-  refreshRtacProjects,
   startExport,
+  uploadRtacFolder,
   uploadSourceFile,
 } from './api'
 import { AggregateView } from './components/AggregateView'
@@ -70,7 +71,7 @@ export default function App() {
     try {
       const list = await listRtacProjects(project)
       setRtacProjects(list.projects)
-      setListError(list.error)
+      setListError(null)
     } catch (err) {
       setListError(`Cannot reach the backend: ${errorMessage(err)}`)
     }
@@ -88,15 +89,9 @@ export default function App() {
     }
   }, [project])
 
-  const retryList = useCallback(async () => {
-    try {
-      const list = await refreshRtacProjects(project)
-      setRtacProjects(list.projects)
-      setListError(list.error)
-    } catch {
-      await refreshRtac()
-    }
-  }, [project, refreshRtac])
+  // Database-list errors live in the browser modal now; the sidebar banner
+  // only reports the backend being unreachable, and Retry refetches.
+  const retryList = refreshRtac
 
   const refreshProjects = useCallback(async () => {
     try {
@@ -161,6 +156,46 @@ export default function App() {
     },
     [project, refreshRtac],
   )
+
+  // RTAC sources beyond the database double-click: folder upload + removal.
+  const [rtacBusy, setRtacBusy] = useState(false)
+  const handleUploadRtacFolder = useCallback(
+    async (files: File[]) => {
+      setRtacBusy(true)
+      setListError(null)
+      try {
+        await uploadRtacFolder(project, files)
+        await refreshRtac()
+        setGraphVersion((v) => v + 1)
+      } catch (err) {
+        setListError(errorMessage(err))
+      } finally {
+        setRtacBusy(false)
+      }
+    },
+    [project, refreshRtac],
+  )
+
+  const handleDeleteRtac = useCallback(
+    async (name: string) => {
+      try {
+        await deleteRtacExport(project, name)
+      } catch (err) {
+        setListError(errorMessage(err))
+      }
+      setSelectedSource((current) =>
+        current?.type === 'rtac' && current.ref === name ? null : current,
+      )
+      await refreshRtac()
+      setGraphVersion((v) => v + 1)
+    },
+    [project, refreshRtac],
+  )
+
+  const handleRtacChanged = useCallback(async () => {
+    await refreshRtac()
+    setGraphVersion((v) => v + 1)
+  }, [refreshRtac])
 
   const setUploadError = useCallback((type: UploadSourceType, error: string | null) => {
     setUploads((current) => ({ ...current, [type]: { ...current[type], error } }))
@@ -264,12 +299,17 @@ export default function App() {
       <div className="app">
         {mode !== 'compare' && (
           <SourcesSidebar
+            project={project}
             projects={rtacProjects}
             listError={listError}
             onRetryList={retryList}
             uploads={uploads}
             onUpload={handleUpload}
             onDeleteUpload={handleDeleteUpload}
+            rtacBusy={rtacBusy}
+            onUploadRtacFolder={handleUploadRtacFolder}
+            onDeleteRtac={handleDeleteRtac}
+            onRtacChanged={handleRtacChanged}
             selected={mode === 'inspect' ? selectedSource : null}
             onSelect={handleSelectSource}
             onExport={handleExport}

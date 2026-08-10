@@ -6,6 +6,7 @@ import type {
   ProjectItem,
   ProjectList,
   ProjectTree,
+  RtacAvailableList,
   UploadSourceType,
   UploadedFile,
   WorkspaceGraph,
@@ -50,17 +51,44 @@ export function createProject(name: string): Promise<{ name: string }> {
 
 // --- RTAC (the machine-global catalog, exported per project) -------------------
 
+/** The RTAC exports in this project (the sidebar list). */
 export function listRtacProjects(project: string): Promise<ProjectList> {
   return get(`${base(project)}/rtac`)
 }
 
-// Retry the database list after a failure.
-export function refreshRtacProjects(project: string): Promise<ProjectList> {
+/** The machine-global AcRTAC catalog (the database browser's list). */
+export function fetchRtacAvailable(project: string): Promise<RtacAvailableList> {
+  return get(`${base(project)}/rtac/available`)
+}
+
+/** Re-query the database list, then return the catalog. */
+export function refreshRtacAvailable(project: string): Promise<RtacAvailableList> {
   return send(`${base(project)}/rtac/refresh`, 'POST')
 }
 
 export async function startExport(project: string, name: string): Promise<void> {
   await send(`${base(project)}/rtac/${encodeURIComponent(name)}/export`, 'POST')
+}
+
+/** Upload an exported RTAC XML folder. Multer basenames filenames, so the
+ * folder-relative paths ride in a parallel field, index-aligned. */
+export function uploadRtacFolder(
+  project: string,
+  files: File[],
+): Promise<{ added: { name: string; files: number }[] }> {
+  const form = new FormData()
+  form.append(
+    'paths',
+    JSON.stringify(files.map((file) => file.webkitRelativePath || file.name)),
+  )
+  for (const file of files) {
+    form.append('files', file)
+  }
+  return send(`${base(project)}/rtac/upload`, 'POST', form)
+}
+
+export function deleteRtacExport(project: string, name: string): Promise<unknown> {
+  return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'DELETE')
 }
 
 export function fetchTree(project: string, name: string): Promise<ProjectTree> {

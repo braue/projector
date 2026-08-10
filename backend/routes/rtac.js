@@ -4,28 +4,66 @@
 // `catalog` is the shared AcRTAC database catalog its refresh re-queries.
 
 import { Router } from 'express';
+import multer from 'multer';
 
-import { requireQuery } from '../lib/http.js';
+import { httpError, requireQuery } from '../lib/http.js';
+
+const MAX_UPLOAD_BYTES = 64 * 1024 * 1024;
 
 function rtacRoutes(resolve, catalog) {
   const router = Router({ mergeParams: true });
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MAX_UPLOAD_BYTES, files: 5000 },
+  });
 
-  // Sidebar list: every AcRTAC project with its export state in THIS
-  // project, plus the last database-list error (null when healthy).
+  // Sidebar list: the RTAC exports in THIS project, with their states.
   router.get('/', async (req, res) => {
     res.json((await resolve(req)).list());
   });
 
-  // Retry the database list after a failure.
-  router.post('/refresh', async (req, res) => {
-    await catalog.refresh();
-    res.json((await resolve(req)).list());
+  // The database browser: the machine-global catalog, flagged with what is
+  // already here, plus the last database-list error (null when healthy).
+  router.get('/available', async (req, res) => {
+    res.json((await resolve(req)).available());
   });
 
-  // Double-click: start (or retry) the export into this project. 202 —
-  // completion is polled.
+  // (Re-)query the database list — the browser's refresh button.
+  router.post('/refresh', async (req, res) => {
+    await catalog.refresh();
+    res.json((await resolve(req)).available());
+  });
+
+  // The no-database path: an exported folder uploaded from disk. Multer
+  // basenames filenames, so the folder-relative paths travel in a parallel
+  // JSON field, index-aligned with the files.
+  router.post('/upload', upload.array('files'), async (req, res) => {
+    if (!req.files?.length) throw httpError(400, 'multipart field "files" required');
+    let paths;
+    try {
+      paths = JSON.parse(req.body?.paths ?? '');
+    } catch {
+      paths = null;
+    }
+    if (!Array.isArray(paths) || paths.length !== req.files.length) {
+      throw httpError(400, 'field "paths" must list one folder-relative path per file');
+    }
+    const service = await resolve(req);
+    res.status(201).json(await service.uploadFolder(
+      req.files.map((file, index) => ({ path: paths[index], buffer: file.buffer })),
+    ));
+  });
+
+  // Start (or retry) a database export into this project. 202 — completion
+  // is polled via the list.
   router.post('/:name/export', async (req, res) => {
     res.status(202).json((await resolve(req)).startExport(req.params.name));
+  });
+
+  // Take an export out of this project.
+  router.delete('/:name', async (req, res) => {
+    await (await resolve(req)).remove(req.params.name);
+    res.json({ ok: true });
   });
 
   // File-tree sidebar for an exported RTAC project.

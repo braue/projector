@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react'
+import { useTreePaneWidth } from '../lib/usePaneWidth'
 import type { ItemCategory, ProjectTree, TreeNode } from '../types'
 import { Checkbox } from './ui'
 
@@ -128,7 +129,8 @@ export function TreeRows({ nodes, ...props }: RowsProps & { nodes: TreeNode[] })
   )
 }
 
-// Generic middle-pane frame: header + rows + footer.
+// Generic middle-pane frame: header + rows + footer, resizable on its right
+// edge (browse, compare, and aggregate share the width).
 export function TreePane({
   header,
   footer,
@@ -138,8 +140,10 @@ export function TreePane({
   footer?: ReactNode
   children: ReactNode
 }) {
+  const { width, startResize } = useTreePaneWidth()
   return (
-    <aside className="file-tree">
+    <aside className="file-tree" style={{ width }}>
+      <div className="sidebar-resize" onMouseDown={startResize} title="Drag to resize" />
       <div className="pane-header">{header}</div>
       {children}
       {footer && <div className="pane-footer">{footer}</div>}
