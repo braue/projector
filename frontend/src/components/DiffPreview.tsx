@@ -8,6 +8,11 @@ import { Chip, DataTable, SectionHeader, Tag, type TableRow } from './ui'
 // the thing itself. An edited file renders the structured diff: settings
 // rows, point-level changes, page tables that moved, and a line diff of any
 // logic source.
+//
+// The tables carry no maxHeight on purpose: cells wrap whole values (a
+// changed page row runs hundreds of characters), so a short inner window
+// would show a row and a half at a time. The pane scrolls as ONE region
+// instead — sticky table headers still track it.
 
 const STATUS_LABEL: Record<FileStatus, string> = {
   added: 'Added',
@@ -34,7 +39,6 @@ function SettingsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
           { key: 'updated', label: 'New' },
         ]}
         rows={rows}
-        maxHeight="45vh"
       />
     </section>
   )
@@ -100,7 +104,6 @@ function RowDiffSection({
             { key: 'updated', label: 'New' },
           ]}
           rows={changedRows}
-          maxHeight="45vh"
         />
       )}
     </section>
@@ -165,7 +168,6 @@ function PagesDiffSection({ diff }: { diff: CompareItem['diff'] }) {
             { key: 'updated', label: 'New' },
           ]}
           rows={changedRows}
-          maxHeight="45vh"
         />
       )}
     </section>

@@ -325,6 +325,7 @@ function FolderRow({
           selected === node.path ? 'selected' : '',
           dropTarget === node.path ? 'file-drop' : '',
         ].filter(Boolean).join(' ')}
+        title={node.name}
         onClick={() => {
           onSelect()
           setOpen((current) => !current)

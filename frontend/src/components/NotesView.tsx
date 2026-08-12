@@ -265,6 +265,7 @@ export function NotesView({
                 <li key={note.id}>
                   <button
                     className={note.id === selectedId ? 'project-entry status-ready selected' : 'project-entry status-ready'}
+                    title={note.name}
                     onClick={() => selectNote(note.id)}
                   >
                     <span className="project-name">{note.name}</span>

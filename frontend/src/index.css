@@ -133,9 +133,15 @@ button.ui-section-header:hover { color: var(--ink); }
 
 .ui-table-viewport { overflow: auto; }
 .ui-table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; min-width: 100%; }
+/* Cells WRAP; they never ellipsis-truncate. A settings value the reader
+ * cannot finish reading is the same as no value at all — whole-row page
+ * references (Tag Processor) run hundreds of characters. Long content grows
+ * the row; the min-width keeps columns from being crushed, and the viewport
+ * scrolls horizontally when a wide table needs it. */
 .ui-table th, .ui-table td {
   text-align: left; padding: 7px 16px; border-bottom: 1px solid var(--border-soft);
-  white-space: nowrap; max-width: 360px; overflow: hidden; text-overflow: ellipsis; vertical-align: top;
+  min-width: 96px; max-width: 520px; vertical-align: top;
+  white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .ui-table thead th {
   position: sticky; top: 0; z-index: 1; background: var(--card);
@@ -220,7 +226,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .modal-row { display: flex; align-items: center; gap: 9px; padding: 6px 14px; cursor: pointer; }
 .modal-row:hover { background: var(--fill); }
 .modal-row.in-project .modal-name { color: var(--muted); }
-.modal-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modal-name { min-width: 0; overflow-wrap: anywhere; }
 .modal-badge {
   margin-left: auto; flex: none; font-size: 10.5px; font-weight: 600;
   padding: 1px 6px; border-radius: 6px; background: var(--fill); color: var(--muted);
@@ -285,7 +291,7 @@ button.ui-section-header:hover { color: var(--ink); }
   display: flex; align-items: center; gap: 6px; padding: 6px 16px 3px;
   font-size: 11.5px; color: var(--muted);
 }
-.rdb-file-name .mono { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; }
+.rdb-file-name .mono { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 11.5px; }
 .rdb-delete {
   flex: none; border: 0; background: none; color: var(--muted); cursor: pointer;
   font-size: 11px; padding: 2px 6px; border-radius: 6px;
@@ -379,14 +385,19 @@ button.ui-section-header:hover { color: var(--ink); }
 .preview-header { flex: none; padding: 12px 16px 10px; border-bottom: 1px solid var(--border); }
 .preview-title-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .preview-title-row h2 {
-  margin: 0; font-size: 15.5px; font-weight: 650;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin: 0; font-size: 15.5px; font-weight: 650; overflow-wrap: anywhere;
 }
 .preview-subtitle { margin-top: 3px; font-size: 12px; color: var(--muted); }
 .preview-subtitle .mono { font-size: 11px; }
 
 .preview-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .preview-sections { flex: none; max-height: 55%; overflow-y: auto; }
+/* Browse keeps overflow hidden so its sheet table owns the lower scroll
+ * region. Every OTHER pane (search results, diffs) puts its content straight
+ * in here, so this must scroll itself — and its children must not shrink to
+ * fit, or the tail of a long result list is simply unreachable. */
+.preview-scroll.no-sheets { overflow-y: auto; }
+.preview-scroll.no-sheets > * { flex: none; }
 .preview-scroll.no-sheets .preview-sections { max-height: none; flex: 1; }
 .preview-sections section { border-bottom: 1px solid var(--border-soft); }
 .preview-scroll > .ui-table-viewport { flex: 1; min-height: 0; }
@@ -397,10 +408,12 @@ button.ui-section-header:hover { color: var(--ink); }
   gap: 4px 32px; padding: 4px 16px 12px; max-height: 230px; overflow-y: auto;
 }
 .setting-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; }
-.setting-key { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Keys and values wrap rather than truncate — an IP list or logic expression
+ * cut off mid-value is the one thing a settings review cannot afford. */
+.setting-key { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
 .setting-value {
-  font-family: var(--font-mono); font-size: 11.5px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;
+  font-family: var(--font-mono); font-size: 11.5px; max-width: 60%;
+  white-space: pre-wrap; overflow-wrap: anywhere;
 }
 
 .section-note { margin: 0; padding: 8px 16px; font-size: 13px; color: var(--muted); }
@@ -529,7 +542,7 @@ button.ui-section-header:hover { color: var(--ink); }
   padding: 1px 5px; border-radius: 5px; background: var(--fill); color: #4b5160;
 }
 .link-popup .endinfo.scd-attachment { display: flex; align-items: center; gap: 8px; }
-.link-popup .endinfo.scd-attachment div { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.link-popup .endinfo.scd-attachment div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
 /* rdb panel drawings (generated front/rear views) */
 .drawing-view { padding: 4px 0 8px; }
@@ -538,14 +551,16 @@ button.ui-section-header:hover { color: var(--ink); }
   border: 1px solid var(--border); border-radius: 10px;
 }
 
-/* link popup */
+/* link popup — capped to the canvas and scrollable, so a device with many
+   endpoints or warnings never runs off the bottom with no way to read it. */
 .link-popup {
   position: absolute; z-index: 10; width: 348px; background: var(--card);
-  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 12px;
+  overflow-x: hidden; overflow-y: auto; max-height: calc(100% - 28px);
   box-shadow: 0 12px 40px rgba(15,18,26,0.16); font-size: 13px;
 }
 .link-popup .ph { display: flex; align-items: center; gap: 10px; padding: 11px 14px 9px; }
-.link-popup .ph .t { font-weight: 650; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-popup .ph .t { font-weight: 650; font-size: 13.5px; min-width: 0; overflow-wrap: anywhere; }
 .link-popup .tier-badge { flex: none; font-size: 11px; font-weight: 600; text-transform: capitalize; }
 .link-popup .x { margin-left: auto; flex: none; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
 .link-popup .x:hover { background: var(--fill); }
@@ -650,8 +665,10 @@ button.ui-section-header:hover { color: var(--ink); }
 .search-match {
   display: flex; gap: 12px; padding: 2px 16px; font-family: var(--font-mono); font-size: 11.5px;
 }
-.search-where { flex: none; width: 300px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.search-text { min-width: 0; overflow-wrap: anywhere; }
+.search-where { flex: none; width: 300px; color: var(--muted); overflow-wrap: anywhere; }
+/* pre-wrap: a note line keeps its indentation, and long values wrap into the
+ * row instead of running off the right edge. */
+.search-text { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .search-text mark { background: #fdf0c2; color: inherit; border-radius: 3px; padding: 0 1px; }
 .search-more { padding: 2px 16px 6px; font-size: 11.5px; color: var(--muted); }
 /* Clickable result rows (Notes line hits, Files entries). */
@@ -660,6 +677,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .file-hit { align-items: center; padding: 4px 16px; }
 .search-path {
   margin-left: auto; flex: none; max-width: 45%; color: var(--muted);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .search-size { flex: none; color: var(--muted); }

@@ -45,7 +45,7 @@ function TreeEntry(props: RowsProps & { node: TreeNode; depth: number }) {
     const someChecked = !allChecked && paths.some((path) => checked?.has(path))
     return (
       <>
-        <button className="tree-row tree-folder" style={indent} onClick={() => setOpen(!open)}>
+        <button className="tree-row tree-folder" style={indent} title={node.name} onClick={() => setOpen(!open)}>
           <span className="tree-caret">{open ? '▾' : '▸'}</span>
           {checkable && (
             <Checkbox

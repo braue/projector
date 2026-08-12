@@ -10,9 +10,13 @@ import { httpError } from '../lib/http.js';
 import { itemSummary, rowText } from '../lib/inspect.js';
 
 // Payload guards — a short string can match tens of thousands of points.
+// MAX_TEXT is generous on purpose: a whole page row (Tag Processor rows run
+// several hundred characters) must arrive COMPLETE, since the result pane is
+// where the reader reads it. Only pathological values (a CDATA blob in one
+// cell) clip, and those stay reachable by opening the hit in Browse.
 const MAX_MATCHES_PER_ITEM = 50;
 const MAX_ITEMS = 200;
-const MAX_TEXT = 220;
+const MAX_TEXT = 1200;
 
 // Clip long values so the payload stays bounded — windowed around the first
 // hit when a head clip would cut it off (the frontend re-finds the needle to
