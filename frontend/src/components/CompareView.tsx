@@ -26,7 +26,7 @@ export function CompareView({
   projects,
   uploads,
 }: {
-  /** The purview project every ref below lives in. */
+  /** The projector project every ref below lives in. */
   project: string
   projects: ProjectEntry[]
   uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>

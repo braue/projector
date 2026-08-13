@@ -1,4 +1,4 @@
-// Purview projects — the top-level container everything now lives in. A
+// Projector projects — the top-level container everything now lives in. A
 // project is a folder under DATA_DIR/projects/<name>/ holding that project's
 // own sources and canvas:
 //

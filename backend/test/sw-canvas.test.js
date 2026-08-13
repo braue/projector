@@ -32,7 +32,7 @@ const RELAY_PROFILE = {
 };
 
 test('sw service: upload, list, inspect shapes', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-sw-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sw-'));
   try {
     const service = await serviceWithMini(tmp);
 
@@ -71,7 +71,7 @@ test('sw service: upload, list, inspect shapes', async () => {
 });
 
 test('sw extractor: switch kind, management interfaces + endpoints, port inventory', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-sw-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sw-'));
   try {
     const service = await serviceWithMini(tmp);
     const profile = extractSwProfile(service.profile('station_a::SW-STATION-A'), 'station_a::SW-STATION-A');
@@ -102,7 +102,7 @@ test('sw extractor: switch kind, management interfaces + endpoints, port invento
 });
 
 test('linker: drawn ethernet connections validate against the port inventory', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-sw-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sw-'));
   try {
     const service = await serviceWithMini(tmp);
     const switchProfile = extractSwProfile(service.profile('station_a::SW-STATION-A'), 'station_a::SW-STATION-A');
@@ -146,7 +146,7 @@ test('linker: drawn ethernet connections validate against the port inventory', a
 });
 
 test('canvas flow: draw a connection, see it in the graph, remove it', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-sw-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sw-'));
   try {
     const sw = await serviceWithMini(tmp);
     const canvas = new CanvasService({

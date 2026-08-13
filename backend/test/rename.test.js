@@ -15,7 +15,7 @@ import { RtacCatalog } from '../services/rtacCatalog.js';
 import { RtacService } from '../services/rtac.js';
 import { makeRdb } from './helpers/makeRdb.js';
 
-const tmpDir = () => mkdtemp(path.join(os.tmpdir(), 'purview-rename-'));
+const tmpDir = () => mkdtemp(path.join(os.tmpdir(), 'projector-rename-'));
 
 test('upload rename moves the id and the canvas ref follows', async () => {
   const tmp = await tmpDir();

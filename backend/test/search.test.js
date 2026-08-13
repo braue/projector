@@ -11,7 +11,7 @@ import { SearchService } from '../services/search.js';
 import { makeRdb } from './helpers/makeRdb.js';
 
 test('search scopes to one source and reports object + location per match', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-search-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-search-'));
   try {
     const rdb = new RdbService({ dataDir: tmp });
     await rdb.init();

@@ -1,6 +1,6 @@
 // Parser for SEL relay databases (.rdb) — an OLE compound file (CFB) holding
 // one or more relay profiles, as AcSELerator QuickSet writes them. Ported
-// from Volture and made memory-only: purview keeps the original upload plus
+// from Volture and made memory-only: projector keeps the original upload plus
 // this parsed model, and never re-extracts the tree to disk.
 //
 // Layout inside the container:

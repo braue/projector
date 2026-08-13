@@ -1,4 +1,4 @@
-// RTAC export service — one instance per purview project, owning the
+// RTAC export service — one instance per projector project, owning the
 // lifecycle every sidebar entry moves through:
 //
 //   available --double-click--> exporting --> ready --click--> tree/preview
@@ -221,7 +221,7 @@ class RtacService {
   async #parsed(name) {
     const state = this.#known(name);
     if (state.status !== 'ready') {
-      throw httpError(409, `RTAC project ${name} is not exported into this purview project yet`);
+      throw httpError(409, `RTAC project ${name} is not exported into this projector project yet`);
     }
 
     // A hand-deleted export must drop out of the project even when a parsed

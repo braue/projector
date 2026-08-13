@@ -12,7 +12,7 @@ export const SOURCE_TABS: { key: SourceType; label: string }[] = [
 ]
 
 /** Drag payload: JSON DeviceSource under this MIME. */
-export const SOURCE_MIME = 'application/purview-source'
+export const SOURCE_MIME = 'application/projector-source'
 
 /** Canonical key for placed-source lookups. */
 export function sourceKey(source: DeviceSource): string {

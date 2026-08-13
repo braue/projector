@@ -28,7 +28,7 @@ function flakyClient() {
 }
 
 test('list failure is non-fatal, served, and recoverable', async () => {
-  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'projector-rtac-test-'));
   try {
     // "Beta" was exported into this project in a previous run.
     await mkdir(path.join(dataDir, 'Beta'), { recursive: true });
@@ -59,7 +59,7 @@ test('list failure is non-fatal, served, and recoverable', async () => {
 });
 
 test('a ready export whose folder vanished from disk drops out of the project', async () => {
-  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'projector-rtac-test-'));
   try {
     await mkdir(path.join(dataDir, 'Beta'), { recursive: true });
     const catalog = new RtacCatalog({ client: flakyClient() });
@@ -82,7 +82,7 @@ test('a ready export whose folder vanished from disk drops out of the project', 
 });
 
 test('an exported XML folder uploads into the project without the database', async () => {
-  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'purview-rtac-test-'));
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'projector-rtac-test-'));
   try {
     const catalog = new RtacCatalog({ client: flakyClient() });
     const service = new RtacService({ catalog, dataDir });

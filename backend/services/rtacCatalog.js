@@ -1,6 +1,6 @@
 // The AcRTAC database catalog — machine-global, unlike everything else in a
 // project. The database lists every RTAC project on this machine; each
-// purview project then exports the ones it cares about into its own folder
+// projector project then exports the ones it cares about into its own folder
 // (see services/rtac.js). One catalog instance is shared by every project's
 // RtacService.
 

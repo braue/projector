@@ -1,4 +1,4 @@
-# Purview
+# Projector
 
 A settings-truth communications canvas for substation devices. Load settings
 artifacts — RTAC projects (via the AcRTAC database), RDB relay profiles, SEL

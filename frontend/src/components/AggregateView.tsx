@@ -46,7 +46,7 @@ export function AggregateView({
   name,
   tree,
 }: {
-  /** The purview project scope. */
+  /** The projector project scope. */
   project: string
   /** The RTAC project whose settings are pivoted. */
   name: string

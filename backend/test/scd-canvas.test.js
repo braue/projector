@@ -22,7 +22,7 @@ async function serviceWithMini(tmp) {
 }
 
 test('scd service: upload, list, inspect shapes', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-scd-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-scd-'));
   try {
     const service = await serviceWithMini(tmp);
 
@@ -70,7 +70,7 @@ test('scd service: upload, list, inspect shapes', async () => {
 });
 
 test('scd extractor: interfaces, GOOSE publications, subscription fragment', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-scd-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-scd-'));
   try {
     const service = await serviceWithMini(tmp);
 
@@ -103,7 +103,7 @@ test('scd extractor: interfaces, GOOSE publications, subscription fragment', asy
 });
 
 test('linker: same-SCD subscription confirms; missing publisher ghosts', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-scd-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-scd-'));
   try {
     const service = await serviceWithMini(tmp);
     const relay = extractScdProfile(service.profile('mini::RELAY_1'), 'mini::RELAY_1');
@@ -156,7 +156,7 @@ test('attachmentWarning: fires only on comparable, disagreeing models', () => {
 });
 
 test('canvas attach flow: augmented device links to a standalone scd node', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-scd-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-scd-'));
   try {
     const scd = await serviceWithMini(tmp);
 

@@ -49,7 +49,7 @@ async function fixture(tmp) {
 }
 
 test('rdb profile vs rdb profile: section union with statuses, settings diff', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
     const compare = await fixture(tmp);
     const a = { type: 'rdb', ref: 'pair::OLD_UNIT' };
@@ -76,7 +76,7 @@ test('rdb profile vs rdb profile: section union with statuses, settings diff', a
 });
 
 test('reordered settings are not an edit: signatures are key-sorted', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
     const rdb = new RdbService({ dataDir: tmp });
     await rdb.init();
@@ -98,7 +98,7 @@ test('reordered settings are not an edit: signatures are key-sorted', async () =
 });
 
 test('upload signatures cover page rows: a Report-ID-only edit reads edited', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
     const scd = new ScdService({ dataDir: tmp });
     await scd.init();
@@ -120,7 +120,7 @@ test('upload signatures cover page rows: a Report-ID-only edit reads edited', as
 });
 
 test('scd ied vs scd ied compares inspect items; mixed types are rejected', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-compare-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
     const compare = await fixture(tmp);
     const relay = { type: 'scd', ref: 'mini::RELAY_1' };

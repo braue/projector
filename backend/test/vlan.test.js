@@ -37,7 +37,7 @@ async function fixture(tmp) {
 const gooseLink = (result) => result.links.find((link) => link.protocol === 'GOOSE' && link.targetDeviceId);
 
 test('a GOOSE link through ports that carry its VLAN stays confirmed', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-vlan-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-vlan-'));
   try {
     const { relay, rtu, switchProfile } = await fixture(tmp);
     const devices = [
@@ -60,7 +60,7 @@ test('a GOOSE link through ports that carry its VLAN stays confirmed', async () 
 });
 
 test('a switch port that drops the publication VLAN turns the GOOSE link into a conflict', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-vlan-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-vlan-'));
   try {
     const { relay, rtu, switchProfile } = await fixture(tmp);
     const devices = [
@@ -95,7 +95,7 @@ test('a switch port that drops the publication VLAN turns the GOOSE link into a 
 });
 
 test('no drawn fabric means no VLAN judgment — the declared link stands', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-vlan-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-vlan-'));
   try {
     const { relay, rtu } = await fixture(tmp);
     const result = linkProfiles([
@@ -111,7 +111,7 @@ test('no drawn fabric means no VLAN judgment — the declared link stands', asyn
 });
 
 test('trunk paths are walked across the drawn fabric, multi-hop included', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-vlan-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-vlan-'));
   try {
     const { relay, rtu, switchProfile } = await fixture(tmp);
     const switchB = { ...switchProfile, name: 'SW-B' };

@@ -13,7 +13,7 @@ import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { Button, InlineNameForm, RowAction, Spinner } from './ui'
 
 // The left rail: four source tabs. Every source belongs to the CURRENT
-// purview project. RTAC exports arrive two ways — browse the machine's
+// projector project. RTAC exports arrive two ways — browse the machine's
 // AcRTAC database in a window and download selections, or upload an
 // exported XML folder straight from disk. RDB/SCD/SW are upload-backed and
 // share one pane (drop zone + file cards + profile rows). Ready items drag
@@ -98,7 +98,7 @@ export function SourcesSidebar({
   onExport,
   placedRefs,
 }: {
-  /** The current purview project every source below belongs to. */
+  /** The current projector project every source below belongs to. */
   project: string
   projects: ProjectEntry[]
   listError: string | null

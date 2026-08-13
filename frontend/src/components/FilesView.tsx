@@ -27,7 +27,7 @@ import { Button, InlineNameForm, RowAction } from './ui'
 // OS. Hover ✎ renames, ✕ deletes; single click selects, double click on a
 // file opens it.
 
-const ENTRY_MIME = 'application/purview-file-entry'
+const ENTRY_MIME = 'application/projector-file-entry'
 
 function findNode(nodes: FileNode[], path: string): FileNode | null {
   for (const node of nodes) {

@@ -12,7 +12,7 @@ import { FilesService } from '../services/files.js';
 const asUpload = (name, content) => ({ originalname: name, buffer: Buffer.from(content) });
 
 test('files: upload, folders, rename, move, delete round-trip', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-files-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
   try {
     const files = new FilesService({ dataDir: tmp });
     await files.init();

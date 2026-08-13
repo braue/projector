@@ -1,4 +1,4 @@
-// Shapes served by the purview backend (see backend/services/projects.js).
+// Shapes served by the projector backend (see backend/services/projects.js).
 // Only the fields the UI actually reads are typed — the API returns more; see
 // the backend services for the full payloads.
 
@@ -18,7 +18,7 @@ export interface ProjectList {
 /** One AcRTAC database project, as the database browser lists it. */
 export interface RtacAvailableEntry {
   name: string
-  /** Already exported into the current purview project. */
+  /** Already exported into the current projector project. */
   inProject: boolean
 }
 

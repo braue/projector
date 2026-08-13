@@ -1,4 +1,4 @@
-# purview — design document
+# projector — design document
 
 *Working title. A settings-truth communications canvas for substation devices.*
 
@@ -145,7 +145,7 @@ backend/
   lib/inspect.js         the inspect-item shapes (section nodes, table
                          pages, item defaults) all services build from
   services/sources.js    RTAC pipeline (as built) + RDB/SCD/SW uploads
-  services/projects.js   purview projects — the top-level container. Each is
+  services/projects.js   projector projects — the top-level container. Each is
                          a folder under data/projects/<name>/ holding ITS OWN
                          sources and canvas: rtac/<export>/, rdb|scd|sw/
                          uploads, canvas.json. Lazy per-project service
@@ -241,7 +241,7 @@ fixtures needed before building — user will supply examples.
 
 ## Open questions for the user
 
-- ~~Name: gridlink? commscape? something else?~~ Settled: **Purview** (2026-08-08).
+- ~~Name: gridlink? commscape? something else?~~ Settled: **Projector** (2026-08-08).
 - RDB examples: Volture's parser handles QuickSet .rdb — confirm the files
   you'll upload are QuickSet exports (not something else).
 - SCD: waiting on example files (SEL Architect exports — .scd? .cid/.icd

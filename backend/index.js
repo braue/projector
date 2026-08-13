@@ -1,4 +1,4 @@
-// purview backend — settings-truth communications canvas.
+// projector backend — settings-truth communications canvas.
 //
 // Loopback-only Express app: the Vite dev server proxies /api here. State is
 // a data directory of self-contained projects (each holding its own RTAC
@@ -16,7 +16,7 @@ import { ProjectsService } from './services/projects.js';
 import { RtacCatalog } from './services/rtacCatalog.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.PURVIEW_API_PORT ?? process.env.PORT ?? 3003);
+const PORT = Number(process.env.PROJECTOR_API_PORT ?? process.env.PORT ?? 3003);
 const DATA_DIR = path.join(HERE, 'data');
 
 const catalog = new RtacCatalog({ client: createAcRtacClient() });
@@ -61,5 +61,5 @@ process.on('uncaughtException', (err) => {
 });
 
 app.listen(PORT, '127.0.0.1', () => {
-  console.log(`purview backend on http://127.0.0.1:${PORT}`);
+  console.log(`projector backend on http://127.0.0.1:${PORT}`);
 });

@@ -49,7 +49,7 @@ async function testDevicesDir(tmp) {
 }
 
 test('rdb upload generates front/rear drawings, tree leads with them, item serves the image', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-drawings-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-drawings-'));
   try {
     const service = new RdbService({ dataDir: tmp, selDevicesDir: await testDevicesDir(tmp) });
     await service.init();
@@ -83,7 +83,7 @@ test('rdb upload generates front/rear drawings, tree leads with them, item serve
 });
 
 test('a model without drawing assets uploads cleanly with no Drawings section', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'purview-drawings-'));
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-drawings-'));
   try {
     const service = new RdbService({ dataDir: tmp, selDevicesDir: path.join(tmp, 'empty') });
     await service.init();

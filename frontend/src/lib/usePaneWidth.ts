@@ -45,10 +45,10 @@ function usePaneWidth(key: string, { min, max, fallback }: PaneConfig) {
 
 /** The left source rail (canvas/inspect sidebar and the compare rail). */
 export function useSidebarWidth() {
-  return usePaneWidth('purview-sidebar-width', { min: 180, max: 560, fallback: 224 })
+  return usePaneWidth('projector-sidebar-width', { min: 180, max: 560, fallback: 224 })
 }
 
 /** The item tree pane (browse, compare, and aggregate all share it). */
 export function useTreePaneWidth() {
-  return usePaneWidth('purview-tree-width', { min: 220, max: 680, fallback: 320 })
+  return usePaneWidth('projector-tree-width', { min: 220, max: 680, fallback: 320 })
 }

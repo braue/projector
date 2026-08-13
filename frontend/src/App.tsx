@@ -46,7 +46,7 @@ import type {
 } from './types'
 
 const POLL_MS = 1200
-const PROJECT_KEY = 'purview-project'
+const PROJECT_KEY = 'projector-project'
 
 type Mode = 'canvas' | 'inspect' | 'compare' | 'notes' | 'files'
 type InspectSub = 'browse' | 'aggregate' | 'search'

@@ -8,7 +8,7 @@ import { Button, Checkbox, Spinner } from './ui'
 
 // The AcRTAC database browser: a window over the app listing every project
 // in the machine's database. Check the ones to download; they export into
-// the CURRENT purview project and appear in the sidebar with per-item
+// the CURRENT projector project and appear in the sidebar with per-item
 // spinners while the CLI works. Listing the database itself goes through the
 // Python bridge (slow), so the list has its own loading state and an
 // explicit refresh.

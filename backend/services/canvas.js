@@ -1,4 +1,4 @@
-// Canvas service — one per purview project. The canvas stores only what the
+// Canvas service — one per projector project. The canvas stores only what the
 // user decided: which artifacts are placed and where, plus manual links.
 // Links are never stored: every graph read re-runs the extractor + linker
 // over the current artifacts, so a re-exported or re-uploaded source
