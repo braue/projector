@@ -204,6 +204,65 @@ test('generic page diff pinpoints rows and fields', () => {
   assert.deepEqual(tags.removed, []);
 });
 
+// The REAL Tag Processor shape (RTAC_PROJECT export): the lead column is
+// Build (True on every row) — useless as identity — the actual row identity
+// is DestinationTagName, and SolveOrder renumbers wholesale on every insert.
+const tagProcessorPage = (rows) => [{
+  name: 'Settings',
+  columns: ['Build', 'DestinationTagName', 'LoggingEnable', 'SolveOrder'],
+  rows: rows.map(([dest, logging], index) => ({
+    Build: 'True',
+    DestinationTagName: dest,
+    LoggingEnable: logging,
+    SolveOrder: String(index + 1),
+  })),
+}];
+
+test('Tag Processor rows pair by their identity column, not the Build lead column', () => {
+  const diff = diffItems(
+    { settings: {}, points: [], pages: tagProcessorPage([
+      ['SystemTags.User_Logged_On', 'True'],
+      ['SystemTags.User_Logged_Off', 'True'],
+      ['SystemTags.Password_Changed', 'True'],
+      ['SystemTags.Settings_Changed', 'True'],
+    ]) },
+    // One row inserted up top (renumbering everything below it) and one field
+    // edited further down — the diff must NOT pair unrelated rows.
+    { settings: {}, points: [], pages: tagProcessorPage([
+      ['SystemTags.Brand_New_Tag', 'True'],
+      ['SystemTags.User_Logged_On', 'True'],
+      ['SystemTags.User_Logged_Off', 'True'],
+      ['SystemTags.Password_Changed', 'False'],
+      ['SystemTags.Settings_Changed', 'True'],
+    ]) },
+  );
+
+  const [page] = diff.pages;
+  assert.equal(page.status, 'changed');
+  assert.equal(page.added.length, 1);
+  assert.match(page.added[0], /Brand_New_Tag/);
+  assert.deepEqual(page.removed, []);
+  assert.equal(page.changed.length, 1);
+  assert.equal(page.changed[0].row, 'SystemTags.Password_Changed');
+  assert.match(page.changed[0].original, /LoggingEnable = True/);
+  assert.match(page.changed[0].updated, /LoggingEnable = False/);
+});
+
+test('a SolveOrder renumber alone reads reordered, not N edits', () => {
+  const rows = [
+    ['SystemTags.User_Logged_On', 'True'],
+    ['SystemTags.User_Logged_Off', 'True'],
+    ['SystemTags.Password_Changed', 'True'],
+  ];
+  const [original] = tagProcessorPage(rows);
+  const [updated] = tagProcessorPage([rows[2], rows[0], rows[1]]);
+  const diff = diffItems(
+    { settings: {}, points: [], pages: [original] },
+    { settings: {}, points: [], pages: [updated] },
+  );
+  assert.deepEqual(diff.pages, [{ name: 'Settings', status: 'reordered', rows: 3 }]);
+});
+
 test('a page with the same rows in a different order reads reordered', () => {
   const page = (rows) => [{ name: 'Tags', columns: ['Destination', 'Source'], rows }];
   const rowA = { Destination: 'BRK_1', Source: 'X' };

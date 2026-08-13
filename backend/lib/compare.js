@@ -109,15 +109,67 @@ function diffPoints(aPoints = [], bPoints = []) {
   return { added, removed, changed };
 }
 
-// A generic page's rows, each labeled by its first-column value — these
-// tables lead with a name-ish column. An empty lead cell falls back to the
-// first non-empty cell (content identity), then to the row's position;
-// duplicates get an ordinal.
-function pageRows(page) {
-  const first = page.columns?.[0];
+const NUMERIC_VALUE = /^-?\d+(?:\.\d+)?$/;
+
+// How key-like `column` is within one side's rows: the share of rows it
+// distinguishes. 0 for columns that are mostly empty or bare numbers — a
+// numeric column that distinguishes every row (SolveOrder) is an execution
+// ORDER that renumbers on insert, so keying on it mispairs rows exactly like
+// row position does.
+function keyness(rows, column) {
+  if (!rows.length) return 1; // an empty side constrains nothing
+  const values = rows.map((row) => row[column]).filter((value) => value != null && value !== '');
+  if (values.length < rows.length / 2) return 0;
+  if (values.every((value) => NUMERIC_VALUE.test(value))) return 0;
+  return new Set(values).size / rows.length;
+}
+
+// The column that identifies rows across both sides of a page diff. Generic
+// tables do NOT reliably lead with a name: the real Tag Processor leads with
+// Build (True on every row) while the actual row identity is
+// DestinationTagName. Take the column that is most key-like on BOTH sides,
+// with near-ties going to the leftmost — several columns can be near-unique
+// (destination tag, logging message) and the table leads with the designed
+// identity among them.
+function labelColumn(aPage, bPage, columns) {
+  let best = columns[0];
+  let bestScore = 0.5; // a column half of whose rows share labels is no key
+  for (const column of columns) {
+    const score = Math.min(keyness(aPage.rows, column), keyness(bPage.rows, column));
+    if (score > bestScore + 0.05) {
+      bestScore = score;
+      best = column;
+    }
+  }
+  return best;
+}
+
+// Order/index columns: bare numbers, nearly all distinct. AcSELerator
+// renumbers these wholesale when a row is inserted or moved, so a difference
+// confined to them is the row MOVING, not being edited — without this, one
+// inserted Tag Processor row reads as an addition plus thirty bogus
+// "changed" rows that differ only in SolveOrder.
+function orderColumns(aPage, bPage, columns) {
+  const orderlike = (rows, column) => {
+    if (!rows.length) return true;
+    const values = rows.map((row) => row[column]).filter((value) => value != null && value !== '');
+    // A tiny table can't establish "this is an index" — treat its numbers as data.
+    if (values.length < 3 || values.length < rows.length / 2) return false;
+    if (!values.every((value) => NUMERIC_VALUE.test(value))) return false;
+    return new Set(values).size >= values.length * 0.9;
+  };
+  return new Set(columns.filter(
+    (column) => orderlike(aPage.rows, column) && orderlike(bPage.rows, column),
+  ));
+}
+
+// A generic page's rows, each labeled by its identity-column value. An empty
+// cell there falls back to the first non-empty cell (content identity), then
+// to the row's position; duplicates get an ordinal.
+function pageRows(page, label) {
   const seen = new Map();
   return page.rows.map((row, index) => {
-    const base = (first && row[first])
+    const base = (label && row[label])
       || (page.columns ?? []).map((column) => row[column]).find((value) => value)
       || `#${index + 1}`;
     const ordinal = (seen.get(base) ?? 0) + 1;
@@ -139,36 +191,47 @@ function rowFields(aRow, bRow) {
 // Row-level diff of one generic page. Row identity is CONTENT-first, so the
 // diff is row-number agnostic: identical rows pair off wherever they sit (a
 // table shifted down a row is not N edits). Leftovers then match by
-// lead-column label, and what remains pairs positionally — with pairs
+// identity-column label, and what remains pairs positionally — with pairs
 // sharing no column value reading as removed + added.
 //
 // Every reported row carries its WHOLE rendered text (rowText) — changed rows
 // on both sides, added/removed rows in full — because a row named only by its
 // lead cell or position is unreadable in review (Tag Processor especially).
 function diffPageRows(aPage, bPage) {
-  const aRows = pageRows(aPage);
-  const bRows = pageRows(bPage);
+  const columns = [...new Set([...(aPage.columns ?? []), ...(bPage.columns ?? [])])];
+  const label = labelColumn(aPage, bPage, columns);
+  const orderish = orderColumns(aPage, bPage, columns);
+  // Field differences that mean the row was EDITED — order-column shifts are
+  // the row moving, which the row-number-agnostic diff must not report.
+  const editedFields = (a, b) => rowFields(a, b).filter((field) => !orderish.has(field.column));
+  const aRows = pageRows(aPage, label);
+  const bRows = pageRows(bPage, label);
   const matchedA = new Set();
   const unmatchedB = [];
   const changed = [];
   const added = [];
   const removed = [];
 
-  // 1. Exact-content multiset match, position-blind.
+  // 1. Exact-content multiset match, position-blind. Order columns are left
+  // out of the signature: a row whose only difference is its renumbered
+  // SolveOrder is the SAME row that moved.
+  const contentKey = (row) => modelSignature(
+    Object.fromEntries(Object.entries(row).filter(([column]) => !orderish.has(column))),
+  );
   const byContent = new Map();
   for (const a of aRows) {
-    const key = modelSignature(a.row);
+    const key = contentKey(a.row);
     if (!byContent.has(key)) byContent.set(key, []);
     byContent.get(key).push(a);
   }
   const labelCandidatesB = [];
   for (const b of bRows) {
-    const bucket = byContent.get(modelSignature(b.row));
+    const bucket = byContent.get(contentKey(b.row));
     if (bucket?.length) matchedA.add(bucket.pop());
     else labelCandidatesB.push(b);
   }
 
-  // 2. Lead-column label match over what content couldn't pair.
+  // 2. Identity-column label match over what content couldn't pair.
   const byLabel = new Map();
   for (const a of aRows) {
     if (!matchedA.has(a) && !byLabel.has(a.label)) byLabel.set(a.label, a);
@@ -177,7 +240,7 @@ function diffPageRows(aPage, bPage) {
     const a = byLabel.get(b.label);
     if (a && !matchedA.has(a)) {
       matchedA.add(a);
-      if (rowFields(a.row, b.row).length) {
+      if (editedFields(a.row, b.row).length) {
         changed.push({ row: b.label, original: rowText(a.row), updated: rowText(b.row) });
       }
     } else {
@@ -188,12 +251,16 @@ function diffPageRows(aPage, bPage) {
   const unmatchedA = aRows.filter((a) => !matchedA.has(a));
   const pairs = Math.min(unmatchedA.length, unmatchedB.length);
   for (let i = 0; i < pairs; i += 1) {
-    const fields = rowFields(unmatchedA[i].row, unmatchedB[i].row);
+    const fields = editedFields(unmatchedA[i].row, unmatchedB[i].row);
     // Positionally paired rows that share NOTHING are a deletion plus an
     // unrelated addition — reporting them as one "changed" row would hide
-    // the removal entirely.
-    const columns = new Set([...Object.keys(unmatchedA[i].row), ...Object.keys(unmatchedB[i].row)]).size;
-    if (fields.length >= columns) {
+    // the removal entirely. (Order columns count on neither side of that
+    // judgment.)
+    const relevant = new Set(
+      [...Object.keys(unmatchedA[i].row), ...Object.keys(unmatchedB[i].row)]
+        .filter((column) => !orderish.has(column)),
+    ).size;
+    if (fields.length && fields.length >= relevant) {
       removed.push(rowText(unmatchedA[i].row));
       added.push(rowText(unmatchedB[i].row));
     } else if (fields.length) {
