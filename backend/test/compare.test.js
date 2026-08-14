@@ -324,6 +324,27 @@ test('the leftmost qualified key beats a more-unique free-text column', () => {
   assert.equal(tags.changed[0].label, 'BRKR_1');
 });
 
+test('noise columns are dropped from the table but their edits stay in fields', () => {
+  const diff = diffItems(
+    { settings: {}, points: [], pages: tagProcessorPage([
+      ['SystemTags.Station_Alarm', 'True'],
+      ['SystemTags.Feeder_Lockout', 'False'],
+      ['SystemTags.Bus_Undervoltage', 'True'],
+    ]) },
+    { settings: {}, points: [], pages: tagProcessorPage([
+      ['SystemTags.Station_Alarm', 'True'],
+      ['SystemTags.Feeder_Lockout', 'True'],
+      ['SystemTags.Bus_Undervoltage', 'True'],
+    ]) },
+  );
+  const [page] = diff.pages;
+  // LoggingEnable never renders as a column…
+  assert.deepEqual(page.columns, ['Build', 'DestinationTagName']);
+  // …but the edit to it is still reported, for the "Other edits" cell.
+  assert.equal(page.changed.length, 1);
+  assert.deepEqual(page.changed[0].fields, ['LoggingEnable']);
+});
+
 test('SolveOrder is declared a row-number column — ignored even when NOT contiguous', () => {
   // The user's call: solve order corresponds to the row number, full stop.
   // Even a sparse/gapped SolveOrder (5, 10, 20) must never read as an edit.

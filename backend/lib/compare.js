@@ -150,6 +150,19 @@ function labelColumn(aPage, bPage, columns) {
 // difference is never an edit, contiguous or not.
 const DECLARED_ORDER_COLUMNS = new Set(['SolveOrder']);
 
+// Columns ruled display NOISE in generic tables (Tag Processor logging and
+// housekeeping flags) — dropped from the diff's `columns` list so the
+// identity and message columns get the width. Edits to them still land in
+// `fields`; renderers surface those in an "Other edits" cell, never
+// silently. TimeSource/QualitySource spellings are conventions, untested
+// against real exports carrying them — tune when one arrives.
+const HIDDEN_PAGE_COLUMNS = new Set([
+  'LoggingEnable', 'LoggingAlarmEnable', 'LiveDataEnabled',
+  'TimeSource', 'TSSource', 'QualitySource', 'QSource',
+]);
+const hiddenPageColumn = (column) =>
+  HIDDEN_PAGE_COLUMNS.has(column) || column.startsWith('LoggingChatter');
+
 // Order/index columns: integers that form a CONTIGUOUS run from 0 or 1 —
 // positions, not data. AcSELerator renumbers these wholesale when a row is
 // inserted or moved, so a difference confined to them is the row MOVING,
@@ -306,14 +319,18 @@ function diffPageRows(aPage, bPage) {
   const allRemoved = [...removed, ...unmatchedA.slice(pairs)];
 
   // The columns the diff tables render: page order, restricted to columns
-  // holding a value in at least one reported row (sparse tables stay narrow).
+  // holding a value in at least one reported row (sparse tables stay
+  // narrow), minus the ruled-noise columns and the order columns — the
+  // renderers' Row badge already carries the position.
   const diffRows = [
     ...allAdded.map((entry) => entry.row),
     ...allRemoved.map((entry) => entry.row),
     ...changed.flatMap((entry) => [entry.original, entry.updated]),
   ];
   const usedColumns = columns.filter(
-    (column) => diffRows.some((row) => row[column] != null && row[column] !== ''),
+    (column) => !hiddenPageColumn(column)
+      && !orderish.has(column)
+      && diffRows.some((row) => row[column] != null && row[column] !== ''),
   );
 
   return {
@@ -418,4 +435,4 @@ function diffItems(original, updated) {
   };
 }
 
-export { STATUS, compareSignatures, diffItems, modelSignature };
+export { STATUS, compareSignatures, diffItems, hiddenPageColumn, modelSignature };

@@ -139,6 +139,30 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
   // Sorted by ROW POSITION (solve order), not grouped by change kind; the
   // leading column carries the row number. Removed rows sort by where they
   // used to live and come first on ties.
+  //
+  // Added/removed rows show their content (the content IS the edit);
+  // changed pairs show only the identity cell and the edited cells — the
+  // unchanged remainder of the row is blank. Edits in hidden noise columns
+  // (logging flags, dropped server-side from `columns`) surface in the
+  // trailing "Other edits" cell.
+  const hiddenEdits = (entry: NonNullable<typeof page.changed>[number]) =>
+    entry.fields
+      .filter((field) => !columns.includes(field))
+      .map((field) => `${field}: ${entry.original[field] ?? '—'} → ${entry.updated[field] ?? '—'}`)
+      .join(';  ')
+  const anyHidden = (page.changed ?? []).some((entry) => hiddenEdits(entry))
+
+  const changedCells = (
+    entry: NonNullable<typeof page.changed>[number],
+    row: Record<string, string>,
+  ) =>
+    Object.fromEntries(
+      columns.map((column) => [
+        column,
+        entry.fields.includes(column) || row[column] === entry.label ? row[column] ?? '' : '',
+      ]),
+    )
+
   const rows: TableRow[] = [
     ...(page.added ?? []).map((entry, i) => ({
       index: entry.index,
@@ -165,12 +189,16 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
         {
           id: `c${i}o`,
           tone: 'edited' as const,
-          cells: { __change: `~ ${entry.index + 1} was`, ...cells(entry.original) },
+          cells: { __change: `~ ${entry.index + 1} was`, ...changedCells(entry, entry.original) },
         },
         {
           id: `c${i}n`,
           tone: 'edited' as const,
-          cells: { __change: `~ ${entry.index + 1} now`, ...cells(entry.updated) },
+          cells: {
+            __change: `~ ${entry.index + 1} now`,
+            ...changedCells(entry, entry.updated),
+            ...(anyHidden ? { __other: hiddenEdits(entry) } : {}),
+          },
         },
       ],
     })),
@@ -188,6 +216,7 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
         columns={[
           { key: '__change', label: 'Row' },
           ...columns.map((column) => ({ key: column, label: column })),
+          ...(anyHidden ? [{ key: '__other', label: 'Other edits' }] : []),
         ]}
         rows={rows}
       />

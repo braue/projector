@@ -6,6 +6,7 @@
 
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
+import { hiddenPageColumn } from './compare.js';
 import { lineDiff } from './lineDiff.js';
 import { ST_START, tokenizeLine } from './st.js';
 
@@ -262,7 +263,7 @@ class Flow {
     // scales to fit, with a floor so no column vanishes.
     const MAX_NATURAL = charW * 34;
     const MIN_WIDTH = charW * 4 + cellPad * 2;
-    let widths = columns.map((column) => {
+    const naturals = columns.map((column) => {
       // Headers wrap between camelCase words, so a column only needs to fit
       // its longest header WORD, not the whole label.
       const headerWords = column.label.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
@@ -271,8 +272,9 @@ class Flow {
         const text = row.cells[column.key]?.text ?? '';
         if (text.length > chars) chars = text.length;
       }
-      return Math.min(chars * charW, MAX_NATURAL) + cellPad * 2;
+      return chars * charW + cellPad * 2;
     });
+    let widths = naturals.map((natural) => Math.min(natural, MAX_NATURAL + cellPad * 2));
     const total = widths.reduce((sum, width) => sum + width, 0);
 
     // Overflowing tables go landscape; the flip lands with the title.
@@ -282,6 +284,18 @@ class Flow {
     if (title) this.text(title, { font: 'bold', size: 10, keep: 24 });
     const available = this.bodyW - indent;
     const x0 = MARGIN + indent;
+
+    // Spare room goes back to the CAPPED columns first (long tag names
+    // uncap and stop wrapping when the table has space for them).
+    const spare = available - total;
+    if (spare > 0) {
+      const wants = widths.map((width, index) => Math.max(0, naturals[index] - width));
+      const totalWant = wants.reduce((sum, want) => sum + want, 0);
+      if (totalWant > 0) {
+        const grant = Math.min(spare, totalWant) / totalWant;
+        widths = widths.map((width, index) => width + wants[index] * grant);
+      }
+    }
     if (total > available) {
       const scale = available / total;
       widths = widths.map((width) => Math.max(MIN_WIDTH, width * scale));
@@ -456,11 +470,22 @@ function writePage(flow, page) {
 
   // ONE horizontal table: a row per added/removed/changed page row — a
   // thousand-point Tag Processor edit stays a thousand table rows, not a
-  // thousand paragraphs. Rows are sorted by ROW POSITION (solve order),
-  // not grouped by change kind, with the position in the badge column —
-  // removed rows sort by where they used to live and come first on ties.
-  // Changed rows show "old -> new" inside the changed cells.
+  // thousand paragraphs. Rows sort by ROW POSITION (solve order) with the
+  // position in the badge column; removed rows sort by where they used to
+  // live and come first on ties.
+  //
+  // Added/removed rows print their content (the content IS the edit);
+  // CHANGED rows print only the identity cell and the changed cells as
+  // "old -> new" — the reader asked for the edits, not the whole row's
+  // unchanged values. Edits in hidden noise columns (logging flags) land
+  // in the trailing "Other edits" cell, never dropped.
   const columns = page.columns ?? [];
+  const hiddenEdits = (entry) => entry.fields
+    .filter((field) => !columns.includes(field))
+    .map((field) => `${field}: ${entry.original[field] ?? '(empty)'} -> ${entry.updated[field] ?? '(empty)'}`)
+    .join(';  ');
+  const anyHidden = (page.changed ?? []).some((entry) => hiddenEdits(entry));
+
   const KIND_RANK = { removed: 0, changed: 1, added: 2 };
   const rows = [
     ...(page.added ?? []).map((entry) => ({
@@ -481,18 +506,25 @@ function writePage(flow, page) {
       tint: TINT_EDITED,
       cells: {
         __change: cell(`~ ${entry.index + 1}`, AMBER, true),
-        ...Object.fromEntries(columns.map((column) => [
-          column,
-          entry.fields.includes(column)
-            ? cell(`${entry.original[column] ?? '(empty)'} -> ${entry.updated[column] ?? '(empty)'}`, AMBER, true)
-            : cell(entry.updated[column] ?? entry.original[column] ?? ''),
-        ])),
+        ...Object.fromEntries(columns.map((column) => {
+          if (entry.fields.includes(column)) {
+            return [column, cell(`${entry.original[column] ?? '(empty)'} -> ${entry.updated[column] ?? '(empty)'}`, AMBER, true)];
+          }
+          // Identity stays so the row is findable; other unchanged cells blank.
+          const value = entry.updated[column] ?? entry.original[column];
+          return [column, cell(value === entry.label ? value : '')];
+        })),
+        ...(anyHidden ? { __other: cell(hiddenEdits(entry), AMBER, true) } : {}),
       },
     })),
   ].sort((a, b) => a.index - b.index || a.rank - b.rank);
   flow.gap(5);
   flow.table(
-    [{ key: '__change', label: 'Row' }, ...columns.map((column) => ({ key: column, label: column }))],
+    [
+      { key: '__change', label: 'Row' },
+      ...columns.map((column) => ({ key: column, label: column })),
+      ...(anyHidden ? [{ key: '__other', label: 'Other edits' }] : []),
+    ],
     rows,
     { title: `Table · ${page.name}` },
   );
@@ -561,7 +593,7 @@ function writeFullItem(flow, model) {
   }
 
   for (const page of model.pages ?? []) {
-    const columns = page.columns ?? [];
+    const columns = (page.columns ?? []).filter((column) => !hiddenPageColumn(column));
     flow.gap(5);
     flow.table(
       columns.map((column) => ({ key: column, label: column })),
