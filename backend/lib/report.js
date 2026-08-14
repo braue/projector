@@ -6,7 +6,6 @@
 
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
-import { labelColumn } from './compare.js';
 import { lineDiff } from './lineDiff.js';
 import { ST_START, tokenizeLine } from './st.js';
 
@@ -42,6 +41,7 @@ const TOKEN_STYLE = {
 // Row tints matching the app's diff backgrounds.
 const TINT_ADDED = rgb(0.914, 0.969, 0.937);
 const TINT_REMOVED = rgb(0.988, 0.925, 0.925);
+const TINT_EDITED = rgb(0.992, 0.965, 0.89);
 
 // Standard fonts encode WinAnsi only; anything outside latin-1 would throw
 // mid-render. Values come from arbitrary vendor files, so scrub first.
@@ -215,6 +215,137 @@ class Flow {
   gap(height) {
     this.y -= height;
   }
+
+  /**
+   * A horizontal cell table: one row per entry — a thousand-row Tag
+   * Processor edit must not spend a paragraph per point. Column widths are
+   * weighted by content (booleans stay narrow, tag names get the space),
+   * cells wrap within their column, rows tint, and the header repeats
+   * after every page break.
+   *
+   * columns: [{ key, label }]; rows: [{ tint?, cells: { key: { text,
+   * color?, bold? } } }]. Mono throughout — the fixed pitch is what makes
+   * cheap per-character wrapping exact.
+   */
+  table(columns, rows, { size = 7, indent = 14 } = {}) {
+    const mono = this.fonts.mono;
+    const monoBold = this.fonts.monoBold;
+    const charW = mono.widthOfTextAtSize('0', size); // fixed pitch
+    const lineHeight = size * 1.3;
+    const cellPad = 3;
+    const available = BODY_W - indent;
+    const x0 = MARGIN + indent;
+
+    // Content-weighted widths: each column asks for its longest cell (capped
+    // — one huge value must not starve every other column), then everything
+    // scales to fit, with a floor so no column vanishes.
+    const MAX_NATURAL = charW * 34;
+    const MIN_WIDTH = charW * 4 + cellPad * 2;
+    let widths = columns.map((column) => {
+      // Headers wrap between camelCase words, so a column only needs to fit
+      // its longest header WORD, not the whole label.
+      const headerWords = column.label.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
+      let chars = Math.max(...headerWords.map((word) => word.length), 1);
+      for (const row of rows) {
+        const text = row.cells[column.key]?.text ?? '';
+        if (text.length > chars) chars = text.length;
+      }
+      return Math.min(chars * charW, MAX_NATURAL) + cellPad * 2;
+    });
+    const total = widths.reduce((sum, width) => sum + width, 0);
+    if (total > available) {
+      const scale = available / total;
+      widths = widths.map((width) => Math.max(MIN_WIDTH, width * scale));
+      // Floors can push the sum back over — shave the excess from every
+      // above-floor column in proportion to its slack, so no single column
+      // gets drained while its neighbors keep their room.
+      const excess = widths.reduce((sum, width) => sum + width, 0) - available;
+      if (excess > 0) {
+        const slack = widths.map((width) => width - MIN_WIDTH);
+        const totalSlack = slack.reduce((sum, s) => sum + s, 0);
+        if (totalSlack > 0) {
+          const shave = Math.min(excess, totalSlack) / totalSlack;
+          widths = widths.map((width, index) => width - slack[index] * shave);
+        }
+      }
+    }
+
+    // Wrap one cell's text to its column: fixed pitch, so a simple
+    // per-line character budget is exact.
+    const wrapCell = (text, width) => {
+      const budget = Math.max(1, Math.floor((width - cellPad * 2) / charW));
+      const lines = [];
+      let rest = winAnsi(text);
+      while (rest.length > budget) {
+        // Prefer breaking at a space/dot/underscore near the edge.
+        const window = rest.slice(0, budget + 1);
+        let cut = Math.max(window.lastIndexOf(' '), window.lastIndexOf('.'), window.lastIndexOf('_'));
+        if (cut < budget * 0.5) cut = budget;
+        lines.push(rest.slice(0, cut));
+        rest = rest.slice(cut).replace(/^ /, '');
+      }
+      lines.push(rest);
+      return lines;
+    };
+
+    const drawRow = (cells, { tint = null, bold = false } = {}) => {
+      const wrapped = columns.map((column, index) => {
+        const cell = cells[column.key];
+        return {
+          lines: wrapCell(cell?.text ?? '', widths[index]),
+          color: cell?.color ?? INK,
+          face: (cell?.bold || bold) ? monoBold : mono,
+        };
+      });
+      const height = Math.max(...wrapped.map((cell) => cell.lines.length)) * lineHeight + 2;
+      if (this.y - height < MARGIN) {
+        this.addPage();
+        if (!bold) drawHeader();
+      }
+      const top = this.y;
+      if (tint) {
+        this.page.drawRectangle({
+          x: x0, y: top - height + 2, width: available, height, color: tint,
+        });
+      }
+      let x = x0;
+      wrapped.forEach((cell, index) => {
+        cell.lines.forEach((line, lineIndex) => {
+          if (line) {
+            this.page.drawText(line, {
+              x: x + cellPad,
+              y: top - lineHeight * (lineIndex + 1) + size * 0.25,
+              size, font: cell.face, color: cell.color,
+            });
+          }
+        });
+        x += widths[index];
+      });
+      this.y = top - height;
+      this.page.drawLine({
+        start: { x: x0, y: this.y }, end: { x: x0 + available, y: this.y },
+        thickness: 0.4, color: RULE,
+      });
+    };
+
+    const drawHeader = () => {
+      drawRow(
+        Object.fromEntries(columns.map((column) => [
+          column.key,
+          // CamelCase headers get word breaks (LoggingChatterCounts →
+          // Logging Chatter Counts) so narrow columns wrap between words
+          // instead of mid-word.
+          { text: column.label.replace(/([a-z])([A-Z])/g, '$1 $2'), color: MUTED },
+        ])),
+        { bold: true },
+      );
+    };
+
+    this.ensure(lineHeight * 3);
+    drawHeader();
+    for (const row of rows) drawRow(row.cells, { tint: row.tint ?? null });
+    this.y -= 4;
+  }
 }
 
 // One diff line: colored ± sign and number, then syntax-colored ST tokens on
@@ -271,19 +402,12 @@ function writePoints(flow, points) {
   }
 }
 
-// One page row as a vertical field table — "Column   value" per non-empty
-// field, names padded to align. Run-on "Col = value · …" strings were
-// unreadable for 15-column Tag Processor rows.
-function writeRowFields(flow, columns, row, { color = INK } = {}) {
-  const pad = Math.max(...columns.map((column) => column.length), 0) + 2;
-  for (const column of columns) {
-    const value = row[column];
-    if (value == null || value === '') continue;
-    flow.text(`${column.padEnd(pad)}${value}`, {
-      font: 'mono', size: 8, color, indent: 26, spaceAfter: 0.5,
-    });
-  }
-}
+// Cell shorthand for Flow.table.
+const cell = (text, color, bold) => ({ text: String(text ?? ''), color, bold });
+
+// Table cells for one row's columns.
+const rowCells = (columns, row) =>
+  Object.fromEntries(columns.map((column) => [column, cell(row[column] ?? '')]));
 
 function writePage(flow, page) {
   section(flow, `Table · ${page.name}`);
@@ -297,37 +421,37 @@ function writePage(flow, page) {
     return;
   }
 
+  // ONE horizontal table: a row per added/removed/changed page row — a
+  // thousand-point Tag Processor edit stays a thousand table rows, not a
+  // thousand paragraphs. Changed rows show "old -> new" inside the changed
+  // cells; everything else is the row's current value.
   const columns = page.columns ?? [];
-  const pad = Math.max(...columns.map((column) => column.length), 0) + 2;
-  for (const entry of page.added ?? []) {
-    flow.text(`+ ${entry.label}`, { font: 'bold', size: 9, color: GREEN, indent: 14, spaceAfter: 1, keep: 20 });
-    writeRowFields(flow, columns, entry.row);
-    flow.gap(3);
-  }
-  for (const entry of page.removed ?? []) {
-    flow.text(`- ${entry.label}`, { font: 'bold', size: 9, color: RED, indent: 14, spaceAfter: 1, keep: 20 });
-    writeRowFields(flow, columns, entry.row);
-    flow.gap(3);
-  }
-  for (const entry of page.changed ?? []) {
-    flow.text(`~ ${entry.label}`, { font: 'bold', size: 9, color: AMBER, indent: 14, spaceAfter: 1, keep: 20 });
-    // The whole row, with changed fields reading "old -> new" in amber and
-    // untouched fields plain — full context without a run-on string.
-    for (const column of columns) {
-      const changed = entry.fields.includes(column);
-      const before = entry.original[column];
-      const after = entry.updated[column];
-      if (!changed && (after ?? before) == null) continue;
-      if ((after ?? before) === '' && !changed) continue;
-      flow.text(
-        changed
-          ? `${column.padEnd(pad)}${before ?? '(empty)'} -> ${after ?? '(empty)'}`
-          : `${column.padEnd(pad)}${after ?? before}`,
-        { font: 'mono', size: 8, color: changed ? AMBER : INK, indent: 26, spaceAfter: 0.5 },
-      );
-    }
-    flow.gap(3);
-  }
+  const rows = [
+    ...(page.added ?? []).map((entry) => ({
+      tint: TINT_ADDED,
+      cells: { __change: cell('+', GREEN, true), ...rowCells(columns, entry.row) },
+    })),
+    ...(page.removed ?? []).map((entry) => ({
+      tint: TINT_REMOVED,
+      cells: { __change: cell('-', RED, true), ...rowCells(columns, entry.row) },
+    })),
+    ...(page.changed ?? []).map((entry) => ({
+      tint: TINT_EDITED,
+      cells: {
+        __change: cell('~', AMBER, true),
+        ...Object.fromEntries(columns.map((column) => [
+          column,
+          entry.fields.includes(column)
+            ? cell(`${entry.original[column] ?? '(empty)'} -> ${entry.updated[column] ?? '(empty)'}`, AMBER, true)
+            : cell(entry.updated[column] ?? entry.original[column] ?? ''),
+        ])),
+      },
+    })),
+  ];
+  flow.table(
+    [{ key: '__change', label: '' }, ...columns.map((column) => ({ key: column, label: column }))],
+    rows,
+  );
 }
 
 function writeCode(flow, code) {
@@ -395,15 +519,10 @@ function writeFullItem(flow, model) {
   for (const page of model.pages ?? []) {
     const columns = page.columns ?? [];
     section(flow, `Table · ${page.name} (${page.rows.length} row${page.rows.length === 1 ? '' : 's'})`);
-    const label = labelColumn({ rows: page.rows }, { rows: [] }, columns);
-    page.rows.forEach((row, index) => {
-      const name = row[label];
-      flow.text(name ? `Row ${index + 1} · ${name}` : `Row ${index + 1}`, {
-        font: 'bold', size: 8.5, indent: 14, spaceAfter: 1, keep: 20,
-      });
-      writeRowFields(flow, columns, row);
-      flow.gap(3);
-    });
+    flow.table(
+      columns.map((column) => ({ key: column, label: column })),
+      page.rows.map((row) => ({ cells: rowCells(columns, row) })),
+    );
   }
 
   for (const [label, part] of [['interface', model.code?.interface], ['implementation', model.code?.implementation]]) {
