@@ -175,9 +175,11 @@ function orderColumns(aPage, bPage, columns) {
   ));
 }
 
-// A generic page's rows, each labeled by its identity-column value. An empty
-// cell there falls back to the first non-empty cell (content identity), then
-// to the row's position; duplicates get an ordinal.
+// A generic page's rows, each labeled by its identity-column value and
+// carrying its 0-based position (the diff sorts its output by row order, so
+// a removed row can land where it used to live). An empty identity cell
+// falls back to the first non-empty cell (content identity), then to the
+// row's position; duplicates get an ordinal.
 function pageRows(page, label) {
   const seen = new Map();
   return page.rows.map((row, index) => {
@@ -186,7 +188,7 @@ function pageRows(page, label) {
       || `#${index + 1}`;
     const ordinal = (seen.get(base) ?? 0) + 1;
     seen.set(base, ordinal);
-    return { label: ordinal > 1 ? `${base} (${ordinal})` : base, row };
+    return { label: ordinal > 1 ? `${base} (${ordinal})` : base, row, index };
   });
 }
 
@@ -260,6 +262,7 @@ function diffPageRows(aPage, bPage) {
           original: a.row,
           updated: b.row,
           fields: fields.map((field) => field.column),
+          index: b.index,
         });
       }
     } else {
@@ -294,6 +297,7 @@ function diffPageRows(aPage, bPage) {
         original: aRow,
         updated: bRow,
         fields: fields.map((field) => field.column),
+        index: unmatchedB[i].index,
       });
     }
   }
@@ -314,8 +318,8 @@ function diffPageRows(aPage, bPage) {
 
   return {
     columns: usedColumns,
-    added: allAdded.map((entry) => ({ label: entry.label, row: entry.row })),
-    removed: allRemoved.map((entry) => ({ label: entry.label, row: entry.row })),
+    added: allAdded.map((entry) => ({ label: entry.label, row: entry.row, index: entry.index })),
+    removed: allRemoved.map((entry) => ({ label: entry.label, row: entry.row, index: entry.index })),
     changed,
   };
 }

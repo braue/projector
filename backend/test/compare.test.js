@@ -99,7 +99,7 @@ test('row matching is content-first: a shifted table is one added row', () => {
     ]) },
   );
   assert.equal(shifted.pages[0].status, 'changed');
-  assert.deepEqual(shifted.pages[0].added, [{ label: 'NEW', row: { Dest: '', Src: 'NEW' } }]);
+  assert.deepEqual(shifted.pages[0].added, [{ label: 'NEW', row: { Dest: '', Src: 'NEW' }, index: 0 }]);
   assert.deepEqual(shifted.pages[0].removed, []);
   assert.deepEqual(shifted.pages[0].changed, []);
 });
@@ -113,8 +113,8 @@ test('an unrelated replaced row reads as removed + added, not changed', () => {
   // Bravo and Charlie share no column value — a delete plus an addition,
   // which positional pairing must not fold into one "changed" row. Both
   // report their whole row.
-  assert.deepEqual(diff.pages[0].added, [{ label: 'Charlie', row: { Name: 'Charlie', Val: '9' } }]);
-  assert.deepEqual(diff.pages[0].removed, [{ label: 'Bravo', row: { Name: 'Bravo', Val: '2' } }]);
+  assert.deepEqual(diff.pages[0].added, [{ label: 'Charlie', row: { Name: 'Charlie', Val: '9' }, index: 1 }]);
+  assert.deepEqual(diff.pages[0].removed, [{ label: 'Bravo', row: { Name: 'Bravo', Val: '2' }, index: 1 }]);
   assert.deepEqual(diff.pages[0].changed, []);
 });
 
@@ -161,8 +161,8 @@ test('diffItems reports settings, points, and code changes', () => {
     status: 'changed',
     rows: 1,
     columns: ['X'],
-    added: [{ label: '2', row: { X: '2' } }],
-    removed: [{ label: '1', row: { X: '1' } }],
+    added: [{ label: '2', row: { X: '2' }, index: 0 }],
+    removed: [{ label: '1', row: { X: '1' }, index: 0 }],
     changed: [],
   }]);
   assert.equal(diff.code.interface, null); // unchanged part stays out of the diff
@@ -195,15 +195,16 @@ test('generic page diff pinpoints rows and fields', () => {
       original: { Destination: 'BRK_2', Source: 'SEL_451.BR2', Quality: 'True' },
       updated: { Destination: 'BRK_2', Source: 'SEL_735.BR2', Quality: 'False' },
       fields: ['Source', 'Quality'],
+      index: 1,
     },
   ]);
   // Positional leftovers with DIFFERENT identities split into a removal and
   // an addition — OLD_TAG did not "become" NEW_TAG.
   assert.deepEqual(tags.added, [
-    { label: 'NEW_TAG', row: { Destination: 'NEW_TAG', Source: 'SEL_451.Y', Quality: 'True' } },
+    { label: 'NEW_TAG', row: { Destination: 'NEW_TAG', Source: 'SEL_451.Y', Quality: 'True' }, index: 2 },
   ]);
   assert.deepEqual(tags.removed, [
-    { label: 'OLD_TAG', row: { Destination: 'OLD_TAG', Source: 'SEL_451.X', Quality: 'True' } },
+    { label: 'OLD_TAG', row: { Destination: 'OLD_TAG', Source: 'SEL_451.X', Quality: 'True' }, index: 2 },
   ]);
   assert.deepEqual(tags.columns, ['Destination', 'Source', 'Quality']);
 });

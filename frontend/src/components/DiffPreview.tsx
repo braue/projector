@@ -136,30 +136,47 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
   const cells = (row: Record<string, string>) =>
     Object.fromEntries(columns.map((column) => [column, row[column] ?? '']))
 
+  // Sorted by ROW POSITION (solve order), not grouped by change kind; the
+  // leading column carries the row number. Removed rows sort by where they
+  // used to live and come first on ties.
   const rows: TableRow[] = [
     ...(page.added ?? []).map((entry, i) => ({
-      id: `a${i}`,
-      tone: 'added' as const,
-      cells: { __change: '+ added', ...cells(entry.row) },
+      index: entry.index,
+      rank: 2,
+      rows: [{
+        id: `a${i}`,
+        tone: 'added' as const,
+        cells: { __change: `+ ${entry.index + 1}`, ...cells(entry.row) },
+      }],
     })),
     ...(page.removed ?? []).map((entry, i) => ({
-      id: `r${i}`,
-      tone: 'removed' as const,
-      cells: { __change: '− removed', ...cells(entry.row) },
+      index: entry.index,
+      rank: 0,
+      rows: [{
+        id: `r${i}`,
+        tone: 'removed' as const,
+        cells: { __change: `− ${entry.index + 1}`, ...cells(entry.row) },
+      }],
     })),
-    ...(page.changed ?? []).flatMap((entry, i) => [
-      {
-        id: `c${i}o`,
-        tone: 'edited' as const,
-        cells: { __change: '~ was', ...cells(entry.original) },
-      },
-      {
-        id: `c${i}n`,
-        tone: 'edited' as const,
-        cells: { __change: '~ now', ...cells(entry.updated) },
-      },
-    ]),
+    ...(page.changed ?? []).map((entry, i) => ({
+      index: entry.index,
+      rank: 1,
+      rows: [
+        {
+          id: `c${i}o`,
+          tone: 'edited' as const,
+          cells: { __change: `~ ${entry.index + 1} was`, ...cells(entry.original) },
+        },
+        {
+          id: `c${i}n`,
+          tone: 'edited' as const,
+          cells: { __change: `~ ${entry.index + 1} now`, ...cells(entry.updated) },
+        },
+      ],
+    })),
   ]
+    .sort((a, b) => a.index - b.index || a.rank - b.rank)
+    .flatMap((entry) => entry.rows)
 
   return (
     <section>
@@ -169,7 +186,7 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
       />
       <DataTable
         columns={[
-          { key: '__change', label: '' },
+          { key: '__change', label: 'Row' },
           ...columns.map((column) => ({ key: column, label: column })),
         ]}
         rows={rows}

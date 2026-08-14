@@ -175,14 +175,17 @@ export interface ItemDiff {
     /** Row-level detail, present on changed pages: whole row OBJECTS plus
      * the columns those rows use, so the UI renders real tables. */
     columns?: string[]
-    added?: { label: string; row: Record<string, string> }[]
-    removed?: { label: string; row: Record<string, string> }[]
+    /** index = 0-based row position in its own side (removed: original
+     * side; added/changed: new side) — the diff tables sort by it. */
+    added?: { label: string; row: Record<string, string>; index: number }[]
+    removed?: { label: string; row: Record<string, string>; index: number }[]
     changed?: {
       label: string
       original: Record<string, string>
       updated: Record<string, string>
       /** Column names whose values differ (order columns excluded). */
       fields: string[]
+      index: number
     }[]
   }[]
   code: {

@@ -456,22 +456,31 @@ function writePage(flow, page) {
 
   // ONE horizontal table: a row per added/removed/changed page row — a
   // thousand-point Tag Processor edit stays a thousand table rows, not a
-  // thousand paragraphs. Changed rows show "old -> new" inside the changed
-  // cells; everything else is the row's current value.
+  // thousand paragraphs. Rows are sorted by ROW POSITION (solve order),
+  // not grouped by change kind, with the position in the badge column —
+  // removed rows sort by where they used to live and come first on ties.
+  // Changed rows show "old -> new" inside the changed cells.
   const columns = page.columns ?? [];
+  const KIND_RANK = { removed: 0, changed: 1, added: 2 };
   const rows = [
     ...(page.added ?? []).map((entry) => ({
+      index: entry.index,
+      rank: KIND_RANK.added,
       tint: TINT_ADDED,
-      cells: { __change: cell('+', GREEN, true), ...rowCells(columns, entry.row) },
+      cells: { __change: cell(`+ ${entry.index + 1}`, GREEN, true), ...rowCells(columns, entry.row) },
     })),
     ...(page.removed ?? []).map((entry) => ({
+      index: entry.index,
+      rank: KIND_RANK.removed,
       tint: TINT_REMOVED,
-      cells: { __change: cell('-', RED, true), ...rowCells(columns, entry.row) },
+      cells: { __change: cell(`- ${entry.index + 1}`, RED, true), ...rowCells(columns, entry.row) },
     })),
     ...(page.changed ?? []).map((entry) => ({
+      index: entry.index,
+      rank: KIND_RANK.changed,
       tint: TINT_EDITED,
       cells: {
-        __change: cell('~', AMBER, true),
+        __change: cell(`~ ${entry.index + 1}`, AMBER, true),
         ...Object.fromEntries(columns.map((column) => [
           column,
           entry.fields.includes(column)
@@ -480,10 +489,10 @@ function writePage(flow, page) {
         ])),
       },
     })),
-  ];
+  ].sort((a, b) => a.index - b.index || a.rank - b.rank);
   flow.gap(5);
   flow.table(
-    [{ key: '__change', label: '' }, ...columns.map((column) => ({ key: column, label: column }))],
+    [{ key: '__change', label: 'Row' }, ...columns.map((column) => ({ key: column, label: column }))],
     rows,
     { title: `Table · ${page.name}` },
   );
