@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { fetchCompareItem, fetchCompareTree } from '../api'
+import { compareReportUrl, fetchCompareItem, fetchCompareTree } from '../api'
 import { useFetch } from '../lib/useFetch'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
@@ -97,6 +97,14 @@ export function CompareView({
             options={options}
             placeholder="— select —"
           />
+          <button
+            className="ui-button"
+            disabled={!bothPicked}
+            onClick={() => window.open(compareReportUrl(project, a, b), '_blank')}
+            title="Download a PDF report of the differences"
+          >
+            Export report (PDF)
+          </button>
         </div>
       </aside>
 

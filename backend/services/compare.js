@@ -71,6 +71,32 @@ class CompareService {
     };
   }
 
+  // Report data: every non-unchanged item with its full diff, path-sorted —
+  // the PDF export renders this and nothing else (differences only).
+  async report(a, b) {
+    const [original, updated] = await this.#pair(a, b);
+    const status = compareSignatures(signatures(original.entries), signatures(updated.entries));
+    const byPath = (entries) => new Map(entries.map((entry) => [entry.path, entry]));
+    const originals = byPath(original.entries);
+    const updates = byPath(updated.entries);
+
+    const summary = { added: 0, removed: 0, edited: 0, unchanged: 0 };
+    for (const value of status.values()) summary[value] += 1;
+
+    const items = [...status.entries()]
+      .filter(([, value]) => value !== STATUS.UNCHANGED)
+      .sort(([a2], [b2]) => a2.localeCompare(b2))
+      .map(([path, value]) => ({
+        path,
+        status: value,
+        diff: value === STATUS.EDITED
+          ? diffItems(originals.get(path)?.item ?? null, updates.get(path)?.item ?? null)
+          : null,
+      }));
+
+    return { original: original.label, updated: updated.label, summary, items };
+  }
+
   async compareItem(a, b, path) {
     const [original, updated] = await this.#pair(a, b);
     const originalEntry = original.entries.find((entry) => entry.path === path) ?? null;

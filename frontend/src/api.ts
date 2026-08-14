@@ -148,6 +148,15 @@ export function fetchCompareTree(
   return get(`${base(project)}/compare/tree?${comparePair(original, updated)}`)
 }
 
+/** Download URL for the differences-only PDF report of a comparison. */
+export function compareReportUrl(
+  project: string,
+  original: DeviceSource,
+  updated: DeviceSource,
+): string {
+  return `${base(project)}/compare/report?${comparePair(original, updated)}`
+}
+
 export function fetchCompareItem(
   project: string,
   original: DeviceSource,
