@@ -547,33 +547,40 @@ function writeCode(flow, code) {
 }
 
 // Full ST source with line numbers and highlighting, block-comment state
-// threaded line to line — used for added/removed files, where the content
-// IS the diff.
-function writeSource(flow, label, source) {
+// threaded line to line — rendered as +/− diff lines on the file's tint,
+// because an added/removed file's source IS additions/removals.
+function writeSource(flow, label, source, { sign, color, tint }) {
   section(flow, `Logic source · ${label}`);
   let state = ST_START;
   const lines = source.replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n');
   lines.forEach((text, index) => {
     const result = tokenizeLine(text, state);
     state = result.state;
-    flow.rich([
-      { text: `${String(index + 1).padStart(4)}  `, color: MUTED },
-      ...result.tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
-    ]);
+    flow.rich(
+      [
+        { text: `${sign} ${String(index + 1).padStart(4)}  `, color },
+        ...result.tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
+      ],
+      { tint },
+    );
   });
 }
 
-// The complete content of a file present on only one side. The reader must
-// see WHAT appeared or vanished — "present only in the new source" alone is
-// not reviewable. Graphical (CFC/LD) bodies are the one exception: archived
-// blobs with no plain text to show.
-function writeFullItem(flow, model) {
+// The complete content of a file present on only one side, styled as the
+// change it is: every line signed and tinted + (added) or − (removed), the
+// user's call — a change listing, not a plain dump. Graphical (CFC/LD)
+// bodies are the one exception: archived blobs with no plain text to show.
+function writeFullItem(flow, model, status) {
+  const sign = status === 'added' ? '+' : '-';
+  const color = status === 'added' ? GREEN : RED;
+  const tint = status === 'added' ? TINT_ADDED : TINT_REMOVED;
+
   const settings = Object.entries(model.settings ?? {});
   if (settings.length) {
     section(flow, 'Settings');
     const pad = Math.max(...settings.map(([key]) => key.length)) + 2;
     for (const [key, value] of settings) {
-      flow.text(`${key.padEnd(pad)}${value}`, { font: 'mono', size: 8.5, indent: 14, spaceAfter: 0.5 });
+      flow.rich([{ text: `${sign} ${key.padEnd(pad)}${value}`, color }], { size: 8.5, tint });
     }
   }
 
@@ -581,14 +588,12 @@ function writeFullItem(flow, model) {
   if (points.length) {
     section(flow, `Points (${points.length})`);
     for (const point of points) {
-      flow.text(
-        [
-          `${point.page} · ${point.tagName ?? '(unnamed)'}`,
-          point.address && `${point.addressColumn ?? 'address'} ${point.address}`,
-          point.enabled === false && 'disabled',
-        ].filter(Boolean).join(' · '),
-        { font: 'mono', size: 8, indent: 14, spaceAfter: 0.5 },
-      );
+      const text = [
+        `${sign} ${point.page} · ${point.tagName ?? '(unnamed)'}`,
+        point.address && `${point.addressColumn ?? 'address'} ${point.address}`,
+        point.enabled === false && 'disabled',
+      ].filter(Boolean).join(' · ');
+      flow.rich([{ text, color }], { tint });
     }
   }
 
@@ -596,14 +601,20 @@ function writeFullItem(flow, model) {
     const columns = (page.columns ?? []).filter((column) => !hiddenPageColumn(column));
     flow.gap(5);
     flow.table(
-      columns.map((column) => ({ key: column, label: column })),
-      page.rows.map((row) => ({ cells: rowCells(columns, row) })),
+      [{ key: '__change', label: 'Row' }, ...columns.map((column) => ({ key: column, label: column }))],
+      page.rows.map((row, index) => ({
+        tint,
+        cells: {
+          __change: cell(`${sign} ${index + 1}`, color, true),
+          ...rowCells(columns, row),
+        },
+      })),
       { title: `Table · ${page.name} (${page.rows.length} row${page.rows.length === 1 ? '' : 's'})` },
     );
   }
 
   for (const [label, part] of [['interface', model.code?.interface], ['implementation', model.code?.implementation]]) {
-    if (part?.trim()) writeSource(flow, label, part);
+    if (part?.trim()) writeSource(flow, label, part, { sign, color, tint });
   }
 
   if (model.hasArchivedContent) {
@@ -627,7 +638,7 @@ function writeItem(flow, item) {
         : 'Present only in the original source — full content below.',
       { size: 9, color: MUTED, indent: 14 },
     );
-    if (item.item) writeFullItem(flow, item.item);
+    if (item.item) writeFullItem(flow, item.item, item.status);
     return;
   }
 
