@@ -62,7 +62,9 @@ function itemSubtitle(item: ProjectItem): string | null {
 // 1-based per part (interface and implementation count separately), matching
 // the "implementation · line N" locations search reports.
 function CodeBlock({ source }: { source: string }) {
-  const lines = tokenizeBlock(source.replace(/\n$/, ''))
+  // Memoized: ancestors re-render at pointer-move frequency during rail
+  // drags, and re-tokenizing a few hundred ST lines per frame stutters.
+  const lines = useMemo(() => tokenizeBlock(source.replace(/\n$/, '')), [source])
   return (
     <pre className="code code-numbered">
       {lines.map((tokens, i) => (

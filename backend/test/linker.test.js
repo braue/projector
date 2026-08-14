@@ -133,6 +133,25 @@ test('one address dialed by several connections lists each declarer on the ghost
   assert.equal(ghost.declarers, undefined); // internal bookkeeping stays internal
 });
 
+test('two subscribers to one absent publisher share a ghost naming BOTH', () => {
+  const subscriber = (name) => ({
+    name,
+    model: 'SEL-3555',
+    source: { type: 'rtac', ref: name },
+    identity: { namespace: 'scd1', name },
+    interfaces: [],
+    endpoints: [],
+    subscriptions: [{ publisher: 'SEL_487E_PUB', control: 'GooseTx1', serviceType: 'GOOSE' }],
+  });
+  const { ghosts } = linkProfiles([
+    { id: 'a', profile: subscriber('RTAC_A') },
+    { id: 'b', profile: subscriber('RTAC_B') },
+  ]);
+  const ghost = ghosts.find((g) => g.label === 'SEL_487E_PUB');
+  assert.equal(ghost.sublabel, 'GOOSE · declared by RTAC_A, RTAC_B');
+  assert.equal(ghosts.filter((g) => g.label === 'SEL_487E_PUB').length, 1);
+});
+
 test('linker: probable when the IP owner states no matching server', () => {
   const silent = {
     ...relay('SILENT', '10.10.1.21'),

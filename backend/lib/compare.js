@@ -127,15 +127,17 @@ function keyness(rows, column) {
 // The column that identifies rows across both sides of a page diff. Generic
 // tables do NOT reliably lead with a name: the real Tag Processor leads with
 // Build (True on every row) while the actual row identity is
-// DestinationTagName. Take the column that is most key-like on BOTH sides,
-// with near-ties going to the leftmost — several columns can be near-unique
-// (destination tag, logging message) and the table leads with the designed
-// identity among them.
+// DestinationTagName. Take the FIRST column that is key-like enough on both
+// sides — the designed identity leads the table, and a later per-row-unique
+// free-text column (a description, a logging message) must not outrank it:
+// keying on editable prose turns a one-field edit into removed + added.
+// When no column qualifies outright, fall back to the most key-like one.
 function labelColumn(aPage, bPage, columns) {
   let best = columns[0];
   let bestScore = 0.5; // a column half of whose rows share labels is no key
   for (const column of columns) {
     const score = Math.min(keyness(aPage.rows, column), keyness(bPage.rows, column));
+    if (score >= 0.75) return column;
     if (score > bestScore + 0.05) {
       bestScore = score;
       best = column;
@@ -144,19 +146,24 @@ function labelColumn(aPage, bPage, columns) {
   return best;
 }
 
-// Order/index columns: bare numbers, nearly all distinct. AcSELerator
-// renumbers these wholesale when a row is inserted or moved, so a difference
-// confined to them is the row MOVING, not being edited — without this, one
-// inserted Tag Processor row reads as an addition plus thirty bogus
-// "changed" rows that differ only in SolveOrder.
+// Order/index columns: integers that form a CONTIGUOUS run from 0 or 1 —
+// positions, not data. AcSELerator renumbers these wholesale when a row is
+// inserted or moved, so a difference confined to them is the row MOVING,
+// not being edited — without this, one inserted Tag Processor row reads as
+// an addition plus thirty bogus "changed" rows that differ only in
+// SolveOrder. The contiguity requirement is what keeps real numeric data
+// (register addresses, DNP indices, scale factors) diffable: near-unique
+// alone is NOT enough to call a column an order.
 function orderColumns(aPage, bPage, columns) {
   const orderlike = (rows, column) => {
     if (!rows.length) return true;
     const values = rows.map((row) => row[column]).filter((value) => value != null && value !== '');
     // A tiny table can't establish "this is an index" — treat its numbers as data.
     if (values.length < 3 || values.length < rows.length / 2) return false;
-    if (!values.every((value) => NUMERIC_VALUE.test(value))) return false;
-    return new Set(values).size >= values.length * 0.9;
+    if (!values.every((value) => /^\d+$/.test(value))) return false;
+    const numbers = values.map(Number).sort((a, b) => a - b);
+    if (numbers[0] > 1) return false;
+    return numbers.every((n, index) => n === numbers[0] + index);
   };
   return new Set(columns.filter(
     (column) => orderlike(aPage.rows, column) && orderlike(bPage.rows, column),
@@ -314,11 +321,15 @@ function diffPages(aPages = [], bPages = []) {
 // line 12") number each part from 1, and the compare diff's line numbers
 // must mean the same thing.
 function diffCode(original, updated) {
+  // SEL/Windows exports store CDATA with CRLF; an export written with LF is
+  // not an edit. Normalize before comparing so ending-only differences read
+  // unchanged and diffed text never carries stray \r.
+  const norm = (text) => (text == null ? null : text.replace(/\r\n?/g, '\n'));
   const out = {};
   let any = false;
   for (const part of ['interface', 'implementation']) {
-    const a = original?.code?.[part] ?? null;
-    const b = updated?.code?.[part] ?? null;
+    const a = norm(original?.code?.[part] ?? null);
+    const b = norm(updated?.code?.[part] ?? null);
     if ((a ?? '') === (b ?? '')) {
       out[part] = null;
     } else {

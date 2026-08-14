@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { compareReportPdf, lineDiff } from '../lib/report.js';
+import { compareReportPdf } from '../lib/report.js';
+import { lineDiff } from '../lib/lineDiff.js';
 import { modelSignature } from '../lib/compare.js';
 import { CompareService } from '../services/compare.js';
 
@@ -54,8 +55,21 @@ test('the report renders to a PDF', async () => {
   assert.ok(bytes.length > 1000);
 });
 
-test('lineDiff reports vanished and appeared lines with their line numbers', () => {
-  const { removed, added } = lineDiff('a\nb\nc\nb', 'b\nc\nd\nb');
-  assert.deepEqual(removed, [{ number: 1, text: 'a' }]);
-  assert.deepEqual(added, [{ number: 3, text: 'd' }]);
+test('lineDiff (backend twin) numbers each side and matches the app LCS', () => {
+  const lines = lineDiff('a\nb\nc\nb', 'b\nc\nd\nb');
+  assert.deepEqual(
+    lines.filter((line) => line.kind === 'del').map((line) => [line.oldNo, line.text]),
+    [[1, 'a']],
+  );
+  assert.deepEqual(
+    lines.filter((line) => line.kind === 'add').map((line) => [line.newNo, line.text]),
+    [[3, 'd']],
+  );
+});
+
+test('a part existing on only one side diffs as pure additions — no phantom blank line', () => {
+  const lines = lineDiff('', 'x := 1;\n\ny := 2;');
+  assert.deepEqual(lines.map((line) => line.kind), ['add', 'add', 'add']);
+  assert.deepEqual(lines.map((line) => line.newNo), [1, 2, 3]);
+  assert.deepEqual(lineDiff('', ''), []);
 });

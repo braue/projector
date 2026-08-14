@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import type { CompareItem, FileStatus, PointFieldDiff } from '../types'
 import { lineDiff, type DiffLine } from '../lib/lineDiff'
 import { ST_START, tokenizeLine, type StToken } from '../lib/st'
@@ -219,36 +221,49 @@ function highlightDiff(lines: DiffLine[]): (DiffLine & { tokens: StToken[] })[] 
   })
 }
 
-// One section per changed part (interface / implementation), diffed and
-// numbered separately — the gutter numbers match Inspect's code view and
-// search's "implementation · line N" locations.
+// One changed part (interface / implementation), diffed and numbered
+// separately — the gutter numbers match Inspect's code view and search's
+// "implementation · line N" locations. The LCS + tokenization is memoized:
+// ancestors re-render at pointer-move frequency during rail drags, and
+// redoing this work per frame stutters.
+function CodePartDiff({
+  label,
+  part,
+}: {
+  label: string
+  part: { original: string | null; updated: string | null }
+}) {
+  const lines = useMemo(
+    () => highlightDiff(lineDiff(part.original ?? '', part.updated ?? '')),
+    [part.original, part.updated],
+  )
+  return (
+    <section>
+      <SectionHeader title={`Logic Source · ${label}`} />
+      <pre className="code code-diff">
+        {lines.map((line, i) => (
+          <div key={i} className={`diff-line diff-${line.kind}`}>
+            <span className="diff-ln">{line.oldNo ?? ''}</span>
+            <span className="diff-ln">{line.newNo ?? ''}</span>
+            <span className="diff-sign">
+              {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
+            </span>
+            <StText tokens={line.tokens} />
+          </div>
+        ))}
+      </pre>
+    </section>
+  )
+}
+
 function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   if (!diff.code) return null
-  const parts = (
-    [
-      ['Interface', diff.code.interface],
-      ['Implementation', diff.code.implementation],
-    ] as const
-  ).filter(([, part]) => part)
   return (
     <>
-      {parts.map(([label, part]) => (
-        <section key={label}>
-          <SectionHeader title={`Logic Source · ${label}`} />
-          <pre className="code code-diff">
-            {highlightDiff(lineDiff(part!.original ?? '', part!.updated ?? '')).map((line, i) => (
-              <div key={i} className={`diff-line diff-${line.kind}`}>
-                <span className="diff-ln">{line.oldNo ?? ''}</span>
-                <span className="diff-ln">{line.newNo ?? ''}</span>
-                <span className="diff-sign">
-                  {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
-                </span>
-                <StText tokens={line.tokens} />
-              </div>
-            ))}
-          </pre>
-        </section>
-      ))}
+      {diff.code.interface && <CodePartDiff label="Interface" part={diff.code.interface} />}
+      {diff.code.implementation && (
+        <CodePartDiff label="Implementation" part={diff.code.implementation} />
+      )}
     </>
   )
 }

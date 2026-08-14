@@ -342,11 +342,26 @@ function linkProfiles(devices, manualLinks = []) {
       warnings,
     });
 
-  const ghostFor = (key, label, sublabel, lines) => {
-    const existing = ghosts.get(key);
-    if (existing) return existing;
-    const ghost = { id: `ghost:${key}`, label, sublabel, lines };
-    ghosts.set(key, ghost);
+  // One ghost per key, MERGING every declarer that references it — several
+  // connections (even from several sources) can dial one address or
+  // subscribe to one absent publisher, and the ghost must name them all.
+  // The sublabel reads "<pre · >declared by A, B< · post>"; lines union.
+  // Bookkeeping lives in this pass-local map, never on the payload object.
+  const ghostMeta = new Map(); // key -> { declarers: Set, lines: Set, pre, post }
+  const ghostFor = (key, label, { pre = null, post = null, declarer, lines = [] }) => {
+    let meta = ghostMeta.get(key);
+    if (!meta) {
+      meta = { declarers: new Set(), lines: new Set(), pre, post };
+      ghostMeta.set(key, meta);
+      ghosts.set(key, { id: `ghost:${key}`, label, sublabel: '', lines: [] });
+    }
+    meta.declarers.add(declarer);
+    for (const line of lines) meta.lines.add(line);
+    const ghost = ghosts.get(key);
+    ghost.sublabel = [meta.pre, `declared by ${[...meta.declarers].join(', ')}`, meta.post]
+      .filter(Boolean)
+      .join(' · ');
+    ghost.lines = [...meta.lines];
     return ghost;
   };
 
@@ -381,8 +396,7 @@ function linkProfiles(devices, manualLinks = []) {
         const ghost = ghostFor(
           `${deviceId}:${endpoint.id}`,
           endpoint.name ?? endpoint.serial?.port ?? 'serial device',
-          `serial · declared by ${profile.name}`,
-          ['No file paired with this serial line'],
+          { pre: 'serial', declarer: profile.name, lines: ['No file paired with this serial line'] },
         );
         declared(base, ghost,
           summarize(endpoint, 'the other end is unknown'),
@@ -400,20 +414,19 @@ function linkProfiles(devices, manualLinks = []) {
       const claimants = byIp.get(address) ?? [];
       const owner = claimants.find((claimant) => claimant.deviceId !== deviceId);
       if (!owner) {
-        // Several connections (even from several sources) can dial one
-        // address; the ghost keeps one line per declaring connection, led by
-        // its RTAC navigator name — the address alone doesn't tell the
-        // reader WHICH connection is dangling.
-        const ghost = ghostFor(address, address, `declared by ${profile.name} · not loaded`, []);
-        const declarers = (ghost.declarers ??= new Set());
-        declarers.add(profile.name);
-        ghost.sublabel = `declared by ${[...declarers].join(', ')} · not loaded`;
+        // The ghost keeps one line per declaring connection, led by its RTAC
+        // navigator name — the address alone doesn't tell the reader WHICH
+        // connection is dangling.
         const line = [
           endpoint.name,
           endpoint.protocol ?? 'unknown protocol',
           endpoint.remotePort && `port ${endpoint.remotePort}`,
         ].filter(Boolean).join(' · ');
-        if (!ghost.lines.includes(line)) ghost.lines.push(line);
+        const ghost = ghostFor(address, address, {
+          post: 'not loaded',
+          declarer: profile.name,
+          lines: [line],
+        });
         declared(base, ghost,
           summarize(endpoint, 'the other end is not loaded'),
           `${address} · unknown device`, ['No file loaded for this address'],
@@ -548,8 +561,11 @@ function linkProfiles(devices, manualLinks = []) {
         const ghost = ghostFor(
           `${namespace}:${sub.publisher}`,
           sub.publisher,
-          `${serviceType} · declared by ${profile.name}`,
-          [sub.control ? `Publishes ${sub.control}` : `${serviceType} publisher`],
+          {
+            pre: serviceType,
+            declarer: profile.name,
+            lines: [sub.control ? `Publishes ${sub.control}` : `${serviceType} publisher`],
+          },
         );
         declared(base, ghost,
           `${serviceType} subscription — the publisher is not on the canvas`,
@@ -685,12 +701,7 @@ function linkProfiles(devices, manualLinks = []) {
     });
   }
 
-  return {
-    links,
-    // declarers is pass-internal bookkeeping for the sublabel — not payload.
-    ghosts: [...ghosts.values()].map(({ declarers, ...ghost }) => ghost),
-    diagnostics: networkDiagnostics(devices, byIp),
-  };
+  return { links, ghosts: [...ghosts.values()], diagnostics: networkDiagnostics(devices, byIp) };
 }
 
 export { linkProfiles, normalizeManualLink };

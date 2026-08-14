@@ -49,9 +49,19 @@ class CompareService {
     return Promise.all([this.#load(a), this.#load(b)]);
   }
 
-  async compare(a, b) {
+  // The shared first half of compare() and report(): load both sides, sign,
+  // derive per-path status and the summary tally. ONE home, so the tree
+  // legend and the PDF header can never disagree about the same pair.
+  async #status(a, b) {
     const [original, updated] = await this.#pair(a, b);
     const status = compareSignatures(signatures(original.entries), signatures(updated.entries));
+    const summary = { added: 0, removed: 0, edited: 0, unchanged: 0 };
+    for (const value of status.values()) summary[value] += 1;
+    return { original, updated, status, summary };
+  }
+
+  async compare(a, b) {
+    const { original, updated, status, summary } = await this.#status(a, b);
 
     const nodes = [
       ...updated.entries.map((entry) => node(entry, status.get(entry.path))),
@@ -59,9 +69,6 @@ class CompareService {
         .filter((entry) => status.get(entry.path) === STATUS.REMOVED)
         .map((entry) => node(entry, STATUS.REMOVED)),
     ];
-
-    const summary = { added: 0, removed: 0, edited: 0, unchanged: 0 };
-    for (const value of status.values()) summary[value] += 1;
 
     return {
       original: { name: original.label },
@@ -74,14 +81,10 @@ class CompareService {
   // Report data: every non-unchanged item with its full diff, path-sorted —
   // the PDF export renders this and nothing else (differences only).
   async report(a, b) {
-    const [original, updated] = await this.#pair(a, b);
-    const status = compareSignatures(signatures(original.entries), signatures(updated.entries));
+    const { original, updated, status, summary } = await this.#status(a, b);
     const byPath = (entries) => new Map(entries.map((entry) => [entry.path, entry]));
     const originals = byPath(original.entries);
     const updates = byPath(updated.entries);
-
-    const summary = { added: 0, removed: 0, edited: 0, unchanged: 0 };
-    for (const value of status.values()) summary[value] += 1;
 
     const items = [...status.entries()]
       .filter(([, value]) => value !== STATUS.UNCHANGED)

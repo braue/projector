@@ -96,6 +96,10 @@ export function tokenizeLine(line: string, state: StState): { tokens: StToken[];
       tokens.push({ kind: 'com', text: rest })
       rest = ''
     } else {
+      // Consume the '(*' opener NOW — scanning for '*)' from the opener
+      // itself would let '(*)' close on its own '*'.
+      tokens.push({ kind: 'com', text: '(*' })
+      rest = rest.slice(2)
       inComment = true
     }
   }

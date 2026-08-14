@@ -268,6 +268,62 @@ test('a replaced destination splits into removed + added, not a fake edit', () =
   assert.match(page.removed[0], /Bus_Undervoltage/);
 });
 
+test('an edit to a distinct numeric DATA column is reported, never eaten as order', () => {
+  // Near-unique numeric alone must not make a column an "order" — register
+  // addresses and DNP indices are data. Only a contiguous 1..N run is.
+  const page = (rows) => [{
+    name: 'Map',
+    columns: ['Tag', 'Address'],
+    rows: rows.map(([tag, address]) => ({ Tag: tag, Address: address })),
+  }];
+  const diff = diffItems(
+    { settings: {}, points: [], pages: page([['A', '300'], ['B', '301'], ['C', '400']]) },
+    { settings: {}, points: [], pages: page([['A', '300'], ['B', '333'], ['C', '400']]) },
+  );
+  const [map] = diff.pages;
+  assert.equal(map.status, 'changed');
+  assert.equal(map.changed.length, 1);
+  assert.equal(map.changed[0].row, 'B');
+  assert.match(map.changed[0].original, /Address = 301/);
+  assert.match(map.changed[0].updated, /Address = 333/);
+});
+
+test('the leftmost qualified key beats a more-unique free-text column', () => {
+  // TagName (one duplicate) is the designed identity; Description is unique
+  // prose. Editing a description must read as ONE changed row, not as the
+  // row being removed and an unrelated one added.
+  const page = (rows) => [{
+    name: 'Tags',
+    columns: ['TagName', 'Description'],
+    rows: rows.map(([tag, desc]) => ({ TagName: tag, Description: desc })),
+  }];
+  const diff = diffItems(
+    { settings: {}, points: [], pages: page([
+      ['PUMP_1', 'Main pump'], ['VALVE_1', 'Inlet valve'], ['VALVE_1', 'Inlet valve twin'],
+      ['BRKR_1', 'Feeder breaker'], ['XFMR_1', 'Station transformer'],
+    ]) },
+    { settings: {}, points: [], pages: page([
+      ['PUMP_1', 'Main pump'], ['VALVE_1', 'Inlet valve'], ['VALVE_1', 'Inlet valve twin'],
+      ['BRKR_1', 'Feeder breaker REVISED'], ['XFMR_1', 'Station transformer'],
+    ]) },
+  );
+  const [tags] = diff.pages;
+  assert.deepEqual(tags.added, []);
+  assert.deepEqual(tags.removed, []);
+  assert.equal(tags.changed.length, 1);
+  assert.equal(tags.changed[0].row, 'BRKR_1');
+});
+
+test('code diffs normalize line endings and split parts, with no phantom lines', () => {
+  const diff = diffItems(
+    { settings: {}, points: [], pages: [], code: { interface: null, implementation: 'a;\r\nb;' } },
+    { settings: {}, points: [], pages: [], code: { interface: 'VAR x : BOOL; END_VAR', implementation: 'a;\nb;' } },
+  );
+  // CRLF-vs-LF alone is not an implementation edit; the added interface is.
+  assert.equal(diff.code.implementation, null);
+  assert.deepEqual(diff.code.interface, { original: null, updated: 'VAR x : BOOL; END_VAR' });
+});
+
 test('a SolveOrder renumber alone reads reordered, not N edits', () => {
   const rows = [
     ['SystemTags.User_Logged_On', 'True'],

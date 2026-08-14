@@ -1,5 +1,7 @@
 // Minimal LCS line diff for logic source bodies (ST programs run to a few
 // hundred lines at most, so the quadratic table is fine).
+// Backend twin: backend/lib/lineDiff.js (the PDF report renders the same
+// diff) — keep the two in lockstep so both surfaces show ONE diff.
 
 export type DiffLine = {
   kind: 'same' | 'add' | 'del'
@@ -11,8 +13,10 @@ export type DiffLine = {
 }
 
 export function lineDiff(originalText: string, updatedText: string): DiffLine[] {
-  const a = originalText.split('\n')
-  const b = updatedText.split('\n')
+  // An empty side has NO lines — a part that exists on only one side must
+  // not fabricate a phantom deleted/added blank line 1.
+  const a = originalText === '' ? [] : originalText.split('\n')
+  const b = updatedText === '' ? [] : updatedText.split('\n')
 
   const rows = a.length + 1
   const cols = b.length + 1
