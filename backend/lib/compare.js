@@ -251,16 +251,22 @@ function diffPageRows(aPage, bPage) {
   const unmatchedA = aRows.filter((a) => !matchedA.has(a));
   const pairs = Math.min(unmatchedA.length, unmatchedB.length);
   for (let i = 0; i < pairs; i += 1) {
-    const fields = editedFields(unmatchedA[i].row, unmatchedB[i].row);
-    // Positionally paired rows that share NOTHING are a deletion plus an
-    // unrelated addition — reporting them as one "changed" row would hide
-    // the removal entirely. (Order columns count on neither side of that
-    // judgment.)
+    const aRow = unmatchedA[i].row;
+    const bRow = unmatchedB[i].row;
+    const fields = editedFields(aRow, bRow);
+    // Positionally paired rows that DISAGREE on the identity column are a
+    // deletion plus an unrelated addition — boilerplate columns (Build,
+    // DTDataType) make almost any two Tag Processor rows look "mostly
+    // similar", but a row keyed by a different destination tag is a
+    // different row. So are pairs that share NOTHING: reporting either as
+    // one "changed" row would hide the removal entirely. (Order columns
+    // count on neither side of these judgments.)
+    const identitySplit = aRow[label] && bRow[label] && aRow[label] !== bRow[label];
     const relevant = new Set(
-      [...Object.keys(unmatchedA[i].row), ...Object.keys(unmatchedB[i].row)]
+      [...Object.keys(aRow), ...Object.keys(bRow)]
         .filter((column) => !orderish.has(column)),
     ).size;
-    if (fields.length && fields.length >= relevant) {
+    if (fields.length && (identitySplit || fields.length >= relevant)) {
       removed.push(rowText(unmatchedA[i].row));
       added.push(rowText(unmatchedB[i].row));
     } else if (fields.length) {

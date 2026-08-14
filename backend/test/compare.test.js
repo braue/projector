@@ -193,15 +193,11 @@ test('generic page diff pinpoints rows and fields', () => {
       original: 'Destination = BRK_2 · Source = SEL_451.BR2 · Quality = True',
       updated: 'Destination = BRK_2 · Source = SEL_735.BR2 · Quality = False',
     },
-    // Unmatched leftovers pair positionally: OLD_TAG became NEW_TAG.
-    {
-      row: 'NEW_TAG',
-      original: 'Destination = OLD_TAG · Source = SEL_451.X · Quality = True',
-      updated: 'Destination = NEW_TAG · Source = SEL_451.Y · Quality = True',
-    },
   ]);
-  assert.deepEqual(tags.added, []);
-  assert.deepEqual(tags.removed, []);
+  // Positional leftovers with DIFFERENT identities split into a removal and
+  // an addition — OLD_TAG did not "become" NEW_TAG.
+  assert.deepEqual(tags.added, ['Destination = NEW_TAG · Source = SEL_451.Y · Quality = True']);
+  assert.deepEqual(tags.removed, ['Destination = OLD_TAG · Source = SEL_451.X · Quality = True']);
 });
 
 // The REAL Tag Processor shape (RTAC_PROJECT export): the lead column is
@@ -246,6 +242,29 @@ test('Tag Processor rows pair by their identity column, not the Build lead colum
   assert.equal(page.changed[0].row, 'SystemTags.Password_Changed');
   assert.match(page.changed[0].original, /LoggingEnable = True/);
   assert.match(page.changed[0].updated, /LoggingEnable = False/);
+});
+
+test('a replaced destination splits into removed + added, not a fake edit', () => {
+  // Boilerplate columns (Build, DTDataType) make any two Tag Processor rows
+  // look mostly similar — but rows with different destinations are
+  // different rows, even when the positional pass pairs them.
+  const diff = diffItems(
+    { settings: {}, points: [], pages: tagProcessorPage([
+      ['SystemTags.Station_Alarm', 'True'],
+      ['SystemTags.Bus_Undervoltage', 'False'],
+    ]) },
+    { settings: {}, points: [], pages: tagProcessorPage([
+      ['SystemTags.Station_Alarm', 'True'],
+      ['SystemTags.Transformer_Sudden_Pressure', 'True'],
+    ]) },
+  );
+
+  const [page] = diff.pages;
+  assert.deepEqual(page.changed, []);
+  assert.equal(page.added.length, 1);
+  assert.match(page.added[0], /Transformer_Sudden_Pressure/);
+  assert.equal(page.removed.length, 1);
+  assert.match(page.removed[0], /Bus_Undervoltage/);
 });
 
 test('a SolveOrder renumber alone reads reordered, not N edits', () => {
