@@ -13,7 +13,6 @@ import { ST_START, tokenizeLine } from './st.js';
 const PAGE_W = 612;
 const PAGE_H = 792;
 const MARGIN = 54;
-const BODY_W = PAGE_W - MARGIN * 2;
 
 const INK = rgb(0.1, 0.1, 0.13);
 const MUTED = rgb(0.43, 0.44, 0.5);
@@ -62,16 +61,31 @@ class Flow {
     this.fonts = fonts;
     this.page = null;
     this.y = 0;
+    // Wide tables flip their pages to landscape; everything else is
+    // portrait. `wantLandscape` is the REQUESTED orientation — the switch
+    // materializes on the next page break, so asking for portrait after a
+    // table doesn't add a blank page when nothing follows.
+    this.isLandscape = false;
+    this.wantLandscape = false;
     this.addPage();
   }
 
+  get pageW() {
+    return this.isLandscape ? PAGE_H : PAGE_W;
+  }
+
+  get bodyW() {
+    return this.pageW - MARGIN * 2;
+  }
+
   addPage() {
-    this.page = this.pdf.addPage([PAGE_W, PAGE_H]);
-    this.y = PAGE_H - MARGIN;
+    this.isLandscape = this.wantLandscape;
+    this.page = this.pdf.addPage(this.isLandscape ? [PAGE_H, PAGE_W] : [PAGE_W, PAGE_H]);
+    this.y = (this.isLandscape ? PAGE_W : PAGE_H) - MARGIN;
   }
 
   ensure(height) {
-    if (this.y - height < MARGIN) this.addPage();
+    if (this.y - height < MARGIN || this.isLandscape !== this.wantLandscape) this.addPage();
   }
 
   /**
@@ -103,8 +117,12 @@ class Flow {
    * widths are additive), never re-measuring a growing prefix.
    */
   rich(segments, { size = 8, indent = 14, spaceAfter = 0.5, tint = null, keep = 0 } = {}) {
+    // A pending orientation switch must land BEFORE wrap widths are
+    // measured — wrapping for the old page and drawing on the new one
+    // would overflow (or waste) the margin.
+    if (this.isLandscape !== this.wantLandscape) this.addPage();
     const x0 = MARGIN + indent;
-    const maxWidth = BODY_W - indent;
+    const maxWidth = this.bodyW - indent;
     const lineHeight = size * 1.35;
 
     // Split segments into atomic pieces (words and spaces) that keep their
@@ -205,7 +223,7 @@ class Flow {
     this.y -= 6;
     this.page.drawLine({
       start: { x: MARGIN, y: this.y },
-      end: { x: PAGE_W - MARGIN, y: this.y },
+      end: { x: this.pageW - MARGIN, y: this.y },
       thickness: 0.7,
       color: RULE,
     });
@@ -226,15 +244,18 @@ class Flow {
    * columns: [{ key, label }]; rows: [{ tint?, cells: { key: { text,
    * color?, bold? } } }]. Mono throughout — the fixed pitch is what makes
    * cheap per-character wrapping exact.
+   *
+   * A table whose natural width overflows the portrait body starts on a
+   * fresh LANDSCAPE page (with `title` drawn there so the heading isn't
+   * orphaned on the previous portrait page); the page after the table
+   * returns to portrait. Narrow tables stay inline on the current page.
    */
-  table(columns, rows, { size = 7, indent = 14 } = {}) {
+  table(columns, rows, { size = 7, indent = 14, title = null } = {}) {
     const mono = this.fonts.mono;
     const monoBold = this.fonts.monoBold;
     const charW = mono.widthOfTextAtSize('0', size); // fixed pitch
     const lineHeight = size * 1.3;
     const cellPad = 3;
-    const available = BODY_W - indent;
-    const x0 = MARGIN + indent;
 
     // Content-weighted widths: each column asks for its longest cell (capped
     // — one huge value must not starve every other column), then everything
@@ -253,6 +274,14 @@ class Flow {
       return Math.min(chars * charW, MAX_NATURAL) + cellPad * 2;
     });
     const total = widths.reduce((sum, width) => sum + width, 0);
+
+    // Overflowing tables go landscape; the flip lands with the title.
+    const wide = total > PAGE_W - MARGIN * 2 - indent;
+    this.wantLandscape = wide;
+    if (this.isLandscape !== this.wantLandscape) this.addPage();
+    if (title) this.text(title, { font: 'bold', size: 10, keep: 24 });
+    const available = this.bodyW - indent;
+    const x0 = MARGIN + indent;
     if (total > available) {
       const scale = available / total;
       widths = widths.map((width) => Math.max(MIN_WIDTH, width * scale));
@@ -345,6 +374,9 @@ class Flow {
     drawHeader();
     for (const row of rows) drawRow(row.cells, { tint: row.tint ?? null });
     this.y -= 4;
+    // Whatever follows the table returns to portrait (lazily — no blank
+    // trailing page when the table is the last thing in the report).
+    this.wantLandscape = false;
   }
 }
 
@@ -410,13 +442,14 @@ const rowCells = (columns, row) =>
   Object.fromEntries(columns.map((column) => [column, cell(row[column] ?? '')]));
 
 function writePage(flow, page) {
-  section(flow, `Table · ${page.name}`);
   if (page.status === 'added' || page.status === 'removed') {
     const { word, color } = STATUS_STYLE[page.status];
+    section(flow, `Table · ${page.name}`);
     flow.text(`Table ${word} (${page.rows} rows).`, { size: 9, color, indent: 14 });
     return;
   }
   if (page.status === 'reordered') {
+    section(flow, `Table · ${page.name}`);
     flow.text('Rows reordered — no content changes.', { size: 9, color: MUTED, indent: 14 });
     return;
   }
@@ -448,9 +481,11 @@ function writePage(flow, page) {
       },
     })),
   ];
+  flow.gap(5);
   flow.table(
     [{ key: '__change', label: '' }, ...columns.map((column) => ({ key: column, label: column }))],
     rows,
+    { title: `Table · ${page.name}` },
   );
 }
 
@@ -518,10 +553,11 @@ function writeFullItem(flow, model) {
 
   for (const page of model.pages ?? []) {
     const columns = page.columns ?? [];
-    section(flow, `Table · ${page.name} (${page.rows.length} row${page.rows.length === 1 ? '' : 's'})`);
+    flow.gap(5);
     flow.table(
       columns.map((column) => ({ key: column, label: column })),
       page.rows.map((row) => ({ cells: rowCells(columns, row) })),
+      { title: `Table · ${page.name} (${page.rows.length} row${page.rows.length === 1 ? '' : 's'})` },
     );
   }
 
