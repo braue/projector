@@ -150,18 +150,19 @@ function labelColumn(aPage, bPage, columns) {
 // difference is never an edit, contiguous or not.
 const DECLARED_ORDER_COLUMNS = new Set(['SolveOrder']);
 
-// Columns ruled display NOISE in generic tables (Tag Processor logging and
-// housekeeping flags) — dropped from the diff's `columns` list so the
-// identity and message columns get the width. Edits to them still land in
+// Columns ruled display NOISE in generic tables — the user wants the Tag
+// Processor table to be just Row · Build · destination · data type ·
+// source tag, so the ENTIRE Logging* family and the housekeeping flags are
+// dropped from the diff's `columns` list. Edits to them still land in
 // `fields`; renderers surface those in an "Other edits" cell, never
 // silently. TimeSource/QualitySource spellings are conventions, untested
 // against real exports carrying them — tune when one arrives.
 const HIDDEN_PAGE_COLUMNS = new Set([
-  'LoggingEnable', 'LoggingAlarmEnable', 'LiveDataEnabled',
+  'LogInitialState', 'LiveDataEnabled',
   'TimeSource', 'TSSource', 'QualitySource', 'QSource',
 ]);
 const hiddenPageColumn = (column) =>
-  HIDDEN_PAGE_COLUMNS.has(column) || column.startsWith('LoggingChatter');
+  HIDDEN_PAGE_COLUMNS.has(column) || column.startsWith('Logging');
 
 // Order/index columns: integers that form a CONTIGUOUS run from 0 or 1 —
 // positions, not data. AcSELerator renumbers these wholesale when a row is
