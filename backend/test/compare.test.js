@@ -99,9 +99,9 @@ test('row matching is content-first: a shifted table is one added row', () => {
     ]) },
   );
   assert.equal(shifted.pages[0].status, 'changed');
-  assert.deepEqual(shifted.pages[0].added, [{ label: 'NEW', row: { Dest: '', Src: 'NEW' }, index: 0 }]);
-  assert.deepEqual(shifted.pages[0].removed, []);
-  assert.deepEqual(shifted.pages[0].changed, []);
+  assert.deepEqual(shifted.pages[0].changes, [
+    { kind: 'added', index: 0, row: { Dest: '', Src: 'NEW' } },
+  ]);
 });
 
 test('an unrelated replaced row reads as removed + added, not changed', () => {
@@ -112,10 +112,11 @@ test('an unrelated replaced row reads as removed + added, not changed', () => {
   );
   // Bravo and Charlie share no column value — a delete plus an addition,
   // which positional pairing must not fold into one "changed" row. Both
-  // report their whole row.
-  assert.deepEqual(diff.pages[0].added, [{ label: 'Charlie', row: { Name: 'Charlie', Val: '9' }, index: 1 }]);
-  assert.deepEqual(diff.pages[0].removed, [{ label: 'Bravo', row: { Name: 'Bravo', Val: '2' }, index: 1 }]);
-  assert.deepEqual(diff.pages[0].changed, []);
+  // report their whole row; removed sorts first on the shared position.
+  assert.deepEqual(diff.pages[0].changes, [
+    { kind: 'removed', index: 1, row: { Name: 'Bravo', Val: '2' } },
+    { kind: 'added', index: 1, row: { Name: 'Charlie', Val: '9' } },
+  ]);
 });
 
 test('diffItems reports settings, points, and code changes', () => {
@@ -161,9 +162,10 @@ test('diffItems reports settings, points, and code changes', () => {
     status: 'changed',
     rows: 1,
     columns: ['X'],
-    added: [{ label: '2', row: { X: '2' }, index: 0 }],
-    removed: [{ label: '1', row: { X: '1' }, index: 0 }],
-    changed: [],
+    changes: [
+      { kind: 'removed', index: 0, row: { X: '1' } },
+      { kind: 'added', index: 0, row: { X: '2' } },
+    ],
   }]);
   assert.equal(diff.code.interface, null); // unchanged part stays out of the diff
   assert.match(diff.code.implementation.updated, /new;/);
@@ -187,24 +189,21 @@ test('generic page diff pinpoints rows and fields', () => {
 
   const [tags] = diff.pages;
   assert.equal(tags.status, 'changed');
-  // Changed rows carry the WHOLE row object on both sides plus the changed
-  // column names — the UI renders them as real table rows.
-  assert.deepEqual(tags.changed, [
+  // ONE merged, position-sorted change list: the changed row first (its
+  // whole row on both sides plus changed column names), then the
+  // removed+added pair at index 2 — OLD_TAG did not "become" NEW_TAG.
+  assert.deepEqual(tags.changes, [
     {
+      kind: 'changed',
+      index: 1,
       label: 'BRK_2',
       original: { Destination: 'BRK_2', Source: 'SEL_451.BR2', Quality: 'True' },
       updated: { Destination: 'BRK_2', Source: 'SEL_735.BR2', Quality: 'False' },
       fields: ['Source', 'Quality'],
-      index: 1,
+      hidden: [],
     },
-  ]);
-  // Positional leftovers with DIFFERENT identities split into a removal and
-  // an addition — OLD_TAG did not "become" NEW_TAG.
-  assert.deepEqual(tags.added, [
-    { label: 'NEW_TAG', row: { Destination: 'NEW_TAG', Source: 'SEL_451.Y', Quality: 'True' }, index: 2 },
-  ]);
-  assert.deepEqual(tags.removed, [
-    { label: 'OLD_TAG', row: { Destination: 'OLD_TAG', Source: 'SEL_451.X', Quality: 'True' }, index: 2 },
+    { kind: 'removed', index: 2, row: { Destination: 'OLD_TAG', Source: 'SEL_451.X', Quality: 'True' } },
+    { kind: 'added', index: 2, row: { Destination: 'NEW_TAG', Source: 'SEL_451.Y', Quality: 'True' } },
   ]);
   assert.deepEqual(tags.columns, ['Destination', 'Source', 'Quality']);
 });
@@ -244,14 +243,15 @@ test('Tag Processor rows pair by their identity column, not the Build lead colum
 
   const [page] = diff.pages;
   assert.equal(page.status, 'changed');
-  assert.equal(page.added.length, 1);
-  assert.equal(page.added[0].row.DestinationTagName, 'SystemTags.Brand_New_Tag');
-  assert.deepEqual(page.removed, []);
-  assert.equal(page.changed.length, 1);
-  assert.equal(page.changed[0].label, 'SystemTags.Password_Changed');
-  assert.equal(page.changed[0].original.LoggingEnable, 'True');
-  assert.equal(page.changed[0].updated.LoggingEnable, 'False');
-  assert.deepEqual(page.changed[0].fields, ['LoggingEnable']);
+  assert.deepEqual(page.changes.map((entry) => entry.kind), ['added', 'changed']);
+  const [added, edited] = page.changes;
+  assert.equal(added.row.DestinationTagName, 'SystemTags.Brand_New_Tag');
+  assert.equal(edited.label, 'SystemTags.Password_Changed');
+  assert.equal(edited.original.LoggingEnable, 'True');
+  assert.equal(edited.updated.LoggingEnable, 'False');
+  // LoggingEnable is a hidden noise column — the edit reports there.
+  assert.deepEqual(edited.fields, []);
+  assert.deepEqual(edited.hidden, [{ column: 'LoggingEnable', original: 'True', updated: 'False' }]);
 });
 
 test('a replaced destination splits into removed + added, not a fake edit', () => {
@@ -270,11 +270,9 @@ test('a replaced destination splits into removed + added, not a fake edit', () =
   );
 
   const [page] = diff.pages;
-  assert.deepEqual(page.changed, []);
-  assert.equal(page.added.length, 1);
-  assert.equal(page.added[0].row.DestinationTagName, 'SystemTags.Transformer_Sudden_Pressure');
-  assert.equal(page.removed.length, 1);
-  assert.equal(page.removed[0].row.DestinationTagName, 'SystemTags.Bus_Undervoltage');
+  assert.deepEqual(page.changes.map((entry) => entry.kind), ['removed', 'added']);
+  assert.equal(page.changes[1].row.DestinationTagName, 'SystemTags.Transformer_Sudden_Pressure');
+  assert.equal(page.changes[0].row.DestinationTagName, 'SystemTags.Bus_Undervoltage');
 });
 
 test('an edit to a distinct numeric DATA column is reported, never eaten as order', () => {
@@ -291,11 +289,12 @@ test('an edit to a distinct numeric DATA column is reported, never eaten as orde
   );
   const [map] = diff.pages;
   assert.equal(map.status, 'changed');
-  assert.equal(map.changed.length, 1);
-  assert.equal(map.changed[0].label, 'B');
-  assert.equal(map.changed[0].original.Address, '301');
-  assert.equal(map.changed[0].updated.Address, '333');
-  assert.deepEqual(map.changed[0].fields, ['Address']);
+  assert.deepEqual(map.changes.map((entry) => entry.kind), ['changed']);
+  const [edited] = map.changes;
+  assert.equal(edited.label, 'B');
+  assert.equal(edited.original.Address, '301');
+  assert.equal(edited.updated.Address, '333');
+  assert.deepEqual(edited.fields, ['Address']);
 });
 
 test('the leftmost qualified key beats a more-unique free-text column', () => {
@@ -318,10 +317,8 @@ test('the leftmost qualified key beats a more-unique free-text column', () => {
     ]) },
   );
   const [tags] = diff.pages;
-  assert.deepEqual(tags.added, []);
-  assert.deepEqual(tags.removed, []);
-  assert.equal(tags.changed.length, 1);
-  assert.equal(tags.changed[0].label, 'BRKR_1');
+  assert.deepEqual(tags.changes.map((entry) => entry.kind), ['changed']);
+  assert.equal(tags.changes[0].label, 'BRKR_1');
 });
 
 test('noise columns are dropped from the table but their edits stay in fields', () => {
@@ -340,9 +337,13 @@ test('noise columns are dropped from the table but their edits stay in fields', 
   const [page] = diff.pages;
   // LoggingEnable never renders as a column…
   assert.deepEqual(page.columns, ['Build', 'DestinationTagName']);
-  // …but the edit to it is still reported, for the "Other edits" cell.
-  assert.equal(page.changed.length, 1);
-  assert.deepEqual(page.changed[0].fields, ['LoggingEnable']);
+  // …but the edit to it is still reported, pre-split for the "Other edits"
+  // cell — never silently dropped.
+  assert.deepEqual(page.changes.map((entry) => entry.kind), ['changed']);
+  assert.deepEqual(page.changes[0].fields, []);
+  assert.deepEqual(page.changes[0].hidden, [
+    { column: 'LoggingEnable', original: 'False', updated: 'True' },
+  ]);
 });
 
 test('SolveOrder is declared a row-number column — ignored even when NOT contiguous', () => {

@@ -15,6 +15,7 @@
 //   by field name, so a new extractor's output is at worst reported coarsely,
 //   never dropped.
 
+import { normalizeEol } from './lineDiff.js';
 
 // --- file status -------------------------------------------------------------
 
@@ -334,12 +335,33 @@ function diffPageRows(aPage, bPage) {
       && diffRows.some((row) => row[column] != null && row[column] !== ''),
   );
 
-  return {
-    columns: usedColumns,
-    added: allAdded.map((entry) => ({ label: entry.label, row: entry.row, index: entry.index })),
-    removed: allRemoved.map((entry) => ({ label: entry.label, row: entry.row, index: entry.index })),
-    changed,
-  };
+  // ONE merged change list, pre-sorted by row position (removed → changed →
+  // added on ties), with each changed entry's edits split into displayed
+  // fields and hidden-column edits. The UI and the PDF consume this list
+  // verbatim — ordering and hidden-edit policy live HERE, in one home, so
+  // the two surfaces cannot drift.
+  const RANK = { removed: 0, changed: 1, added: 2 };
+  const changes = [
+    ...allRemoved.map((entry) => ({ kind: 'removed', index: entry.index, row: entry.row })),
+    ...changed.map((entry) => ({
+      kind: 'changed',
+      index: entry.index,
+      label: entry.label,
+      original: entry.original,
+      updated: entry.updated,
+      fields: entry.fields.filter((column) => usedColumns.includes(column)),
+      hidden: entry.fields
+        .filter((column) => !usedColumns.includes(column))
+        .map((column) => ({
+          column,
+          original: entry.original[column] ?? null,
+          updated: entry.updated[column] ?? null,
+        })),
+    })),
+    ...allAdded.map((entry) => ({ kind: 'added', index: entry.index, row: entry.row })),
+  ].sort((a, b) => a.index - b.index || RANK[a.kind] - RANK[b.kind]);
+
+  return { columns: usedColumns, changes };
 }
 
 function diffPages(aPages = [], bPages = []) {
@@ -352,7 +374,7 @@ function diffPages(aPages = [], bPages = []) {
     if (!aPage) out.push({ name, status: 'added', rows: bPage.rows.length });
     else if (JSON.stringify(aPage.rows) !== JSON.stringify(bPage.rows)) {
       const rowDiff = diffPageRows(aPage, bPage);
-      const hasDetail = rowDiff.added.length || rowDiff.removed.length || rowDiff.changed.length;
+      const hasDetail = rowDiff.changes.length;
       // Same rows in a different order (or key-order noise): state it as data
       // rather than leaving the UI to infer it from empty detail arrays.
       out.push(hasDetail
@@ -374,7 +396,7 @@ function diffCode(original, updated) {
   // SEL/Windows exports store CDATA with CRLF; an export written with LF is
   // not an edit. Normalize before comparing so ending-only differences read
   // unchanged and diffed text never carries stray \r.
-  const norm = (text) => (text == null ? null : text.replace(/\r\n?/g, '\n'));
+  const norm = (text) => (text == null ? null : normalizeEol(text));
   const out = {};
   let any = false;
   for (const part of ['interface', 'implementation']) {

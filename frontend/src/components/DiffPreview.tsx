@@ -132,85 +132,68 @@ function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
 // and a was/now row pair per changed row. Run-on "Col = value · …" strings
 // were unreadable at 15 columns.
 function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] }) {
-  const columns = page.columns ?? []
-  const cells = (row: Record<string, string>) =>
-    Object.fromEntries(columns.map((column) => [column, row[column] ?? '']))
-
-  // Sorted by ROW POSITION (solve order), not grouped by change kind; the
-  // leading column carries the row number. Removed rows sort by where they
-  // used to live and come first on ties.
+  // The backend's `changes` list arrives pre-merged and pre-sorted by row
+  // position, with edits already split into displayed `fields` and hidden
+  // noise-column edits — this component (and the PDF report) only style it.
   //
   // Added/removed rows show their content (the content IS the edit);
-  // changed pairs show only the identity cell and the edited cells — the
-  // unchanged remainder of the row is blank. Edits in hidden noise columns
-  // (logging flags, dropped server-side from `columns`) surface in the
-  // trailing "Other edits" cell.
-  const hiddenEdits = (entry: NonNullable<typeof page.changed>[number]) =>
-    entry.fields
-      .filter((field) => !columns.includes(field))
-      .map((field) => `${field}: ${entry.original[field] ?? '—'} → ${entry.updated[field] ?? '—'}`)
-      .join(';  ')
-  const anyHidden = (page.changed ?? []).some((entry) => hiddenEdits(entry))
+  // changed pairs show only the identity cell and the edited cells, with
+  // hidden edits in the trailing "Other edits" cell. Memoized: ancestors
+  // re-render at pointer-move frequency during rail drags, and a
+  // 2000-change table must not rebuild per frame.
+  const columns = page.columns ?? []
+  const { rows, anyHidden } = useMemo(() => {
+    const changes = page.changes ?? []
+    const hidden = changes.some((entry) => entry.hidden?.length)
+    const hiddenText = (entry: (typeof changes)[number]) =>
+      (entry.hidden ?? [])
+        .map((edit) => `${edit.column}: ${edit.original ?? '—'} → ${edit.updated ?? '—'}`)
+        .join(';  ')
+    const cells = (row: Record<string, string>) =>
+      Object.fromEntries(columns.map((column) => [column, row[column] ?? '']))
 
-  const changedCells = (
-    entry: NonNullable<typeof page.changed>[number],
-    row: Record<string, string>,
-  ) =>
-    Object.fromEntries(
-      columns.map((column) => [
-        column,
-        entry.fields.includes(column) || row[column] === entry.label ? row[column] ?? '' : '',
-      ]),
-    )
-
-  const rows: TableRow[] = [
-    ...(page.added ?? []).map((entry, i) => ({
-      index: entry.index,
-      rank: 2,
-      rows: [{
-        id: `a${i}`,
-        tone: 'added' as const,
-        cells: { __change: `+ ${entry.index + 1}`, ...cells(entry.row) },
-      }],
-    })),
-    ...(page.removed ?? []).map((entry, i) => ({
-      index: entry.index,
-      rank: 0,
-      rows: [{
-        id: `r${i}`,
-        tone: 'removed' as const,
-        cells: { __change: `− ${entry.index + 1}`, ...cells(entry.row) },
-      }],
-    })),
-    ...(page.changed ?? []).map((entry, i) => ({
-      index: entry.index,
-      rank: 1,
-      rows: [
+    const built: TableRow[] = changes.flatMap((entry, i) => {
+      if (entry.kind !== 'changed') {
+        const added = entry.kind === 'added'
+        return [{
+          id: `${entry.kind}${i}`,
+          tone: (added ? 'added' : 'removed') as TableRow['tone'],
+          cells: { __change: `${added ? '+' : '−'} ${entry.index + 1}`, ...cells(entry.row!) },
+        }]
+      }
+      const visible = new Set(entry.fields)
+      const pick = (row: Record<string, string>) =>
+        Object.fromEntries(columns.map((column) => [
+          column,
+          visible.has(column) || row[column] === entry.label ? row[column] ?? '' : '',
+        ]))
+      return [
         {
           id: `c${i}o`,
-          tone: 'edited' as const,
-          cells: { __change: `~ ${entry.index + 1} was`, ...changedCells(entry, entry.original) },
+          tone: 'edited' as TableRow['tone'],
+          cells: { __change: `~ ${entry.index + 1} was`, ...pick(entry.original!) },
         },
         {
           id: `c${i}n`,
-          tone: 'edited' as const,
+          tone: 'edited' as TableRow['tone'],
           cells: {
             __change: `~ ${entry.index + 1} now`,
-            ...changedCells(entry, entry.updated),
-            ...(anyHidden ? { __other: hiddenEdits(entry) } : {}),
+            ...pick(entry.updated!),
+            ...(hidden ? { __other: hiddenText(entry) } : {}),
           },
         },
-      ],
-    })),
-  ]
-    .sort((a, b) => a.index - b.index || a.rank - b.rank)
-    .flatMap((entry) => entry.rows)
+      ]
+    })
+    return { rows: built, anyHidden: hidden }
+  }, [page])
 
   return (
     <section>
       <SectionHeader
         title={`Table · ${page.name}`}
-        count={`+${page.added?.length ?? 0} −${page.removed?.length ?? 0} ~${page.changed?.length ?? 0}`}
+        count={(['added', 'removed', 'changed'] as const)
+          .map((kind, i) => `${'+−~'[i]}${(page.changes ?? []).filter((entry) => entry.kind === kind).length}`)
+          .join(' ')}
       />
       <DataTable
         columns={[

@@ -7,7 +7,7 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 import { hiddenPageColumn } from './compare.js';
-import { lineDiff } from './lineDiff.js';
+import { lineDiff, normalizeEol } from './lineDiff.js';
 import { ST_START, tokenizeLine } from './st.js';
 
 // US Letter.
@@ -48,8 +48,7 @@ const TINT_EDITED = rgb(0.992, 0.965, 0.89);
 // Line endings normalize to \n and SURVIVE the scrub — multi-line values
 // must break lines, not render as one run-on string with embedded '?'s.
 function winAnsi(text) {
-  return String(text)
-    .replace(/\r\n?/g, '\n')
+  return normalizeEol(String(text))
     .replace(/\t/g, '  ')
     .replace(/→/g, '->')
     .replace(/[−–]/g, '-')
@@ -258,50 +257,56 @@ class Flow {
     const lineHeight = size * 1.3;
     const cellPad = 3;
 
-    // Content-weighted widths: each column asks for its longest cell (capped
-    // — one huge value must not starve every other column), then everything
-    // scales to fit, with a floor so no column vanishes.
+    // Display headers wrap between camelCase words (LoggingChatterCounts →
+    // Logging Chatter Counts) — computed ONCE, used for both measurement
+    // and drawing so the two can never disagree.
+    const headers = columns.map((column) => column.label.replace(/([a-z])([A-Z])/g, '$1 $2'));
+
+    // Content-weighted widths: each column asks for its longest cell (its
+    // natural width), capped so one huge value can't starve every other
+    // column. A column only needs to fit its longest header WORD — headers
+    // wrap between words.
     const MAX_NATURAL = charW * 34;
     const MIN_WIDTH = charW * 4 + cellPad * 2;
-    const naturals = columns.map((column) => {
-      // Headers wrap between camelCase words, so a column only needs to fit
-      // its longest header WORD, not the whole label.
-      const headerWords = column.label.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
-      let chars = Math.max(...headerWords.map((word) => word.length), 1);
+    const naturals = columns.map((column, index) => {
+      let chars = Math.max(...headers[index].split(' ').map((word) => word.length), 1);
       for (const row of rows) {
         const text = row.cells[column.key]?.text ?? '';
         if (text.length > chars) chars = text.length;
       }
       return chars * charW + cellPad * 2;
     });
-    let widths = naturals.map((natural) => Math.min(natural, MAX_NATURAL + cellPad * 2));
-    const total = widths.reduce((sum, width) => sum + width, 0);
+    const capped = naturals.map((natural) => Math.min(natural, MAX_NATURAL + cellPad * 2));
+    const cappedTotal = capped.reduce((sum, width) => sum + width, 0);
 
-    // Overflowing tables go landscape; the flip lands with the title.
-    const wide = total > PAGE_W - MARGIN * 2 - indent;
-    this.wantLandscape = wide;
+    // A table too wide for the portrait body flips its pages to landscape;
+    // the flip lands with the title. The caller's prior orientation request
+    // is restored afterwards — a table must not impose "portrait" on a
+    // document section that asked for landscape.
+    const priorWant = this.wantLandscape;
+    const wide = cappedTotal > PAGE_W - MARGIN * 2 - indent;
+    this.wantLandscape = priorWant || wide;
     if (this.isLandscape !== this.wantLandscape) this.addPage();
     if (title) this.text(title, { font: 'bold', size: 10, keep: 24 });
     const available = this.bodyW - indent;
     const x0 = MARGIN + indent;
 
-    // Spare room goes back to the CAPPED columns first (long tag names
-    // uncap and stop wrapping when the table has space for them).
-    const spare = available - total;
-    if (spare > 0) {
-      const wants = widths.map((width, index) => Math.max(0, naturals[index] - width));
+    // Fit the widths to the page: naturals outright when they fit; capped
+    // widths growing back toward natural when there's spare; otherwise
+    // scale down with a floor, shaving any floor-overshoot from every
+    // above-floor column in proportion to its slack (never draining one).
+    const naturalTotal = naturals.reduce((sum, width) => sum + width, 0);
+    let widths;
+    if (naturalTotal <= available) {
+      widths = naturals.slice();
+    } else if (cappedTotal <= available) {
+      const wants = capped.map((width, index) => naturals[index] - width);
       const totalWant = wants.reduce((sum, want) => sum + want, 0);
-      if (totalWant > 0) {
-        const grant = Math.min(spare, totalWant) / totalWant;
-        widths = widths.map((width, index) => width + wants[index] * grant);
-      }
-    }
-    if (total > available) {
-      const scale = available / total;
-      widths = widths.map((width) => Math.max(MIN_WIDTH, width * scale));
-      // Floors can push the sum back over — shave the excess from every
-      // above-floor column in proportion to its slack, so no single column
-      // gets drained while its neighbors keep their room.
+      const grant = (available - cappedTotal) / totalWant;
+      widths = capped.map((width, index) => width + wants[index] * Math.min(grant, 1));
+    } else {
+      const scale = available / cappedTotal;
+      widths = capped.map((width) => Math.max(MIN_WIDTH, width * scale));
       const excess = widths.reduce((sum, width) => sum + width, 0) - available;
       if (excess > 0) {
         const slack = widths.map((width) => width - MIN_WIDTH);
@@ -331,19 +336,19 @@ class Flow {
       return lines;
     };
 
-    const drawRow = (cells, { tint = null, bold = false } = {}) => {
+    const drawRow = (cells, { tint = null, isHeader = false } = {}) => {
       const wrapped = columns.map((column, index) => {
         const cell = cells[column.key];
         return {
           lines: wrapCell(cell?.text ?? '', widths[index]),
           color: cell?.color ?? INK,
-          face: (cell?.bold || bold) ? monoBold : mono,
+          face: (cell?.bold || isHeader) ? monoBold : mono,
         };
       });
       const height = Math.max(...wrapped.map((cell) => cell.lines.length)) * lineHeight + 2;
       if (this.y - height < MARGIN) {
         this.addPage();
-        if (!bold) drawHeader();
+        if (!isHeader) drawHeader(); // headers must not recurse into themselves
       }
       const top = this.y;
       if (tint) {
@@ -373,14 +378,8 @@ class Flow {
 
     const drawHeader = () => {
       drawRow(
-        Object.fromEntries(columns.map((column) => [
-          column.key,
-          // CamelCase headers get word breaks (LoggingChatterCounts →
-          // Logging Chatter Counts) so narrow columns wrap between words
-          // instead of mid-word.
-          { text: column.label.replace(/([a-z])([A-Z])/g, '$1 $2'), color: MUTED },
-        ])),
-        { bold: true },
+        Object.fromEntries(columns.map((column, index) => [column.key, { text: headers[index], color: MUTED }])),
+        { isHeader: true },
       );
     };
 
@@ -388,26 +387,41 @@ class Flow {
     drawHeader();
     for (const row of rows) drawRow(row.cells, { tint: row.tint ?? null });
     this.y -= 4;
-    // Whatever follows the table returns to portrait (lazily — no blank
-    // trailing page when the table is the last thing in the report).
-    this.wantLandscape = false;
+    // Restore the caller's orientation request (lazily — no blank trailing
+    // page when the table is the last thing in the report).
+    this.wantLandscape = priorWant;
   }
 }
 
-// One diff line: colored ± sign and number, then syntax-colored ST tokens on
-// the row tint. NO cap — the report is the review artifact, and a truncated
-// diff is not reviewable. Lines are tokenized stateless (the diff only
-// carries the CHANGED lines, so there is no preceding context to thread
-// block-comment state through).
-function writeDiffLines(flow, entries, prefix, color, tint) {
-  for (const { number, text } of entries) {
-    const { tokens } = tokenizeLine(text, ST_START);
-    flow.rich(
-      [
-        { text: `${prefix} ${String(number).padStart(4)}  `, color },
-        ...tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
-      ],
-      { tint },
+// The one home for a PDF code line's shape: signed 4-wide gutter, two
+// spaces, syntax-colored tokens, row tint. Diff lines and full-source
+// listings both route through here so the format cannot drift.
+function codeLine(flow, sign, number, tokens, color, tint) {
+  flow.rich(
+    [
+      { text: `${sign} ${String(number).padStart(4)}  `, color },
+      ...tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
+    ],
+    { tint },
+  );
+}
+
+// The del or add lines of an LCS diff. NO cap — the report is the review
+// artifact, and a truncated diff is not reviewable. Lines are tokenized
+// stateless (only CHANGED lines reach the report, so there is no preceding
+// context to thread block-comment state through).
+function writeDiffLines(flow, lines, kind) {
+  const del = kind === 'del';
+  for (const line of lines) {
+    if (line.kind !== kind) continue;
+    const { tokens } = tokenizeLine(line.text, ST_START);
+    codeLine(
+      flow,
+      del ? '-' : '+',
+      del ? line.oldNo : line.newNo,
+      tokens,
+      del ? RED : GREEN,
+      del ? TINT_REMOVED : TINT_ADDED,
     );
   }
 }
@@ -468,41 +482,33 @@ function writePage(flow, page) {
     return;
   }
 
-  // ONE horizontal table: a row per added/removed/changed page row — a
-  // thousand-point Tag Processor edit stays a thousand table rows, not a
-  // thousand paragraphs. Rows sort by ROW POSITION (solve order) with the
-  // position in the badge column; removed rows sort by where they used to
-  // live and come first on ties.
+  // ONE horizontal table: a row per entry of the diff's pre-merged,
+  // pre-sorted change list (compare.js owns ordering and the hidden-edit
+  // split — the UI consumes the same list, so the surfaces cannot drift).
   //
   // Added/removed rows print their content (the content IS the edit);
   // CHANGED rows print only the identity cell and the changed cells as
-  // "old -> new" — the reader asked for the edits, not the whole row's
-  // unchanged values. Edits in hidden noise columns (logging flags) land
-  // in the trailing "Other edits" cell, never dropped.
+  // "old -> new". Edits in hidden noise columns land in the trailing
+  // "Other edits" cell, never dropped.
   const columns = page.columns ?? [];
-  const hiddenEdits = (entry) => entry.fields
-    .filter((field) => !columns.includes(field))
-    .map((field) => `${field}: ${entry.original[field] ?? '(empty)'} -> ${entry.updated[field] ?? '(empty)'}`)
+  const changes = page.changes ?? [];
+  const anyHidden = changes.some((entry) => entry.hidden?.length);
+  const hiddenText = (entry) => entry.hidden
+    .map((edit) => `${edit.column}: ${edit.original ?? '(empty)'} -> ${edit.updated ?? '(empty)'}`)
     .join(';  ');
-  const anyHidden = (page.changed ?? []).some((entry) => hiddenEdits(entry));
 
-  const KIND_RANK = { removed: 0, changed: 1, added: 2 };
-  const rows = [
-    ...(page.added ?? []).map((entry) => ({
-      index: entry.index,
-      rank: KIND_RANK.added,
-      tint: TINT_ADDED,
-      cells: { __change: cell(`+ ${entry.index + 1}`, GREEN, true), ...rowCells(columns, entry.row) },
-    })),
-    ...(page.removed ?? []).map((entry) => ({
-      index: entry.index,
-      rank: KIND_RANK.removed,
-      tint: TINT_REMOVED,
-      cells: { __change: cell(`- ${entry.index + 1}`, RED, true), ...rowCells(columns, entry.row) },
-    })),
-    ...(page.changed ?? []).map((entry) => ({
-      index: entry.index,
-      rank: KIND_RANK.changed,
+  const rows = changes.map((entry) => {
+    if (entry.kind !== 'changed') {
+      const added = entry.kind === 'added';
+      return {
+        tint: added ? TINT_ADDED : TINT_REMOVED,
+        cells: {
+          __change: cell(`${added ? '+' : '-'} ${entry.index + 1}`, added ? GREEN : RED, true),
+          ...rowCells(columns, entry.row),
+        },
+      };
+    }
+    return {
       tint: TINT_EDITED,
       cells: {
         __change: cell(`~ ${entry.index + 1}`, AMBER, true),
@@ -514,10 +520,10 @@ function writePage(flow, page) {
           const value = entry.updated[column] ?? entry.original[column];
           return [column, cell(value === entry.label ? value : '')];
         })),
-        ...(anyHidden ? { __other: cell(hiddenEdits(entry), AMBER, true) } : {}),
+        ...(anyHidden ? { __other: cell(entry.hidden.length ? hiddenText(entry) : '', AMBER, true) } : {}),
       },
-    })),
-  ].sort((a, b) => a.index - b.index || a.rank - b.rank);
+    };
+  });
   flow.gap(5);
   flow.table(
     [
@@ -539,10 +545,8 @@ function writeCode(flow, code) {
     if (!part) continue;
     section(flow, `Logic source · ${label.toLowerCase()}`);
     const lines = lineDiff(part.original ?? '', part.updated ?? '');
-    writeDiffLines(flow, lines.filter((line) => line.kind === 'del')
-      .map((line) => ({ number: line.oldNo, text: line.text })), '-', RED, TINT_REMOVED);
-    writeDiffLines(flow, lines.filter((line) => line.kind === 'add')
-      .map((line) => ({ number: line.newNo, text: line.text })), '+', GREEN, TINT_ADDED);
+    writeDiffLines(flow, lines, 'del');
+    writeDiffLines(flow, lines, 'add');
   }
 }
 
@@ -552,17 +556,11 @@ function writeCode(flow, code) {
 function writeSource(flow, label, source, { sign, color, tint }) {
   section(flow, `Logic source · ${label}`);
   let state = ST_START;
-  const lines = source.replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n');
+  const lines = normalizeEol(source).replace(/\n$/, '').split('\n');
   lines.forEach((text, index) => {
     const result = tokenizeLine(text, state);
     state = result.state;
-    flow.rich(
-      [
-        { text: `${sign} ${String(index + 1).padStart(4)}  `, color },
-        ...result.tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
-      ],
-      { tint },
-    );
+    codeLine(flow, sign, index + 1, result.tokens, color, tint);
   });
 }
 

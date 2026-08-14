@@ -6,6 +6,12 @@
 // Lines carry `kind` ('same' | 'add' | 'del') plus 1-based `oldNo` (absent
 // on added lines) and `newNo` (absent on deleted lines).
 
+// One home for line-ending normalization — SEL/Windows exports mix CRLF and
+// LF, and every consumer that splits or compares source must agree.
+function normalizeEol(text) {
+  return text.replace(/\r\n?/g, '\n');
+}
+
 function lineDiff(originalText, updatedText) {
   // An empty side has NO lines — a part that exists on only one side must
   // not fabricate a phantom deleted/added blank line 1.
@@ -44,4 +50,4 @@ function lineDiff(originalText, updatedText) {
   return out;
 }
 
-export { lineDiff };
+export { lineDiff, normalizeEol };
