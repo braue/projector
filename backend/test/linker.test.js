@@ -96,6 +96,41 @@ test('linker tiers: confirmed, conflict, declared + ghost dedupe', () => {
 
   // one ghost for the modbus address, one for the serial line
   assert.equal(ghosts.length, 2);
+
+  // The IP ghost names the declaring RTAC connection, not just the address —
+  // the address alone doesn't tell the reader WHICH connection is dangling.
+  const ipGhost = ghosts.find((ghost) => ghost.label === '10.10.1.60');
+  assert.deepEqual(ipGhost.lines, ['GHOST_MB · Modbus · port 502']);
+  assert.equal(ipGhost.sublabel, 'declared by RTAC_MAIN · not loaded');
+  // And every link's a-side leads with its connection name.
+  assert.equal(byEndpoint.c3.a.lines[0], 'Connection GHOST_MB');
+  assert.equal(byEndpoint.c1.a.lines[0], 'Connection FEEDER_DNP');
+});
+
+test('one address dialed by several connections lists each declarer on the ghost', () => {
+  const second = {
+    name: 'RTAC_BACKUP',
+    model: 'SEL-3555',
+    source: { type: 'rtac', ref: 'RTAC_BACKUP' },
+    interfaces: [],
+    endpoints: [
+      {
+        id: 'c9', name: 'METER_MB', role: 'client', protocol: 'Modbus', transport: 'tcp',
+        remoteAddress: '10.10.1.60', remotePort: '502', addressing: {}, lines: [],
+      },
+    ],
+  };
+  const { ghosts } = linkProfiles([
+    { id: 'rtac', profile: rtacProfile },
+    { id: 'backup', profile: second },
+  ]);
+  const ghost = ghosts.find((g) => g.label === '10.10.1.60');
+  assert.deepEqual(ghost.lines, [
+    'GHOST_MB · Modbus · port 502',
+    'METER_MB · Modbus · port 502',
+  ]);
+  assert.equal(ghost.sublabel, 'declared by RTAC_MAIN, RTAC_BACKUP · not loaded');
+  assert.equal(ghost.declarers, undefined); // internal bookkeeping stays internal
 });
 
 test('linker: probable when the IP owner states no matching server', () => {

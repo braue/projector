@@ -354,11 +354,17 @@ function linkProfiles(devices, manualLinks = []) {
     for (const endpoint of profile.endpoints ?? []) {
       if (endpoint.role !== 'client' && endpoint.role !== 'peer') continue;
 
-      // Internal connection names ("Other_3") mean nothing to a reader — the
-      // side label is just who the device is and which role it plays.
+      // The side label is who the device is and which role it plays; the
+      // lines lead with the RTAC navigator connection name (SEL_3530_1,
+      // Other_3) — that name is how the reader finds the connection in
+      // AcSELerator, so it travels with every link and ghost this endpoint
+      // produces.
       const aSide = {
         label: `${profile.name} · ${endpoint.role}`,
-        lines: endpoint.lines ?? [],
+        lines: [
+          ...(endpoint.name ? [`Connection ${endpoint.name}`] : []),
+          ...(endpoint.lines ?? []),
+        ],
       };
       const base = {
         id: `${deviceId}:${endpoint.id}`,
@@ -394,16 +400,20 @@ function linkProfiles(devices, manualLinks = []) {
       const claimants = byIp.get(address) ?? [];
       const owner = claimants.find((claimant) => claimant.deviceId !== deviceId);
       if (!owner) {
-        const ghost = ghostFor(
-          address,
-          address,
-          `declared by ${profile.name} · not loaded`,
-          [
-            [endpoint.protocol ?? 'unknown protocol', endpoint.remotePort && `port ${endpoint.remotePort}`]
-              .filter(Boolean)
-              .join(' · '),
-          ],
-        );
+        // Several connections (even from several sources) can dial one
+        // address; the ghost keeps one line per declaring connection, led by
+        // its RTAC navigator name — the address alone doesn't tell the
+        // reader WHICH connection is dangling.
+        const ghost = ghostFor(address, address, `declared by ${profile.name} · not loaded`, []);
+        const declarers = (ghost.declarers ??= new Set());
+        declarers.add(profile.name);
+        ghost.sublabel = `declared by ${[...declarers].join(', ')} · not loaded`;
+        const line = [
+          endpoint.name,
+          endpoint.protocol ?? 'unknown protocol',
+          endpoint.remotePort && `port ${endpoint.remotePort}`,
+        ].filter(Boolean).join(' · ');
+        if (!ghost.lines.includes(line)) ghost.lines.push(line);
         declared(base, ghost,
           summarize(endpoint, 'the other end is not loaded'),
           `${address} · unknown device`, ['No file loaded for this address'],
@@ -675,7 +685,12 @@ function linkProfiles(devices, manualLinks = []) {
     });
   }
 
-  return { links, ghosts: [...ghosts.values()], diagnostics: networkDiagnostics(devices, byIp) };
+  return {
+    links,
+    // declarers is pass-internal bookkeeping for the sublabel — not payload.
+    ghosts: [...ghosts.values()].map(({ declarers, ...ghost }) => ghost),
+    diagnostics: networkDiagnostics(devices, byIp),
+  };
 }
 
 export { linkProfiles, normalizeManualLink };
