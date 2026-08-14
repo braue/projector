@@ -1,6 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react'
 
+import { tokenizeBlock } from '../lib/st'
 import type { LayoutItem, Point, ProjectItem, SettingPage } from '../types'
+import { StText } from './StText'
 import {
   CollapsibleSection,
   DataTable,
@@ -56,17 +58,19 @@ function itemSubtitle(item: ProjectItem): string | null {
 
 // A busy connection carries 80+ settings, so the section carries its own
 // filter: name or value, whichever you remember.
-// ST source with a line-number gutter. Numbers are 1-based per part
-// (interface and implementation count separately), matching the
-// "implementation · line N" locations search reports.
+// ST source with a line-number gutter and syntax highlighting. Numbers are
+// 1-based per part (interface and implementation count separately), matching
+// the "implementation · line N" locations search reports.
 function CodeBlock({ source }: { source: string }) {
-  const lines = source.replace(/\n$/, '').split('\n')
+  const lines = tokenizeBlock(source.replace(/\n$/, ''))
   return (
     <pre className="code code-numbered">
-      {lines.map((text, i) => (
+      {lines.map((tokens, i) => (
         <div key={i} className="code-line">
           <span className="code-ln">{i + 1}</span>
-          <span className="code-text">{text}</span>
+          <span className="code-text">
+            <StText tokens={tokens} />
+          </span>
         </div>
       ))}
     </pre>

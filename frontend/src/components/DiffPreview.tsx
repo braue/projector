@@ -1,6 +1,8 @@
 import type { CompareItem, FileStatus, PointFieldDiff } from '../types'
-import { lineDiff } from '../lib/lineDiff'
+import { lineDiff, type DiffLine } from '../lib/lineDiff'
+import { ST_START, tokenizeLine, type StToken } from '../lib/st'
 import { Preview } from './Preview'
+import { StText } from './StText'
 import { Chip, DataTable, SectionHeader, Tag, type TableRow } from './ui'
 
 // Right pane in compare mode. An added or removed file renders its full
@@ -193,6 +195,30 @@ function GraphicalLogicSection({ diff }: { diff: CompareItem['diff'] }) {
   )
 }
 
+// Highlight diff lines, folding block-comment state along each SIDE of the
+// diff separately — a (* comment *) opened in the original must not bleed
+// into added lines, which belong to the new source's state.
+function highlightDiff(lines: DiffLine[]): (DiffLine & { tokens: StToken[] })[] {
+  let oldState = ST_START
+  let newState = ST_START
+  return lines.map((line) => {
+    if (line.kind === 'del') {
+      const result = tokenizeLine(line.text, oldState)
+      oldState = result.state
+      return { ...line, tokens: result.tokens }
+    }
+    if (line.kind === 'add') {
+      const result = tokenizeLine(line.text, newState)
+      newState = result.state
+      return { ...line, tokens: result.tokens }
+    }
+    oldState = tokenizeLine(line.text, oldState).state
+    const result = tokenizeLine(line.text, newState)
+    newState = result.state
+    return { ...line, tokens: result.tokens }
+  })
+}
+
 // One section per changed part (interface / implementation), diffed and
 // numbered separately — the gutter numbers match Inspect's code view and
 // search's "implementation · line N" locations.
@@ -210,14 +236,14 @@ function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
         <section key={label}>
           <SectionHeader title={`Logic Source · ${label}`} />
           <pre className="code code-diff">
-            {lineDiff(part!.original ?? '', part!.updated ?? '').map((line, i) => (
+            {highlightDiff(lineDiff(part!.original ?? '', part!.updated ?? '')).map((line, i) => (
               <div key={i} className={`diff-line diff-${line.kind}`}>
                 <span className="diff-ln">{line.oldNo ?? ''}</span>
                 <span className="diff-ln">{line.newNo ?? ''}</span>
                 <span className="diff-sign">
                   {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
                 </span>
-                {line.text}
+                <StText tokens={line.tokens} />
               </div>
             ))}
           </pre>

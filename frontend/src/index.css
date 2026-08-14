@@ -384,6 +384,14 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .code-line { display: flex; }
 .code-text { white-space: pre; }
+
+/* ST syntax tokens (lib/st.ts). Kept legible on the plain code background
+ * AND on the green/red tinted diff rows. */
+.tok-kw { color: #1a56b0; font-weight: 600; }
+.tok-type { color: #7048a8; }
+.tok-str { color: #8a5a00; }
+.tok-num { color: #0e7569; }
+.tok-com { color: var(--muted); font-style: italic; }
 .diff-line.diff-add { background: #e9f7ef; }
 .diff-line.diff-del { background: #fcecec; }
 
