@@ -46,6 +46,10 @@ test('report carries only the differences, path-sorted, with diffs for edits', a
     { key: 'Baud', original: '9600', updated: '19200', status: 'changed' },
   ]);
   assert.equal(report.items[1].diff, null);
+  // Added/removed items carry their FULL content for the report to print.
+  assert.deepEqual(report.items[1].item, { settings: {} }); // Gone.xml, from the original
+  assert.deepEqual(report.items[2].item, { settings: {} }); // New.xml, from the update
+  assert.equal(edited.item, null);
 });
 
 test('the report renders to a PDF', async () => {

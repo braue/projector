@@ -99,7 +99,7 @@ test('row matching is content-first: a shifted table is one added row', () => {
     ]) },
   );
   assert.equal(shifted.pages[0].status, 'changed');
-  assert.deepEqual(shifted.pages[0].added, ['Src = NEW']);
+  assert.deepEqual(shifted.pages[0].added, [{ label: 'NEW', row: { Dest: '', Src: 'NEW' } }]);
   assert.deepEqual(shifted.pages[0].removed, []);
   assert.deepEqual(shifted.pages[0].changed, []);
 });
@@ -113,8 +113,8 @@ test('an unrelated replaced row reads as removed + added, not changed', () => {
   // Bravo and Charlie share no column value — a delete plus an addition,
   // which positional pairing must not fold into one "changed" row. Both
   // report their whole row.
-  assert.deepEqual(diff.pages[0].added, ['Name = Charlie · Val = 9']);
-  assert.deepEqual(diff.pages[0].removed, ['Name = Bravo · Val = 2']);
+  assert.deepEqual(diff.pages[0].added, [{ label: 'Charlie', row: { Name: 'Charlie', Val: '9' } }]);
+  assert.deepEqual(diff.pages[0].removed, [{ label: 'Bravo', row: { Name: 'Bravo', Val: '2' } }]);
   assert.deepEqual(diff.pages[0].changed, []);
 });
 
@@ -160,8 +160,9 @@ test('diffItems reports settings, points, and code changes', () => {
     name: 'Extra',
     status: 'changed',
     rows: 1,
-    added: ['X = 2'],
-    removed: ['X = 1'],
+    columns: ['X'],
+    added: [{ label: '2', row: { X: '2' } }],
+    removed: [{ label: '1', row: { X: '1' } }],
     changed: [],
   }]);
   assert.equal(diff.code.interface, null); // unchanged part stays out of the diff
@@ -186,19 +187,25 @@ test('generic page diff pinpoints rows and fields', () => {
 
   const [tags] = diff.pages;
   assert.equal(tags.status, 'changed');
-  // Changed rows carry the WHOLE row on both sides — a row referenced only by
-  // its label and a column is unreadable in review.
+  // Changed rows carry the WHOLE row object on both sides plus the changed
+  // column names — the UI renders them as real table rows.
   assert.deepEqual(tags.changed, [
     {
-      row: 'BRK_2',
-      original: 'Destination = BRK_2 · Source = SEL_451.BR2 · Quality = True',
-      updated: 'Destination = BRK_2 · Source = SEL_735.BR2 · Quality = False',
+      label: 'BRK_2',
+      original: { Destination: 'BRK_2', Source: 'SEL_451.BR2', Quality: 'True' },
+      updated: { Destination: 'BRK_2', Source: 'SEL_735.BR2', Quality: 'False' },
+      fields: ['Source', 'Quality'],
     },
   ]);
   // Positional leftovers with DIFFERENT identities split into a removal and
   // an addition — OLD_TAG did not "become" NEW_TAG.
-  assert.deepEqual(tags.added, ['Destination = NEW_TAG · Source = SEL_451.Y · Quality = True']);
-  assert.deepEqual(tags.removed, ['Destination = OLD_TAG · Source = SEL_451.X · Quality = True']);
+  assert.deepEqual(tags.added, [
+    { label: 'NEW_TAG', row: { Destination: 'NEW_TAG', Source: 'SEL_451.Y', Quality: 'True' } },
+  ]);
+  assert.deepEqual(tags.removed, [
+    { label: 'OLD_TAG', row: { Destination: 'OLD_TAG', Source: 'SEL_451.X', Quality: 'True' } },
+  ]);
+  assert.deepEqual(tags.columns, ['Destination', 'Source', 'Quality']);
 });
 
 // The REAL Tag Processor shape (RTAC_PROJECT export): the lead column is
@@ -237,12 +244,13 @@ test('Tag Processor rows pair by their identity column, not the Build lead colum
   const [page] = diff.pages;
   assert.equal(page.status, 'changed');
   assert.equal(page.added.length, 1);
-  assert.match(page.added[0], /Brand_New_Tag/);
+  assert.equal(page.added[0].row.DestinationTagName, 'SystemTags.Brand_New_Tag');
   assert.deepEqual(page.removed, []);
   assert.equal(page.changed.length, 1);
-  assert.equal(page.changed[0].row, 'SystemTags.Password_Changed');
-  assert.match(page.changed[0].original, /LoggingEnable = True/);
-  assert.match(page.changed[0].updated, /LoggingEnable = False/);
+  assert.equal(page.changed[0].label, 'SystemTags.Password_Changed');
+  assert.equal(page.changed[0].original.LoggingEnable, 'True');
+  assert.equal(page.changed[0].updated.LoggingEnable, 'False');
+  assert.deepEqual(page.changed[0].fields, ['LoggingEnable']);
 });
 
 test('a replaced destination splits into removed + added, not a fake edit', () => {
@@ -263,9 +271,9 @@ test('a replaced destination splits into removed + added, not a fake edit', () =
   const [page] = diff.pages;
   assert.deepEqual(page.changed, []);
   assert.equal(page.added.length, 1);
-  assert.match(page.added[0], /Transformer_Sudden_Pressure/);
+  assert.equal(page.added[0].row.DestinationTagName, 'SystemTags.Transformer_Sudden_Pressure');
   assert.equal(page.removed.length, 1);
-  assert.match(page.removed[0], /Bus_Undervoltage/);
+  assert.equal(page.removed[0].row.DestinationTagName, 'SystemTags.Bus_Undervoltage');
 });
 
 test('an edit to a distinct numeric DATA column is reported, never eaten as order', () => {
@@ -283,9 +291,10 @@ test('an edit to a distinct numeric DATA column is reported, never eaten as orde
   const [map] = diff.pages;
   assert.equal(map.status, 'changed');
   assert.equal(map.changed.length, 1);
-  assert.equal(map.changed[0].row, 'B');
-  assert.match(map.changed[0].original, /Address = 301/);
-  assert.match(map.changed[0].updated, /Address = 333/);
+  assert.equal(map.changed[0].label, 'B');
+  assert.equal(map.changed[0].original.Address, '301');
+  assert.equal(map.changed[0].updated.Address, '333');
+  assert.deepEqual(map.changed[0].fields, ['Address']);
 });
 
 test('the leftmost qualified key beats a more-unique free-text column', () => {
@@ -311,7 +320,22 @@ test('the leftmost qualified key beats a more-unique free-text column', () => {
   assert.deepEqual(tags.added, []);
   assert.deepEqual(tags.removed, []);
   assert.equal(tags.changed.length, 1);
-  assert.equal(tags.changed[0].row, 'BRKR_1');
+  assert.equal(tags.changed[0].label, 'BRKR_1');
+});
+
+test('SolveOrder is declared a row-number column — ignored even when NOT contiguous', () => {
+  // The user's call: solve order corresponds to the row number, full stop.
+  // Even a sparse/gapped SolveOrder (5, 10, 20) must never read as an edit.
+  const page = (orders) => [{
+    name: 'Settings',
+    columns: ['DestinationTagName', 'SolveOrder'],
+    rows: orders.map((order, i) => ({ DestinationTagName: `SystemTags.T${i}`, SolveOrder: order })),
+  }];
+  const diff = diffItems(
+    { settings: {}, points: [], pages: page(['5', '10', '20']) },
+    { settings: {}, points: [], pages: page(['6', '11', '21']) },
+  );
+  assert.deepEqual(diff.pages, [{ name: 'Settings', status: 'reordered', rows: 3 }]);
 });
 
 test('code diffs normalize line endings and split parts, with no phantom lines', () => {

@@ -15,7 +15,6 @@
 //   by field name, so a new extractor's output is at worst reported coarsely,
 //   never dropped.
 
-import { rowText } from './inspect.js';
 
 // --- file status -------------------------------------------------------------
 
@@ -146,6 +145,11 @@ function labelColumn(aPage, bPage, columns) {
   return best;
 }
 
+// Columns DECLARED to be row positions, whatever their values: the user's
+// call — "Solve order corresponds to the row number." A SolveOrder
+// difference is never an edit, contiguous or not.
+const DECLARED_ORDER_COLUMNS = new Set(['SolveOrder']);
+
 // Order/index columns: integers that form a CONTIGUOUS run from 0 or 1 —
 // positions, not data. AcSELerator renumbers these wholesale when a row is
 // inserted or moved, so a difference confined to them is the row MOVING,
@@ -166,7 +170,8 @@ function orderColumns(aPage, bPage, columns) {
     return numbers.every((n, index) => n === numbers[0] + index);
   };
   return new Set(columns.filter(
-    (column) => orderlike(aPage.rows, column) && orderlike(bPage.rows, column),
+    (column) => DECLARED_ORDER_COLUMNS.has(column)
+      || (orderlike(aPage.rows, column) && orderlike(bPage.rows, column)),
   ));
 }
 
@@ -201,9 +206,10 @@ function rowFields(aRow, bRow) {
 // identity-column label, and what remains pairs positionally — with pairs
 // sharing no column value reading as removed + added.
 //
-// Every reported row carries its WHOLE rendered text (rowText) — changed rows
-// on both sides, added/removed rows in full — because a row named only by its
-// lead cell or position is unreadable in review (Tag Processor especially).
+// Every reported row carries its WHOLE row object plus a label — a row named
+// only by its lead cell or position is unreadable in review (Tag Processor
+// especially) — and the result lists the columns those rows actually use, so
+// the UI and the PDF can render real tables instead of run-on strings.
 function diffPageRows(aPage, bPage) {
   const columns = [...new Set([...(aPage.columns ?? []), ...(bPage.columns ?? [])])];
   const label = labelColumn(aPage, bPage, columns);
@@ -247,8 +253,14 @@ function diffPageRows(aPage, bPage) {
     const a = byLabel.get(b.label);
     if (a && !matchedA.has(a)) {
       matchedA.add(a);
-      if (editedFields(a.row, b.row).length) {
-        changed.push({ row: b.label, original: rowText(a.row), updated: rowText(b.row) });
+      const fields = editedFields(a.row, b.row);
+      if (fields.length) {
+        changed.push({
+          label: b.label,
+          original: a.row,
+          updated: b.row,
+          fields: fields.map((field) => field.column),
+        });
       }
     } else {
       unmatchedB.push(b);
@@ -274,20 +286,36 @@ function diffPageRows(aPage, bPage) {
         .filter((column) => !orderish.has(column)),
     ).size;
     if (fields.length && (identitySplit || fields.length >= relevant)) {
-      removed.push(rowText(unmatchedA[i].row));
-      added.push(rowText(unmatchedB[i].row));
+      removed.push(unmatchedA[i]);
+      added.push(unmatchedB[i]);
     } else if (fields.length) {
       changed.push({
-        row: unmatchedB[i].label,
-        original: rowText(unmatchedA[i].row),
-        updated: rowText(unmatchedB[i].row),
+        label: unmatchedB[i].label,
+        original: aRow,
+        updated: bRow,
+        fields: fields.map((field) => field.column),
       });
     }
   }
 
+  const allAdded = [...added, ...unmatchedB.slice(pairs)];
+  const allRemoved = [...removed, ...unmatchedA.slice(pairs)];
+
+  // The columns the diff tables render: page order, restricted to columns
+  // holding a value in at least one reported row (sparse tables stay narrow).
+  const diffRows = [
+    ...allAdded.map((entry) => entry.row),
+    ...allRemoved.map((entry) => entry.row),
+    ...changed.flatMap((entry) => [entry.original, entry.updated]),
+  ];
+  const usedColumns = columns.filter(
+    (column) => diffRows.some((row) => row[column] != null && row[column] !== ''),
+  );
+
   return {
-    added: [...added, ...unmatchedB.slice(pairs).map((b) => rowText(b.row))],
-    removed: [...removed, ...unmatchedA.slice(pairs).map((a) => rowText(a.row))],
+    columns: usedColumns,
+    added: allAdded.map((entry) => ({ label: entry.label, row: entry.row })),
+    removed: allRemoved.map((entry) => ({ label: entry.label, row: entry.row })),
     changed,
   };
 }
@@ -386,4 +414,4 @@ function diffItems(original, updated) {
   };
 }
 
-export { STATUS, compareSignatures, diffItems, modelSignature };
+export { STATUS, compareSignatures, diffItems, labelColumn, modelSignature };

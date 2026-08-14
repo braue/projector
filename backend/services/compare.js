@@ -95,6 +95,13 @@ class CompareService {
         diff: value === STATUS.EDITED
           ? diffItems(originals.get(path)?.item ?? null, updates.get(path)?.item ?? null)
           : null,
+        // Added/removed files render their FULL content in the report — the
+        // reader must see what appeared or vanished, not just that it did.
+        item: value === STATUS.ADDED
+          ? updates.get(path)?.item ?? null
+          : value === STATUS.REMOVED
+            ? originals.get(path)?.item ?? null
+            : null,
       }));
 
     return { original: original.label, updated: updated.label, summary, items };

@@ -172,13 +172,18 @@ export interface ItemDiff {
     /** 'reordered' = same rows, different order — no row-level detail. */
     status: 'added' | 'removed' | 'changed' | 'reordered'
     rows: number
-    /** Row-level detail, present on changed pages. Every entry carries the
-     * WHOLE row's rendered text ("Col = value · …") — added/removed in full,
-     * changed on both sides. (The payload also carries the matcher's row
-     * label; the UI shows the full rows instead.) */
-    added?: string[]
-    removed?: string[]
-    changed?: { original: string; updated: string }[]
+    /** Row-level detail, present on changed pages: whole row OBJECTS plus
+     * the columns those rows use, so the UI renders real tables. */
+    columns?: string[]
+    added?: { label: string; row: Record<string, string> }[]
+    removed?: { label: string; row: Record<string, string> }[]
+    changed?: {
+      label: string
+      original: Record<string, string>
+      updated: Record<string, string>
+      /** Column names whose values differ (order columns excluded). */
+      fields: string[]
+    }[]
   }[]
   code: {
     interface: { original: string | null; updated: string | null } | null

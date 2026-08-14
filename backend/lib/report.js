@@ -6,6 +6,7 @@
 
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
+import { labelColumn } from './compare.js';
 import { lineDiff } from './lineDiff.js';
 import { ST_START, tokenizeLine } from './st.js';
 
@@ -216,14 +217,13 @@ class Flow {
   }
 }
 
-const MAX_DIFF_LINES = 120;
-
 // One diff line: colored ± sign and number, then syntax-colored ST tokens on
-// the row tint. Lines are tokenized stateless (the diff only carries the
-// CHANGED lines, so there is no preceding context to thread block-comment
-// state through) — the interior of a multi-line comment renders plain.
-function writeCapped(flow, entries, prefix, color, tint) {
-  for (const { number, text } of entries.slice(0, MAX_DIFF_LINES)) {
+// the row tint. NO cap — the report is the review artifact, and a truncated
+// diff is not reviewable. Lines are tokenized stateless (the diff only
+// carries the CHANGED lines, so there is no preceding context to thread
+// block-comment state through).
+function writeDiffLines(flow, entries, prefix, color, tint) {
+  for (const { number, text } of entries) {
     const { tokens } = tokenizeLine(text, ST_START);
     flow.rich(
       [
@@ -232,9 +232,6 @@ function writeCapped(flow, entries, prefix, color, tint) {
       ],
       { tint },
     );
-  }
-  if (entries.length > MAX_DIFF_LINES) {
-    flow.text(`… ${entries.length - MAX_DIFF_LINES} more`, { size: 8.5, color: MUTED, indent: 14 });
   }
 }
 
@@ -274,6 +271,20 @@ function writePoints(flow, points) {
   }
 }
 
+// One page row as a vertical field table — "Column   value" per non-empty
+// field, names padded to align. Run-on "Col = value · …" strings were
+// unreadable for 15-column Tag Processor rows.
+function writeRowFields(flow, columns, row, { color = INK } = {}) {
+  const pad = Math.max(...columns.map((column) => column.length), 0) + 2;
+  for (const column of columns) {
+    const value = row[column];
+    if (value == null || value === '') continue;
+    flow.text(`${column.padEnd(pad)}${value}`, {
+      font: 'mono', size: 8, color, indent: 26, spaceAfter: 0.5,
+    });
+  }
+}
+
 function writePage(flow, page) {
   section(flow, `Table · ${page.name}`);
   if (page.status === 'added' || page.status === 'removed') {
@@ -285,16 +296,37 @@ function writePage(flow, page) {
     flow.text('Rows reordered — no content changes.', { size: 9, color: MUTED, indent: 14 });
     return;
   }
-  for (const row of page.added ?? []) {
-    flow.text(`+ ${row}`, { font: 'mono', size: 8, color: GREEN, indent: 14, spaceAfter: 3 });
+
+  const columns = page.columns ?? [];
+  const pad = Math.max(...columns.map((column) => column.length), 0) + 2;
+  for (const entry of page.added ?? []) {
+    flow.text(`+ ${entry.label}`, { font: 'bold', size: 9, color: GREEN, indent: 14, spaceAfter: 1, keep: 20 });
+    writeRowFields(flow, columns, entry.row);
+    flow.gap(3);
   }
-  for (const row of page.removed ?? []) {
-    flow.text(`- ${row}`, { font: 'mono', size: 8, color: RED, indent: 14, spaceAfter: 3 });
+  for (const entry of page.removed ?? []) {
+    flow.text(`- ${entry.label}`, { font: 'bold', size: 9, color: RED, indent: 14, spaceAfter: 1, keep: 20 });
+    writeRowFields(flow, columns, entry.row);
+    flow.gap(3);
   }
-  for (const row of page.changed ?? []) {
-    flow.text(row.row, { font: 'bold', size: 9, indent: 14, spaceAfter: 1, keep: 24 });
-    flow.text(`was: ${row.original}`, { font: 'mono', size: 8, color: RED, indent: 26, spaceAfter: 1 });
-    flow.text(`now: ${row.updated}`, { font: 'mono', size: 8, color: GREEN, indent: 26, spaceAfter: 3 });
+  for (const entry of page.changed ?? []) {
+    flow.text(`~ ${entry.label}`, { font: 'bold', size: 9, color: AMBER, indent: 14, spaceAfter: 1, keep: 20 });
+    // The whole row, with changed fields reading "old -> new" in amber and
+    // untouched fields plain — full context without a run-on string.
+    for (const column of columns) {
+      const changed = entry.fields.includes(column);
+      const before = entry.original[column];
+      const after = entry.updated[column];
+      if (!changed && (after ?? before) == null) continue;
+      if ((after ?? before) === '' && !changed) continue;
+      flow.text(
+        changed
+          ? `${column.padEnd(pad)}${before ?? '(empty)'} -> ${after ?? '(empty)'}`
+          : `${column.padEnd(pad)}${after ?? before}`,
+        { font: 'mono', size: 8, color: changed ? AMBER : INK, indent: 26, spaceAfter: 0.5 },
+      );
+    }
+    flow.gap(3);
   }
 }
 
@@ -307,10 +339,82 @@ function writeCode(flow, code) {
     if (!part) continue;
     section(flow, `Logic source · ${label.toLowerCase()}`);
     const lines = lineDiff(part.original ?? '', part.updated ?? '');
-    writeCapped(flow, lines.filter((line) => line.kind === 'del')
+    writeDiffLines(flow, lines.filter((line) => line.kind === 'del')
       .map((line) => ({ number: line.oldNo, text: line.text })), '-', RED, TINT_REMOVED);
-    writeCapped(flow, lines.filter((line) => line.kind === 'add')
+    writeDiffLines(flow, lines.filter((line) => line.kind === 'add')
       .map((line) => ({ number: line.newNo, text: line.text })), '+', GREEN, TINT_ADDED);
+  }
+}
+
+// Full ST source with line numbers and highlighting, block-comment state
+// threaded line to line — used for added/removed files, where the content
+// IS the diff.
+function writeSource(flow, label, source) {
+  section(flow, `Logic source · ${label}`);
+  let state = ST_START;
+  const lines = source.replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n');
+  lines.forEach((text, index) => {
+    const result = tokenizeLine(text, state);
+    state = result.state;
+    flow.rich([
+      { text: `${String(index + 1).padStart(4)}  `, color: MUTED },
+      ...result.tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
+    ]);
+  });
+}
+
+// The complete content of a file present on only one side. The reader must
+// see WHAT appeared or vanished — "present only in the new source" alone is
+// not reviewable. Graphical (CFC/LD) bodies are the one exception: archived
+// blobs with no plain text to show.
+function writeFullItem(flow, model) {
+  const settings = Object.entries(model.settings ?? {});
+  if (settings.length) {
+    section(flow, 'Settings');
+    const pad = Math.max(...settings.map(([key]) => key.length)) + 2;
+    for (const [key, value] of settings) {
+      flow.text(`${key.padEnd(pad)}${value}`, { font: 'mono', size: 8.5, indent: 14, spaceAfter: 0.5 });
+    }
+  }
+
+  const points = model.points ?? [];
+  if (points.length) {
+    section(flow, `Points (${points.length})`);
+    for (const point of points) {
+      flow.text(
+        [
+          `${point.page} · ${point.tagName ?? '(unnamed)'}`,
+          point.address && `${point.addressColumn ?? 'address'} ${point.address}`,
+          point.enabled === false && 'disabled',
+        ].filter(Boolean).join(' · '),
+        { font: 'mono', size: 8, indent: 14, spaceAfter: 0.5 },
+      );
+    }
+  }
+
+  for (const page of model.pages ?? []) {
+    const columns = page.columns ?? [];
+    section(flow, `Table · ${page.name} (${page.rows.length} row${page.rows.length === 1 ? '' : 's'})`);
+    const label = labelColumn({ rows: page.rows }, { rows: [] }, columns);
+    page.rows.forEach((row, index) => {
+      const name = row[label];
+      flow.text(name ? `Row ${index + 1} · ${name}` : `Row ${index + 1}`, {
+        font: 'bold', size: 8.5, indent: 14, spaceAfter: 1, keep: 20,
+      });
+      writeRowFields(flow, columns, row);
+      flow.gap(3);
+    });
+  }
+
+  for (const [label, part] of [['interface', model.code?.interface], ['implementation', model.code?.implementation]]) {
+    if (part?.trim()) writeSource(flow, label, part);
+  }
+
+  if (model.hasArchivedContent) {
+    flow.gap(5);
+    flow.text('Graphical (CFC/LD) logic — an archived body with no plain-text source to show; open it in AcSELerator.', {
+      size: 9, color: AMBER, indent: 14,
+    });
   }
 }
 
@@ -323,10 +427,11 @@ function writeItem(flow, item) {
   if (item.status !== 'edited') {
     flow.text(
       item.status === 'added'
-        ? 'Present only in the new source.'
-        : 'Present only in the original source.',
+        ? 'Present only in the new source — full content below.'
+        : 'Present only in the original source — full content below.',
       { size: 9, color: MUTED, indent: 14 },
     );
+    if (item.item) writeFullItem(flow, item.item);
     return;
   }
 
