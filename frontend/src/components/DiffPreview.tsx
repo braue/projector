@@ -274,8 +274,10 @@ function CodePartDiff({
       <pre className="code code-diff">
         {lines.map((line, i) => (
           <div key={i} className={`diff-line diff-${line.kind}`}>
-            <span className="diff-ln">{line.oldNo ?? ''}</span>
-            <span className="diff-ln">{line.newNo ?? ''}</span>
+            {/* ONE gutter: each line numbered in the side it lives in —
+                deleted lines by the original file, everything else by the
+                new one. Matches the PDF report's numbering. */}
+            <span className="diff-ln">{line.kind === 'del' ? line.oldNo : line.newNo}</span>
             <span className="diff-sign">
               {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
             </span>
