@@ -309,12 +309,24 @@ function diffPages(aPages = [], bPages = []) {
   return out;
 }
 
-function codeText(item) {
-  if (!item?.code) return null;
-  const parts = [item.code.interface, item.code.implementation].filter(
-    (part) => part != null && part !== '',
-  );
-  return parts.length ? parts.join('\n') : null;
+// Logic source diffs stay PER PART (interface vs implementation), never a
+// joined blob: Inspect's gutters and search locations ("implementation ·
+// line 12") number each part from 1, and the compare diff's line numbers
+// must mean the same thing.
+function diffCode(original, updated) {
+  const out = {};
+  let any = false;
+  for (const part of ['interface', 'implementation']) {
+    const a = original?.code?.[part] ?? null;
+    const b = updated?.code?.[part] ?? null;
+    if ((a ?? '') === (b ?? '')) {
+      out[part] = null;
+    } else {
+      out[part] = { original: a, updated: b };
+      any = true;
+    }
+  }
+  return any ? out : null;
 }
 
 // Model fields already covered by the dedicated diffs above, or derived from
@@ -350,9 +362,6 @@ function diffGraphicalLogic(original, updated) {
 // Full structured diff of one item across the two exports. Either side may be
 // null (added / removed files).
 function diffItems(original, updated) {
-  const originalCode = codeText(original);
-  const updatedCode = codeText(updated);
-
   return {
     settings: diffSettings(original?.settings, updated?.settings),
     points: diffPoints(
@@ -360,10 +369,7 @@ function diffItems(original, updated) {
       [...(updated?.points ?? []), ...(updated?.sharedMap?.points ?? [])],
     ),
     pages: diffPages(original?.pages, updated?.pages),
-    code:
-      originalCode !== updatedCode
-        ? { original: originalCode, updated: updatedCode }
-        : null,
+    code: diffCode(original, updated),
     graphicalLogic: diffGraphicalLogic(original, updated),
     otherFields: diffOtherFields(original ?? {}, updated ?? {}),
   };

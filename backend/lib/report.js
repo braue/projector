@@ -118,35 +118,40 @@ class Flow {
 }
 
 // Order-preserving multiset line diff for logic source: lines that vanished
-// and lines that appeared. Not an LCS, but for settings logic it reads right
-// and never mislabels an unchanged line.
+// and lines that appeared, each with its 1-based line number in its own
+// side. Not an LCS, but for settings logic it reads right and never
+// mislabels an unchanged line.
 function lineDiff(original, updated) {
-  const a = (original ?? '').split('\n');
-  const b = (updated ?? '').split('\n');
-  const budget = (lines) => {
+  const numbered = (text) => (text ?? '').split('\n')
+    .map((line, index) => ({ number: index + 1, text: line }));
+  const a = numbered(original);
+  const b = numbered(updated);
+  const budget = (entries) => {
     const counts = new Map();
-    for (const line of lines) counts.set(line, (counts.get(line) ?? 0) + 1);
-    return (line) => {
-      const n = counts.get(line) ?? 0;
-      if (n > 0) counts.set(line, n - 1);
+    for (const { text } of entries) counts.set(text, (counts.get(text) ?? 0) + 1);
+    return ({ text }) => {
+      const n = counts.get(text) ?? 0;
+      if (n > 0) counts.set(text, n - 1);
       return n > 0;
     };
   };
   const inB = budget(b);
-  const removed = a.filter((line) => !inB(line));
+  const removed = a.filter((entry) => !inB(entry));
   const inA = budget(a);
-  const added = b.filter((line) => !inA(line));
+  const added = b.filter((entry) => !inA(entry));
   return { removed, added };
 }
 
 const MAX_DIFF_LINES = 120;
 
-function writeCapped(flow, lines, prefix, color) {
-  for (const line of lines.slice(0, MAX_DIFF_LINES)) {
-    flow.text(`${prefix} ${line}`, { font: 'mono', size: 8, color, indent: 14, spaceAfter: 0.5 });
+function writeCapped(flow, entries, prefix, color) {
+  for (const { number, text } of entries.slice(0, MAX_DIFF_LINES)) {
+    flow.text(`${prefix} ${String(number).padStart(4)}  ${text}`, {
+      font: 'mono', size: 8, color, indent: 14, spaceAfter: 0.5,
+    });
   }
-  if (lines.length > MAX_DIFF_LINES) {
-    flow.text(`… ${lines.length - MAX_DIFF_LINES} more`, { size: 8.5, color: MUTED, indent: 14 });
+  if (entries.length > MAX_DIFF_LINES) {
+    flow.text(`… ${entries.length - MAX_DIFF_LINES} more`, { size: 8.5, color: MUTED, indent: 14 });
   }
 }
 
@@ -211,12 +216,16 @@ function writePage(flow, page) {
 }
 
 function writeCode(flow, code) {
-  section(flow, 'Logic source');
-  const { removed, added } = lineDiff(code.original, code.updated);
-  writeCapped(flow, removed, '-', RED);
-  writeCapped(flow, added, '+', GREEN);
-  if (!removed.length && !added.length) {
-    flow.text('Lines reordered — no content changes.', { size: 9, color: MUTED, indent: 14 });
+  // Per part, like Inspect and search — line numbers count each part from 1.
+  for (const [label, part] of [['Interface', code.interface], ['Implementation', code.implementation]]) {
+    if (!part) continue;
+    section(flow, `Logic source · ${label.toLowerCase()}`);
+    const { removed, added } = lineDiff(part.original, part.updated);
+    writeCapped(flow, removed, '-', RED);
+    writeCapped(flow, added, '+', GREEN);
+    if (!removed.length && !added.length) {
+      flow.text('Lines reordered — no content changes.', { size: 9, color: MUTED, indent: 14 });
+    }
   }
 }
 

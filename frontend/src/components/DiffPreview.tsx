@@ -193,23 +193,37 @@ function GraphicalLogicSection({ diff }: { diff: CompareItem['diff'] }) {
   )
 }
 
+// One section per changed part (interface / implementation), diffed and
+// numbered separately — the gutter numbers match Inspect's code view and
+// search's "implementation · line N" locations.
 function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   if (!diff.code) return null
-  const lines = lineDiff(diff.code.original ?? '', diff.code.updated ?? '')
+  const parts = (
+    [
+      ['Interface', diff.code.interface],
+      ['Implementation', diff.code.implementation],
+    ] as const
+  ).filter(([, part]) => part)
   return (
-    <section>
-      <SectionHeader title="Logic Source" />
-      <pre className="code code-diff">
-        {lines.map((line, i) => (
-          <div key={i} className={`diff-line diff-${line.kind}`}>
-            <span className="diff-sign">
-              {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
-            </span>
-            {line.text}
-          </div>
-        ))}
-      </pre>
-    </section>
+    <>
+      {parts.map(([label, part]) => (
+        <section key={label}>
+          <SectionHeader title={`Logic Source · ${label}`} />
+          <pre className="code code-diff">
+            {lineDiff(part!.original ?? '', part!.updated ?? '').map((line, i) => (
+              <div key={i} className={`diff-line diff-${line.kind}`}>
+                <span className="diff-ln">{line.oldNo ?? ''}</span>
+                <span className="diff-ln">{line.newNo ?? ''}</span>
+                <span className="diff-sign">
+                  {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
+                </span>
+                {line.text}
+              </div>
+            ))}
+          </pre>
+        </section>
+      ))}
+    </>
   )
 }
 

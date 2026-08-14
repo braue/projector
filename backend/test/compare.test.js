@@ -164,7 +164,8 @@ test('diffItems reports settings, points, and code changes', () => {
     removed: ['X = 1'],
     changed: [],
   }]);
-  assert.match(diff.code.updated, /new;/);
+  assert.equal(diff.code.interface, null); // unchanged part stays out of the diff
+  assert.match(diff.code.implementation.updated, /new;/);
 });
 
 test('generic page diff pinpoints rows and fields', () => {

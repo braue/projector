@@ -56,6 +56,23 @@ function itemSubtitle(item: ProjectItem): string | null {
 
 // A busy connection carries 80+ settings, so the section carries its own
 // filter: name or value, whichever you remember.
+// ST source with a line-number gutter. Numbers are 1-based per part
+// (interface and implementation count separately), matching the
+// "implementation · line N" locations search reports.
+function CodeBlock({ source }: { source: string }) {
+  const lines = source.replace(/\n$/, '').split('\n')
+  return (
+    <pre className="code code-numbered">
+      {lines.map((text, i) => (
+        <div key={i} className="code-line">
+          <span className="code-ln">{i + 1}</span>
+          <span className="code-text">{text}</span>
+        </div>
+      ))}
+    </pre>
+  )
+}
+
 function SettingsSection({ settings }: { settings: Record<string, string> }) {
   const entries = useMemo(() => Object.entries(settings), [settings])
   const [query, setQuery] = useState('')
@@ -259,12 +276,12 @@ export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNod
           )}
           {item.code?.interface?.trim() && (
             <CollapsibleSection title="Interface">
-              <pre className="code">{item.code.interface}</pre>
+              <CodeBlock source={item.code.interface} />
             </CollapsibleSection>
           )}
           {item.code?.implementation?.trim() && (
             <CollapsibleSection title="Implementation">
-              <pre className="code">{item.code.implementation}</pre>
+              <CodeBlock source={item.code.implementation} />
             </CollapsibleSection>
           )}
 

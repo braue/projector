@@ -54,8 +54,8 @@ test('the report renders to a PDF', async () => {
   assert.ok(bytes.length > 1000);
 });
 
-test('lineDiff reports vanished and appeared lines, order preserved', () => {
+test('lineDiff reports vanished and appeared lines with their line numbers', () => {
   const { removed, added } = lineDiff('a\nb\nc\nb', 'b\nc\nd\nb');
-  assert.deepEqual(removed, ['a']);
-  assert.deepEqual(added, ['d']);
+  assert.deepEqual(removed, [{ number: 1, text: 'a' }]);
+  assert.deepEqual(added, [{ number: 3, text: 'd' }]);
 });

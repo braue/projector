@@ -377,6 +377,13 @@ button.ui-section-header:hover { color: var(--ink); }
 .code-diff { padding: 0; }
 .diff-line { padding: 0 16px; white-space: pre; }
 .diff-sign { display: inline-block; width: 14px; color: var(--muted); }
+/* Line-number gutters. user-select: none keeps copied code clean. */
+.diff-ln, .code-ln {
+  display: inline-block; width: 30px; padding-right: 8px; flex: none;
+  text-align: right; color: var(--ghost); user-select: none;
+}
+.code-line { display: flex; }
+.code-text { white-space: pre; }
 .diff-line.diff-add { background: #e9f7ef; }
 .diff-line.diff-del { background: #fcecec; }
 

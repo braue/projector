@@ -180,7 +180,10 @@ export interface ItemDiff {
     removed?: string[]
     changed?: { original: string; updated: string }[]
   }[]
-  code: { original: string | null; updated: string | null } | null
+  code: {
+    interface: { original: string | null; updated: string | null } | null
+    implementation: { original: string | null; updated: string | null } | null
+  } | null
   /** Graphical (CFC/LD) logic body — only its fingerprint is modeled, so the
    * diff can say that it changed, never what. */
   graphicalLogic: 'added' | 'removed' | 'changed' | null
