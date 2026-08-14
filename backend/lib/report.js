@@ -6,6 +6,8 @@
 
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
+import { ST_START, tokenizeLine } from './st.js';
+
 // US Letter.
 const PAGE_W = 612;
 const PAGE_H = 792;
@@ -24,6 +26,20 @@ const STATUS_STYLE = {
   removed: { word: 'removed', color: RED },
   edited: { word: 'modified', color: AMBER },
 };
+
+// Same palette as the app's .tok-* classes; keywords bolden instead.
+const TOKEN_STYLE = {
+  kw: { color: rgb(0.1, 0.34, 0.69), font: 'monoBold' },
+  type: { color: rgb(0.44, 0.28, 0.66), font: 'mono' },
+  str: { color: rgb(0.54, 0.35, 0), font: 'mono' },
+  num: { color: rgb(0.05, 0.46, 0.41), font: 'mono' },
+  com: { color: MUTED, font: 'monoItalic' },
+  plain: { color: INK, font: 'mono' },
+};
+
+// Row tints matching the app's diff backgrounds.
+const TINT_ADDED = rgb(0.914, 0.969, 0.937);
+const TINT_REMOVED = rgb(0.988, 0.925, 0.925);
 
 // Standard fonts encode WinAnsi only; anything outside latin-1 would throw
 // mid-render. Values come from arbitrary vendor files, so scrub first.
@@ -100,6 +116,72 @@ class Flow {
     this.y -= spaceAfter;
   }
 
+  /**
+   * Write one logical line of styled runs [{text, color, font}], wrapped by
+   * measured width; continuation lines share the same left edge. `tint`
+   * paints a full-width background behind every wrapped line (diff rows).
+   */
+  rich(segments, { size = 8, indent = 14, spaceAfter = 0.5, tint = null } = {}) {
+    const x0 = MARGIN + indent;
+    const maxWidth = BODY_W - indent;
+    const lineHeight = size * 1.35;
+
+    // Split segments into atomic pieces (words and spaces) that keep their
+    // style, then greedy-fill lines.
+    const pieces = [];
+    for (const segment of segments) {
+      const face = this.fonts[segment.font ?? 'mono'];
+      for (const part of winAnsi(segment.text).split(/(\s+)/)) {
+        if (part) pieces.push({ text: part, color: segment.color, face });
+      }
+    }
+
+    const lines = [];
+    let line = [];
+    let width = 0;
+    const push = (piece) => {
+      line.push(piece);
+      width += piece.face.widthOfTextAtSize(piece.text, size);
+    };
+    for (let piece of pieces) {
+      // A single piece wider than the whole column hard-splits.
+      while (piece.face.widthOfTextAtSize(piece.text, size) > maxWidth) {
+        let cut = piece.text.length - 1;
+        while (cut > 1 && width + piece.face.widthOfTextAtSize(piece.text.slice(0, cut), size) > maxWidth) cut -= 1;
+        push({ ...piece, text: piece.text.slice(0, cut) });
+        lines.push(line);
+        line = [];
+        width = 0;
+        piece = { ...piece, text: piece.text.slice(cut) };
+      }
+      if (width + piece.face.widthOfTextAtSize(piece.text, size) > maxWidth && line.length) {
+        lines.push(line);
+        line = [];
+        width = 0;
+        if (/^\s+$/.test(piece.text)) continue; // no leading spaces after a wrap
+      }
+      push(piece);
+    }
+    lines.push(line);
+
+    for (const runs of lines) {
+      this.ensure(lineHeight);
+      this.y -= lineHeight;
+      if (tint) {
+        this.page.drawRectangle({
+          x: x0 - 3, y: this.y - size * 0.25, width: maxWidth + 6, height: lineHeight,
+          color: tint,
+        });
+      }
+      let x = x0;
+      for (const run of runs) {
+        this.page.drawText(run.text, { x, y: this.y, size, font: run.face, color: run.color });
+        x += run.face.widthOfTextAtSize(run.text, size);
+      }
+    }
+    this.y -= spaceAfter;
+  }
+
   rule(spaceAfter = 10) {
     this.ensure(14);
     this.y -= 6;
@@ -144,11 +226,20 @@ function lineDiff(original, updated) {
 
 const MAX_DIFF_LINES = 120;
 
-function writeCapped(flow, entries, prefix, color) {
+// One diff line: colored ± sign and number, then syntax-colored ST tokens on
+// the row tint. Lines are tokenized stateless (the diff only carries the
+// CHANGED lines, so there is no preceding context to thread block-comment
+// state through) — the interior of a multi-line comment renders plain.
+function writeCapped(flow, entries, prefix, color, tint) {
   for (const { number, text } of entries.slice(0, MAX_DIFF_LINES)) {
-    flow.text(`${prefix} ${String(number).padStart(4)}  ${text}`, {
-      font: 'mono', size: 8, color, indent: 14, spaceAfter: 0.5,
-    });
+    const { tokens } = tokenizeLine(text, ST_START);
+    flow.rich(
+      [
+        { text: `${prefix} ${String(number).padStart(4)}  `, color },
+        ...tokens.map((token) => ({ text: token.text, ...TOKEN_STYLE[token.kind] })),
+      ],
+      { tint },
+    );
   }
   if (entries.length > MAX_DIFF_LINES) {
     flow.text(`… ${entries.length - MAX_DIFF_LINES} more`, { size: 8.5, color: MUTED, indent: 14 });
@@ -221,8 +312,8 @@ function writeCode(flow, code) {
     if (!part) continue;
     section(flow, `Logic source · ${label.toLowerCase()}`);
     const { removed, added } = lineDiff(part.original, part.updated);
-    writeCapped(flow, removed, '-', RED);
-    writeCapped(flow, added, '+', GREEN);
+    writeCapped(flow, removed, '-', RED, TINT_REMOVED);
+    writeCapped(flow, added, '+', GREEN, TINT_ADDED);
     if (!removed.length && !added.length) {
       flow.text('Lines reordered — no content changes.', { size: 9, color: MUTED, indent: 14 });
     }
@@ -282,6 +373,8 @@ async function compareReportPdf(report, meta) {
     body: await pdf.embedFont(StandardFonts.Helvetica),
     bold: await pdf.embedFont(StandardFonts.HelveticaBold),
     mono: await pdf.embedFont(StandardFonts.Courier),
+    monoBold: await pdf.embedFont(StandardFonts.CourierBold),
+    monoItalic: await pdf.embedFont(StandardFonts.CourierOblique),
   };
   const flow = new Flow(pdf, fonts);
 

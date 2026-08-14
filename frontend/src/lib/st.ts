@@ -1,4 +1,5 @@
 // Tiny IEC 61131-3 Structured Text tokenizer for syntax highlighting.
+// Backend twin: backend/lib/st.js (colors the PDF report) — keep in lockstep.
 // Line-oriented with explicit comment state so (* block comments *) survive
 // line breaks: callers fold `state` through consecutive lines of one source.
 
