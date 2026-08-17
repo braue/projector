@@ -631,6 +631,7 @@ function CanvasInner({
           setPendingConnect({ a, b })
         }}
         onPaneClick={() => setActivePopup(null)}
+        deleteKeyCode={['Backspace', 'Delete']}
         onNodesDelete={async (deleted) => {
           await Promise.all(
             deleted
