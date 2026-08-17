@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { fetchCompareItem, fetchCompareTree } from '../api'
 import { useFetch } from '../lib/useFetch'
@@ -20,21 +20,40 @@ import { Select } from './ui'
 // that type (two RTAC projects, two relay profiles, two whole SCDs; the tab
 // IS the same-type constraint). The union item tree shows added/removed/
 // edited tints; click a row for the structured diff.
+//
+// The state lives in App, not here: this view unmounts whenever the user
+// leaves Compare mode, and a comparison mid-review must survive a detour
+// through Inspect. Picks are kept PER TYPE so switching source tabs flips
+// between comparisons instead of discarding them.
+
+/** One source tab's comparison: the picked pair and the item under review. */
+export type ComparePicks = { original: string; updated: string; selected: string | null }
+
+export type CompareState = { tab: SourceType; picks: Record<SourceType, ComparePicks> }
+
+const NO_PICKS: ComparePicks = { original: '', updated: '', selected: null }
+
+export const EMPTY_COMPARE: CompareState = {
+  tab: 'rtac',
+  picks: { rtac: NO_PICKS, rdb: NO_PICKS, scd: NO_PICKS, sw: NO_PICKS },
+}
 
 export function CompareView({
   project,
   projects,
   uploads,
+  state,
+  onState,
 }: {
   /** The projector project every ref below lives in. */
   project: string
   projects: ProjectEntry[]
   uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
+  state: CompareState
+  onState: (state: CompareState) => void
 }) {
-  const [tab, setTab] = useState<SourceType>('rtac')
-  const [original, setOriginal] = useState<string>('')
-  const [updated, setUpdated] = useState<string>('')
-  const [selected, setSelected] = useState<string | null>(null)
+  const { tab } = state
+  const picks = state.picks[tab]
 
   // What a pick MEANS per type: an RTAC project and an SCD are compared whole
   // (an .scd's IEDs are one substation — reading them apart loses the point),
@@ -57,19 +76,22 @@ export function CompareView({
     )
   }, [tab, projects, uploads])
 
-  const pickTab = (next: SourceType) => {
-    setTab(next)
-    setOriginal('')
-    setUpdated('')
-  }
+  // A tab switch only changes which comparison is showing — the tab left
+  // behind keeps its picks. Changing a picker resets the item selection (it
+  // belongs to the old pair); a remembered ref whose source has since been
+  // deleted stays stored but stops acting until it's offered again.
+  const pickTab = (next: SourceType) => onState({ ...state, tab: next })
+  const patch = (change: Partial<ComparePicks>) =>
+    onState({ ...state, picks: { ...state.picks, [tab]: { ...picks, ...change } } })
+  const offered = (ref: string) => options.some((option) => option.value === ref)
+
+  const original = offered(picks.original) ? picks.original : ''
+  const updated = offered(picks.updated) ? picks.updated : ''
+  const selected = picks.selected
 
   const bothPicked = Boolean(original && updated && original !== updated)
   const a: DeviceSource = { type: tab, ref: original }
   const b: DeviceSource = { type: tab, ref: updated }
-
-  useEffect(() => {
-    setSelected(null)
-  }, [original, updated])
 
   const { data: tree, error: treeError } = useFetch(
     bothPicked ? () => fetchCompareTree(project, a, b) : null,
@@ -93,14 +115,14 @@ export function CompareView({
           <Select
             label="Original"
             value={original}
-            onChange={setOriginal}
+            onChange={(value) => patch({ original: value, selected: null })}
             options={options}
             placeholder="— select —"
           />
           <Select
             label="New"
             value={updated}
-            onChange={setUpdated}
+            onChange={(value) => patch({ updated: value, selected: null })}
             options={options}
             placeholder="— select —"
           />
@@ -138,7 +160,7 @@ export function CompareView({
           <TreeRows
             nodes={tree.tree}
             selected={selected}
-            onSelect={setSelected}
+            onSelect={(path) => patch({ selected: path })}
             defaultOpen={tab !== 'scd'}
           />
         ) : (

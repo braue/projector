@@ -20,7 +20,8 @@ import {
 } from './api'
 import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
-import { CompareView } from './components/CompareView'
+import { CompareView, EMPTY_COMPARE } from './components/CompareView'
+import type { CompareState } from './components/CompareView'
 import { FilesSearchView } from './components/FilesSearchView'
 import { FilesView } from './components/FilesView'
 import { NotesSearchView } from './components/NotesSearchView'
@@ -102,6 +103,10 @@ export default function App() {
   const [uploads, setUploads] = useState(EMPTY_UPLOADS)
   const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
+  // Compare picks live here, not in CompareView: that view unmounts on every
+  // mode switch, and a comparison mid-review must survive a detour through
+  // Inspect or the canvas.
+  const [compare, setCompare] = useState<CompareState>(EMPTY_COMPARE)
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [graphVersion, setGraphVersion] = useState(0)
   const [showFindings, setShowFindings] = useState(false)
@@ -161,6 +166,7 @@ export default function App() {
     setUploads(EMPTY_UPLOADS)
     setSelectedSource(null)
     setSelectedItem(null)
+    setCompare(EMPTY_COMPARE)
     setGraph(null)
     setShowFindings(false)
     setNotesSearching(false)
@@ -550,7 +556,14 @@ export default function App() {
           ))}
 
         {mode === 'compare' && (
-          <CompareView key={project} project={project} projects={rtacProjects} uploads={uploads} />
+          <CompareView
+            key={project}
+            project={project}
+            projects={rtacProjects}
+            uploads={uploads}
+            state={compare}
+            onState={setCompare}
+          />
         )}
 
         {mode === 'notes' &&
