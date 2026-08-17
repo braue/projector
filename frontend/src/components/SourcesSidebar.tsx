@@ -80,6 +80,108 @@ export function SourceTabs({
   )
 }
 
+/** The two RTAC intake paths (database browse + XML-folder upload) and the
+ * browse modal — shared between the sources rail and the compare rail. */
+export function RtacIntake({
+  project,
+  busy,
+  onUploadFolder,
+  onChanged,
+}: {
+  project: string
+  busy: boolean
+  onUploadFolder: (files: File[]) => void
+  /** Database exports were kicked off — refresh the list and start polling. */
+  onChanged: () => void
+}) {
+  const [dbOpen, setDbOpen] = useState(false)
+  const folderInput = useRef<HTMLInputElement | null>(null)
+  return (
+    <>
+      <button className="drop-zone as-button" onClick={() => setDbOpen(true)}>
+        <b>Browse AcRTAC database…</b>
+        select projects to download
+      </button>
+      <input
+        ref={(el) => {
+          folderInput.current = el
+          el?.setAttribute('webkitdirectory', '')
+        }}
+        type="file"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const files = [...(e.target.files ?? [])]
+          if (files.length) onUploadFolder(files)
+          e.target.value = ''
+        }}
+      />
+      <button
+        className="drop-zone as-button"
+        onClick={() => folderInput.current?.click()}
+        disabled={busy}
+      >
+        <b>{busy ? 'Uploading folder…' : 'Upload exported XML folder'}</b>
+        {busy ? <Spinner /> : 'folder-of-XML from AcSELerator RTAC'}
+      </button>
+      {dbOpen && (
+        <RtacDatabaseModal
+          project={project}
+          onClose={() => setDbOpen(false)}
+          onStarted={onChanged}
+        />
+      )}
+    </>
+  )
+}
+
+/** One upload type's intake: the click-or-drop zone plus its upload error —
+ * shared between the sources rail and the compare rail. */
+export function UploadIntake({
+  type,
+  error,
+  onUpload,
+}: {
+  type: UploadSourceType
+  error: string | null
+  onUpload: (file: File) => void
+}) {
+  const fileInput = useRef<HTMLInputElement>(null)
+  return (
+    <>
+      <input
+        ref={fileInput}
+        type="file"
+        accept={UPLOAD_META[type].accept}
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) onUpload(file)
+          e.target.value = ''
+        }}
+      />
+      <button
+        className="drop-zone as-button"
+        onClick={() => fileInput.current?.click()}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault()
+          const file = e.dataTransfer.files?.[0]
+          if (file) onUpload(file)
+        }}
+      >
+        <b>{UPLOAD_META[type].dropLabel}</b>
+        {UPLOAD_META[type].dropHint}
+      </button>
+      {error && (
+        <div className="list-error">
+          <div className="list-error-text">{error}</div>
+        </div>
+      )}
+    </>
+  )
+}
+
 export function SourcesSidebar({
   project,
   projects,
@@ -123,9 +225,6 @@ export function SourcesSidebar({
   placedRefs: Set<string>
 }) {
   const [tab, setTab] = useState<SourceType>('rtac')
-  const [dbOpen, setDbOpen] = useState(false)
-  const fileInput = useRef<HTMLInputElement>(null)
-  const folderInput = useRef<HTMLInputElement | null>(null)
   const { width, startResize } = useSidebarWidth()
 
   // One rename form at a time, keyed by what it renames; the form owns the
@@ -164,32 +263,12 @@ export function SourcesSidebar({
             </div>
           )}
           <div className="source-scroll">
-            <button className="drop-zone as-button" onClick={() => setDbOpen(true)}>
-              <b>Browse AcRTAC database…</b>
-              select projects to download
-            </button>
-            <input
-              ref={(el) => {
-                folderInput.current = el
-                el?.setAttribute('webkitdirectory', '')
-              }}
-              type="file"
-              multiple
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                const files = [...(e.target.files ?? [])]
-                if (files.length) onUploadRtacFolder(files)
-                e.target.value = ''
-              }}
+            <RtacIntake
+              project={project}
+              busy={rtacBusy}
+              onUploadFolder={onUploadRtacFolder}
+              onChanged={onRtacChanged}
             />
-            <button
-              className="drop-zone as-button"
-              onClick={() => folderInput.current?.click()}
-              disabled={rtacBusy}
-            >
-              <b>{rtacBusy ? 'Uploading folder…' : 'Upload exported XML folder'}</b>
-              {rtacBusy ? <Spinner /> : 'folder-of-XML from AcSELerator RTAC'}
-            </button>
 
             <ul className="source-list">
               {projects.map((entry) => {
@@ -253,47 +332,16 @@ export function SourcesSidebar({
               })}
             </ul>
           </div>
-          {dbOpen && (
-            <RtacDatabaseModal
-              project={project}
-              onClose={() => setDbOpen(false)}
-              onStarted={onRtacChanged}
-            />
-          )}
         </>
       )}
 
       {uploadTab && (
         <div className="source-scroll">
-          <input
-            ref={fileInput}
-            type="file"
-            accept={UPLOAD_META[uploadTab].accept}
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) onUpload(uploadTab, file)
-              e.target.value = ''
-            }}
+          <UploadIntake
+            type={uploadTab}
+            error={uploads[uploadTab].error}
+            onUpload={(file) => onUpload(uploadTab, file)}
           />
-          <button
-            className="drop-zone as-button"
-            onClick={() => fileInput.current?.click()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault()
-              const file = e.dataTransfer.files?.[0]
-              if (file) onUpload(uploadTab, file)
-            }}
-          >
-            <b>{UPLOAD_META[uploadTab].dropLabel}</b>
-            {UPLOAD_META[uploadTab].dropHint}
-          </button>
-          {uploads[uploadTab].error && (
-            <div className="list-error">
-              <div className="list-error-text">{uploads[uploadTab].error}</div>
-            </div>
-          )}
           {uploads[uploadTab].files.map((file) => {
             const folderKey = `${uploadTab}:${file.id}`
             const open = !collapsed.has(folderKey)

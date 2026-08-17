@@ -12,8 +12,8 @@ import type {
 } from '../types'
 import { DiffPreview } from './DiffPreview'
 import { TreePane, TreeRows } from './FileTree'
-import { SourceTabs } from './SourcesSidebar'
-import { Select } from './ui'
+import { RtacIntake, SourceTabs, UploadIntake } from './SourcesSidebar'
+import { Button, Select } from './ui'
 
 // Compare mode: the left rail looks like every other page — the RTAC/RDB/SCD
 // source tabs — but instead of a list it carries the Original/New pickers for
@@ -44,6 +44,12 @@ export function CompareView({
   uploads,
   state,
   onState,
+  listError,
+  onRetryList,
+  onUpload,
+  rtacBusy,
+  onUploadRtacFolder,
+  onRtacChanged,
 }: {
   /** The projector project every ref below lives in. */
   project: string
@@ -51,6 +57,14 @@ export function CompareView({
   uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
   state: CompareState
   onState: (state: CompareState) => void
+  /** Source intake, same handlers as the sources rail — a missing revision
+   * gets uploaded right here instead of forcing a detour through Inspect. */
+  listError: string | null
+  onRetryList: () => void
+  onUpload: (type: UploadSourceType, file: File) => void
+  rtacBusy: boolean
+  onUploadRtacFolder: (files: File[]) => void
+  onRtacChanged: () => void
 }) {
   const { tab } = state
   const picks = state.picks[tab]
@@ -126,6 +140,34 @@ export function CompareView({
             options={options}
             placeholder="— select —"
           />
+        </div>
+
+        {/* The same intake as the sources rail: a revision that isn't in the
+            project yet gets added here, and the new source lands straight in
+            the pickers above. */}
+        <div className="source-scroll">
+          {tab === 'rtac' ? (
+            <>
+              {listError && (
+                <div className="list-error">
+                  <div className="list-error-text">{listError}</div>
+                  <Button onClick={onRetryList}>Retry</Button>
+                </div>
+              )}
+              <RtacIntake
+                project={project}
+                busy={rtacBusy}
+                onUploadFolder={onUploadRtacFolder}
+                onChanged={onRtacChanged}
+              />
+            </>
+          ) : (
+            <UploadIntake
+              type={tab}
+              error={uploads[tab].error}
+              onUpload={(file) => onUpload(tab, file)}
+            />
+          )}
         </div>
       </aside>
 

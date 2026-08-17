@@ -563,6 +563,12 @@ export default function App() {
             uploads={uploads}
             state={compare}
             onState={setCompare}
+            listError={listError}
+            onRetryList={refreshRtac}
+            onUpload={handleUpload}
+            rtacBusy={rtacBusy}
+            onUploadRtacFolder={handleUploadRtacFolder}
+            onRtacChanged={handleRtacChanged}
           />
         )}
 
