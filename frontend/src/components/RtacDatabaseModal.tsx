@@ -4,7 +4,7 @@ import { fetchRtacAvailable, refreshRtacAvailable, startExport } from '../api'
 import { confirmOverwrite } from '../lib/confirm'
 import { errorMessage } from '../lib/errors'
 import type { RtacAvailableEntry } from '../types'
-import { Button, Checkbox, Spinner } from './ui'
+import { Button, Checkbox, Spinner, TextInput } from './ui'
 
 // The AcRTAC database browser: a window over the app listing every project
 // in the machine's database. Check the ones to download; they export into
@@ -28,6 +28,9 @@ export function RtacDatabaseModal({
   const [error, setError] = useState<string | null>(null)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [starting, setStarting] = useState(false)
+  // Name filter over the (often long) database list. Checked projects a
+  // narrower filter hides STAY checked — the Download count is the truth.
+  const [filter, setFilter] = useState('')
 
   const load = useCallback(async (refresh: boolean) => {
     setEntries(null)
@@ -74,6 +77,9 @@ export function RtacDatabaseModal({
     }
   }
 
+  const needle = filter.trim().toLowerCase()
+  const shown = (entries ?? []).filter((entry) => entry.name.toLowerCase().includes(needle))
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -92,8 +98,18 @@ export function RtacDatabaseModal({
         ) : (
           <>
             {error && <div className="modal-error">{error}</div>}
+            {entries.length > 0 && (
+              <div className="modal-filter">
+                <TextInput
+                  autoFocus
+                  value={filter}
+                  placeholder="Filter projects…"
+                  onChange={(e) => setFilter(e.target.value)}
+                />
+              </div>
+            )}
             <div className="modal-list">
-              {entries.map((entry) => (
+              {shown.map((entry) => (
                 <label
                   key={entry.name}
                   className={entry.inProject ? 'modal-row in-project' : 'modal-row'}
@@ -108,6 +124,9 @@ export function RtacDatabaseModal({
               ))}
               {!entries.length && !error && (
                 <div className="modal-empty">The database lists no projects.</div>
+              )}
+              {entries.length > 0 && !shown.length && (
+                <div className="modal-empty">No projects match “{filter.trim()}”.</div>
               )}
             </div>
           </>
