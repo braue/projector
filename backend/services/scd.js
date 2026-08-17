@@ -188,8 +188,11 @@ class ScdService extends UploadService {
     }
 
     if (key === 'subscriptions') {
-      // Grouped per publisher control block for compare and the linker's
-      // summary; the page lists every bound point in receive-map order.
+      // Grouped per publisher control block for the inspect sheet and the
+      // linker's summary; the page lists every bound point in receive-map
+      // order. The summaries are pure roll-ups of those rows, so they are
+      // flagged derived: a receive edit diffs as the per-point table, never
+      // restated as cryptic "N points bound" summary changes.
       const settings = {};
       for (const sub of ied.subscriptions) {
         settings[`${sub.publisher}${sub.control ? ` · ${sub.control}` : ''}`] =
@@ -204,6 +207,7 @@ class ScdService extends UploadService {
         name: 'GOOSE Receive',
         protocol: 'GOOSE',
         settings,
+        derivedSettings: true,
         pointCount: rows.length,
         pages: [tablePage('Received points', ['Internal address', 'Source', 'Service'], rows)],
       });

@@ -415,8 +415,8 @@ function diffCode(original, updated) {
 // Model fields already covered by the dedicated diffs above, or derived from
 // them, or identity — everything else that differs is reported by name.
 const COVERED_FIELDS = new Set([
-  'id', 'file', 'settings', 'points', 'pointCount', 'pages', 'settingPages',
-  'code', 'sharedMap', 'sharedMapRef', 'endpoint',
+  'id', 'file', 'settings', 'derivedSettings', 'points', 'pointCount', 'pages',
+  'settingPages', 'code', 'sharedMap', 'sharedMapRef', 'endpoint',
   'archivedContentHash', 'hasArchivedContent',
 ]);
 
@@ -445,8 +445,13 @@ function diffGraphicalLogic(original, updated) {
 // Full structured diff of one item across the two exports. Either side may be
 // null (added / removed files).
 function diffItems(original, updated) {
+  // An item can declare its settings DERIVED — pure roll-ups of its page
+  // rows (the SCD receive map's per-publisher "N points bound" summaries).
+  // Diffing those restates every table edit as a summary change, so they
+  // are skipped; the page diff carries the real per-point detail.
+  const derived = original?.derivedSettings || updated?.derivedSettings;
   return {
-    settings: diffSettings(original?.settings, updated?.settings),
+    settings: derived ? [] : diffSettings(original?.settings, updated?.settings),
     points: diffPoints(
       [...(original?.points ?? []), ...(original?.sharedMap?.points ?? [])],
       [...(updated?.points ?? []), ...(updated?.sharedMap?.points ?? [])],

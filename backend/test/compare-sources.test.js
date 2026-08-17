@@ -119,6 +119,35 @@ test('upload signatures cover page rows: a Report-ID-only edit reads edited', as
   }
 });
 
+test('a receive-map edit diffs as the point table, not summary settings', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
+  try {
+    const scd = new ScdService({ dataDir: tmp });
+    await scd.init();
+    // Rebinding an ExtRef to another control block moves it between summary
+    // groups — without the derived flag that read as a removed + added pair
+    // of "N points bound" settings on top of the real row change.
+    await scd.upload('a.scd', Buffer.from(MINI_SCL));
+    await scd.upload('b.scd', Buffer.from(MINI_SCL.replace('srcCBName="GPub01"', 'srcCBName="GPub02"')));
+    const compare = new CompareService({ adapters: { scd: (ref) => scd.comparable(ref) } });
+
+    const a = { type: 'scd', ref: 'a::RTU_1' };
+    const b = { type: 'scd', ref: 'b::RTU_1' };
+    const result = await compare.compare(a, b);
+    const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
+    assert.equal(byPath.get('subscriptions'), 'edited'); // still flags
+
+    const item = await compare.compareItem(a, b, 'subscriptions');
+    assert.equal(item.diff.settings.length, 0);
+    const [page] = item.diff.pages;
+    assert.equal(page.status, 'changed');
+    const changed = page.changes.find((row) => row.kind === 'changed');
+    assert.match(changed.updated.Source, /GPub02/);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('whole scd vs whole scd: a folder per IED, status rolled up onto it', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
