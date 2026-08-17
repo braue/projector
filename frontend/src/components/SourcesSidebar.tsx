@@ -136,7 +136,8 @@ export function RtacIntake({
 }
 
 /** One upload type's intake: the click-or-drop zone plus its upload error —
- * shared between the sources rail and the compare rail. */
+ * shared between the sources rail and the compare rail. Takes any number of
+ * files at once (compare wants both revisions in one pick). */
 export function UploadIntake({
   type,
   error,
@@ -147,16 +148,19 @@ export function UploadIntake({
   onUpload: (file: File) => void
 }) {
   const fileInput = useRef<HTMLInputElement>(null)
+  const send = (files: FileList | null | undefined) => {
+    for (const file of [...(files ?? [])]) onUpload(file)
+  }
   return (
     <>
       <input
         ref={fileInput}
         type="file"
+        multiple
         accept={UPLOAD_META[type].accept}
         style={{ display: 'none' }}
         onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) onUpload(file)
+          send(e.target.files)
           e.target.value = ''
         }}
       />
@@ -166,8 +170,7 @@ export function UploadIntake({
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault()
-          const file = e.dataTransfer.files?.[0]
-          if (file) onUpload(file)
+          send(e.dataTransfer.files)
         }}
       >
         <b>{UPLOAD_META[type].dropLabel}</b>
