@@ -43,6 +43,38 @@ test('sample export parses fully', { skip: !sampleExists }, async () => {
   assert.ok(project.summary.totalPoints > 0);
 });
 
+test('an NGVL connection surfaces its variable list as code', () => {
+  const xml = `<?xml version="1.0"?>
+    <RTACModule>
+      <Device>
+        <ExportSource><Schema>39</Schema></ExportSource>
+        <Name>Other_22</Name>
+        <Manufacturer>Any</Manufacturer>
+        <Model>Other</Model>
+        <Connection>
+          <Protocol>NGVL</Protocol>
+          <ConnectionType>Ethernet</ConnectionType>
+          <SettingPages><SettingPage><Name>Settings</Name>
+            <Row><Setting><Column>Setting</Column><Value>GVL Type</Value></Setting>
+                 <Setting><Column>Value</Column><Value>Transmit</Value></Setting></Row>
+          </SettingPage></SettingPages>
+          <Variables><![CDATA[VAR_GLOBAL
+\tEXAMPLE_VAR1 : BOOL;
+END_VAR
+]]></Variables>
+        </Connection>
+      </Device>
+    </RTACModule>`;
+  const project = parseRtacProject([{ file: 'SEL_RTAC/NGVL/Other_22_NGVL.xml', xml }]);
+  assert.equal(project.errors.length, 0);
+  const [item] = project.items;
+  assert.equal(item.protocol, 'NGVL');
+  assert.match(item.code.implementation, /VAR_GLOBAL/);
+  assert.match(item.code.implementation, /EXAMPLE_VAR1 : BOOL;/);
+  // Ordinary connections must not grow a code block from this.
+  assert.equal(project.items.every((i) => i.protocol === 'NGVL' || i.code == null), true);
+});
+
 test('unknown kinds still parse generically', () => {
   const xml = `<?xml version="1.0"?>
     <RTACModule>

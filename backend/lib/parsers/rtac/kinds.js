@@ -32,11 +32,17 @@ import { cdata, findFirst, text, toArray } from '../xml.js';
 // --- kind-specific extractors -----------------------------------------------
 
 function extractDevice(container) {
+  // An NGVL connection (network global variable list) carries its variable
+  // list as a <Variables> CDATA of IEC 61131 source (VAR_GLOBAL … END_VAR)
+  // under its <Connection> — the variables ARE the object, so surface them
+  // the way a GVL surfaces its body.
+  const variables = findFirst(container, 'Variables');
   return {
     protocol: text(findFirst(container, 'Protocol')) || null,
     connectionType: text(findFirst(container, 'ConnectionType')) || null,
     manufacturer: text(findFirst(container, 'Manufacturer')) || null,
     model: text(findFirst(container, 'Model')) || null,
+    ...(variables !== undefined ? { code: { implementation: cdata(variables) || null } } : {}),
   };
 }
 
