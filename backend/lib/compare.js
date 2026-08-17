@@ -15,7 +15,7 @@
 //   by field name, so a new extractor's output is at worst reported coarsely,
 //   never dropped.
 
-import { normalizeEol } from './lineDiff.js';
+import { normalizeEol } from './eol.js';
 
 // --- file status -------------------------------------------------------------
 

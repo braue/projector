@@ -63,9 +63,7 @@ class CompareService {
     return Promise.all([this.#load(a), this.#load(b)]);
   }
 
-  // The shared first half of compare() and report(): load both sides, sign,
-  // derive per-path status and the summary tally. ONE home, so the tree
-  // legend and the PDF header can never disagree about the same pair.
+  // Load both sides, sign, derive per-path status and the summary tally.
   async #status(a, b) {
     const [original, updated] = await this.#pair(a, b);
     const status = compareSignatures(signatures(original.entries), signatures(updated.entries));
@@ -90,35 +88,6 @@ class CompareService {
       summary,
       tree: rollUpStatus(foldTree(nodes)),
     };
-  }
-
-  // Report data: every non-unchanged item with its full diff, path-sorted —
-  // the PDF export renders this and nothing else (differences only).
-  async report(a, b) {
-    const { original, updated, status, summary } = await this.#status(a, b);
-    const byPath = (entries) => new Map(entries.map((entry) => [entry.path, entry]));
-    const originals = byPath(original.entries);
-    const updates = byPath(updated.entries);
-
-    const items = [...status.entries()]
-      .filter(([, value]) => value !== STATUS.UNCHANGED)
-      .sort(([a2], [b2]) => a2.localeCompare(b2))
-      .map(([path, value]) => ({
-        path,
-        status: value,
-        diff: value === STATUS.EDITED
-          ? diffItems(originals.get(path)?.item ?? null, updates.get(path)?.item ?? null)
-          : null,
-        // Added/removed files render their FULL content in the report — the
-        // reader must see what appeared or vanished, not just that it did.
-        item: value === STATUS.ADDED
-          ? updates.get(path)?.item ?? null
-          : value === STATUS.REMOVED
-            ? originals.get(path)?.item ?? null
-            : null,
-      }));
-
-    return { original: original.label, updated: updated.label, summary, items };
   }
 
   async compareItem(a, b, path) {

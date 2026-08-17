@@ -134,7 +134,7 @@ function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
 function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] }) {
   // The backend's `changes` list arrives pre-merged and pre-sorted by row
   // position, with edits already split into displayed `fields` and hidden
-  // noise-column edits — this component (and the PDF report) only style it.
+  // noise-column edits — this component only styles it.
   //
   // Added/removed rows show their content (the content IS the edit);
   // changed pairs show only the identity cell and the edited cells, with
@@ -288,7 +288,7 @@ function CodePartDiff({
           <div key={i} className={`diff-line diff-${line.kind}`}>
             {/* ONE gutter: each line numbered in the side it lives in —
                 deleted lines by the original file, everything else by the
-                new one. Matches the PDF report's numbering. */}
+                new one. */}
             <span className="diff-ln">{line.kind === 'del' ? line.oldNo : line.newNo}</span>
             <span className="diff-sign">
               {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
@@ -347,10 +347,13 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
       <Preview
         item={item}
         banner={
+          // Named by PATH, not by item name: in a whole-file compare the same
+          // section name recurs under every profile, so "Reports" alone does
+          // not say whose reports appeared.
           <div className={`diff-banner banner-${status}`}>
             {status === 'added'
-              ? 'Added — this object exists only in the new project.'
-              : 'Removed — this object exists only in the original project.'}
+              ? `Added — ${file} exists only in the new source.`
+              : `Removed — ${file} exists only in the original source.`}
           </div>
         }
       />

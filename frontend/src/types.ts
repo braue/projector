@@ -57,6 +57,8 @@ export interface TreeFolderNode {
   name: string
   path: string
   children: TreeNode[]
+  /** Compare only: its contents' status, so a closed folder still speaks. */
+  status?: FileStatus
 }
 
 export type TreeNode = TreeFolderNode | TreeItemNode
@@ -177,9 +179,8 @@ export interface ItemDiff {
     columns?: string[]
     /** ONE merged change list, pre-sorted by row position (removed →
      * changed → added on ties) — the backend owns ordering and the split
-     * of edits into displayed `fields` vs `hidden` (noise-column) edits,
-     * so this table and the PDF report cannot drift. `index` is the
-     * 0-based row position in the entry's own side. */
+     * of edits into displayed `fields` vs `hidden` (noise-column) edits.
+     * `index` is the 0-based row position in the entry's own side. */
     changes?: {
       kind: 'added' | 'removed' | 'changed'
       index: number
