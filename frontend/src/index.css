@@ -630,6 +630,12 @@ button.ui-section-header:hover { color: var(--ink); }
 .connect-dialog .connect-fields {
   display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 4px;
 }
+/* Field labels here are device names (SEL_RTAC_2A port) — far too long for
+   the 56px side label, which they overflowed straight across the control.
+   Stack the label above its control instead. */
+.connect-dialog .ui-labeled { flex-direction: column; align-items: stretch; gap: 4px; }
+.connect-dialog .ui-label { width: auto; overflow-wrap: anywhere; }
+.connect-dialog .ui-input { width: 100%; }
 
 /* --- crash screen ----------------------------------------------------------- */
 
