@@ -293,6 +293,15 @@ button.ui-section-header:hover { color: var(--ink); }
   font-size: 11.5px; color: var(--muted);
 }
 .rdb-file-name .mono { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 11.5px; }
+/* The file name is the folder's fold/unfold control; ✎ and ✕ stay siblings
+ * of it (a button inside a button is not a button). */
+.rdb-file-toggle {
+  display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0;
+  padding: 0; border: 0; background: none; color: inherit; font: inherit;
+  font-size: 11.5px; text-align: left; cursor: pointer; user-select: none;
+}
+.rdb-file-toggle:hover { color: var(--ink); }
+.rdb-file-count { flex: none; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
 .rdb-delete {
   flex: none; border: 0; background: none; color: var(--muted); cursor: pointer;
   font-size: 11px; padding: 2px 6px; border-radius: 6px;
@@ -320,8 +329,10 @@ button.ui-section-header:hover { color: var(--ink); }
 
 /* --- file tree ------------------------------------------------------------- */
 
-.tree-title { font-weight: 650; font-size: 13.5px; color: var(--ink); }
-.tree-subtitle { font-weight: 400; font-size: 11.5px; color: var(--muted); }
+/* Pane titles WRAP rather than truncate — compare titles are the whole
+ * source identity ("file.rdb · PROFILE"), and half a name names nothing. */
+.tree-title { font-weight: 650; font-size: 13.5px; color: var(--ink); overflow-wrap: anywhere; }
+.tree-subtitle { font-weight: 400; font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
 .tree-scroll { flex: 1; overflow: auto; padding: 4px 6px; }
 .tree-row {
   display: flex; align-items: center; gap: 6px; width: 100%; height: 27px; padding-right: 8px;
@@ -355,6 +366,9 @@ button.ui-section-header:hover { color: var(--ink); }
   outline: 1.5px solid var(--ink); outline-offset: -1.5px;
 }
 .status-dot { flex: none; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 0 3px; }
+/* A folder carries no point count, so its rolled-up status takes the right
+ * edge — the column an item row's letter sits in too. */
+.tree-folder .status-dot { margin-left: auto; }
 .status-dot.status-added { color: var(--diff-added); }
 .status-dot.status-removed { color: var(--diff-removed); }
 .status-dot.status-edited { color: var(--diff-edited); }

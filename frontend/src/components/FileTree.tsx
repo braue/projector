@@ -27,11 +27,13 @@ interface RowsProps {
   // aggregate mode: object-range checkboxes
   checked?: Set<string>
   onToggleCheck?: (paths: string[], value: boolean) => void
+  /** Folders start closed when the folders ARE the index (whole-file compare). */
+  defaultOpen?: boolean
 }
 
 function TreeEntry(props: RowsProps & { node: TreeNode; depth: number }) {
-  const { node, depth, selected, onSelect, checked, onToggleCheck } = props
-  const [open, setOpen] = useState(true)
+  const { node, depth, selected, onSelect, checked, onToggleCheck, defaultOpen = true } = props
+  const [open, setOpen] = useState(defaultOpen)
   const indent = { paddingLeft: `${8 + depth * 14}px` }
   const checkable = checked !== undefined && onToggleCheck !== undefined
   // The subtree flatten is only needed to drive the folder checkbox.
@@ -43,9 +45,16 @@ function TreeEntry(props: RowsProps & { node: TreeNode; depth: number }) {
   if (node.type === 'folder') {
     const allChecked = paths.length > 0 && paths.every((path) => checked?.has(path))
     const someChecked = !allChecked && paths.some((path) => checked?.has(path))
+    const folderClasses = ['tree-row', 'tree-folder']
+    if (node.status && node.status !== 'unchanged') folderClasses.push(`row-${node.status}`)
     return (
       <>
-        <button className="tree-row tree-folder" style={indent} title={node.name} onClick={() => setOpen(!open)}>
+        <button
+          className={folderClasses.join(' ')}
+          style={indent}
+          title={node.status && node.status !== 'unchanged' ? `${node.name} · ${node.status}` : node.name}
+          onClick={() => setOpen(!open)}
+        >
           <span className="tree-caret">{open ? '▾' : '▸'}</span>
           {checkable && (
             <Checkbox
@@ -56,6 +65,11 @@ function TreeEntry(props: RowsProps & { node: TreeNode; depth: number }) {
             />
           )}
           <span className="tree-name">{node.name}</span>
+          {node.status && node.status !== 'unchanged' && (
+            <span className={`status-dot status-${node.status}`}>
+              {node.status === 'added' ? 'A' : node.status === 'removed' ? 'R' : 'M'}
+            </span>
+          )}
         </button>
         {open &&
           node.children.map((child) => (

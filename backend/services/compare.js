@@ -30,6 +30,20 @@ function signatures(entries) {
   return new Map(entries.map((entry) => [entry.path, entry.signature]));
 }
 
+// A folder wears its contents' status: wholly added or wholly removed reads
+// as that, any other mix containing a change reads edited. Whole-file
+// compares fold one folder per profile (an SCD's IEDs) and those folders
+// start closed, so a folder that says nothing would hide everything.
+function rollUpStatus(nodes) {
+  for (const node of nodes) {
+    if (node.type !== 'folder') continue;
+    rollUpStatus(node.children);
+    const seen = new Set(node.children.map((child) => child.status ?? STATUS.UNCHANGED));
+    node.status = seen.size === 1 ? [...seen][0] : STATUS.EDITED;
+  }
+  return nodes;
+}
+
 class CompareService {
   // adapters: type -> async (ref) => { label, entries }
   constructor({ adapters }) {
@@ -74,7 +88,7 @@ class CompareService {
       original: { name: original.label },
       updated: { name: updated.label },
       summary,
-      tree: foldTree(nodes),
+      tree: rollUpStatus(foldTree(nodes)),
     };
   }
 

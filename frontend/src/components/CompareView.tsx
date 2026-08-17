@@ -17,9 +17,9 @@ import { Select } from './ui'
 
 // Compare mode: the left rail looks like every other page — the RTAC/RDB/SCD
 // source tabs — but instead of a list it carries the Original/New pickers for
-// that type (two RTAC projects, two relay profiles, two SCD IEDs; the tab IS
-// the same-type constraint). The union item tree shows added/removed/edited
-// tints; click a row for the structured diff.
+// that type (two RTAC projects, two relay profiles, two whole SCDs; the tab
+// IS the same-type constraint). The union item tree shows added/removed/
+// edited tints; click a row for the structured diff.
 
 export function CompareView({
   project,
@@ -36,11 +36,18 @@ export function CompareView({
   const [updated, setUpdated] = useState<string>('')
   const [selected, setSelected] = useState<string | null>(null)
 
+  // What a pick MEANS per type: an RTAC project and an SCD are compared whole
+  // (an .scd's IEDs are one substation — reading them apart loses the point),
+  // while an RDB or a switch export is compared one profile at a time, which
+  // is how two revisions of the same relay get held up against each other.
   const options = useMemo(() => {
     if (tab === 'rtac') {
       return projects
         .filter((project) => project.status === 'ready')
         .map((project) => ({ value: project.name, label: project.name }))
+    }
+    if (tab === 'scd') {
+      return uploads.scd.files.map((file) => ({ value: file.id, label: file.fileName }))
     }
     return uploads[tab].files.flatMap((file) =>
       file.profiles.map((profile) => ({
@@ -134,7 +141,14 @@ export function CompareView({
         }
       >
         {tree ? (
-          <TreeRows nodes={tree.tree} selected={selected} onSelect={setSelected} />
+          // A whole-SCD tree is a folder per IED and dozens of them; opening
+          // every one by default buries the changed IEDs it exists to show.
+          <TreeRows
+            nodes={tree.tree}
+            selected={selected}
+            onSelect={setSelected}
+            defaultOpen={tab !== 'scd'}
+          />
         ) : (
           <div className="pane-message">
             {treeError ??

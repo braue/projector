@@ -16,9 +16,10 @@ import { Button, InlineNameForm, RowAction, Spinner } from './ui'
 // projector project. RTAC exports arrive two ways — browse the machine's
 // AcRTAC database in a window and download selections, or upload an
 // exported XML folder straight from disk. RDB/SCD/SW are upload-backed and
-// share one pane (drop zone + file cards + profile rows). Ready items drag
-// onto the canvas (an SCD profile can also drop ONTO a device to augment
-// it) and click-select for Inspect.
+// share one pane — a drop zone over file cards that fold like folders, each
+// holding its own profiles (an RDB's relays, an SCD's IEDs). Ready items
+// drag onto the canvas (an SCD profile can also drop ONTO a device to
+// augment it) and click-select for Inspect.
 
 const UPLOAD_META: Record<UploadSourceType, {
   accept: string
@@ -132,6 +133,17 @@ export function SourcesSidebar({
   const [renaming, setRenaming] = useState<
     { kind: 'rtac'; name: string } | { kind: 'upload'; type: UploadSourceType; id: string } | null
   >(null)
+
+  // Upload cards are folders: one file holds many profiles (an RDB's relays,
+  // an SCD's IEDs), so each card collapses. Open is the default; the set
+  // holds only what the reader has folded away, keyed by type + file id.
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const toggleCollapsed = (key: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (!next.delete(key)) next.add(key)
+      return next
+    })
 
   const isSelected = (source: DeviceSource) =>
     selected?.type === source.type && selected?.ref === source.ref
@@ -282,58 +294,71 @@ export function SourcesSidebar({
               <div className="list-error-text">{uploads[uploadTab].error}</div>
             </div>
           )}
-          {uploads[uploadTab].files.map((file) => (
-            <div key={file.id} className="rdb-file">
-              {renaming?.kind === 'upload' && renaming.type === uploadTab && renaming.id === file.id ? (
-                <InlineNameForm
-                  initial={file.fileName}
-                  placeholder="New name — Enter to rename"
-                  onCommit={async (value) => {
-                    await onRenameUpload(uploadTab, file.id, value)
-                    setRenaming(null)
-                  }}
-                  onCancel={() => setRenaming(null)}
-                />
-              ) : (
-                <div className="rdb-file-name">
-                  <span className="mono">{file.fileName}</span>
-                  <button
-                    className="rdb-delete"
-                    title="Rename this file"
-                    onClick={() => setRenaming({ kind: 'upload', type: uploadTab, id: file.id })}
-                  >
-                    ✎
-                  </button>
-                  <button
-                    className="rdb-delete"
-                    title="Remove this file and its devices"
-                    onClick={() => onDeleteUpload(uploadTab, file.id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-              {file.profiles.map((profile) => {
-                const source: DeviceSource = { type: uploadTab, ref: profile.ref }
-                const classes = ['project-entry', 'status-ready', 'profile-row']
-                if (isSelected(source)) classes.push('selected')
-                return (
-                  <button
-                    key={profile.ref}
-                    className={classes.join(' ')}
-                    {...dragProps(source)}
-                    title={`${profile.name} — ${UPLOAD_META[uploadTab].dragHint}`}
-                    onClick={() => onSelect(source)}
-                  >
-                    <span className="grip">⠿</span>
-                    <span className="project-name">{profile.name}</span>
-                    {profile.deviceType && <span className="relay-type">{profile.deviceType}</span>}
-                    {placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
-                  </button>
-                )
-              })}
-            </div>
-          ))}
+          {uploads[uploadTab].files.map((file) => {
+            const folderKey = `${uploadTab}:${file.id}`
+            const open = !collapsed.has(folderKey)
+            return (
+              <div key={file.id} className="rdb-file">
+                {renaming?.kind === 'upload' && renaming.type === uploadTab && renaming.id === file.id ? (
+                  <InlineNameForm
+                    initial={file.fileName}
+                    placeholder="New name — Enter to rename"
+                    onCommit={async (value) => {
+                      await onRenameUpload(uploadTab, file.id, value)
+                      setRenaming(null)
+                    }}
+                    onCancel={() => setRenaming(null)}
+                  />
+                ) : (
+                  <div className="rdb-file-name">
+                    <button
+                      className="rdb-file-toggle"
+                      title={`${file.fileName} — click to ${open ? 'collapse' : 'expand'}`}
+                      onClick={() => toggleCollapsed(folderKey)}
+                    >
+                      <span className="tree-caret">{open ? '▾' : '▸'}</span>
+                      <span className="mono">{file.fileName}</span>
+                      <span className="rdb-file-count">{file.profiles.length}</span>
+                    </button>
+                    <button
+                      className="rdb-delete"
+                      title="Rename this file"
+                      onClick={() => setRenaming({ kind: 'upload', type: uploadTab, id: file.id })}
+                    >
+                      ✎
+                    </button>
+                    <button
+                      className="rdb-delete"
+                      title="Remove this file and its devices"
+                      onClick={() => onDeleteUpload(uploadTab, file.id)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                {open &&
+                  file.profiles.map((profile) => {
+                    const source: DeviceSource = { type: uploadTab, ref: profile.ref }
+                    const classes = ['project-entry', 'status-ready', 'profile-row']
+                    if (isSelected(source)) classes.push('selected')
+                    return (
+                      <button
+                        key={profile.ref}
+                        className={classes.join(' ')}
+                        {...dragProps(source)}
+                        title={`${profile.name} — ${UPLOAD_META[uploadTab].dragHint}`}
+                        onClick={() => onSelect(source)}
+                      >
+                        <span className="grip">⠿</span>
+                        <span className="project-name">{profile.name}</span>
+                        {profile.deviceType && <span className="relay-type">{profile.deviceType}</span>}
+                        {placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
+                      </button>
+                    )
+                  })}
+              </div>
+            )
+          })}
         </div>
       )}
     </aside>

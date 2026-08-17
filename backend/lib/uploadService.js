@@ -12,7 +12,9 @@
 //   profile      one addressed profile with its context:
 //                { fileId, fileName, model, profile }
 //   comparable   compare-adapter entries derived from the service's own
-//                tree()/item(), signature-cached per immutable model
+//                tree()/item(), signature-cached per immutable model — for
+//                one profile, or for a whole file with every profile's items
+//                namespaced (see comparable() for which ref means which)
 //
 // Subclass contract:
 //   parse(buffer) -> model            (throw on unreadable input)
@@ -30,8 +32,10 @@ import { REF_SEPARATOR, splitRef } from './refs.js';
 import { UploadStore } from './uploadStore.js';
 
 class UploadService {
-  // Compare entries per model object — models are immutable per upload.
+  // Compare entries per profile / per store record — both are immutable for
+  // the life of an upload (a re-parse mints new ones).
   #comparableCache = new WeakMap();
+  #fileCache = new WeakMap();
 
   constructor({ dataDir, label, extension, originalName, modelVersion, uploadErrorLabel }) {
     this.label = label;
@@ -125,32 +129,62 @@ class UploadService {
     return { fileId, fileName: stored.fileName, model: stored.model, profile };
   }
 
-  // Compare adapter entries: the profile's top-level inspect items, signature
-  // = canonical (key-sorted) JSON of the WHOLE item — SCD/SW items carry
-  // compare-relevant data in pages rows (Report IDs, option fields, port
-  // tables) that the settings summaries deliberately abbreviate. Folder
-  // children (e.g. RDB panel drawings) are presentation, not compared.
+  // Compare adapter entries at either granularity, chosen by the ref:
+  //
+  //   "<fileId>::<profile>"  ONE profile's items — two revisions of the same
+  //                          relay, or one relay against another
+  //   "<fileId>"             the WHOLE file, every profile's items namespaced
+  //                          "<profile>/<path>" so the compare tree folds one
+  //                          folder per profile and same-named profiles pair
+  //                          across the two files
+  //
+  // SCD picks the whole file (an .scd's IEDs are one substation, and reading
+  // them apart loses the point); RDB and SW pick a profile. Search shares
+  // this adapter and always addresses a profile.
   comparable(ref) {
+    if (!ref?.includes(REF_SEPARATOR)) return this.#wholeFile(ref);
     const { fileName, profile } = this.profile(ref);
     const { profileName } = splitRef(ref, this.label);
     if (!this.#comparableCache.has(profile)) {
-      this.#comparableCache.set(profile, this.tree(ref).tree
-        .filter((node) => node.type === 'item')
-        .map((node) => {
-          const item = this.item(ref, node.path);
-          // Lazy: search shares these entries and never reads signatures.
-          let signature;
-          return {
-            path: node.path,
-            name: node.name,
-            item,
-            get signature() {
-              return (signature ??= modelSignature(item));
-            },
-          };
-        }));
+      this.#comparableCache.set(profile, this.#entries(ref));
     }
     return { label: `${fileName} · ${profileName}`, entries: this.#comparableCache.get(profile) };
+  }
+
+  #wholeFile(fileId) {
+    const stored = this.store.get(fileId);
+    if (!stored) throw httpError(404, `unknown ${this.label} file: ${fileId}`);
+    // Keyed on the STORE RECORD, not the model: a single-profile type (SW)
+    // hands back the model itself as its profile, and the two granularities
+    // must never share a cache slot.
+    if (!this.#fileCache.has(stored)) {
+      this.#fileCache.set(stored, this.profilesOf(stored.model, fileId).flatMap((profile) =>
+        this.#entries(`${fileId}${REF_SEPARATOR}${profile.name}`, `${profile.name}/`)));
+    }
+    return { label: stored.fileName, entries: this.#fileCache.get(stored) };
+  }
+
+  // One profile's top-level inspect items, signature = canonical (key-sorted)
+  // JSON of the WHOLE item — SCD/SW items carry compare-relevant data in
+  // pages rows (Report IDs, option fields, port tables) that the settings
+  // summaries deliberately abbreviate. Folder children (e.g. RDB panel
+  // drawings) are presentation, not compared.
+  #entries(ref, prefix = '') {
+    return this.tree(ref).tree
+      .filter((node) => node.type === 'item')
+      .map((node) => {
+        const item = this.item(ref, node.path);
+        // Lazy: search shares these entries and never reads signatures.
+        let signature;
+        return {
+          path: `${prefix}${node.path}`,
+          name: node.name,
+          item,
+          get signature() {
+            return (signature ??= modelSignature(item));
+          },
+        };
+      });
   }
 }
 

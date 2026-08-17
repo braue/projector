@@ -119,6 +119,49 @@ test('upload signatures cover page rows: a Report-ID-only edit reads edited', as
   }
 });
 
+test('whole scd vs whole scd: a folder per IED, status rolled up onto it', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
+  try {
+    const scd = new ScdService({ dataDir: tmp });
+    await scd.init();
+    // b.scd edits one section inside RELAY_1 and renames the other IED, so
+    // the three folders cover every rollup: mixed, wholly removed, wholly
+    // added.
+    await scd.upload('a.scd', Buffer.from(MINI_SCL));
+    await scd.upload('b.scd', Buffer.from(MINI_SCL
+      .replace('rptID="BRep01"', 'rptID="BRep01_v2"')
+      .replace('<IED name="RTU_1"', '<IED name="RTU_2"')));
+    const compare = new CompareService({ adapters: { scd: (ref) => scd.comparable(ref) } });
+
+    const a = { type: 'scd', ref: 'a' };
+    const b = { type: 'scd', ref: 'b' };
+    const result = await compare.compare(a, b);
+
+    // The pane header names the FILES, not a profile inside one.
+    assert.equal(result.original.name, 'a.scd');
+    assert.equal(result.updated.name, 'b.scd');
+
+    const folders = new Map(result.tree.map((node) => [node.name, node]));
+    assert.deepEqual([...folders.keys()].sort(), ['RELAY_1', 'RTU_1', 'RTU_2']);
+    assert.ok(result.tree.every((node) => node.type === 'folder'));
+    assert.equal(folders.get('RELAY_1').status, 'edited'); // one section moved
+    assert.equal(folders.get('RTU_1').status, 'removed');
+    assert.equal(folders.get('RTU_2').status, 'added');
+
+    // Items live under their IED and keep the same status they'd have alone.
+    const relay = new Map(folders.get('RELAY_1').children.map((node) => [node.path, node.status]));
+    assert.equal(relay.get('RELAY_1/reports'), 'edited');
+    assert.equal(relay.get('RELAY_1/network'), 'unchanged');
+
+    const item = await compare.compareItem(a, b, 'RELAY_1/reports');
+    assert.equal(item.status, 'edited');
+    const changed = item.diff.pages[0].changes.find((row) => row.kind === 'changed');
+    assert.equal(changed.updated['Report ID'], 'BRep01_v2');
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('scd ied vs scd ied compares inspect items; mixed types are rejected', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
