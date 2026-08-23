@@ -16,8 +16,32 @@ and `mockups.html` for the reviewed UI mockups.
   the canvas; the linker infers every link it can defend. Wire colors:
   green = confirmed, red = conflict, amber = suggested, grey dashed =
   declared (ends in a ghost box for far ends nobody has loaded). Click a
-  wire for the popup: what it is, each end's port info, warnings/errors.
+  wire for the popup: what it is, each end's port info, and its checklist.
   Click a box to jump to Inspect for that device.
+
+  **Every link shows what was checked, not just what broke.** The linker
+  records each question it asked and the answer it got — ✓ agreed, ✕ disagreed,
+  ! worth a look, – could not be asked because one side states nothing. A green
+  wire is not a bare assurance; open it and you can read the port, protocol,
+  addressing, route and layer-2 comparisons that earned it. An unanswered check
+  is as informative as a failed one: it marks where the settings are silent
+  rather than agreed, and silence is never read as agreement.
+
+  **A wire is a physical run, and connections ride it.** Where you have drawn
+  the cables, an inferred link does not get a wire of its own — the linker
+  resolves it onto the run it actually travels (`link.path`) and the canvas
+  paints those cables for it. An RTAC three switches from a relay reads as
+  three cables, not as three cables plus a chord cutting across them. Each
+  cable takes the *worst* tier riding it, so one broken connection turns its
+  whole run red — that run is where you have to go looking. Because a
+  connection now knows the run it takes, **layer-2 membership is checked for
+  every link, not just for GOOSE**: the walk searches the drawn fabric for a
+  path on which one VLAN survives every hop, and names the port that drops it
+  when none does. A switch that states no VLAN table leaves the check
+  unanswered rather than failing it. The wire's popup
+  lists what it carries; clicking one of those lights its whole path end to
+  end, and hovering a box lights everything that talks to it. With no drawn
+  cables the topology isn't stated, and links stay direct as before.
 - **Inspect** — read-only settings for one artifact: full object tree, the
   settings transcript with one tab per settings page, and a
   Browse / Aggregate toggle (aggregate = setting names × object scope,

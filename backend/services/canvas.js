@@ -211,9 +211,6 @@ class CanvasService {
       canvas.manualLinks ?? [],
     );
 
-    const tiers = { confirmed: 0, conflict: 0, probable: 0, declared: 0, manual: 0 };
-    for (const link of links) tiers[link.tier] += 1;
-
     return {
       devices: [
         ...resolved.map(({ device, profile, scdError, scdWarning }) => graphDevice(
@@ -240,14 +237,9 @@ class CanvasService {
       ghosts,
       links,
       diagnostics,
-      summary: {
-        devices: canvas.devices.length,
-        confirmed: tiers.confirmed,
-        conflicts: tiers.conflict,
-        probable: tiers.probable,
-        declared: tiers.declared,
-        manual: tiers.manual,
-      },
+      // The topbar's one number. Every other tally the client can take off
+      // `links` and `devices`, which it already has in hand.
+      summary: { conflicts: links.filter((link) => link.tier === 'conflict').length },
     };
   }
 }

@@ -9,6 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { attachmentWarning, augmentProfile, extractScdProfile } from '../lib/comm/extract/scd.js';
+import { checkFor } from './helpers/checks.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { ScdService } from '../services/scd.js';
 import { CanvasService } from '../services/canvas.js';
@@ -134,7 +135,9 @@ test('linker: same-SCD subscription confirms; missing publisher ghosts', async (
     ]);
     const ambiguous = doubled.links.find((link) => link.protocol === 'GOOSE');
     assert.equal(ambiguous.targetDeviceId, 'relay');
-    assert.match(ambiguous.warnings[0].text, /RELAY_1 is carried by 2 canvas devices/);
+    const publisher = checkFor(ambiguous, 'Publisher on the canvas');
+    assert.equal(publisher.status, 'warn');
+    assert.match(publisher.detail, /RELAY_1 is carried by 2 canvas devices/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -201,7 +204,7 @@ test('canvas attach flow: augmented device links to a standalone scd node', asyn
     const goose = graph.links.find((link) => link.protocol === 'GOOSE');
     assert.equal(goose.tier, 'confirmed');
     assert.equal(goose.sourceDeviceId, rtuDevice.id);
-    assert.equal(graph.summary.confirmed, 1);
+    assert.equal(graph.links.filter((link) => link.tier === 'confirmed').length, 1);
 
     // Detach: the link degrades to a ghost-less canvas (no scd fragment left).
     await canvas.detachScd(rtuDevice.id);

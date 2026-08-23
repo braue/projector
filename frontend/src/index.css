@@ -684,10 +684,44 @@ button.ui-section-header:hover { color: var(--ink); }
 .link-popup .warnhead.bad { color: var(--bad); }
 .link-popup .warnhead.warnc { color: var(--warn-ink); }
 .link-popup .warnhead.okc { color: var(--ok); }
-.link-popup .warn { margin: 5px 14px; padding: 7px 11px; font-size: 12.5px; border-radius: 8px; }
-.link-popup .warn.bad { background: var(--bad-tint); color: var(--bad-ink); }
-.link-popup .warn.warnc { background: var(--warn-tint); color: var(--warn-ink); }
-.link-popup .clean { margin: 5px 14px 12px; font-size: 12.5px; color: var(--ok); }
+/* The checklist. Every question the linker asked, passes included — a reader
+   should be able to see what was verified, not just what went wrong. The mark
+   carries the verdict so the four statuses read at a glance; the label says
+   what was looked at, and the detail says what was found. */
+.link-popup .check { display: flex; gap: 9px; padding: 5px 14px; font-size: 12.5px; }
+.link-popup .check-mark {
+  flex: none; width: 13px; text-align: center; font-weight: 700; font-size: 12px;
+  line-height: 1.45;
+}
+.link-popup .check-body { min-width: 0; }
+.link-popup .check-label { font-weight: 600; }
+.link-popup .check-detail { color: var(--muted); }
+/* The label and detail run on as one sentence — "TCP port · both ends on
+   20000" reads faster than a two-column table at this width. */
+.link-popup .check-label::after { content: ' · '; color: var(--ghost); font-weight: 400; }
+.link-popup .check.pass .check-mark { color: var(--ok); }
+.link-popup .check.fail .check-mark { color: var(--bad); }
+.link-popup .check.warn .check-mark { color: var(--warn-ink); }
+.link-popup .check.unknown .check-mark { color: var(--ghost); }
+/* A failure is the one thing that should stop the eye, so it alone gets a
+   ground; the rest stay as plain rows and the list keeps its rhythm. */
+.link-popup .check.fail { background: var(--bad-tint); }
+.link-popup .check.fail .check-detail { color: var(--bad-ink); }
+.link-popup .check.unknown .check-label { font-weight: 500; color: var(--muted); }
+
+/* What rides a drawn cable. A physical run matters for what travels it, so
+   this list sits directly under the summary, above the cable's own port
+   detail. Each row lights that connection's whole path across the canvas —
+   .selected is the one currently traced. */
+.link-popup .carried {
+  display: flex; align-items: baseline; gap: 8px; width: 100%;
+  padding: 5px 14px; font-size: 12.5px; text-align: left;
+}
+.link-popup .carried:hover { background: var(--fill); }
+.link-popup .carried.selected { background: var(--accent-tint); }
+.link-popup .carried-ends {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 /* Ghost hub popup: the referenced-device list, scrollable past ~6 entries. */
 .link-popup .ghost-list { max-height: 340px; overflow-y: auto; }

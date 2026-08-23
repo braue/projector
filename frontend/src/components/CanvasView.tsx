@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   Background,
   Handle,
@@ -7,7 +7,6 @@ import {
   ReactFlowProvider,
   useNodesState,
   useReactFlow,
-  type Edge,
   type Node,
   type NodeProps,
 } from '@xyflow/react'
@@ -24,10 +23,22 @@ import {
   removeManualLink,
 } from '../api'
 import { errorMessage } from '../lib/errors'
+import { count } from '../lib/format'
 import { SOURCE_MIME } from '../lib/sources'
-import { TIER_COLOR, TIER_DASH } from '../lib/tiers'
+import { GHOST_HUB_ID, buildWires } from '../lib/canvasWires'
+import type { WireData } from '../lib/canvasWires'
+import { TIER_COLOR } from '../lib/tiers'
 import { REF_SEPARATOR } from '../types'
-import type { DeviceSource, GraphDevice, GraphGhost, GraphLink, WorkspaceGraph } from '../types'
+import type {
+  CheckStatus,
+  DeviceSource,
+  GraphDevice,
+  GraphGhost,
+  GraphLink,
+  LinkCheck,
+  LinkTier,
+  WorkspaceGraph,
+} from '../types'
 import { FloatingEdge } from './FloatingEdge'
 import { Button, SegmentedControl, Select, TextInput } from './ui'
 
@@ -40,11 +51,8 @@ import { Button, SegmentedControl, Select, TextInput } from './ui'
 type DeviceNodeData = { name: string; sub: string; ghost?: boolean; scd?: boolean; switch?: boolean }
 type DeviceNode = Node<DeviceNodeData, 'device'>
 
-// Every referenced-but-not-placed far end (the linker's ghosts) condenses
-// into ONE hub node — 150 individual ghost boxes would drown the canvas —
-// so `ghost` on a node means the hub. Its popup lists the referenced
-// devices; a hub WIRE's popup lists only its own source's.
-const GHOST_HUB_ID = 'ghost-hub'
+// The ghost hub node's popup lists the referenced devices; a hub WIRE's popup
+// lists only its own source's. (The id lives with the wiring rules.)
 
 function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
   const classes = ['canvas-node']
@@ -67,7 +75,10 @@ function DeviceNodeView({ data }: NodeProps<DeviceNode>) {
 const NODE_TYPES = { device: DeviceNodeView }
 const EDGE_TYPES = { floating: FloatingEdge }
 
-type PopupState = { link: GraphLink; x: number; y: number }
+// `carries`: the inferred connections riding this drawn cable. A physical run
+// is only interesting because of what travels it, so the wire's popup answers
+// that before it answers anything about the cable itself.
+type PopupState = { link: GraphLink; carries: GraphLink[]; x: number; y: number }
 type NodePopupState = { device: GraphDevice; x: number; y: number }
 
 // The three mutually exclusive canvas popups as one state — opening any one
@@ -78,6 +89,29 @@ type ActivePopup =
   | ({ kind: 'link' } & PopupState)
   | ({ kind: 'node' } & NodePopupState)
   | { kind: 'ghost'; x: number; y: number; links: GraphLink[] | null }
+
+/** Every canvas popup opens the same way: what it is, its tier, and a way out. */
+function PopupHeader({
+  title,
+  tier,
+  onClose,
+  closeLabel = 'Close',
+}: {
+  title: ReactNode
+  tier?: LinkTier
+  onClose: () => void
+  closeLabel?: string
+}) {
+  return (
+    <div className="ph">
+      <span className="t">{title}</span>
+      {tier && (
+        <span className="tier-badge" style={{ color: TIER_COLOR[tier] }}>{tier}</span>
+      )}
+      <button className="x" onClick={onClose} title={closeLabel}>✕</button>
+    </div>
+  )
+}
 
 // Popup geometry: .link-popup is 348px wide; keep it 8px inside the canvas.
 const POPUP_WIDTH = 348
@@ -129,10 +163,7 @@ function NodePopup({
   const { device } = popup
   return (
     <div className="link-popup" style={{ left: popup.x, top: popup.y }}>
-      <div className="ph">
-        <span className="t">{device.name}</span>
-        <button className="x" onClick={onClose} title="Close">✕</button>
-      </div>
+      <PopupHeader title={device.name} onClose={onClose} />
       <div className="summary">
         {deviceModelLabel(device)}
         {device.endpointCount !== undefined &&
@@ -182,11 +213,11 @@ function GhostHubPopup({
 }) {
   return (
     <div className="link-popup" style={{ left: pos.x, top: pos.y }}>
-      <div className="ph">
-        <span className="t">{links ? 'Declared connections' : 'Referenced devices'}</span>
-        <span className="tier-badge" style={{ color: TIER_COLOR.declared }}>declared</span>
-        <button className="x" onClick={onClose} title="Close">✕</button>
-      </div>
+      <PopupHeader
+        title={links ? 'Declared connections' : 'Referenced devices'}
+        tier="declared"
+        onClose={onClose}
+      />
       <div className="summary">
         {links
           ? `${links.length} declared connection${links.length === 1 ? '' : 's'} whose far end is not on the canvas.`
@@ -201,8 +232,8 @@ function GhostHubPopup({
                 {link.a.lines.map((line, i) => (
                   <div key={i} className="gline">{line}</div>
                 ))}
-                {link.warnings.map((w, i) => (
-                  <div key={`w${i}`} className={`warn ${w.kind === 'error' ? 'bad' : 'warnc'}`}>{w.text}</div>
+                {link.checks.map((entry, i) => (
+                  <CheckRow key={i} entry={entry} />
                 ))}
               </div>
             ))
@@ -220,29 +251,88 @@ function GhostHubPopup({
   )
 }
 
+// A check reads as a line you can scan: a mark, what was looked at, and what
+// was found. The mark carries the verdict, so the four statuses stay legible
+// at a glance without the reader parsing prose.
+const CHECK_MARK: Record<CheckStatus, string> = {
+  pass: '✓',
+  fail: '✕',
+  warn: '!',
+  unknown: '–',
+}
+
+function CheckRow({ entry }: { entry: LinkCheck }) {
+  return (
+    <div className={`check ${entry.status}`}>
+      <span className="check-mark" aria-hidden>{CHECK_MARK[entry.status]}</span>
+      <span className="check-body">
+        <span className="check-label">{entry.label}</span>
+        <span className="check-detail">{entry.detail}</span>
+      </span>
+    </div>
+  )
+}
+
+/** The checklist's own one-line verdict: what the reader should take from it. */
+function checkVerdict(checks: LinkCheck[]): { tone: string; text: string } {
+  const failed = checks.filter((entry) => entry.status === 'fail').length
+  const unknown = checks.filter((entry) => entry.status === 'unknown').length
+  const flagged = checks.filter((entry) => entry.status === 'warn').length
+  if (failed) return { tone: 'bad', text: `${failed} of ${checks.length} checks failed` }
+  if (flagged) return { tone: 'warnc', text: `${flagged} of ${checks.length} checks worth a look` }
+  if (unknown) {
+    return { tone: 'warnc', text: `${checks.length - unknown} of ${checks.length} checks pass, ${unknown} unanswered` }
+  }
+  return { tone: 'okc', text: `All ${checks.length} checks pass` }
+}
+
 function LinkPopup({
   popup,
+  tracedLinkId,
+  onTrace,
   onClose,
   onRemove,
 }: {
   popup: PopupState
+  tracedLinkId: string | null
+  /** Light this connection's whole run across the canvas; null clears it. */
+  onTrace: (linkId: string | null) => void
   onClose: () => void
   /** Present only for user-drawn links — inferred wires cannot be removed. */
   onRemove: (manualId: string) => void
 }) {
-  const { link } = popup
-  const errors = link.warnings.filter((w) => w.kind === 'error')
-  const tone = errors.length ? 'bad' : link.warnings.length ? 'warnc' : 'okc'
+  const { link, carries } = popup
+  const verdict = checkVerdict(link.checks)
   return (
     <div className="link-popup" style={{ left: popup.x, top: popup.y }}>
-      <div className="ph">
-        <span className="t">{link.a.label.split(' · ')[0]} ⇄ {link.b.label.split(' · ')[0]}</span>
-        <span className="tier-badge" style={{ color: TIER_COLOR[link.tier] }}>
-          {link.tier}
-        </span>
-        <button className="x" onClick={onClose} title="Close">✕</button>
-      </div>
+      <PopupHeader
+        title={`${link.a.label.split(' · ')[0]} ⇄ ${link.b.label.split(' · ')[0]}`}
+        tier={link.tier}
+        onClose={onClose}
+      />
       <div className="summary">{link.summary}</div>
+      {carries.length > 0 && (
+        <>
+          <div className="endlabel">
+            Carries {count(carries.length, 'connection')}
+          </div>
+          {carries.map((rider) => (
+            <button
+              key={rider.id}
+              className={`carried ${rider.id === tracedLinkId ? 'selected' : ''}`}
+              onClick={() => onTrace(rider.id === tracedLinkId ? null : rider.id)}
+              title="Light this connection's whole path"
+            >
+              <span className="carried-ends">
+                {rider.a.label.split(' · ')[0]} ⇄ {rider.b.label.split(' · ')[0]}
+              </span>
+              <span className="tier-badge" style={{ color: TIER_COLOR[rider.tier] }}>
+                {rider.tier}
+              </span>
+            </button>
+          ))}
+        </>
+      )}
       <div className="endlabel">{link.a.label}</div>
       <div className="endinfo">
         {link.a.lines.map((line, i) => <div key={i}>{line}</div>)}
@@ -251,18 +341,10 @@ function LinkPopup({
       <div className="endinfo">
         {link.b.lines.map((line, i) => <div key={i}>{line}</div>)}
       </div>
-      <div className={`warnhead ${tone}`}>
-        {link.warnings.length
-          ? `${errors.length ? `${errors.length} error${errors.length > 1 ? 's' : ''}` : `${link.warnings.length} warning${link.warnings.length > 1 ? 's' : ''}`}`
-          : 'Checks'}
-      </div>
-      {link.warnings.length ? (
-        link.warnings.map((w, i) => (
-          <div key={i} className={`warn ${w.kind === 'error' ? 'bad' : 'warnc'}`}>{w.text}</div>
-        ))
-      ) : (
-        <div className="clean">No warnings — both ends agree.</div>
-      )}
+      <div className={`warnhead ${verdict.tone}`}>{verdict.text}</div>
+      {link.checks.map((entry, i) => (
+        <CheckRow key={i} entry={entry} />
+      ))}
       {link.manualId && (
         <div className="popup-actions">
           <Button onClick={() => onRemove(link.manualId!)}>Remove connection</Button>
@@ -375,10 +457,11 @@ function ConnectDialog({
   return (
     <div className="connect-overlay" onClick={onCancel}>
       <div className="link-popup connect-dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="ph">
-          <span className="t">{pending.a.name} ⇄ {pending.b.name}</span>
-          <button className="x" onClick={onCancel} title="Cancel">✕</button>
-        </div>
+        <PopupHeader
+          title={`${pending.a.name} ⇄ ${pending.b.name}`}
+          onClose={onCancel}
+          closeLabel="Cancel"
+        />
         <div className="summary">
           {mode === 'ethernet'
             ? 'Draw a physical connection — pick the port on each end.'
@@ -443,6 +526,11 @@ function CanvasInner({
   const [nodes, setNodes, onNodesChange] = useNodesState<DeviceNode>([])
   const [activePopup, setActivePopup] = useState<ActivePopup | null>(null)
   const [pendingConnect, setPendingConnect] = useState<PendingConnect | null>(null)
+  // Tracing: which wires to light and which to fade back. A connection picked
+  // out of a wire's popup pins its whole run; hovering a device lights
+  // everything that talks to it. Pinned wins — you asked for that one.
+  const [tracedLinkId, setTracedLinkId] = useState<string | null>(null)
+  const [hoveredDeviceId, setHoveredDeviceId] = useState<string | null>(null)
   const { screenToFlowPosition } = useReactFlow()
   // Loads can overlap (StrictMode double-mount, drop + upload back to back);
   // only the latest response may write state, or React Flow can validate
@@ -496,50 +584,10 @@ function CanvasInner({
     load()
   }, [load, reloadKey])
 
-  const edges = useMemo<Edge[]>(() => {
-    const out: Edge[] = []
-    // Ghost-bound links collapse with their targets: one wire per source
-    // device to the hub, carrying its links so the wire's popup can show
-    // each declared connection's summary and warnings.
-    const toHub = new Map<string, GraphLink[]>()
-    for (const link of graph?.links ?? []) {
-      if (!link.targetDeviceId) {
-        const hubLinks = toHub.get(link.sourceDeviceId) ?? []
-        hubLinks.push(link)
-        toHub.set(link.sourceDeviceId, hubLinks)
-        continue
-      }
-      out.push({
-        id: link.id,
-        source: link.sourceDeviceId,
-        target: link.targetDeviceId,
-        type: 'floating',
-        style: {
-          stroke: TIER_COLOR[link.tier],
-          strokeWidth: 2,
-          strokeDasharray: TIER_DASH[link.tier],
-        },
-        data: { link },
-        interactionWidth: 16,
-      })
-    }
-    for (const [sourceId, hubLinks] of toHub) {
-      out.push({
-        id: `ghosts:${sourceId}`,
-        source: sourceId,
-        target: GHOST_HUB_ID,
-        type: 'floating',
-        style: {
-          stroke: TIER_COLOR.declared,
-          strokeWidth: 2,
-          strokeDasharray: TIER_DASH.declared,
-        },
-        data: { hubLinks },
-        interactionWidth: 16,
-      })
-    }
-    return out
-  }, [graph])
+  const edges = useMemo(
+    () => buildWires(graph, { tracedLinkId, hoveredDeviceId }),
+    [graph, tracedLinkId, hoveredDeviceId],
+  )
 
   return (
     <div
@@ -585,6 +633,10 @@ function CanvasInner({
             moveDevice(project, node.id, Math.round(node.position.x), Math.round(node.position.y)).catch(() => undefined)
           }
         }}
+        onNodeMouseEnter={(_e, node) => {
+          if (!node.data.ghost) setHoveredDeviceId(node.id)
+        }}
+        onNodeMouseLeave={() => setHoveredDeviceId(null)}
         onNodeClick={(e, node) => {
           const target = e.target as HTMLElement
           const wrap = target.closest('.canvas-wrap')?.getBoundingClientRect()
@@ -609,7 +661,7 @@ function CanvasInner({
         onEdgeClick={(e, edge) => {
           const wrap = (e.target as HTMLElement).closest('.canvas-wrap')?.getBoundingClientRect()
           if (!wrap) return
-          const data = edge.data as { link?: GraphLink; hubLinks?: GraphLink[] } | undefined
+          const data = edge.data as WireData | undefined
           const at = {
             x: clamp(e.clientX - wrap.left - 170, 8, wrap.width - (POPUP_WIDTH + 8)),
             y: clamp(e.clientY - wrap.top - 30, 8, wrap.height - 300),
@@ -620,7 +672,7 @@ function CanvasInner({
             return
           }
           if (!data?.link) return
-          setActivePopup({ kind: 'link', link: data.link, ...at })
+          setActivePopup({ kind: 'link', link: data.link, carries: data.carries ?? [], ...at })
         }}
         onConnect={({ source, target }) => {
           if (!source || !target || source === target) return
@@ -630,7 +682,10 @@ function CanvasInner({
           setActivePopup(null)
           setPendingConnect({ a, b })
         }}
-        onPaneClick={() => setActivePopup(null)}
+        onPaneClick={() => {
+          setActivePopup(null)
+          setTracedLinkId(null)
+        }}
         deleteKeyCode={['Backspace', 'Delete']}
         onNodesDelete={async (deleted) => {
           await Promise.all(
@@ -649,9 +704,15 @@ function CanvasInner({
       {activePopup?.kind === 'link' && (
         <LinkPopup
           popup={activePopup}
-          onClose={() => setActivePopup(null)}
+          tracedLinkId={tracedLinkId}
+          onTrace={setTracedLinkId}
+          onClose={() => {
+            setActivePopup(null)
+            setTracedLinkId(null)
+          }}
           onRemove={async (manualId) => {
             setActivePopup(null)
+            setTracedLinkId(null)
             await removeManualLink(project, manualId).catch((err) => setError(errorMessage(err)))
             await load()
           }}

@@ -9,6 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { extractSwProfile } from '../lib/comm/extract/sw.js';
+import { checkFor, failures, problems, statuses } from './helpers/checks.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { SwService } from '../services/sw.js';
 import { CanvasService } from '../services/canvas.js';
@@ -123,7 +124,9 @@ test('linker: drawn ethernet connections validate against the port inventory', a
     assert.ok(drawn.b.lines.some((line) => line.includes('tagged 20, 30')));
     // The relay states no port inventory — its label is taken verbatim.
     assert.equal(drawn.a.label, 'FEEDER_1 · Port 1');
-    assert.deepEqual(drawn.warnings, []);
+    assert.deepEqual(problems(drawn), []);
+    // Both ends of a drawn cable are checked, and both say so.
+    assert.deepEqual(statuses(drawn), ['FEEDER_1 port: unknown', 'SW-STATION-A port: pass']);
 
     // Plugging into a port the switch has disabled is a conflict.
     const disabled = linkProfiles(devices, [
@@ -131,7 +134,7 @@ test('linker: drawn ethernet connections validate against the port inventory', a
     ]);
     const bad = disabled.links.find((link) => link.manualId === 'm2');
     assert.equal(bad.tier, 'conflict');
-    assert.match(bad.warnings[0].text, /eth3 is disabled/);
+    assert.match(failures(bad)[0].detail, /eth3 is disabled/);
 
     // A port the switch's settings never mention is flagged, not fatal.
     const unknown = linkProfiles(devices, [
@@ -139,7 +142,7 @@ test('linker: drawn ethernet connections validate against the port inventory', a
     ]);
     const odd = unknown.links.find((link) => link.manualId === 'm3');
     assert.equal(odd.tier, 'manual');
-    assert.match(odd.warnings[0].text, /states no port named eth99/);
+    assert.match(checkFor(odd, 'SW-STATION-A port').detail, /states no port named eth99/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -183,7 +186,7 @@ test('canvas flow: draw a connection, see it in the graph, remove it', async () 
     assert.equal(drawn.tier, 'manual');
     assert.equal(drawn.sourceDeviceId, relayDevice.id);
     assert.equal(drawn.targetDeviceId, swDevice.id);
-    assert.equal(graph.summary.manual, 1);
+    assert.equal(graph.links.filter((link) => link.tier === 'manual').length, 1);
 
     // Self-connections and unknown devices are rejected.
     await assert.rejects(

@@ -342,9 +342,23 @@ export interface GraphGhost {
   lines: string[]
 }
 
-export interface LinkWarning {
-  kind: 'error' | 'warning'
-  text: string
+/**
+ * One question the linker asked of a link, and the answer it got.
+ *
+ *   pass     asked and both ends agree
+ *   fail     asked and they disagree — this is what makes a link a conflict
+ *   warn     worth knowing, not proof of a fault
+ *   unknown  could not be asked: one side states nothing. Never guessed.
+ *
+ * Every link carries the whole list, passes included: the point is to show
+ * what was verified, not only what went wrong.
+ */
+export type CheckStatus = 'pass' | 'fail' | 'warn' | 'unknown'
+
+export interface LinkCheck {
+  label: string
+  status: CheckStatus
+  detail: string
 }
 
 export interface GraphLink {
@@ -354,11 +368,18 @@ export interface GraphLink {
   sourceDeviceId: string
   targetDeviceId?: string
   targetGhostId?: string
+  /**
+   * The drawn cable run this link travels, as manual link ids in order.
+   * Present only on inferred links, and only when the user has drawn a path
+   * between the two ends: the canvas then rides those segments instead of
+   * cutting a chord across the switches between them.
+   */
+  path?: string[]
   tier: LinkTier
   summary: string
   a: { label: string; lines: string[] }
   b: { label: string; lines: string[] }
-  warnings: LinkWarning[]
+  checks: LinkCheck[]
 }
 
 export interface WorkspaceGraph {

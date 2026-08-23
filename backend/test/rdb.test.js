@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { extractRdbProfile } from '../lib/comm/extract/rdb.js';
+import { failures } from './helpers/checks.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { parseRdb } from '../lib/parsers/rdb/index.js';
 import { makeRdb } from './helpers/makeRdb.js';
@@ -87,9 +88,7 @@ test('linker: RTAC client vs RDB relay — confirmed, and conflict on a second c
 
   const bad = links.find((l) => l.id === 'rtac:bad');
   assert.equal(bad.tier, 'conflict');
-  const texts = bad.warnings.map((w) => w.text).join(' | ');
-  assert.match(texts, /Port mismatch/);
-  assert.match(texts, /DNP address mismatch/);
+  assert.deepEqual(failures(bad).map((entry) => entry.label), ['TCP port', 'DNP addressing']);
 
   // Both clients resolved to the relay — no ghost for that address.
   assert.equal(ghosts.length, 0);

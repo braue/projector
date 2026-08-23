@@ -7,6 +7,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { checkFor, details, failures, problems } from './helpers/checks.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 
 // Profile factories — the linker only sees DeviceProfiles, so these stay
@@ -79,14 +80,17 @@ test('dialing off-subnet with no gateway warns; a stated gateway satisfies it', 
   const routeless = linkProfiles([
     { id: 'c', profile: client({ dials: '192.168.5.2' }) },
   ]);
-  assert.match(routeless.links[0].warnings.map((w) => w.text).join(' | '),
+  assert.match(details(routeless.links[0]),
     /dials 192\.168\.5\.2 outside its stated subnets and states no gateway/);
+  assert.equal(checkFor(routeless.links[0], 'Route to the far end').status, 'warn');
 
   // Same dial with a gateway: routable, no route warning.
   const routed = linkProfiles([
     { id: 'c', profile: client({ dials: '192.168.5.2', gateway: '10.0.0.1' }) },
   ]);
-  assert.ok(!routed.links[0].warnings.some((w) => w.text.includes('no route')));
+  const route = checkFor(routed.links[0], 'Route to the far end');
+  assert.equal(route.status, 'pass');
+  assert.match(route.detail, /reached via gateway 10\.0\.0\.1/);
 
   // On-subnet dial never warns, gateway or not.
   const onLink = linkProfiles([
@@ -95,7 +99,8 @@ test('dialing off-subnet with no gateway warns; a stated gateway satisfies it', 
   ]);
   const link = onLink.links.find((l) => l.targetDeviceId === 's');
   assert.equal(link.tier, 'confirmed');
-  assert.deepEqual(link.warnings, []);
+  assert.deepEqual(problems(link), []);
+  assert.match(checkFor(link, 'Route to the far end').detail, /on .*'s own subnet/);
 });
 
 test('same-subnet ends drawn into switch ports that share no VLAN conflict', () => {
@@ -112,7 +117,9 @@ test('same-subnet ends drawn into switch ports that share no VLAN conflict', () 
   ]);
   const broken = split.links.find((l) => l.targetDeviceId === 's');
   assert.equal(broken.tier, 'conflict');
-  assert.match(broken.warnings[0].text, /share no VLAN — same-subnet traffic cannot pass/);
+  const l2 = failures(broken)[0];
+  assert.equal(l2.label, 'Layer-2 path');
+  assert.match(l2.detail, /does not carry VLAN 10 — frames stop here/);
 
   // eth1 (VLAN 10) vs eth3 (10 + 20): shared VLAN — clean.
   const joined = linkProfiles(devices, [
@@ -121,7 +128,8 @@ test('same-subnet ends drawn into switch ports that share no VLAN conflict', () 
   ]);
   const clean = joined.links.find((l) => l.targetDeviceId === 's');
   assert.equal(clean.tier, 'confirmed');
-  assert.deepEqual(clean.warnings, []);
+  assert.deepEqual(problems(clean), []);
+  assert.match(checkFor(clean, 'Layer-2 path').detail, /VLAN 10 carries end to end/);
 });
 
 test('diagnostics: duplicate IPs and GOOSE wire collisions across the workspace', () => {
@@ -209,5 +217,5 @@ test('a manual serial pair resolves the declared ghost and validates baud', () =
   ]);
   const bad = mismatched.links.find((l) => l.manualId === 'sp1');
   assert.equal(bad.tier, 'conflict');
-  assert.match(bad.warnings[0].text, /Baud mismatch/);
+  assert.match(checkFor(bad, 'Baud rate').detail, /RTAC_1 at 9600, RELAY_9 at 19200/);
 });

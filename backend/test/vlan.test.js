@@ -15,6 +15,7 @@ import { extractSwProfile } from '../lib/comm/extract/sw.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { ScdService } from '../services/scd.js';
 import { SwService } from '../services/sw.js';
+import { details, failures, problems } from './helpers/checks.js';
 import { MINI_SCL } from './helpers/miniScl.js';
 import { MINI_SW } from './helpers/miniSw.js';
 
@@ -53,7 +54,8 @@ test('a GOOSE link through ports that carry its VLAN stays confirmed', async () 
     ]);
     const goose = gooseLink(result);
     assert.equal(goose.tier, 'confirmed');
-    assert.deepEqual(goose.warnings, []);
+    assert.deepEqual(problems(goose), []);
+    assert.match(details(goose), /VLAN 20 carries end to end across the drawn path/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -77,18 +79,21 @@ test('a switch port that drops the publication VLAN turns the GOOSE link into a 
     const goose = gooseLink(result);
     assert.equal(goose.tier, 'conflict');
     assert.match(goose.summary, /drawn network path drops its VLAN/);
-    const vlanErrors = goose.warnings.filter((warning) => warning.kind === 'error');
+    const vlanErrors = failures(goose);
     assert.equal(vlanErrors.length, 1);
+    assert.equal(vlanErrors[0].label, 'Layer-2 path');
     assert.match(
-      vlanErrors[0].text,
-      /GOOSE rides VLAN 20 \(VLAN-ID 014\) but SW-STATION-A port eth3 \(RELAY_1's connection\) does not carry it/,
+      vlanErrors[0].detail,
+      /GOOSE rides VLAN 20 \(VLAN-ID 014\); SW-STATION-A port eth3 \(RELAY_1's connection\) does not carry VLAN 20/,
     );
 
     // The subscriber's side fails independently too.
     const subscriberSide = linkProfiles(devices, [
       { id: 'm1', type: 'ethernet', aDeviceId: 'rtu', bDeviceId: 'sw', bPort: 'eth3' },
     ]);
-    assert.match(gooseLink(subscriberSide).warnings[0].text, /RTU_1's connection/);
+    // Locally decidable: RTU_1's own access port is wrong whether or not the
+    // publisher's half of the run has been drawn yet.
+    assert.match(failures(gooseLink(subscriberSide))[0].detail, /RTU_1's connection/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -104,7 +109,9 @@ test('no drawn fabric means no VLAN judgment — the declared link stands', asyn
     ]);
     const goose = gooseLink(result);
     assert.equal(goose.tier, 'confirmed');
-    assert.deepEqual(goose.warnings, []);
+    assert.deepEqual(problems(goose), []);
+    // Nothing drawn, so nothing judged — the check says so rather than passing.
+    assert.match(details(goose), /No cables drawn between these two/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -136,7 +143,7 @@ test('trunk paths are walked across the drawn fabric, multi-hop included', async
       { id: 't2', type: 'ethernet', aDeviceId: 'swB', aPort: 'eth2', bDeviceId: 'swC', bPort: 'eth2' },
     ]);
     assert.equal(gooseLink(clean).tier, 'confirmed');
-    assert.deepEqual(gooseLink(clean).warnings, []);
+    assert.deepEqual(problems(gooseLink(clean)), []);
 
     // Middle hop lands on SW-B's eth3 (VLAN 30 only): no path carries 20.
     const broken = linkProfiles(devices, [
@@ -146,13 +153,14 @@ test('trunk paths are walked across the drawn fabric, multi-hop included', async
     ]);
     const goose = gooseLink(broken);
     assert.equal(goose.tier, 'conflict');
-    assert.equal(goose.warnings.length, 1);
-    assert.match(goose.warnings[0].text, /no drawn trunk path between SW-STATION-A and SW-C carries it/);
+    assert.equal(failures(goose).length, 1);
+    // The walk names the port that drops it, not just the two switches.
+    assert.match(failures(goose)[0].detail, /SW-B port eth3 does not carry VLAN 20/);
 
     // Switches drawn but no trunk between the two islands: not judged.
     const undrawn = linkProfiles(devices, accessLinks);
     assert.equal(gooseLink(undrawn).tier, 'confirmed');
-    assert.deepEqual(gooseLink(undrawn).warnings, []);
+    assert.deepEqual(problems(gooseLink(undrawn)), []);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

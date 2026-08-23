@@ -8,6 +8,7 @@ import test from 'node:test';
 import { extractRtacProfile } from '../lib/comm/extract/rtac.js';
 import { linkProfiles } from '../lib/comm/linker.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
+import { checkFor, failures, problems, statuses } from './helpers/checks.js';
 import { loadSample, sampleExists } from './helpers/loadSample.js';
 
 test('RTAC extractor yields endpoints from the sample export', { skip: !sampleExists }, async () => {
@@ -82,13 +83,20 @@ test('linker tiers: confirmed, conflict, declared + ghost dedupe', () => {
 
   assert.equal(byEndpoint.c1.tier, 'confirmed');
   assert.equal(byEndpoint.c1.targetDeviceId, 'feeder');
-  assert.equal(byEndpoint.c1.warnings.length, 0);
+  assert.deepEqual(problems(byEndpoint.c1), []);
+  // The checklist records what was asked, not only what went wrong.
+  assert.deepEqual(statuses(byEndpoint.c1), [
+    'Address ownership: pass',
+    'Protocol: pass',
+    'TCP port: pass',
+    'DNP addressing: pass',
+    'Route to the far end: unknown',
+  ]);
 
   assert.equal(byEndpoint.c2.tier, 'conflict');
   assert.equal(byEndpoint.c2.targetDeviceId, 'bustie');
-  const texts = byEndpoint.c2.warnings.map((w) => w.text).join(' | ');
-  assert.match(texts, /Port mismatch/);
-  assert.match(texts, /DNP address mismatch/);
+  const broken = failures(byEndpoint.c2).map((entry) => entry.label);
+  assert.deepEqual(broken, ['TCP port', 'DNP addressing']);
 
   assert.equal(byEndpoint.c3.tier, 'declared');
   assert.ok(byEndpoint.c3.targetGhostId);
@@ -163,7 +171,10 @@ test('linker: probable when the IP owner states no matching server', () => {
   ]);
   const c1 = links.find((link) => link.id === 'rtac:c1');
   assert.equal(c1.tier, 'probable');
-  assert.equal(c1.warnings[0].kind, 'warning');
+  // Probable BECAUSE the far side never answered — the checklist says which.
+  assert.equal(checkFor(c1, 'Protocol').status, 'unknown');
+  assert.equal(checkFor(c1, 'TCP port').status, 'unknown');
+  assert.deepEqual(failures(c1), []);
 });
 
 test('contested IP ownership warns instead of silently shadowing', () => {
@@ -174,8 +185,9 @@ test('contested IP ownership warns instead of silently shadowing', () => {
   ]);
   const c1 = links.find((link) => link.id === 'rtac:c1');
   assert.equal(c1.targetDeviceId, 'feeder'); // still matched
-  const texts = c1.warnings.map((w) => w.text).join(' | ');
-  assert.match(texts, /10\.10\.1\.21 is also claimed by FEEDER_TWIN/);
+  const ownership = checkFor(c1, 'Address ownership');
+  assert.equal(ownership.status, 'warn');
+  assert.match(ownership.detail, /also claimed by FEEDER_TWIN/);
 });
 
 test('a device dialing an address it also claims still links to the other claimant', () => {
@@ -191,10 +203,7 @@ test('a device dialing an address it also claims still links to the other claima
   ]);
   const c1 = links.find((link) => link.id === 'rtac:c1');
   assert.equal(c1.targetDeviceId, 'feeder'); // not ghosted at itself
-  assert.match(
-    c1.warnings.map((w) => w.text).join(' | '),
-    /also claimed by RTAC_MAIN \(this device\)/,
-  );
+  assert.match(checkFor(c1, 'Address ownership').detail, /also claimed by RTAC_MAIN \(this device\)/);
 });
 
 test('manual serial links validate baud agreement', () => {
@@ -208,5 +217,7 @@ test('manual serial links validate baud agreement', () => {
   );
   const manual = links.find((link) => link.id === 'manual:m1');
   assert.equal(manual.tier, 'conflict');
-  assert.match(manual.warnings[0].text, /Baud mismatch/);
+  const baud = checkFor(manual, 'Baud rate');
+  assert.equal(baud.status, 'fail');
+  assert.match(baud.detail, /RTAC_MAIN at 19200, METER_3 at 9600/);
 });
