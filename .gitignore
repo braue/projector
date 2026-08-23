@@ -10,3 +10,6 @@ frontend/dist/
 # editor/OS noise
 .DS_Store
 Thumbs.db
+
+# electron-builder output: a 238 MB installer plus the unpacked app
+release/

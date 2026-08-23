@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { appVersion } from '../api'
+
 import { InlineNameForm, RowAction } from './ui'
 
 // Topbar dropdown for projects: pick one, rename or delete from the hover
@@ -26,7 +28,15 @@ export function ProjectSwitcher({
   // which form is showing.
   const [naming, setNaming] = useState(false)
   const [renaming, setRenaming] = useState<string | null>(null)
+  // Which build is this? Asked of every bug report, and the way you confirm an
+  // upgrade actually took. It cannot change while the process runs, so it is
+  // fetched once rather than tied to the menu.
+  const [version, setVersion] = useState<string | null>(null)
   const wrap = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    appVersion().then(setVersion, () => {})
+  }, [])
 
   useEffect(() => {
     if (!open) {
@@ -43,7 +53,7 @@ export function ProjectSwitcher({
 
   return (
     <div className="ws-switch" ref={wrap}>
-      <button className="ws-trigger" onClick={() => setOpen(!open)} title="Switch project">
+      <button className="topbar-button ws-trigger" onClick={() => setOpen(!open)} title="Switch project">
         <span>{current}</span>
         <span className="ws-caret">▾</span>
       </button>
@@ -99,6 +109,7 @@ export function ProjectSwitcher({
               <span className="ws-plus">+</span> New project
             </button>
           )}
+          {version && <div className="ws-version">Projector {version}</div>}
         </div>
       )}
     </div>

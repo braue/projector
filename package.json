@@ -1,0 +1,69 @@
+{
+  "name": "projector",
+  "productName": "Projector",
+  "version": "0.5.2",
+  "description": "Settings-truth communications canvas for substation automation.",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.js",
+  "license": "ISC",
+  "scripts": {
+    "setup": "npm --prefix backend install && npm --prefix frontend install",
+    "build": "npm --prefix frontend run build",
+    "app": "npm run build && electron .",
+    "app:dev": "electron .",
+    "dist": "npm run build && electron-builder --win",
+    "dist:dir": "npm run build && electron-builder --win --dir",
+    "sel:index": "node tools/build-sel-index.mjs",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version"
+  },
+  "devDependencies": {
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.braue.projector",
+    "productName": "Projector",
+    "copyright": "Copyright © Nathan Braue",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "asarUnpack": [
+      "backend/py/**"
+    ],
+    "files": [
+      "electron/**/*",
+      "backend/**/*",
+      "frontend/dist/**/*",
+      "!backend/data/**",
+      "!backend/test/**",
+      "!**/*.map",
+      "!**/{.eslintrc,.editorconfig,.prettierrc,tsconfig.json,*.md}"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Projector",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Projector-Setup-${version}.${ext}",
+      "include": "build/installer.nsh"
+    }
+  }
+}

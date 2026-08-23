@@ -1,0 +1,277 @@
+/* Atlas — a pane of projector, not a guest inside it.
+ *
+ * Every color, border and label here comes from index.css's tokens and follows
+ * its house rules: no raw hex, no uppercase/letter-spaced labels (projector
+ * uses none anywhere else), pane gutters at 16px, `.ui-*` primitives reused
+ * where one fits. The atl- prefix scopes the layout, not a second theme.
+ *
+ * The one place the atlas keeps its own scale is the document reading column
+ * (.atl-prose, and DOC_SKIN's body in AtlasView.tsx): long-form prose reads at
+ * 14.5px/1.7, where a settings table reads at 12.5px. That is a reading
+ * decision, not a theme — the type is projector's, only the size differs.
+ */
+
+/* Projector's global styles leave the native button chrome in place; strip it
+   for every button inside the Atlas panes. :where() keeps specificity at
+   0-0-1 so the atl-* class rules still win their own padding/colors. */
+:where(.atl-sidebar, .atl-content) button {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The rail matches .sources: white ground, hairline right edge. */
+.atl-sidebar {
+  width: 280px; flex: none; display: flex; flex-direction: column;
+  background: var(--card); border-right: 1px solid var(--border);
+}
+.atl-sidebar-head { padding: 10px 16px 8px; }
+/* The search box IS .ui-input — this only stretches it to the rail. */
+.atl-search { width: 100%; }
+
+.atl-sidebar-body { flex: 1; overflow-y: auto; padding: 2px 8px 24px; }
+.atl-sidebar-body::-webkit-scrollbar { width: 8px; }
+.atl-sidebar-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.atl-sidebar-body::-webkit-scrollbar-thumb:hover { background: var(--ghost); }
+
+.atl-cat { margin-bottom: 2px; }
+/* Category heads read like .ui-section-header: 12px, 600, muted, sentence case. */
+.atl-cat-head {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 9px 10px 7px; border-radius: 7px; font-size: 12px; font-weight: 600;
+  color: var(--muted);
+}
+.atl-cat-head:hover { color: var(--ink); }
+/* .atl-chev is .tree-caret plus the rotation; the shared half lives there. */
+.atl-chev { transition: transform 0.12s; }
+.atl-chev.open { transform: rotate(90deg); }
+.atl-cat-label { flex: 1; }
+.atl-cat-docs { padding: 1px 0 4px; }
+
+/* Doc rows are .tree-row's twin: 13px, fill on hover, fill + 600 when open. */
+.atl-doc-row {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 5px 10px 5px 21px; border-radius: 6px; font-size: 13px; color: var(--ink);
+}
+.atl-doc-row.indent { padding-left: 33px; }
+.atl-subcat-head {
+  padding: 8px 8px 3px 21px; font-size: 11.5px; font-weight: 600; color: var(--muted);
+}
+.atl-doc-row:hover { background: var(--fill); }
+.atl-doc-row.selected { background: var(--fill); font-weight: 600; }
+.atl-doc-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.atl-result { display: block; width: 100%; padding: 8px 10px; border-radius: 7px; margin-bottom: 2px; }
+.atl-result:hover { background: var(--fill); }
+/* The open result wears the accent ring, the same mark the topbar's atlas
+   toggle wears when it is on. */
+.atl-result.selected { background: var(--accent-tint); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.atl-result-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; }
+.atl-result-title {
+  font-weight: 650; font-size: 13px; color: var(--ink); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.atl-result-snippet { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+
+.atl-content { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--card); }
+
+.atl-docview { display: flex; flex-direction: column; height: 100%; }
+/* The doc bar is this pane's .pane-header — same height, same 16px gutter. */
+.atl-docbar {
+  display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px 6px;
+  border-bottom: 1px solid var(--border); flex: none;
+}
+.atl-docbar-cat { font-size: 12px; color: var(--muted); }
+.atl-docbar-cat::after { content: '/'; margin-left: 8px; color: var(--border); }
+.atl-docbar-title { font-weight: 600; font-size: 12px; color: var(--ink); }
+
+.atl-doc-body { display: flex; flex: 1; min-height: 0; }
+.atl-doc-frame { flex: 1; min-width: 0; height: 100%; border: 0; background: var(--card); }
+
+.atl-toc {
+  width: 220px; flex: none; overflow-y: auto; padding: 24px 16px 32px 4px;
+  border-left: 1px solid var(--border);
+}
+.atl-toc-label {
+  font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; padding-left: 10px;
+}
+.atl-toc-item {
+  display: block; width: 100%; padding: 4px 10px; border-radius: 6px;
+  font-size: 12.5px; line-height: 1.4; color: var(--muted);
+}
+.atl-toc-item:hover { color: var(--ink); background: var(--fill); }
+@media (max-width: 1160px) { .atl-toc { display: none; } }
+
+/* Markdown documents. The reading column runs larger than projector's data
+   views on purpose — see the file header. */
+.atl-prose {
+  flex: 1; min-width: 0; overflow-y: auto; padding: 40px 40px 96px; line-height: 1.7;
+  font-size: 14.5px; color: var(--ink);
+}
+.atl-prose > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+.atl-prose h1 { font-size: 26px; font-weight: 650; color: var(--ink); margin: 0 auto 14px; }
+.atl-prose h2 {
+  font-size: 18px; font-weight: 650; color: var(--ink); margin: 36px auto 12px;
+  padding-top: 22px; border-top: 1px solid var(--border);
+}
+.atl-prose h3 { font-size: 15px; font-weight: 650; color: var(--ink); margin: 22px auto 8px; }
+.atl-prose p { margin: 0 auto 12px; }
+.atl-prose ul, .atl-prose ol { margin: 0 auto 12px; padding-left: 24px; }
+.atl-prose li { margin-bottom: 5px; }
+.atl-prose table { border-collapse: collapse; margin: 14px auto 18px; width: 100%; font-size: 13px; }
+.atl-prose th {
+  text-align: left; font-size: 12px; font-weight: 600; color: var(--muted);
+  border-bottom: 1px solid var(--border); padding: 7px 12px 7px 0;
+}
+.atl-prose td { border-bottom: 1px solid var(--border-soft); padding: 7px 12px 7px 0; vertical-align: top; }
+.atl-prose tr:last-child td { border-bottom: none; }
+.atl-prose blockquote {
+  margin: 14px auto; padding: 10px 16px; border-left: 3px solid var(--accent);
+  background: var(--fill); border-radius: 0 8px 8px 0; color: var(--ink);
+}
+.atl-prose pre {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 16px; overflow-x: auto; margin: 12px auto 16px;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.55;
+}
+.atl-prose code {
+  background: var(--fill); border: 1px solid var(--border); border-radius: 5px;
+  padding: 1px 5px; font-family: var(--font-mono); font-size: 0.88em;
+}
+.atl-prose pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+.atl-prose a { color: var(--accent); text-decoration: none; }
+.atl-prose a:hover { text-decoration: underline; }
+.atl-prose strong { color: var(--ink); font-weight: 650; }
+.atl-prose hr { border: 0; border-top: 1px solid var(--border); margin: 28px auto; }
+
+.atl-dim { color: var(--muted); }
+
+/* ---------- doc scroll + prev/next ---------- */
+
+.atl-doc-scroll { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.atl-doc-scroll .atl-doc-frame { flex: 1; }
+.atl-doc-scroll .atl-prose { flex: 1; }
+
+/* Reads as this pane's .pane-footer. */
+.atl-prevnext {
+  flex: none; display: flex; justify-content: space-between; gap: 12px;
+  border-top: 1px solid var(--border); padding: 6px 16px;
+}
+.atl-pn { display: flex; flex-direction: column; gap: 1px; padding: 4px 10px; border-radius: 6px; max-width: 46%; }
+.atl-pn:hover { background: var(--fill); }
+.atl-pn.right { text-align: right; align-items: flex-end; }
+.atl-pn-dir { font-size: 11px; color: var(--muted); }
+.atl-pn-title { font-size: 12.5px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+
+.atl-result-cat {
+  font-size: 11px; color: var(--muted);
+  flex: 0 1 auto; min-width: 0; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---------- rail controls ---------- */
+
+.atl-expand-all, .atl-home-link {
+  display: inline-block; margin: 2px 8px 6px 0; padding: 3px 8px; border-radius: 6px;
+  font-size: 12px; color: var(--muted);
+}
+.atl-expand-all:hover, .atl-home-link:hover { color: var(--ink); background: var(--fill); }
+
+/* ---------- home ---------- */
+
+.atl-home { flex: 1; overflow-y: auto; padding: 40px 40px 80px; }
+.atl-home > *, .atl-home-section > * { max-width: 1000px; margin-left: auto; margin-right: auto; }
+.atl-home-head { max-width: 1000px; margin: 0 auto 22px; }
+.atl-home-head h1 { font-size: 26px; font-weight: 650; color: var(--ink); margin: 0 0 10px; }
+.atl-home-head p { font-size: 14px; line-height: 1.65; color: var(--muted); margin: 0; }
+
+/* The home tabs are .ui-tabbar; it only needs this page's reading width. */
+.atl-home .ui-tabbar { margin: 0 auto 22px; max-width: 1000px; }
+
+.atl-home-section { margin-bottom: 32px; }
+.atl-home-section h2 {
+  font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 auto 10px;
+}
+
+.atl-task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+.atl-task {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+  transition: border-color 0.12s, background 0.12s;
+}
+.atl-task:hover { border-color: var(--accent); background: var(--accent-tint); }
+.atl-task-q { font-size: 13px; color: var(--ink); }
+.atl-task-doc { font-size: 11.5px; color: var(--muted); }
+
+.atl-path-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.atl-path { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.atl-path-label { font-weight: 650; font-size: 13.5px; color: var(--ink); margin-bottom: 3px; }
+.atl-path-blurb { font-size: 12px; line-height: 1.5; color: var(--muted); margin-bottom: 10px; }
+.atl-path-docs { margin: 0; padding-left: 20px; }
+.atl-path-docs li { margin-bottom: 1px; }
+.atl-path-docs li::marker { color: var(--ghost); font-size: 11px; }
+.atl-path-docs button { font-size: 12.5px; color: var(--muted); padding: 2px 6px; border-radius: 5px; display: block; width: 100%; }
+.atl-path-docs button:hover { color: var(--accent); background: var(--fill); }
+.atl-path-docs button:disabled { color: var(--ghost-soft); text-decoration: line-through; cursor: default; }
+
+.atl-browse-cat { margin-bottom: 26px; }
+.atl-browse-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; }
+.atl-browse-label { font-weight: 650; font-size: 13.5px; color: var(--ink); }
+.atl-browse-hint { font-size: 11.5px; color: var(--muted); }
+.atl-browse-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 2px; }
+.atl-browse-doc { display: flex; flex-direction: column; gap: 1px; padding: 7px 10px; border-radius: 7px; }
+.atl-browse-doc:hover { background: var(--fill); }
+.atl-bd-title { font-size: 13px; color: var(--ink); font-weight: 500; }
+.atl-bd-summary { font-size: 11.5px; line-height: 1.45; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- the SEL PDF library ---------- */
+
+.atl-sel-note { padding: 2px 10px 8px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+
+/* Page hits from inside the SEL PDFs. Same card as an atlas result, but the
+   click leaves the app — it opens the PDF at that page in your viewer. */
+.atl-sel-note-inline { float: right; font-weight: 500; color: var(--ghost); }
+.atl-text-hit .atl-result-title { font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.atl-text-hit .atl-result-cat { font-family: var(--font-mono); }
+
+/* ---------- the two halves of a search result list ---------- */
+
+/* Atlas guides and SEL pages are different kinds of answer — one is written
+   for you and opens in this pane, the other is a source PDF that opens in
+   another application. The list has to say so at a glance, so each half gets
+   a titled header, and the SEL half sits on the app's --bg rather than the
+   rail's white: a change of ground is the clearest boundary there is. */
+.atl-section { padding: 14px 10px 8px; }
+.atl-section-head { display: flex; align-items: baseline; gap: 8px; }
+.atl-section-title { flex: 1; font-size: 13px; font-weight: 650; color: var(--ink); }
+/* .ui-count, held out of the flexed section head. */
+.atl-section-count { flex: none; }
+.atl-section-sub { margin-top: 2px; font-size: 11px; color: var(--muted); }
+/* The first header sits at the top of the rail and needs no rule above it. */
+.atl-section-atlas { padding-top: 8px; }
+
+/* The SEL half: its own ground, ruled off top and bottom, running full width
+   of the rail so the band reads as a surface rather than a card. */
+.atl-sel-block {
+  margin: 12px -8px 6px;
+  padding: 0 8px 8px;
+  /* --fill, not --bg: #fafbfc is a percent off white and carries nothing at
+     this size. The band has to be seen from across the rail. */
+  background: var(--fill);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.atl-sel-block .atl-result:hover { background: var(--card); }
+
+/* Document-type sections inside the SEL half. Subordinate to the header
+   above them, so they read as a breakdown rather than four new sections. */
+.atl-sel-group { margin-bottom: 4px; }
+.atl-sel-group-head {
+  padding: 7px 10px 4px; font-size: 11.5px; font-weight: 600; color: var(--muted);
+}
+/* Leaves the app. */
+.atl-ext { color: var(--accent); font-size: 10px; }

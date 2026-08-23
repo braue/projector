@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   createProject,
@@ -31,6 +31,12 @@ import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
 import { SourcesSidebar } from './components/SourcesSidebar'
+// The atlas embeds the whole field-knowledge library — 82 documents inlined as
+// raw text — so it is its own chunk, fetched the first time it is opened
+// rather than parsed on every cold start of a canvas session.
+const AtlasView = lazy(() =>
+  import('./components/AtlasView').then((m) => ({ default: m.AtlasView })),
+)
 import { Button, SegmentedControl, TextInput } from './components/ui'
 import { confirmOverwrite } from './lib/confirm'
 import { errorMessage } from './lib/errors'
@@ -65,6 +71,22 @@ function useSubSearch<Jump>() {
   return { searching: state.searching, jump: state.jump, setSearching, openAt }
 }
 
+type SubSearch = ReturnType<typeof useSubSearch<string>>
+
+/** The working-view/search toggle a sub-search mode puts in the topbar. */
+function SubSearchTabs({ search, browseLabel }: { search: SubSearch; browseLabel: string }) {
+  return (
+    <SegmentedControl
+      options={[
+        { value: 'browse', label: browseLabel },
+        { value: 'search', label: 'Search' },
+      ]}
+      value={search.searching ? 'search' : 'browse'}
+      onChange={(sub) => search.setSearching(sub === 'search')}
+    />
+  )
+}
+
 const MODES: { value: Mode; label: string }[] = [
   { value: 'canvas', label: 'Canvas' },
   { value: 'inspect', label: 'Inspect' },
@@ -85,6 +107,13 @@ const UPLOAD_TYPES = Object.keys(EMPTY_UPLOADS) as UploadSourceType[]
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('canvas')
+  // The atlas is reference material, not project data: it sits beside every
+  // mode rather than inside the mode row, and keeps its place while you dip
+  // back into the project.
+  const [atlasOpen, setAtlasOpen] = useState(false)
+  // Latched on the first open: the atlas chunk is fetched then, and the pane
+  // stays mounted from that point so the reading position survives a detour.
+  const [atlasEverOpened, setAtlasEverOpened] = useState(false)
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
   // Notes and Files each split into their working view and a full-pane search.
   const notesSearch = useSubSearch<string>()
@@ -414,177 +443,196 @@ export default function App() {
   return (
     <>
       <header className="topbar">
-        <SegmentedControl options={MODES} value={mode} onChange={changeMode} />
-        {mode === 'inspect' && selectedSource && (
-          <SegmentedControl
-            options={[
-              { value: 'browse' as InspectSub, label: 'Browse' },
-              ...(canAggregate ? [{ value: 'aggregate' as InspectSub, label: 'Aggregate' }] : []),
-              { value: 'search' as InspectSub, label: 'Search' },
-            ]}
-            value={inspectSub}
-            onChange={setInspectSub}
-          />
+        {/* Everything up to the atlas toggle is scoped to the current project,
+            so one guard covers the lot — the way the body below does it. The
+            atlas holds the corner so the toggle never moves, and the project
+            switcher goes away with the rest: nothing on screen is scoped to a
+            project then. */}
+        {!atlasOpen && (
+          <>
+            <SegmentedControl options={MODES} value={mode} onChange={changeMode} />
+            {mode === 'inspect' && selectedSource && (
+              <SegmentedControl
+                options={[
+                  { value: 'browse' as InspectSub, label: 'Browse' },
+                  ...(canAggregate
+                    ? [{ value: 'aggregate' as InspectSub, label: 'Aggregate' }]
+                    : []),
+                  { value: 'search' as InspectSub, label: 'Search' },
+                ]}
+                value={inspectSub}
+                onChange={setInspectSub}
+              />
+            )}
+            {mode === 'notes' && <SubSearchTabs search={notesSearch} browseLabel="Create" />}
+            {mode === 'files' && <SubSearchTabs search={filesSearch} browseLabel="Navigate" />}
+            <span className="topbar-info">{topbarInfo}</span>
+            {mode === 'canvas' && graph && graph.diagnostics.length > 0 && (
+              <button
+                className={showFindings ? 'findings-chip on' : 'findings-chip'}
+                onClick={() => setShowFindings((current) => !current)}
+              >
+                ⚠ {count(graph.diagnostics.length, 'network finding')}
+              </button>
+            )}
+            <ProjectSwitcher
+              current={project}
+              projects={projects}
+              onSelect={setProject}
+              onCreate={handleCreateProject}
+              onRename={handleRenameProject}
+              onDelete={handleDeleteProject}
+            />
+          </>
         )}
-        {mode === 'notes' && (
-          <SegmentedControl
-            options={[
-              { value: 'create', label: 'Create' },
-              { value: 'search', label: 'Search' },
-            ]}
-            value={notesSearch.searching ? 'search' : 'create'}
-            onChange={(sub) => notesSearch.setSearching(sub === 'search')}
-          />
-        )}
-        {mode === 'files' && (
-          <SegmentedControl
-            options={[
-              { value: 'navigate', label: 'Navigate' },
-              { value: 'search', label: 'Search' },
-            ]}
-            value={filesSearch.searching ? 'search' : 'navigate'}
-            onChange={(sub) => filesSearch.setSearching(sub === 'search')}
-          />
-        )}
-        <span className="topbar-info">{topbarInfo}</span>
-        {mode === 'canvas' && graph && graph.diagnostics.length > 0 && (
-          <button
-            className={showFindings ? 'findings-chip on' : 'findings-chip'}
-            onClick={() => setShowFindings((current) => !current)}
-          >
-            ⚠ {count(graph.diagnostics.length, 'network finding')}
-          </button>
-        )}
-        <ProjectSwitcher
-          current={project}
-          projects={projects}
-          onSelect={setProject}
-          onCreate={handleCreateProject}
-          onRename={handleRenameProject}
-          onDelete={handleDeleteProject}
-        />
+        <button
+          className={atlasOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
+          onClick={() => {
+            setAtlasOpen((open) => !open)
+            setAtlasEverOpened(true)
+          }}
+          title={atlasOpen ? 'Back to the project' : 'Open the atlas reference'}
+        >
+          <span className="atlas-toggle-mark">◆</span>
+          <span>Atlas</span>
+        </button>
       </header>
 
       <div className="app">
-        {!OWN_RAIL.includes(mode) && (
-          <SourcesSidebar
-            project={project}
-            projects={rtacProjects}
-            listError={listError}
-            onRetryList={refreshRtac}
-            uploads={uploads}
-            onUpload={handleUpload}
-            onDeleteUpload={handleDeleteUpload}
-            onRenameRtac={handleRenameRtac}
-            onRenameUpload={handleRenameUpload}
-            rtacBusy={rtacBusy}
-            onUploadRtacFolder={handleUploadRtacFolder}
-            onDeleteRtac={handleDeleteRtac}
-            onRtacChanged={handleRtacChanged}
-            selected={mode === 'inspect' ? selectedSource : null}
-            onSelect={handleSelectSource}
-            onExport={handleExport}
-            placedRefs={placedRefs}
-          />
+        {!atlasOpen && (
+          <>
+          {!OWN_RAIL.includes(mode) && (
+            <SourcesSidebar
+              project={project}
+              projects={rtacProjects}
+              listError={listError}
+              onRetryList={refreshRtac}
+              uploads={uploads}
+              onUpload={handleUpload}
+              onDeleteUpload={handleDeleteUpload}
+              onRenameRtac={handleRenameRtac}
+              onRenameUpload={handleRenameUpload}
+              rtacBusy={rtacBusy}
+              onUploadRtacFolder={handleUploadRtacFolder}
+              onDeleteRtac={handleDeleteRtac}
+              onRtacChanged={handleRtacChanged}
+              selected={mode === 'inspect' ? selectedSource : null}
+              onSelect={handleSelectSource}
+              onExport={handleExport}
+              placedRefs={placedRefs}
+            />
+          )}
+
+          {mode === 'canvas' && (
+            <div className="canvas-column">
+              <CanvasView
+                project={project}
+                reloadKey={graphVersion}
+                onInspect={inspectFromCanvas}
+                onGraph={setGraph}
+              />
+              {showFindings && graph && graph.diagnostics.length > 0 && (
+                <div className="findings-panel">
+                  <div className="findings-head">
+                    <span>Network review — {count(graph.diagnostics.length, 'finding')}</span>
+                    <button className="x" onClick={() => setShowFindings(false)} title="Close">✕</button>
+                  </div>
+                  {graph.diagnostics.map((finding, i) => (
+                    <div key={i} className={`finding ${finding.severity === 'error' ? 'bad' : 'warnc'}`}>
+                      {finding.text}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {mode === 'inspect' &&
+            (selectedSource && inspectSub === 'search' ? (
+              <SearchView
+                key={`${project}:${sourceKey(selectedSource)}`}
+                project={project}
+                source={selectedSource}
+                onOpen={(path) => {
+                  setSelectedItem(path)
+                  setInspectSub('browse')
+                }}
+              />
+            ) : selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
+              <AggregateView
+                key={`${project}:${selectedSource.ref}`}
+                project={project}
+                name={selectedSource.ref}
+                tree={tree}
+              />
+            ) : (
+              <>
+                {selectedSource && tree && (
+                  <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} />
+                )}
+                {selectedSource && !tree && (
+                  <aside className="file-tree">
+                    <div className="pane-message">{treeError ?? 'Loading…'}</div>
+                  </aside>
+                )}
+                {item ? (
+                  <Preview item={item} />
+                ) : (
+                  <main className="preview">
+                    <div className="pane-message">
+                      {itemError ??
+                        (selectedSource
+                          ? 'Select an item to view its settings.'
+                          : 'Pick a source from the sidebar — or click a device on the canvas.')}
+                    </div>
+                  </main>
+                )}
+              </>
+            ))}
+
+          {mode === 'compare' && (
+            <CompareView
+              key={project}
+              project={project}
+              projects={rtacProjects}
+              uploads={uploads}
+              state={compare}
+              onState={setCompare}
+              listError={listError}
+              onRetryList={refreshRtac}
+              onUpload={handleUpload}
+              rtacBusy={rtacBusy}
+              onUploadRtacFolder={handleUploadRtacFolder}
+              onRtacChanged={handleRtacChanged}
+            />
+          )}
+
+          {mode === 'notes' &&
+            (notesSearch.searching ? (
+              <NotesSearchView key={project} project={project} onOpen={notesSearch.openAt} />
+            ) : (
+              <NotesView key={project} project={project} initialSelectedId={notesSearch.jump} />
+            ))}
+
+          {mode === 'files' &&
+            (filesSearch.searching ? (
+              <FilesSearchView key={project} project={project} onOpen={filesSearch.openAt} />
+            ) : (
+              <FilesView key={project} project={project} initialSelected={filesSearch.jump} />
+            ))}
+          </>
         )}
 
-        {mode === 'canvas' && (
-          <div className="canvas-column">
-            <CanvasView
-              project={project}
-              reloadKey={graphVersion}
-              onInspect={inspectFromCanvas}
-              onGraph={setGraph}
-            />
-            {showFindings && graph && graph.diagnostics.length > 0 && (
-              <div className="findings-panel">
-                <div className="findings-head">
-                  <span>Network review — {count(graph.diagnostics.length, 'finding')}</span>
-                  <button className="x" onClick={() => setShowFindings(false)} title="Close">✕</button>
-                </div>
-                {graph.diagnostics.map((finding, i) => (
-                  <div key={i} className={`finding ${finding.severity === 'error' ? 'bad' : 'warnc'}`}>
-                    {finding.text}
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Mounted from the first open onwards — never before, so the library
+            is not in the startup path, and never unmounted after, so a
+            half-read page is still there when you come back from the project. */}
+        {atlasEverOpened && (
+          <div className="atlas-pane" hidden={!atlasOpen}>
+            <Suspense fallback={null}>
+              <AtlasView active={atlasOpen} />
+            </Suspense>
           </div>
         )}
-
-        {mode === 'inspect' &&
-          (selectedSource && inspectSub === 'search' ? (
-            <SearchView
-              key={`${project}:${sourceKey(selectedSource)}`}
-              project={project}
-              source={selectedSource}
-              onOpen={(path) => {
-                setSelectedItem(path)
-                setInspectSub('browse')
-              }}
-            />
-          ) : selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
-            <AggregateView
-              key={`${project}:${selectedSource.ref}`}
-              project={project}
-              name={selectedSource.ref}
-              tree={tree}
-            />
-          ) : (
-            <>
-              {selectedSource && tree && (
-                <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} />
-              )}
-              {selectedSource && !tree && (
-                <aside className="file-tree">
-                  <div className="pane-message">{treeError ?? 'Loading…'}</div>
-                </aside>
-              )}
-              {item ? (
-                <Preview item={item} />
-              ) : (
-                <main className="preview">
-                  <div className="pane-message">
-                    {itemError ??
-                      (selectedSource
-                        ? 'Select an item to view its settings.'
-                        : 'Pick a source from the sidebar — or click a device on the canvas.')}
-                  </div>
-                </main>
-              )}
-            </>
-          ))}
-
-        {mode === 'compare' && (
-          <CompareView
-            key={project}
-            project={project}
-            projects={rtacProjects}
-            uploads={uploads}
-            state={compare}
-            onState={setCompare}
-            listError={listError}
-            onRetryList={refreshRtac}
-            onUpload={handleUpload}
-            rtacBusy={rtacBusy}
-            onUploadRtacFolder={handleUploadRtacFolder}
-            onRtacChanged={handleRtacChanged}
-          />
-        )}
-
-        {mode === 'notes' &&
-          (notesSearch.searching ? (
-            <NotesSearchView key={project} project={project} onOpen={notesSearch.openAt} />
-          ) : (
-            <NotesView key={project} project={project} initialSelectedId={notesSearch.jump} />
-          ))}
-
-        {mode === 'files' &&
-          (filesSearch.searching ? (
-            <FilesSearchView key={project} project={project} onOpen={filesSearch.openAt} />
-          ) : (
-            <FilesView key={project} project={project} initialSelected={filesSearch.jump} />
-          ))}
       </div>
     </>
   )

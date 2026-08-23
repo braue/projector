@@ -4,6 +4,23 @@
  *   1. TOKENS + PRIMITIVES — styles for the generic controls in
  *      components/ui.tsx (ui-* classes). Swappable for a design system.
  *   2. LAYOUT — app shell, panes, tree rows, canvas, view plumbing.
+ *
+ * HOUSE RULES, so a new rule lands looking like the rest:
+ *   - Color comes from a token. Green/red/amber in particular: use the
+ *     --ok/--bad/--warn family below, never a fresh hex — the amber tint had
+ *     forked into three near-identical shades before they were collected.
+ *     The only literals left are the ST syntax palette and the tree's
+ *     category glyphs, which are palettes rather than semantics.
+ *   - Elevation comes from --shadow-*, in four steps from resting to modal.
+ *   - Panes gutter at 16px (header, footer, rows, table cells all line up
+ *     with the topbar's 16px padding). Floating surfaces — modal, link popup,
+ *     findings panel — gutter at 14px, which is what makes them read as
+ *     laid over the app rather than part of it.
+ *   - State classes: `.active` for the current one of a set of tabs or
+ *     segments, `.selected` for the open row in a list or tree, `.on` for a
+ *     two-state toggle button that is pressed.
+ *   - Before hand-rolling a control, check ui.tsx — the sidebar's source tabs
+ *     were a second segmented control for a while.
  */
 
 /* ==========================================================================
@@ -19,15 +36,53 @@
   --border-soft: #eef0f3;
   --fill: #f2f3f5;
   --accent: #10a37f;
+  /* Accent laid over white — a toggle's pressed state, a hovered card,
+   * the atlas's active marks. */
+  --accent-tint: #e9f7f2;
+  /* Search-hit highlight, wherever a match is marked in running text. */
+  --mark: #fdf0c2;
 
-  --ok: #1a9e5c;
-  --bad: #d63a3a;
-  --warn: #d7930a;
+  --ink-soft: #4b5160;
   --ghost: #a9adb8;
+  /* Text that is present but inert: a source that cannot be opened yet,
+   * a placeholder. Lighter than --ghost, which marks live-but-secondary
+   * things like line numbers and the declared-tier wire. */
+  --ghost-soft: #b6bac4;
 
-  --diff-added: #1a9e5c;
-  --diff-removed: #d63a3a;
-  --diff-edited: #d7930a;
+  /* Three semantic tones — good / bad / needs-attention. Each has a solid
+   * mark color, an ink for text on its own tint, the tint itself, and the
+   * tint's hover step. Every green/red/amber in the app comes from here:
+   * tags, chips, banners, table and tree row tints, warning panels, the
+   * findings chip. Adding a raw hex in that family is how the amber tint
+   * forked into two shades once already. */
+  --ok: #1a9e5c;
+  --ok-ink: #167a49;
+  --ok-tint: #e9f7ef;
+  --ok-tint-hover: #dcf1e5;
+
+  --bad: #d63a3a;
+  --bad-ink: #a02c2c;
+  --bad-tint: #fcecec;
+  --bad-tint-hover: #f8e0e0;
+
+  --warn: #d7930a;
+  --warn-ink: #8a6d1d;
+  --warn-tint: #fdf5e0;
+  --warn-tint-hover: #f8ecc9;
+  --warn-line: #e8c98a;
+
+  /* Compare's added/removed/edited ARE the three tones. Aliased rather than
+   * re-specified so the two can never drift apart. */
+  --diff-added: var(--ok);
+  --diff-removed: var(--bad);
+  --diff-edited: var(--warn);
+
+  /* Elevation, lightest to heaviest: a resting card, a dropdown, a floating
+   * panel, the modal on top of everything. */
+  --shadow-raised: 0 1px 2px rgba(15,18,26,0.08);
+  --shadow-menu: 0 10px 32px rgba(15,18,26,0.14);
+  --shadow-panel: 0 12px 40px rgba(15,18,26,0.16);
+  --shadow-modal: 0 16px 48px rgba(15,18,26,0.22);
 
   --font-mono: ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
 
@@ -64,7 +119,9 @@ button { font: inherit; color: inherit; }
   font-size: 13px; font-weight: 550; color: var(--muted); cursor: pointer;
 }
 .ui-segment:hover { color: var(--ink); }
-.ui-segment.active { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(15,18,26,0.08); }
+.ui-segment.active { background: var(--card); color: var(--ink); box-shadow: var(--shadow-raised); }
+/* fill: segments split the strip evenly instead of sizing to their labels. */
+.ui-segmented.fill .ui-segment { flex: 1; padding: 4px 0; text-align: center; }
 
 .ui-labeled { display: flex; align-items: center; gap: 8px; }
 .ui-label { width: 56px; flex: none; font-size: 12px; font-weight: 600; color: var(--muted); }
@@ -99,15 +156,15 @@ button { font: inherit; color: inherit; }
 
 .ui-tag {
   flex: none; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px;
-  border: 0; background: var(--fill); color: #4b5160;
+  border: 0; background: var(--fill); color: var(--ink-soft);
 }
-.ui-tag-added { color: #167a49; background: #e9f7ef; }
-.ui-tag-removed { color: #a02c2c; background: #fcecec; }
-.ui-tag-edited { color: #8a6d1d; background: #fdf5e0; }
+.ui-tag-added { color: var(--ok-ink); background: var(--ok-tint); }
+.ui-tag-removed { color: var(--bad-ink); background: var(--bad-tint); }
+.ui-tag-edited { color: var(--warn-ink); background: var(--warn-tint); }
 
 .ui-chip { font-family: var(--font-mono); font-size: 11.5px; padding: 2px 8px; border-radius: 7px; }
-.ui-chip-added { color: #167a49; background: #e9f7ef; }
-.ui-chip-removed { color: #a02c2c; background: #fcecec; }
+.ui-chip-added { color: var(--ok-ink); background: var(--ok-tint); }
+.ui-chip-removed { color: var(--bad-ink); background: var(--bad-tint); }
 
 .ui-section { border-bottom: 1px solid var(--border-soft); }
 .ui-section-header {
@@ -149,9 +206,9 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .ui-table tbody td { font-family: var(--font-mono); font-size: 12px; }
 .ui-table tbody tr:hover td { background: var(--bg); }
-.ui-table tbody tr.tone-added td { background: #e9f7ef; }
-.ui-table tbody tr.tone-removed td { background: #fcecec; }
-.ui-table tbody tr.tone-edited td { background: #fdf6e3; }
+.ui-table tbody tr.tone-added td { background: var(--ok-tint); }
+.ui-table tbody tr.tone-removed td { background: var(--bad-tint); }
+.ui-table tbody tr.tone-edited td { background: var(--warn-tint); }
 
 /* ==========================================================================
  * 2. LAYOUT
@@ -166,8 +223,34 @@ button.ui-section-header:hover { color: var(--ink); }
   padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--card);
 }
 .topbar-info { margin-left: auto; font-size: 13px; color: var(--muted); }
+/* With the atlas up, the toggle is all that is left in the row — so it takes
+   over the spacing .topbar-info normally provides and the corner never moves. */
+.atlas-toggle:only-child { margin-left: auto; }
 
 .app { flex: 1; display: flex; min-height: 0; }
+
+/* The two outlined buttons at the right of the topbar — the project switcher's
+   trigger and the atlas toggle. They sit next to each other, so they are one
+   rule; only their resting ink and their pressed state differ. */
+.topbar-button {
+  display: flex; align-items: center; gap: 7px; flex: none; padding: 5px 12px;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--card);
+  font-size: 13px; font-weight: 550; cursor: pointer;
+}
+.topbar-button:hover { background: var(--fill); }
+
+/* The atlas rides alongside every mode rather than inside the mode row: it is
+   reference material, not project data. It stays mounted while hidden so a
+   half-read page survives a detour back into the project. */
+.atlas-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
+.atlas-pane[hidden] { display: none; }
+
+.atlas-toggle { color: var(--muted); }
+.atlas-toggle:hover { color: var(--ink); }
+.atlas-toggle.on {
+  border-color: var(--accent); background: var(--accent-tint); color: var(--accent);
+}
+.atlas-toggle-mark { font-size: 9px; color: var(--accent); }
 
 /* --- sources sidebar ------------------------------------------------------- */
 
@@ -185,15 +268,20 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .sidebar-resize:hover, .sidebar-resize:active { background: rgba(75,81,96,0.18); }
 
-/* remove-from-project ✕ on rtac entries (span — rows are already buttons) */
+/* The ✎ / ✕ icons on a list row — sources, projects, notes, files, uploaded
+ * files. Usually a span (ui.tsx RowAction), because most rows are themselves
+ * buttons and a button inside a button is not a button; a real <button> where
+ * the row allows one. The reset covers both. */
 .entry-delete {
-  margin-left: auto; flex: none; padding: 0 4px; border-radius: 5px;
-  color: var(--muted); font-size: 11px; opacity: 0; cursor: pointer;
+  margin-left: auto; flex: none; padding: 0 4px; border: 0; border-radius: 5px;
+  background: none; font: inherit; font-size: 11px; color: var(--muted);
+  opacity: 0; cursor: pointer;
 }
-.project-entry:hover .entry-delete { opacity: 1; }
 .entry-delete:hover { background: var(--fill); color: var(--bad); }
-/* Only the first trailing icon/count keeps the auto margin that pushes the
- * group right; anything after it sits flush. */
+.entry-rename:hover { color: var(--ink); }
+/* Quiet until you point at the row — one rule for every row kind that carries
+ * them, so a new row kind opts in by joining this list. */
+:is(.project-entry, .ws-item, .file-row, .rdb-file-name):hover .entry-delete { opacity: 1; }
 /* Rows with a trailing icon group (✎ ✕, sometimes a count): only the FIRST
  * trailing element keeps the auto margin that pushes the group right — two
  * auto margins would split the free space and strand the ✎ mid-row. */
@@ -204,6 +292,14 @@ button.ui-section-header:hover { color: var(--ink); }
 .side-form .ui-input { width: 100%; }
 .side-form-error { margin-top: 6px; color: var(--bad); font-size: 12px; }
 
+/* The dismiss ✕ on every floating surface — modal, findings panel, link
+ * popup. One rule; the auto margin parks it at the end of its header row. */
+.x {
+  margin-left: auto; flex: none; padding: 2px 6px; border: 0; border-radius: 6px;
+  background: none; color: var(--muted); font-size: 13px; cursor: pointer;
+}
+.x:hover { background: var(--fill); }
+
 /* AcRTAC database browser (window over the app) */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 40;
@@ -213,15 +309,13 @@ button.ui-section-header:hover { color: var(--ink); }
 .modal-card {
   width: 440px; max-height: 72vh; display: flex; flex-direction: column;
   background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(15,18,26,0.22); font-size: 13px; overflow: hidden;
+  box-shadow: var(--shadow-modal); font-size: 13px; overflow: hidden;
 }
 .modal-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px 4px; }
 .modal-head .t { font-weight: 650; font-size: 14px; }
-.modal-head .x { margin-left: auto; flex: none; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
-.modal-head .x:hover { background: var(--fill); }
 .modal-sub { padding: 0 14px 10px; color: var(--muted); font-size: 12.5px; border-bottom: 1px solid var(--border-soft); }
 .modal-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 36px 0; color: var(--muted); }
-.modal-error { margin: 10px 14px 0; padding: 8px 11px; border-radius: 8px; background: #fcecec; color: #a02c2c; font-size: 12.5px; }
+.modal-error { margin: 10px 14px 0; padding: 8px 11px; border-radius: 8px; background: var(--bad-tint); color: var(--bad-ink); font-size: 12.5px; }
 .modal-filter { padding: 10px 14px 0; }
 .modal-filter .ui-input { width: 100%; }
 .modal-list { flex: 1; min-height: 120px; overflow-y: auto; padding: 6px 0; }
@@ -247,21 +341,14 @@ button.ui-section-header:hover { color: var(--ink); }
 .onboard-error { margin-bottom: 12px; }
 
 /* project rows in the switcher take hover ✎ / ✕ actions */
-.ws-item:hover .entry-delete { opacity: 1; }
 .ws-item { display: flex; align-items: center; gap: 6px; }
 .ws-item .entry-rename { margin-left: auto; }
 .ws-item .entry-rename + .entry-delete { margin-left: 0; }
-.entry-rename:hover { color: var(--ink); }
 
-/* 16px side margins line the strip's left edge up with the topbar's
-   mode selector (the topbar runs 16px side padding). */
-.source-tabs { display: flex; gap: 2px; margin: 10px 16px 6px; background: var(--fill); border-radius: 8px; padding: 3px; flex: none; }
-.source-tab {
-  flex: 1; text-align: center; padding: 4px 0; border: 0; border-radius: 6px; background: none;
-  font-size: 12.5px; font-weight: 550; color: var(--muted); cursor: pointer;
-}
-.source-tab:hover { color: var(--ink); }
-.source-tab.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(15,18,26,0.08); }
+/* The RTAC/RDB/SCD/SW strip is the segmented primitive in its fill variant —
+   only the placement is local. 16px side margins line its left edge up with
+   the topbar's mode selector (the topbar runs 16px side padding). */
+.source-tabs { margin: 10px 16px 6px; flex: none; }
 
 .source-list { list-style: none; margin: 0; padding: 2px 8px; overflow-y: auto; flex: 1; }
 .project-entry {
@@ -271,7 +358,7 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .project-entry .grip { color: var(--ghost); font-size: 12px; cursor: grab; }
 .project-entry .project-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.project-entry.status-available, .project-entry.status-exporting, .project-entry.status-error { color: #b0b4bf; }
+.project-entry.status-available, .project-entry.status-exporting, .project-entry.status-error { color: var(--ghost-soft); }
 .project-entry.status-ready { color: var(--ink); cursor: pointer; }
 .project-entry:hover { background: var(--fill); }
 .project-entry.selected { background: var(--fill); font-weight: 600; }
@@ -280,9 +367,9 @@ button.ui-section-header:hover { color: var(--ink); }
 
 .list-error {
   display: flex; flex-direction: column; gap: 8px; margin: 4px 10px 8px; padding: 10px 12px;
-  border-radius: 9px; background: #fcecec; flex: none;
+  border-radius: 9px; background: var(--bad-tint); flex: none;
 }
-.list-error-text { font-size: 12px; line-height: 1.45; color: #a02c2c; overflow-wrap: break-word; }
+.list-error-text { font-size: 12px; line-height: 1.45; color: var(--bad-ink); overflow-wrap: break-word; }
 
 .source-scroll { flex: 1; overflow-y: auto; }
 
@@ -304,11 +391,6 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .rdb-file-toggle:hover { color: var(--ink); }
 .rdb-file-count { flex: none; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-.rdb-delete {
-  flex: none; border: 0; background: none; color: var(--muted); cursor: pointer;
-  font-size: 11px; padding: 2px 6px; border-radius: 6px;
-}
-.rdb-delete:hover { background: #fcecec; color: #a02c2c; }
 .project-entry.profile-row { margin: 0 8px; width: calc(100% - 16px); padding-left: 18px; }
 .relay-type { flex: none; font-size: 10.5px; color: var(--muted); background: var(--fill); padding: 1px 7px; border-radius: 999px; }
 .drop-zone {
@@ -324,7 +406,7 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .pane-header {
   display: flex; flex-direction: column; justify-content: center; min-height: 40px;
-  padding: 8px 14px 6px; flex: none; border-bottom: 1px solid var(--border);
+  padding: 8px 16px 6px; flex: none; border-bottom: 1px solid var(--border);
   font-size: 12px; font-weight: 600; color: var(--muted);
 }
 .pane-message { padding: 20px; color: var(--muted); font-size: 13px; }
@@ -343,7 +425,7 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 .tree-row:hover { background: var(--fill); }
 .tree-row.selected { background: var(--fill); font-weight: 600; }
-.tree-caret { width: 11px; flex: none; font-size: 8px; color: var(--muted); }
+.tree-caret, .atl-chev { width: 11px; flex: none; font-size: 8px; color: var(--muted); }
 .tree-folder .tree-name { font-weight: 600; }
 .tree-name { overflow: hidden; text-overflow: ellipsis; }
 .tree-glyph { width: 16px; flex: none; text-align: center; font-size: 10px; font-family: var(--font-mono); color: var(--muted); }
@@ -358,12 +440,12 @@ button.ui-section-header:hover { color: var(--ink); }
 .tree-error { color: var(--bad); }
 
 /* compare tints */
-.tree-row.row-added { background: #e9f7ef; }
-.tree-row.row-removed { background: #fcecec; }
-.tree-row.row-edited { background: #fdf6e3; }
-.tree-row.row-added:hover { background: #dcf1e5; }
-.tree-row.row-removed:hover { background: #f8e0e0; }
-.tree-row.row-edited:hover { background: #f8eecb; }
+.tree-row.row-added { background: var(--ok-tint); }
+.tree-row.row-removed { background: var(--bad-tint); }
+.tree-row.row-edited { background: var(--warn-tint); }
+.tree-row.row-added:hover { background: var(--ok-tint-hover); }
+.tree-row.row-removed:hover { background: var(--bad-tint-hover); }
+.tree-row.row-edited:hover { background: var(--warn-tint-hover); }
 .tree-row.selected.row-added, .tree-row.selected.row-removed, .tree-row.selected.row-edited {
   outline: 1.5px solid var(--ink); outline-offset: -1.5px;
 }
@@ -385,8 +467,8 @@ button.ui-section-header:hover { color: var(--ink); }
 .legend-edited { color: var(--diff-edited); }
 
 .diff-banner { flex: none; padding: 9px 16px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); }
-.banner-added { background: #e9f7ef; color: #167a49; }
-.banner-removed { background: #fcecec; color: #a02c2c; }
+.banner-added { background: var(--ok-tint); color: var(--ok-ink); }
+.banner-removed { background: var(--bad-tint); color: var(--bad-ink); }
 
 .point-lists { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 16px; }
 
@@ -408,8 +490,8 @@ button.ui-section-header:hover { color: var(--ink); }
 .tok-str { color: #8a5a00; }
 .tok-num { color: #0e7569; }
 .tok-com { color: var(--muted); font-style: italic; }
-.diff-line.diff-add { background: #e9f7ef; }
-.diff-line.diff-del { background: #fcecec; }
+.diff-line.diff-add { background: var(--ok-tint); }
+.diff-line.diff-del { background: var(--bad-tint); }
 
 /* --- preview (inspect browse) ---------------------------------------------- */
 
@@ -482,13 +564,13 @@ button.ui-section-header:hover { color: var(--ink); }
 .canvas-wrap { position: relative; flex: 1; min-height: 0; background: var(--bg); }
 .canvas-error {
   position: absolute; z-index: 20; top: 10px; left: 50%; transform: translateX(-50%);
-  padding: 7px 14px; border-radius: 9px; background: #fcecec; color: #a02c2c; font-size: 12.5px;
+  padding: 7px 14px; border-radius: 9px; background: var(--bad-tint); color: var(--bad-ink); font-size: 12.5px;
 }
 
 .canvas-node {
   width: max-content; min-width: 176px; padding: 11px 14px; background: var(--card);
   border: 1px solid var(--border); border-radius: 11px;
-  box-shadow: 0 1px 3px rgba(15,18,26,0.07); font-size: 13px; cursor: grab;
+  box-shadow: var(--shadow-raised); font-size: 13px; cursor: grab;
 }
 .canvas-node:active { cursor: grabbing; }
 .canvas-node .nm { font-weight: 650; }
@@ -520,40 +602,34 @@ button.ui-section-header:hover { color: var(--ink); }
    topbar, the panel floats over the canvas */
 .findings-chip {
   flex: none; padding: 3px 10px; font-size: 12px; font-weight: 600;
-  border: 1px solid #e8c98a; border-radius: 8px; background: #fdf5e0; color: #8a6d1d; cursor: pointer;
+  border: 1px solid var(--warn-line); border-radius: 8px; background: var(--warn-tint); color: var(--warn-ink); cursor: pointer;
 }
-.findings-chip:hover, .findings-chip.on { background: #f8ecc9; }
+.findings-chip:hover, .findings-chip.on { background: var(--warn-tint-hover); }
 .findings-panel {
   position: absolute; right: 14px; top: 14px; z-index: 15; width: 420px;
   max-height: 55%; overflow-y: auto; background: var(--card);
   border: 1px solid var(--border); border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(15,18,26,0.16); font-size: 12.5px;
+  box-shadow: var(--shadow-panel); font-size: 12.5px;
 }
 .findings-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 14px 8px; font-weight: 650; border-bottom: 1px solid var(--border-soft);
 }
-.findings-head .x { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
-.findings-head .x:hover { background: var(--fill); }
 .findings-panel .finding { margin: 6px 12px; padding: 7px 11px; border-radius: 8px; }
-.findings-panel .finding.bad { background: #fcecec; color: #a02c2c; }
-.findings-panel .finding.warnc { background: #fdf5e0; color: #8a6d1d; }
+.findings-panel .finding.bad { background: var(--bad-tint); color: var(--bad-ink); }
+.findings-panel .finding.warnc { background: var(--warn-tint); color: var(--warn-ink); }
 .findings-panel > :last-child { margin-bottom: 12px; }
 
-/* workspace switcher (canvas areas) */
+/* project switcher — the ws- prefix predates the workspace→project rename */
 .ws-switch { position: relative; }
-.ws-trigger {
-  display: flex; align-items: center; gap: 7px; padding: 5px 12px;
-  border: 1px solid var(--border); border-radius: 9px; background: var(--card);
-  font-size: 13px; font-weight: 550; color: var(--ink); cursor: pointer;
-}
-.ws-trigger:hover { background: var(--fill); }
+.ws-trigger { color: var(--ink); }
 .ws-caret { font-size: 10px; color: var(--muted); }
 .ws-menu {
-  /* Right-anchored: the switcher lives in the topbar's right corner. */
+  /* Right-anchored under its own trigger; the trigger sits at the right of
+     the topbar, just inside the atlas toggle. */
   position: absolute; top: calc(100% + 6px); right: 0; z-index: 40; min-width: 200px;
   padding: 5px; background: var(--card); border: 1px solid var(--border);
-  border-radius: 11px; box-shadow: 0 10px 32px rgba(15,18,26,0.14);
+  border-radius: 11px; box-shadow: var(--shadow-menu);
 }
 .ws-item {
   display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 10px;
@@ -566,12 +642,18 @@ button.ui-section-header:hover { color: var(--ink); }
 .ws-divider { height: 1px; margin: 5px 4px; background: var(--border-soft); }
 .ws-new { color: var(--muted); }
 .ws-plus { font-weight: 650; font-size: 14px; }
+/* The running build, parked at the foot of the menu — findable when asked
+   for, invisible the rest of the time. */
+.ws-version {
+  padding: 7px 10px 3px; margin-top: 3px; border-top: 1px solid var(--border-soft);
+  font-size: 11px; color: var(--muted);
+}
 
 /* scd augmentation */
 .canvas-node .nm { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .node-scd {
   flex: none; font-size: 9.5px; font-weight: 650; letter-spacing: 0.02em;
-  padding: 1px 5px; border-radius: 5px; background: var(--fill); color: #4b5160;
+  padding: 1px 5px; border-radius: 5px; background: var(--fill); color: var(--ink-soft);
 }
 .link-popup .endinfo.scd-attachment { display: flex; align-items: center; gap: 8px; }
 .link-popup .endinfo.scd-attachment div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
@@ -589,24 +671,22 @@ button.ui-section-header:hover { color: var(--ink); }
   position: absolute; z-index: 10; width: 348px; background: var(--card);
   border: 1px solid var(--border); border-radius: 12px;
   overflow-x: hidden; overflow-y: auto; max-height: calc(100% - 28px);
-  box-shadow: 0 12px 40px rgba(15,18,26,0.16); font-size: 13px;
+  box-shadow: var(--shadow-panel); font-size: 13px;
 }
 .link-popup .ph { display: flex; align-items: center; gap: 10px; padding: 11px 14px 9px; }
 .link-popup .ph .t { font-weight: 650; font-size: 13.5px; min-width: 0; overflow-wrap: anywhere; }
 .link-popup .tier-badge { flex: none; font-size: 11px; font-weight: 600; text-transform: capitalize; }
-.link-popup .x { margin-left: auto; flex: none; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
-.link-popup .x:hover { background: var(--fill); }
 .link-popup .summary { padding: 0 14px 10px; font-size: 12.5px; color: var(--muted); border-bottom: 1px solid var(--border-soft); }
 .link-popup .endlabel { padding: 9px 14px 3px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
 .link-popup .endinfo { padding: 0 14px 6px; font-family: var(--font-mono); font-size: 11.5px; }
 .link-popup .endinfo div { padding: 1px 0; }
 .link-popup .warnhead { padding: 9px 14px 3px; font-size: 11.5px; font-weight: 600; border-top: 1px solid var(--border-soft); margin-top: 4px; }
 .link-popup .warnhead.bad { color: var(--bad); }
-.link-popup .warnhead.warnc { color: #a8821c; }
+.link-popup .warnhead.warnc { color: var(--warn-ink); }
 .link-popup .warnhead.okc { color: var(--ok); }
 .link-popup .warn { margin: 5px 14px; padding: 7px 11px; font-size: 12.5px; border-radius: 8px; }
-.link-popup .warn.bad { background: #fcecec; color: #a02c2c; }
-.link-popup .warn.warnc { background: #fdf5e0; color: #8a6d1d; }
+.link-popup .warn.bad { background: var(--bad-tint); color: var(--bad-ink); }
+.link-popup .warn.warnc { background: var(--warn-tint); color: var(--warn-ink); }
 .link-popup .clean { margin: 5px 14px 12px; font-size: 12.5px; color: var(--ok); }
 
 /* Ghost hub popup: the referenced-device list, scrollable past ~6 entries. */
@@ -664,7 +744,7 @@ button.ui-section-header:hover { color: var(--ink); }
   flex: 1; min-width: 0; border: 0; outline: none; resize: none;
   background: none; color: var(--ink); overflow-y: auto;
 }
-.note-editor::placeholder { color: #b6bac4; }
+.note-editor::placeholder { color: var(--ghost-soft); }
 .note-overlay {
   position: absolute; inset: 0; overflow: hidden;
   white-space: pre-wrap; overflow-wrap: break-word;
@@ -680,7 +760,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .files-toolbar { padding: 0 16px 8px; display: flex; }
 .files-toolbar .ui-button { flex: 1; }
 .files-tree { display: flex; flex-direction: column; padding-bottom: 12px; }
-.file-row:hover .entry-delete { opacity: 1; }
 .file-row.file-drop { background: var(--fill); box-shadow: inset 0 0 0 1.5px var(--ghost); }
 .file-glyph { flex: none; width: 14px; color: var(--muted); font-size: 11px; }
 .files-detail {
@@ -707,7 +786,7 @@ button.ui-section-header:hover { color: var(--ink); }
 /* pre-wrap: a note line keeps its indentation, and long values wrap into the
  * row instead of running off the right edge. */
 .search-text { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.search-text mark { background: #fdf0c2; color: inherit; border-radius: 3px; padding: 0 1px; }
+.search-text mark, .atl-result-snippet mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
 .search-more { padding: 2px 16px 6px; font-size: 11.5px; color: var(--muted); }
 /* Clickable result rows (Notes line hits, Files entries). */
 .search-match.as-row { width: 100%; border: 0; background: none; cursor: pointer; text-align: left; }

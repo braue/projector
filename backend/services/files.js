@@ -11,11 +11,11 @@
 // ('' = the root); every one is resolved through resolveWithin so nothing
 // escapes the project.
 
-import { spawn } from 'node:child_process';
 import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveWithin } from '../lib/http.js';
+import { openWithOs } from '../lib/openWithOs.js';
 import { uniqueName } from '../lib/names.js';
 import { treeOrder } from '../lib/tree.js';
 
@@ -153,16 +153,7 @@ class FilesService {
     const absolute = this.#resolve(relPath);
     const info = await this.#statOrNull(absolute);
     if (!info?.isFile()) throw httpError(404, `no such file: ${relPath}`);
-    if (process.platform === 'win32') {
-      // `start` resolves file associations; the empty "" is the window title
-      // slot, so paths with spaces survive.
-      spawn('cmd', ['/c', 'start', '', absolute], { detached: true, stdio: 'ignore' }).unref();
-    } else {
-      spawn(process.platform === 'darwin' ? 'open' : 'xdg-open', [absolute], {
-        detached: true,
-        stdio: 'ignore',
-      }).unref();
-    }
+    openWithOs(absolute);
   }
 }
 

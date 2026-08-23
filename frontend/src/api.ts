@@ -24,11 +24,11 @@ async function parse<T>(res: Response): Promise<T> {
   return res.json()
 }
 
-async function get<T>(url: string): Promise<T> {
+export async function get<T>(url: string): Promise<T> {
   return parse(await fetch(url))
 }
 
-async function send<T>(url: string, method: string, body?: unknown): Promise<T> {
+export async function send<T>(url: string, method: string, body?: unknown): Promise<T> {
   const isForm = body instanceof FormData
   const res = await fetch(url, {
     method,
@@ -36,6 +36,12 @@ async function send<T>(url: string, method: string, body?: unknown): Promise<T> 
     body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
   })
   return parse(res)
+}
+
+/** The running build, shown in the project menu. Null when the server predates it. */
+export async function appVersion(): Promise<string | null> {
+  const health = await get<{ ok: boolean; version?: string | null }>('/api/health')
+  return health.version ?? null
 }
 
 // Everything except the project list itself is scoped to one project.

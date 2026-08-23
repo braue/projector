@@ -10,7 +10,7 @@ import type {
   UploadedFile,
 } from '../types'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
-import { Button, InlineNameForm, RowAction, Spinner } from './ui'
+import { Button, InlineNameForm, RowAction, SegmentedControl, Spinner } from './ui'
 
 // The left rail: four source tabs. Every source belongs to the CURRENT
 // projector project. RTAC exports arrive two ways — browse the machine's
@@ -67,15 +67,12 @@ export function SourceTabs({
 }) {
   return (
     <div className="source-tabs">
-      {SOURCE_TABS.map(({ key, label }) => (
-        <button
-          key={key}
-          className={tab === key ? 'source-tab on' : 'source-tab'}
-          onClick={() => onPick(key)}
-        >
-          {label}
-        </button>
-      ))}
+      <SegmentedControl
+        fill
+        options={SOURCE_TABS}
+        value={tab}
+        onChange={onPick}
+      />
     </div>
   )
 }
@@ -372,14 +369,14 @@ export function SourcesSidebar({
                       <span className="rdb-file-count">{file.profiles.length}</span>
                     </button>
                     <button
-                      className="rdb-delete"
+                      className="entry-delete entry-rename"
                       title="Rename this file"
                       onClick={() => setRenaming({ kind: 'upload', type: uploadTab, id: file.id })}
                     >
                       ✎
                     </button>
                     <button
-                      className="rdb-delete"
+                      className="entry-delete"
                       title="Remove this file and its devices"
                       onClick={() => onDeleteUpload(uploadTab, file.id)}
                     >

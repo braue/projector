@@ -38,18 +38,22 @@ export function Button({
   )
 }
 
-/** Exclusive choice rendered as a joined button strip (topbar mode switch). */
+/** Exclusive choice rendered as a joined button strip (topbar mode switch,
+ *  sidebar source tabs). `fill` splits the width evenly between segments
+ *  instead of sizing each to its label. */
 export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  fill = false,
 }: {
   options: { value: T; label: string }[]
   value: T
   onChange: (value: T) => void
+  fill?: boolean
 }) {
   return (
-    <nav className="ui-segmented">
+    <nav className={fill ? 'ui-segmented fill' : 'ui-segmented'}>
       {options.map((option) => (
         <button
           key={option.value}

@@ -4,11 +4,11 @@ import type { DeviceSource, SourceType } from '../types'
 // The shared source-type registry: tab order, drag payload MIME, and the
 // canonical "is this source on the canvas" key format.
 
-export const SOURCE_TABS: { key: SourceType; label: string }[] = [
-  { key: 'rtac', label: 'RTAC' },
-  { key: 'rdb', label: 'RDB' },
-  { key: 'scd', label: 'SCD' },
-  { key: 'sw', label: 'SW' },
+export const SOURCE_TABS: { value: SourceType; label: string }[] = [
+  { value: 'rtac', label: 'RTAC' },
+  { value: 'rdb', label: 'RDB' },
+  { value: 'scd', label: 'SCD' },
+  { value: 'sw', label: 'SW' },
 ]
 
 /** Drag payload: JSON DeviceSource under this MIME. */

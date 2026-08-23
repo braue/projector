@@ -8,12 +8,41 @@ import { execFile } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const BRIDGE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'py', 'acrtac_bridge.py');
+// Packaged, this file lives inside app.asar — but Python is a separate process
+// and cannot read into the archive, so the bridge script is listed in
+// electron-builder's asarUnpack and we point at the unpacked copy.
+const BRIDGE = path
+  .join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'py', 'acrtac_bridge.py')
+  .replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 
 const PYTHON = 'python';
 
 // exportxml of a large project can take a while on a busy database.
 const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
+
+/**
+ * A readable one-liner instead of a Python traceback. The packaged app ships
+ * without Python — the AcRTAC database panel is the only thing that needs it —
+ * so "no module named selacrtac" is a normal state a user may sit in for a
+ * long time, and it has to explain itself rather than look like a crash.
+ */
+function bridgeMessage(err, stderr) {
+  if (err.killed) return `AcRTAC bridge timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`;
+  const text = String(stderr ?? '');
+  if (err.code === 'ENOENT') {
+    return 'Python was not found on PATH, so the AcRTAC database cannot be reached. Everything else works; install Python and the selacrtac package to browse and export projects from the database.';
+  }
+  if (/can't open file|No such file or directory/.test(text)) {
+    return 'The AcRTAC bridge script could not be found, so the database cannot be reached. Everything else works.';
+  }
+  if (/No module named ['"]?selacrtac/.test(text)) {
+    return "Python is installed but the selacrtac package is missing, so the AcRTAC database cannot be reached. Everything else works; install selacrtac to browse and export projects from the database.";
+  }
+  // Anything else: last non-empty stderr line, which is where Python puts the
+  // actual error, rather than the whole traceback.
+  const lines = text.trim().split(/[\r\n]+/).filter((l) => l.trim());
+  return lines[lines.length - 1]?.trim() || err.message;
+}
 
 function runBridge(args) {
   return new Promise((resolve, reject) => {
@@ -25,10 +54,7 @@ function runBridge(args) {
         if (err) {
           // A killed process is almost always our timeout; execFile's own
           // message for it is unhelpfully generic.
-          const message = err.killed
-            ? `acrtac bridge timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`
-            : stderr.trim() || err.message;
-          reject(new Error(message));
+          reject(new Error(bridgeMessage(err, stderr)));
           return;
         }
         try {
