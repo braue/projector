@@ -16,12 +16,20 @@ import { DatabaseSync } from 'node:sqlite';
 
 import { INDEX_FILENAME } from '../lib/selPaths.js';
 
-/** Where the index lives, in order of preference. */
-function candidates(libraryRoot, dataDir) {
+/**
+ * Where the index lives, in order of preference.
+ *
+ * `bundled` — the copy the installer ships beside the app — comes last on
+ * purpose. An index sitting beside the library was built from that library and
+ * may be newer than the one we packaged; the shipped copy is the floor, so a
+ * fresh machine works out of the box without ever overriding a local build.
+ */
+function candidates(libraryRoot, dataDir, bundled) {
   return [
     process.env.SEL_FULLTEXT,
     path.join(libraryRoot, INDEX_FILENAME),
     dataDir ? path.join(dataDir, INDEX_FILENAME) : null,
+    bundled,
   ].filter(Boolean);
 }
 
@@ -77,10 +85,10 @@ class SelFullText {
   #error = null;
 
   /** Open the index if one exists. Safe to call repeatedly. */
-  open({ libraryRoot, dataDir }) {
+  open({ libraryRoot, dataDir, bundled = null }) {
     this.close();
     this.#error = null;
-    const found = candidates(libraryRoot, dataDir).find((p) => existsSync(p));
+    const found = candidates(libraryRoot, dataDir, bundled).find((p) => existsSync(p));
     if (!found) return;
     try {
       const db = new DatabaseSync(found, { readOnly: true });

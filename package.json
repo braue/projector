@@ -1,7 +1,7 @@
 {
   "name": "projector",
   "productName": "Projector",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Settings-truth communications canvas for substation automation.",
   "private": true,
   "type": "module",
@@ -32,6 +32,12 @@
     },
     "asarUnpack": [
       "backend/py/**"
+    ],
+    "extraResources": [
+      {
+        "from": "C:/SEL/sel_fulltext.sqlite",
+        "to": "sel_fulltext.sqlite"
+      }
     ],
     "files": [
       "electron/**/*",

@@ -133,8 +133,22 @@ Full text needs an index — `sel_fulltext.sqlite`, an SQLite FTS5 database of
 one row per page. For the current library that is **1,412 documents, 124,202
 pages, 435 MB, built in about 13 minutes** with zero extraction failures. The app opens it **read-only** and looks for it in order:
 `$SEL_FULLTEXT`, then beside the library (`C:\SEL\sel_fulltext.sqlite`), then
-in the app's data folder. No index means the block simply does not appear;
-nothing else changes.
+in the app's data folder, then the copy the installer shipped. No index at all
+means the block simply does not appear; nothing else changes.
+
+**The installer carries one.** `build.extraResources` in `package.json` packages
+the index beside `app.asar`, so a fresh machine searches all 124,202 pages the
+moment it is installed — no build step, no poppler, nothing to copy. It costs
+about 98 MB of installer (the FTS index compresses well, 435 MB down to that),
+and it is why the build machine needs the library present: `extraResources`
+names `C:/SEL/sel_fulltext.sqlite`, the one place a build states where the
+library lives.
+
+The shipped copy is deliberately **last** in that order. An index sitting beside
+a library was built from that library and may be newer than the one packaged
+months earlier, so it wins; the shipped copy is a floor, never an override.
+Note the index is self-contained but the *documents* are not — search works
+without the PDFs, opening a hit needs the real file under `$SEL_LIBRARY`.
 
 Build it with:
 

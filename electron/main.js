@@ -54,6 +54,9 @@ async function start() {
       // In dev the Vite server owns the UI; packaged, we serve the build.
       staticDir: DEV_URL ? null : path.join(ROOT, 'frontend', 'dist'),
       version: app.getVersion(),
+      // The index travels with the installer, unpacked beside app.asar so
+      // SQLite can open it as a real file. Only the packaged app has one.
+      selIndex: app.isPackaged ? path.join(process.resourcesPath, 'sel_fulltext.sqlite') : null,
     });
     url = DEV_URL ?? serverHandle.url;
   } catch (err) {

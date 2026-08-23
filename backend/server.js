@@ -60,6 +60,9 @@ function readVersion() {
  * @param {string|null} [options.staticDir] built frontend to serve at /, or
  *                                     null to run API-only behind Vite.
  * @param {string} [options.version]   shown in the UI; Electron passes its own.
+ * @param {string|null} [options.selIndex] the SEL full-text index shipped with
+ *                                     the app, when there is one. Packaged
+ *                                     only; running from source has none.
  * @param {(line: string) => void} [options.log]
  * @returns {Promise<{url: string, port: number, close: () => Promise<void>}>}
  */
@@ -69,6 +72,7 @@ export async function startServer(options = {}) {
     dataDir = process.env.PROJECTOR_DATA ?? DEFAULT_DATA_DIR,
     staticDir = null,
     version = readVersion(),
+    selIndex = null,
     log = console.log,
   } = options;
 
@@ -79,7 +83,7 @@ export async function startServer(options = {}) {
   const catalog = new RtacCatalog({ client: createAcRtacClient() });
   const selLibrary = new SelLibrary({ root: selRoot });
   const selText = new SelFullText();
-  selText.open({ libraryRoot: selRoot, dataDir });
+  selText.open({ libraryRoot: selRoot, dataDir, bundled: selIndex });
   const projects = new ProjectsService({ dataDir, catalog });
   await projects.init();
 
@@ -97,7 +101,11 @@ export async function startServer(options = {}) {
   } else if (textStatus.error) {
     log(`SEL full-text index unusable: ${textStatus.error}`);
   } else {
-    log('No SEL full-text index; run `npm run sel:index` to build one.');
+    // Different advice depending on who is reading: a packaged install has no
+    // npm scripts, and its index should have shipped with it.
+    log(selIndex
+      ? `No SEL full-text index — none shipped at ${selIndex}, and none beside the library.`
+      : 'No SEL full-text index; run `npm run sel:index` to build one.');
   }
 
   const app = express();
