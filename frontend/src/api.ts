@@ -3,6 +3,7 @@ import type {
   CompareItem,
   CompareTree,
   DeviceSource,
+  EverywhereResults,
   FileNode,
   Note,
   ProjectItem,
@@ -285,6 +286,11 @@ export function searchSource(project: string, source: DeviceSource, query: strin
   return get(`${base(project)}/search?${params}`)
 }
 
+/** The everywhere search: every project's sources and notes, grouped. */
+export function searchEverywhere(query: string): Promise<EverywhereResults> {
+  return get(`/api/search?${new URLSearchParams({ q: query })}`)
+}
+
 // --- canvas -------------------------------------------------------------------
 
 export function fetchGraph(project: string): Promise<WorkspaceGraph> {
@@ -335,4 +341,14 @@ export function addManualLink(
 
 export function removeManualLink(project: string, linkId: string): Promise<unknown> {
   return send(`${base(project)}/links/${encodeURIComponent(linkId)}`, 'DELETE')
+}
+
+/** Acknowledge a conflicting link: record why the disagreement is acceptable. */
+export function addWaiver(project: string, linkId: string, reason: string): Promise<{ id: string }> {
+  return send(`${base(project)}/waivers`, 'POST', { linkId, reason })
+}
+
+/** Reopen an acknowledged conflict. */
+export function removeWaiver(project: string, waiverId: string): Promise<unknown> {
+  return send(`${base(project)}/waivers/${encodeURIComponent(waiverId)}`, 'DELETE')
 }

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -54,40 +54,21 @@ test('single characters and empty input yield no query', () => {
   assert.equal(toMatchQuery(null), null);
 });
 
-// --- where the index is found -----------------------------------------------
+// --- opening the index --------------------------------------------------------
 //
-// The installer ships an index beside the app so a fresh machine works out of
-// the box. That copy is the floor, never an override: an index sitting beside
-// the library was built from that library and may be newer.
+// There is exactly one index: the file the installer put in resources/, or the
+// repo-root copy when running from source. open() takes that path; a missing
+// or broken file turns the feature off and nothing else.
 
-test('an index beside the library wins over the one shipped with the app', async () => {
+test('opens the shipped index', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sel-'));
   try {
-    const library = path.join(tmp, 'library');
-    await mkdir(library, { recursive: true });
-    const beside = path.join(library, 'sel_fulltext.sqlite');
-    const bundled = path.join(tmp, 'bundled.sqlite');
-    writeIndex(beside, 'beside the library');
-    writeIndex(bundled, 'shipped with the app');
+    const shipped = path.join(tmp, 'sel_fulltext.sqlite');
+    writeIndex(shipped, 'shipped with the app');
 
     const full = new SelFullText();
-    full.open({ libraryRoot: library, dataDir: null, bundled });
-    assert.equal(full.status().file, beside);
-    full.close();
-  } finally {
-    await rm(tmp, { recursive: true, force: true });
-  }
-});
-
-test('the shipped index is used when nothing else is there', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sel-'));
-  try {
-    const bundled = path.join(tmp, 'bundled.sqlite');
-    writeIndex(bundled, 'shipped with the app');
-
-    const full = new SelFullText();
-    full.open({ libraryRoot: path.join(tmp, 'nothing-here'), dataDir: null, bundled });
-    assert.equal(full.status().file, bundled);
+    full.open(shipped);
+    assert.equal(full.status().file, shipped);
     assert.equal(full.status().available, true);
     full.close();
   } finally {
@@ -95,10 +76,26 @@ test('the shipped index is used when nothing else is there', async () => {
   }
 });
 
-test('no index anywhere leaves the feature off rather than erroring', () => {
+test('a missing index leaves the feature off rather than erroring', () => {
   const full = new SelFullText();
-  full.open({ libraryRoot: path.join(os.tmpdir(), 'no-such-library'), dataDir: null, bundled: null });
+  full.open(path.join(os.tmpdir(), 'no-such-dir', 'sel_fulltext.sqlite'));
   assert.equal(full.status().available, false);
   assert.equal(full.status().error, null);
   assert.deepEqual(full.search('anything'), { available: false, groups: [] });
+});
+
+test('a broken index reports its error and leaves the feature off', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sel-'));
+  try {
+    const broken = path.join(tmp, 'sel_fulltext.sqlite');
+    await writeFile(broken, 'this is not an SQLite database');
+
+    const full = new SelFullText();
+    full.open(broken);
+    assert.equal(full.status().available, false);
+    assert.notEqual(full.status().error, null);
+    assert.deepEqual(full.search('anything'), { available: false, groups: [] });
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
 });

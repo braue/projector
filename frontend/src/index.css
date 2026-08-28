@@ -245,6 +245,19 @@ button.ui-section-header:hover { color: var(--ink); }
 .atlas-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
 .atlas-pane[hidden] { display: none; }
 
+/* The everywhere search pane — same beside-the-modes takeover as the atlas. */
+.evw-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
+.evw-pane[hidden] { display: none; }
+.evw-project { border-bottom: 1px solid var(--border-soft); }
+.evw-project-head {
+  padding: 12px 16px 4px; font-weight: 700; font-size: 13.5px;
+  position: sticky; top: 0; background: var(--bg); z-index: 1;
+}
+.evw-source-head { padding: 6px 16px 0; font-size: 12px; color: var(--muted); font-weight: 600; }
+.evw-source-head .evw-more { margin-left: 8px; font-weight: 400; font-size: 11px; }
+.evw-errors { padding: 10px 16px; }
+.evw-error { font-size: 12px; color: var(--bad-ink); padding: 2px 0; }
+
 .atlas-toggle { color: var(--muted); }
 .atlas-toggle:hover { color: var(--ink); }
 .atlas-toggle.on {
@@ -735,6 +748,8 @@ button.ui-section-header:hover { color: var(--ink); }
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 10px 14px 2px; border-top: 1px solid var(--border-soft); margin-top: 6px;
 }
+/* Acknowledging a conflict: the reason field takes the row, the button ends it. */
+.link-popup .waive-form .ui-input { flex: 1; min-width: 0; }
 
 /* connect dialog (drawing a manual connection) */
 .connect-overlay {

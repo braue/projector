@@ -162,6 +162,10 @@ export function AtlasView({ active = true }: { active?: boolean }) {
   const searchRef = useRef<HTMLInputElement>(null)
 
   const selected = useMemo(() => (selectedId ? docById(selectedId) : null), [selectedId])
+  // The index ships with the app, so search always works; the PDF library is
+  // optional and only gates whether a hit can auto-open the document.
+  // Optimistic until status answers, so the affordance does not flicker.
+  const canOpenPdfs = selLib?.rootPresent ?? true
   const debounced = useDebounced(query.trim(), 180)
   const hits = useMemo(() => (debounced ? search(debounced) : []), [debounced])
   const allCategories = useMemo(() => [...CATEGORIES, ...extraCategories()], [])
@@ -281,9 +285,7 @@ export function AtlasView({ active = true }: { active?: boolean }) {
                     </div>
                   </div>
                   <div className="atl-sel-note">
-                    {selLib.rootPresent
-                      ? 'No full-text index has been built for the SEL library yet.'
-                      : `No document library at ${selLib.root}.`}
+                    No full-text index is available in this build.
                   </div>
                 </div>
               )}
@@ -297,7 +299,9 @@ export function AtlasView({ active = true }: { active?: boolean }) {
                       </span>
                     </div>
                     <div className="atl-section-sub">
-                      Source PDFs &mdash; opens in your PDF viewer
+                      {canOpenPdfs
+                        ? <>Source PDFs &mdash; opens in your PDF viewer</>
+                        : <>Source PDFs &mdash; library not on this machine, hits won&apos;t open</>}
                     </div>
                   </div>
                   {/* One section per document type, best-matching type first,
@@ -312,13 +316,17 @@ export function AtlasView({ active = true }: { active?: boolean }) {
                         <button
                           key={`${hit.path}#${hit.page}`}
                           className="atl-result atl-text-hit"
-                          onClick={() => selOpen(hit.path, hit.page).catch(() => {})}
-                          title={`Open ${hit.name} at page ${hit.page}`}
+                          onClick={canOpenPdfs
+                            ? () => selOpen(hit.path, hit.page).catch(() => {})
+                            : undefined}
+                          title={canOpenPdfs
+                            ? `Open ${hit.name} at page ${hit.page}`
+                            : `${hit.name} p.${hit.page} — the PDF is not on this machine`}
                         >
                           <div className="atl-result-top">
                             <span className="atl-result-title">{hit.name}</span>
                             <span className="atl-result-cat">
-                              p.{hit.page} <span className="atl-ext">&#8599;</span>
+                              p.{hit.page}{canOpenPdfs && <> <span className="atl-ext">&#8599;</span></>}
                             </span>
                           </div>
                           <Snippet text={hit.snippet} query={debounced} />

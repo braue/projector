@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import { BrowserWindow, Menu, app, dialog, shell } from 'electron';
 
+import { INDEX_FILENAME } from '../backend/lib/selPaths.js';
 import { startServer } from '../backend/server.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -55,8 +56,9 @@ async function start() {
       staticDir: DEV_URL ? null : path.join(ROOT, 'frontend', 'dist'),
       version: app.getVersion(),
       // The index travels with the installer, unpacked beside app.asar so
-      // SQLite can open it as a real file. Only the packaged app has one.
-      selIndex: app.isPackaged ? path.join(process.resourcesPath, 'sel_fulltext.sqlite') : null,
+      // SQLite can open it as a real file. From source, server.js defaults to
+      // the repo-root copy that `npm run sel:index` writes.
+      selIndex: app.isPackaged ? path.join(process.resourcesPath, INDEX_FILENAME) : undefined,
     });
     url = DEV_URL ?? serverHandle.url;
   } catch (err) {

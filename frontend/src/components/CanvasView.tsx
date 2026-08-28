@@ -14,6 +14,7 @@ import '@xyflow/react/dist/style.css'
 
 import {
   addManualLink,
+  addWaiver,
   attachScd,
   detachScd,
   fetchGraph,
@@ -21,13 +22,15 @@ import {
   placeDevice,
   removeDevice,
   removeManualLink,
+  removeWaiver,
 } from '../api'
 import { errorMessage } from '../lib/errors'
 import { count } from '../lib/format'
 import { SOURCE_MIME } from '../lib/sources'
 import { GHOST_HUB_ID, buildWires } from '../lib/canvasWires'
 import type { WireData } from '../lib/canvasWires'
-import { TIER_COLOR } from '../lib/tiers'
+import { TIER_COLOR, TONE_LABEL, linkTone } from '../lib/tiers'
+import type { WireTone } from '../lib/tiers'
 import { REF_SEPARATOR } from '../types'
 import type {
   CheckStatus,
@@ -36,7 +39,6 @@ import type {
   GraphGhost,
   GraphLink,
   LinkCheck,
-  LinkTier,
   WorkspaceGraph,
 } from '../types'
 import { FloatingEdge } from './FloatingEdge'
@@ -90,7 +92,7 @@ type ActivePopup =
   | ({ kind: 'node' } & NodePopupState)
   | { kind: 'ghost'; x: number; y: number; links: GraphLink[] | null }
 
-/** Every canvas popup opens the same way: what it is, its tier, and a way out. */
+/** Every canvas popup opens the same way: what it is, its tone, and a way out. */
 function PopupHeader({
   title,
   tier,
@@ -98,7 +100,7 @@ function PopupHeader({
   closeLabel = 'Close',
 }: {
   title: ReactNode
-  tier?: LinkTier
+  tier?: WireTone
   onClose: () => void
   closeLabel?: string
 }) {
@@ -106,7 +108,7 @@ function PopupHeader({
     <div className="ph">
       <span className="t">{title}</span>
       {tier && (
-        <span className="tier-badge" style={{ color: TIER_COLOR[tier] }}>{tier}</span>
+        <span className="tier-badge" style={{ color: TIER_COLOR[tier] }}>{TONE_LABEL[tier] ?? tier}</span>
       )}
       <button className="x" onClick={onClose} title={closeLabel}>✕</button>
     </div>
@@ -286,12 +288,35 @@ function checkVerdict(checks: LinkCheck[]): { tone: string; text: string } {
   return { tone: 'okc', text: `All ${checks.length} checks pass` }
 }
 
+// The acknowledge form: a conflict is waived with a reason, or not at all —
+// "known, accepted, because X" is the whole point of the record.
+function WaiveForm({ onWaive }: { onWaive: (reason: string) => void }) {
+  const [reason, setReason] = useState('')
+  return (
+    <div className="popup-actions waive-form">
+      <TextInput
+        value={reason}
+        placeholder="Why is this acceptable?"
+        onChange={(e) => setReason(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && reason.trim()) onWaive(reason.trim())
+        }}
+      />
+      <Button disabled={!reason.trim()} onClick={() => onWaive(reason.trim())}>
+        Acknowledge
+      </Button>
+    </div>
+  )
+}
+
 function LinkPopup({
   popup,
   tracedLinkId,
   onTrace,
   onClose,
   onRemove,
+  onWaive,
+  onUnwaive,
 }: {
   popup: PopupState
   tracedLinkId: string | null
@@ -300,6 +325,10 @@ function LinkPopup({
   onClose: () => void
   /** Present only for user-drawn links — inferred wires cannot be removed. */
   onRemove: (manualId: string) => void
+  /** Acknowledge this conflict with a reason. */
+  onWaive: (linkId: string, reason: string) => void
+  /** Reopen an acknowledged conflict. */
+  onUnwaive: (waiverId: string) => void
 }) {
   const { link, carries } = popup
   const verdict = checkVerdict(link.checks)
@@ -307,7 +336,7 @@ function LinkPopup({
     <div className="link-popup" style={{ left: popup.x, top: popup.y }}>
       <PopupHeader
         title={`${link.a.label.split(' · ')[0]} ⇄ ${link.b.label.split(' · ')[0]}`}
-        tier={link.tier}
+        tier={linkTone(link)}
         onClose={onClose}
       />
       <div className="summary">{link.summary}</div>
@@ -326,8 +355,8 @@ function LinkPopup({
               <span className="carried-ends">
                 {rider.a.label.split(' · ')[0]} ⇄ {rider.b.label.split(' · ')[0]}
               </span>
-              <span className="tier-badge" style={{ color: TIER_COLOR[rider.tier] }}>
-                {rider.tier}
+              <span className="tier-badge" style={{ color: TIER_COLOR[linkTone(rider)] }}>
+                {TONE_LABEL[linkTone(rider)] ?? rider.tier}
               </span>
             </button>
           ))}
@@ -345,6 +374,23 @@ function LinkPopup({
       {link.checks.map((entry, i) => (
         <CheckRow key={i} entry={entry} />
       ))}
+      {link.waived ? (
+        <>
+          <div className="endlabel">
+            Acknowledged {new Date(link.waived.at).toLocaleDateString()}
+          </div>
+          <div className="endinfo">
+            <div>{link.waived.reason}</div>
+          </div>
+          <div className="popup-actions">
+            <Button onClick={() => onUnwaive(link.waived!.id)}>Reopen conflict</Button>
+          </div>
+        </>
+      ) : (
+        link.tier === 'conflict' && (
+          <WaiveForm onWaive={(reason) => onWaive(link.id, reason)} />
+        )
+      )}
       {link.manualId && (
         <div className="popup-actions">
           <Button onClick={() => onRemove(link.manualId!)}>Remove connection</Button>
@@ -714,6 +760,18 @@ function CanvasInner({
             setActivePopup(null)
             setTracedLinkId(null)
             await removeManualLink(project, manualId).catch((err) => setError(errorMessage(err)))
+            await load()
+          }}
+          onWaive={async (linkId, reason) => {
+            setActivePopup(null)
+            setTracedLinkId(null)
+            await addWaiver(project, linkId, reason).catch((err) => setError(errorMessage(err)))
+            await load()
+          }}
+          onUnwaive={async (waiverId) => {
+            setActivePopup(null)
+            setTracedLinkId(null)
+            await removeWaiver(project, waiverId).catch((err) => setError(errorMessage(err)))
             await load()
           }}
         />

@@ -1,6 +1,6 @@
 import type { Edge } from '@xyflow/react'
 
-import { TIER_COLOR, TIER_DASH, worstTier } from './tiers'
+import { TIER_COLOR, TIER_DASH, linkTone, worstTier } from './tiers'
 import type { GraphLink, WorkspaceGraph } from '../types'
 
 // Turning the linker's links into the wires the canvas draws.
@@ -95,8 +95,9 @@ export function buildWires(graph: WorkspaceGraph | null, trace: Trace): Edge[] {
     const carries = link.manualId ? carried.get(link.manualId) ?? [] : []
     // A cable is painted by the worst thing riding it: one conflicting
     // connection makes the whole run red, because that run is where a reader
-    // has to go looking.
-    const tier = worstTier([link.tier, ...carries.map((rider) => rider.tier)])
+    // has to go looking. An acknowledged conflict has stopped asking — it
+    // paints quiet (linkTone), so the red that remains is always actionable.
+    const tier = worstTier([linkTone(link), ...carries.map(linkTone)])
     const on = lit(link.id)
     out.push({
       id: link.id,

@@ -21,9 +21,11 @@ import cors from 'cors';
 import express from 'express';
 
 import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
-import { DEFAULT_SEL_ROOT } from './lib/selPaths.js';
+import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from './lib/selPaths.js';
 import { projectRoutes } from './routes/projects.js';
+import { globalSearchRoutes } from './routes/search.js';
 import { selRoutes } from './routes/sel.js';
+import { GlobalSearch } from './services/globalSearch.js';
 import { ProjectsService } from './services/projects.js';
 import { RtacCatalog } from './services/rtacCatalog.js';
 import { SelFullText } from './services/selFullText.js';
@@ -34,6 +36,13 @@ const HOME = process.env.USERPROFILE ?? process.env.HOME ?? '';
 
 /** Where projects live when nobody says otherwise (the dev-server layout). */
 const DEFAULT_DATA_DIR = path.join(HERE, 'data');
+
+/**
+ * The full-text index when running from source: the repo root, where
+ * `npm run sel:index` writes it. The packaged app passes its own path —
+ * resources/, where the installer put the same file.
+ */
+const DEFAULT_SEL_INDEX = path.join(HERE, '..', INDEX_FILENAME);
 
 /**
  * The app version, so the UI can show what is running — the first question
@@ -60,9 +69,10 @@ function readVersion() {
  * @param {string|null} [options.staticDir] built frontend to serve at /, or
  *                                     null to run API-only behind Vite.
  * @param {string} [options.version]   shown in the UI; Electron passes its own.
- * @param {string|null} [options.selIndex] the SEL full-text index shipped with
- *                                     the app, when there is one. Packaged
- *                                     only; running from source has none.
+ * @param {string} [options.selIndex]  the SEL full-text index. The packaged
+ *                                     app passes the copy the installer put in
+ *                                     resources/; from source this defaults to
+ *                                     the repo root.
  * @param {(line: string) => void} [options.log]
  * @returns {Promise<{url: string, port: number, close: () => Promise<void>}>}
  */
@@ -72,7 +82,7 @@ export async function startServer(options = {}) {
     dataDir = process.env.PROJECTOR_DATA ?? DEFAULT_DATA_DIR,
     staticDir = null,
     version = readVersion(),
-    selIndex = null,
+    selIndex = DEFAULT_SEL_INDEX,
     log = console.log,
   } = options;
 
@@ -83,7 +93,7 @@ export async function startServer(options = {}) {
   const catalog = new RtacCatalog({ client: createAcRtacClient() });
   const selLibrary = new SelLibrary({ root: selRoot });
   const selText = new SelFullText();
-  selText.open({ libraryRoot: selRoot, dataDir, bundled: selIndex });
+  selText.open(selIndex);
   const projects = new ProjectsService({ dataDir, catalog });
   await projects.init();
 
@@ -103,9 +113,9 @@ export async function startServer(options = {}) {
   } else {
     // Different advice depending on who is reading: a packaged install has no
     // npm scripts, and its index should have shipped with it.
-    log(selIndex
-      ? `No SEL full-text index — none shipped at ${selIndex}, and none beside the library.`
-      : 'No SEL full-text index; run `npm run sel:index` to build one.');
+    log(selIndex === DEFAULT_SEL_INDEX
+      ? `No SEL full-text index at ${selIndex}; run \`npm run sel:index\` to build one.`
+      : `No SEL full-text index — none shipped at ${selIndex}.`);
   }
 
   const app = express();
@@ -116,6 +126,7 @@ export async function startServer(options = {}) {
     res.json({ ok: true, version });
   });
   app.use('/api/projects', projectRoutes(projects, catalog));
+  app.use('/api/search', globalSearchRoutes(new GlobalSearch({ projects })));
   app.use('/api/sel', selRoutes(selLibrary, selText));
 
   // The API always speaks JSON, including for failures the routers never see.

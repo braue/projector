@@ -7,6 +7,11 @@ backend/data/
 # build output
 frontend/dist/
 
+# the SEL full-text index: 435 MB built by `npm run sel:index`, packaged into
+# resources/ by extraResources
+/sel_fulltext.sqlite
+/sel_fulltext.sqlite-*
+
 # editor/OS noise
 .DS_Store
 Thumbs.db

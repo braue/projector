@@ -1,8 +1,8 @@
 // Canvas service — one per projector project. The canvas stores only what the
-// user decided: which artifacts are placed and where, plus manual links.
-// Links are never stored: every graph read re-runs the extractor + linker
-// over the current artifacts, so a re-exported or re-uploaded source
-// immediately re-links.
+// user decided: which artifacts are placed and where, manual links, and
+// conflict waivers. Links are never stored: every graph read re-runs the
+// extractor + linker over the current artifacts, so a re-exported or
+// re-uploaded source immediately re-links.
 
 import { readFile, rename, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
@@ -173,6 +173,77 @@ class CanvasService {
     await this.#save(canvas);
   }
 
+  // --- conflict waivers -------------------------------------------------------
+  //
+  // An acknowledged conflict: the engineer has looked at a red wire and
+  // recorded why it is acceptable. The waiver stores the failing checks it
+  // covers, verbatim — a waiver is a judgment about SPECIFIC disagreeing
+  // values, so if the settings later disagree differently (a port moved from
+  // 20001 to 20002, a new check started failing), the conflict surfaces
+  // again rather than hiding behind a stale acknowledgement.
+
+  /** The failing checks a waiver would have to cover, as comparable strings. */
+  static #failureKeys(link) {
+    return link.checks
+      .filter((entry) => entry.status === 'fail')
+      .map((entry) => `${entry.label}\n${entry.detail}`);
+  }
+
+  async addWaiver({ linkId, reason }) {
+    const trimmed = reason?.trim();
+    if (!linkId) throw httpError(400, 'linkId required');
+    if (!trimmed) throw httpError(400, 'a reason is required — a waiver without one tells the next reader nothing');
+    const { links } = await this.graph();
+    const link = links.find((candidate) => candidate.id === linkId);
+    if (!link) throw httpError(404, `unknown link: ${linkId}`);
+    if (link.tier !== 'conflict') throw httpError(400, 'only a conflict can be acknowledged');
+
+    const canvas = await this.#load();
+    const waiver = {
+      id: randomUUID(),
+      linkId,
+      reason: trimmed,
+      at: new Date().toISOString(),
+      checks: link.checks
+        .filter((entry) => entry.status === 'fail')
+        .map(({ label, detail }) => ({ label, detail })),
+    };
+    // Re-acknowledging (after the values changed) replaces the stale waiver.
+    canvas.waivers = [...(canvas.waivers ?? []).filter((w) => w.linkId !== linkId), waiver];
+    await this.#save(canvas);
+    return waiver;
+  }
+
+  async removeWaiver(waiverId) {
+    const canvas = await this.#load();
+    const remaining = (canvas.waivers ?? []).filter((waiver) => waiver.id !== waiverId);
+    if (remaining.length === (canvas.waivers ?? []).length) {
+      throw httpError(404, `unknown waiver: ${waiverId}`);
+    }
+    canvas.waivers = remaining;
+    await this.#save(canvas);
+  }
+
+  // Mark each conflict its stored waiver still covers. Coverage is exact:
+  // every currently-failing check must appear verbatim in the waiver. A
+  // waiver that no longer matches stays stored but silent — the settings it
+  // judged may come back — and is replaced the next time the link is
+  // acknowledged.
+  #applyWaivers(links, waivers) {
+    if (!waivers.length) return;
+    const byLink = new Map(waivers.map((waiver) => [waiver.linkId, waiver]));
+    for (const link of links) {
+      if (link.tier !== 'conflict') continue;
+      const waiver = byLink.get(link.id);
+      if (!waiver) continue;
+      const covered = new Set(waiver.checks.map((entry) => `${entry.label}\n${entry.detail}`));
+      const failing = CanvasService.#failureKeys(link);
+      if (failing.length && failing.every((key) => covered.has(key))) {
+        link.waived = { id: waiver.id, reason: waiver.reason, at: waiver.at };
+      }
+    }
+  }
+
   // The canvas payload: placed devices with their extracted profiles, plus
   // whatever the linker can infer right now. A device whose artifact fails to
   // load (deleted export, parse failure) stays on the canvas with the error
@@ -210,6 +281,7 @@ class CanvasService {
       resolved.map(({ device, profile }) => ({ id: device.id, profile })),
       canvas.manualLinks ?? [],
     );
+    this.#applyWaivers(links, canvas.waivers ?? []);
 
     return {
       devices: [
@@ -237,9 +309,13 @@ class CanvasService {
       ghosts,
       links,
       diagnostics,
-      // The topbar's one number. Every other tally the client can take off
-      // `links` and `devices`, which it already has in hand.
-      summary: { conflicts: links.filter((link) => link.tier === 'conflict').length },
+      // The topbar's numbers. Every other tally the client can take off
+      // `links` and `devices`, which it already has in hand. An acknowledged
+      // conflict is out of the conflict count — that count is the to-do list.
+      summary: {
+        conflicts: links.filter((link) => link.tier === 'conflict' && !link.waived).length,
+        waived: links.filter((link) => link.waived).length,
+      },
     };
   }
 }

@@ -43,6 +43,17 @@ function canvasRoutes(resolve) {
     res.json({ ok: true });
   });
 
+  // Conflict waivers: acknowledge a conflicting link with a reason; reopen it
+  // by removing the waiver.
+  router.post('/waivers', async (req, res) => {
+    res.status(201).json(await (await resolve(req)).addWaiver(req.body ?? {}));
+  });
+
+  router.delete('/waivers/:id', async (req, res) => {
+    await (await resolve(req)).removeWaiver(req.params.id);
+    res.json({ ok: true });
+  });
+
   return router;
 }
 

@@ -1,10 +1,11 @@
 // Full-text search across the SEL PDF library.
 //
 // Reads an FTS5 index built by tools/build-sel-index.mjs — one row per page of
-// every PDF — 124,202 pages of it for the current library. The app only ever READS this file: building
-// needs poppler's pdftotext, which is not something a general user will have,
-// so the index is built once by whoever curates the library and travels beside
-// the PDFs. No index simply means this feature is off; everything else works.
+// every PDF — 124,202 pages of it for the current library. The app only ever
+// READS this file: building needs poppler's pdftotext, which is not something
+// a general user will have, so the index is built once by whoever curates the
+// library and ships inside the installer's resources/ directory. No index
+// simply means this feature is off; everything else works.
 //
 // Page granularity is what makes the results usable. "The SEL-411L manual
 // mentions this" is nearly worthless against a 1,698-page document; "page 412"
@@ -13,25 +14,6 @@
 import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-
-import { INDEX_FILENAME } from '../lib/selPaths.js';
-
-/**
- * Where the index lives, in order of preference.
- *
- * `bundled` — the copy the installer ships beside the app — comes last on
- * purpose. An index sitting beside the library was built from that library and
- * may be newer than the one we packaged; the shipped copy is the floor, so a
- * fresh machine works out of the box without ever overriding a local build.
- */
-function candidates(libraryRoot, dataDir, bundled) {
-  return [
-    process.env.SEL_FULLTEXT,
-    path.join(libraryRoot, INDEX_FILENAME),
-    dataDir ? path.join(dataDir, INDEX_FILENAME) : null,
-    bundled,
-  ].filter(Boolean);
-}
 
 /**
  * FTS5's query language is a syntax, and users type prose. A stray quote or a
@@ -84,17 +66,20 @@ class SelFullText {
   #pages = 0;
   #error = null;
 
-  /** Open the index if one exists. Safe to call repeatedly. */
-  open({ libraryRoot, dataDir, bundled = null }) {
+  /**
+   * Open the index at `file` if it exists. There is exactly one place it
+   * lives — resources/ in the packaged app, the repo root when running from
+   * source — so this takes a path, not a search. Safe to call repeatedly.
+   */
+  open(file) {
     this.close();
     this.#error = null;
-    const found = candidates(libraryRoot, dataDir, bundled).find((p) => existsSync(p));
-    if (!found) return;
+    if (!file || !existsSync(file)) return;
     try {
-      const db = new DatabaseSync(found, { readOnly: true });
+      const db = new DatabaseSync(file, { readOnly: true });
       const counts = db.prepare('SELECT COUNT(*) n, SUM(pages) p FROM docs').get();
       this.#db = db;
-      this.#file = found;
+      this.#file = file;
       this.#docs = counts?.n ?? 0;
       this.#pages = counts?.p ?? 0;
     } catch (err) {

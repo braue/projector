@@ -271,6 +271,43 @@ export interface SearchResults {
   truncated: boolean
 }
 
+// --- the everywhere search ----------------------------------------------------
+//
+// One string across EVERY project: each project's settings sources plus its
+// notes, grouped by project. Hits are pointers — opening one jumps to that
+// project's Inspect (or note), where the full listing lives.
+
+export interface EverywhereSourceHit {
+  type: SourceType
+  ref: string
+  /** Display label of the source ("feeders.rdb · FEEDER_1"). */
+  label: string
+  results: SearchHit[]
+  totalMatches: number
+  truncated: boolean
+}
+
+export interface EverywhereNoteHit {
+  id: string
+  name: string
+  matches: SearchMatch[]
+  totalMatches: number
+  truncated: boolean
+}
+
+export interface EverywhereProjectHits {
+  name: string
+  sources: EverywhereSourceHit[]
+  notes: EverywhereNoteHit[]
+}
+
+export interface EverywhereResults {
+  query: string
+  projects: EverywhereProjectHits[]
+  /** Sources that could not be searched — reported, never fatal. */
+  errors: { project: string; source: string | null; error: string }[]
+}
+
 // --- project files ------------------------------------------------------------
 
 export type FileNode =
@@ -365,6 +402,13 @@ export interface GraphLink {
   id: string
   /** Set on user-drawn links — its presence enables "Remove connection". */
   manualId?: string
+  /**
+   * An acknowledged conflict: the engineer recorded why this disagreement is
+   * acceptable. The tier stays 'conflict' — the settings still disagree —
+   * but the canvas paints it quiet and the to-do count skips it. The server
+   * drops the mark the moment the disagreeing values change.
+   */
+  waived?: { id: string; reason: string; at: string }
   sourceDeviceId: string
   targetDeviceId?: string
   targetGhostId?: string
@@ -388,6 +432,6 @@ export interface WorkspaceGraph {
   ghosts: GraphGhost[]
   links: GraphLink[]
   diagnostics: NetworkDiagnostic[]
-  /** The linker's tier tallies; the topbar reads only the conflict count. */
-  summary: { conflicts: number }
+  /** The linker's tier tallies: open conflicts, and acknowledged ones. */
+  summary: { conflicts: number; waived: number }
 }

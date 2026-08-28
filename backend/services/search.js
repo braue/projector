@@ -83,7 +83,11 @@ class SearchService {
     this.adapters = adapters;
   }
 
-  async search({ type, ref }, query) {
+  // `caps` shrink the payload for callers that fan out — the everywhere
+  // search runs this over every source of every project and needs a taste of
+  // each, not the full 200-object listing the single-source pane shows.
+  async search({ type, ref }, query, caps = {}) {
+    const { maxItems = MAX_ITEMS, maxMatchesPerItem = MAX_MATCHES_PER_ITEM } = caps;
     const q = String(query ?? '').trim();
     if (!q) throw httpError(400, 'a search string is required');
     const adapter = this.adapters[type];
@@ -96,7 +100,7 @@ class SearchService {
     let totalMatches = 0;
     let truncated = false;
     for (const entry of entries) {
-      const budget = results.length < MAX_ITEMS ? MAX_MATCHES_PER_ITEM : 0;
+      const budget = results.length < maxItems ? maxMatchesPerItem : 0;
       const { matches, total } = matchItem(entry.item, needle, budget);
       if (!total) continue;
       totalMatches += total;

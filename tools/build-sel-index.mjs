@@ -8,9 +8,9 @@
 // of the SEL-411L manual", and it keeps each indexed row small enough for a
 // meaningful snippet.
 //
-// The index is built ONCE, by whoever curates the library, and travels with
-// it — the library is already a multi-gigabyte folder people copy around, and
-// a file beside it means no user needs poppler installed. Re-run after adding
+// The index is built ONCE, by whoever curates the library, at the repo root —
+// where electron-builder's extraResources picks it up — so it ships inside the
+// installer and no user ever needs poppler installed. Re-run after adding
 // PDFs; unchanged files are skipped, so a top-up costs only the new ones.
 
 import { execFile } from 'node:child_process';
@@ -18,6 +18,7 @@ import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from '../backend/lib/selPaths.js';
@@ -36,8 +37,11 @@ function arg(name, fallback) {
   return i === -1 ? fallback : process.argv[i + 1];
 }
 
+/** The repo root, where the index lands so extraResources can package it. */
+const ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
+
 const LIBRARY = path.resolve(arg('library', process.env.SEL_LIBRARY ?? DEFAULT_SEL_ROOT));
-const OUT = path.resolve(arg('out', path.join(LIBRARY, INDEX_FILENAME)));
+const OUT = path.resolve(arg('out', path.join(ROOT, INDEX_FILENAME)));
 const JOBS = Number(arg('jobs', Math.max(2, availableParallelism() - 2)));
 const LIMIT = Number(arg('limit', 0)); // 0 = everything; for smoke tests
 
@@ -157,7 +161,7 @@ async function main() {
   console.log(`${files.length} PDFs, ${todo.length} to (re)index\n`);
   if (todo.length === 0) {
     summarise(db);
-    db.close();
+    finalise(db);
     return;
   }
 
@@ -232,9 +236,34 @@ async function main() {
 
   console.log('optimising…');
   db.exec("INSERT INTO pages(pages) VALUES('optimize')");
-  db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
   summarise(db, failed, (Date.now() - started) / 1000);
-  db.close();
+  finalise(db);
+}
+
+/**
+ * Leave the file self-contained before closing. The build runs in WAL mode for
+ * speed, but the shipped copy is opened read-only from a directory the app may
+ * not be able to write to, where a WAL-stamped header is fatal — and a WAL
+ * left behind means the single file electron-builder copies is missing the
+ * most recent pages. Switching to DELETE mode does both: it checkpoints and
+ * removes the -wal, and it fails while another connection holds the database,
+ * so a build that could not produce a complete single file says so instead of
+ * shipping a stale one.
+ */
+function finalise(db) {
+  let mode;
+  try {
+    mode = db.prepare('PRAGMA journal_mode = DELETE').get()?.journal_mode;
+  } finally {
+    db.close();
+  }
+  if (String(mode).toLowerCase() !== 'delete') {
+    console.error(
+      `Could not leave ${OUT} self-contained (journal_mode is '${mode}', wanted 'delete').\n` +
+        'Something else has the index open — close Projector and re-run.',
+    );
+    process.exit(1);
+  }
 }
 
 function summarise(db, failed = 0, seconds = null) {

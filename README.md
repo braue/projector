@@ -27,6 +27,18 @@ and `mockups.html` for the reviewed UI mockups.
   is as informative as a failed one: it marks where the settings are silent
   rather than agreed, and silence is never read as agreement.
 
+  **A known conflict can be acknowledged, never hidden.** A red wire that is
+  understood and accepted ("port 20001 is the site standard") is acknowledged
+  from its popup with a reason — required, because "known, accepted, because
+  X" is the whole record. The wire turns quiet (dotted grey, badge
+  *acknowledged*), leaves the conflict count, and the reason travels with the
+  link for the next reader; the checklist still shows the ✕. The
+  acknowledgement is a judgment about those SPECIFIC disagreeing values: if
+  the settings later disagree differently — a re-uploaded RDB moved the port
+  again, a new check started failing — the conflict comes straight back.
+  Reopen it any time from the popup. So red on this canvas always means
+  *unexamined*: the count in the topbar is the to-do list, not the history.
+
   **A wire is a physical run, and connections ride it.** Where you have drawn
   the cables, an inferred link does not get a wire of its own — the linker
   resolves it onto the run it actually travels (`link.path`) and the canvas
@@ -48,6 +60,25 @@ and `mockups.html` for the reviewed UI mockups.
   within the file).
 - **Compare** — two files of the same kind (two RTAC projects, ...): union
   tree with added/removed/modified tints and a structured per-item diff.
+
+## Search everywhere
+
+**⌕ Everywhere**, beside the atlas toggle, searches one string across EVERY
+project — all settings sources (names, settings, point maps, tables, logic)
+and notes — grouped by project. It answers the question per-project search
+cannot: *which job used 10.30.4.x?* After twenty substations nobody remembers,
+and guessing the project first is the wrong order.
+
+Hits are pointers, not listings: each source shows a taste (the server caps it
+hard), and clicking a hit jumps to that project — switching projects if needed
+— landing in Inspect on the exact object, or in Notes on the note. Like the
+atlas, the pane spans projects, so it takes over the whole view and the
+project switcher steps aside while it is up; the query and results survive a
+detour into a project to look at a hit.
+
+The first run may take a while: sources are parsed the first time anything
+reads them, and the everywhere search reads everything. A source that fails to
+parse is reported under the results and never sinks the rest of the answer.
 
 ## Atlas
 
@@ -114,14 +145,18 @@ One term, two corpora, atlas first:
 
 The guides come first because they are the written-for-you answer; the SEL
 pages below are the primary source behind it. A page hit opens that PDF at
-that page in your viewer.
+that page in your viewer — **when the PDF library is on the machine**. The
+library is optional: search always works, because the index ships inside the
+installer; without `C:\SEL` the hits still show what matched and where, they
+just cannot auto-open the document.
 
 **The two halves are deliberately hard to confuse.** Each gets a titled header
 saying what it is and where it opens, and the SEL half sits on a `--fill`
 band, ruled top and bottom, running the full width of the rail — a change of
 ground is the clearest boundary available, and `--bg` was tried first and is
 a percent off white, so it carried nothing. Every SEL row also carries a `↗`,
-because that click leaves the application.
+because that click leaves the application — the arrow (and the click) go away
+when the library is not on the machine.
 
 There is deliberately no search-by-model-number. A model is just another term,
 and the full text finds it in the manuals that are actually about it — ranking
@@ -131,22 +166,20 @@ does the work that a separate lookup used to.
 
 Full text needs an index — `sel_fulltext.sqlite`, an SQLite FTS5 database of
 one row per page. For the current library that is **1,412 documents, 124,202
-pages, 435 MB, built in about 13 minutes** with zero extraction failures. The app opens it **read-only** and looks for it in order:
-`$SEL_FULLTEXT`, then beside the library (`C:\SEL\sel_fulltext.sqlite`), then
-in the app's data folder, then the copy the installer shipped. No index at all
-means the block simply does not appear; nothing else changes.
+pages, 435 MB, built in about 13 minutes** with zero extraction failures. The
+app opens it **read-only** from exactly one place: **the installer ships it in
+`resources/`**, beside `app.asar`, and that copy is the one the packaged app
+reads. Running from source, the same file is read from the repo root, where
+the build tool writes it. No index means the block simply does not appear;
+nothing else changes.
 
-**The installer carries one.** `build.extraResources` in `package.json` packages
-the index beside `app.asar`, so a fresh machine searches all 124,202 pages the
-moment it is installed — no build step, no poppler, nothing to copy. It costs
-about 98 MB of installer (the FTS index compresses well, 435 MB down to that),
-and it is why the build machine needs the library present: `extraResources`
-names `C:/SEL/sel_fulltext.sqlite`, the one place a build states where the
-library lives.
+**The installer carries it.** `build.extraResources` in `package.json` packages
+the repo-root `sel_fulltext.sqlite` into `resources/`, so a fresh machine
+searches all 124,202 pages the moment it is installed — no build step, no
+poppler, nothing to copy, nothing to configure. It costs about 98 MB of
+installer (the FTS index compresses well, 435 MB down to that), and it is why
+the build machine needs the index built before running `npm run dist`.
 
-The shipped copy is deliberately **last** in that order. An index sitting beside
-a library was built from that library and may be newer than the one packaged
-months earlier, so it wins; the shipped copy is a floor, never an override.
 Note the index is self-contained but the *documents* are not — search works
 without the PDFs, opening a hit needs the real file under `$SEL_LIBRARY`.
 
@@ -157,11 +190,11 @@ npm run sel:index
 ```
 
 This needs **poppler's `pdftotext`**, which the app deliberately does not
-bundle — a general user should never have to install it. Instead the index is
-built once by whoever curates the library and **travels with the PDFs**: the
-library is already a multi-gigabyte folder people copy around, and one more
-file beside it costs nothing. Re-run after adding documents; unchanged files
-are skipped, so a top-up only pays for what is new.
+bundle — a general user should never have to install it. The index is built
+once, by whoever curates the library, on the machine that cuts releases; it
+reads the PDFs from `$SEL_LIBRARY` (default `C:\SEL`) and writes the index at
+the repo root for the installer to pick up. Re-run after adding documents;
+unchanged files are skipped, so a top-up only pays for what is new.
 
 `--library`, `--out`, `--jobs` and `--limit` are all overridable; `--limit 20`
 is a quick smoke test.
@@ -224,7 +257,7 @@ configure and nothing to allow through a firewall.
 |---|---|
 | Program | `%LOCALAPPDATA%\Programs\Projector` |
 | Projects, uploads, canvases | `%APPDATA%\Projector\data` |
-| SEL document library | `C:\SEL` (not bundled — see Searching the SEL documents) |
+| SEL document library | `C:\SEL` (optional, not bundled — search works without it, auto-opening a hit does not) |
 
 The data directory is deliberately outside the install: Program Files is
 read-only for a normal user, so a store next to the code would make projects
@@ -344,6 +377,7 @@ backend/
   lib/comm/linker.js     pure matcher: profiles -> links + tiers + ghosts
   services/projects.js   RTAC source lifecycle, parse cache, tree/item/aggregate
   services/workspaces.js named canvases; graph = extract + link on every read
+  services/globalSearch.js the everywhere search: every project's sources + notes
   services/selLibrary.js the SEL PDF library: is it there, and open a file
   services/selFullText.js FTS5 page-level search over the same PDFs (read-only)
 tools/build-sel-index.mjs builds that index with pdftotext (run by hand)
