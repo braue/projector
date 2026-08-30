@@ -1,0 +1,488 @@
+{
+  "_comment": [
+    "CDN paths for the corpus DWGs, resolved from the public SEL configurator",
+    "part-lookup API by tools/fetch-sel-dwgs.mjs --lookup. The path goes into",
+    "https://selinc.com/api/download/?link=https://cdn.selinc.com/Protected/drawings/<path>",
+    "which needs a mySEL session (--fetch). viaPartNumber records which lookup",
+    "produced the path, for re-resolving after SEL revises a drawing."
+  ],
+  "sources": {
+    "2411/i7036e.dwg": {
+      "cdnPath": "20-2240/i7036e.dwg",
+      "bytes": 1212688,
+      "viaPartNumber": "241101A0X0X0X0X1000"
+    },
+    "2414/i7298.B.dwg": {
+      "cdnPath": "25-7348/i7298.B.dwg",
+      "bytes": 1186544,
+      "viaPartNumber": "2414A1AA09X746X1140"
+    },
+    "351A/i7020.C.dwg": {
+      "cdnPath": "25-7040/i7020.C.dwg",
+      "bytes": 197671,
+      "viaPartNumber": "0351A1H6X3D14X2"
+    },
+    "400G/i7200.C.dwg": {
+      "cdnPath": "22-1551/i7200.C.dwg",
+      "bytes": 371235,
+      "viaPartNumber": "0400G0X6X11B6XXH824240X"
+    },
+    "400G/i7307.B.dwg": {
+      "cdnPath": "22-1551/i7307.B.dwg",
+      "bytes": 144218,
+      "viaPartNumber": "0400G0X6X11B6XXH674XXXX"
+    },
+    "400G/i7308.B.dwg": {
+      "cdnPath": "22-1551/i7308.B.dwg",
+      "bytes": 237321,
+      "viaPartNumber": "0400G0X6X11B6XXH72424XX"
+    },
+    "401/i7201.C.dwg": {
+      "cdnPath": "22-1551/i7201.C.dwg",
+      "bytes": 453374,
+      "viaFolderGuess": true
+    },
+    "401/i7202.C.dwg": {
+      "cdnPath": "22-1551/i7202.C.dwg",
+      "bytes": 607028,
+      "viaFolderGuess": true
+    },
+    "401/i7203.D.dwg": {
+      "cdnPath": "22-1551/i7203.D.dwg",
+      "bytes": 903981,
+      "viaPartNumber": "0401015X3600XD8H624240XXX"
+    },
+    "401/i7204.C.dwg": {
+      "cdnPath": "22-1551/i7204.C.dwg",
+      "bytes": 383002,
+      "viaFolderGuess": true
+    },
+    "401/i7205.C.dwg": {
+      "cdnPath": "22-1551/i7205.C.dwg",
+      "bytes": 591217,
+      "viaFolderGuess": true
+    },
+    "401/i7206.D.dwg": {
+      "cdnPath": "22-1551/i7206.D.dwg",
+      "bytes": 791661,
+      "viaPartNumber": "0401015X3600XD8V624240XXX"
+    },
+    "411L/i7029.L.dwg": {
+      "cdnPath": "24-0333/i7029.L.dwg",
+      "bytes": 444126,
+      "viaPartNumber": "0411L0X6X5C8DCXH424XXXX"
+    },
+    "411L/i7030.L.dwg": {
+      "cdnPath": "24-0333/i7030.L.dwg",
+      "bytes": 452558,
+      "viaPartNumber": "0411L0X6X5C8DCXV424XXXX"
+    },
+    "411L/i7031.L.dwg": {
+      "cdnPath": "24-0333/i7031.L.dwg",
+      "bytes": 737942,
+      "viaPartNumber": "0411L0X6X5C8DCXH57474XX"
+    },
+    "411L/i7032.L.dwg": {
+      "cdnPath": "24-0333/i7032.L.dwg",
+      "bytes": 746006,
+      "viaPartNumber": "0411L0X6X5C8DCXV52474XX"
+    },
+    "411L/i7240.E.dwg": {
+      "cdnPath": "24-0333/i7240.E.dwg",
+      "bytes": 770346,
+      "viaPartNumber": "0411L0X6X5C8DCXH7247424"
+    },
+    "411L/i7251.F.dwg": {
+      "cdnPath": "24-0333/i7251.F.dwg",
+      "bytes": 849983,
+      "viaPartNumber": "0411L0X6X5C8DCXH6247424"
+    },
+    "411L/i7252.E.dwg": {
+      "cdnPath": "24-0333/i7252.E.dwg",
+      "bytes": 858395,
+      "viaPartNumber": "0411L0X6X5C8DCXV6247424"
+    },
+    "421/i7208.C.dwg": {
+      "cdnPath": "22-1551/i7208.C.dwg",
+      "bytes": 634138,
+      "viaPartNumber": "0421711X3200XD6H5210XXXXX"
+    },
+    "421/i7209.D.dwg": {
+      "cdnPath": "22-1551/i7209.D.dwg",
+      "bytes": 843093,
+      "viaPartNumber": "0421711X3200XD6H621240XXX"
+    },
+    "421/i7211.C.dwg": {
+      "cdnPath": "22-1551/i7211.C.dwg",
+      "bytes": 595471,
+      "viaPartNumber": "0421711X3200XD6V5210XXXXX"
+    },
+    "421/i7212.D.dwg": {
+      "cdnPath": "22-1551/i7212.D.dwg",
+      "bytes": 877544,
+      "viaPartNumber": "0421711X3200XD6V621240XXX"
+    },
+    "421/i7285.B.dwg": {
+      "cdnPath": "22-1551/i7285.B.dwg",
+      "bytes": 333703,
+      "viaPartNumber": "04217XXXX200XE6H421XXXXXX"
+    },
+    "421/i7286.B.dwg": {
+      "cdnPath": "22-1551/i7286.B.dwg",
+      "bytes": 337842,
+      "viaPartNumber": "04217XXXX200XE6V421XXXXXX"
+    },
+    "451/i7311.A.dwg": {
+      "cdnPath": "23-1897/i7311.A.dwg",
+      "bytes": 928871,
+      "viaPartNumber": "04515211XXXX1H60X0XXX"
+    },
+    "451/i7312.A.dwg": {
+      "cdnPath": "23-1897/i7312.A.dwg",
+      "bytes": 1029206,
+      "viaPartNumber": "04515211XXXX1H70X0XXX"
+    },
+    "451/i7313.A.dwg": {
+      "cdnPath": "23-1897/i7313.A.dwg",
+      "bytes": 932465,
+      "viaPartNumber": "04515211XXXX1V60X0XXX"
+    },
+    "451/i7314.A.dwg": {
+      "cdnPath": "23-1897/i7314.A.dwg",
+      "bytes": 526982,
+      "viaPartNumber": "04515211XXXX1V70X0XXX"
+    },
+    "451/i7315.A.dwg": {
+      "cdnPath": "23-1897/i7315.A.dwg",
+      "bytes": 263011,
+      "viaPartNumber": "04515211XXXX1H20XXXXX"
+    },
+    "451/i7316.A.dwg": {
+      "cdnPath": "23-1897/i7316.A.dwg",
+      "bytes": 284190,
+      "viaPartNumber": "04515211XXXX1H30XXXXX"
+    },
+    "451/i7317.A.dwg": {
+      "cdnPath": "23-1897/i7317.A.dwg",
+      "bytes": 214114,
+      "viaPartNumber": "04515211XXXX1V20XXXXX"
+    },
+    "451/i7318.A.dwg": {
+      "cdnPath": "23-1897/i7318.A.dwg",
+      "bytes": 257620,
+      "viaPartNumber": "04515211XXXX1V30XXXXX"
+    },
+    "487B/i7094.D.dwg": {
+      "cdnPath": "24-5405/i7094.D.dwg",
+      "bytes": 262289,
+      "viaPartNumber": "0487B1X6X52XB0XEH9EEEEX"
+    },
+    "487E/i7081.K.dwg": {
+      "cdnPath": "24-5054/i7081.K.dwg",
+      "bytes": 251205,
+      "viaFolderGuess": true
+    },
+    "487E/i7082.K.dwg": {
+      "cdnPath": "24-5054/i7082.K.dwg",
+      "bytes": 338483,
+      "viaFolderGuess": true
+    },
+    "487E/i7083.K.dwg": {
+      "cdnPath": "24-5054/i7083.K.dwg",
+      "bytes": 225976,
+      "viaPartNumber": "0487E3X211XXXXX1V5XXXXX"
+    },
+    "487E/i7116.H.dwg": {
+      "cdnPath": "24-5054/i7116.H.dwg",
+      "bytes": 162429,
+      "viaPartNumber": "0487E3X211XXXXX1H5XXXXX"
+    },
+    "487E/i7291.C.dwg": {
+      "cdnPath": "22-1551/i7291.C.dwg",
+      "bytes": 105777,
+      "viaPartNumber": "0487E5XX2X200XE6H421XXXXX"
+    },
+    "487E/i7292.C.dwg": {
+      "cdnPath": "22-1551/i7292.C.dwg",
+      "bytes": 126952,
+      "viaPartNumber": "0487E5XX2X200XE6V421XXXXX"
+    },
+    "487E/i7293.B.dwg": {
+      "cdnPath": "24-5054/i7293.B.dwg",
+      "bytes": 597032,
+      "viaPartNumber": "0487E3X211XXXXX1H80X0X0"
+    },
+    "487E/i7343.A.dwg": {
+      "cdnPath": "24-0181/i7343.A.dwg",
+      "bytes": 384224,
+      "viaPartNumber": "0487E51X22211XD6H8210X0XX"
+    },
+    "487E/i7344.A.dwg": {
+      "cdnPath": "24-0181/i7344.A.dwg",
+      "bytes": 302943,
+      "viaPartNumber": "0487E51X22211XD6H7210XXXX"
+    },
+    "487E/i7345.A.dwg": {
+      "cdnPath": "24-0181/i7345.A.dwg",
+      "bytes": 188015,
+      "viaPartNumber": "0487E51X22211XD6H621XXXXX"
+    },
+    "487E/i7401.A.dwg": {
+      "cdnPath": "24-5054/i7401.A.dwg",
+      "bytes": 139871,
+      "viaPartNumber": "0487E3X21AXXXXX1H5XXXXX"
+    },
+    "487E/i7423.A.dwg": {
+      "cdnPath": "24-5054/i7423.A.dwg",
+      "bytes": 190636,
+      "viaPartNumber": "0487E51X22211XD6V621XXXXX"
+    },
+    "587/i7233b.dwg": {
+      "cdnPath": "22-1615/i7233b.dwg",
+      "bytes": 412087,
+      "viaPartNumber": "0587001X1X1"
+    },
+    "651R/i7171.e.dwg": {
+      "cdnPath": "19-2315/i7171.e.dwg",
+      "bytes": 417037,
+      "viaFolderGuess": true
+    },
+    "651R/i7172.c.dwg": {
+      "cdnPath": "19-2315/i7172.c.dwg",
+      "bytes": 346328,
+      "viaPartNumber": "0651R21CXAAXAE1112XXXX"
+    },
+    "651RA/i7167a.dwg": {
+      "cdnPath": "22-1215/i7167a.dwg",
+      "bytes": 247782,
+      "viaPartNumber": "0651RA01XAAAAE2A311XXXXX"
+    },
+    "700BT/i7224.C.dwg": {
+      "cdnPath": "24-5210/i7224.C.dwg",
+      "bytes": 806115,
+      "viaPartNumber": "0700BT1A1ABAL185A630"
+    },
+    "700G/i7358.B.dwg": {
+      "cdnPath": "24-5210/i7358.B.dwg",
+      "bytes": 1051936,
+      "viaPartNumber": "0700G01A0X0X0X81A000"
+    },
+    "700G/i7359.B.dwg": {
+      "cdnPath": "24-5210/i7359.B.dwg",
+      "bytes": 1055541,
+      "viaPartNumber": "0700G01A0X0X0X810000"
+    },
+    "700G/i7361.B.dwg": {
+      "cdnPath": "24-5210/i7361.B.dwg",
+      "bytes": 888437,
+      "viaPartNumber": "0700G01A0X0XL4810000"
+    },
+    "700G/i7363.B.dwg": {
+      "cdnPath": "24-5210/i7363.B.dwg",
+      "bytes": 892519,
+      "viaPartNumber": "0700G01A0X0X74810000"
+    },
+    "700G/i7365.B.dwg": {
+      "cdnPath": "24-5210/i7365.B.dwg",
+      "bytes": 890298,
+      "viaPartNumber": "0700G11A0X0XL3810000"
+    },
+    "700G/i7367.B.dwg": {
+      "cdnPath": "24-5210/i7367.B.dwg",
+      "bytes": 892567,
+      "viaPartNumber": "0700G11A0X0XL3810000"
+    },
+    "700G/i7369.B.dwg": {
+      "cdnPath": "24-5210/i7369.B.dwg",
+      "bytes": 891994,
+      "viaPartNumber": "0700G11A0X0XL2810000"
+    },
+    "700G/i7371.B.dwg": {
+      "cdnPath": "24-5210/i7371.B.dwg",
+      "bytes": 896787,
+      "viaPartNumber": "0700G11A0X0XL2810000"
+    },
+    "700G/i7376.B.dwg": {
+      "cdnPath": "24-5210/i7376.B.dwg",
+      "bytes": 895610,
+      "viaPartNumber": "0700GT1A0X0XL1810000"
+    },
+    "700G/i7377.B.dwg": {
+      "cdnPath": "24-5210/i7377.B.dwg",
+      "bytes": 897572,
+      "viaPartNumber": "0700GT1A0X0XL1810000"
+    },
+    "700G/i7378.B.dwg": {
+      "cdnPath": "24-5210/i7378.B.dwg",
+      "bytes": 896418,
+      "viaPartNumber": "0700G01A0X0X0X81A000"
+    },
+    "700G/i7379.B.dwg": {
+      "cdnPath": "24-5210/i7379.B.dwg",
+      "bytes": 966147,
+      "viaPartNumber": "0700G01A0X0X0X810000"
+    },
+    "710-5/i7346.B.dwg": {
+      "cdnPath": "24-5210/i7346.B.dwg",
+      "bytes": 1295631,
+      "viaFolderGuess": true
+    },
+    "710-5/i7347.B.dwg": {
+      "cdnPath": "24-5210/i7347.B.dwg",
+      "bytes": 1265855,
+      "viaFolderGuess": true
+    },
+    "710-5/i7348.B.dwg": {
+      "cdnPath": "24-5210/i7348.B.dwg",
+      "bytes": 1293706,
+      "viaFolderGuess": true
+    },
+    "710-5/i7350.C.dwg": {
+      "cdnPath": "24-5210/i7350.C.dwg",
+      "bytes": 1105842,
+      "viaPartNumber": "071050E1A6XCA75850300"
+    },
+    "710-5/i7352.C.dwg": {
+      "cdnPath": "24-5210/i7352.C.dwg",
+      "bytes": 1039030,
+      "viaPartNumber": "071050E1A6XCA7585A300"
+    },
+    "710-5/i7354.B.dwg": {
+      "cdnPath": "24-5210/i7354.B.dwg",
+      "bytes": 1017241,
+      "viaPartNumber": "071050E1A6XCA74850300"
+    },
+    "710-5/i7356.B.dwg": {
+      "cdnPath": "24-5210/i7356.B.dwg",
+      "bytes": 1027068,
+      "viaPartNumber": "071050E1A6XCA7485A300"
+    },
+    "735/i7299.A.dwg": {
+      "cdnPath": "25-7024/i7299.A.dwg",
+      "bytes": 520472,
+      "viaFolderGuess": true
+    },
+    "735/i7300.A.dwg": {
+      "cdnPath": "25-7024/i7300.A.dwg",
+      "bytes": 519792,
+      "viaPartNumber": "0735HX20944EXXXXXX16201XX"
+    },
+    "735/i7386.A.dwg": {
+      "cdnPath": "23-1327/i7386.A.dwg",
+      "bytes": 543252,
+      "viaPartNumber": "0735BX20944EXXXXXX16201XX"
+    },
+    "735/i7387.A.dwg": {
+      "cdnPath": "23-1327/i7387.A.dwg",
+      "bytes": 536252,
+      "viaPartNumber": "0735FX20944EXXXXXX16201XX"
+    },
+    "735/i7388.A.dwg": {
+      "cdnPath": "23-1327/i7388.A.dwg",
+      "bytes": 478991,
+      "viaPartNumber": "0735VX20944EXXXXXX16201XX"
+    },
+    "735/i7389.A.dwg": {
+      "cdnPath": "23-1327/i7389.A.dwg",
+      "bytes": 535633,
+      "viaPartNumber": "0735EX20944EXXXXXX16201XX"
+    },
+    "735/i7390.A.dwg": {
+      "cdnPath": "23-1327/i7390.A.dwg",
+      "bytes": 461618,
+      "viaPartNumber": "0735LX20944EXXXXXX16201XX"
+    },
+    "751/i7182.D.dwg": {
+      "cdnPath": "26-1114/i7182.D.dwg",
+      "bytes": 3295414,
+      "viaPartNumber": "751501A1A9X70850230",
+      "supersedesCorpusPdf": "i7182.C.pdf"
+    },
+    "751/i7213d.dwg": {
+      "cdnPath": "26-1114/i7213d.dwg",
+      "bytes": 3011529,
+      "viaPartNumber": "7515S1A1A9X70850230",
+      "supersedesCorpusPdf": "i7213.C.pdf"
+    },
+    "787/i7321.B.dwg": {
+      "cdnPath": "24-5210/i7321.B.dwg",
+      "bytes": 1178052,
+      "viaPartNumber": "07872XE1A0X0X0X81A000"
+    },
+    "787/i7322.B.dwg": {
+      "cdnPath": "24-5210/i7322.B.dwg",
+      "bytes": 1238116,
+      "viaPartNumber": "07872XE1A0X0X0X810000"
+    },
+    "787/i7324.B.dwg": {
+      "cdnPath": "24-5210/i7324.B.dwg",
+      "bytes": 934595,
+      "viaPartNumber": "078721E1A0X0XL6810000"
+    },
+    "787/i7326.B.dwg": {
+      "cdnPath": "24-5210/i7326.B.dwg",
+      "bytes": 937633,
+      "viaPartNumber": "078721E1A0X0XA7810000"
+    },
+    "787/i7328.B.dwg": {
+      "cdnPath": "24-5210/i7328.B.dwg",
+      "bytes": 937746,
+      "viaPartNumber": "07872EE1A0X0XL8810000"
+    },
+    "787/i7330.B.dwg": {
+      "cdnPath": "24-5210/i7330.B.dwg",
+      "bytes": 938579,
+      "viaPartNumber": "07872EE1A0X0X78810000"
+    },
+    "787/i7332.B.dwg": {
+      "cdnPath": "24-5210/i7332.B.dwg",
+      "bytes": 942725,
+      "viaPartNumber": "07873EE1A0X0XL2810000"
+    },
+    "787/i7334.B.dwg": {
+      "cdnPath": "24-5210/i7334.B.dwg",
+      "bytes": 944383,
+      "viaPartNumber": "07873EE1A0X0X77810000"
+    },
+    "787/i7336.B.dwg": {
+      "cdnPath": "24-5210/i7336.B.dwg",
+      "bytes": 1017061,
+      "viaPartNumber": "07873SE1A0X0XL1810000"
+    },
+    "787/i7338.B.dwg": {
+      "cdnPath": "24-5210/i7338.B.dwg",
+      "bytes": 945389,
+      "viaPartNumber": "07873SE1A0X0X71810000"
+    },
+    "787/i7340.B.dwg": {
+      "cdnPath": "24-5210/i7340.B.dwg",
+      "bytes": 941827,
+      "viaPartNumber": "07874XE1A0X0XL0810000"
+    },
+    "787/i7342.B.dwg": {
+      "cdnPath": "24-5210/i7342.B.dwg",
+      "bytes": 944378,
+      "viaPartNumber": "07874XE1A0X0XA1810000"
+    },
+    "787Z/i7265.b.dwg": {
+      "cdnPath": "21-2587/i7265.b.dwg",
+      "bytes": 221233,
+      "viaPartNumber": "0787Z001A0X0X0X8100010030"
+    },
+    "787Z/i7266.C.dwg": {
+      "cdnPath": "24-5210/i7266.C.dwg",
+      "bytes": 982280,
+      "viaPartNumber": "0787Z001A0X0X0X81A0010010"
+    },
+    "T401L/i6360a.dwg": {
+      "cdnPath": "17-2856/i6360a.dwg",
+      "bytes": 154857,
+      "viaPartNumber": "T401L#0001"
+    },
+    "T401L/i6361.B.dwg": {
+      "cdnPath": "24-5675/i6361.B.dwg",
+      "bytes": 177446,
+      "viaPartNumber": "T401L#0001"
+    }
+  }
+}
