@@ -7,6 +7,9 @@
 //
 //   DeviceProfile {
 //     name, manufacturer, model,
+//     partNumber?,           // the ordered part number (MOT) when the artifact
+//                            // states one (RDB [INFO] PARTNO) — reference
+//                            // features configure drawings to this exact device
 //     internalName?,         // the artifact's own name for the device, when
 //                            // it differs from the display name (RTAC)
 //     source: { type: 'rtac' | 'rdb' | 'scd' | 'sw', ref },
@@ -92,6 +95,7 @@ function graphDevice(device, profile, scd) {
     source: device.source,
     name: profile.name,
     model: profile.model,
+    ...(profile.partNumber ? { partNumber: profile.partNumber } : {}),
     endpointCount: profile.endpoints.length,
     // Network fabric (switches): the canvas styles the node and the connect
     // dialog offers the ports.

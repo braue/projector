@@ -15,6 +15,7 @@ const DEMO_PROFILES = [
   {
     name: 'FEEDER_1',
     relayType: 'SEL-751A',
+    partNo: '751A51ABA0X71850230',
     sections: [
       {
         key: 'P5', desc: 'Port 5',
@@ -44,6 +45,7 @@ test('extractRdbProfile: interfaces, servers, serial from the rule table', () =>
   const profile = extractRdbProfile(profiles[0], 'demo::FEEDER_1');
 
   assert.equal(profile.model, 'SEL-751A');
+  assert.equal(profile.partNumber, '751A51ABA0X71850230');
   assert.deepEqual(profile.interfaces, [
     { kind: 'ethernet', name: 'Port 5', ip: '123.123.123.123', mask: '255.255.255.0', gateway: null },
   ]);

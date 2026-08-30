@@ -3,9 +3,6 @@ import { marked } from 'marked'
 
 import {
   CATEGORIES,
-  DOCS,
-  PATHS,
-  TASKS,
   breadcrumb,
   docById,
   docsInCategory,
@@ -18,11 +15,11 @@ import { search, highlightParts } from '../atlas/search'
 import { selOpen, selStatus, selText } from '../atlas/selDocs'
 import type { SelStatus, SelTextGroup } from '../atlas/selDocs'
 import { useDebounced } from '../lib/useDebounced'
-import { TabBar } from './ui'
 import '../atlas/atlas.css'
 
-// Atlas mode — the field-knowledge library (Desktop/atlas/content), embedded
-// whole: category rail with search on the left, the document on the right,
+// Atlas mode — the field-knowledge library (src/atlas/content/, in this
+// repo), embedded whole: category rail with search on the left, the document
+// on the right,
 // with an "On this page" section rail. HTML field guides render in a
 // sandboxed-by-srcDoc iframe and get DOC_SKIN injected at render time
 // (screen-only, so the pages' own print styles survive). DOC_SKIN restyles
@@ -39,8 +36,6 @@ const SKIN_TOKENS = [
   'card', 'bg', 'ink', 'muted', 'border', 'border-soft', 'fill',
   'accent', 'accent-tint', 'bad', 'bad-tint', 'warn', 'warn-tint', 'font-mono',
 ]
-
-type HomeTab = 'paths' | 'browse'
 
 function skinTokens(): string {
   const root = getComputedStyle(document.documentElement)
@@ -151,8 +146,16 @@ function isEditable(el: EventTarget | null): boolean {
  *  keyboard shortcuts meant for the pane you can actually see. */
 export function AtlasView({ active = true }: { active?: boolean }) {
   const [query, setQuery] = useState('')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [open, setOpen] = useState<Set<string>>(new Set(['start-here']))
+  // The atlas opens ON a document — the first of the reading order — not on
+  // a landing page. The rail is the navigation; a pane that waits for a
+  // click is a pane wasted.
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => docsInReadingOrder()[0]?.id ?? null,
+  )
+  const [open, setOpen] = useState<Set<string>>(() => {
+    const first = docsInReadingOrder()[0]
+    return new Set(first ? [first.category] : [])
+  })
   // null until the first search asks. Stays null when there is no backend at
   // all (the standalone atlas), which is how the SEL section stays silently
   // absent there rather than erroring.
@@ -347,9 +350,6 @@ export function AtlasView({ active = true }: { active?: boolean }) {
               >
                 {allOpen ? 'Collapse all' : 'Expand all'}
               </button>
-              <button className="atl-home-link" onClick={() => setSelectedId(null)}>
-                Home
-              </button>
               {allCategories.map((cat) => {
                 const docs = docsInCategory(cat.id)
                 const isOpen = open.has(cat.id)
@@ -397,7 +397,9 @@ export function AtlasView({ active = true }: { active?: boolean }) {
         {selected ? (
           <AtlasDocView doc={selected} prev={prev} next={next} onSelect={go} />
         ) : (
-          <AtlasHome onSelect={go} />
+          /* Only reachable when the build embeds no documents at all — the
+             atlas content repo was not beside the checkout at build time. */
+          <div className="pane-message">No atlas documents are in this build.</div>
         )}
       </main>
     </>
@@ -555,90 +557,3 @@ function AtlasDocView(props: {
   )
 }
 
-function AtlasHome({ onSelect }: { onSelect: (id: string) => void }) {
-  const [tab, setTab] = useState<HomeTab>('paths')
-  return (
-    <div className="atl-home">
-      <div className="atl-home-head">
-        <h1>Atlas</h1>
-        <p className="atl-dim">
-          The field-knowledge library — {DOCS.length} documents on power system fundamentals,
-          protection, communications, protocols, and the RTAC, each grounded in the SEL reference
-          library. Press <kbd>/</kbd> to search titles, tags, and full text.
-        </p>
-      </div>
-
-      <TabBar
-        tabs={[
-          { key: 'paths', label: 'Where to start' },
-          { key: 'browse', label: 'Browse everything' },
-        ]}
-        activeKey={tab}
-        onSelect={(key) => setTab(key as HomeTab)}
-      />
-
-      {tab === 'paths' ? (
-        <>
-          <section className="atl-home-section">
-            <h2>I need to…</h2>
-            <div className="atl-task-grid">
-              {TASKS.map((t) => (
-                <button key={t.q} className="atl-task" onClick={() => onSelect(t.doc)}>
-                  <span className="atl-task-q">{t.q}</span>
-                  <span className="atl-task-doc">{docById(t.doc)?.title ?? t.doc}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="atl-home-section">
-            <h2>Reading paths</h2>
-            <div className="atl-path-grid">
-              {PATHS.map((p) => (
-                <div key={p.label} className="atl-path">
-                  <div className="atl-path-label">{p.label}</div>
-                  <div className="atl-path-blurb atl-dim">{p.blurb}</div>
-                  <ol className="atl-path-docs">
-                    {p.docs.map((id) => {
-                      const d = docById(id)
-                      return (
-                        <li key={id}>
-                          <button onClick={() => onSelect(id)} disabled={!d}>
-                            {d?.title ?? id}
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ol>
-                </div>
-              ))}
-            </div>
-          </section>
-        </>
-      ) : (
-        <section className="atl-home-section">
-          {CATEGORIES.map((c) => {
-            const docs = docsInCategory(c.id)
-            if (docs.length === 0) return null
-            return (
-              <div key={c.id} className="atl-browse-cat">
-                <div className="atl-browse-head">
-                  <span className="atl-browse-label">{c.label}</span>
-                  <span className="atl-browse-hint atl-dim">{c.hint}</span>
-                </div>
-                <div className="atl-browse-docs">
-                  {docs.map((d) => (
-                    <button key={d.id} className="atl-browse-doc" onClick={() => onSelect(d.id)}>
-                      <span className="atl-bd-title">{d.title}</span>
-                      <span className="atl-bd-summary atl-dim">{d.summary}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </section>
-      )}
-    </div>
-  )
-}

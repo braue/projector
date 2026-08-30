@@ -149,8 +149,6 @@
 .atl-prose strong { color: var(--ink); font-weight: 650; }
 .atl-prose hr { border: 0; border-top: 1px solid var(--border); margin: 28px auto; }
 
-.atl-dim { color: var(--muted); }
-
 /* ---------- doc scroll + prev/next ---------- */
 
 .atl-doc-scroll { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -175,58 +173,11 @@
 
 /* ---------- rail controls ---------- */
 
-.atl-expand-all, .atl-home-link {
+.atl-expand-all {
   display: inline-block; margin: 2px 8px 6px 0; padding: 3px 8px; border-radius: 6px;
   font-size: 12px; color: var(--muted);
 }
-.atl-expand-all:hover, .atl-home-link:hover { color: var(--ink); background: var(--fill); }
-
-/* ---------- home ---------- */
-
-.atl-home { flex: 1; overflow-y: auto; padding: 40px 40px 80px; }
-.atl-home > *, .atl-home-section > * { max-width: 1000px; margin-left: auto; margin-right: auto; }
-.atl-home-head { max-width: 1000px; margin: 0 auto 22px; }
-.atl-home-head h1 { font-size: 26px; font-weight: 650; color: var(--ink); margin: 0 0 10px; }
-.atl-home-head p { font-size: 14px; line-height: 1.65; color: var(--muted); margin: 0; }
-
-/* The home tabs are .ui-tabbar; it only needs this page's reading width. */
-.atl-home .ui-tabbar { margin: 0 auto 22px; max-width: 1000px; }
-
-.atl-home-section { margin-bottom: 32px; }
-.atl-home-section h2 {
-  font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 auto 10px;
-}
-
-.atl-task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
-.atl-task {
-  display: flex; flex-direction: column; gap: 2px; padding: 10px 14px;
-  border: 1px solid var(--border); border-radius: 8px; background: var(--card);
-  transition: border-color 0.12s, background 0.12s;
-}
-.atl-task:hover { border-color: var(--accent); background: var(--accent-tint); }
-.atl-task-q { font-size: 13px; color: var(--ink); }
-.atl-task-doc { font-size: 11.5px; color: var(--muted); }
-
-.atl-path-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-.atl-path { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
-.atl-path-label { font-weight: 650; font-size: 13.5px; color: var(--ink); margin-bottom: 3px; }
-.atl-path-blurb { font-size: 12px; line-height: 1.5; color: var(--muted); margin-bottom: 10px; }
-.atl-path-docs { margin: 0; padding-left: 20px; }
-.atl-path-docs li { margin-bottom: 1px; }
-.atl-path-docs li::marker { color: var(--ghost); font-size: 11px; }
-.atl-path-docs button { font-size: 12.5px; color: var(--muted); padding: 2px 6px; border-radius: 5px; display: block; width: 100%; }
-.atl-path-docs button:hover { color: var(--accent); background: var(--fill); }
-.atl-path-docs button:disabled { color: var(--ghost-soft); text-decoration: line-through; cursor: default; }
-
-.atl-browse-cat { margin-bottom: 26px; }
-.atl-browse-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; }
-.atl-browse-label { font-weight: 650; font-size: 13.5px; color: var(--ink); }
-.atl-browse-hint { font-size: 11.5px; color: var(--muted); }
-.atl-browse-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 2px; }
-.atl-browse-doc { display: flex; flex-direction: column; gap: 1px; padding: 7px 10px; border-radius: 7px; }
-.atl-browse-doc:hover { background: var(--fill); }
-.atl-bd-title { font-size: 13px; color: var(--ink); font-weight: 500; }
-.atl-bd-summary { font-size: 11.5px; line-height: 1.45; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.atl-expand-all:hover { color: var(--ink); background: var(--fill); }
 
 /* ---------- the SEL PDF library ---------- */
 

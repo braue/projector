@@ -32,14 +32,24 @@ class SelLibrary {
   }
 
   /**
-   * Hand the PDF to the OS default viewer. Same reasoning as the project file
-   * store: loopback deployment makes this the user's own machine, and the path
-   * is library-confined by #resolve.
+   * Absolute path of one library document, confirmed present on disk — the
+   * containment and existence checks in one place, for the routes that
+   * stream a document as well as open() below.
    */
-  async open(relPath, page = null) {
+  async filePath(relPath) {
     const absolute = this.#resolve(relPath);
     const info = await stat(absolute).catch(() => null);
     if (!info?.isFile()) throw httpError(404, `no such document: ${relPath}`);
+    return absolute;
+  }
+
+  /**
+   * Hand the PDF to the OS default viewer. Same reasoning as the project file
+   * store: loopback deployment makes this the user's own machine, and the path
+   * is library-confined by filePath.
+   */
+  async open(relPath, page = null) {
+    const absolute = await this.filePath(relPath);
     // Landing on a specific page needs the file:// form with a #page fragment,
     // which browser-based viewers honour. That routes through the URL handler
     // rather than the PDF file association, so it is used only when a page was

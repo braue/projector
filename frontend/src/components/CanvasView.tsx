@@ -17,6 +17,7 @@ import {
   addWaiver,
   attachScd,
   detachScd,
+  fetchDwgenModels,
   fetchGraph,
   moveDevice,
   placeDevice,
@@ -24,6 +25,8 @@ import {
   removeManualLink,
   removeWaiver,
 } from '../api'
+import { selManual, selManualUrl } from '../atlas/selDocs'
+import type { SelManual } from '../atlas/selDocs'
 import { errorMessage } from '../lib/errors'
 import { count } from '../lib/format'
 import { SOURCE_MIME } from '../lib/sources'
@@ -134,6 +137,36 @@ function besideNode(wrap: DOMRect, nodeRect: DOMRect) {
 /** What kind of box this is, when the profile states nothing better. */
 const deviceModelLabel = (device: GraphDevice) => device.model ?? device.source.type.toUpperCase()
 
+// The drawing corpus names models bare ("751A") where profiles say
+// "SEL-751A"; the corpus name is what the Drawing Generator's model picker
+// takes, so the match is resolved here and passed along.
+function corpusModel(model: string | null, models: string[]): string | null {
+  if (!model) return null
+  const bare = model.replace(/^SEL[-\s]*/i, '').trim().toUpperCase()
+  return models.find((entry) => entry.toUpperCase() === bare) ?? null
+}
+
+// One manual answer per model, kept for the session: the popup asks when it
+// opens, and clicking the same relay twice should not ask the backend twice.
+const MANUAL_CACHE = new Map<string, Promise<SelManual | null>>()
+
+function useManual(model: string | null): SelManual | null {
+  const [manual, setManual] = useState<SelManual | null>(null)
+  useEffect(() => {
+    setManual(null)
+    if (!model) return
+    if (!MANUAL_CACHE.has(model)) MANUAL_CACHE.set(model, selManual(model).catch(() => null))
+    let live = true
+    MANUAL_CACHE.get(model)!.then((found) => {
+      if (live) setManual(found)
+    })
+    return () => {
+      live = false
+    }
+  }, [model])
+  return manual
+}
+
 // Which settings artifact a canvas node is built from, as one line. Upload
 // refs are "<fileId>::<profileName>" — the fileId is shown as-is (its real
 // extension was stripped at upload; fabricating one here would lie about
@@ -155,14 +188,26 @@ function sourceLine(source: DeviceSource): string {
 
 function NodePopup({
   popup,
+  drawingModels,
   onClose,
   onDetachScd,
+  onOpenDrawing,
 }: {
   popup: NodePopupState
+  /** The drawing corpus's model list — gates the "Connection drawing" button. */
+  drawingModels: string[]
   onClose: () => void
   onDetachScd: (deviceId: string) => void
+  onOpenDrawing: (seed: { partNumber: string | null; model: string | null }) => void
 }) {
   const { device } = popup
+  // Reference material for this device: its connection drawing when the
+  // corpus covers the model (or a part number lets the generator detect it),
+  // and its instruction manual when the index names one and the PDF library
+  // holds it.
+  const drawingModel = corpusModel(device.model, drawingModels)
+  const canDraw = Boolean(drawingModel || device.partNumber)
+  const manual = useManual(device.model)
   return (
     <div className="link-popup" style={{ left: popup.x, top: popup.y }}>
       <PopupHeader title={device.name} onClose={onClose} />
@@ -192,6 +237,32 @@ function NodePopup({
         <div className="warn bad">{device.error}</div>
       ) : (
         <div className="endlabel">Double-click to open in Inspect</div>
+      )}
+      {(canDraw || manual) && (
+        <div className="popup-actions">
+          {canDraw && (
+            <Button
+              title={
+                device.partNumber
+                  ? `Generate the ${deviceModelLabel(device)} connection drawing for part number ${device.partNumber}`
+                  : `Open the Drawing Generator on the ${deviceModelLabel(device)} drawings — enter the part number to configure them`
+              }
+              onClick={() =>
+                onOpenDrawing({ partNumber: device.partNumber ?? null, model: drawingModel })
+              }
+            >
+              Connection drawing
+            </Button>
+          )}
+          {manual && (
+            <Button
+              title={`Open ${manual.name} in a new tab`}
+              onClick={() => window.open(selManualUrl(device.model!), '_blank')}
+            >
+              Open manual
+            </Button>
+          )}
+        </div>
       )}
     </div>
   )
@@ -560,12 +631,14 @@ function CanvasInner({
   reloadKey,
   onInspect,
   onGraph,
+  onOpenDrawing,
 }: {
   project: string
   /** Bump to force a graph reload (e.g. after an RDB upload resolves ghosts). */
   reloadKey: number
   onInspect: (source: DeviceSource) => void
   onGraph: (graph: WorkspaceGraph | null) => void
+  onOpenDrawing: (seed: { partNumber: string | null; model: string | null }) => void
 }) {
   const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -582,6 +655,14 @@ function CanvasInner({
   // only the latest response may write state, or React Flow can validate
   // edges against a node set that is about to be replaced.
   const loadSeq = useRef(0)
+
+  // The drawing corpus's model list, for the device popup's reference
+  // section. Machine-global and tiny, fetched once; a failure just leaves the
+  // "Connection drawing" button to devices that state a part number.
+  const [drawingModels, setDrawingModels] = useState<string[]>([])
+  useEffect(() => {
+    fetchDwgenModels().then(setDrawingModels).catch(() => {})
+  }, [])
 
   const load = useCallback(async () => {
     const seq = ++loadSeq.current
@@ -794,7 +875,9 @@ function CanvasInner({
       {activePopup?.kind === 'node' && (
         <NodePopup
           popup={activePopup}
+          drawingModels={drawingModels}
           onClose={() => setActivePopup(null)}
+          onOpenDrawing={onOpenDrawing}
           onDetachScd={async (deviceId) => {
             setActivePopup(null)
             await detachScd(project, deviceId).catch((err) => setError(errorMessage(err)))
@@ -819,6 +902,7 @@ export function CanvasView(props: {
   reloadKey: number
   onInspect: (source: DeviceSource) => void
   onGraph: (graph: WorkspaceGraph | null) => void
+  onOpenDrawing: (seed: { partNumber: string | null; model: string | null }) => void
 }) {
   return (
     <ReactFlowProvider>

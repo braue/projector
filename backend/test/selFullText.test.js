@@ -84,6 +84,59 @@ test('a missing index leaves the feature off rather than erroring', () => {
   assert.deepEqual(full.search('anything'), { available: false, groups: [] });
 });
 
+// --- resolving a model's instruction manual -----------------------------------
+//
+// manualFor reads the document list, not the page text: a manual mentions
+// every model it interoperates with, but its filename names exactly one.
+// Matching is whole-token, so near-miss models (751 vs 751A) never claim each
+// other's manuals, and only instruction-manual folders are considered.
+
+function writeManualsIndex(file) {
+  const db = new DatabaseSync(file);
+  db.exec(`
+    CREATE TABLE docs (path TEXT PRIMARY KEY, name TEXT, folder TEXT,
+                       size INTEGER, mtime INTEGER, pages INTEGER, indexed_at TEXT);
+    CREATE VIRTUAL TABLE pages USING fts5(body, path UNINDEXED, page UNINDEXED);
+  `);
+  const insert = db.prepare('INSERT INTO docs VALUES (?,?,?,?,?,?,?)');
+  const doc = (name, folder, mtime) =>
+    insert.run(`${folder}/${name}`, name, folder, 1, mtime, 900, 'now');
+  doc('SEL-751A Instruction Manual 20200101.pdf', 'Instruction Manuals', 100);
+  doc('SEL-751A Instruction Manual 20240101.pdf', 'Instruction Manuals', 200);
+  doc('SEL-751 Instruction Manual.pdf', 'Instruction Manuals', 300);
+  doc('SEL-751A Data Sheet.pdf', 'Data Sheets', 400);
+  db.close();
+}
+
+test('manualFor: whole-token model match, newest edition, manuals only', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sel-'));
+  try {
+    const file = path.join(tmp, 'sel_fulltext.sqlite');
+    writeManualsIndex(file);
+    const full = new SelFullText();
+    full.open(file);
+
+    // Newest edition wins; the data sheet never competes despite its name.
+    assert.equal(
+      full.manualFor('SEL-751A')?.name,
+      'SEL-751A Instruction Manual 20240101.pdf',
+    );
+    // The SEL- prefix is the caller's spelling, not part of the match.
+    assert.equal(full.manualFor('751A')?.name, 'SEL-751A Instruction Manual 20240101.pdf');
+    // 751 is not a token inside 751A, in either direction.
+    assert.equal(full.manualFor('SEL-751')?.name, 'SEL-751 Instruction Manual.pdf');
+    assert.equal(full.manualFor('SEL-411L'), null);
+    assert.equal(full.manualFor(''), null);
+    full.close();
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('manualFor without an index is null, not an error', () => {
+  assert.equal(new SelFullText().manualFor('SEL-751A'), null);
+});
+
 test('a broken index reports its error and leaves the feature off', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-sel-'));
   try {

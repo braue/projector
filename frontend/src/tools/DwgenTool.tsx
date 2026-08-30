@@ -5,7 +5,7 @@
 // drawing). "Open as DWG" on a drawing launches local AutoCAD with the same
 // layer switch applied; without AutoCAD the bundle is the hand-off.
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { fetchDwgenModels, generateDwgen, openDwgenDwg, toolRunFileUrl } from '../api'
 import { Button, CollapsibleSection, DataTable, Select, Spinner, TextInput } from '../components/ui'
@@ -14,7 +14,7 @@ import type { DwgenResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 
-export function DwgenTool(_props: ToolProps) {
+export function DwgenTool({ seek }: ToolProps) {
   const [partNumber, setPartNumber] = useState('')
   const [model, setModel] = useState('')
   const [models, setModels] = useState<string[]>([])
@@ -27,19 +27,32 @@ export function DwgenTool(_props: ToolProps) {
     fetchDwgenModels().then(setModels).catch(() => {})
   }, [])
 
-  const generate = async () => {
+  const generate = useCallback(async (pn: string, m: string) => {
     setBusy(true)
     setError(null)
     setResult(null)
     setDwgStatus(null)
     try {
-      setResult(await generateDwgen({ partNumber, model: model || undefined }))
+      setResult(await generateDwgen({ partNumber: pn, model: m || undefined }))
     } catch (err) {
       setError(errorMessage(err))
     } finally {
       setBusy(false)
     }
-  }
+  }, [])
+
+  // Seeded arrival — a canvas device popup's "Connection drawing". The
+  // device's part number and model land in the form, and when the part number
+  // is known the run starts at once: the click asked for the drawing, not for
+  // a form to fill in.
+  useEffect(() => {
+    if (!seek?.dwgen) return
+    const pn = seek.dwgen.partNumber ?? ''
+    const m = seek.dwgen.model ?? ''
+    setPartNumber(pn)
+    setModel(m)
+    if (pn.trim()) generate(pn, m)
+  }, [seek, generate])
 
   const openDwg = async (run: string, stem: string) => {
     setDwgStatus(null)
@@ -79,7 +92,7 @@ export function DwgenTool(_props: ToolProps) {
             spellCheck={false}
             onChange={(e) => setPartNumber(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && partNumber.trim() && !busy) generate()
+              if (e.key === 'Enter' && partNumber.trim() && !busy) generate(partNumber, model)
             }}
           />
           <Select
@@ -90,7 +103,7 @@ export function DwgenTool(_props: ToolProps) {
             options={models}
           />
           <div className="tool-row">
-            <Button variant="primary" disabled={busy || !partNumber.trim()} onClick={generate}>
+            <Button variant="primary" disabled={busy || !partNumber.trim()} onClick={() => generate(partNumber, model)}>
               Generate
             </Button>
           </div>

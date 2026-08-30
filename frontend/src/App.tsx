@@ -39,6 +39,7 @@ const AtlasView = lazy(() =>
 )
 import { Button, SegmentedControl, TextInput } from './components/ui'
 import { ToolsView } from './tools/ToolsView'
+import type { ToolSeek } from './tools/registry'
 import { confirmOverwrite } from './lib/confirm'
 import { errorMessage } from './lib/errors'
 import { count } from './lib/format'
@@ -120,6 +121,9 @@ export default function App() {
   // half-configured extraction survives dipping back into the project.
   const [toolsOpen, setToolsOpen] = useState(false)
   const [toolsEverOpened, setToolsEverOpened] = useState(false)
+  // Reference jumps out of a canvas device popup: the seek says what to show
+  // over there, and its `n` bumps per request so a repeat still lands.
+  const [toolsSeek, setToolsSeek] = useState<ToolSeek | null>(null)
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
   // Notes and Files each split into their working view and a full-pane search.
   const notesSearch = useSubSearch<string>()
@@ -408,6 +412,16 @@ export default function App() {
     [handleSelectSource],
   )
 
+  // A device popup's "Connection drawing": the Drawing Generator opens seeded
+  // with the device's part number and corpus model, and runs at once when the
+  // part number is known.
+  const openDrawingTool = useCallback((dwgen: { partNumber: string | null; model: string | null }) => {
+    setToolsSeek((prev) => ({ tool: 'dwgen', dwgen, n: (prev?.n ?? 0) + 1 }))
+    setToolsOpen(true)
+    setToolsEverOpened(true)
+    setAtlasOpen(false)
+  }, [])
+
   const { data: tree, error: treeError } = useFetch(
     project && selectedSource ? () => fetchSourceTree(project, selectedSource) : null,
     [project, selectedSource],
@@ -551,6 +565,7 @@ export default function App() {
                 reloadKey={graphVersion}
                 onInspect={inspectFromCanvas}
                 onGraph={setGraph}
+                onOpenDrawing={openDrawingTool}
               />
               {showFindings && graph && graph.diagnostics.length > 0 && (
                 <div className="findings-panel">
@@ -648,7 +663,7 @@ export default function App() {
             tool form survives a detour back into the project. */}
         {toolsEverOpened && (
           <div className="tools-pane" hidden={!toolsOpen}>
-            <ToolsView project={project} />
+            <ToolsView project={project} seek={toolsSeek} />
           </div>
         )}
 

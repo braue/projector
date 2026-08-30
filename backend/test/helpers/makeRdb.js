@@ -2,12 +2,19 @@
 // parser expects. Used by the parser/extractor tests and by the demo-fixture
 // script — no genuine relay database is needed to exercise the pipeline.
 //
-// profiles: [{ name, relayType, sections: [{ key, desc, settings }] }]
+// profiles: [{ name, relayType, partNo?, sections: [{ key, desc, settings }] }]
 
 import CFB from 'cfb';
 
-function settingsFileText(relayType, section) {
-  const lines = ['[INFO]', `RELAYTYPE=${relayType}`, 'FID=TEST-FID', '', `[${section.key}]`];
+function settingsFileText(profile, section) {
+  const lines = [
+    '[INFO]',
+    `RELAYTYPE=${profile.relayType ?? 'SEL-451'}`,
+    ...(profile.partNo ? [`PARTNO=${profile.partNo}`] : []),
+    'FID=TEST-FID',
+    '',
+    `[${section.key}]`,
+  ];
   for (const [key, value] of Object.entries(section.settings)) {
     lines.push(`${key},"${value}"`);
   }
@@ -31,7 +38,7 @@ function makeRdb(profiles) {
       CFB.utils.cfb_add(
         container,
         `/Relays/${profile.name}/Set_${i + 1}.txt`,
-        Buffer.from(settingsFileText(profile.relayType ?? 'SEL-451', section)),
+        Buffer.from(settingsFileText(profile, section)),
       );
     });
   }

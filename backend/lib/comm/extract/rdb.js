@@ -113,6 +113,7 @@ function extractRdbProfile(profile, ref) {
     name: profile.name,
     manufacturer: 'SEL',
     model: relayType(profile) ?? 'relay',
+    partNumber: profile.info?.PARTNO ?? null,
     source: { type: 'rdb', ref },
     interfaces,
     endpoints,

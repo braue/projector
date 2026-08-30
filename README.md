@@ -54,6 +54,25 @@ and `mockups.html` for the reviewed UI mockups.
   lists what it carries; clicking one of those lights its whole path end to
   end, and hovering a box lights everything that talks to it. With no drawn
   cables the topology isn't stated, and links stay direct as before.
+
+  **A placed device carries its reference material.** The box's popup offers
+  two jumps out to what the app already knows about that model. *Connection
+  drawing* opens the Drawing Generator on the device — seeded with the
+  relay's ordered part number when its RDB states one (`[INFO]` PARTNO), in
+  which case the configured drawing generates on arrival; with only a model
+  the generator opens preselected and waits for the MOT. The button appears
+  when the drawing corpus covers the model or a part number lets the
+  generator detect it. *Open manual* opens the device's instruction manual
+  in a browser tab, streamed straight from the PDF library — the packaged
+  app hands the URL to the default browser, so it lands as a tab there too.
+  Which manual is the index's document list to answer, not a guess from
+  page text: the model must appear in the filename as a whole token ("751"
+  never claims the SEL-751A manual, nor "751A" the SEL-751's), only
+  instruction-manual folders are considered, and several editions resolve
+  to the newest file. The button appears only when the index names a manual
+  AND the PDF itself is on the machine. The linker's canvas and the
+  reference library stop being separate corners of the same app: the device
+  you are staring at is one click from its manual and its drawing.
 - **Inspect** — read-only settings for one artifact: full object tree, the
   settings transcript with one tab per settings page, and a
   Browse / Aggregate toggle (aggregate = setting names × object scope,
@@ -82,19 +101,19 @@ can actually see. It is also a `React.lazy` import — the embedded library is
 2.6 MB of document source, and a canvas session that never opens the atlas
 should not pay to parse it.
 
-The library is embedded whole. It reads `Desktop/atlas/content/` directly
-(glob-imported across repos; the dev server allows it via `vite.config.ts`
-`server.fs.allow`), so the atlas repo stays the single home for the documents
-and its standalone app keeps working. Category rail with full-text search,
-documents with an "On this page" rail, prev/next, and `atlas:` cross-document
-links.
+The library is embedded whole, and it lives **in this repo**:
+`frontend/src/atlas/content/<category>/` holds the documents, glob-imported
+at build time — drop a file in a category folder and rebuild, nothing outside
+the repo involved. (It began as a standalone atlas repo beside this checkout;
+that repo is scrapped, and `content/README.md` says how its documents migrate
+in.) Category rail with full-text search, documents with an "On this page"
+rail, prev/next, and `atlas:` cross-document links.
 
 **It is styled as a pane of projector, not as an embedded app.** `atlas.css`
 draws every color from `index.css`'s tokens and follows the same house rules —
 no raw hex, no uppercase/letter-spaced labels, 16px pane gutters, `.ui-*`
-primitives where one fits — the search box *is* `.ui-input`, the home tabs
-*are* `TabBar`, the counts *are* `.ui-count`. The `atl-` prefix scopes layout,
-not a second theme.
+primitives where one fits — the search box *is* `.ui-input`, the counts *are*
+`.ui-count`. The `atl-` prefix scopes layout, not a second theme.
 
 HTML field guides render in an iframe and get `DOC_SKIN` (in
 `src/components/AtlasView.tsx`) injected before `</head>` at render time,
@@ -110,10 +129,11 @@ The one thing the atlas keeps at its own scale is the document reading column:
 long-form prose at 14.5px/1.7, where a settings table reads at 12.5px. That is
 a reading decision, not a theme — the typeface and palette are projector's.
 
-`src/atlas/{content,search}.ts` are copies of the atlas repo's `src/` modules
-— keep them in step; only the glob paths and the `atl-` class prefix differ.
-The *styling* has deliberately diverged: the standalone atlas app keeps its
-OpenAI-docs look, this copy wears projector's.
+`src/atlas/{content,search}.ts` are projector's own — the content model and
+the search index over it. `start-here/` is deliberately filtered out of the
+doc build (`DROPPED_CATEGORIES` in `content.ts`): the atlas opens straight
+into the library, so orientation pages have no audience here and a copied-in
+`start-here/` folder stays inert.
 
 ## Searching the SEL documents
 
@@ -138,6 +158,10 @@ ground is the clearest boundary available, and `--bg` was tried first and is
 a percent off white, so it carried nothing. Every SEL row also carries a `↗`,
 because that click leaves the application — the arrow (and the click) go away
 when the library is not on the machine.
+
+There is no landing page and no Start Here section: the atlas opens on the
+first document of the reading order — Power System Fundamentals leads — and
+the rail is the navigation. A pane that waits for a click is a pane wasted.
 
 There is deliberately no search-by-model-number. A model is just another term,
 and the full text finds it in the manuals that are actually about it — ranking
@@ -404,7 +428,9 @@ the house rules; the short version:
    variant spellings. A synthetic demo database lives at
    `backend/test/fixtures/demo_relays.rdb`; upload it and place FEEDER_1 /
    METER_3 alongside a sample RTAC project to see confirmed, conflict,
-   probable, and ghost-snapping behavior at once.
+   probable, and ghost-snapping behavior at once. Both demo relays carry
+   ordered part numbers, so their popups' *Connection drawing* generates
+   immediately.
 3. SCD/SCL parser (awaiting example exports) → IEDs, subnet regions, GOOSE.
 4. Manual serial pairing UI, RDB-vs-RDB compare, conflict report export,
    canvas snapshot compare.

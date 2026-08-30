@@ -316,6 +316,8 @@ export interface GraphDevice {
   source: DeviceSource
   name: string
   model: string | null
+  /** The ordered part number (MOT), when the artifact states one (RDB). */
+  partNumber?: string
   endpointCount?: number
   error?: string
   /** Network fabric ('switch') vs an end device (absent). */
