@@ -271,43 +271,6 @@ export interface SearchResults {
   truncated: boolean
 }
 
-// --- the everywhere search ----------------------------------------------------
-//
-// One string across EVERY project: each project's settings sources plus its
-// notes, grouped by project. Hits are pointers — opening one jumps to that
-// project's Inspect (or note), where the full listing lives.
-
-export interface EverywhereSourceHit {
-  type: SourceType
-  ref: string
-  /** Display label of the source ("feeders.rdb · FEEDER_1"). */
-  label: string
-  results: SearchHit[]
-  totalMatches: number
-  truncated: boolean
-}
-
-export interface EverywhereNoteHit {
-  id: string
-  name: string
-  matches: SearchMatch[]
-  totalMatches: number
-  truncated: boolean
-}
-
-export interface EverywhereProjectHits {
-  name: string
-  sources: EverywhereSourceHit[]
-  notes: EverywhereNoteHit[]
-}
-
-export interface EverywhereResults {
-  query: string
-  projects: EverywhereProjectHits[]
-  /** Sources that could not be searched — reported, never fatal. */
-  errors: { project: string; source: string | null; error: string }[]
-}
-
 // --- project files ------------------------------------------------------------
 
 export type FileNode =
@@ -434,4 +397,145 @@ export interface WorkspaceGraph {
   diagnostics: NetworkDiagnostic[]
   /** The linker's tier tallies: open conflicts, and acknowledged ones. */
   summary: { conflicts: number; waived: number }
+}
+
+// --- tools (global utilities — see backend/routes/tools.js) -------------------
+
+export type ToolJobStatus = 'running' | 'done' | 'error'
+
+/** One slow tool operation, polled at /api/tools/jobs/:id until settled. */
+export interface ToolJob {
+  id: string
+  label: string
+  status: ToolJobStatus
+  /** 0..1 when the work can estimate, null when it cannot. */
+  progress: number | null
+  log: string[]
+  result: unknown
+  error: string | null
+}
+
+/** One output file in a tool run's workspace. */
+export interface ToolRunFile {
+  path: string
+  size: number
+  modifiedAt: string
+}
+
+/** One downloadable report file a tool run produced. */
+export interface ToolReport {
+  path: string
+  label: string
+  /** Set for supporting files (e.g. dwgen's AutoCAD bundle) that a tool may
+   *  keep out of its headline outputs strip. */
+  kind?: string
+}
+
+/** The HMI Tag Tester's analysis of one Diagram Builder project. */
+export interface HmiReport {
+  tool: string
+  run: string
+  reports: ToolReport[]
+  totalTags: number
+  importedCount: number
+  badTags: { tag: string; diagram: string }[]
+  duplicateTags: { tag: string; count: number; sameScreen: boolean }[]
+}
+
+/** QuickSet Extract: the relay inventory over a configs run. */
+export interface QuicksetInventory {
+  tool: string
+  run: string
+  rows: { location: string; device: string; relayType: string; firmware: string }[]
+  reports: ToolReport[]
+}
+
+/** QuickSet Extract: the pivoted settings extraction. */
+export interface QuicksetExtract {
+  tool: string
+  run: string
+  filesChecked: number
+  hits: number
+  columns: string[]
+  rows: Record<string, string>[]
+  reports: ToolReport[]
+}
+
+// --- SWSET (switch settings editor) --------------------------------------------
+
+export interface SwsetField {
+  id: string
+  label: string
+  readOnly?: boolean
+}
+
+export interface SwsetColumn {
+  id: string
+  label: string
+  readOnly?: boolean
+  /** Constant display value; never editable. */
+  fixed?: string
+}
+
+export type SwsetTable =
+  | { kind: 'nameplate'; id: string; label: string; fields: SwsetField[]; values: Record<string, string | null> }
+  | { kind: 'fields'; id: string; label: string; fields: SwsetField[]; values: Record<string, string | null> }
+  | { kind: 'list'; id: string; label: string; columns: SwsetColumn[]; rows: Record<string, string | null>[]; canAddRows?: boolean }
+
+export interface SwsetSection {
+  id: string
+  label: string
+  tables: SwsetTable[]
+}
+
+export interface SwsetModel {
+  tool: string
+  run: string
+  deviceType: string
+  fid: string
+  sections: SwsetSection[]
+}
+
+export interface SwsetGenerateResult {
+  tool: string
+  run: string
+  applied: number
+  skipped: string[]
+  reports: ToolReport[]
+}
+
+/** RTAC Exporter: one project's export outcome. */
+export interface RtacExportResult {
+  project: string
+  success: boolean
+  output?: string
+  error?: string
+}
+
+// --- DWGEN (drawing generator) -------------------------------------------------
+
+export interface DwgenPosition {
+  position: number
+  label: string | null
+  code: string
+  description: string | null
+  matched: boolean
+  note?: string | null
+}
+
+export interface DwgenResult {
+  tool: string
+  run: string
+  model: string
+  product: string | null
+  partNumber: string
+  decoded: { positions: DwgenPosition[] }
+  layers: string[]
+  previews: string[]
+  reports: ToolReport[]
+  /** Drawings whose DWG is bundled in this run, keyed to their source PDF. */
+  dwgs: { stem: string; pdf: string }[]
+  /** Whether this machine has full AutoCAD for the "Open as DWG" pass. */
+  autocad: boolean
+  warnings: string[]
 }

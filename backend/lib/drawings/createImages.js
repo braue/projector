@@ -207,7 +207,7 @@ function cropPixels(view, pageSize, image) {
   return { x, y, w, h };
 }
 
-async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber, renderCache) {
+async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber, renderCache, configuredPdfs) {
   const pdfPath = path.join(deviceDir, pdfName);
   const enabledLayers = resolveEnabledLayers(metadata, pdfName, pn);
   const cacheKey = [
@@ -218,8 +218,11 @@ async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber,
   ].join('|');
 
   if (!renderCache.has(cacheKey)) {
-    const pdfBytes = await fs.readFile(pdfPath);
-    const configuredPdfBytes = await configurePdfLayers(pdfBytes, enabledLayers);
+    // The layer-configure pass (a full pdf-lib parse + save of a multi-MB
+    // master drawing) is the expensive step; a caller that already produced
+    // the configured bytes hands them in and we only rasterize.
+    const configuredPdfBytes = configuredPdfs?.get(pdfName)
+      ?? await configurePdfLayers(await fs.readFile(pdfPath), enabledLayers);
     renderCache.set(cacheKey, {
       pageSize: await readPageSize(configuredPdfBytes, pageNumber),
       renderedPage: await renderPdfPage(configuredPdfBytes, pageNumber),
@@ -232,7 +235,7 @@ async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber,
 // Generate <view>.png files for a device into outputDir. Returns the view
 // names written (['front', 'rear']). Throws when the model has no metadata or
 // its drawing PDF is absent — callers treat drawings as best-effort.
-async function createImages(model, pn, outputDir, { devicesDir = SEL_DEVICES_DIR } = {}) {
+async function createImages(model, pn, outputDir, { devicesDir = SEL_DEVICES_DIR, configuredPdfs } = {}) {
   const metadata = await loadDeviceMetadata(model, devicesDir);
   if (!metadata) {
     throw new Error(`no drawing metadata for model: ${model}`);
@@ -259,6 +262,7 @@ async function createImages(model, pn, outputDir, { devicesDir = SEL_DEVICES_DIR
       partNumber,
       view.page ?? 1,
       renderCache,
+      configuredPdfs,
     );
 
     const pageImage = await Jimp.read(renderedPage);
@@ -270,4 +274,7 @@ async function createImages(model, pn, outputDir, { devicesDir = SEL_DEVICES_DIR
   return written;
 }
 
-export { createImages };
+// resolveDrawings / resolveEnabledLayers / configurePdfLayers are also the
+// engine behind the DWGEN tool, which saves the filtered PDF itself instead
+// of rasterizing crops.
+export { createImages, resolveDrawings, resolveEnabledLayers, configurePdfLayers };

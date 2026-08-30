@@ -12,6 +12,9 @@ frontend/dist/
 /sel_fulltext.sqlite
 /sel_fulltext.sqlite-*
 
+# python bytecode (the acrtac bridge scripts)
+__pycache__/
+
 # editor/OS noise
 .DS_Store
 Thumbs.db

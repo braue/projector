@@ -3,14 +3,21 @@ import type {
   CompareItem,
   CompareTree,
   DeviceSource,
-  EverywhereResults,
+  DwgenResult,
   FileNode,
+  HmiReport,
   Note,
   ProjectItem,
   ProjectList,
   ProjectTree,
+  QuicksetExtract,
+  QuicksetInventory,
   RtacAvailableList,
   SearchResults,
+  SwsetGenerateResult,
+  SwsetModel,
+  ToolJob,
+  ToolRunFile,
   UploadSourceType,
   UploadedFile,
   WorkspaceGraph,
@@ -286,11 +293,6 @@ export function searchSource(project: string, source: DeviceSource, query: strin
   return get(`${base(project)}/search?${params}`)
 }
 
-/** The everywhere search: every project's sources and notes, grouped. */
-export function searchEverywhere(query: string): Promise<EverywhereResults> {
-  return get(`/api/search?${new URLSearchParams({ q: query })}`)
-}
-
 // --- canvas -------------------------------------------------------------------
 
 export function fetchGraph(project: string): Promise<WorkspaceGraph> {
@@ -351,4 +353,182 @@ export function addWaiver(project: string, linkId: string, reason: string): Prom
 /** Reopen an acknowledged conflict. */
 export function removeWaiver(project: string, waiverId: string): Promise<unknown> {
   return send(`${base(project)}/waivers/${encodeURIComponent(waiverId)}`, 'DELETE')
+}
+
+// --- tools (global utilities beside the projects) ------------------------------
+
+const toolRun = (tool: string, run: string) =>
+  `/api/tools/${encodeURIComponent(tool)}/runs/${encodeURIComponent(run)}`
+
+export function fetchToolJob(id: string): Promise<ToolJob> {
+  return get(`/api/tools/jobs/${encodeURIComponent(id)}`)
+}
+
+export async function listToolRunFiles(tool: string, run: string): Promise<ToolRunFile[]> {
+  const body = await get<{ files: ToolRunFile[] }>(`${toolRun(tool, run)}/files`)
+  return body.files
+}
+
+/** Browser-navigable download URL for one run output file. */
+export function toolRunFileUrl(tool: string, run: string, path: string): string {
+  return `${toolRun(tool, run)}/file?path=${encodeURIComponent(path)}`
+}
+
+export function deleteToolRun(tool: string, run: string): Promise<unknown> {
+  return send(toolRun(tool, run), 'DELETE')
+}
+
+/** Copy one run output into a project's Files store (never overwrites). */
+export function saveToolFileToProject(args: {
+  project: string
+  tool: string
+  run: string
+  path: string
+  /** Target folder inside the project's files ('' = root). */
+  dir?: string
+  /** Stored name; defaults to the file's own basename. */
+  name?: string
+}): Promise<{ added: string[] }> {
+  return send('/api/tools/save-to-project', 'POST', args)
+}
+
+/** Machine-specific tool settings (paths, preferences — never credentials). */
+export function fetchToolSettings(): Promise<Record<string, unknown>> {
+  return get('/api/tools/settings')
+}
+
+export function updateToolSettings(
+  patch: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  return send('/api/tools/settings', 'PATCH', patch)
+}
+
+/** Run the HMI Tag Tester over one uploaded .hprj/.hprb. */
+export function analyzeHmi(file: File): Promise<HmiReport> {
+  const form = new FormData()
+  form.append('file', file)
+  return send('/api/tools/hmi/analyze', 'POST', form)
+}
+
+// --- SEL terminal --------------------------------------------------------------
+
+/** Open a relay session; the id feeds the stream/input/close calls below. */
+export function openTerminal(args: {
+  host: string
+  port?: number
+  transport?: 'telnet' | 'tcp'
+}): Promise<{ sessionId: string }> {
+  return send('/api/tools/terminal/open', 'POST', args)
+}
+
+/** The SSE stream of relay output: `data` events (JSON string payloads) until
+ * a `closed` event carries the reason. */
+export function terminalStreamUrl(sessionId: string): string {
+  return `/api/tools/terminal/${encodeURIComponent(sessionId)}/stream`
+}
+
+export function sendTerminalInput(sessionId: string, data: string): Promise<unknown> {
+  return send(`/api/tools/terminal/${encodeURIComponent(sessionId)}/input`, 'POST', { data })
+}
+
+export function closeTerminal(sessionId: string): Promise<unknown> {
+  return send(`/api/tools/terminal/${encodeURIComponent(sessionId)}/close`, 'POST')
+}
+
+// --- QuickSet Extract ----------------------------------------------------------
+
+/** Start the database dump job; poll the returned job id, then use the run. */
+export function startQuicksetDump(config: {
+  host: string
+  port?: number
+  dbname: string
+  user: string
+  password: string
+}): Promise<{ job: string; run: string }> {
+  return send('/api/tools/quickset/dump', 'POST', config)
+}
+
+/** Alternative source: an uploaded ZIP of an exported-configs tree. */
+export function uploadQuicksetConfigs(file: File): Promise<{ run: string }> {
+  const form = new FormData()
+  form.append('file', file)
+  return send('/api/tools/quickset/upload', 'POST', form)
+}
+
+export function fetchQuicksetInventory(run: string): Promise<QuicksetInventory> {
+  return get(`/api/tools/quickset/${encodeURIComponent(run)}/inventory`)
+}
+
+export function extractQuicksetSettings(
+  run: string,
+  settings: string[],
+): Promise<QuicksetExtract> {
+  return send(`/api/tools/quickset/${encodeURIComponent(run)}/extract`, 'POST', { settings })
+}
+
+// --- SWSET (switch settings editor) --------------------------------------------
+
+/** Parse a switch Configuration XML into the editable model. */
+export function parseSwsetXml(file: File): Promise<SwsetModel> {
+  const form = new FormData()
+  form.append('file', file)
+  return send('/api/tools/swset/parse', 'POST', form)
+}
+
+/** Apply edited values onto the run's baseline; the updated XML lands in the run. */
+export function generateSwsetXml(
+  run: string,
+  tables: Record<string, { fields?: Record<string, string>; rows?: Record<string, string>[] }>,
+): Promise<SwsetGenerateResult> {
+  return send(`/api/tools/swset/${encodeURIComponent(run)}/generate`, 'POST', { tables })
+}
+
+// --- RTAC Exporter -------------------------------------------------------------
+
+/** List the AcRTAC database's projects (the bridge logs in itself). */
+export async function listRtacExportProjects(): Promise<string[]> {
+  const body = await send<{ projects: string[] }>('/api/tools/rtac-export/projects', 'POST')
+  return body.projects
+}
+
+/** Start the bulk export job; poll the job id for results. */
+export function startRtacExportJob(args: {
+  projects: string[]
+  format: 'xml' | 'exp'
+  projectPassword?: string
+}): Promise<{ job: string; run: string }> {
+  return send('/api/tools/rtac-export/export', 'POST', args)
+}
+
+// --- DWGEN (drawing generator) -------------------------------------------------
+
+export async function fetchDwgenModels(): Promise<string[]> {
+  const body = await get<{ models: string[] }>('/api/tools/dwgen/models')
+  return body.models
+}
+
+/** Generate the configured drawings for a part number (model auto-detected). */
+export function generateDwgen(args: { partNumber: string; model?: string }): Promise<DwgenResult> {
+  return send('/api/tools/dwgen/generate', 'POST', args)
+}
+
+/** Launch local AutoCAD on a run's bundled drawing with its layer script. */
+export function openDwgenDwg(args: { run: string; stem: string }): Promise<{ ok: boolean; configured: string }> {
+  return send('/api/tools/dwgen/open-dwg', 'POST', args)
+}
+
+// --- tool inputs from project Files --------------------------------------------
+// The analyze/parse/upload endpoints accept { project, path } naming a file
+// already in a project's Files store, as the alternative to a fresh upload.
+
+export function analyzeHmiProjectFile(project: string, path: string): Promise<HmiReport> {
+  return send('/api/tools/hmi/analyze', 'POST', { project, path })
+}
+
+export function parseSwsetProjectFile(project: string, path: string): Promise<SwsetModel> {
+  return send('/api/tools/swset/parse', 'POST', { project, path })
+}
+
+export function importQuicksetProjectConfigs(project: string, path: string): Promise<{ run: string }> {
+  return send('/api/tools/quickset/upload', 'POST', { project, path })
 }

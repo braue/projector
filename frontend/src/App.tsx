@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   createProject,
@@ -22,8 +22,6 @@ import { AggregateView } from './components/AggregateView'
 import { CanvasView } from './components/CanvasView'
 import { CompareView, EMPTY_COMPARE } from './components/CompareView'
 import type { CompareState } from './components/CompareView'
-import { EverywhereSearchView } from './components/EverywhereSearchView'
-import type { EverywhereTarget } from './components/EverywhereSearchView'
 import { FilesSearchView } from './components/FilesSearchView'
 import { FilesView } from './components/FilesView'
 import { NotesSearchView } from './components/NotesSearchView'
@@ -40,6 +38,7 @@ const AtlasView = lazy(() =>
   import('./components/AtlasView').then((m) => ({ default: m.AtlasView })),
 )
 import { Button, SegmentedControl, TextInput } from './components/ui'
+import { ToolsView } from './tools/ToolsView'
 import { confirmOverwrite } from './lib/confirm'
 import { errorMessage } from './lib/errors'
 import { count } from './lib/format'
@@ -116,18 +115,18 @@ export default function App() {
   // Latched on the first open: the atlas chunk is fetched then, and the pane
   // stays mounted from that point so the reading position survives a detour.
   const [atlasEverOpened, setAtlasEverOpened] = useState(false)
-  // The everywhere search spans projects, so like the atlas it lives beside
-  // the mode row, not in it — and latches for the same reason: a query and
-  // its results survive dipping into a project to look at a hit.
-  const [everywhereOpen, setEverywhereOpen] = useState(false)
-  const [everywhereEverOpened, setEverywhereEverOpened] = useState(false)
+  // The tools are global utilities, so like the atlas they live beside the
+  // mode row — and latch for the same reason: an open terminal session or a
+  // half-configured extraction survives dipping back into the project.
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [toolsEverOpened, setToolsEverOpened] = useState(false)
   const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
   // Notes and Files each split into their working view and a full-pane search.
   const notesSearch = useSubSearch<string>()
   const filesSearch = useSubSearch<string>()
   // Destructured so effects can depend on the stable callbacks, not the
   // per-render hook object.
-  const { setSearching: setNotesSearching, openAt: openNoteAt } = notesSearch
+  const { setSearching: setNotesSearching } = notesSearch
   const { setSearching: setFilesSearching } = filesSearch
   // The current project scopes every source, canvas, and compare below.
   // null projects = still loading the list; null project + loaded list =
@@ -196,24 +195,6 @@ export default function App() {
     if (project) localStorage.setItem(PROJECT_KEY, project)
   }, [project])
 
-  // Where an everywhere-search hit should land once its project is current.
-  // A ref, not state: the jump must survive the project-change effect below,
-  // which clears every per-project selection before the jump can apply.
-  const pendingJump = useRef<{ project: string; target: EverywhereTarget } | null>(null)
-
-  /** Land on a jump target inside the CURRENT project. */
-  const applyJump = useCallback((target: EverywhereTarget) => {
-    if (target.kind === 'source') {
-      setMode('inspect')
-      setInspectSub('browse')
-      setSelectedSource(target.source)
-      setSelectedItem(target.path)
-    } else {
-      setMode('notes')
-      openNoteAt(target.id)
-    }
-  }, [openNoteAt])
-
   // Switching projects swaps every source list and clears per-project state.
   useEffect(() => {
     setRtacProjects([])
@@ -226,29 +207,9 @@ export default function App() {
     setNotesSearching(false)
     setFilesSearching(false)
     if (!project) return
-    // An everywhere-search hit that switched to this project lands now, after
-    // the clears above rather than before them.
-    if (pendingJump.current?.project === project) {
-      const { target } = pendingJump.current
-      pendingJump.current = null
-      applyJump(target)
-    }
     refreshRtac()
     for (const type of UPLOAD_TYPES) refreshUploads(type)
-  }, [project, refreshRtac, refreshUploads, setNotesSearching, setFilesSearching, applyJump])
-
-  // Opening an everywhere-search hit: close the search pane and land on the
-  // hit — directly when it is in the current project, via the project switch
-  // (and the pending jump above) when it is not.
-  const openEverywhereHit = useCallback((hitProject: string, target: EverywhereTarget) => {
-    setEverywhereOpen(false)
-    if (hitProject === project) {
-      applyJump(target)
-    } else {
-      pendingJump.current = { project: hitProject, target }
-      setProject(hitProject)
-    }
-  }, [project, applyJump])
+  }, [project, refreshRtac, refreshUploads, setNotesSearching, setFilesSearching])
 
   const handleCreateProject = useCallback(
     async (name: string) => {
@@ -489,13 +450,13 @@ export default function App() {
   return (
     <>
       <header className="topbar">
-        {/* Everything up to the everywhere/atlas toggles is scoped to the
-            current project, so one guard covers the lot — the way the body
-            below does it. Those two panes span every project, hold the
-            corner so their toggles never move, and the project switcher goes
-            away with the rest: nothing on screen is scoped to a project
-            while either is up. */}
-        {!atlasOpen && !everywhereOpen && (
+        {/* Everything up to the tools/atlas toggles is scoped to the current
+            project, so one guard covers the lot — the way the body below
+            does it. Those two panes span every project, hold the corner so
+            their toggles never move, and the project switcher goes away with
+            the rest: nothing on screen is scoped to a project while either
+            is up. */}
+        {!atlasOpen && !toolsOpen && (
           <>
             <SegmentedControl options={MODES} value={mode} onChange={changeMode} />
             {mode === 'inspect' && selectedSource && (
@@ -533,23 +494,23 @@ export default function App() {
           </>
         )}
         <button
-          className={everywhereOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
+          className={toolsOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
           onClick={() => {
-            setEverywhereOpen((open) => !open)
-            setEverywhereEverOpened(true)
+            setToolsOpen((open) => !open)
+            setToolsEverOpened(true)
             setAtlasOpen(false)
           }}
-          title={everywhereOpen ? 'Back to the project' : 'Search every project'}
+          title={toolsOpen ? 'Back to the project' : 'Open the tools'}
         >
-          <span className="atlas-toggle-mark">⌕</span>
-          <span>Everywhere</span>
+          <span className="atlas-toggle-mark">⚒</span>
+          <span>Tools</span>
         </button>
         <button
           className={atlasOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
           onClick={() => {
             setAtlasOpen((open) => !open)
             setAtlasEverOpened(true)
-            setEverywhereOpen(false)
+            setToolsOpen(false)
           }}
           title={atlasOpen ? 'Back to the project' : 'Open the atlas reference'}
         >
@@ -559,7 +520,7 @@ export default function App() {
       </header>
 
       <div className="app">
-        {!atlasOpen && !everywhereOpen && (
+        {!atlasOpen && !toolsOpen && (
           <>
           {!OWN_RAIL.includes(mode) && (
             <SourcesSidebar
@@ -683,11 +644,11 @@ export default function App() {
           </>
         )}
 
-        {/* Mounted from the first open onwards, so a query and its results
-            are still there after a detour into a project to look at a hit. */}
-        {everywhereEverOpened && (
-          <div className="evw-pane" hidden={!everywhereOpen}>
-            <EverywhereSearchView onOpen={openEverywhereHit} />
+        {/* Same latch as the atlas: an open terminal session or half-filled
+            tool form survives a detour back into the project. */}
+        {toolsEverOpened && (
+          <div className="tools-pane" hidden={!toolsOpen}>
+            <ToolsView project={project} />
           </div>
         )}
 

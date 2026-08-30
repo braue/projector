@@ -61,25 +61,6 @@ and `mockups.html` for the reviewed UI mockups.
 - **Compare** — two files of the same kind (two RTAC projects, ...): union
   tree with added/removed/modified tints and a structured per-item diff.
 
-## Search everywhere
-
-**⌕ Everywhere**, beside the atlas toggle, searches one string across EVERY
-project — all settings sources (names, settings, point maps, tables, logic)
-and notes — grouped by project. It answers the question per-project search
-cannot: *which job used 10.30.4.x?* After twenty substations nobody remembers,
-and guessing the project first is the wrong order.
-
-Hits are pointers, not listings: each source shows a taste (the server caps it
-hard), and clicking a hit jumps to that project — switching projects if needed
-— landing in Inspect on the exact object, or in Notes on the note. Like the
-atlas, the pane spans projects, so it takes over the whole view and the
-project switcher steps aside while it is up; the query and results survive a
-detour into a project to look at a hit.
-
-The first run may take a while: sources are parsed the first time anything
-reads them, and the everywhere search reads everything. A source that fails to
-parse is reported under the results and never sinks the rest of the answer.
-
 ## Atlas
 
 The atlas is **not** a mode. The mode row on the left of the topbar is
@@ -377,7 +358,6 @@ backend/
   lib/comm/linker.js     pure matcher: profiles -> links + tiers + ghosts
   services/projects.js   RTAC source lifecycle, parse cache, tree/item/aggregate
   services/workspaces.js named canvases; graph = extract + link on every read
-  services/globalSearch.js the everywhere search: every project's sources + notes
   services/selLibrary.js the SEL PDF library: is it there, and open a file
   services/selFullText.js FTS5 page-level search over the same PDFs (read-only)
 tools/build-sel-index.mjs builds that index with pdftotext (run by hand)

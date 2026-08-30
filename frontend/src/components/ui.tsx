@@ -38,6 +38,18 @@ export function Button({
   )
 }
 
+/** A navigation link styled as a Button — downloads and external hrefs. */
+export function LinkButton({
+  children,
+  ...rest
+}: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return (
+    <a className="ui-button ui-button-default ui-link-button" {...rest}>
+      {children}
+    </a>
+  )
+}
+
 /** Exclusive choice rendered as a joined button strip (topbar mode switch,
  *  sidebar source tabs). `fill` splits the width evenly between segments
  *  instead of sizing each to its label. */
@@ -92,15 +104,22 @@ export function Select({
   onChange,
   options,
   placeholder,
+  variant = 'default',
 }: {
   label?: string
   value: string
   onChange: (value: string) => void
   options: (string | { value: string; label: string })[]
   placeholder?: string
+  /** 'action' sizes the select to its text, for use as a pick-to-act button. */
+  variant?: 'default' | 'action'
 }) {
   return withLabel(label, (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className="ui-select">
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={variant === 'action' ? 'ui-select ui-select-action' : 'ui-select'}
+    >
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((raw) => {
         const { value, label } = typeof raw === 'string' ? { value: raw, label: raw } : raw
@@ -114,11 +133,12 @@ export function Select({
   ))
 }
 
-/** Single-line text input (settings search); `label` wraps it like Select's. */
+/** Single-line text input (settings search); `label` wraps it like Select's.
+ *  Accepts `ref` (React 19 ref-as-prop) for callers that manage focus. */
 export function TextInput({
   label,
   ...rest
-}: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+}: React.ComponentProps<'input'> & { label?: string }) {
   return withLabel(label, <input type="text" className="ui-input" {...rest} />)
 }
 

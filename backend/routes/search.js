@@ -16,16 +16,4 @@ function searchRoutes(resolve) {
   return router;
 }
 
-// The everywhere search: ?q= across every project's sources and notes.
-// Unscoped by design, so it mounts beside /api/projects, not under it.
-function globalSearchRoutes(search) {
-  const router = Router();
-
-  router.get('/', async (req, res) => {
-    res.json(await search.search(requireQuery(req, 'q')));
-  });
-
-  return router;
-}
-
-export { globalSearchRoutes, searchRoutes };
+export { searchRoutes };

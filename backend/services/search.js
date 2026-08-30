@@ -83,7 +83,7 @@ class SearchService {
     this.adapters = adapters;
   }
 
-  // `caps` shrink the payload for callers that fan out — the everywhere
+  // `caps` shrink the payload for callers that fan out — a multi-source
   // search runs this over every source of every project and needs a taste of
   // each, not the full 200-object listing the single-source pane shows.
   async search({ type, ref }, query, caps = {}) {

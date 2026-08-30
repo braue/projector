@@ -23,11 +23,11 @@ import express from 'express';
 import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
 import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from './lib/selPaths.js';
 import { projectRoutes } from './routes/projects.js';
-import { globalSearchRoutes } from './routes/search.js';
 import { selRoutes } from './routes/sel.js';
-import { GlobalSearch } from './services/globalSearch.js';
+import { toolsRoutes } from './routes/tools.js';
 import { ProjectsService } from './services/projects.js';
 import { RtacCatalog } from './services/rtacCatalog.js';
+import { createTools } from './services/tools/index.js';
 import { SelFullText } from './services/selFullText.js';
 import { SelLibrary } from './services/selLibrary.js';
 
@@ -96,6 +96,7 @@ export async function startServer(options = {}) {
   selText.open(selIndex);
   const projects = new ProjectsService({ dataDir, catalog });
   await projects.init();
+  const tools = await createTools({ dataDir });
 
   // The database list can take a while (it spawns the Python bridge) and the
   // server is useful without it — projects on disk are fully browsable — so
@@ -126,8 +127,8 @@ export async function startServer(options = {}) {
     res.json({ ok: true, version });
   });
   app.use('/api/projects', projectRoutes(projects, catalog));
-  app.use('/api/search', globalSearchRoutes(new GlobalSearch({ projects })));
   app.use('/api/sel', selRoutes(selLibrary, selText));
+  app.use('/api/tools', toolsRoutes(tools, projects));
 
   // The API always speaks JSON, including for failures the routers never see.
   app.use('/api', (_req, res) => {
@@ -166,6 +167,7 @@ export async function startServer(options = {}) {
      */
     close: () =>
       new Promise((resolve) => {
+        tools.terminal.closeAll();
         const done = setTimeout(resolve, 2000);
         server.close(() => {
           clearTimeout(done);

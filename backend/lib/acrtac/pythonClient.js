@@ -67,6 +67,13 @@ function runBridge(args) {
   });
 }
 
+/** Resolve a bridge script path, handling the asar-unpacked copy. */
+function bridgePath(scriptName) {
+  return path
+    .join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'py', scriptName)
+    .replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
+}
+
 function createAcRtacClient() {
   return {
     async listProjects() {
@@ -80,4 +87,4 @@ function createAcRtacClient() {
   };
 }
 
-export { createAcRtacClient };
+export { createAcRtacClient, bridgeMessage, bridgePath, PYTHON };

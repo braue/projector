@@ -11,7 +11,7 @@
 // ('' = the root); every one is resolved through resolveWithin so nothing
 // escapes the project.
 
-import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveWithin } from '../lib/http.js';
@@ -145,6 +145,16 @@ class FilesService {
     if (absolute === this.root) throw httpError(400, 'cannot delete the root');
     if (!(await this.#statOrNull(absolute))) throw httpError(404, `no such entry: ${relPath}`);
     await rm(absolute, { recursive: true, force: true });
+  }
+
+  // One file's content — how the Tools pane sources an input from the
+  // project instead of a fresh upload.
+  async read(relPath) {
+    const absolute = this.#resolve(relPath);
+    if (!(await this.#statOrNull(absolute))?.isFile()) {
+      throw httpError(404, `no such file: ${relPath}`);
+    }
+    return readFile(absolute);
   }
 
   // Hand the file to the OS default app. Loopback deployment makes this the
