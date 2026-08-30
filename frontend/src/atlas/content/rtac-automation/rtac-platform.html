@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RTAC Platform &amp; Project Anatomy</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="RTAC,SEL-3530,SEL-3555,SEL-5033,project,tasks,watchdog,firmware">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "RTAC Platform & Project Anatomy (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>RTAC Platform &amp; Project Anatomy</h1>
+  <p>What an RTAC actually is — the model family, the 3530-4 hardware, the real-time engine and its watchdogs, and how a SEL-5033 project turns devices into one tag database</p>
+  <div class="chips"><span>SEL-3530-4</span><span>SEL-5033</span><span>tag database</span><span>Go Online</span><span>watchdog</span><span>FID</span><span>exe-GUARD</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Platform</h3>
+<ul style="margin-bottom:2px">
+<li>An RTAC is a <strong>protocol converter and data concentrator</strong>: client connections poll IEDs southbound, server connections answer SCADA northbound, and everything meets in <strong>one tag database</strong>, moved by the Tag Processor once per task cycle.</li>
+<li>One SEL-5033 project per RTAC. <strong>A full project send restarts the RTAC</strong> and every protocol session; a logic-only send does not — but always finish with a full send.</li>
+<li>Watchdogs are layered: the Application watchdog quietly restarts a dead task; the RTE, OOM, and System watchdogs <strong>load the default project, deassert all contacts, and light ALARM</strong>.</li>
+<li>The FID string (<code>SEL-3530-4-R156-V0-Z000079-D20260312</code>) is the version truth: <strong>R changes = new features, V changes = point release</strong> (fixes/security only).</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What an RTAC is, and which one you have</h2>
+<p>The Real-Time Automation Controller is SEL's substation computer: an embedded SEL Linux box (with real-time preemption patches) running a protocol engine plus an IEC 61131 logic engine, configured entirely by one ACSELERATOR RTAC (SEL-5033) project. The manual's own application list is the job description: port switch, protocol gateway, SCADA data concentrator/RTU, logic processor, time-sync source, security gateway, synchrophasor processor. One SEL-5033 install configures the whole family; the hardware differs in form factor and headroom:</p>
+<table>
+  <tr><th>Model</th><th>Form factor</th><th>Max tags</th><th>Documented tier markers</th></tr>
+  <tr><td class="mono">SEL-3505 / -3505-3</td><td>compact</td><td>5,000</td><td>Keep projects ≤20 devices; no IEC 61850 MMS client; no web HMI</td></tr>
+  <tr><td class="mono">SEL-3530 / 3530-4</td><td>1U rack (3530-4 = half-rack)</td><td>25,000</td><td>533 MHz CPU, 1 GB DDR2 ECC, 2 GB storage (both models); 17 serial ports on the 3530 (33 with expansion) vs 4 on the 3530-4; ~2.5 min startup; 200 DNP devices</td></tr>
+  <tr><td class="mono">SEL-2241</td><td>Axion backplane module</td><td>25,000</td><td>Same legacy tier as the 3530; ~2.5 min startup</td></tr>
+  <tr><td class="mono">SEL-2241-2</td><td>Axion backplane module</td><td>50,000</td><td>Quad-core Atom x5-E3940 1.6 GHz, 4 GB ECC, 8 GB eMMC, 3× GbE, DisplayPort local HMI; SEL states 5× the SEL-2241's performance, comparable to an SEL-3350</td></tr>
+  <tr><td class="mono">SEL-3350</td><td>standalone computing platform</td><td>50,000</td><td>500,000-record SOE logger; 200-series (64-bit) firmware available</td></tr>
+  <tr><td class="mono">SEL-3555</td><td>rack compute platform</td><td>100,000</td><td>Core i7 (i7-3555LE dual 2.5 GHz; quad option), 8 GB DDR3 ECC, SATA SSD; up to two hot-swap load-sharing PSUs; 2 GbE + up to 8 more (copper/SFP) and 18 serial via PCIe cards; ~45 s startup; 500 DNP devices (R148+); 256 Modbus/IEC 104; 500,000-record logger</td></tr>
+  <tr><td class="mono">SEL-3560</td><td>rugged compute (fanless option)</td><td>100,000</td><td>Xeon E3-1505L quad-core, 8–16 GB DDR4 ECC, TPM 2.0; conduction-cooled 3560S or expandable 3560E chassis; runs SEL-3555 firmware and shows the 3555 FID — same limits and startup</td></tr>
+</table>
+<ul>
+  <li><strong>Legacy hardware saturates before the software does.</strong> The manual is explicit: don't run the 3505 past 20 devices, or the 2241/3530/3530-4 past 50% of a protocol's supported device count or in stacked roles (data concentrator + fast logic + HMI at once). Symptoms: slow settings sends and Go Online, sluggish web interface, long time-to-enable.</li>
+  <li><strong>Axion = RTAC + modular I/O.</strong> An SEL-2240 Axion node is a chassis (10-slot, 4-slot, or dual 4-slot) holding SEL-2243 power couplers and I/O modules; every Axion system requires an RTAC as its CPU — integrated (2241/2241-2 in the backplane) or external (3350/3555). EtherCAT stitches multi-node systems into a virtual backplane behind one CPU. Module-level detail lives in <em>Axion I/O</em> in atlas.</li>
+  <li><strong>3555/3560 serial nuance:</strong> the built-in DB-9s (COM 1/COM 2) do not support Mirrored Bits — only ports on SEL-3390S8 expansion cards do.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Hardware anatomy: the SEL-3530-4</h2>
+<div class="twocol">
+<div>
+<h3>Communications</h3>
+<ul>
+<li><strong>2 rear Ethernet</strong> (ETH 1/ETH 2), 10/100, RJ45 or 100BASE-FX/LX10 fiber options; independent interfaces. Defaults: ETH 1 = <code>192.168.1.2</code>, ETH 2 = <code>192.168.2.2</code>, front ETH F = DHCP.</li>
+<li><strong>Front USB Type B</strong> — programming only. Fixed IP <code>172.29.131.1</code>; the SEL USB driver makes it look like Ethernet to the PC. Never two RTACs on one PC, ≤3 m cable.</li>
+<li><strong>4 serial DB-9</strong> (COM 1–4), software-selectable EIA-232 or EIA-485/422, 300–115200 bps, nonisolated. Pin 1 can source +5 Vdc (500 mA total, all 4 ports); pins 4/6 carry demodulated IRIG-B out (COM 1 jumpers swap these to DTR/DSR).</li>
+<li><strong>IRIG-B</strong>: BNC input (modulated 2 kΩ / 500 µs, or demodulated 1.5 kΩ / 250 ns) and demodulated BNC output. Drive math: BNC out ≈25 Ω drives ~20 SEL relays (≈2500 Ω inputs) in parallel; a serial-port IRIG out ≈500 Ω drives ~5. With no external source the RTAC generates IRIG-B from its own clock (settable via SNTP/NTP/PTP).</li>
+</ul>
+</div>
+<div>
+<h3>I/O, power, alarm</h3>
+<ul>
+<li><strong>IN101</strong> (terminals A01/A02): one optoisolated input, not polarity dependent, ac or dc. Software pickup 17–265 V, dropout 15–238 V (must be &lt;90% of pickup), delays 1–30000 ms — set delays to ride through the ac waveform when sensing 120 Vac.</li>
+<li><strong>OUT101</strong> (A03 NC / A04 common / A05 NO): one <strong>Form C electromechanical contact</strong>, ~8 ms operate, 30 A make / 6 A carry @ 70°C (dc ratings), MOV-protected. This is the alarm contact — map any combination of self-test/status points to it for a hardwired diagnostic alarm.</li>
+<li><strong>Power</strong> (A07 +/H, A08 −/N, A09 GND): 125/250 Vdc &amp; 120/240 Vac, 48/125 Vdc, or 24–48 Vdc supply options; &lt;30 W; rides through 20–100 ms interruptions depending on voltage.</li>
+<li><strong>Front LEDs</strong>: ENABLED, ALARM, LAMP TEST button, per-port LNK/TX/RX for Ethernet and TX/RX for serial 1–4, plus AUX 1–3. ENABLED dark = no power or invalid project; ENABLED dark + ALARM lit = invalid project the RTAC couldn't auto-reset — factory reset territory.</li>
+<li><strong>Field-serviceable part</strong>: exactly one — the BR1632 clock battery (~10 yr). Firmware and projects load over Ethernet; no local console.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The software platform: tasks and watchdogs</h2>
+<p>Everything the RTAC does — protocol sessions, tag moves, logic — runs as tasks inside the Real-Time Engine (RTE) on <strong>two configurable processing cycles</strong>: the main task cycle (SCADA-speed work) and an optional automation task cycle for high-speed logic, as fast as 1 ms. Cycle times evenly divisible into one second lock to the top of the second. Rules that bite:</p>
+<ul>
+  <li><strong>Size the main cycle at ≥140% of the measured overall task timer</strong> (under Tags while online, in µs). An overrun doesn't drop tasks — the RTAC borrows time from later cycles to finish them — but the cycle promise breaks and web/HMI access degrades. Automation-task timers: <code>SEL_RTAC.Application.Automation_System.Total_task_timer</code> in a watch window.</li>
+  <li><strong>Tag values (and controls) update once per cycle.</strong> A rising edge triggers a control per cycle interval, so a high→low→high inside one interval is invisible. Keep control operations slower than half the cycle time. (Edge semantics of the DNP <code>oper*</code> verbs: see <em>RTAC Quick Facts</em>.)</li>
+  <li><strong>Cross-task mapping is restricted</strong>: you can't directly map tags between the automation and main cycles, and referencing another task's tags in logic fails the cross-task compile check (done at send time, or at save with the option; the CrossTaskData library is the sanctioned bridge).</li>
+</ul>
+<h3>The watchdog ladder</h3>
+<table>
+  <tr><th>Watchdog</th><th>Fires on</th><th>What the RTAC does</th></tr>
+  <tr><td><strong>Application</strong></td><td>a critical task (protocol, date/time…) exits</td><td>Restarts the task, logs it. Contacts and ALARM untouched — watch <code>Application_Status</code> to catch these.</td></tr>
+  <tr><td><strong>RTE Performance</strong></td><td>a task hogs the CPU past the configured task watchdog time (Main Controller tab)</td><td>Loads the <strong>default project</strong> over yours, logs RTE watchdog expiry, lights ALARM, deasserts all contacts</td></tr>
+  <tr><td><strong>RTE Exception</strong></td><td>task exception (e.g. NULL pointer)</td><td>Same: default project, log, ALARM, contacts deassert</td></tr>
+  <tr><td><strong>Out of Memory</strong></td><td>out-of-memory condition</td><td>Default project, log, ALARM, contacts deassert, <strong>all comms stop</strong></td></tr>
+  <tr><td><strong>System</strong></td><td>hardware/process fault; not reset within 10 s</td><td>ALARM, comms stop, contacts deassert, diagnostic RAM record, log after reboot; <strong>stays alarmed until power cycle</strong></td></tr>
+  <tr><td><strong>DoS detection</strong></td><td>excessive Ethernet traffic</td><td>At 80% of watchdog timeout, deprioritizes Ethernet and logs it; restores after 5 min of normal traffic; if it still times out, System-watchdog steps</td></tr>
+</table>
+<p>A separate <strong>watchdog microcontroller</strong> backs all of this in hardware: if the logic engine hangs, it raises the alarm and halts I/O. Repeated System watchdog timeouts suggest failing hardware or firmware, not settings.</p>
+<p><strong>Security posture</strong> is baked into the OS: exe-GUARD whitelisting executes only signed, pre-approved binaries (no virus definitions), and Mandatory Access Control pins each service to minimum privilege; unauthorized changes trigger an alarm or a reset to factory defaults per configuration. Accounts, roles, LDAP/RADIUS: see <em>RTAC Security &amp; Users</em> in atlas.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>The SEL-5033 project model</h2>
+<p>ACSELERATOR RTAC stores every project in a local authenticated database service (the "RTAC Database", default server <code>localhost</code>, database <code>RTAC</code>; a shared team server is supported). Factory accounts: <code>admin</code>/<code>TAIL</code> and <code>engineer</code>/<code>OTTER</code> — change them. A project is the complete configuration for one RTAC — communications settings, tags, and logic. Its tree:</p>
+<table>
+  <tr><th>Tree item</th><th>What lives there</th></tr>
+  <tr><td><strong>Devices</strong></td><td>Client and server protocol connections. <em>Client</em> = RTAC polls an IED (source tags); <em>server</em> = RTAC answers a SCADA master/HMI (destination tags). Connection types: serial, Ethernet, multidrop serial, and Ethernet-tunneled (serial-port-server) variants of both.</td></tr>
+  <tr><td><strong>Tag Processor</strong></td><td>The mapping grid moving source → destination tags each cycle, plus logging config. Depth: see <em>Tags, Quality &amp; the Tag Processor</em> in atlas.</td></tr>
+  <tr><td><strong>System › Main Controller</strong></td><td>Cycle times, task watchdog time, task execution order (put protocol collection before the logic that consumes it)</td></tr>
+  <tr><td><strong>System › SystemTags / System_Time_Control</strong></td><td>Diagnostics and self-test tags; IRIG-B/PTP/NTP time-source and DST settings</td></tr>
+  <tr><td><strong>Contact I/O</strong></td><td>IN101/OUT101 names, delays, initial values</td></tr>
+  <tr><td><strong>Access Points / Routers</strong></td><td>Transparent engineering-access paths through the RTAC to downstream IEDs</td></tr>
+  <tr><td><strong>User Logic / Virtual Tags</strong></td><td>IEC 61131-3 POUs, GVLs, data types (see <em>IEC 61131 Logic on the RTAC</em> in atlas); virtual tag lists = protocol-typed global tags, 30 lists per project (100 on 3555/3350)</td></tr>
+</table>
+<ul>
+  <li><strong>Tags are self-describing, IEC 61850-flavored structures.</strong> <code>Relay1_DNP.AI_0000.instMag</code> = device_protocol · variable · attribute. An analog carries <code>instMag</code> (live), <code>mag</code> (dead-banded event snapshot), <code>q</code> (quality), <code>t</code> (timestamp), <code>db</code>/<code>zeroDb</code> (deadbands), <code>range</code>/<code>rangeC</code> (alarm limits). Quality and time ride along with every mapped value.</li>
+  <li><strong>Limits:</strong> 10,000 tags per device tag type (5,000 on the 3505; Modbus devices allow 30,000) inside the model-wide totals of §1. Create only the tags you need — tag count is the RTAC's main burden metric.</li>
+  <li><strong>Reuse machinery:</strong> copy/paste a device (auto-renames, increments the port, drops custom Controller logic), or export devices/POUs as XML templates and re-import them into any project. XML from a newer SEL-5033 isn't guaranteed to load in an older one.</li>
+  <li><strong>Advanced surface:</strong> every protocol task exposes POU pins (enable polling, comm status, force IIN bits…) and a Controller CFC block where you can rewire standard task behavior. Powerful, rarely needed, not copied with the device.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>How data flows through the box</h2>
+<div class="fig"><svg viewBox="0 0 700 252" xmlns="http://www.w3.org/2000/svg">
+  <!-- field devices -->
+  <rect x="8" y="52" width="104" height="34" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="60" y="66" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">SEL-751A</text>
+  <text x="60" y="78" font-size="8" fill="#6e7180" text-anchor="middle">DNP3 serial</text>
+  <rect x="8" y="158" width="104" height="34" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="60" y="172" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Meter</text>
+  <text x="60" y="184" font-size="8" fill="#6e7180" text-anchor="middle">Modbus TCP</text>
+  <!-- RTAC boundary -->
+  <rect x="140" y="14" width="416" height="222" rx="8" fill="#fafbfc" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="150" y="30" font-size="9" font-weight="700" fill="#454956">RTAC</text>
+  <!-- client sessions -->
+  <rect x="152" y="52" width="102" height="34" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="203" y="66" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">Relay1_DNP</text>
+  <text x="203" y="78" font-size="8" fill="#6e7180" text-anchor="middle">client device</text>
+  <rect x="152" y="158" width="102" height="34" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="203" y="172" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">Meter_MB</text>
+  <text x="203" y="184" font-size="8" fill="#6e7180" text-anchor="middle">client device</text>
+  <!-- tag database -->
+  <rect x="288" y="76" width="112" height="96" rx="8" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="344" y="98" font-size="9.5" font-weight="700" fill="#10a37f" text-anchor="middle">Tag database</text>
+  <text x="344" y="114" font-size="8" fill="#454956" text-anchor="middle">device tags</text>
+  <text x="344" y="126" font-size="8" fill="#454956" text-anchor="middle">system tags</text>
+  <text x="344" y="138" font-size="8" fill="#454956" text-anchor="middle">virtual tags · GVLs</text>
+  <text x="344" y="158" font-size="8" fill="#6e7180" text-anchor="middle">value · quality · time</text>
+  <!-- tag processor -->
+  <rect x="428" y="100" width="84" height="48" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.5"/>
+  <text x="470" y="119" font-size="9" font-weight="700" fill="#9c6d06" text-anchor="middle">Tag</text>
+  <text x="470" y="131" font-size="9" font-weight="700" fill="#9c6d06" text-anchor="middle">Processor</text>
+  <text x="470" y="143" font-size="7.5" fill="#6e7180" text-anchor="middle">every task cycle</text>
+  <!-- consumers -->
+  <rect x="584" y="34" width="108" height="34" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="638" y="48" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">DNP server</text>
+  <text x="638" y="60" font-size="8" fill="#6e7180" text-anchor="middle">→ SCADA master</text>
+  <rect x="584" y="108" width="108" height="34" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="638" y="122" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Web HMI</text>
+  <text x="638" y="134" font-size="8" fill="#6e7180" text-anchor="middle">live pages</text>
+  <rect x="584" y="182" width="108" height="34" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="638" y="196" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">IEC 61131 logic</text>
+  <text x="638" y="208" font-size="8" fill="#6e7180" text-anchor="middle">reads &amp; writes tags</text>
+  <!-- static wires -->
+  <line x1="112" y1="69" x2="152" y2="69" stroke="#10a37f" stroke-width="1.5"/>
+  <line x1="112" y1="175" x2="152" y2="175" stroke="#5468c4" stroke-width="1.5"/>
+  <path d="M254,69 C272,69 274,96 288,102" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <path d="M254,175 C272,175 274,152 288,146" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <line x1="400" y1="124" x2="428" y2="124" stroke="#d7930a" stroke-width="1.5"/>
+  <path d="M512,112 C548,102 552,62 584,52" fill="none" stroke="#454956" stroke-width="1.25"/>
+  <line x1="512" y1="124" x2="584" y2="124" stroke="#454956" stroke-width="1.25"/>
+  <path d="M512,136 C548,146 552,188 584,198" fill="none" stroke="#454956" stroke-width="1.25"/>
+  <text x="350" y="246" font-size="8.5" fill="#a9adb8" text-anchor="middle">southbound polls fill client tags · Tag Processor copies source → destination once per cycle · server, HMI, and logic all read the same database</text>
+  <g class="animlayer">
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.26;0.29;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M112,69 L200,69 C254,69 274,96 292,102" keyPoints="0;0;1;1" keyTimes="0;0.02;0.28;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.08;0.11;0.34;0.37;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M112,175 L200,175 C254,175 274,152 292,146" keyPoints="0;0;1;1" keyTimes="0;0.10;0.36;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <text x="470" y="94" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.45;0.58;0.61;1" dur="9s" repeatCount="indefinite"/>
+      map on cycle tick
+    </text>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.78;0.81;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M400,116 L470,112 C540,102 552,62 588,52" keyPoints="0;0;1;1" keyTimes="0;0.48;0.80;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.78;0.81;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M400,124 L470,124 L588,124" keyPoints="0;0;1;1" keyTimes="0;0.48;0.80;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.78;0.81;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M400,132 L470,136 C540,146 552,188 588,198" keyPoints="0;0;1;1" keyTimes="0;0.48;0.80;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Platform anatomy: two client sessions fill the tag database; on each task cycle the Tag Processor fans the same data out to the SCADA server, the web HMI, and user logic simultaneously.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<ul>
+  <li><strong>The protocol stack is symmetric.</strong> Clients: DNP3 (serial/LAN), Modbus, SEL ASCII/Fast Message, IEC 61850 MMS, IEC 60870-5-103, C37.118, LG 8979, CP2179, SES-92, CDC II, Courier, SNMP, EtherNet/IP. Servers: DNP3, Modbus, SEL FM, MMS, IEC 60870-5-101/104, C37.118, LG 8979, SES-92, CDC II, (S)FTP, EtherNet/IP. Peer-to-peer: GOOSE, Mirrored Bits, NGVL, PRP. Fieldbus: EtherCAT.</li>
+  <li><strong>Ethernet uniqueness rules:</strong> a client connection is keyed by remote IP + port; a server connection by client IP + local port (unless anonymous clients are allowed). Multidrop serial: one physical port shared by many client devices, each with its own server address.</li>
+  <li><strong>Engineering access</strong> rides the same box: access points + routers give transparent paths through the RTAC to any connected IED — one Ethernet drop serves SCADA, settings work, and diagnostics.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Project lifecycle: edit → send → restart → online</h2>
+<div class="fig"><svg viewBox="0 0 700 196" xmlns="http://www.w3.org/2000/svg">
+  <!-- stages -->
+  <rect x="16" y="34" width="140" height="52" rx="6" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="86" y="52" font-size="9.5" font-weight="700" fill="#1a1a22" text-anchor="middle">1 · Edit offline</text>
+  <text x="86" y="66" font-size="8" fill="#6e7180" text-anchor="middle">project in the local</text>
+  <text x="86" y="77" font-size="8" fill="#6e7180" text-anchor="middle">RTAC Database</text>
+  <rect x="188" y="34" width="140" height="52" rx="6" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="258" y="52" font-size="9.5" font-weight="700" fill="#1a1a22" text-anchor="middle">2 · Save = compile</text>
+  <text x="258" y="66" font-size="8" fill="#6e7180" text-anchor="middle">syntax check; cross-task</text>
+  <text x="258" y="77" font-size="8" fill="#6e7180" text-anchor="middle">check at send</text>
+  <rect x="360" y="34" width="140" height="52" rx="6" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="430" y="52" font-size="9.5" font-weight="700" fill="#1a1a22" text-anchor="middle">3 · Send project</text>
+  <text x="430" y="66" font-size="8" fill="#6e7180" text-anchor="middle">TCP 5432 settings</text>
+  <text x="430" y="77" font-size="8" fill="#6e7180" text-anchor="middle">TCP 1217 online/RTE</text>
+  <rect x="532" y="34" width="150" height="52" rx="6" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="607" y="52" font-size="9.5" font-weight="700" fill="#1a1a22" text-anchor="middle">4 · Online monitor</text>
+  <text x="607" y="66" font-size="8" fill="#6e7180" text-anchor="middle">view &amp; force tags,</text>
+  <text x="607" y="77" font-size="8" fill="#6e7180" text-anchor="middle">Comm Monitor, debug</text>
+  <line x1="156" y1="60" x2="188" y2="60" stroke="#10a37f" stroke-width="1.5"/>
+  <line x1="328" y1="60" x2="360" y2="60" stroke="#10a37f" stroke-width="1.5"/>
+  <line x1="500" y1="60" x2="532" y2="60" stroke="#10a37f" stroke-width="1.5"/>
+  <!-- restart bar under stage 3 -->
+  <rect x="360" y="112" width="140" height="34" rx="5" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.25"/>
+  <text x="430" y="126" font-size="9" font-weight="700" fill="#d63a3a" text-anchor="middle">RTAC restarts</text>
+  <text x="430" y="138" font-size="8" fill="#6e7180" text-anchor="middle">all protocol sessions drop</text>
+  <line x1="430" y1="86" x2="430" y2="112" stroke="#d63a3a" stroke-width="1.25" stroke-dasharray="3 2"/>
+  <path d="M500,132 C556,130 590,104 604,88" fill="none" stroke="#6e7180" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="560" y="146" font-size="8" fill="#6e7180" text-anchor="middle">sessions re-establish, auto-online</text>
+  <!-- logic-only bypass -->
+  <path d="M258,86 C270,108 340,166 430,166 C520,166 592,120 605,88" fill="none" stroke="#d7930a" stroke-width="1.25" stroke-dasharray="5 3"/>
+  <text x="430" y="180" font-size="8.5" font-weight="600" fill="#9c6d06" text-anchor="middle">logic-only send — no restart, protocol settings NOT sent · finish with a full send</text>
+  <!-- loop back -->
+  <path d="M682,60 C696,20 60,10 30,34" fill="none" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="352" y="16" font-size="8" fill="#a9adb8" text-anchor="middle">Go Online later: SEL-5033 compares projects — identical → online now · different → prompts a resend</text>
+  <g class="animlayer">
+    <circle r="5" fill="none" stroke="#10a37f" stroke-width="2">
+      <animateMotion path="M86,96 L86,96 L258,96 L258,96 L430,96 L430,96 L607,96 L607,96 L86,96" keyPoints="0;0.16;0.22;0.38;0.44;0.66;0.72;0.94;1" keyTimes="0;0.16;0.22;0.38;0.44;0.66;0.72;0.94;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="16" y="34" width="140" height="52" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.16;0.2;0.96;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="188" y="34" width="140" height="52" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.2;0.22;0.38;0.42;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="360" y="34" width="140" height="52" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.44;0.66;0.70;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="360" y="112" width="140" height="34" rx="5" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.55;0.66;0.70;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="532" y="34" width="150" height="52" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.72;0.94;0.98;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">The lifecycle loop with a moving cursor. A full send passes through the restart; the amber path is the logic-only shortcut for iterative testing.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<ul>
+  <li><strong>Save compiles.</strong> <code>Ctrl+S</code> syntax-checks and stores to the database; fix output-window errors before sending (double-click an error to jump to it).</li>
+  <li><strong>Send = commit.</strong> Full send transfers settings + logic; on completion the software auto-enters online mode. The restart is why a protocol disabled during a send only re-enables after the RTAC comes back with the new settings — and why MMS buffered-report bookmarks (entryIDs) are cleared on download. Budget it: ~2.5 min to ENABLED on 3530/3530-4/2241, ~45 s on a 3555, plus downstream session re-establishment (10–15 s per Axion module on first EtherCAT configure).</li>
+  <li><strong>Logic-only send</strong> ("Send only custom IEC 61131 logic") skips the reset for live logic iteration — but protocol settings are silently not sent, so always finish with Send Complete Project; that's also what makes the project readable back out of the RTAC later.</li>
+  <li><strong>Going offline changes nothing</strong> — the project keeps running. Forced tags prompt to unforce on exit; an inactivity disconnect unforces them automatically.</li>
+  <li><strong>Read</strong> pulls the running project off an RTAC into the database — the recovery path when the backup is missing. Projects can also be exported (.exp), backed up en masse, compared (same firmware version required), and converted to a newer firmware version or a different RTAC type.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Firmware, versions, and licensed options</h2>
+<p>Read the FID string from the web Dashboard: <code>SEL-3530-4-R156-V0-Z000079-D20260312</code> = model · <strong>R-number</strong> (standard release — new functionality) · <strong>V-number</strong> (point release — fixes/security only, typically every 3–4 months) · Z-number · date code. Each standard release gets point-release maintenance for at most two years.</p>
+<ul>
+  <li><strong>Software ↔ firmware coupling:</strong> the SEL-5033 version listed with a firmware release is the <em>minimum</em>; newer SEL-5033 always works with older firmware. Projects are created <em>for</em> a firmware version — upgrading the fleet means converting projects.</li>
+  <li><strong>100- vs 200-series:</strong> from R154, the 3350 and 3555/3560 get a parallel 200-series firmware on a 64-bit OS (more per-process memory, post-2038 clock). New models (2241-2) are 200-series only. One-way doors: 100→200 upgrades can't be downgraded, and R200/R201→R202 can't go back.</li>
+  <li><strong>Upgrading:</strong> load the <code>.upg</code> package from SEL-5033 (RTAC Firmware Update, TCP 5433) or the web interface's Device Management tab; a <code>.zip</code> package changes the MOT/part number. Mid-upgrade the RTAC drops to SELBOOT — ENABLED dark, ALARM lit — then reboots clean. Never pull power during it, and never upgrade with the factory-reset jumper set.</li>
+  <li><strong>Licensed options ride the same mechanism:</strong> IEC 61850 GOOSE/MMS support is a factory-assigned licensed option; adding it later means a firmware update plus a licensed-option upgrade file from SEL. The web HMI is likewise an orderable feature that can be added after purchase; Continuous Waveform Streaming is a licensed option too. The 3505/3505-3 can't have the HMI or MMS client at any price.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Diagnostics: where to look, in order</h2>
+<table>
+  <tr><th>Tool</th><th>What it tells you</th></tr>
+  <tr><td><strong>Front LEDs</strong></td><td>ENABLED dark → power/fuse or invalid project; +ALARM lit → project the RTAC couldn't auto-reset. ALARM alone → a watchdog fired (§3) or a mapped alarm point.</td></tr>
+  <tr><td><strong>Web Dashboard</strong></td><td>POST results, firmware version/part number, CPU/memory/power stats. Diagnostics page: firewall, interfaces, routing table, exe-GUARD, PRP, ARP.</td></tr>
+  <tr><td><strong>SOE / Alarm Summary</strong></td><td>Time-aligned log of every tag configured for logging (Tag Processor logging columns or Logger_* blocks); CSV download. 30,000 records on most models, 500,000 on 3350/3555/3560; bursts of 500 entries/100 ms. Default entries (logins, settings changes) are the security audit — don't delete them.</td></tr>
+  <tr><td><strong>Live Data / online Tags</strong></td><td>Near-real-time values, forceable from web (if enabled per tag) or from SEL-5033 online mode. Device tree icons show per-device comm status (R151+): green online, red offline, grey disabled.</td></tr>
+  <tr><td><strong>System tags</strong></td><td><code>CPU_Burden_Percent</code>, rail voltages, <code>Eth_XX_Connections_Active</code> (all TCP connections, not users), <code>Application_Status</code> (log it to catch silent task restarts), task timers under Tags.</td></tr>
+  <tr><td><strong>Comm Monitor</strong></td><td>Up to 60 live captures of serial/Ethernet traffic (hex + ASCII, UART control lines) over TCP 15453; the web side adds pcap captures, Network Utilities ping/port tests, and (3555/3560/3350, R151+) a protocol dissector.</td></tr>
+</table>
+<div class="callout warn"><strong>Firewall checklist</strong> when SEL-5033 can't reach an RTAC: TCP <code>5432</code> (project send/read), <code>1217</code> (online monitoring/forcing), <code>5433</code> (firmware upgrade), <code>15453</code> (Comm Monitor), <code>443</code>/<code>80</code> (web). Also: each Ethernet port must be on its own subnet, and per-port service enables in the web interface can make a healthy link look dead.</div>
+<p style="margin-bottom:2px">HMI diagram building and kiosk mode: see <em>RTAC Web HMI</em> in atlas.</p>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:rtac-automation/rtac-logic.html">IEC 61131-3 Logic on the RTAC</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:rtac-automation/sel-computers.html">Substation Computers &amp; Blueframe</a>
+  <a href="atlas:rtac-automation/rtac-security.html">RTAC Users &amp; Security</a>
+  <a href="atlas:relays-devices/firmware-upgrades.html">Firmware Upgrades</a>
+</div>
+<p class="footnote">Sources: SEL-3530-4 Instruction Manual (hardware §§1–3: features, specs, ports, IN101/OUT101, LEDs, jumpers) and the embedded ACSELERATOR RTAC SEL-5033 Software Instruction Manual (Getting Started, Communications, Web Interface §5, Testing &amp; Troubleshooting §12, Appendices A/C) — file <code>3530-4_IM_20241217_20260313.pdf</code>; SEL-2241-2 Data Sheet — <code>2241-2_DS_20260320.pdf</code>; SEL-2240 Axion Instruction Manual §1 — <code>2240_IM_20250423_20260313.pdf</code>. Family tiers, device counts, watchdogs, task cycles, and the send lifecycle verified against the dedicated hardware manuals — SEL-3530/3505 <code>3530_IM_20241217_20260313.pdf</code>, SEL-3555 <code>3555_IM_20241217_20260313.pdf</code>, SEL-3560 <code>3560_IM_20241218_20260313.pdf</code> — and the standalone SEL-5033 Software Instruction Manual <code>5033_IM_20250916.pdf</code>. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

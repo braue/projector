@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings Management</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="settings,rdb,as-found,as-left,version control,design templates,review,settings groups,fleet,archive,basis">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Settings Management (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Settings Management</h1>
+  <p>The discipline around the file: where settings come from, how they are reviewed and approved, version control, templates, as-found and as-left, and proving what is actually in the relay</p>
+  <div class="chips"><span>.rdb</span><span>as-found / as-left</span><span>design templates</span><span>review</span><span>version control</span><span>settings groups</span><span>fleet changes</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Settings discipline</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The relay is the authority, the archive is the record, and they must agree.</strong> If you cannot prove they agree, you do not know what is protecting the feeder.</li>
+<li><strong>Every visit produces an as-found and an as-left,</strong> even when nothing changed. &ldquo;No change&rdquo; is a finding worth having on file.</li>
+<li><strong>A setting has a reason.</strong> Record it. The fault study, the coordination requirement, or the standard that produced the number is more valuable than the number.</li>
+<li><strong>Settings changes get reviewed by someone who did not write them.</strong> The cost of a second pair of eyes is far below the cost of a misoperation.</li>
+<li><strong>Read back what you sent.</strong> The file you intended to send and the file that is in the relay are different objects until you have proven otherwise.</li>
+<li><strong>Templates enforce the standard;</strong> free-form editing lets every relay drift into its own dialect.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Where a setting actually comes from</h2>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="sm" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Every number in a settings file traces back to something &mdash; and the trace is the deliverable</text>
+
+  <g font-size="7.4">
+    <rect x="8" y="34" width="118" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="67" y="52" text-anchor="middle" font-size="8" font-weight="600" fill="#5468c4">System data</text>
+    <text x="67" y="65" text-anchor="middle" fill="#6e7180">fault study, CT/PT ratios,</text>
+    <text x="67" y="75" text-anchor="middle" fill="#6e7180">line constants, load</text>
+
+    <rect x="146" y="34" width="118" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="205" y="52" text-anchor="middle" font-size="8" font-weight="600" fill="#5468c4">Standards &amp; policy</text>
+    <text x="205" y="65" text-anchor="middle" fill="#6e7180">protection philosophy,</text>
+    <text x="205" y="75" text-anchor="middle" fill="#6e7180">CTI, naming rules</text>
+
+    <rect x="284" y="34" width="118" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="343" y="52" text-anchor="middle" font-size="8" font-weight="600" fill="#5468c4">Equipment limits</text>
+    <text x="343" y="65" text-anchor="middle" fill="#6e7180">damage curves, breaker</text>
+    <text x="343" y="75" text-anchor="middle" fill="#6e7180">ratings, thermal data</text>
+
+    <rect x="422" y="34" width="118" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="481" y="52" text-anchor="middle" font-size="8" font-weight="600" fill="#5468c4">Neighbours</text>
+    <text x="481" y="65" text-anchor="middle" fill="#6e7180">upstream and downstream</text>
+    <text x="481" y="75" text-anchor="middle" fill="#6e7180">device settings</text>
+
+    <rect x="560" y="34" width="132" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="626" y="52" text-anchor="middle" font-size="8" font-weight="600" fill="#5468c4">SCADA requirements</text>
+    <text x="626" y="65" text-anchor="middle" fill="#6e7180">points list, protocol,</text>
+    <text x="626" y="75" text-anchor="middle" fill="#6e7180">addressing</text>
+  </g>
+
+  <g stroke="#a9adb8" stroke-width="1.1" fill="none" marker-end="url(#sm)">
+    <path d="M67,80 V102 H340"/><path d="M205,80 V96 H340"/><path d="M343,80 V102"/>
+    <path d="M481,80 V96 H346"/><path d="M626,80 V102 H346"/>
+  </g>
+
+  <rect x="248" y="108" width="196" height="38" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="346" y="124" text-anchor="middle" font-size="8.4" font-weight="600" fill="#0d7f63">The settings file</text>
+  <text x="346" y="138" text-anchor="middle" font-size="7.2" fill="#6e7180">plus a written basis for each choice</text>
+
+  <path d="M346,146 V166" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#sm)"/>
+  <rect x="248" y="172" width="196" height="30" rx="5" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+  <text x="346" y="191" text-anchor="middle" font-size="8" font-weight="600" fill="#9c6d06">Review &amp; approval</text>
+
+  <path d="M346,202 V222" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#sm)"/>
+  <rect x="248" y="228" width="196" height="20" rx="4" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+  <text x="346" y="242" text-anchor="middle" font-size="8" font-weight="600" fill="#d63a3a">Sent, read back, archived</text>
+
+  <!-- the loop back -->
+  <path d="M444,238 H620 V116 H444" stroke="#10a37f" stroke-width="1.2" stroke-dasharray="4 3" fill="none" marker-end="url(#sm)"/>
+  <text x="628" y="180" font-size="7.2" fill="#0d7f63" text-anchor="middle" transform="rotate(90 628 180)">any change re-enters here</text>
+
+  <circle r="3.5" fill="#10a37f">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M346,146 V166 M346,202 V222"/>
+  </circle>
+</svg></div>
+<p class="figcap">A settings file with no traceable basis is a liability: nobody can safely change it later, because nobody knows which constraints it was satisfying. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>The artifacts</h2>
+<table>
+  <tr><th>Artifact</th><th>What it is</th><th>Lives where</th></tr>
+  <tr><td><strong>Settings database (<code>.rdb</code>)</strong></td><td>QuickSet's file format &mdash; holds settings for one or many relays, with the driver metadata that ties settings to a specific model and firmware</td><td>The project archive, under version control</td></tr>
+  <tr><td><strong>Text export</strong></td><td>A plain-text dump of settings, class by class</td><td>Alongside the <code>.rdb</code> &mdash; text is what you can diff, search, and read in ten years</td></tr>
+  <tr><td><strong>Settings basis document</strong></td><td>The reasoning: which fault-study case, which coordination pair, which standard</td><td>With the file. This is what survives staff turnover</td></tr>
+  <tr><td><strong>Coordination study</strong></td><td>TCC plots showing the curves actually coordinate</td><td>Referenced by the basis document</td></tr>
+  <tr><td><strong>Points list</strong></td><td>Every protocol point with its source, index, scaling, and destination</td><td>The automation twin of the settings file &mdash; see <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a></td></tr>
+  <tr><td><strong>As-found / as-left pair</strong></td><td>What was in the relay when you arrived, and when you left</td><td>Per visit, dated, archived</td></tr>
+  <tr><td><strong>Test record</strong></td><td>Evidence that the settings were verified in the relay</td><td>With the as-left</td></tr>
+</table>
+<div class="callout">
+<strong>Keep a text export next to every binary file.</strong> Binary settings databases are readable only by a compatible version of the tool. A plain text export can be diffed against the next revision, searched for a value across the whole fleet, and read by anyone. Doing both costs seconds.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Naming and versioning</h2>
+<div class="twocol">
+<div>
+<h3>File naming</h3>
+<p>Name by fact so the file sorts and searches usefully:</p>
+<pre style="background:#f2f3f5;border-radius:6px;padding:8px 12px;font-family:Consolas,monospace;font-size:8.5pt;line-height:1.6;margin:6px 0">SITE_DEVICE_YYYYMMDD_asfound.rdb
+SITE_DEVICE_YYYYMMDD_asleft.rdb
+SITE_DEVICE_YYYYMMDD_asleft.txt
+SITE_DEVICE_YYYYMMDD_basis.md</pre>
+<ul>
+<li><strong>Site and device tag</strong> exactly as they appear on the one-line and in SCADA &mdash; not a nickname.</li>
+<li><strong>ISO date</strong> so files sort chronologically.</li>
+<li><strong>The words <em>asfound</em> and <em>asleft</em></strong>, never &ldquo;final&rdquo;, &ldquo;new&rdquo;, or &ldquo;v2&rdquo;.</li>
+</ul>
+</div>
+<div>
+<h3>Version control</h3>
+<ul>
+<li>A real version-control system beats a shared folder: it records who changed what, when, and why, and it makes the diff trivial.</li>
+<li>Commit the <strong>text export</strong> so diffs are meaningful; keep the binary alongside.</li>
+<li>The commit message is the change note: <em>&ldquo;FDR 3: raised 51P TD 2.0 &rarr; 2.5 to coordinate with new recloser R-14 per study 2026-08-14.&rdquo;</em></li>
+<li>Tag the state that was actually commissioned, so &ldquo;what is in the field right now&rdquo; is answerable without a site visit.</li>
+<li>Where a formal system is not available, the same discipline applies with dated folders &mdash; it is just more manual.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Templates and standardization</h2>
+<p>A fleet of relays set individually by different engineers becomes a fleet of one-off configurations that nobody can safely maintain. Templates are the antidote.</p>
+<ul>
+<li><strong>Design Templates</strong> in QuickSet let an engineer lock down most of a settings file and expose only the fields that legitimately vary per application &mdash; CT ratio, pickups, addresses. Field staff fill in the blanks; nobody rewrites the logic.</li>
+<li><strong>What to template:</strong> SELogic trip and close equations, target LED assignments, SER trigger lists, port configuration, protocol maps, front-panel labels. These are standard-driven, not site-driven.</li>
+<li><strong>What to leave open:</strong> ratios, pickups, time dials, addresses, device names &mdash; the genuinely per-installation values.</li>
+<li><strong>Version the template itself.</strong> When the standard changes, you need to know which relays were built from which template revision.</li>
+<li><strong>Templates make review cheap.</strong> Reviewing a filled-in template is a matter of checking a dozen values; reviewing a free-form settings file means reading all of it.</li>
+</ul>
+<div class="callout keyfact">
+<strong>The real value of a template is what it prevents.</strong> Not the time saved entering settings &mdash; the trip equation someone rewrote at 2&nbsp;a.m. that omitted a permissive, the SER trigger list that never included the new element, the target LED that still says what the previous relay's did. Standardization is a protection measure.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Settings groups</h2>
+<table>
+  <tr><th>Use</th><th>Typical arrangement</th><th>Cautions</th></tr>
+  <tr><td><strong>Maintenance mode</strong></td><td>A group with a fast, low-set instantaneous to reduce arc-flash incident energy while people work nearby</td><td>Must be visible in SCADA and alarmed if left active. See <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a></td></tr>
+  <tr><td><strong>Alternate source</strong></td><td>Different pickups when the bus is fed from the backup transformer with different available fault current</td><td>Selection logic must be robust &mdash; a wrong group is worse than no group</td></tr>
+  <tr><td><strong>Seasonal or emergency loading</strong></td><td>Higher thermal and load-encroachment settings during peak</td><td>Document the trigger and who authorizes it</td></tr>
+  <tr><td><strong>Cold load pickup</strong></td><td>Temporarily raised pickups after an extended outage</td><td>Usually better handled by dedicated cold-load logic than by group switching</td></tr>
+  <tr><td><strong>Testing</strong></td><td>A group used during commissioning</td><td>The most common way a relay ends up in the wrong group. Have a check for it in the walk-back list</td></tr>
+</table>
+<div class="callout warn">
+<strong>Map the active group as a SCADA analog.</strong> It is one point, it costs nothing, and it turns &ldquo;which settings are actually running?&rdquo; from a site visit into a glance. Alarm any group other than the normal one.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>The change workflow</h2>
+<ol>
+<li><strong>Establish the need in writing.</strong> A coordination study result, a misoperation report, a new device downstream, a standards update.</li>
+<li><strong>Retrieve the current settings from the relay</strong> &mdash; not from the archive. The archive is what <em>should</em> be there.</li>
+<li><strong>Make the change in the file,</strong> based on the template if one exists, and update the basis document in the same edit.</li>
+<li><strong>Diff it.</strong> Compare old and new text exports and confirm that <em>only</em> the intended settings changed. Tools change things you did not ask for &mdash; a driver upgrade can rewrite defaults.</li>
+<li><strong>Review.</strong> Someone else checks the diff against the basis. Protection changes deserve a formal approval step.</li>
+<li><strong>Send it,</strong> during an approved window, with the consequences understood &mdash; a settings change may momentarily disable protection and will clear some records.</li>
+<li><strong>Read back and verify.</strong> Retrieve settings from the relay and diff against what you intended to send. This is the step people skip and the step that catches partial sends.</li>
+<li><strong>Test what changed.</strong> A pickup change means an injection test at the new pickup. A logic change means proving the logic.</li>
+<li><strong>Archive the as-left, the diff, the basis, and the test record,</strong> and update the drawings and points list if either was affected.</li>
+</ol>
+<div class="callout">
+<strong>Retrieve events before changing settings.</strong> A settings change clears some record buffers on many relays. If the reason you are there is a misoperation, capture the evidence first &mdash; see Event Analysis.
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="sm2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The read-back is the gate &mdash; the step people skip and the one that catches partial sends</text>
+  <g font-size="7.2">
+    <rect x="14" y="40" width="110" height="44" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="69" y="58" text-anchor="middle" font-weight="600" fill="#5468c4">Edit</text>
+    <text x="69" y="72" text-anchor="middle" fill="#6e7180">based on the template</text>
+
+    <rect x="140" y="40" width="110" height="44" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="195" y="58" text-anchor="middle" font-weight="600" fill="#5468c4">Diff</text>
+    <text x="195" y="72" text-anchor="middle" fill="#6e7180">only what you intended?</text>
+
+    <rect x="266" y="40" width="110" height="44" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.2"/>
+    <text x="321" y="58" text-anchor="middle" font-weight="600" fill="#9c6d06">Review</text>
+    <text x="321" y="72" text-anchor="middle" fill="#6e7180">someone else, against the basis</text>
+
+    <rect x="392" y="40" width="110" height="44" rx="5" fill="#fff" stroke="#d63a3a" stroke-width="1.2"/>
+    <text x="447" y="58" text-anchor="middle" font-weight="600" fill="#d63a3a">Send</text>
+    <text x="447" y="72" text-anchor="middle" fill="#6e7180">in an approved window</text>
+
+    <rect x="518" y="40" width="168" height="44" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.6"/>
+    <text x="602" y="58" text-anchor="middle" font-weight="600" fill="#0d7f63">Read back and diff again</text>
+    <text x="602" y="72" text-anchor="middle" fill="#6e7180">against what you meant to send</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#sm2)">
+    <path d="M124,62 H138"/><path d="M250,62 H264"/><path d="M376,62 H390"/><path d="M502,62 H516"/>
+  </g>
+  <circle r="4" fill="#10a37f"><animateMotion dur="6s" repeatCount="indefinite" path="M69,62 H195 H321 H447 H602"/></circle>
+
+  <path d="M602,86 V116 H69 V84" stroke="#d63a3a" stroke-width="1.3" stroke-dasharray="4 3" fill="none" marker-end="url(#sm2)"/>
+  <text x="336" y="112" font-size="7.4" fill="#d63a3a" text-anchor="middle">any difference sends you back &mdash; do not accept &ldquo;probably fine&rdquo;</text>
+
+  <rect x="14" y="132" width="672" height="60" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="28" y="150" font-size="8" font-weight="600" fill="#1a1a22">Then, and only then</text>
+  <text x="28" y="166" font-size="7.8" fill="#454956">Test what changed &mdash; a pickup change means an injection test at the new pickup; a logic change means proving the logic.</text>
+  <text x="28" y="182" font-size="7.8" fill="#454956">Archive the as-left, the diff, the basis, and the test record together, and update the drawings and points list if either was affected.</text>
+</svg></div>
+<p class="figcap">The file you intended to send and the file that is in the relay are different objects until you have proven otherwise. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">7</span>Fleet-wide changes</h2>
+<p>Changing one setting across two hundred relays is a different problem from changing one relay. It is where scripting pays and where mistakes multiply.</p>
+<ul>
+<li><strong>Search the fleet first.</strong> With text exports under version control, finding every relay whose <code>50P1P</code> is below a threshold is a grep, not a survey.</li>
+<li><strong>Pilot on one device</strong>, in a low-consequence location, and prove the whole workflow including read-back and test.</li>
+<li><strong>Batch by identical model and firmware.</strong> A change that is safe on one FID may not exist on another.</li>
+<li><strong>Stage the rollout</strong> so a systematic error affects a few devices, not all of them, before anyone notices.</li>
+<li><strong>Keep a per-device record</strong> of which relays received the change and which are pending. &ldquo;We did most of them&rdquo; is not a defensible state.</li>
+<li><strong>Watch for the ones that are different.</strong> Every fleet has a handful of relays that are not like the others &mdash; older firmware, different option, non-standard application. They are exactly where a bulk change goes wrong.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">8</span>Gotchas</h2>
+<ul>
+<li><strong>The archive and the relay disagree, and nobody knows which is right.</strong> Fix it by reading the relay, archiving that as a new as-found, and investigating the difference &mdash; not by overwriting the relay with the archive.</li>
+<li><strong>Sending a settings file built for a different firmware.</strong> QuickSet's driver check exists for a reason; overriding it produces missing or defaulted settings.</li>
+<li><strong>A partial send that reported success.</strong> Always read back. This is the single most valuable habit on this page.</li>
+<li><strong>Nominal current mismatch.</strong> A 5&nbsp;A file into a 1&nbsp;A relay is a factor-of-five error that looks completely ordinary in the file.</li>
+<li><strong>Logic changed by a group change.</strong> On most relays the SELogic equations belong to the settings group. Switching groups switches the logic too &mdash; verify both.</li>
+<li><strong>Undocumented field changes.</strong> Somebody adjusted a pickup during a callout and told no one. Periodic fleet audits &mdash; read the relays, diff against the archive &mdash; catch this.</li>
+<li><strong>Points list not updated with the settings.</strong> Adding an element without adding its Relay Word bit to the map means the new protection is invisible to SCADA.</li>
+<li><strong>The basis document written afterward, from the file.</strong> That is a description, not a basis. Write it while you are making the decisions.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/quickset.html">Engineering Access &amp; QuickSet</a>
+  <a href="atlas:relays-devices/firmware-upgrades.html">Firmware Upgrades</a>
+  
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Practice page. The tooling described &mdash; the ACSELERATOR QuickSet SEL-5030 settings database (<code>.rdb</code>), driver-and-FID matching when moving settings between relays, and Design Templates for locking down standard content while exposing per-application fields &mdash; follows the QuickSet instruction manual and SEL AG2019-24; settings-class and settings-group behavior follows the SEL-751/751A and SEL-451 instruction manuals. The workflow itself reflects standard utility protection-settings practice. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

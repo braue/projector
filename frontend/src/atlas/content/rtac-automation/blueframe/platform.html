@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blueframe Platform</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="Blueframe,Resource Management,connections,sessions,access lists,Engineering Access Policy,Protocol Services,ICCP,IAM,Application Management,logging,syslog">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Blueframe Platform (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Blueframe Platform</h1>
+  <p>The foundation both suites build on — resources, connections and sessions, access lists, protocol services, identity, notifications, application management, and logging</p>
+  <div class="chips"><span>Resource Management</span><span>connections</span><span>sessions</span><span>access lists</span><span>Protocol Services</span><span>IAM</span><span>ICCP</span><span>logging</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Platform</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Enter a device once.</strong> Blueframe's central idea is smart shared data: IEDs, connections, and users are defined once in the management tools, and every application subscribes to what it needs.</li>
+<li><strong>Resource Management is where everything starts.</strong> No DMA plan, no FLISR feeder, and no protocol client works until the device exists there with a working connection.</li>
+<li><strong>Blueframe ships with no user accounts.</strong> The first login creates the initial administrator; there is no default password to change because there is no default user.</li>
+<li><strong>Two independent access lists govern who sees what.</strong> Resource Access Lists control resource <em>visibility</em>; Profile Access Lists control who may <em>modify</em> profiles and redeploy their instances. A role assigned both gets the superset.</li>
+<li><strong>Only ports 443 and 80 are open by default</strong> (80 redirects to 443). Applications open their own ports &mdash; check each application's manual.</li>
+<li><strong>Everything is containerized and versioned.</strong> Import a package, then choose which version to install; uninstalling a package permanently deletes its configuration and stored data.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What Blueframe is, and what runs it</h2>
+<p>Blueframe is an <strong>embedded, modular, container-based application platform designed to operate in a secured environment</strong>. Hardware (or a virtual machine) sits at the bottom; a hardened Linux-based operating system with measures such as allowlisting sits on top of it; the Blueframe application platform and its containerized applications sit on top of that. Every application and tool is reached through a secure web environment &mdash; there is no desktop client to distribute.</p>
+<table>
+  <tr><th>Supported hardware</th><th>Notes</th></tr>
+  <tr><td><strong>SEL-3350</strong></td><td>Automation Platform &mdash; also configurable as an RTAC or a Windows/Linux machine</td></tr>
+  <tr><td><strong>SEL-3355-2</strong></td><td>Higher-performance x86-64 platform</td></tr>
+  <tr><td><strong>SEL-3360E / SEL-3360S</strong></td><td>Automation Platforms product line</td></tr>
+  <tr><td><strong>Virtual deployment</strong></td><td>Supported for enterprise implementations, under a subscription contract with SEL. Minimum processing, memory, and storage depend entirely on the applications and tasks being run</td></tr>
+</table>
+<p>Hardware detail is on <a href="atlas:rtac-automation/sel-computers.html">Substation Computers &amp; Blueframe</a>.</p>
+
+<h3>First boot</h3>
+<ul>
+<li><strong>Blueframe ships without default user accounts.</strong> On first access you create an initial administrator, which Blueframe automatically assigns to the <code>admin</code> role &mdash; the permissions needed to create every other user and role.</li>
+<li>The <strong>Portal</strong> then shows the installed applications, including the system-management ones. The <strong>Application Launcher</strong> in the top-left sorts by category or alphabetically with a search box; system tools live under the <em>System</em> category.</li>
+<li>The <strong>Application Bar</strong> carries quick-links to <em>Alarms</em> and <em>Notifications</em> generated by any installed application, regardless of which one is open, plus <em>Help</em>.</li>
+<li>The <strong>User Profile badge</strong> sets per-user preferences: landing page, password change, light/dark theme, and whether the favorites bar is visible (default: visible).</li>
+<li>On Automation Platform hardware, a <strong>password jumper</strong> allows creating a temporary user to manage accounts, and a <strong>master reset jumper</strong> resets to factory settings on every restart while enabled. Neither exists in a virtual environment &mdash; there is no way to bypass the password requirement there.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">2</span>Resource Management &mdash; define the device once</h2>
+<p>A <strong>resource</strong> is anything Blueframe talks to: an RTAC, relay, meter, switch, or other IED, and also a remote database or another Blueframe node. Define it once here and every application uses it; change it here and the change permeates the system.</p>
+
+<div class="fig"><svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="bp1" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One resource, three layers of definition &mdash; and everything downstream subscribes to it</text>
+
+  <rect x="20" y="34" width="150" height="96" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="95" y="52" text-anchor="middle" font-size="8.4" font-weight="600" fill="#0d7f63">Resource</text>
+  <g font-size="7.2" fill="#6e7180">
+    <text x="95" y="68" text-anchor="middle">name &middot; path (folder)</text>
+    <text x="95" y="82" text-anchor="middle">attributes (or a Preset)</text>
+    <text x="95" y="96" text-anchor="middle">labels for filtering</text>
+    <text x="95" y="110" text-anchor="middle">model &middot; firmware</text>
+    <text x="95" y="124" text-anchor="middle">custom attributes</text>
+  </g>
+
+  <rect x="196" y="34" width="150" height="96" rx="6" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="271" y="52" text-anchor="middle" font-size="8.4" font-weight="600" fill="#5468c4">Connections</text>
+  <g font-size="7.2" fill="#6e7180">
+    <text x="271" y="68" text-anchor="middle">protocol &middot; host &middot; port</text>
+    <text x="271" y="82" text-anchor="middle">credentials</text>
+    <text x="271" y="96" text-anchor="middle">child resources</text>
+    <text x="271" y="110" text-anchor="middle">engineering access enable</text>
+    <text x="271" y="124" text-anchor="middle">many per resource</text>
+  </g>
+
+  <rect x="372" y="34" width="150" height="96" rx="6" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.4"/>
+  <text x="447" y="52" text-anchor="middle" font-size="8.4" font-weight="600" fill="#9c6d06">Sessions</text>
+  <g font-size="7.2" fill="#6e7180">
+    <text x="447" y="68" text-anchor="middle">terminal or web proxy</text>
+    <text x="447" y="82" text-anchor="middle">allowlist / denylist</text>
+    <text x="447" y="96" text-anchor="middle">command aliases</text>
+    <text x="447" y="110" text-anchor="middle">roles &amp; access levels</text>
+    <text x="447" y="124" text-anchor="middle">optional SSH access</text>
+  </g>
+
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#bp1)">
+    <path d="M170,82 H194"/><path d="M346,82 H370"/>
+  </g>
+  <circle r="4" fill="#10a37f"><animateMotion dur="4s" repeatCount="indefinite" path="M95,82 H271 H447"/></circle>
+
+  <!-- subscribers -->
+  <text x="8" y="158" font-size="9" font-weight="600" fill="#454956">&hellip;and the applications that consume it, without you entering it again</text>
+  <g font-size="7.2">
+    <rect x="20" y="168" width="126" height="30" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="83" y="187" text-anchor="middle" fill="#454956">DMA collection plans</text>
+    <rect x="156" y="168" width="126" height="30" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="219" y="187" text-anchor="middle" fill="#454956">Protocol Services clients</text>
+    <rect x="292" y="168" width="126" height="30" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="355" y="187" text-anchor="middle" fill="#454956">Direct Resource Access</text>
+    <rect x="428" y="168" width="126" height="30" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="491" y="187" text-anchor="middle" fill="#454956">DMS FLISR feeders</text>
+    <rect x="564" y="168" width="112" height="30" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="620" y="187" text-anchor="middle" fill="#454956">Resource Viewer</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1" stroke-dasharray="3 3" fill="none">
+    <path d="M95,130 V150 H83 V166"/><path d="M271,130 V150 H219 V166"/>
+    <path d="M447,130 V150 H355 V166"/><path d="M447,150 H491 V166"/><path d="M271,150 H620 V166"/>
+  </g>
+
+  <rect x="20" y="214" width="656" height="58" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="34" y="232" font-size="8" font-weight="600" fill="#1a1a22">Profiles turn this into a template</text>
+  <text x="34" y="248" font-size="7.8" fill="#454956">A Profile holds resource, connection, service, and session <em>templates</em> whose values are either statically defined or filled in per instance. Add instances, complete the</text>
+  <text x="34" y="262" font-size="7.8" fill="#454956">instance-specific attributes, and Deploy &mdash; they appear in the Resources tree. Changes to a profile apply only to <em>newly</em> deployed instances; existing ones must be un-deployed and re-deployed.</text>
+</svg></div>
+<p class="figcap">The DMS manual makes the practical case: create one profile for an SEL-651R recloser control holding the DNP map and everything that does not vary, then stamp out one instance per physical device. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Connection protocols</h3>
+<table>
+  <tr><th>Protocol</th><th>Select it when</th></tr>
+  <tr><td><code>COMPROC</code></td><td>Communicating to a device behind a communications processor, for direct or direct-transparent communications. Sub-type <em>Legacy</em> for SEL-2020/2030/2032, <em>RTACSELServer</em> through an RTAC server, <em>RTACAP</em> through an RTAC access-point router</td></tr>
+  <tr><td><code>DNP</code> / <code>Serial DNP</code></td><td>DNP over Ethernet or serial for outstation data collection</td></tr>
+  <tr><td><code>FTP</code> / <code>FTPS</code> / <code>SFTP</code></td><td>File transfer to supported non-SEL devices; FTPS and SFTP where secure transfer is supported</td></tr>
+  <tr><td><code>HTTP</code> / <code>HTTPS</code></td><td>Connections to web servers &mdash; including the RTAC API for settings collection</td></tr>
+  <tr><td><code>MMS</code></td><td>File transfer from IEC 61850 MMS-capable resources</td></tr>
+  <tr><td><code>POSTGRESQL</code></td><td>Supported databases, including the RTAC database. <strong>Set Database to <code>3530</code></strong> to connect to an RTAC, and note the RTAC's PostgreSQL port is <strong>5432</strong> &mdash; required for listening operations</td></tr>
+  <tr><td><code>SEL-3620 SSH / TCP / Telnet</code></td><td>Connecting to an SEL security gateway, or any managed IED behind one</td></tr>
+  <tr><td><code>SEL over SSH / Telnet / TCP</code>, <code>SEL with FTP</code>, <code>SEL Client Serial</code></td><td>SEL devices directly &mdash; SSH to an RTAC, Telnet, raw TCP through serial-to-Ethernet converters, FTP file transfer from SEL IEDs, or a serial client connection</td></tr>
+  <tr><td><code>SMTP</code> / <code>SMTPS</code></td><td>Email server settings, used by Notifications</td></tr>
+  <tr><td><code>TERMINALGATEWAY</code></td><td>Custom scripted connections passed through a gateway resource, with ingress and egress scripts</td></tr>
+</table>
+<div class="callout warn">
+<strong>Scripted-access logging leaks passwords.</strong> The Terminal Gateway connection's <em>Log Details</em> checkbox records the back-and-forth. SEL recommends enabling it during commissioning to debug the scripts and <em>unchecking it in production</em>, because depending on how the script is written passwords may be sent in plaintext.
+</div>
+
+<h3>Third-party resources</h3>
+<p>Resource models come in two tiers. <strong>SEL resource models</strong> are first-tier: natively supported and fully integrated, including collection of device settings, properties, and event data. <strong>Third-party models</strong> are second-tier, supported by protocol or by use case:</p>
+<table>
+  <tr><th>DMA feature</th><th>Third-party support</th></tr>
+  <tr><td>Configuration Monitoring</td><td>Not supported &mdash; DMA does not natively collect settings, configuration properties, or internal metadata from third-party resources</td></tr>
+  <tr><td>Credential Management</td><td>Not supported</td></tr>
+  <tr><td>Custom Monitoring</td><td>Supported for devices with a file system or that support ASCII commands</td></tr>
+  <tr><td>Disturbance Monitoring</td><td>Supported through IEC 61850 MMS access to oscillography &mdash; COMTRADE 1997, 1999, and 2013. Without MMS, an SEL RTAC can collect it instead. <strong>SOE collection is not supported</strong> for third-party devices</td></tr>
+  <tr><td>Meter Monitoring</td><td>Not supported</td></tr>
+</table>
+<p>Compatible third-party models include ABB RED670/RED615, AMETEK UPLC, a broad set of GE relays (B30, B90, B95Plus, C60, C70, F35, F60, F650, G30, G60, G650, L30, L60, L90, T35, T60), Siemens SIPROTEC 7SS52, the NovaTech Orion family (Orion, OrionLX+, OrionMX, OrionSX, OrionVX), plus generic web-server, Windows, IIS, and Windows-IIS entries.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Engineering access, sessions, and access lists</h2>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Two access lists, evaluated independently &mdash; and the superset is what a role actually gets</text>
+
+  <rect x="24" y="34" width="290" height="94" rx="8" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="169" y="54" text-anchor="middle" font-size="8.6" font-weight="600" fill="#0d7f63">Resource Access List</text>
+  <text x="169" y="72" text-anchor="middle" font-size="7.6" fill="#454956">Which resources a role can <tspan font-style="italic">see and access</tspan></text>
+  <text x="169" y="88" text-anchor="middle" font-size="7.6" fill="#6e7180">Resources outside the list are invisible in Resource</text>
+  <text x="169" y="100" text-anchor="middle" font-size="7.6" fill="#6e7180">Management, and the restriction is enforced across every</text>
+  <text x="169" y="112" text-anchor="middle" font-size="7.6" fill="#6e7180">application that references it.</text>
+  <text x="169" y="124" text-anchor="middle" font-size="7.2" fill="#0d7f63">Does not grant permission to modify profiles.</text>
+
+  <rect x="386" y="34" width="290" height="94" rx="8" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="531" y="54" text-anchor="middle" font-size="8.6" font-weight="600" fill="#5468c4">Profile Access List</text>
+  <text x="531" y="72" text-anchor="middle" font-size="7.6" fill="#454956">Which profiles a role may <tspan font-style="italic">modify and redeploy</tspan></text>
+  <text x="531" y="88" text-anchor="middle" font-size="7.6" fill="#6e7180">Members can create instances, modify profile definitions,</text>
+  <text x="531" y="100" text-anchor="middle" font-size="7.6" fill="#6e7180">and deploy profile-managed resources.</text>
+  <text x="531" y="116" text-anchor="middle" font-size="7.2" fill="#5468c4">Grants visibility to <tspan font-weight="600">all</tspan> instances under the profile,</text>
+  <text x="531" y="126" text-anchor="middle" font-size="7.2" fill="#5468c4">regardless of the Resource Access List.</text>
+
+  <path d="M314,81 H384" stroke="#a9adb8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="349" y="76" font-size="7.4" fill="#8a8e9b" text-anchor="middle">independent</text>
+
+  <rect x="150" y="146" width="400" height="34" rx="6" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+  <text x="350" y="167" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">A role assigned both gets the superset of the two</text>
+  <path d="M169,128 C169,140 300,140 330,144" stroke="#a9adb8" stroke-width="1.1" fill="none"/>
+  <path d="M531,128 C531,140 400,140 370,144" stroke="#a9adb8" stroke-width="1.1" fill="none"/>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="3s" repeatCount="indefinite" path="M169,128 C169,140 300,140 330,144"/></circle>
+  <circle r="3.5" fill="#5468c4"><animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M531,128 C531,140 400,140 370,144"/></circle>
+
+  <rect x="24" y="194" width="652" height="50" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="38" y="212" font-size="8" font-weight="600" fill="#9c3838">The separation that makes this worth doing</text>
+  <text x="38" y="228" font-size="7.8" fill="#454956">Operations role: Resource Access List only &mdash; can view resources and use their sessions, cannot modify profile definitions or redeploy instances.</text>
+  <text x="38" y="240" font-size="7.8" fill="#454956">Technician role: the same Resource Access List <tspan font-style="italic">plus</tspan> a Profile Access List &mdash; can also modify profiles and redeploy. Operational access separated from configuration authority.</text>
+</svg></div>
+<p class="figcap">Four role-permission scenarios are documented, from view-only through full administrative access; the pivot in each is which of these two lists the role is on. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Sessions and Direct Resource Access</h3>
+<ul>
+<li><strong>A session is a terminal or web-proxy path to one resource,</strong> built on one of that resource's connections and tied to specific role access. Each session supports an <strong>allowlist</strong> and a <strong>denylist</strong> of commands, plus <strong>command aliases</strong> &mdash; useful for sending escape characters or giving users one consistent command across many device types.</li>
+<li><strong>Access Level permissions take precedence</strong> over allowlist and denylist entries.</li>
+<li><strong>Optional SSH access</strong> on terminal sessions issues a single-use password for proxy access to the device each time the session is connected in Direct Resource Access.</li>
+<li><strong>File read and write</strong> are supported on connection types including <em>SEL over Telnet</em> and <em>SEL with FTP</em>. To write, a user needs both the <em>Can Write</em> permission and <strong>Access Level 2</strong> on the session.</li>
+<li><strong>Quick Connect</strong> lets privileged roles open an ad-hoc terminal by entering a session name, protocol, host, and port. That connection disappears on navigating away from Direct Resource Access.</li>
+<li><strong>Last-session logs</strong> are available from the ellipsis beside a disconnected session &mdash; the first place to look when a session will not establish.</li>
+</ul>
+
+<h3>Engineering Access Policy</h3>
+<p>Rather than configuring an engineering-access session on every resource, define one <strong>policy</strong> and apply it across many connections. Setup:</p>
+<ol>
+<li>Configure the resource's connection with a supported protocol &mdash; SEL-3620 SSH/TCP/Telnet, SEL (TCP, Telnet, SSH, or Client Serial), TELNET, SSH, TCP, or TERMINALGATEWAY &mdash; and <strong>enable Engineering Access</strong> on it.</li>
+<li>Go to <em>Resource Management &rarr; System &rarr; Admin Settings &rarr; Engineering Access</em> and select <strong>New Policy</strong>.</li>
+<li>Name the policy, pick its type, and decide whether it activates on creation.</li>
+<li>Select the roles and access levels the policy grants.</li>
+<li>Choose the SSH password prompt, the file access type, and whether SSH access is enabled.</li>
+<li>Optionally configure aliases, allowlists, and denylists, then <strong>Create</strong>.</li>
+</ol>
+<div class="callout keyfact">
+<strong>Policy permissions alone do not grant access.</strong> The resource must <em>also</em> be in a Resource Access List or Profile Access List associated with the role, or users in that role cannot reach the device no matter what the policy says. Policy and session permissions are independent: a role with session permissions can use Direct Resource Access even with no Engineering Access configured, and when both exist, separate sessions appear, each enforcing its own permissions at the highest configured access level. The <code>admin</code> role has implicit read and write on all sessions.
+</div>
+<p><strong>Parent/Child Navigation Lock</strong> applies these permissions to hierarchies. Where an RTAC resource has child devices, access to the parent does not implicitly grant access to children, and vice versa &mdash; blocking unauthorized navigation with <code>&lt;Ctrl+D&gt;</code> and <code>POR X</code> during a direct-access session.</p>
+<p>Verify the result with <em>System &rarr; Reports &rarr; Engineering Access Report</em>, which can be generated by resource or by role.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Protocol Services</h2>
+<p>Protocol Services configures communications ingress (<strong>client</strong>) and egress (<strong>server</strong>): data concentration among IEDs and protocol conversion for upstream SCADA, HMI, or other polling devices.</p>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>Connection counts</td><td>Not limited by the software, but SEL recommends not exceeding <strong>256 clients/servers combined on an SEL-3555 or SEL-3360</strong>, or <strong>100 combined on an SEL-3350</strong>. Virtual machines depend on system resources</td></tr>
+  <tr><td>Client licensing</td><td>No licensing on the number of data points a <em>client</em> service collects on SEL computing platforms</td></tr>
+  <tr><td>Server licensing</td><td>A license is required to serve points <em>outside</em> Blueframe. Tiers: <strong>Level 0 (no license) 250 points · Level 1 2,500 · Level 2 25,000 · Level 3 100,000</strong> &mdash; the upper limit across all server services combined</td></tr>
+  <tr><td>Point types</td><td>Binary (on/off), Double Bit (up to four states), Integer, Analog (floating point), String</td></tr>
+  <tr><td>Point identity</td><td>Every point carries a <strong>Point Name</strong> (service plus user-defined name, dot notation), a <strong>Point Type</strong>, and a <strong>Publication Subject</strong> &mdash; a global unique identifier other services use</td></tr>
+</table>
+
+<h3>Building a service</h3>
+<ol>
+<li><strong>Add a client or a server.</strong> A client can be associated with a resource from Resource Management; matching connections then appear in a dropdown, and selecting one <strong>imports the connection settings automatically</strong> and makes the Connection Type read-only. Optionally inherit the resource's name.</li>
+<li><strong>New services start as a Draft.</strong> Edited settings show an asterisk and a bold highlight; a warning icon indicates the draft differs from the deployed service.</li>
+<li><strong>Deploy</strong> creates and starts the service. Its state becomes <em>Comms Online</em> or <em>Comms Offline</em>; a stopped service reads <em>Stopped</em>. <strong>A service cannot be deleted until it is stopped.</strong></li>
+<li><strong>Editing a deployed service</strong> creates a draft. Unsaved changes are lost on navigating away; saved drafts persist until deployed or deleted, and the Service State Selector switches between draft and deployed.</li>
+<li><strong>Settings export in JSON</strong> from the toolbar ellipsis, and can be edited and imported back into an existing draft.</li>
+</ol>
+
+<h3>DNP3 specifics</h3>
+<ul>
+<li><strong>Client points</strong> are added per DNP3 object tab &mdash; specify a starting index and quantity. The service must be in draft state to add or delete points. Binary Outputs carry extra columns for Control Model and pulse behavior.</li>
+<li><strong>Server points</strong> reference client, application, or system points rather than owning them: Point Type and Publication Subject are inherited and read-only. Drag points from the Data Points panel onto the map; they append sequentially, and the Point Number (index) is editable and must be unique per object.</li>
+<li><strong>Server extras:</strong> Var Obj columns set the variation returned per object, Event Class groups data for reporting, Binary Inputs can be inverted, and Analog Inputs carry scaling and deadband columns. <strong>SEL does not recommend a deadband of 0 on any analog point.</strong></li>
+<li><strong>Server sessions:</strong> up to <strong>20 simultaneous client connections</strong>, each with unique event and acknowledgement buffers. Setting <em>Allow Anonymous DNP/IP Clients</em> to TRUE accepts <strong>only one connection with a shared event buffer</strong>, and a new client terminates the previous one.</li>
+<li><strong>Diagnostics tab</strong> on deployed services shows real-time communications status, message statistics, and a history of status changes and errors.</li>
+</ul>
+<p>The protocol itself is covered on <a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3 Fundamentals</a>; the integration discipline is on <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>.</p>
+
+<h3>ICCP client</h3>
+<p>Blueframe includes an IEC 60870-6 TASE.2 (ICCP) <strong>client</strong>, compatible with Blueframe OS 2.0.x and later, supporting control blocks 1 (polling), 2 (transfer sets), and 5 (control).</p>
+<ul>
+<li><strong>Capacity:</strong> up to 100 client connections; 10,000 status points per connection and 100,000 across all connections; 1,000 control points per connection and 10,000 across all.</li>
+<li><strong>Configured by JSON file</strong> uploaded to the application and validated immediately, with errors returned in the import window.</li>
+<li>Each data point needs a fully qualified ICCP name in <code>domain/object</code> format, an ICCP data type (the <code>Data_State</code>, <code>Data_Discrete</code>, and <code>Data_Real</code> families with their Q, Timestamp, and Extended variants), and a Measurement Point/Quantity pair that <strong>must be unique across the whole signal hub</strong>.</li>
+<li>Control points add a per-point <strong>Select Before Operate</strong> flag that must match the server's configuration.</li>
+<li><strong>No security or authentication features</strong> from IEC 60870-5-6, and no support for discovery services or creating datasets on the server.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>Identity, notifications, and viewers</h2>
+<div class="twocol">
+<div>
+<h3>Identity and Access Management</h3>
+<ul>
+<li><strong>Roles carry the permissions; users inherit them.</strong> A user can hold several roles, and <strong>the role with the broadest permissions wins</strong>.</li>
+<li>Each application exposes <strong>Can Launch</strong> and <strong>Can Manage</strong> permissions per role, plus application-specific advanced permissions.</li>
+<li>Accounts support an <strong>activation date</strong> and an <strong>expiration</strong>. Logging in before activation is denied; after expiration authentication fails, though active sessions continue until logout.</li>
+<li><strong>Password policy is administrator-defined</strong> and enforced at creation, with a live message showing which requirements are unmet. Blueframe requires 6&ndash;30 characters, stores only a one-way hash, and can force a reset at next login.</li>
+<li><strong>The default <code>admin</code> role cannot be deleted</strong>, and some of its permissions cannot be revised &mdash; deliberately, to prevent losing the permissions needed to configure the system.</li>
+<li><strong>Central authentication</strong> is supported: LDAP, RADIUS, and single sign-on.</li>
+</ul>
+</div>
+<div>
+<h3>Notifications</h3>
+<ul>
+<li>Blueframe emails data from supporting applications through an SMTP server.</li>
+<li><strong>An SMTP server connection must exist in Resource Management first.</strong></li>
+<li>Then in Notifications, create a <strong>Recipient Group</strong>: choose the SMTP server resource, specify a valid sending address, and add recipient addresses.</li>
+<li>Supporting applications are then configured to send to that group &mdash; DMA publishing uses this for email endpoints.</li>
+</ul>
+<h3>Data Viewer</h3>
+<ul>
+<li>Near-real-time status of <em>any</em> data shared across the platform &mdash; every Protocol Services client and server point is visible.</li>
+<li>Live value updates, saved reports, custom filters and watchlists.</li>
+<li>The fastest way to prove a point is arriving before blaming the application above it.</li>
+</ul>
+</div>
+</div>
+
+<h3>Resource Viewer</h3>
+<ul>
+<li>A dashboard of near-real-time status for assets defined in Resource Management once communications are configured. Tree view mirrors the Resource Management folder structure; a grid in the centre supports search, filter, resize, reorder, and sort; a details pane on the right updates live.</li>
+<li><strong>Requires labels.</strong> Only resources with a valid label and a supported model type appear &mdash; SEL RTACs require the label <code>rtac</code>, <strong>case sensitive</strong>. Folders with no valid entries show as unavailable.</li>
+<li><strong>RTAC HMI panel</strong> (Resource Viewer 1.7.0 and later) renders an RTAC's HMI inside Blueframe. Requirements: the resource labeled <code>rtac</code>, an <strong>HTTPS connection with RTAC credentials</strong> that have the right RTAC permissions, and the <strong>RTAC HMI license</strong> on the RTAC &mdash; without it the diagrams will not load.</li>
+<li><strong>Not supported in the HMI panel:</strong> trend groups and static trends, dynamic trends, full-screen HMI display, and RTAC project info. The HMI SOE viewer and alarm viewer can be added as separate panels.</li>
+<li><strong>Permissions compose:</strong> <em>Can Manage</em> is required to issue controls from the HMI panel, <em>Can Launch</em> gives read access, and all RTAC account permissions are enforced on top of the Blueframe ones.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Application Management</h2>
+<p>Installation is package distribution: import a prepackaged application into Blueframe, then deploy the version you want. <strong>Importing is not installing.</strong></p>
+<table>
+  <tr><th>Action</th><th>Available when</th><th>Consequence</th></tr>
+  <tr><td><strong>Upload</strong></td><td>Always</td><td>Browse or drag a package file in; it appears in the list, with Package State <em>Available</em> for a new application, or as a new entry in an existing application's version list</td></tr>
+  <tr><td><strong>Install</strong></td><td>The selected version is not installed</td><td>Installs that version into the platform and makes it available to users</td></tr>
+  <tr><td><strong>Upgrade</strong> / <strong>Downgrade</strong></td><td>A newer / previous version is selected while another is installed</td><td>Moves the installed version</td></tr>
+  <tr><td><strong>Uninstall</strong></td><td>Installed</td><td><strong>Permanently deletes the package's configuration and related stored data</strong></td></tr>
+  <tr><td><strong>Export</strong></td><td>Always</td><td>Produces an upload-compatible package file for backup or transfer. Runs as a background download. <strong>Does not back up user settings or configuration</strong></td></tr>
+  <tr><td><strong>Delete</strong></td><td>Not installed</td><td>Frees storage but removes the ability to upgrade or downgrade to that version</td></tr>
+</table>
+<ul>
+<li>The <strong>Dependencies</strong> tab lists each dependency for a version, its currently installed version, and the minimum required version. Different versions of the same application may have different requirements.</li>
+<li><strong>Licensing</strong> comes two ways: a preconfigured Blueframe machine with everything preloaded, or a license file loaded through System Management before uploading and installing the package. Updating an existing package does <em>not</em> require reloading its license.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>System Management and logging</h2>
+<div class="twocol">
+<div>
+<h3>System Management</h3>
+<ul>
+<li><strong>Status</strong> &mdash; CPU and memory performance, network interface I/O, storage disk I/O. Detailed metrics are kept <strong>seven days or 10&nbsp;GB</strong>, whichever comes first, and export as a compressed <code>tsdb</code> file.</li>
+<li><strong>Device</strong> &mdash; system name and a quick-identification colour (web-interface identity only; it does not change the hostname), date and time settings, power options, and factory reset. <strong>Blueframe stores all timestamps in UTC.</strong></li>
+<li><strong>Network Settings</strong> &mdash; interfaces, host parameters, and the hostname used as the syslog message source.</li>
+<li><strong>Packet Analysis</strong> &mdash; capture and analyze network traffic from the box.</li>
+<li><strong>Certificates</strong> &mdash; X.509 management. Blueframe uses a <strong>self-signed certificate by default</strong>, which browsers will warn about; download a CSR, have it signed, and upload the result, or add Blueframe's certificate to the external system's trust store.</li>
+</ul>
+</div>
+<div>
+<h3>System Logs</h3>
+<ul>
+<li>Security logging &mdash; login and logout attempts, account changes, session errors &mdash; in a filterable grid. Separate permissions to <em>access</em> logs and to <em>manage</em> them (policy changes and deletion).</li>
+<li><strong>Filters can be saved</strong> and survive power cycles and OS upgrades; each column supports multiple criteria.</li>
+<li><strong>Display</strong> in local or UTC time, with live table updates that can be paused or permanently disabled.</li>
+<li><strong>Anti-chatter:</strong> if an application logs the same message type more than a set number of times inside a window, Blueframe removes those entries and writes one record noting the filter applied.</li>
+<li><strong>Retention</strong> is by days or by disk utilization. A log entry is roughly 200&ndash;600 bytes (about 450 typical), so one MB holds around 2,300 logs. Removal happens 1,000 entries at a time; the day limit is checked every 12 hours and disk utilization every 10 minutes.</li>
+<li><strong>Syslog forwarding</strong> in RFC 5424 format (receiving either RFC 3164 or 5424), 1024-byte packets, <strong>facility fixed at 16</strong>, severities 128 Emergency through 135 Debug. Timestamps come from the originating host &mdash; so accurate time synchronization is what makes correlation possible.</li>
+</ul>
+</div>
+</div>
+<div class="callout">
+<strong>Ports:</strong> by default only <strong>443</strong> and <strong>80</strong> are open (80 redirects to 443, and web access is HTTPS only). Applications open their own ports for their functionality &mdash; DMA listening uses <strong>5000</strong>, and the RTAC PostgreSQL connection it opens in response uses <strong>5432</strong>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">8</span>Gotchas</h2>
+<ul>
+<li><strong>Profile changes do not reach deployed instances.</strong> They apply only to newly deployed ones; to update existing instances you must un-deploy and re-deploy them.</li>
+<li><strong>A resource needs the right connection for the job.</strong> Multiple connection paths to one resource are supported precisely because some data is only reachable over a specific protocol &mdash; RTAC properties over PostgreSQL, RTAC settings over HTTPS.</li>
+<li><strong>Child resources need a <code>globalDeviceId</code></strong> configured before they can be added to a parent COMPROC, POSTGRESQL, or SEL-3620 SSH connection.</li>
+<li><strong>Sessions may not appear at all</strong> unless Connection Services 1.18.0 or newer is installed &mdash; otherwise they only become configurable once the Resource Communication Services package is present.</li>
+<li><strong>Resource Viewer silently ignores unlabeled resources.</strong> The <code>rtac</code> label is case sensitive.</li>
+<li><strong>Anonymous DNP3 server mode is single-client.</strong> Enabling it to "make things work" quietly caps you at one connection with a shared event buffer, and each new client kicks off the last.</li>
+<li><strong>Uninstalling a package destroys its data.</strong> Export first if there is any chance you want it back.</li>
+<li><strong>The self-signed certificate stays until you replace it.</strong> Every user learns to click through the browser warning, which is exactly the habit you do not want &mdash; see <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/blueframe/dma.html">Blueframe DMA</a>
+  <a href="atlas:rtac-automation/blueframe/dms.html">Blueframe DMS &amp; FLISR</a>
+  <a href="atlas:rtac-automation/sel-computers.html">Substation Computers &amp; Blueframe</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:reference/sel-software-map.md">SEL Software Map</a>
+</div>
+<p class="footnote">Sources: SEL Blueframe Software Application Platform Instruction Manual, date code 20260810 (bundled with both the Device Management and Automation and Distribution Management System manuals in <code>C:\SEL\Instruction Manuals</code>) &mdash; Section 1 Blueframe Overview (architecture, supported hardware and virtual deployment, first-boot administrator creation, Portal, Application Launcher, Application Bar, User Profile options, password and master reset jumpers); Section 2 Blueframe Management Tools (System Management status/device/network/packet analysis/certificates, UTC timestamp storage, seven-day / 10 GB metric retention; Identity and Access Management roles, broadest-role-wins, activation and expiration, password policy, undeletable admin role; Notifications recipient groups and the SMTP-server prerequisite); Section 3 Resource Management (resources, navigation tree, presets and labels, connection protocol table with the RTAC PostgreSQL port 5432 and database 3530 notes, Terminal Gateway scripted access and its plaintext-logging caution, child resources and <code>globalDeviceId</code>, sessions with allow/deny lists and command aliases, Access Level precedence, single-use SSH passwords, Engineering Access Policy configuration steps and its access-list prerequisite, Parent/Child Navigation Lock, Resource and Profile Access Lists and the four role scenarios, Engineering Access Report, Profiles and templates and instance deployment, the SEL versus third-party resource tiers, third-party feature support table and compatible model list); Section 4 Direct Resource Access (sessions, terminal tools, file read/write with Access Level 2, Quick Connect, last-session logs); Section 5 Protocol Services (connection recommendations by platform, server data-point licence tiers, point types and identity, client/server configuration and draft/deploy lifecycle, JSON export, DNP3 client and server point configuration, 20-connection server limit and anonymous-mode behaviour, deadband guidance, diagnostics); Section 6 ICCP Client (control blocks, capacities, JSON configuration, data and control types, select-before-operate, security limitations); Section 7 Data Viewer; Section 8 Resource Viewer (label requirement, RTAC HMI panel requirements and unsupported features, permission composition); Section 9 Application Management (package lifecycle actions and their consequences, dependencies, licensing methods); Section 10 Logging (filters, display and anti-chatter settings, retention arithmetic, syslog format, facility 16 and severity codes); Appendix B Cybersecurity Features (ports 443/80, no default accounts, LDAP/RADIUS/SSO, password length and hashing, X.509 self-signed default). Rev. 2026-08-23.</p>
+</section>
+
+</body>
+</html>

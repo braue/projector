@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RTAC Tags, Quality &amp; the Tag Processor</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="tags,quality,timestamp,Tag Processor,IEC 61850 structures,SPS,MV">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "RTAC Tags, Quality & the Tag Processor (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>RTAC Tags, Quality &amp; the Tag Processor</h1>
+  <p>The RTAC's tag database — IEC 61850-flavored tag structures, the q and t attributes, and the Tag Processor grid that moves everything between protocols</p>
+  <div class="chips"><span>SPS/MV/CMV</span><span>q.validity</span><span>timeStamp_t</span><span>Tag Processor</span><span>operSet</span><span>SystemTags</span><span>virtual tags</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">&#9776;</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>Everything in the RTAC is a tag.</strong> Client tags, server tags, system tags, virtual tags, and logic variables all live in one database; nothing flows between them unless the Tag Processor (or your logic) moves it.</li>
+<li>A tag is a <strong>structure</strong>, not a value: <code>.stVal</code>/<code>.instMag</code> plus <code>.q</code> (quality) and <code>.t</code> (timestamp). Map the whole structure and quality and time ride along; do math on bare values and you lose both.</li>
+<li><strong>Quality flows with the data</strong> — source tag to destination tag for statuses/analogs/counters, but <em>server to client</em> for controls.</li>
+<li>Controls fire on a <strong>rising edge</strong> of <code>oper*.ctlVal</code>; the value must return low before it can fire again.</li>
+<li>The Tag Processor runs <strong>every task cycle</strong> and completes all assignments before handing data to the protocols. Nothing updates faster than the task cycle time.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The tag database: every path runs through it</h2>
+<p>Data in the RTAC are referenced by database points called <strong>tags</strong>, associated with client or server protocols, system values, global variables (including virtual tags), or user logic. Most tags — device tags, system tags, virtual tags, GVL tags — are <strong>global</strong>, visible to every RTAC process; only variables declared inside user-defined functions are local. Every protocol client fills tags, every protocol server publishes tags, and every logic block reads and writes tags. The Tag Processor is the switchboard between them: data flow from <strong>source tags</strong> (typically client/IED devices) to <strong>destination tags</strong> (typically server devices — SCADA masters, HMIs) once per processing cycle.</p>
+<div class="flow">
+  <div class="stage"><b>Client tags</b><span>filled by polling IEDs — <code>SEL_787L_1_DNP.BI_00000</code></span></div>
+  <div class="arr">&rarr;</div>
+  <div class="stage"><b>Tag Processor / logic</b><span>maps, scales, computes — once per task cycle, before protocols run</span></div>
+  <div class="arr">&rarr;</div>
+  <div class="stage"><b>Server tags</b><span>published to SCADA / HMI — <code>SCADA_1_DNP.BI_0000</code></span></div>
+</div>
+<table>
+  <tr><th>Max tag count</th><th>RTAC hardware</th></tr>
+  <tr><td class="mono">5,000</td><td>SEL-3505</td></tr>
+  <tr><td class="mono">25,000</td><td>SEL-3505-3, SEL-3530, SEL-3530-4, SEL-2241, SEL-1102, SEL-3332, SEL-3351, SEL-3354</td></tr>
+  <tr><td class="mono">50,000</td><td>SEL-2241-2</td></tr>
+  <tr><td class="mono">100,000</td><td>SEL-3350, SEL-3555, SEL-3560</td></tr>
+</table>
+<h3>Naming: device.tag.attribute</h3>
+<p>Device tag names are always <code>devicename_protocol.pointname</code> — the device name concatenated with the protocol, a period, then the point: <code>Relay1_DNP.AI_0000</code>. Attributes chain on with further periods: <code>Relay1_DNP.AI_0000.instMag</code>, <code>.q.validity</code>, <code>.t.value.dateTime</code>. The tag is self-describing. You can rename devices and points but not the shape; <strong>alias tags</strong> escape the format entirely (assign in each device's Alias column — unique, starts with a letter, letters/numbers/underscores only, no double or trailing underscores, no special characters — and the alias replaces the tag name system-wide). System tags read as <code>SystemTags.CPU_Burden_Percent.stVal</code>; each device task's POU pins read as <code>DeviceName_POU.Offline</code>.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Tag structures: the IEC 61850 flavor</h2>
+<p>RTAC data classes follow the IEC 61850 CDC idea closely: every point carries value <em>plus</em> quality <em>plus</em> time. The measurement/status classes (the everyday ones):</p>
+<table>
+  <tr><th>Class</th><th>Value fields</th><th>Also carries</th><th>Typical use / direction</th></tr>
+  <tr><td class="mono"><strong>SPS</strong></td><td><code>stVal</code> BOOL</td><td><code>q</code>, <code>t</code></td><td>Binary status, into the RTAC (also the <code>.status</code> inside every control class)</td></tr>
+  <tr><td class="mono"><strong>DPS</strong></td><td><code>stVal</code> dbpos_t: <span class="mono">intermediate / off / on / bad</span></td><td><code>q</code>, <code>t</code></td><td>Double-point status (breaker 52a/52b), into the RTAC</td></tr>
+  <tr><td class="mono"><strong>INS</strong></td><td><code>stVal</code> DINT, <code>range</code></td><td><code>q</code>, <code>t</code>, <code>rangeC</code> limits</td><td>Integer status; most SystemTags counters</td></tr>
+  <tr><td class="mono"><strong>MV</strong></td><td><code>instMag</code> REAL (live), <code>mag</code> REAL (dead-banded), <code>range</code></td><td><code>q</code>, <code>t</code>, <code>db</code>, <code>zeroDb</code>, <code>rangeC</code></td><td>Analog, into the RTAC. <code>mag</code> updates (and gets time-stamped) each time <code>instMag</code> exceeds <code>db</code>; if <code>mag &lt; zeroDb</code> it snaps to 0; <code>range</code> holds the rangeC verdict (normal/high/low/high_high/low_low)</td></tr>
+  <tr><td class="mono"><strong>CMV</strong></td><td><code>instCVal</code> / <code>cVal</code> vector_t (<code>mag</code>, <code>ang</code> in degrees)</td><td><code>q</code>, <code>t</code>, <code>db</code>, <code>zeroDb</code>, <code>rangeC</code></td><td>Complex/phasor analog. Angles are degrees; built-in trig wants radians — convert with <code>deg_to_rad()</code>/<code>rad_to_deg()</code></td></tr>
+  <tr><td class="mono"><strong>BCR</strong></td><td><code>actVal</code> UDINT (running), <code>frVal</code> UDINT (frozen), <code>frTm</code></td><td><code>q</code>, <code>t</code>, <code>frRs</code></td><td>Counters; <code>frTm</code> stamps the freeze. LBCR is the 61850 Ed.2 LINT version</td></tr>
+</table>
+<p>And the control classes — a bundle of <strong>oper structures</strong> plus a status readback:</p>
+<table>
+  <tr><th>Class</th><th>Oper members</th><th>Status</th><th>Notes</th></tr>
+  <tr><td class="mono"><strong>SPC</strong></td><td><code>operSet</code>, <code>operClear</code></td><td><code>status</code> SPS</td><td>Generic single-point control; each oper is an operSPC (defaults: 1000/1000 ms, 1 pulse)</td></tr>
+  <tr><td class="mono"><strong>DPC</strong></td><td><code>operSet</code>, <code>operClear</code> (persist)</td><td><code>status</code> DPS</td><td>Double-point control per IEC 61850</td></tr>
+  <tr><td class="mono"><strong>APC</strong></td><td><code>oper</code> operAPC: <code>setMag</code> REAL + <code>trigger</code> BOOL</td><td>MV-style feedback fields</td><td>Analog setpoint — rising edge on <code>trigger</code> sends <code>setMag</code></td></tr>
+  <tr><td class="mono"><strong>DNPC</strong></td><td><code>operPulse</code>, <code>operLatchOn</code>, <code>operLatchOff</code>, <code>operTrip</code>, <code>operClose</code></td><td><code>status</code> SPS</td><td>DNP binary output — all five verbs on every point (pulse-verb defaults 2000/2000 ms)</td></tr>
+  <tr><td class="mono">others</td><td colspan="3">Protocol-shaped kin, same pattern: <span class="mono">SRBC</span> (SEL remote bit), <span class="mono">SBRC</span> (SEL breaker bit), <span class="mono">MRBC</span> (Mirrored Bits), <span class="mono">MDBC</span> (Modbus coil), <span class="mono">I870SC/I870DC</span> (IEC 60870), <span class="mono">IOC</span> (contact output), <span class="mono">INC</span>, <span class="mono">BSC</span> (tap changer), <span class="mono">LEDC</span> (HMI lamp), plus <span class="mono">STR</span>/<span class="mono">TIM</span> — every one still carries <code>q</code> and <code>t</code></td></tr>
+</table>
+<p>Every operSPC holds <code>ctlVal</code> (BOOL — the edge that fires it), <code>q</code>, <code>t</code>, <code>pulseConfig</code> (<code>cmdQual</code> pulse|persistent, <code>onDur</code>, <code>offDur</code>, <code>numPls</code>), and <code>origin</code> (an <code>orCat_t</code> originator category: bay/station/remote/automatic/maintenance/process…).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Quality: the q attribute in depth</h2>
+<div class="twocol">
+<div>
+<table>
+  <tr><th>q member</th><th>Values</th></tr>
+  <tr><td class="mono">validity</td><td><span class="mono">good, invalid, reserved, questionable</span></td></tr>
+  <tr><td class="mono">detailQual</td><td>8 flags: <span class="mono">overflow, outOfRange, badReference, oscillatory, failure, oldData, inconsistent, inaccurate</span></td></tr>
+  <tr><td class="mono">source</td><td><span class="mono">process, substituted</span></td></tr>
+  <tr><td class="mono">test</td><td>BOOL</td></tr>
+  <tr><td class="mono">operatorBlocked</td><td>BOOL (Tag Processor has a dedicated column to drive it)</td></tr>
+</table>
+</div>
+<div>
+<p style="font-size:9pt">The built-in <code>ValidityCheck()</code> function encodes the detail&rarr;validity rules: an OR of <strong>overflow / badReference / failure</strong> forces <code>validity := invalid</code>; an OR of <strong>oldData / outOfRange / oscillatory / inconsistent / inaccurate</strong> (when not already invalid) yields <code>questionable</code>. <code>MERGE_q()</code> ORs every quality bit of two inputs to produce the worst case — use it when one destination is derived from several sources.</p>
+</div>
+</div>
+<h3>How quality propagates</h3>
+<ul>
+  <li><strong>Statuses, analogs, counters:</strong> destination-tag quality comes from the source (IED) tag — the Tag Processor copies value, quality, and time together when you map tag to tag. A <strong>Quality Source</strong> column can override it with any tag's <code>.q</code>.</li>
+  <li><strong>Comm failure:</strong> when a client connection dies, the device's <code>Offline</code> POU pin asserts (for DNP: application-confirm timeout, link-status timeout, or transmission error, until a frame is again received) and downstream consumers see the bad quality — the manual's own examples guard with <code>IF NOT Line_1_POU.Offline</code> and <code>SEL Line_1_DNP.AI_0000.q.validity = GOOD</code> to fail over to a backup relay. Mirrored Bits states it hardest: on a detected channel/port failure the validity of all MB tags is <strong>set to invalid</strong> and status values follow the per-point <em>Channel Fail State</em> setting. Flex Parse likewise sets quality invalid on a parse failure.</li>
+  <li><strong>Controls run backward:</strong> control-tag quality is provided by the <em>server</em> tags and transferred to the client tags — an IED's control tag inherits invalid quality if the SCADA server connection is down, even when the client link is healthy.</li>
+  <li><strong>Onward to servers:</strong> server protocols treat quality as data — the IEC 60870 server, for instance, detects events on changes of <code>.q.validity</code> and <code>.q.detailQual</code>, not just value. (DNP flag mapping specifics: see <em>DNP3 on the RTAC</em> in atlas.)</li>
+  <li><strong>Logic can destroy quality:</strong> <code>BI_0000.stVal OR BI_0001.stVal</code> yields a bare BOOL — time and quality of both inputs are lost. Use the structure-aware functions (<code>AND_SPS</code>, <code>OR_SPS</code>, <code>ADD_MV</code>, &hellip; &sect;5) which merge <code>q</code> worst-case and keep the most recent <code>t</code>.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 204" xmlns="http://www.w3.org/2000/svg">
+  <!-- static frame -->
+  <rect x="12" y="52" width="86" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="55" y="66" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay</text>
+  <text x="55" y="78" font-size="8" fill="#6e7180" text-anchor="middle">DNP outstation</text>
+  <rect x="150" y="24" width="330" height="128" rx="8" fill="#fafbfc" stroke="#454956" stroke-width="1.25"/>
+  <text x="315" y="40" font-size="9.5" font-weight="700" fill="#454956" text-anchor="middle">RTAC</text>
+  <rect x="166" y="50" width="120" height="30" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="226" y="62" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">client tag</text>
+  <text x="226" y="73" font-size="8" fill="#6e7180" text-anchor="middle" font-family="Consolas,monospace">Rly_DNP.AI_0000</text>
+  <rect x="344" y="50" width="120" height="30" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="404" y="62" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">server tag</text>
+  <text x="404" y="73" font-size="8" fill="#6e7180" text-anchor="middle" font-family="Consolas,monospace">SCADA_DNP.AI_0000</text>
+  <path d="M286,65 H338 M332,60 L339,65 L332,70" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="313" y="58" font-size="8" fill="#10a37f" text-anchor="middle">Tag Proc.</text>
+  <rect x="166" y="102" width="298" height="34" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="176" y="116" font-size="8.5" font-weight="600" fill="#5468c4">logic guard</text>
+  <text x="176" y="129" font-size="8" fill="#6e7180" font-family="Consolas,monospace">IF AI_0000.q.validity = good THEN act &hellip;</text>
+  <line x1="98" y1="65" x2="150" y2="65" stroke="#6e7180" stroke-width="2"/>
+  <rect x="560" y="34" width="120" height="32" rx="5" fill="#1a1a22"/>
+  <text x="620" y="54" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">SCADA master</text>
+  <rect x="560" y="80" width="120" height="32" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="620" y="100" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">HMI screen</text>
+  <path d="M464,58 H552 M546,53 L553,58 L546,63" fill="none" stroke="#6e7180" stroke-width="1.5"/>
+  <path d="M464,84 L552,94 M545,90 L553,95 L545,99" fill="none" stroke="#6e7180" stroke-width="1.5"/>
+  <text x="350" y="176" font-size="8.5" fill="#a9adb8" text-anchor="middle">link drops &rarr; Offline pin asserts, q goes invalid &rarr; the same bad quality reaches SCADA, the HMI, and the logic guard — which stops acting on the value</text>
+  <g class="animlayer">
+    <!-- phase 1: healthy flow (0-32%) -->
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.26;0.29;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion path="M98,65 L226,65 L404,65 L620,58" keyPoints="0;0;1;1" keyTimes="0;0.01;0.28;1" calcMode="linear" dur="13s" repeatCount="indefinite"/>
+    </circle>
+    <text x="313" y="90" font-size="8.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.04;0.26;0.30;1" dur="13s" repeatCount="indefinite"/>q: good</text>
+    <!-- phase 2: link failure (33%) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.33;0.36;0.94;1" dur="13s" repeatCount="indefinite"/>
+      <line x1="115" y1="54" x2="133" y2="76" stroke="#d63a3a" stroke-width="3"/>
+      <line x1="133" y1="54" x2="115" y2="76" stroke="#d63a3a" stroke-width="3"/>
+      <text x="124" y="46" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">comms lost</text>
+    </g>
+    <text x="226" y="94" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0" font-family="Consolas,monospace">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.40;0.43;0.94;1" dur="13s" repeatCount="indefinite"/>_POU.Offline = TRUE</text>
+    <!-- client tag flags invalid -->
+    <rect x="166" y="50" width="120" height="30" rx="4" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.45;0.48;0.94;1" dur="13s" repeatCount="indefinite"/></rect>
+    <!-- red token propagates -->
+    <circle r="4" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.50;0.52;0.68;0.70;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion path="M226,65 L404,65 L620,58" keyPoints="0;0;1;1" keyTimes="0;0.50;0.69;1" calcMode="linear" dur="13s" repeatCount="indefinite"/>
+    </circle>
+    <text x="313" y="90" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.52;0.55;0.94;1" dur="13s" repeatCount="indefinite"/>q: invalid</text>
+    <!-- SCADA + HMI flagged -->
+    <rect x="560" y="34" width="120" height="32" rx="5" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.68;0.71;0.94;1" dur="13s" repeatCount="indefinite"/></rect>
+    <text x="620" y="76" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.70;0.73;0.94;1" dur="13s" repeatCount="indefinite"/>point flagged offline</text>
+    <rect x="560" y="80" width="120" height="32" rx="5" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.18;0.18;0" keyTimes="0;0.70;0.73;0.94;1" dur="13s" repeatCount="indefinite"/></rect>
+    <!-- logic guard blocks -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.74;0.77;0.94;1" dur="13s" repeatCount="indefinite"/>
+      <rect x="470" y="106" width="80" height="20" rx="4" fill="#d63a3a"/>
+      <text x="510" y="120" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">BLOCKED</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">Quality propagation: the device drops offline, the client tag's <code>q.validity</code> goes invalid, and the same flag reaches the SCADA point, the HMI, and the logic guard — which refuses to act on a value it can't trust.<span class="print-note"> &#9654; Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Timestamps: the t attribute</h2>
+<p>Every tag's <code>t</code> is a <code>timeStamp_t</code>:</p>
+<table>
+  <tr><th>t member</th><th>Contents</th></tr>
+  <tr><td class="mono">value</td><td><code>dateTime</code> (DT) + <code>uSec</code> — the stamp itself, microsecond field included</td></tr>
+  <tr><td class="mono">quality</td><td><code>leapSecondsKnown</code>, <code>clockFailure</code>, <code>clockNotSynchronized</code>, <code>accuracy</code> (enum T0=10&nbsp;ms &hellip; T5=0.001&nbsp;ms, or unspecified) — a clock's confession about itself</td></tr>
+  <tr><td class="mono">source</td><td><code>timeSource</code>: <span class="mono">Null, IRIG_B, NTP, DNP, Free_Running, IED_Protocol, i870, PTP</span> + priority — the stamp says where its time came from</td></tr>
+  <tr><td class="mono">DST / UTC_Offset</td><td>Daylight-savings enabled/activated/offset; UTC offset in minutes</td></tr>
+</table>
+<ul>
+  <li><strong>Who stamps?</strong> Event-carrying protocols deliver the device's own timestamp (source <span class="mono">IED_Protocol</span>/<span class="mono">DNP</span>); values without one get stamped by the RTAC as they change. For an MV, <code>t</code> is the time of the last dead-band excursion — the moment <code>mag</code> last updated. (Whether a relay's DNP timestamp is scan time or true SER time is a relay question — see <em>DNP3 Fundamentals</em> in atlas.)</li>
+  <li><strong>Tag Processor override:</strong> the <em>Time Source</em> column assigns any tag's <code>.t</code> (or <code>System_Time</code>) to the destination, overriding the source tag's stamp; <em>Time Offset</em> adds a constant <code>T#&hellip;</code> to it. The manual warns that using a different time source when mapping non-control types onto control types can cause incorrect control behavior.</li>
+  <li><strong>Auto-Fill Time and Quality Source:</strong> an Options toggle — when the destination has status+q+t but the source maps only a status, it wires the quality and time source columns automatically so the destination gets stamped updates with good quality instead of empty ones.</li>
+  <li>Utility: <code>TS_DIFF(t2, t1)</code> returns the difference of two timestamps in logic or the grid.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>The Tag Processor itself</h2>
+<p>A spreadsheet-like grid, two main columns: <strong>Destination Tag Name</strong> (left — data leaving, typically server tags) and <strong>Source Expression</strong> (right — data entering, a tag or any IEC&nbsp;61131-3 structured-text expression). Each row is an assignment; the RTAC completes <em>all</em> rows each processing cycle before passing data to the protocols, so protocols always see a consistent snapshot. Row order is the default solve order; a <em>Solve Order</em> column can override it. Mapping here does not dictate point order in any protocol — that lives in the device/map configuration.</p>
+<ul>
+  <li><strong>Capacity:</strong> up to 10,000 rows; the POU-capacity gauge reads 100% at 300,000 characters of generated structured text. Over that, copy the generated code (Code tab) into a custom-logic program and delete the grid rows.</li>
+  <li><strong>Logic in the grid:</strong> any structured text — IF/ELSE primary/backup selection on the <code>Offline</code> pin, <code>SEL(q.validity = good, backup, primary)</code> quality-based selection, Boolean combinations, scaling math. Define inline locals by typing <code>TEMPVAL : REAL</code> in the SE Data Type column. Access single bits with <code>.0</code>&hellip;<code>.31</code> suffixes. Always review the generated code in the <strong>Code</strong> tab after saving — look for "invalid statement" warnings (or set <em>Treat Code not Generated as Error</em> to make them fail the compile).</li>
+  <li><strong>Structure-aware functions:</strong> whole-tag math that a bare <code>+</code> can't do — <code>ADD_MV/INS/CMV</code>, <code>SUB_*</code>, <code>MULT_*</code>, <code>DIV_*</code>, <code>SCALE_MV/INS/CMV/BCR</code>, <code>AND/OR/NOT/XOR_SPS</code>, <code>OR_operSPC</code>, vector helpers, <code>MERGE_q</code>, <code>TS_DIFF</code>. Their outputs carry the merged worst-case <code>q</code> and the most recent <code>t</code> of the inputs.</li>
+  <li><strong>Per-row conditioning columns:</strong> Dead Band and Zero Dead Band (MV/CMV — the excursion moves <code>instMag</code> to <code>mag</code>), the four Range limits, PU/DO delay (T#10ms&hellip;T#1000000s debounce), Quality Source and Time Source overrides, Operator Blocked, and for control rows: Control Type (Pulse|Persist), On/Off Pulse Duration, Number of Pulses.</li>
+  <li><strong>Logging &amp; HMI columns:</strong> Logging Enable puts value changes in the SOE log (on/off messages, alarm flagging into the web Alarm Summary, and a chatter filter — N changes within Chatter Time mutes the point for 10&times; that window). <em>Live Data Enable</em> = Viewable or Forceable exposes the row on the web interface's Live Data page. The first rows of every project come preconfigured to log SystemTags security events — SEL recommends keeping them for NERC CIP.</li>
+  <li><strong>Bulk entry:</strong> autocompletion, or paste whole columns from device Tags tabs, Excel, or a SCADA database export; pasting grows the grid automatically.</li>
+</ul>
+<h3>Execution timing</h3>
+<p>Tag values — controls included — update <strong>once per task cycle interval</strong>; nothing beats the cycle time. Cycle times that divide evenly into one second lock to the top of the second. By default everything runs in the <strong>main task cycle</strong>; selected device tasks can move to the faster <strong>automation task cycle</strong>, but tags cannot be mapped directly between the two cycles (cross-task data needs the CrossTaskData mechanism). Size the main cycle to at least <strong>140% of the measured overall task timer</strong> — an overrun doesn't drop tasks, it steals time from following cycles and degrades web/HMI response.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Controls plumbing: the round trip</h2>
+<p>A SCADA operate is just a write into a server control tag's oper structure, moved by the Tag Processor like any other data — only the quality flows the other way.</p>
+
+<div class="fig"><svg viewBox="0 0 700 218" xmlns="http://www.w3.org/2000/svg">
+  <rect x="12" y="44" width="96" height="34" rx="5" fill="#1a1a22"/>
+  <text x="60" y="58" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">SCADA</text>
+  <text x="60" y="70" font-size="8" fill="#a9adb8" text-anchor="middle">operate BO 0</text>
+  <rect x="150" y="20" width="380" height="150" rx="8" fill="#fafbfc" stroke="#454956" stroke-width="1.25"/>
+  <text x="340" y="35" font-size="9.5" font-weight="700" fill="#454956" text-anchor="middle">RTAC</text>
+  <rect x="164" y="44" width="140" height="34" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="234" y="57" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">server control tag</text>
+  <text x="234" y="69" font-size="7.5" fill="#6e7180" text-anchor="middle" font-family="Consolas,monospace">SCADA_DNP.BO_0000.operTrip</text>
+  <rect x="376" y="44" width="140" height="34" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="446" y="57" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">client control tag</text>
+  <text x="446" y="69" font-size="7.5" fill="#6e7180" text-anchor="middle" font-family="Consolas,monospace">Fdr_DNP.BO_00000.operTrip</text>
+  <path d="M304,61 H368 M362,56 L369,61 L362,66" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="338" y="54" font-size="8" fill="#10a37f" text-anchor="middle">Tag Proc.</text>
+  <rect x="376" y="118" width="140" height="34" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="446" y="131" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">client status tag</text>
+  <text x="446" y="143" font-size="7.5" fill="#6e7180" text-anchor="middle" font-family="Consolas,monospace">Fdr_DNP.BI_00000 (52a)</text>
+  <rect x="164" y="118" width="140" height="34" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="234" y="131" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">server status tag</text>
+  <text x="234" y="143" font-size="7.5" fill="#6e7180" text-anchor="middle" font-family="Consolas,monospace">SCADA_DNP.BI_0000</text>
+  <path d="M368,135 H312 M318,130 L311,135 L318,140" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="338" y="128" font-size="8" fill="#5468c4" text-anchor="middle">Tag Proc.</text>
+  <rect x="592" y="80" width="96" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="640" y="94" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay</text>
+  <text x="640" y="106" font-size="8" fill="#6e7180" text-anchor="middle">trips breaker</text>
+  <line x1="108" y1="61" x2="150" y2="61" stroke="#6e7180" stroke-width="1.5"/>
+  <path d="M516,61 L592,90" fill="none" stroke="#6e7180" stroke-width="1.5"/>
+  <path d="M592,104 L516,135" fill="none" stroke="#6e7180" stroke-width="1.5"/>
+  <line x1="150" y1="135" x2="108" y2="135" stroke="#6e7180" stroke-width="1.5"/>
+  <path d="M108,128 L100,135 L108,142" fill="none" stroke="#6e7180" stroke-width="1.5"/>
+  <text x="350" y="196" font-size="8.5" fill="#a9adb8" text-anchor="middle">top row: the operate (rising edge of ctlVal, quality supplied by the server side) &middot; bottom row: the status readback, an ordinary input mapping</text>
+  <g class="animlayer">
+    <!-- operate token -->
+    <circle r="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.42;0.45;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M60,61 L234,61 L446,61 L640,92" keyPoints="0;0;1;1" keyTimes="0;0.01;0.43;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="234" y="92" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0" font-family="Consolas,monospace">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.08;0.10;0.24;0.27;1" dur="12s" repeatCount="indefinite"/>ctlVal &uarr; rising edge</text>
+    <text x="446" y="92" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.28;0.42;0.45;1" dur="12s" repeatCount="indefinite"/>client sends DNP trip</text>
+    <!-- breaker opens -->
+    <text x="640" y="126" font-size="8.5" font-weight="700" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.44;0.46;0.60;0.63;1" dur="12s" repeatCount="indefinite"/>52a opens</text>
+    <!-- status token back -->
+    <circle r="5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.54;0.92;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M640,104 L446,135 L234,135 L60,135" keyPoints="0;0;1;1" keyTimes="0;0.52;0.93;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="338" y="162" font-size="8" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.90;0.93;1" dur="12s" repeatCount="indefinite"/>status event returns &rarr; SCADA sees the breaker open</text>
+  </g>
+</svg></div>
+<p class="figcap">Control round trip: SCADA writes the server tag's <code>operTrip.ctlVal</code>; the Tag Processor row carries the edge to the client control tag; the client issues the protocol operate; the relay's status point comes back through an ordinary input mapping.<span class="print-note"> &#9654; Animated in the HTML edition.</span></p>
+<ul>
+  <li><strong>Edges, not levels.</strong> A rising edge on <code>operSet.ctlVal</code> sets, on <code>operClear.ctlVal</code> clears; a held-TRUE does nothing more and must go low before the next fire (the manual's Mirrored Bits walkthrough: T&#8209;0 set &rarr; status TRUE; T+1 set again &rarr; no change; T+2 clear &rarr; status FALSE).</li>
+  <li><strong>Map the whole structure</strong> to pass DNP controls transparently (all five verbs). Converting between verb families — SCADA sends trip/close, the IED wants latch on/off — is a Control Type column change on the row (source and destination control types must match). Feedback: the <code>.status</code> member is an input the RTAC fills like any other status mapping; nothing updates it automatically.</li>
+  <li><strong>Cross-protocol best fit:</strong> the Simple Tag Mapper extension automates dissimilar control classes (Auto mode): e.g. a DNP <code>operClose</code> lands as <code>operSet</code> on an SRBC remote bit, <code>operTrip</code> as <code>operClear</code>; a DNP <code>operPulse</code> onto an SBRC breaker bit is a documented <em>no-op</em>. Auto-Paired maps DNP BOs to trip/close remote-bit pairs; Verbose exposes every operSPC element for hand mapping.</li>
+  <li>Protocol specifics — CROB verbs, SBO vs direct operate, pulse execution on contact outputs — live in <em>DNP3 on the RTAC</em> and <em>DNP3 Controls</em> in atlas.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>System, virtual &amp; diagnostic tags</h2>
+<h3>Device health: POU pins</h3>
+<p>Every client/server task exposes pins on its Controller tab, readable in logic as <code>DeviceName_POU.Pin</code>. The ones worth alarming on: <code>Offline</code> (for a DNP client: asserts on application-confirm timeout, link-status timeout, or transmission error until a frame is received again — but note it can read False while a settings mismatch still blocks real data), <code>Message_Failure_Count</code>, <code>ENO</code> (task running at all). The web interface's <strong>Connected IEDs</strong> report shows the same truth as icons: green = communicating (<code>Offline</code> FALSE), red = comm failure (<code>Offline</code> TRUE), gray = disabled (<code>ENO</code> FALSE).</p>
+<h3>SystemTags worth watching</h3>
+<table>
+  <tr><th>Tag</th><th>Type</th><th>What it tells you</th></tr>
+  <tr><td class="mono">CPU_Burden_Percent / _5_Second_Average</td><td>INS</td><td>Processor load — trend it before adding devices</td></tr>
+  <tr><td class="mono">Memory_KBytes_Used / _Remaining</td><td>INS</td><td>RAM headroom</td></tr>
+  <tr><td class="mono">Eth_01_Link (per interface)</td><td>SPS</td><td>Physical link up, plus packet/byte/drop counters (INS)</td></tr>
+  <tr><td class="mono">POST_* (Eth, Flash, SDRAM, &hellip;)</td><td>SPS</td><td>Power-on self-test results per subsystem</td></tr>
+  <tr><td class="mono">RTC_Battery_OK / RTC_Battery_Voltage</td><td>SPS / MV</td><td>Clock battery health</td></tr>
+  <tr><td class="mono">Log_Overflow</td><td>SPS</td><td>SOE log overflowed — history lost</td></tr>
+  <tr><td class="mono">System_Hardware_Failure / System_Watchdog_Expired</td><td>STR</td><td>Hardware fault and watchdog-reset messages</td></tr>
+  <tr><td class="mono">Settings_Change, User_Logged_On/Off, Unsuccessful_Log_On_Attempt</td><td>SPS/STR</td><td>The security-audit set — these are the rows the Tag Processor logs by default (keep them; NERC CIP)</td></tr>
+</table>
+<h3>Virtual tags: internal plumbing</h3>
+<p>Virtual tag lists hold global tags of the <em>same structured types as protocol tags</em> (SPS, MV, SPC&hellip;) without belonging to any device — the clean way to buffer values between protocols, stage computed points, or hand data between the Tag Processor and logic. Up to <strong>30 virtual tag lists per project</strong> (100 on SEL-3555/SEL-3350). For plain IEC types, use a GVL under User Logic instead; for RTAC-to-RTAC sharing, an NGVL broadcasts a variable list over Ethernet.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Value looks right, downstream says stale/invalid</strong> &rarr; you mapped an attribute (<code>.stVal</code>, <code>.instMag</code>) instead of the whole tag, or built an expression that returns a bare value — quality and time didn't ride along. Map structures, or set Quality/Time Source columns, or use the structure-aware functions.</li>
+<li><strong>Control does nothing the second time</strong> &rarr; <code>ctlVal</code> never went low; edges only.</li>
+<li><strong>Control quality invalid at the IED</strong> with a healthy IED link &rarr; the SCADA <em>server</em> connection is down; control quality flows server&rarr;client by design.</li>
+<li><strong>Tag Processor compiles but a row does nothing</strong> &rarr; check the exclamation-mark rows and the Code tab; enable <em>Treat Code not Generated as Error</em> to make these fatal.</li>
+<li><strong>Everything is slow</strong> &rarr; task overrun. Compare the overall task timer to the cycle time (need &ge;140% headroom); watch <code>CPU_Burden_Percent</code>.</li>
+<li><strong>Autocompleted name looks different in OPC UA / flattened contexts</strong> &rarr; some interfaces flatten periods to underscores (<code>GlobalVars_SystemTags_CPU_Burden_Percent_stVal</code>) — same tag, different spelling.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:rtac-automation/rtac-logic.html">IEC 61131-3 Logic on the RTAC</a>
+  <a href="atlas:data-protocols/dnp3/on-the-rtac.html">DNP3 on the RTAC</a>
+  
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 Software Instruction Manual (full text embedded in 3530-4_IM_20241217_20260313.pdf) — Section 2: Communications (tag database, naming, data structures, Mirrored Bits, POU pins), Section 3: Tag Processor (grid, columns, examples, special functions), Section 11: Extensions (Simple Tag Mapper control mapping, FAILOVER_Q), Section 12: Testing and Troubleshooting (System Tags), Appendix B: IEC 61131-3 Programming Reference (data classes, quality_t, timeStamp_t, ValidityCheck, MERGE_q, TS_DIFF). Tag-name examples cross-checked against the local RTAC_PROJECT export (SEL_787L_1_DNP client, Tag Processor default logging rows). The separate ProgrammingReference_20250916.pdf covers library extensions only; the tag data classes are in Appendix B above. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VLANs</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="VLAN,802.1Q,trunk,access port,tagging,priority,802.1p,native VLAN,GOOSE,segmentation">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "VLANs (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>VLANs</h1>
+  <p>Broadcast domains on shared hardware — access versus trunk, what the 802.1Q tag actually contains, priority for GOOSE, substation segmentation, and switch hygiene</p>
+  <div class="chips"><span>802.1Q</span><span>access</span><span>trunk</span><span>native VLAN</span><span>802.1p priority</span><span>GOOSE</span><span>VLAN 1</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Switching</h3>
+<ul style="margin-bottom:2px">
+<li><strong>A VLAN is a separate broadcast domain on shared hardware.</strong> Frames never cross between VLANs inside a switch.</li>
+<li><strong>Access (untagged) ports belong to one VLAN;</strong> the attached device never sees a tag and does not need to know VLANs exist.</li>
+<li><strong>Trunk (tagged) ports carry many VLANs,</strong> with an 802.1Q tag on every frame so the far switch knows which domain it belongs to.</li>
+<li><strong>Do not leave anything on default VLAN 1.</strong> Create an unused VLAN and move every unused port into it, untagged.</li>
+<li><strong>The tag carries priority as well as identity.</strong> Three priority bits (802.1p) are how GOOSE and sampled values get ahead of SCADA traffic in a switch queue.</li>
+<li><strong>VLANs segment broadcast, not routing.</strong> Two VLANs that must talk still need a router or a Layer 3 interface between them.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>One switch, many networks</h2>
+<p>A VLAN slices a broadcast domain out of shared switch hardware. Two rules carry the whole topic: an <strong>access port</strong> belongs to exactly one VLAN and its device never sees a tag; a <strong>trunk port</strong> carries multiple VLANs, tagging every frame so the switch at the other end can keep them apart.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Two switches, two VLANs, one trunk between them</text>
+
+  <!-- switches -->
+  <rect x="120" y="90" width="130" height="52" rx="6" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <text x="185" y="120" text-anchor="middle" font-size="8.4" font-weight="600" fill="#1a1a22">Switch A</text>
+  <rect x="450" y="90" width="130" height="52" rx="6" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <text x="515" y="120" text-anchor="middle" font-size="8.4" font-weight="600" fill="#1a1a22">Switch B</text>
+
+  <!-- trunk -->
+  <line x1="250" y1="116" x2="450" y2="116" stroke="#5468c4" stroke-width="2.6"/>
+  <text x="350" y="108" font-size="7.4" fill="#5468c4" text-anchor="middle">trunk &mdash; tagged, carries both VLANs</text>
+
+  <!-- endpoints A -->
+  <rect x="16" y="46" width="86" height="30" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+  <text x="59" y="59" text-anchor="middle" font-size="7.2" fill="#0d7f63">Relay</text>
+  <text x="59" y="70" text-anchor="middle" font-size="6.8" fill="#6e7180">VLAN 10 &mdash; SCADA</text>
+  <line x1="102" y1="61" x2="120" y2="100" stroke="#10a37f" stroke-width="1.3"/>
+
+  <rect x="16" y="156" width="86" height="30" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.2"/>
+  <text x="59" y="169" text-anchor="middle" font-size="7.2" fill="#9c6d06">Laptop</text>
+  <text x="59" y="180" text-anchor="middle" font-size="6.8" fill="#6e7180">VLAN 20 &mdash; engineering</text>
+  <line x1="102" y1="171" x2="120" y2="134" stroke="#d7930a" stroke-width="1.3"/>
+
+  <!-- endpoints B -->
+  <rect x="598" y="46" width="86" height="30" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+  <text x="641" y="59" text-anchor="middle" font-size="7.2" fill="#0d7f63">RTAC</text>
+  <text x="641" y="70" text-anchor="middle" font-size="6.8" fill="#6e7180">VLAN 10 &mdash; SCADA</text>
+  <line x1="580" y1="100" x2="598" y2="61" stroke="#10a37f" stroke-width="1.3"/>
+
+  <rect x="598" y="156" width="86" height="30" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.2"/>
+  <text x="641" y="169" text-anchor="middle" font-size="7.2" fill="#9c6d06">HMI</text>
+  <text x="641" y="180" text-anchor="middle" font-size="6.8" fill="#6e7180">VLAN 20 &mdash; engineering</text>
+  <line x1="580" y1="134" x2="598" y2="171" stroke="#d7930a" stroke-width="1.3"/>
+
+  <!-- moving frames -->
+  <g>
+    <rect x="0" y="0" width="26" height="10" rx="2" fill="#10a37f"/>
+    <animateMotion dur="3s" repeatCount="indefinite" path="M46,56 L110,56 L180,110 L250,111 L450,111 L520,110 L590,56 L640,56"/>
+  </g>
+  <g>
+    <rect x="0" y="0" width="26" height="10" rx="2" fill="#d7930a"/>
+    <animateMotion dur="3s" begin="1.2s" repeatCount="indefinite" path="M46,166 L110,166 L180,122 L250,121 L450,121 L520,122 L590,166 L640,166"/>
+  </g>
+
+  <text x="350" y="140" font-size="7" fill="#8a8e9b" text-anchor="middle">frames are tagged 10 or 20 on the trunk, untagged on the access ports</text>
+
+  <rect x="120" y="200" width="460" height="20" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="350" y="214" font-size="7.6" fill="#9c3838" text-anchor="middle">A VLAN 20 frame can never reach a VLAN 10 port &mdash; the switch will not forward it there</text>
+  <text x="350" y="238" font-size="7.4" fill="#8a8e9b" text-anchor="middle">Same wire, two isolated networks. The engineering laptop cannot see SCADA traffic and cannot reach the relay &mdash; by configuration, not by cabling.</text>
+</svg></div>
+<p class="figcap">This is why VLANs are attractive in a substation: one physical network, several logically separate ones, without pulling more fiber. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>What is actually in the tag</h2>
+<p>An 802.1Q tag is four bytes inserted into the Ethernet frame after the source address. Knowing its fields makes both VLAN and GOOSE troubleshooting far quicker.</p>
+
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The 802.1Q tag &mdash; four bytes, three fields that matter</text>
+
+  <!-- untagged frame -->
+  <text x="20" y="40" font-size="7.6" font-weight="600" fill="#8a8e9b">Untagged frame</text>
+  <g font-size="7">
+    <rect x="20" y="48" width="80" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="60" y="64" text-anchor="middle" fill="#454956">dest MAC</text>
+    <rect x="102" y="48" width="80" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="142" y="64" text-anchor="middle" fill="#454956">src MAC</text>
+    <rect x="184" y="48" width="60" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="214" y="64" text-anchor="middle" fill="#454956">ethertype</text>
+    <rect x="246" y="48" width="200" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="346" y="64" text-anchor="middle" fill="#454956">payload</text>
+    <rect x="448" y="48" width="44" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="470" y="64" text-anchor="middle" fill="#454956">FCS</text>
+  </g>
+
+  <!-- tagged frame -->
+  <text x="20" y="100" font-size="7.6" font-weight="600" fill="#5468c4">Tagged frame &mdash; four bytes inserted</text>
+  <g font-size="7">
+    <rect x="20" y="108" width="80" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="60" y="124" text-anchor="middle" fill="#454956">dest MAC</text>
+    <rect x="102" y="108" width="80" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="142" y="124" text-anchor="middle" fill="#454956">src MAC</text>
+    <rect x="184" y="108" width="140" height="24" rx="3" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4">
+      <animate attributeName="stroke-width" values="1.4;2.4;1.4" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    <text x="254" y="124" text-anchor="middle" font-weight="600" fill="#5468c4">802.1Q tag</text>
+    <rect x="326" y="108" width="60" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="356" y="124" text-anchor="middle" fill="#454956">ethertype</text>
+    <rect x="388" y="108" width="180" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="478" y="124" text-anchor="middle" fill="#454956">payload</text>
+    <rect x="570" y="108" width="44" height="24" rx="3" fill="#f2f3f5" stroke="#a9adb8"/><text x="592" y="124" text-anchor="middle" fill="#454956">FCS</text>
+  </g>
+
+  <!-- expanded tag -->
+  <path d="M184,132 L250,152 M324,132 L620,152" stroke="#5468c4" stroke-width="1" stroke-dasharray="3 2"/>
+  <g font-size="7">
+    <rect x="250" y="152" width="90" height="24" rx="3" fill="#fff" stroke="#5468c4"/><text x="295" y="168" text-anchor="middle" fill="#5468c4">TPID 0x8100</text>
+    <rect x="342" y="152" width="80" height="24" rx="3" fill="#fdf3e7" stroke="#d7930a"/><text x="382" y="168" text-anchor="middle" fill="#9c6d06">PCP &mdash; 3 bits</text>
+    <rect x="424" y="152" width="52" height="24" rx="3" fill="#fff" stroke="#a9adb8"/><text x="450" y="168" text-anchor="middle" fill="#454956">DEI</text>
+    <rect x="478" y="152" width="142" height="24" rx="3" fill="#e7f6f1" stroke="#10a37f"/><text x="549" y="168" text-anchor="middle" fill="#0d7f63">VLAN ID &mdash; 12 bits</text>
+  </g>
+  <g font-size="6.8" fill="#8a8e9b">
+    <text x="295" y="190" text-anchor="middle">&ldquo;this frame is tagged&rdquo;</text>
+    <text x="382" y="190" text-anchor="middle">priority 0&ndash;7 (802.1p)</text>
+    <text x="549" y="190" text-anchor="middle">1&ndash;4094 usable</text>
+  </g>
+</svg></div>
+<p class="figcap">Priority and VLAN ID travel together. That is why a GOOSE configuration asks for both, and why a switch that strips the tag also strips the priority. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Field</th><th>Meaning</th><th>Field relevance</th></tr>
+  <tr><td><strong>TPID</strong> (0x8100)</td><td>Marks the frame as tagged</td><td>What a capture tool keys on to display VLAN information</td></tr>
+  <tr><td><strong>PCP</strong> &mdash; priority code point, 3 bits</td><td>Priority 0&ndash;7 (IEEE 802.1p)</td><td>How protection traffic gets ahead of bulk traffic in a switch's output queue</td></tr>
+  <tr><td><strong>DEI</strong></td><td>Drop-eligible indicator</td><td>Rarely used in substation networks</td></tr>
+  <tr><td><strong>VLAN ID</strong> &mdash; 12 bits</td><td>1&ndash;4094 usable (0 and 4095 reserved)</td><td>The broadcast domain. VLAN ID 0 means &ldquo;priority only, no VLAN&rdquo;</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">3</span>Port modes</h2>
+<table>
+  <tr><th>Mode</th><th>Behavior</th><th>Use for</th></tr>
+  <tr><td><strong>Access (untagged)</strong></td><td>Belongs to one VLAN. Incoming frames are assigned that VLAN; outgoing frames have the tag removed</td><td>Relays, RTACs, meters, laptops &mdash; anything that does not speak VLANs</td></tr>
+  <tr><td><strong>Trunk (tagged)</strong></td><td>Carries several VLANs, tag preserved in both directions</td><td>Switch-to-switch links, and devices that generate their own tagged traffic</td></tr>
+  <tr><td><strong>Hybrid</strong></td><td>Some VLANs tagged, one untagged (the native VLAN)</td><td>A device that sends both tagged GOOSE and untagged management traffic on one port</td></tr>
+  <tr><td><strong>Native VLAN</strong></td><td>The VLAN assigned to untagged frames arriving on a trunk</td><td>A frequent source of confusion &mdash; and of security weakness if it is left as VLAN 1</td></tr>
+</table>
+<div class="callout warn">
+<strong>Do not use default VLAN 1.</strong> SEL's switch-security guidance is explicit: create an unused VLAN and move every unused port into it, untagged. A port left on VLAN 1 shares a broadcast domain with everything else that was never moved, and it is an open invitation for denial-of-service and VLAN-hopping mischief. Set the native VLAN on trunks to something unused as well.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Designing the segmentation</h2>
+<p>A substation VLAN plan is usually organized by <em>function</em>, because that is what the security boundary follows.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>Station bus / SCADA</b><span>RTAC to IEDs, and RTAC northbound. The operational data plane.</span></div>
+  <div style="border-left:4px solid #d63a3a"><b>Process bus / GOOSE</b><span>Multicast protection traffic. Tagged with high priority and confined to the ports that need it.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Engineering access</b><span>Laptops and jump hosts. Reaches devices through the gateway, not by sitting on the same VLAN as SCADA.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Management</b><span>Switch and device management addresses, syslog, and monitoring.</span></div>
+  <div style="border-left:4px solid #6e7180"><b>Time</b><span>Sometimes separated, particularly where PTP is in use and its traffic profile matters.</span></div>
+  <div style="border-left:4px solid #1a1a22"><b>Unused / parking</b><span>Every unused port lands here. Not VLAN 1, and not routed anywhere.</span></div>
+</div>
+<ul>
+<li><strong>Keep the plan documented</strong> alongside the IP plan &mdash; a VLAN ID with no recorded purpose becomes untouchable.</li>
+<li><strong>VLANs are not a substitute for a firewall.</strong> They separate broadcast domains; they do not inspect traffic or authenticate anything.</li>
+<li><strong>Do not over-segment.</strong> Every VLAN that must talk to another needs a routed path, and each routed path is a place for a mistake. Segment where there is a real boundary.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>GOOSE and priority</h2>
+<ul>
+<li><strong>GOOSE frames carry a VLAN ID and a priority.</strong> On the RTAC the defaults are priority 4 and VLAN ID 0 &mdash; VLAN ID 0 meaning the tag is present for its priority but the frame belongs to no VLAN.</li>
+<li><strong>The tag is how you confine multicast GOOSE.</strong> Without VLAN membership control, a multicast GOOSE frame floods every port in the broadcast domain, wasting bandwidth on devices that do not subscribe. With it, the frame reaches only the ports that need it.</li>
+<li><strong>Priority is how GOOSE jumps the queue.</strong> A switch under load queues frames; a higher PCP value gets served first. On a network carrying protection traffic alongside file transfers and SCADA polls, that ordering is the difference between deterministic and merely usual.</li>
+<li><strong>Both ends must agree.</strong> A publisher tagging VLAN 100 and a subscriber whose port is not in VLAN 100 will simply never receive the frames &mdash; and GOOSE supervision will report the subscription as lost. See <a href="atlas:data-protocols/iec61850-goose.html">IEC 61850 &amp; GOOSE</a>.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Device reachable from some ports and not others</strong> &rarr; VLAN membership mismatch: the port you are on is not in the device's VLAN, or the trunk between switches is not carrying that VLAN.</li>
+<li><strong>Works locally, fails across the trunk</strong> &rarr; the VLAN is not allowed on the trunk. Trunks carry only the VLANs configured on them.</li>
+<li><strong>Untagged traffic appearing in the wrong VLAN</strong> &rarr; native VLAN mismatch between the two ends of a trunk.</li>
+<li><strong>GOOSE subscription lost after a network change</strong> &rarr; VLAN membership or tagging changed on the path. Capture on the subscriber's port and look for the tag.</li>
+<li><strong>Everything works but nothing is prioritized</strong> &rarr; a device or a hop is stripping the tag, taking the priority with it.</li>
+<li><strong>A new device cannot be reached at all</strong> &rarr; the port was never moved out of the parking VLAN. This is the intended behavior, and it is worth confirming before assuming a fault.</li>
+<li><strong>VLANs segment broadcast, not routing.</strong> Two VLANs that must talk need a router or a Layer 3 interface, which brings the gateway rules back &mdash; see <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>
+  <a href="atlas:comms/rstp-topologies.html">RSTP &amp; Topologies</a>
+  <a href="atlas:data-protocols/iec61850-goose.html">IEC 61850 &amp; GOOSE</a>
+  <a href="atlas:comms/sdn.html">Software-Defined Networking</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:comms/prp-hsr-redundancy.html">PRP &amp; HSR Redundancy</a>
+</div>
+<p class="footnote">Sources: SEL AG2018-10 (VLAN 1 hygiene, moving unused ports to an unused VLAN, switch attack surface); ACSELERATOR RTAC SEL-5033 Instruction Manual (GOOSE VLAN priority and ID defaults &mdash; priority 4, VLAN ID 0); IEEE 802.1Q and 802.1p for tag structure and priority semantics. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

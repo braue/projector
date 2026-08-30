@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fiber &amp; SFPs</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="fiber,SFP,multimode,single-mode,LC,link budget,1000BASE,transceiver,GPR,cleaning,bend radius">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Fiber &amp; SFPs (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Fiber &amp; SFPs</h1>
+  <p>Why substations run on glass, multimode versus single-mode, choosing and matching transceivers, link budgets, and the connector problems that cause most &ldquo;intermittent network&rdquo; calls</p>
+  <div class="chips"><span>SFP</span><span>MM / SM</span><span>LC</span><span>link budget</span><span>1000BASE</span><span>GPR</span><span>cleaning</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Fiber</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Match SFPs end to end:</strong> mode (MM/SM), wavelength, and speed must agree at both ends of the fiber &mdash; and the distance must fit the transceiver's power budget.</li>
+<li><strong>Fiber leaves the building; copper does not.</strong> Ground potential rise during a fault puts the station's whole potential across any copper pair running to another structure. Glass carries no current.</li>
+<li><strong>Received power must land <em>between</em> the receiver's minimum and maximum.</strong> Too little light and the link flaps; a long-haul optic on a short jumper overdrives the far end.</li>
+<li><strong>Fixed-speed optics do not negotiate.</strong> A 100BASE-FX transceiver will never link to a 1000BASE port, no matter how correct everything else is.</li>
+<li><strong>Most fiber faults are at the ends.</strong> Dirty or damaged connectors, not broken cable. Clean before you diagnose.</li>
+<li><strong>Devices notice transceivers.</strong> Relays raise port alarms for non-compliant SFPs, switches log every insertion and removal, and swapping one live can blip communications. Treat it as maintenance.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Copper, and where it stops</h2>
+<p>Copper twisted pair &mdash; 10/100/1000BASE-T, using shielded cables in SEL practice &mdash; is fine inside a panel or a room, with the standard's reach around 100&nbsp;m. Substation practice puts <strong>fiber on anything between buildings or out into the yard</strong>, and the reason is not bandwidth.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a">
+    <b>Ground potential rise</b>
+    <span>A fault current into the ground grid raises the station's potential above remote earth, potentially by thousands of volts. A copper pair to another structure sees that difference across it. See <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Electromagnetic interference</b>
+    <span>Switching transients and fault current couple into copper runs. Fiber is immune by construction &mdash; no conductor, no induced voltage.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Ground loops</b>
+    <span>Two grounded ends of a copper run form a loop that carries power-frequency current. Fiber breaks the loop completely.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Distance</b>
+    <span>100&nbsp;m on copper; kilometres to tens of kilometres on fiber, with no repeaters.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Lightning</b>
+    <span>Copper conducts a surge from a struck structure into your equipment. Glass does not.</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>What copper is still for</b>
+    <span>Inside the panel, inside one building, and short runs where none of the above applies. Shielded, and grounded at one end &mdash; see <a href="atlas:fundamentals/control-wiring.html">Control Wiring</a>.</span>
+  </div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Multimode and single-mode</h2>
+<p>The two families <strong>never mix on one link</strong>. The difference is the diameter of the light-carrying core, and everything else follows from it.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Why the core diameter decides the reach</text>
+
+  <!-- multimode -->
+  <text x="120" y="38" font-size="8.4" font-weight="600" fill="#d7930a" text-anchor="middle">Multimode &mdash; wide core</text>
+  <rect x="40" y="54" width="500" height="44" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.2"/>
+  <line x1="40" y1="76" x2="540" y2="76" stroke="#e5e7eb" stroke-dasharray="4 3"/>
+  <!-- multiple ray paths -->
+  <path d="M46,76 L110,58 L174,94 L238,58 L302,94 L366,58 L430,94 L494,58 L534,74" fill="none" stroke="#d7930a" stroke-width="1.2" opacity="0.8"/>
+  <path d="M46,76 L142,62 L238,90 L334,62 L430,90 L520,72" fill="none" stroke="#d7930a" stroke-width="1.2" opacity="0.6"/>
+  <path d="M46,76 L540,76" fill="none" stroke="#d7930a" stroke-width="1.2" opacity="0.9"/>
+  <circle r="3" fill="#9c6d06">
+    <animateMotion dur="2.2s" repeatCount="indefinite" path="M46,76 L110,58 L174,94 L238,58 L302,94 L366,58 L430,94 L494,58 L534,74"/>
+  </circle>
+  <circle r="3" fill="#9c6d06">
+    <animateMotion dur="1.9s" repeatCount="indefinite" path="M46,76 L540,76"/>
+  </circle>
+  <text x="560" y="70" font-size="7.2" fill="#9c6d06">rays take different</text>
+  <text x="560" y="81" font-size="7.2" fill="#9c6d06">path lengths &rarr; the pulse</text>
+  <text x="560" y="92" font-size="7.2" fill="#9c6d06">spreads with distance</text>
+  <text x="40" y="114" font-size="7.4" fill="#8a8e9b">850 nm and 1310 nm optics &middot; cheap transceivers &middot; typical reach hundreds of metres to a couple of kilometres</text>
+
+  <!-- single mode -->
+  <text x="120" y="150" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Single-mode &mdash; narrow core</text>
+  <rect x="40" y="166" width="500" height="26" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+  <line x1="46" y1="179" x2="534" y2="179" stroke="#10a37f" stroke-width="1.4"/>
+  <circle r="3" fill="#0d7f63">
+    <animateMotion dur="1.6s" repeatCount="indefinite" path="M46,179 L534,179"/>
+  </circle>
+  <text x="560" y="172" font-size="7.2" fill="#0d7f63">one path only &rarr; the</text>
+  <text x="560" y="183" font-size="7.2" fill="#0d7f63">pulse stays sharp over</text>
+  <text x="560" y="194" font-size="7.2" fill="#0d7f63">very long distances</text>
+  <text x="40" y="208" font-size="7.4" fill="#8a8e9b">1310 nm and 1550 nm optics &middot; more expensive transceivers &middot; reach from 10 km to well over 100 km</text>
+
+  <rect x="8" y="222" width="684" height="22" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="20" y="237" font-size="7.8" fill="#9c3838">You cannot connect one to the other. A single-mode transceiver launching into multimode fiber, or the reverse, produces a link that either fails outright or works marginally and intermittently &mdash; which is worse.</text>
+</svg></div>
+<p class="figcap">Relay and switch fiber ports use LC connectors on duplex cables in current SEL practice; older equipment uses ST. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">3</span>SFPs &mdash; the modular way in</h2>
+<p>Rather than fixing the optics in the port, most modern equipment takes <strong>SFP transceivers</strong> ordered separately and chosen by reach. The SEL-2730M's ports 1&ndash;4, the SEL-2740S, and the 400-series five-port Ethernet card all work this way. The 400-series compatibility table, condensed:</p>
+<table>
+  <tr><th>SEL part</th><th>Interface</th><th>Fiber</th><th>Reach</th><th>Wavelength</th></tr>
+  <tr><td class="mono">8131-01</td><td class="mono">1000BASE-SX</td><td>MM</td><td>300&ndash;550 m</td><td>850 nm</td></tr>
+  <tr><td class="mono">8103 / 8109-01</td><td class="mono">100BASE-FX</td><td>MM</td><td>2 km</td><td>1310 nm</td></tr>
+  <tr><td class="mono">8130-01 … -04</td><td class="mono">1000BASE-LX</td><td>SM</td><td>10 / 20 / 30 / 40 km</td><td>1310 nm</td></tr>
+  <tr><td class="mono">8130-05</td><td class="mono">1000BASE-XD</td><td>SM</td><td>50 km</td><td>1550 nm</td></tr>
+  <tr><td class="mono">8130-06 … -10</td><td class="mono">1000BASE-ZX</td><td>SM</td><td>80 / 160 / 200 km</td><td>1550 nm</td></tr>
+</table>
+<ul>
+<li><strong>Copper SFPs exist</strong> for the occasional copper trunk &mdash; supported on the SEL-2730M and SEL-2740S per their release notes.</li>
+<li><strong>Order the transceivers with the switch.</strong> They are separate line items and they are the thing most often forgotten, discovered on the day of installation.</li>
+<li><strong>Keep spares matching what is installed,</strong> and keep them labeled. An unlabeled SFP in a drawer is a mystery.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">4</span>The link budget</h2>
+<p>The transceiver table's TX power and RX sensitivity columns <em>are</em> the link budget. Everything between them has to fit.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Power from transmitter to receiver, in dBm &mdash; and the window it has to land in</text>
+
+  <!-- axis -->
+  <line x1="70" y1="200" x2="660" y2="200" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="200" stroke="#a9adb8"/>
+  <g font-size="7" fill="#8a8e9b">
+    <line x1="66" y1="56" x2="70" y2="56" stroke="#a9adb8"/><text x="62" y="59" text-anchor="end">&minus;3 dBm</text>
+    <line x1="66" y1="96" x2="70" y2="96" stroke="#a9adb8"/><text x="62" y="99" text-anchor="end">&minus;10</text>
+    <line x1="66" y1="136" x2="70" y2="136" stroke="#a9adb8"/><text x="62" y="139" text-anchor="end">&minus;17</text>
+    <line x1="66" y1="176" x2="70" y2="176" stroke="#a9adb8"/><text x="62" y="179" text-anchor="end">&minus;24</text>
+  </g>
+
+  <!-- receiver window -->
+  <rect x="470" y="56" width="190" height="120" rx="4" fill="#10a37f" opacity="0.12"/>
+  <line x1="470" y1="56" x2="660" y2="56" stroke="#d63a3a" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="656" y="52" font-size="7" fill="#d63a3a" text-anchor="end">RX maximum &mdash; above this, overload</text>
+  <line x1="470" y1="176" x2="660" y2="176" stroke="#d63a3a" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="656" y="189" font-size="7" fill="#d63a3a" text-anchor="end">RX sensitivity &mdash; below this, no link</text>
+  <text x="565" y="120" font-size="7.6" font-weight="600" fill="#0d7f63" text-anchor="middle">the window</text>
+
+  <!-- budget staircase -->
+  <path d="M100,70 H180 V88 H260 V96 H340 V104 H420 V140 H470" fill="none" stroke="#5468c4" stroke-width="2"/>
+  <g font-size="6.8" fill="#5468c4">
+    <text x="104" y="64">TX power</text>
+    <text x="184" y="82">connector</text>
+    <text x="264" y="90">splice</text>
+    <text x="344" y="98">splice</text>
+    <text x="424" y="134">fiber loss over distance</text>
+  </g>
+  <circle r="4" fill="#5468c4">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M100,70 H180 V88 H260 V96 H340 V104 H420 V140 H470"/>
+  </circle>
+  <circle cx="470" cy="140" r="5" fill="#10a37f"/>
+  <text x="482" y="144" font-size="7.4" fill="#0d7f63">arrives inside the window &mdash; with margin</text>
+
+  <rect x="8" y="212" width="684" height="24" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="228" font-size="7.8" fill="#454956">Keep margin for ageing, dirt, future splices, and repairs. A link commissioned with no headroom will fail the first time somebody repairs the cable.</text>
+</svg></div>
+<p class="figcap">Measure received power at commissioning with an optical power meter and record it. It is the baseline that makes a future degradation obvious. <span class="print-note">(Animated in the browser.)</span></p>
+
+<ul>
+<li><strong>Too little light</strong> &mdash; distance, extra splices, dirty connectors, a bend beyond the fiber's radius &mdash; and the link flaps or never comes up.</li>
+<li><strong>Too much light</strong> &mdash; a long-haul optic on a short jumper &mdash; overdrives the far receiver. Attenuators exist for exactly this.</li>
+<li><strong>Bend radius is real.</strong> A cable tie pulled tight or a cable folded into a tray corner produces loss that will not be found by looking at the ends.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>Handling and cleaning</h2>
+<ul>
+<li><strong>Clean before you connect, every time.</strong> A single particle on a core face is enough. Use a proper cleaner &mdash; a click-type cleaning tool or lint-free wipes with the correct solvent &mdash; not a shirt sleeve.</li>
+<li><strong>Caps on when disconnected,</strong> on both the connector and the port. Dust is the enemy and it is everywhere in a substation.</li>
+<li><strong>Do not look into a fiber</strong> or a transmitting port. The light is invisible and it is focused.</li>
+<li><strong>Respect minimum bend radius,</strong> in the tray, in the panel, and inside the splice enclosure &mdash; which is where it is most often violated.</li>
+<li><strong>Label both ends of every strand,</strong> with the same identifier. Tracing unlabeled fiber in a splice enclosure is a genuinely miserable job.</li>
+<li><strong>Keep spare strands.</strong> Pull more fiber than you need; the incremental cost is small and the future cost of not having it is large.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Link up in one direction only</strong> &rarr; TX/RX strands swapped at one end of a duplex LC pair. Swap them at one end, not both.</li>
+<li><strong>No link at all on new fiber</strong> &rarr; mode or wavelength mismatch, speed mismatch, or received power outside the transceiver's budget. Check the SFP table before blaming the cable.</li>
+<li><strong>Link that comes up and drops</strong> &rarr; marginal optical budget. Measure received power; look for a dirty connector or a stressed bend.</li>
+<li><strong>Works cold, fails in summer</strong> &rarr; a marginal budget plus temperature, or a splice enclosure taking sun.</li>
+<li><strong>&ldquo;SFP not compliant&rdquo; port alarm</strong> &rarr; a wrong or third-party transceiver for that card and firmware. SEL switches log every SFP insertion and removal as a security event, so the history is in the log.</li>
+<li><strong>Communications blipped while somebody was in the cabinet</strong> &rarr; the RTAC manual warns that swapping SFP ports live can interrupt communications. Treat transceiver work as a planned maintenance activity.</li>
+<li><strong>Intermittent in the yard</strong> &rarr; almost always a connector at a splice enclosure, not a broken cable. Clean and re-seat before excavating anything.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>
+  <a href="atlas:comms/rstp-topologies.html">RSTP &amp; Topologies</a>
+  <a href="atlas:comms/serial-comms.html">Serial Comms</a>
+  <a href="atlas:comms/radio-and-wan.html">Radio &amp; Wide-Area Links</a>
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+  <a href="atlas:protection/line-differential-87l.html">Line Current Differential</a>
+</div>
+<p class="footnote">Sources: SEL-400 Series Relays Instruction Manual &sect;15 Table 15.7 (SFP transceiver part numbers, interface types, fiber type, reach, wavelength, and TX/RX power); SEL RSTP User Guide and SDN User Guide release notes (copper SFP support; SFP insert/remove logging as a security event); ACSELERATOR RTAC SEL-5033 Instruction Manual (live SFP-swap communications warning); SEL AG2017-21 (SEL-2730M SFP port planning); SEL cable ordering documentation (C627/C628 shielded copper, C808 duplex LC fiber). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

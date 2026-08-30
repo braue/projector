@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reclosing (79) &amp; Recloser Controls</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="79,reclose,shots,open interval,lockout,recloser,sequence coordination">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Reclosing (79) & Recloser Controls (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Reclosing (79) &amp; Recloser Controls</h1>
+  <p>The automatic reclosing state machine in depth — shots, open intervals, reclaim timing, lockout, sequence coordination — and the recloser control as a device class: fast/delayed curves, hot line tag, batteries, single-phase tripping</p>
+  <div class="chips"><span>79RS/79CY/79LO</span><span>SH0–SH4</span><span>79OI1–4</span><span>79SEQ</span><span>hot line tag</span><span>fast/delay curve</span><span>651R</span><span>351RS</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Reclosing</h3>
+<ul style="margin-bottom:2px">
+<li>The 79 is a <strong>three-state machine</strong>: Reset (ready), Reclose Cycle (working through shots), Lockout (no closing until a human/SCADA closes the breaker and the reset timer finishes). Auto-reclosing happens <em>only</em> in Reclose Cycle.</li>
+<li>Each <strong>shot</strong> is one open interval then one automatic close. The shot counter increments when the open interval times out — <em>just before</em> the reclose.</li>
+<li>The <strong>reset (reclaim) timer</strong> is the "did the reclose stick?" test: the breaker must stay closed for the reset time before the sequence rearms and the counter clears.</li>
+<li>A <strong>recloser control</strong> is a feeder relay plus everything the pole-top device needs: trip/close energy (capacitors + battery), operator controls (hot line tag, reclose enable), curve sequencing (fast, then delayed).</li>
+<li><strong>Fuse saving</strong> is the point of fast/delayed curves: trip fast below the fuse for the first shot(s) so a temporary fault clears, then switch to the delayed curve so a permanent lateral fault blows its fuse instead of locking out the feeder.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Why reclose at all</h2>
+<p>Most distribution faults are temporary — a branch across two phases, an animal, a lightning flashover. Open the circuit long enough for the arc to extinguish and the cause to fall away, close back in, and service is restored in seconds with no truck roll. Reclosing automates exactly that: trip, wait an <strong>open interval</strong>, close, repeat up to a set number of <strong>shots</strong>. Only a genuinely permanent fault exhausts the sequence and drives <strong>lockout</strong> — the signal that a human (or automation) is now needed. The design rests on one asymmetry: reclosing into a still-faulted line costs one more fault-duty operation; <em>not</em> reclosing after a temporary fault costs an outage.</p>
+<div class="callout"><strong>Bigger picture:</strong> the DAC (atlas → Distribution Automation → DAC) does nothing while a 79 sequence runs — reclosing gets its chance first; only a recloser <em>lockout</em> starts the isolate-and-restore logic. Change shot counts or open intervals and you change how long the DAC waits.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The 79 state machine (SEL-751/751A as the reference)</h2>
+<p>The SEL-751 and SEL-751A give up to <strong>four automatic reclosures</strong> (<code>E79</code> := OFF, 1–4 on the 751A; N, 1–4, C1–C4 on the 751 — the C choices change supervision-failure behavior, §4) and are always in exactly one of three states, each with a Relay Word bit and front-panel LED:</p>
+<table>
+  <tr><th>State</th><th>Bit</th><th>Meaning</th><th>Leaves the state when…</th></tr>
+  <tr><td><strong>Reset</strong></td><td class="mono">79RS</td><td>Breaker closed for a qualifying reset time; full sequence armed. LED: RECL RESET.</td><td>Successful reclose initiation → Cycle; unsuccessful → Lockout.</td></tr>
+  <tr><td><strong>Reclose Cycle</strong></td><td class="mono">79CY</td><td>Recloses after each successful initiation + open interval. The <em>only</em> state where auto-reclosing occurs.</td><td>Reset timer (<code>79RSD</code>) out → Reset. All shots unsuccessful or any lockout condition → Lockout.</td></tr>
+  <tr><td><strong>Lockout</strong></td><td class="mono">79LO</td><td>No automatic closing. LED: RECL LOCKOUT. Also the power-up state.</td><td>Breaker closed (manual/SCADA) + <code>79RSLD</code> out + no maintained lockout condition → Reset.</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="13" font-size="9" font-weight="600" fill="#454956">One full sequence to lockout — E79 := 2, 79OI1 = 5 s, 79OI2 = 10 s, permanent fault</text>
+  <!-- state band -->
+  <rect x="110" y="22" width="90" height="14" fill="#e7f6f1" stroke="#10a37f" stroke-width="0.75"/>
+  <rect x="200" y="22" width="320" height="14" fill="#fdf3e7" stroke="#d7930a" stroke-width="0.75"/>
+  <rect x="520" y="22" width="140" height="14" fill="#fbeeee" stroke="#d63a3a" stroke-width="0.75"/>
+  <text x="155" y="32" font-size="7.5" fill="#10a37f" text-anchor="middle" font-weight="600">RESET · 79RS</text>
+  <text x="360" y="32" font-size="7.5" fill="#9c6d06" text-anchor="middle" font-weight="600">RECLOSE CYCLE · 79CY</text>
+  <text x="590" y="32" font-size="7.5" fill="#d63a3a" text-anchor="middle" font-weight="600">LOCKOUT · 79LO</text>
+  <!-- row labels -->
+  <text x="104" y="61" font-size="8.5" fill="#454956" text-anchor="end" font-weight="600">52A</text>
+  <text x="104" y="91" font-size="8.5" fill="#d63a3a" text-anchor="end" font-weight="600">TRIP</text>
+  <text x="104" y="115" font-size="8.5" fill="#9c6d06" text-anchor="end" font-weight="600">79OI timer</text>
+  <text x="104" y="141" font-size="8.5" fill="#5468c4" text-anchor="end" font-weight="600">reset timer</text>
+  <text x="104" y="168" font-size="8.5" fill="#454956" text-anchor="end" font-weight="600">shot</text>
+  <!-- 52A -->
+  <path d="M110,58 H203 V70 H278 V58 H338 V70 H468 V58 H523 V70 H660" fill="none" stroke="#1a1a22" stroke-width="1.75"/>
+  <text x="156" y="55" font-size="7" fill="#8a8e9b" text-anchor="middle">closed</text>
+  <text x="592" y="79" font-size="7" fill="#8a8e9b" text-anchor="middle">open — stays open</text>
+  <circle cx="278" cy="58" r="3" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <circle cx="468" cy="58" r="3" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="278" y="50" font-size="7" fill="#10a37f" text-anchor="middle" font-weight="600">R1</text>
+  <text x="468" y="50" font-size="7" fill="#10a37f" text-anchor="middle" font-weight="600">R2</text>
+  <!-- TRIP pulses -->
+  <path d="M110,94 H200 V84 H206 V94 H335 V84 H341 V94 H520 V84 H526 V94 H660" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+  <text x="200" y="81" font-size="7" fill="#d63a3a" text-anchor="middle">trip 1</text>
+  <text x="338" y="81" font-size="7" fill="#d63a3a" text-anchor="middle">trip 2</text>
+  <text x="523" y="81" font-size="7" fill="#d63a3a" text-anchor="middle">trip 3</text>
+  <!-- open interval ramps -->
+  <line x1="110" y1="106" x2="660" y2="106" stroke="#d7930a" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.5"/>
+  <text x="658" y="103" font-size="7" fill="#d7930a" text-anchor="end">timeout → shot++ → CLOSE (via 79CLS)</text>
+  <path d="M206,120 L278,106 V120" fill="none" stroke="#d7930a" stroke-width="1.5"/>
+  <path d="M341,120 L468,106 V120" fill="none" stroke="#d7930a" stroke-width="1.5"/>
+  <text x="242" y="129" font-size="7" fill="#9c6d06" text-anchor="middle">79OI1 = 5 s</text>
+  <text x="404" y="129" font-size="7" fill="#9c6d06" text-anchor="middle">79OI2 = 10 s</text>
+  <text x="580" y="118" font-size="7" fill="#8a8e9b" text-anchor="middle">no timing — shot = last shot</text>
+  <!-- reset timer ramps -->
+  <line x1="110" y1="133" x2="660" y2="133" stroke="#5468c4" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.5"/>
+  <text x="658" y="131" font-size="7" fill="#5468c4" text-anchor="end">79RSD = 15 s — would rearm to Reset</text>
+  <path d="M278,147 L335,141" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <path d="M468,147 L520,142" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="300" y="156" font-size="7" fill="#5468c4" text-anchor="middle">cut short by trip 2</text>
+  <text x="590" y="150" font-size="7" fill="#5468c4" text-anchor="middle">close breaker → 79RSLD (5 s) → Reset</text>
+  <!-- shot counter -->
+  <path d="M110,172 H278 V164 H468 V156 H660" fill="none" stroke="#454956" stroke-width="1.5"/>
+  <text x="190" y="169" font-size="7.5" fill="#454956" text-anchor="middle">0</text>
+  <text x="372" y="161" font-size="7.5" fill="#454956" text-anchor="middle">1</text>
+  <text x="560" y="153" font-size="7.5" fill="#454956" text-anchor="middle">2 = last shot</text>
+  <text x="385" y="190" font-size="8" fill="#a9adb8" text-anchor="middle">trip 1 initiates (79RI = TRIP, supervised by 79RIS) → 79OI1 times while open → reclose 1 fails → 79OI2 → reclose 2 fails → trip 3 at last shot → LOCKOUT</text>
+  <g class="animlayer">
+    <line x1="110" y1="20" x2="110" y2="178" stroke="#d7930a" stroke-width="1.25" opacity="0.85">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 0;550 0;550 0" keyTimes="0;0.02;0.9;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.17;0.19;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <circle cx="203" cy="64" r="4.5" fill="none" stroke="#d7930a" stroke-width="1.75"/>
+      <text x="203" y="216" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle">fault — trip, breaker opens,</text>
+      <text x="203" y="226" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle">79 enters Reclose Cycle</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.29;0.31;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <text x="330" y="216" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">R1: 79OI1 timed out, shot→1, CLOSE —</text>
+      <text x="330" y="226" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">fault still there, trips again</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.6;0.62;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <text x="500" y="216" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle">R2 fails too — shot = 2 = last shot</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.7;0.72;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <circle cx="523" cy="88" r="4.5" fill="none" stroke="#d63a3a" stroke-width="1.75"/>
+      <text x="620" y="216" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">trip at last shot → LOCKOUT.</text>
+      <text x="620" y="226" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">Breaker stays open.</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">A full SEL-751/751A sequence against a permanent fault (identical logic on both). Note the shot counter stepping at each open-interval <em>timeout</em>, the reset-timer ramps that never finish, and the two reset times: <code>79RSD</code> qualifies automatic reclosures, <code>79RSLD</code> the eventual manual close out of lockout.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>Reset ("reclaim") timing — two timers, not one</h3>
+<ul>
+  <li><code>79RSD</code> (default 15 s) qualifies closures in the <strong>Reclose Cycle</strong> state — did the automatic reclose hold? Also the reset time used by sequence coordination (§5).</li>
+  <li><code>79RSLD</code> (default 5 s) qualifies closures from <strong>Lockout</strong> — usually manual/SCADA closes — and is the reset time at power-up and after settings changes. Typically shorter than <code>79RSD</code>, emulating motor-driven-timer reclosers that reset quickly from the lockout position. Independent settings; monitor with <code>RSTMN</code> and <code>OPTMN</code>.</li>
+  <li><code>79BRS</code> (block reset timing, factory <code>:= TRIP</code>) freezes the reset timer; on release the timer <strong>reloads fully</strong> — reset timing must be continuous. <code>79BRS := (51P1P OR 51G1P) AND 79CY</code> stops the sequence rearming while overcurrent is still picked up mid-cycle ("repetitive trip-reclose cycling"), while <code>AND 79CY</code> deliberately lets cold-load inrush after a close from lockout pass.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Shots, open intervals, and initiation</h2>
+<table>
+  <tr><th>Setting</th><th>Range (751/751A)</th><th>Factory</th><th>What it does</th></tr>
+  <tr><td class="mono">E79</td><td>OFF, 1–4 (751: N, 1–4, C1–C4)</td><td class="mono">OFF (751: N)</td><td>Number of automatic reclosures; OFF/N defeats the reclosing relay. 751-only C1–C4: same shot counts, drum-timer supervision behavior (§4)</td></tr>
+  <tr><td class="mono">79OI1–79OI4</td><td>0.00–3000.00 s</td><td class="mono">5.00 / 0 / 0 / 0 (751: all 0)</td><td>Open interval per shot; timers run consecutively, not from a common origin</td></tr>
+  <tr><td class="mono">79RSD / 79RSLD</td><td>0.00–3000.00 s</td><td class="mono">15.00 / 5.00</td><td>Reset time from reclose cycle / from lockout</td></tr>
+  <tr><td class="mono">79RI / 79RIS</td><td>SELOGIC</td><td class="mono">TRIP / 52A OR 79CY</td><td>Reclose initiate (rising-edge) and its supervision</td></tr>
+  <tr><td class="mono">79DTL / 79DLS</td><td>SELOGIC</td><td class="mono">OC OR SV04T / 79LO</td><td>Drive-to-lockout / drive-to-last-shot</td></tr>
+  <tr><td class="mono">79SKP / 79STL / 79BRS</td><td>SELOGIC</td><td class="mono">0 / TRIP / TRIP</td><td>Skip a shot / stall open-interval timing / block reset timing</td></tr>
+  <tr><td class="mono">79SEQ / 79CLS / 79CLSD</td><td>SELOGIC / OFF, 0–3000 s</td><td class="mono">0 / 1 / 0.00 (751: OFF)</td><td>Sequence coordination; reclose supervision and its time window</td></tr>
+</table>
+<ul>
+  <li><strong>Last shot</strong> = the number of open intervals before the first one set to zero. <code>79OI1 := 0.5, 79OI2 := 10, 79OI3 := 0</code> → two reclosures. If a preceding interval is zero, later nonzero ones are dead; <code>79OI1 := 0</code> defeats the reclosing relay.</li>
+  <li><strong>Shot counter</strong>: at shot = 0 the relay times on 79OI1; each timeout increments the shot (bits <code>SH0</code>–<code>SH4</code>, one asserted at a time) and loads the next interval. It can't pass last shot for auto-reclosing, resets to 0 on return to Reset, and is visible live with the <code>TARGET</code> command.</li>
+  <li><strong>Initiation</strong>: <code>79RI</code> is rising-edge detected; <code>79RIS</code> must already be true at that edge or the relay goes straight to Lockout. The factory pair (<code>TRIP</code> / <code>52A OR 79CY</code>) requires the breaker closed for the <em>first</em> trip only — on later instantaneous trips the slow 52a indication hasn't caught up yet, so <code>79CY</code> stands in. Alternative: initiate on breaker opening, <code>79RI := NOT 52A, 79RIS := TRIP</code> (needs <code>TDURD</code> long enough that TRIP is still up at the opening; an external opening with TRIP down then correctly locks out).</li>
+  <li><strong>Skip shot</strong> (<code>79SKP</code>): if true at initiation, the shot counter jumps ahead and the <em>next</em> open interval is used. Manual example: <code>79SKP := 50P2P AND SH0</code> — a high-magnitude fault skips the short first interval. AG9903 uses the same mechanism to pick a 45-cycle vs 2-second first reclose from a panel switch.</li>
+  <li><strong>Stall</strong> (<code>79STL</code>): open-interval timing pauses while asserted and resumes where it left off. Factory <code>:= TRIP</code>. Classic uses: <code>79STL := 59S1</code> from a line-side PT — don't time toward a reclose while an islanded cogenerator holds the line hot; <code>79STL := NOT 25A1</code> at the second end of a line — wait for synchronism.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>What blocks a reclose, and what drives lockout</h2>
+<h3>Reclose supervision — the last gate before CLOSE</h3>
+<p>An open-interval timeout doesn't close the breaker by itself; it must pass <code>79CLS</code>. With <code>79CLSD := 0</code> the condition is checked <strong>once</strong>, at the instant of timeout; with <code>79CLSD</code> &gt; 0 the relay waits up to that window (<code>OFF</code> = wait indefinitely). If supervision fails, <code>RCSF</code> pulses one processing interval and (E79 = 1–4) the relay is <strong>driven to Lockout</strong> — not retried next shot. The SEL-751's <code>E79 := C1–C4</code> choices invert exactly that: on supervision failure the shot counter increments and the <em>next</em> open interval starts timing — "rotating drum timer" emulation, with lockout only once the intervals run out. Manual examples: <code>79CLS := 59VP AND 27S1</code> (hot bus / dead line, first end) and <code>79CLS := 25A1</code> with <code>79CLSD := 1.00 s</code> (give slipping voltages a window to reach synchronism, second end).</p>
+<h3>The lockout list (SEL-751/751A)</h3>
+<table>
+  <tr><th>Cause</th><th>Mechanism</th></tr>
+  <tr><td>All shots used</td><td>Shot counter ≥ last shot at a reclose initiation</td></tr>
+  <tr><td>Initiation unsuccessful</td><td><code>79RIS</code> = 0 at the rising edge of <code>79RI</code></td></tr>
+  <tr><td>Breaker opens without initiation</td><td>e.g. an external trip the relay didn't order</td></tr>
+  <tr><td>New initiation while timing an open interval</td><td>e.g. flashover in the breaker tank while open</td></tr>
+  <tr><td>Close failure</td><td><code>CFD</code> (slowest close time + margin) times out; <code>CF</code> pulses ¼ cycle</td></tr>
+  <tr><td>Reclose supervision failure</td><td><code>79CLSD</code> expires without <code>79CLS</code> (E79 = 1–4)</td></tr>
+  <tr><td>Drive-to-lockout equation</td><td><code>79DTL</code> = 1 — factory includes OPEN command (<code>OC</code>) and front-panel open; 1-second dropout so pulsed conditions overlap slow breaker-status initiation</td></tr>
+  <tr><td>Driven to last shot while open</td><td><code>79DLS</code> = 1 during open-interval timing</td></tr>
+  <tr><td>Power-up / settings change while open</td><td>Settings change keeps the state but drives shot to last shot and loads <code>79RSLD</code>; if timing an open interval → straight to Lockout</td></tr>
+</table>
+<p>Manual patterns: <code>79DTL := TRIP AND 50P3P</code> (no reclose on very high fault current) and <code>79DTL := TRIP AND 81D1T</code> (never auto-reclose after an underfrequency load-shed trip — factory behavior on the 351RS).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Sequence coordination with a downstream recloser</h2>
+<p>A feeder relay upstream of a line recloser has a problem: its fast-set elements can overreach and trip for faults the recloser is already clearing. <code>79SEQ</code> lets the relay <strong>count the recloser's operations without tripping</strong>: with no trip present and the breaker closed, an overcurrent pickup named in <code>79SEQ</code> asserting for at least <strong>1.25 cycles and then dropping out</strong> means a downstream device cleared the fault — so the shot counter increments anyway and the reset timer reloads with <code>79RSD</code>. The state doesn't change; the counter can run past last shot, up to shot = 4.</p>
+<p>The manual's worked example: recloser set for two fast then two slow operations; relay trip equation <code>TR := 51P1T AND (SH0 OR SH1) OR 51AT OR 51BT OR 51CT</code>. After two fast recloser operations the shot counter sits at 2, <code>SH0</code>/<code>SH1</code> are gone, and the faster 51P1T is disarmed — in step with the recloser disabling its own fast curve. The refinement <code>79SEQ := 79RS AND 51P1P AND SH0</code> stops the counter at shot = 1, so a <em>coincident</em> fault between relay and recloser still gets one reclose instead of instant lockout. Set <code>79RSD</code> long enough that the counter doesn't reset mid-recloser-sequence.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Recloser controls as a device class</h2>
+<p>A feeder relay trips a station breaker from station DC. A <strong>recloser control</strong> runs a pole-top or padmount recloser, which changes the hardware around the 79:</p>
+<table>
+  <tr><th></th><th>SEL-651R-2 (Advanced Recloser Control)</th><th>SEL-351RS Kestrel</th></tr>
+  <tr><td><strong>Scope</strong></td><td>Three-phase control; also runs single-phase-trip-capable reclosers in single- or three-phase mode, with single- or three-phase lockout</td><td>Single-phase control for G&amp;W Viper-SP / ABB Elastimold MVR single-phase reclosers</td></tr>
+  <tr><td><strong>Interface</strong></td><td>Ordered by control cable: Traditional Retrofit 14-pin; 32-pin (G&amp;W Viper-ST/LT, ABB Elastimold MVR/GridShield, Eaton NOVA NX-T/STS…); 24-pin ABB OVR-3/VR-3S; 27-pin Joslyn TriMod 600R; 26-pin Eaton NOVA-TS/STS; 40-pin Siemens SDR; 42-pin Multi-Recloser</td><td>Direct-mount single-phase unit</td></tr>
+  <tr><td><strong>Trip/close energy</strong></td><td>Stacked, interlocked trip/close FETs switch 53 Vdc from trip/close capacitors through per-pole coils; <code>TCCAP</code> = capacitors charged</td><td>HV FET trip/close outputs; same <code>TCCAP</code></td></tr>
+  <tr><td><strong>Backup power</strong></td><td>12 V lead-acid battery, 16 or 40 Ah, with charger (ac models)</td><td>12 V lead-acid + temperature-compensated charger (below)</td></tr>
+  <tr><td><strong>Reclose supervision default</strong></td><td class="mono">79CLS3P := PWR_SRC1 AND TCCAP AND NOT BTFAIL</td><td class="mono">79CLS = TCCAP * !BTFAIL, 79CLSD = 900 cyc</td></tr>
+</table>
+<p>Both run the same 79 logic family as the SEL-751/751A (79RI/79RIS, 79DTL/79DLS, 79SKP/79STL, 79BRS, 79SEQ, 79CLS) — but with open intervals in <strong>cycles</strong>: <code>79OI1</code> range OFF, 12.00–999999 cyc, and <code>79OI1 := OFF</code> (not 0) defeats reclosing. 651R factory: 79OI1 = 300, 79OI2 = 79OI3 = 600, 79RSD = 1800, 79CLSD = 900 cyc.</p>
+
+<h3>Operator controls — the recloser control's front panel is an operating device</h3>
+<ul>
+  <li><strong>RECLOSE ENABLED</strong> — auto-reclosing on/off. Factory drive-to-lockout logic on both platforms: a trip, or the recloser opening, while reclose is disabled → lockout. One shot to lockout.</li>
+  <li><strong>HOT LINE TAG</strong> — the line-crew safety control. While ON, no closing of any kind: CLOSE pushbutton, serial CLOSE command, <em>and</em> auto-reclosing are blocked, and a trip or recloser opening drives lockout. On the 651R it overrides RECLOSE ENABLED; in the unlatch-close logic hot line tag and the capacitor monitor are "preeminent." Not a substitute for physical tagging — the control-side half of hot-line work.</li>
+  <li><strong>FAST CURVE ENABLED</strong> (651R) — turns fast curves off; factory skip-shot logic then jumps the counter past the fast shots so you get only the set number of delay-curve trips (§7).</li>
+  <li><strong>LOCK / PUSHBUTTONS LOCKED</strong> — freezes the other pushbuttons; CLOSE is inoperative, serial CLOSE and auto-reclosing still work, <strong>TRIP always works</strong>.</li>
+  <li><strong>TRIP pushbutton</strong> — trips <em>and</em> goes to lockout. The recloser's <strong>yellow operating handle</strong> does the same (651R via a qualified <code>79DTL3X</code> term on interfaces that report it).</li>
+  <li>No standing closes: pushbutton/serial CLOSE pulse one processing interval and <code>CL</code> is rising-edge triggered — toggling LOCK or HOT LINE TAG never releases a queued surprise close.</li>
+</ul>
+
+<h3>The battery system (SEL-351RS specifics)</h3>
+<ul>
+  <li>The 12 V battery powers the control and trip/close capacitors when ac is dead; the charger runs constant-current, fast, and float modes (plus a &lt; 15 s Cap Charge mode after any operation). <code>CHRGG</code>/<code>DISCHG</code> report state; <code>BTFAIL</code> blocks reclosing via <code>79CLS</code>. <strong>Automatic load test ~every 24 h</strong>: below 10.5 V at start (or 11 V during) fails it — <code>DTFAIL</code>, BATTERY PROBLEM LED. With batteries out, ac alone can still trip/close — but ac sags during the very fault you need to clear; the control rides through 0.5 s of total power loss and can still trip within it.</li>
+  <li><strong>Sleep/wake</strong>: on ac loss a countdown (<code>PWRDN_AC</code>, default 180 min) runs; at one minute left <code>TOSLP</code> asserts (usable in a trip equation to open the recloser before dying, isolating the downstream section for restoration). The WAKE UP pushbutton revives it for <code>PWRDN_WU</code> (default 20 min).</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Fast vs delayed curves — fuse saving across the shots</h2>
+<p>The classic sequence is <em>two fast, two delayed</em>. Fast shots trip below the lateral fuses' minimum-melt curves — a temporary fault anywhere, even on a fused lateral, clears and recloses without losing a fuse. If the fault persists, the control switches to the delayed curve, which sits <em>above</em> the fuse: a permanent lateral fault now blows its fuse, only that lateral stays out, and the recloser recloses successfully and resets.</p>
+
+<div class="fig"><svg viewBox="0 0 700 268" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="13" font-size="9" font-weight="600" fill="#454956">Fuse saving: which curve is armed depends on the shot counter</text>
+  <!-- TCC plot -->
+  <rect x="52" y="24" width="330" height="196" fill="none" stroke="#a9adb8" stroke-width="1"/>
+  <g stroke="#e5e7eb" stroke-width="0.75">
+    <line x1="52" y1="72" x2="382" y2="72"/><line x1="52" y1="122" x2="382" y2="122"/><line x1="52" y1="172" x2="382" y2="172"/>
+    <line x1="140" y1="24" x2="140" y2="220"/><line x1="240" y1="24" x2="240" y2="220"/><line x1="330" y1="24" x2="330" y2="220"/>
+  </g>
+  <text x="48" y="75" font-size="7.5" fill="#6e7180" text-anchor="end">1 s</text>
+  <text x="48" y="125" font-size="7.5" fill="#6e7180" text-anchor="end">0.1 s</text>
+  <text x="48" y="175" font-size="7.5" fill="#6e7180" text-anchor="end">0.01 s</text>
+  <text x="140" y="231" font-size="7.5" fill="#6e7180" text-anchor="middle">2</text>
+  <text x="240" y="231" font-size="7.5" fill="#6e7180" text-anchor="middle">5</text>
+  <text x="330" y="231" font-size="7.5" fill="#6e7180" text-anchor="middle">10</text>
+  <text x="217" y="245" font-size="8" font-weight="600" fill="#454956" text-anchor="middle">current — multiples of min trip (log)</text>
+  <!-- fuse band -->
+  <path d="M96,36 C150,72 210,110 280,140 C315,153 350,162 382,169" fill="none" stroke="#d7930a" stroke-width="1.5"/>
+  <path d="M110,30 C165,64 225,102 295,131 C330,144 360,152 382,157" fill="none" stroke="#d7930a" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="288" y="128" font-size="7.5" fill="#9c6d06" font-weight="600">lateral fuse</text>
+  <text x="288" y="137" font-size="7" fill="#9c6d06">melt / total clear</text>
+  <!-- fast curve -->
+  <path id="fastc" d="M70,90 C130,132 200,164 270,182 C310,190 350,195 382,198" fill="none" stroke="#10a37f" stroke-width="2"/>
+  <text x="92" y="112" font-size="8" fill="#10a37f" font-weight="600">FAST (J) — 51P1T / A-curve</text>
+  <!-- delay curve -->
+  <path id="delayc" d="M84,28 C140,52 220,84 300,106 C335,114 365,119 382,122" fill="none" stroke="#5468c4" stroke-width="2"/>
+  <text x="192" y="66" font-size="8" fill="#5468c4" font-weight="600">DELAY (K) — 51P2T / C-curve</text>
+  <!-- fault current marker -->
+  <line x1="262" y1="24" x2="262" y2="220" stroke="#d63a3a" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.6"/>
+  <text x="262" y="260" font-size="7" fill="#d63a3a" text-anchor="middle">fault on fused lateral</text>
+  <!-- sequence strip -->
+  <text x="412" y="34" font-size="8.5" font-weight="600" fill="#454956">Sequence (351RS EZ: Operations fast curve = 2,</text>
+  <text x="412" y="45" font-size="8.5" font-weight="600" fill="#454956">Operations to lockout = 4)</text>
+  <g font-size="8">
+    <rect x="412" y="56" width="272" height="24" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="0.75"/>
+    <text x="420" y="66" fill="#10a37f" font-weight="600">shot 0 · trip 1 — FAST curve armed (SH0)</text>
+    <text x="420" y="76" fill="#6e7180" font-size="7.2">trips before the fuse melts — temporary fault gets a free pass</text>
+    <rect x="412" y="84" width="272" height="24" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="0.75"/>
+    <text x="420" y="94" fill="#10a37f" font-weight="600">shot 1 · trip 2 — FAST again (SH1)</text>
+    <text x="420" y="104" fill="#6e7180" font-size="7.2">reclose → still faulted → second fast trip</text>
+    <rect x="412" y="112" width="272" height="24" rx="4" fill="#eef0f8" stroke="#5468c4" stroke-width="0.75"/>
+    <text x="420" y="122" fill="#5468c4" font-weight="600">shot 2 · trip 3 — DELAY curve (fast disabled)</text>
+    <text x="420" y="132" fill="#6e7180" font-size="7.2">fuse now melts first — a permanent lateral fault blows its fuse</text>
+    <rect x="412" y="140" width="272" height="24" rx="4" fill="#eef0f8" stroke="#5468c4" stroke-width="0.75"/>
+    <text x="420" y="150" fill="#5468c4" font-weight="600">shot 3 · trip 4 — DELAY → LOCKOUT</text>
+    <text x="420" y="160" fill="#6e7180" font-size="7.2">only reached for a permanent main-line fault</text>
+  </g>
+  <!-- 51PS bit -->
+  <text x="412" y="182" font-size="7.5" fill="#454956" font-weight="600">51PS (curve-in-use bit, 651R):</text>
+  <path d="M412,198 H548 V190 H684" fill="none" stroke="#454956" stroke-width="1.5"/>
+  <text x="478" y="208" font-size="7" fill="#8a8e9b" text-anchor="middle">0 = fast (J) active</text>
+  <text x="616" y="187" font-size="7" fill="#8a8e9b" text-anchor="middle">1 = delay (K) active</text>
+  <text x="548" y="220" font-size="7" fill="#8a8e9b" text-anchor="middle">51PSW := NOT(LT04) OR (MV01 &lt;= 79SH3P)</text>
+  <g class="animlayer">
+    <g opacity="0">
+      <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.46;0.5;0.96;1" dur="10s" repeatCount="indefinite"/>
+      <circle cx="262" cy="179" r="5" fill="none" stroke="#10a37f" stroke-width="2"/>
+      <text x="217" y="211" font-size="7.5" fill="#10a37f" font-weight="600" text-anchor="middle">fast trips here — fuse saved</text>
+      <rect x="410" y="54" width="276" height="56" rx="5" fill="none" stroke="#10a37f" stroke-width="1.75"/>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.5;0.54;0.96;1" dur="10s" repeatCount="indefinite"/>
+      <circle cx="262" cy="118" r="5" fill="none" stroke="#5468c4" stroke-width="2"/>
+      <circle cx="262" cy="146" r="5" fill="none" stroke="#d7930a" stroke-width="2"/>
+      <text x="200" y="211" font-size="7.5" fill="#9c6d06" font-weight="600" text-anchor="middle">fuse melts first — delay backs it up</text>
+      <rect x="410" y="110" width="276" height="56" rx="5" fill="none" stroke="#5468c4" stroke-width="1.75"/>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">Left: the geometry of fuse saving — fast curve under the fuse's minimum melt, delayed curve over its total clearing. Right: the shot counter arms them in turn. The frozen view shows both regimes; the animation alternates which is live.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>How each platform switches curves</h3>
+<ul>
+  <li><strong>SEL-351RS (EZ settings)</strong>: <em>Min. trip</em> sets pickups; <em>Fast curve</em> = 51P1T, <em>Delay curve</em> = 51P2T. <em>Operations fast curve</em> (<code>OPPH</code>) picks how many trips use fast — the logic ORs the corresponding <code>SH0…SH4</code> bits into <code>OCP</code>, which torque-controls 51P1T; <em>Operations to lockout</em> (<code>OPLKPH</code>) sets total trips. Keyed to the shot counter the same way: <em>High-current trip</em> (50P2T, armed from a chosen trip number, e.g. <code>HITRPH := 3</code> → trips 3+) and <em>High-current lockout</em> (a fault above 50P1/50P5 when tripping goes straight to lockout). The <strong>cold load pickup scheme</strong> disables fast curves and raises the delay curve's <em>effective</em> min trip (50P5P = 51P2P × multiple) without shifting the curve — coordination preserved while inrush decays.</li>
+  <li><strong>SEL-651R-2 (dual-characteristic elements)</strong>: each 51 element carries two complete characteristics, <strong>J and K</strong> (own pickup, curve, time dial, CT/MR), selected live by the <code>51__SW</code> equation → bit <code>51__S</code> (0 = J, 1 = K). Factory: J is fast (phase curve A, ground 1), K is delay (phase C, ground 13), with <code>51PSW := NOT(LT04) OR (MV01 &lt;= 79SH3P)</code> — delay once the shot count reaches the fast-trip count (<code>MV01 := 2</code>), or whenever FAST CURVE ENABLED is off. A switch request is <strong>ignored while the element is picked up</strong> — the curve can't change mid-fault. Factory <code>79SKP3P</code> accelerates the counter past the fast shots when fast curves are disabled (two delay trips with the right interval, not four). Curves: U1–U5, C1–C5, and traditional <strong>recloser curves</strong> (old letters A, B, C… cross-referenced to new numbers 101–165; TD 0.10–30.00; no EM-reset emulation on recloser curves).</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Single-phase tripping and reclosing (SEL-651R-2)</h2>
+<p>With a single-phase-trip-capable recloser (each pole has its own trip/close coil), the 651R can interrupt only the faulted phase and keep the other two alive — "especially applicable in rural areas." Two settings control the split:</p>
+<ul>
+  <li><code>BKTYP</code> (Global): 1 = single-phase recloser, 3 = three-phase — determines whether per-pole statuses <code>52AA/52AB/52AC</code> or a single <code>52A3P</code> are derived.</li>
+  <li><code>ESPB</code> (Group): Y enables single-phase mode — <strong>three complete, independent reclosing relays, one per phase</strong>. Every 79 setting and bit exists per phase: <code>79RIA/B/C</code>, <code>79RSA/79CYA/79LOA</code>, <code>SH0A…SH4A</code>, <code>CLOSEA</code>, <code>RCSFA</code>…; with <code>ESPB := N</code> one reclosing relay runs all three poles under the <code>…3P</code> names. Trips follow suit: per-phase <code>TRA/TRB/TRC</code>, with <code>TR3P/TR3X</code> for conditions that must always trip all three poles.</li>
+  <li>Lockout policy is a scheme choice: single-phase trip/reclose can pair with <strong>three-phase lockout</strong> or single-phase lockout, per connected loads. Setting any one <code>52A_x := 0</code> defeats close/reclose logic for all three phases.</li>
+</ul>
+<p>The SEL-351RS reaches the same goal from the other end: it <em>is</em> a per-phase device — one Kestrel per single-phase recloser — so "single-phase reclosing" is three independent controls on the structure.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Operations &amp; gotchas</h2>
+<ul>
+  <li><strong>The 79 is only as honest as 52A.</strong> The state machine keys off the SELOGIC breaker-status equation (<code>52A := IN101</code> from a 52a auxiliary — you must assign it). Slow 52a + instantaneous tripping is why factory <code>79RIS</code> includes <code>OR 79CY</code>, and why <code>79RI := NOT 52A</code> schemes may need <code>ULCL := 0</code> so CLOSE isn't unlatched before the breaker really closed (anti-pump covers the brief TRIP+CLOSE overlap). <code>52A := 0</code> or NA kills both the close logic and the reclosing relay.</li>
+  <li><strong>Manual close ≠ reclose.</strong> Closes via CLOSE command, pushbutton, or <code>CL</code> go through the same close logic but are <em>not</em> shots; from lockout they're qualified by <code>79RSLD</code> before the relay rearms. CLOSE seals in until <code>ULCL</code>, 52A, or close failure (<code>CF</code>) unlatches it; default <code>OUT102 = CLOSE</code> on the 751/751A.</li>
+  <li><strong>Defeated ≠ locked out.</strong> With <code>E79 := OFF</code> (N on the 751; or 79OI1 zero/OFF) all three state bits <em>and</em> all shot bits force to 0, both LEDs dark — SCADA points mapped to 79RS/79LO read false, which is not "in lockout." The close logic still works.</li>
+  <li><strong>Settings changes bite mid-sequence.</strong> Any settings or group change drives the shot counter to last shot and loads <code>79RSLD</code>; if timing an open interval, the relay goes straight to lockout. Don't push settings mid-storm.</li>
+  <li><strong>Units differ by platform.</strong> 751/751A open intervals/reset times are in <em>seconds</em> (0–3000, 0 = defeated); 351RS/651R in <em>cycles</em> (OFF, 12–999999, OFF = defeated). A "300" copied across is 5 minutes on one, 5 seconds on the other.</li>
+  <li><strong>Underfrequency and reclosing don't mix.</strong> Load-shed trips should drive lockout (<code>79DTL := TRIP AND 81D1T</code>; factory behavior on the 351RS) — reclosing shed load defeats the shed.</li>
+  <li><strong>DAC interaction.</strong> Automation keys on 79LO and operation counts; hot line tag, reclose-disable, and fast-curve toggles all change what the scheme sees. Read the DAC pages (how-it-decides, operating-it) before changing shot counts on a DAC feeder.</li>
+  <li><strong>No built-in 79?</strong> AG9405 builds full recloser functions (single-shot, two-shot, single-shot/two-breaker) purely from SELOGIC in the SEL-321; AG9903 is the pattern book for switch-selected high-speed vs delayed reclosing with hot-bus/dead-line and sync supervision on the SEL-351.</li>
+  <li><strong>Testing:</strong> watch <code>TARGET</code> for shot/state bits, <code>OPTMN</code>/<code>RSTMN</code> for which timer is running, and remember 79DTL's 1-second dropout when pulse-testing lockout conditions.</li>
+</ul>
+</section>
+
+<section class="keep">
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
+  <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a>
+  <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC &mdash; How It Decides</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>
+</div>
+<p class="footnote">Sources: SEL-751 Feeder Protection Relay IM, <span class="mono">751_IM_20260327.pdf</span> (Table 4.70 settings, E79 C1–C4 drum-timer choices, reclose supervision logic), and SEL-751A Feeder Protection Relay IM, <span class="mono">751A_IM_20250411.pdf</span> (Table 4.29 settings) — 79 states/bits, shot counter/last shot, 79RSD/79RSLD, 79RI/79RIS, lockout list, 79DTL/79DLS/79SKP/79STL/79BRS/79SEQ, 79CLS/79CLSD/RCSF, close/unlatch/CF logic, and settings-change behavior are identical across both; factory defaults and E79 choices differ as noted in §2–§4; SEL-351RS Kestrel Recloser Control IM, <span class="mono">351RS_IM_20220510.pdf</span> (EZ settings, fast/delay curve + operations-to-lockout logic, high-current trip/lockout, cold load pickup, operator controls/hot line tag, drive-to-lockout incl. yellow handle, battery system monitor, 79OI cycle ranges); SEL-651R-2 Advanced Recloser Control IM, <span class="mono">651R-2_IM_20250401.pdf</span> (recloser compatibility, trip/close FETs/TCCAP, BKTYP/ESPB single-phase reclosing, dual-characteristic J/K elements + 51__SW, recloser curves, factory 79 defaults, Table 11.9 operator controls); SEL AG94-05 <span class="mono">AG_9405.pdf</span> (recloser functions from SELOGIC, SEL-321); SEL AG99-03 <span class="mono">AG_9903.pdf</span> (flexible reclosing via 79SKP, HB/DL supervision). "Most distribution faults are temporary" is generic background, not a sourced statistic. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

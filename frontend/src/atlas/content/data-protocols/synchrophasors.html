@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Synchrophasors</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="synchrophasor,C37.118,PMU,PDC,SEL-3373,SEL-3378,phasor,TVE">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Synchrophasors (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+  .filecards .cmd { border-left: 4px solid #d63a3a; } .filecards .cmd b { color: #d63a3a; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Synchrophasors</h1>
+  <p>GPS-referenced phasors and IEEE C37.118 — PMUs in relays, PDC time alignment, and doing real-time work with wide-area angles</p>
+  <div class="chips"><span>C37.118</span><span>PMU</span><span>PDC</span><span>MRATE</span><span>IDCODE</span><span>TSOK</span><span>TVE&nbsp;&le;1%</span><span>UDP_S/T/U</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">&#9776;</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>A synchrophasor is a phasor whose <strong>angle is measured against absolute time</strong> (a GPS-disciplined clock, delivered as IRIG-B). Because every PMU uses the same time reference, angles from any two substations are directly comparable.</li>
+<li><strong>No high-accuracy time, no synchrophasors.</strong> On the SEL-451 the data are only valid in HIRIG timekeeping mode (<code>TSOK</code>&nbsp;=&nbsp;1). Clock loss doesn't stop the stream — it degrades the time-quality flags riding in every frame.</li>
+<li>Everything is identified by <strong>station name + IDCODE</strong>, and they must match <em>exactly</em> at every hop (case and trailing spaces included).</li>
+<li>The PDC's per-output <strong>Waiting Period</strong> is the latency-vs-completeness knob: data arriving later than it are zero-filled and flagged, not waited for.</li>
+<li>Rates: a relay streams 1–60 messages/s (<code>MRATE</code>); a PDC output rate must be a <strong>common divisor</strong> of its input rates.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What a synchrophasor is</h2>
+<p>"Synchrophasor" = <em>synchronized phasor</em>: measurements taken on a synchronized schedule in multiple locations, made possible by a high-accuracy clock — commonly a GPS receiver such as an SEL-2407 (SEL-451 IM). The PMU samples on a constant-time basis locked to IRIG-B, at 50 or 60 sets per second (<code>NFREQ</code>), and measures each phase angle <strong>relative to an absolute time reference represented by a cosine wave that peaks at the top of each second</strong>. Magnitudes are rms, scaled to primary units by the PT/CT ratios. Each data set carries its time-of-sample (second-of-day and fraction-of-second).</p>
+<p>That absolute reference is the entire point: a conventional relay measures angles relative to its own sampling clock, so angles from two devices mean nothing to each other. Two PMUs referenced to the same GPS second produce angles you can subtract — and the difference between bus voltage angles across a transmission path is a direct, live image of power transfer. One honest wrinkle (SEL-451 IM): the power system rarely runs at exactly nominal frequency, so successive synchrophasors of the same signal almost always show some angular change — the phasor slowly rotates against the fixed time base. That is normal, not a malfunction.</p>
+
+<div class="fig"><svg id="phasorfig" viewBox="0 0 700 224" xmlns="http://www.w3.org/2000/svg">
+  <!-- shared time axis -->
+  <line x1="30" y1="196" x2="670" y2="196" stroke="#d0d3da" stroke-width="1.25"/>
+  <g fill="#6e7180" font-size="9" text-anchor="middle">
+    <line x1="110" y1="190" x2="110" y2="202" stroke="#454956" stroke-width="1.5"/>
+    <line x1="350" y1="190" x2="350" y2="202" stroke="#454956" stroke-width="1.5"/>
+    <line x1="590" y1="190" x2="590" y2="202" stroke="#454956" stroke-width="1.5"/>
+    <text x="110" y="216">10:00:00.000</text>
+    <text x="350" y="216">10:00:01.000</text>
+    <text x="590" y="216">10:00:02.000</text>
+    <text x="656" y="192" font-size="9" fill="#8a8e9b" text-anchor="end">shared GPS time</text>
+  </g>
+  <circle id="nowdot" cx="110" cy="196" r="4" fill="#10a37f"/>
+  <!-- dial A -->
+  <circle cx="105" cy="92" r="56" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="105" y1="36" x2="105" y2="30" stroke="#454956" stroke-width="1.5"/>
+  <text x="105" y="26" font-size="9" fill="#6e7180" text-anchor="middle">0&#176; = top of second</text>
+  <line id="vecA" x1="105" y1="92" x2="139" y2="49" stroke="#10a37f" stroke-width="3" stroke-linecap="round"/>
+  <text x="105" y="166" font-size="10" font-weight="600" fill="#10a37f" text-anchor="middle">Substation A &#183; V1</text>
+  <!-- dial B -->
+  <circle id="ringB" cx="280" cy="92" r="56" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="280" y1="36" x2="280" y2="30" stroke="#454956" stroke-width="1.5"/>
+  <line id="vecB" x1="280" y1="92" x2="330" y2="72" stroke="#5468c4" stroke-width="3" stroke-linecap="round"/>
+  <text x="280" y="166" font-size="10" font-weight="600" fill="#5468c4" text-anchor="middle">Substation B &#183; V1</text>
+  <g id="lossflag" opacity="0">
+    <rect x="228" y="38" width="104" height="16" rx="3" fill="#d63a3a"/>
+    <text x="280" y="50" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">IRIG lost &#183; TSOK = 0</text>
+  </g>
+  <!-- overlay dial with wedge -->
+  <circle cx="520" cy="92" r="62" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <path id="wedge" d="M520,92 L558,43 A62,62 0 0 1 576,72 Z" fill="#10a37f" opacity="0.18"/>
+  <line id="ovA" x1="520" y1="92" x2="558" y2="43" stroke="#10a37f" stroke-width="3" stroke-linecap="round"/>
+  <line id="ovB" x1="520" y1="92" x2="576" y2="72" stroke="#5468c4" stroke-width="3" stroke-linecap="round"/>
+  <text id="dtext" x="520" y="172" font-size="11" font-weight="600" fill="#1a1a22" text-anchor="middle">&#948; = 27&#176;</text>
+  <text id="dsub" x="520" y="185" font-size="9" fill="#8a8e9b" text-anchor="middle">angle difference = live load-flow image</text>
+  <text x="520" y="20" font-size="9.5" font-weight="600" fill="#454956" text-anchor="middle">A and B overlaid &#8212; same time base</text>
+</svg></div>
+<p class="figcap">Two PMU phasors against one absolute-time reference. The wedge between them widens as load flow changes; when Substation B loses its clock, the stream keeps coming but its quality flags degrade and the angle difference can no longer be trusted.<span class="print-note"> &#9654; Animated in the HTML edition.</span></p>
+<script>
+(function(){
+  var svg=document.getElementById('phasorfig'); if(!svg) return;
+  var D=12000, R1=48, R2=54;
+  function pt(cx,cy,r,deg){var a=(90-deg)*Math.PI/180;return [cx+r*Math.cos(a),cy-r*Math.sin(a)];}
+  function setVec(id,cx,cy,r,deg){var p=pt(cx,cy,r,deg),e=document.getElementById(id);e.setAttribute('x2',p[0].toFixed(1));e.setAttribute('y2',p[1].toFixed(1));}
+  function step(now){
+    var t=now%D, thA=(t/D)*360;            /* off-nominal: one slow rev per cycle */
+    var lost=(t>=5000&&t<8000), dl;
+    if(t<5000) dl=8+27*(t/5000);
+    else if(lost) dl=35+55*((t-5000)/3000); /* unsynced B drifts away */
+    else dl=35-27*((t-8000)/4000);          /* relocked, eases back to 8 */
+    var thB=thA-dl;
+    setVec('vecA',105,92,R1,thA); setVec('vecB',280,92,R1,thB);
+    setVec('ovA',520,92,R2,thA);  setVec('ovB',520,92,R2,thB);
+    var pA=pt(520,92,R2,thA), pB=pt(520,92,R2,thB);
+    var w=document.getElementById('wedge');
+    w.setAttribute('d','M520,92 L'+pA[0].toFixed(1)+','+pA[1].toFixed(1)+' A'+R2+','+R2+' 0 '+(dl>180?1:0)+' 1 '+pB[0].toFixed(1)+','+pB[1].toFixed(1)+' Z');
+    w.setAttribute('fill',lost?'#8a8e9b':'#10a37f');
+    document.getElementById('ringB').setAttribute('stroke',lost?'#d63a3a':'#d0d3da');
+    document.getElementById('ringB').setAttribute('stroke-dasharray',lost?'4 3':'none');
+    document.getElementById('lossflag').setAttribute('opacity',lost?1:0);
+    var dt=document.getElementById('dtext'), ds=document.getElementById('dsub');
+    dt.textContent=lost?'δ = ?':'δ = '+Math.round(dl)+'°';
+    dt.setAttribute('fill',lost?'#d63a3a':'#1a1a22');
+    ds.textContent=lost?'time quality flagged — angle not comparable':'angle difference = live load-flow image';
+    document.getElementById('nowdot').setAttribute('cx',(110+480*(t%2000)/2000).toFixed(1));
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
+</script>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Why not just SCADA? (AN2006-10)</h2>
+<p>SEL AN2006-10 makes the case in the context of state estimation. A SCADA system gathers breaker status, P/Q flows, and voltage magnitudes from meters and IEDs within a polling window that is <strong>typically a few seconds long</strong> — and to be fair, when the system is in steady state that time skew introduces no error at all. The traditional estimator then <em>computes</em> bus angles from P/Q measurements plus branch parameters relative to one angle reference.</p>
+<table>
+  <tr><th>Failure mode</th><th>SCADA-based estimation</th><th>Synchrophasor measurement</th></tr>
+  <tr><td>System state changing fast</td><td>Measurements inside the multi-second window are inconsistent with each other; undetected topology changes mid-poll can make the estimate fail</td><td>Every value in a data set shares one timestamp; breaker status is reported with timestamps synchronized to the measurements</td></tr>
+  <tr><td>Missing critical data</td><td>Lose the branch measurements linking two regions and one region's angles become unrecoverable relative to the reference</td><td>Angles are referenced to a <em>global</em> reference — one PMU per region is enough to tie both regions to the same reference; fewer measurements are critical</td></tr>
+  <tr><td>Bad network parameters</td><td>Computed angles inherit errors from branch impedance data, which "are not always accurate"</td><td>Angles are measured directly; no dependence on network parameters</td></tr>
+</table>
+<p class="callout" style="margin-top:2px">The honest summary: SCADA answers "what are the magnitudes and flows, roughly now." Synchrophasors answer "what was the exact voltage phasor at every instrumented bus at 10:00:00.000" — 30 times a second in a typical build (AG2009-15 uses <code>MRATE&nbsp;:=&nbsp;30</code>), with angles that are directly comparable grid-wide.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>C37.118 on the wire</h2>
+<p>IEEE C37.118, <em>Standard for Synchrophasors for Power Systems</em> (the SEL fleet documented here implements C37.118-2005), defines four frame types. Data flows only after the client commands it: a PMU <strong>will not transmit until it receives the start/enable command</strong>, stops on the stop command, and answers configuration requests only while not transmitting (SEL-451 IM).</p>
+<div class="filecards">
+  <div class="dat"><b>Data frame</b><span>The repeating payload: STAT word, phasors, frequency + df/dt, analogs, digital words. Time in SOC + FRACSEC, with time-quality bits inside FRACSEC.</span></div>
+  <div class="cfg"><b>CFG-1 / CFG-2</b><span>Machine-readable capability (CFG-1) and current configuration (CFG-2) frames — the client requests these to auto-build its database. Max config frame 65 536 bytes.</span></div>
+  <div class="hdr"><b>Header frame</b><span>Human-readable descriptive text (e.g. the SVP's <code>HEADER_118</code> string, up to 256 characters).</span></div>
+  <div class="cmd"><b>Command frame</b><span>Client &#8594; server: start request, stop request, configuration request 1/2 (per the SEL-3373's protocol diagrams).</span></div>
+</div>
+<h3>Message rates and size</h3>
+<p>The rate is fixed by the sender's settings — with C37.118 the client cannot negotiate it in the enable message (unlike SEL Fast Message synchrophasors). SEL-451 <code>MRATE</code> choices: <strong>1, 2, 4, 5, 10, 12, 15, 20, 30, 60</strong>/s on a 60 Hz system; 1, 2, 5, 10, 25, 50 on 50 Hz. The SEL-3373 PDC handles up to <strong>240</strong>/s (60 Hz) or 200/s (50 Hz). An SEL-451 data frame is 18 fixed bytes plus 4 or 8 bytes per phasor (integer vs. float), 4–8 bytes of frequency + df/dt, 4 per analog, 2 per digital word — 22 bytes minimum, 158 max. That matters on serial: the smallest practical message (one phasor + one digital word, 26–34 bytes) runs at any MRATE only at 38400/57600 bps; a fat float message may cap out at <code>MRATE := 12</code> at 19200 bps. The relay refuses to save settings the port SPEED can't carry.</p>
+<h3>Transport: TCP and three flavors of UDP</h3>
+<table>
+  <tr><th>Scheme</th><th>Commands / config</th><th>Data</th><th>Use when (SEL-3373 guidance)</th></tr>
+  <tr><td class="mono">TCP</td><td colspan="2">everything on one TCP connection</td><td>You need every frame (archiving). Avoid on high-latency (&gt;5 s) links — disconnects and drops occur</td></tr>
+  <tr><td class="mono">UDP_T</td><td>TCP socket (start/stop/config req + config responses)</td><td>UDP</td><td>TCP handshaking for commands, minimal added latency on the data stream</td></tr>
+  <tr><td class="mono">UDP_U</td><td>TCP socket (commands only)</td><td>UDP (data + config responses)</td><td>As UDP_T, config rides the data path</td></tr>
+  <tr><td class="mono">UDP_S</td><td>none inbound</td><td>UDP only (data + CFG-2), spontaneous</td><td>Ignore all incoming comms (e.g. a substation PDC's output); enables IP multicast (224.0.0.0–239.255.255.255)</td></tr>
+</table>
+<p>Loss tolerance is the design choice: TCP retransmits, UDP variants accept loss for latency — fine for visualization, wrong for an archive. Serial C37.118 also exists (SEL-451 ports 1/2/3/F with <code>PROTO := PMU</code>; SEL-3373 has 16 serial inputs).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>PMU in the relay — the SEL-451</h2>
+<p>Enable with Global <code>EPMU := Y</code> (nothing else appears until you do), pick the protocol with <code>MFRMT := C37.118</code> (the legacy alternative is <code>FM</code>, SEL Fast Message — one protocol per installation, though it can run on several ports at once). Then the settings fall into four groups:</p>
+<table>
+  <tr><th>Group</th><th>Settings</th><th>What they decide</th></tr>
+  <tr><td>Rate &amp; filtering</td><td class="mono">MRATE, PMAPP, PHCOMP</td><td>Messages/s; filter class — <code>PMAPP := N</code> (narrow band, alias-free, for post-disturbance analysis; accuracy spec applies here) vs <code>F</code> (fast response, for speed in tracking); frequency-based compensation for off-nominal accuracy (<code>Y</code> unless concentrating with PMUs that don't compensate)</td></tr>
+  <tr><td>Identity</td><td class="mono">PMSTN, PMID</td><td>Station name (16 chars) and hardware ID (1–65534) — set them to your concentrator's naming convention; they must match the PDC's input config exactly</td></tr>
+  <tr><td>Data set</td><td class="mono">PHDATAV, PHDATAI, PHCURR, NUMANA, NUMDSW</td><td>Voltages (<code>V1</code> | <code>ALL</code> | <code>NA</code>), currents (<code>I1</code> | <code>ALL</code> | <code>NA</code>) from source <code>IW/IX/BOTH/COMB</code>; plus 0–8 float analogs (<code>PMV64…PMV57</code>) and 0–2 digital words (<code>PSV64…PSV33</code>) — breaker status, LOP, whatever SELOGIC puts there. Voltages always precede currents in the packet</td></tr>
+  <tr><td>Encoding &amp; correction</td><td class="mono">PHNR, PHFMT, FNR, VCOMP, IWCOMP, IXCOMP</td><td>Integer vs float, rectangular vs polar, frequency format; per-source angle-compensation (&#8722;179.99&#176; to 180&#176;) to cancel PT/CT + wiring phase shift (0.784 ms of PT delay at 60 Hz = 16.934&#176; of angle error — Eq. 7.2)</td></tr>
+</table>
+<ul>
+  <li><strong>Serial:</strong> set the port's <code>PROTO := PMU</code> (fixed 8-N; that port then answers <em>no</em> ASCII commands — if you set your engineering port to PMU, recover via another port or the front panel). <code>FASTOP</code> per port gates whether Fast Operate controls are accepted over the synchrophasor channel.</li>
+  <li><strong>Ethernet:</strong> <code>EPMIP := Y</code> plus two independent PMU outputs, each with transport <code>PMOTSx</code> (OFF/TCP/UDP_S/UDP_T/UDP_U), client IP, and ports (defaults 4712 TCP / 4713 UDP data).</li>
+  <li><strong>Triggers:</strong> SELOGIC equations <code>PMTRIG</code> + <code>TREA1–4</code> ride in every data frame's STAT field; C37.118 defines codes 0x00–0x07 (manual, magnitude low/high, phase-angle difference, frequency, df/dt, digital), 0x08–0x0F are user-defined. The relay never sets these itself — you program them, and hold <code>PMTRIG</code> asserted long enough for the processor to read the reason bits.</li>
+</ul>
+<div class="callout warn"><strong>The time-quality requirement.</strong> Synchrophasors are valid only when the relay is in high-accuracy timekeeping (HIRIG) mode on IRIG-B — watch Relay Word bits <code>TSOK</code> (time sync OK, sufficient accuracy for synchrophasors) and <code>PMDOK</code>; even <code>MET&nbsp;PM</code> refuses to run without TSOK. When <code>MFRMT := C37.118</code>, the <code>IRIGC</code> setting is forced to C37.118 control-bit decoding. Rated accuracy: TVE &le; 1% across &#177;5 Hz, 30–150 V, 0.1–2&times;I<sub>nom</sub>, &le;10% harmonics. Clock distribution, IRIG-B wiring, and time-quality itself are covered in <em>Time Synchronization</em> in atlas.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>The PDC — SEL-3373 Station Phasor Data Concentrator</h2>
+<p>A PDC turns many per-PMU streams into one time-aligned stream. The SEL-3373 takes 8 (optionally 40) PMU inputs over serial or Ethernet, aligns frames <strong>by the timestamps inside the data</strong> (never by arrival time), and each output "combines a set of time-aligned PMU data into a concentrated data packet" — a superpacket per timestamp, sent on up to six independently configured Ethernet outputs. Average latency through the box: &lt;10–30 ms depending on load.</p>
+
+<div class="fig"><svg viewBox="0 0 700 236" xmlns="http://www.w3.org/2000/svg">
+  <!-- PMUs -->
+  <g font-size="9.5" font-weight="600" text-anchor="middle">
+    <rect x="14" y="34" width="96" height="24" rx="4" fill="#10a37f" opacity="0.14" stroke="#10a37f"/><text x="62" y="50" fill="#10a37f">PMU A &#183; ID 351</text>
+    <rect x="14" y="96" width="96" height="24" rx="4" fill="#5468c4" opacity="0.14" stroke="#5468c4"/><text x="62" y="112" fill="#5468c4">PMU B &#183; ID 421</text>
+    <rect x="14" y="158" width="96" height="24" rx="4" fill="#d7930a" opacity="0.14" stroke="#d7930a"/><text x="62" y="174" fill="#9c6d06">PMU C &#183; ID 452</text>
+  </g>
+  <!-- PDC buffer -->
+  <rect x="300" y="20" width="196" height="176" rx="6" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="398" y="35" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Station PDC &#8212; align by timestamp</text>
+  <g font-size="9" fill="#6e7180" text-anchor="middle">
+    <text x="356" y="52">t&#8320;</text><text x="398" y="52">t&#8321;</text><text x="440" y="52">t&#8322;</text>
+  </g>
+  <g font-size="9" fill="#6e7180" text-anchor="end">
+    <text x="334" y="72">A</text><text x="334" y="102">B</text><text x="334" y="132">C</text>
+  </g>
+  <!-- grid cells: static frozen state tells the story -->
+  <g stroke="#d0d3da" fill="#fff">
+    <rect x="340" y="60" width="32" height="16" rx="2"/><rect x="382" y="60" width="32" height="16" rx="2"/><rect x="424" y="60" width="32" height="16" rx="2"/>
+    <rect x="340" y="90" width="32" height="16" rx="2"/><rect x="382" y="90" width="32" height="16" rx="2"/><rect x="424" y="90" width="32" height="16" rx="2"/>
+    <rect x="340" y="120" width="32" height="16" rx="2"/><rect x="382" y="120" width="32" height="16" rx="2"/><rect x="424" y="120" width="32" height="16" rx="2"/>
+  </g>
+  <!-- t0 filled, t1 A+B filled, C zero-filled -->
+  <g>
+    <rect x="340" y="60" width="32" height="16" rx="2" fill="#10a37f"/><rect x="382" y="60" width="32" height="16" rx="2" fill="#10a37f" id="cA1" opacity="0.25"/>
+    <rect x="340" y="90" width="32" height="16" rx="2" fill="#5468c4"/><rect x="382" y="90" width="32" height="16" rx="2" fill="#5468c4" id="cB1" opacity="0.25"/>
+    <rect x="340" y="120" width="32" height="16" rx="2" fill="#d7930a"/>
+    <rect x="382" y="120" width="32" height="16" rx="2" fill="#fbeeee" stroke="#d63a3a" id="cC1"/>
+    <text x="398" y="132" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle" id="cC1t">0-fill</text>
+  </g>
+  <!-- wait bar -->
+  <text x="340" y="158" font-size="9" fill="#6e7180">waiting period</text>
+  <rect x="340" y="163" width="116" height="7" rx="3" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+  <rect x="340" y="163" width="116" height="7" rx="3" fill="#10a37f" opacity="0.55" id="waitbar"/>
+  <text x="398" y="188" font-size="9" fill="#8a8e9b" text-anchor="middle">window closes &#8594; row ships, flagged if short</text>
+  <!-- control center -->
+  <rect x="596" y="84" width="92" height="48" rx="5" fill="#1a1a22"/>
+  <text x="642" y="104" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">Control-center</text>
+  <text x="642" y="117" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">PDC / clients</text>
+  <line x1="496" y1="108" x2="596" y2="108" stroke="#6e7180" stroke-width="1.5"/>
+  <text x="546" y="100" font-size="9" fill="#6e7180" text-anchor="middle">superpackets</text>
+  <g class="animlayer">
+    <!-- t0 frames arrive skewed -->
+    <rect width="22" height="12" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.01;0.075;0.085;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,40 L345,62" keyPoints="0;0;1;1" keyTimes="0;0.01;0.08;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect width="22" height="12" rx="2" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.05;0.06;0.125;0.135;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,102 L345,92" keyPoints="0;0;1;1" keyTimes="0;0.05;0.13;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect width="22" height="12" rx="2" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.09;0.10;0.165;0.175;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,164 L345,122" keyPoints="0;0;1;1" keyTimes="0;0.09;0.17;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- t0 superpacket departs -->
+    <rect width="30" height="14" rx="3" fill="#1a1a22" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.20;0.21;0.29;0.30;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M480,108 L590,108" keyPoints="0;0;1;1" keyTimes="0;0.20;0.295;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- t1: A and B arrive, cells brighten -->
+    <rect width="22" height="12" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.33;0.34;0.40;0.41;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,40 L387,62" keyPoints="0;0;1;1" keyTimes="0;0.33;0.405;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect width="22" height="12" rx="2" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.37;0.38;0.44;0.45;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,102 L387,92" keyPoints="0;0;1;1" keyTimes="0;0.37;0.445;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- C's t1 frame crawls and arrives too late -->
+    <rect width="22" height="12" rx="2" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.40;0.41;0.72;0.76;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,164 L260,150 L387,122" keyPoints="0;0;0.55;1;1" keyTimes="0;0.40;0.60;0.74;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- wait bar drains during t1 window -->
+    <rect x="340" y="163" width="116" height="7" rx="3" fill="#fff" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.41;0.42;0.62;0.63;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="x" values="340;340;456;456" keyTimes="0;0.42;0.62;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="width" values="116;116;0;0" keyTimes="0;0.42;0.62;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- late verdict flashes -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.63;0.65;0.83;0.86;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="360" y="140" width="150" height="15" rx="3" fill="#d63a3a"/>
+      <text x="435" y="151" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">late &#8594; zero-filled + flagged</text>
+    </g>
+    <!-- t1 superpacket departs anyway, with red notch -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.67;0.77;0.78;1" dur="12s" repeatCount="indefinite"/>
+      <g>
+        <animateMotion path="M480,108 L590,108" keyPoints="0;0;1;1" keyTimes="0;0.66;0.775;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+        <rect width="30" height="14" rx="3" fill="#1a1a22"/>
+        <rect x="20" width="10" height="14" rx="3" fill="#d63a3a"/>
+      </g>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">The alignment pipeline: frames from three PMUs arrive skewed and are slotted by <em>timestamp</em>, not arrival order. When the waiting period expires, the row ships regardless — PMU C's late data is zero-filled, its STAT flags set, and the late frame discarded on arrival.<span class="print-note"> &#9654; Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Waiting Period</strong> — set per output (spec range 0–120 s; a Global <em>Maximum Waiting Period</em> caps them all and bounds how long calculations wait). Longer window = more complete data, more latency. The Real-Time status page reports per-input network latency max/avg and a max&#8722;min "Differences" row <em>expressly so you can set the waiting period from measured skew</em>. Data arriving past the window: tags zero-filled and counted missing.</li>
+  <li><strong>Bad clocks get voted out.</strong> A majority vote across input timestamps discards frames stamped in the past or future beyond the waiting period (a PMU with a wrong clock); the victim's slots are zero-filled with STAT bits 15, 14, 13, 5, 4 set. Out-of-order packets inside the window are re-sorted — timestamps, not arrival, define order.</li>
+  <li><strong>Rates must nest.</strong> An output's Data Rate must be a common divisor of its inputs' rates (60&nbsp;+&nbsp;20 msg/s in &#8594; out at 20, 10, 5, 2, or 1). Output phasors are IEEE 754 floats, polar or rectangular per output.</li>
+  <li><strong>Forwarding &amp; cascading:</strong> an output is a set of tags cherry-picked across PMUs and PDC calculations; export it as a <code>.pdcx</code> file and import it as a PDC input on the downstream (control-center) PDC — sub-PMUs and tags auto-populate (IP addresses are stripped from the export deliberately). Redundant inputs (primary/backup PMU streams, fail-over 1 ms–1 s, best stream chosen by the C37.118 quality bits) and redundant/multicast outputs are built in.</li>
+  <li><strong>Archives:</strong> continuous or triggered (pre/post-trigger up to 90 min, trigger = any PMU trigger bit), each with its own waiting period; retrieval in COMTRADE or CSV. Onboard calculations (sequence components, phasor math, dx/dt, PMU latency) become tags like any other.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Doing something with the phasors — SEL-3378 SVP</h2>
+<p>The Synchrophasor Vector Processor is where streams become decisions. Its Time Alignment Client Server (TCS) time-correlates C37.118 frames from up to <strong>20 PMCUs</strong> (serial or Ethernet) into a single aligned frame — a PDC in its own right, serving one internal client plus six external C37.118 clients — and hands the aligned data to <strong>IEC 61131-3 user logic</strong> running on the real-time system. Documented function blocks:</p>
+<table>
+  <tr><th>Block</th><th>What it does</th></tr>
+  <tr><td class="mono">PADM</td><td>Phase Angle Difference Monitor — angle difference between two chosen phasor angles (&#177;180&#176;), two thresholds in degrees with pickup timers, timestamped alarms. The manual's SIPS example trips excess generation when the bus-angle difference between areas crosses a threshold</td></tr>
+  <tr><td class="mono">MA</td><td>Modal Analysis — up to 6 instances; feed it frequency, magnitude, angle, power, or an angle difference; per mode it returns frequency, damping constant, damping ratio, amplitude, and phase — real-time oscillation detection driving alarms and remedial action</td></tr>
+  <tr><td class="mono">PWRC</td><td>Real/reactive power (kW/kVAR) from selected V and I phasors, timestamped</td></tr>
+  <tr><td class="mono">SSTP</td><td>Substation State and Topology Processor — flags measurement errors, computes unbalance and symmetrical components, refines V/I measurements</td></tr>
+  <tr><td class="mono">FO</td><td>Fast Operate commands back out over the same C37.118 channels — set/clear/pulse remote bits, open/close breakers on the source relays</td></tr>
+  <tr><td class="mono">Local PMCU</td><td>A user-configurable C37.118 server publishing your computed results (e.g. MA modes) to one external client such as SYNCHROWAVE Console</td></tr>
+</table>
+<p>The loop that makes it a control platform, not a historian: measure everywhere &#8594; align &#8594; compute (angle difference, modes, power) &#8594; act via Fast Operate — all within the real-time stream.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Building a network (AG2009-15)</h2>
+<div class="flow">
+  <div class="stage"><b>Clocks first</b><span>SEL-2401 GPS clock per site: antenna &#8594; surge protector &#8594; clock; IRIG-B fanned out on coax with BNC tees, 50 &#937; terminator on the last drop (&le;4 devices/clock). SEL-421: use the 1k PPS BNC input</span></div>
+  <div class="arr">&#8594;</div>
+  <div class="stage"><b>PMUs</b><span>SEL-351S serial: EPMU := Y, MRATE := 30, PMID := 351, PROTO := PMU, 57600 bps, RTSCTS := Y. SEL-421 Ethernet: EPMU, EPMIP := Y, PMOTS1 := TCP, client IP = SVP, port 421</span></div>
+  <div class="arr">&#8594;</div>
+  <div class="stage"><b>Concentrate</b><span>SVP TCS program: PMCU_INPUT[n] per PMU (IDCODE 351 serial / 421 TCP over the WAN), TCS_CONFIG with PDC_IDCODE := 3378, NFREQ := 60, MRATE := 30, MISSING_MESSAGE_THRESHOLD := 10</span></div>
+  <div class="arr">&#8594;</div>
+  <div class="stage"><b>Consume</b><span>PMCU_OUTPUT streams the concentrated data UDP_T to SYNCHROWAVE Console (data port 3378, command port 3379) — phasor, frequency, analog, digital, and synch-check displays</span></div>
+</div>
+<p>Same shape at utility scale: relays as PMUs &#8594; a station PDC (SEL-3373/SVP) per substation &#8594; concentrated streams over the WAN &#8594; a control-center PDC / EMS / visualization (the SEL-3378 IM's own application figures). Cascading is expected — the PDC "sub PMU" input type exists exactly to ingest already-concentrated streams. Note that the AG's working example runs one nominal frequency (60&nbsp;Hz) and one message rate (30/s) end to end.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Field gotchas</h2>
+<ul>
+<li><strong>Clock loss doesn't stop data — it poisons it quietly.</strong> The stream keeps flowing with degraded time-quality bits (FRACSEC) and STAT sync flags; the PDC's backup-input selection and status pages key off exactly those bits. On the relay, watch <code>TSOK</code>; on the PDC, the per-input Time Quality and Unlock Time columns.</li>
+<li><strong>"Waiting for Silence" on a PDC input</strong> = station name / PMU ID mismatch — case matters, embedded spaces matter, trailing spaces are not supported. Toggling "Configuring &#8596; Not Connected" = ID or transport-scheme mismatch; check the UDP data/command port pairing.</li>
+<li><strong>Rate mismatches:</strong> the PMU's message rate must equal the PDC input's configured receive rate; output and archive rates must divide the input rates (mixed-rate PMUs can't share a triggered archive at all).</li>
+<li><strong>Output shows Missing Data:</strong> either tag names don't match what the PMU actually sends (use Query Tags), or data is arriving later than the output waiting period — zero-filled and counted missing. Measure the latency Differences row, then set the window.</li>
+<li><strong>Budget the bandwidth per stream:</strong> serial chokes fast (see the &#167;3 size math — the relay enforces it at settings save); on Ethernet the 65 536-byte CFG frame limit caps tags per PDC output. More phasors &#215; higher MRATE &#215; float encoding all multiply.</li>
+<li><strong>A PMU serial port goes deaf on purpose:</strong> <code>PROTO := PMU</code> disables ASCII/engineering access on that port — plan which port you'll use to get back in.</li>
+<li><strong>No data at all from a PMU?</strong> C37.118 transmission starts only on the client's start command — a PMU that was never commanded (or whose client can't reach the command port) sits silent by design.</li>
+</ul>
+</section>
+
+<section class="keep">
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/time-sync.html">Time Synchronization</a>
+  <a href="atlas:data-protocols/protocol-chooser.html">Choosing a Protocol</a>
+  <a href="atlas:relays-devices/metering.html">Revenue &amp; Panel Metering</a>
+  <a href="atlas:reference/sel-software-map.md">SEL Software Map</a>
+  <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a>
+</div>
+<p class="footnote"><strong>Sources:</strong> SEL AN2006-10, <em>Advantages of Synchrophasor Measurements Over SCADA Measurements for Power System State Estimation</em> (AN2006-10_20070115) &#183; SEL-451 Instruction Manual, Reference Manual Section 7: Synchrophasors (451_IM_20190325) &#183; SEL-3373 Station Phasor Data Concentrator Instruction Manual (3373_IM_20191101) &#183; SEL-3378 Synchrophasor Vector Processor Instruction Manual (3378_IM_20161214) &#183; SEL AG2009-15, <em>Create a Synchrophasor Network With the SEL-3378</em> (AG2009-15_20090806). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

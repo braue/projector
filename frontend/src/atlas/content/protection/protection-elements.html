@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Protection Elements Primer</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="50,51,67,27,59,81,ANSI,elements,pickup,curves,primer">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Protection Elements Primer (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Protection Elements Primer</h1>
+  <p>What the ANSI element numbers actually do inside a feeder relay — 50 vs 51, the curve families, directionality, voltage/frequency elements, and reclosing</p>
+  <div class="chips"><span>50/51</span><span>U1–U5</span><span>C1–C5</span><span>time dial</span><span>67</span><span>79</span><span>27/59/81</span><span>TCC</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Protection elements</h3>
+<ul style="margin-bottom:2px">
+<li>An element is a <strong>comparison plus a timer</strong>: a measured quantity against a pickup setting, then a delay (fixed or curve-shaped) before it asserts a Relay Word bit. Everything else is plumbing.</li>
+<li><strong>50 = level + fixed delay. 51 = level + inverse-time curve</strong> — more current, faster trip. The <strong>time dial scales the whole curve</strong> up or down; it does not change its shape.</li>
+<li>The letter after the number says <em>which current</em>: <strong>P</strong> phase, <strong>N</strong> neutral channel, <strong>G</strong> residual ground (3I0), <strong>Q</strong> negative sequence (unbalance).</li>
+<li>An element asserting a bit trips nothing by itself — the bit has to appear in the <strong>trip equation</strong> (and closing in the close equation). Torque-control settings gate whether an element runs at all.</li>
+<li>Coordination is stacking curves so the device nearest the fault always wins, with margin.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>How the relay measures: CTs/PTs to phasors</h2>
+<p>Everything starts as secondary current and voltage from CTs and PTs (1 A or 5 A nominal current inputs on the SEL-751/751A). The relay low-pass filters the analog signal, samples it, and runs a <strong>one-cycle cosine digital filter</strong> — the combined analog + digital filtering rejects dc offset and all harmonics above the fundamental, leaving clean fundamental phasors. Protection and control logic then process <strong>4 times per power-system cycle</strong> (the 751 processes math variables and analog quantities every 25 ms); event reports capture the raw waveform at 16 samples/cycle (751A) or 32 samples/cycle (751), plus 4 samples/cycle filtered.</p>
+<div class="flow">
+  <div class="stage"><b>CT / PT secondary</b><span>scaled replicas of primary current and voltage</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Analog low-pass</b><span>anti-alias filtering before sampling</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Sample</b><span>16 (751A) / 32 (751) samples/cycle raw waveform</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>One-cycle cosine filter</b><span>rejects dc offset and harmonics → fundamental phasor</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Elements</b><span>compared to pickups 4× per cycle → Relay Word bits</span></div>
+</div>
+<p class="figcap">The SEL-751/751A measurement chain. Frequency tracking works from 15–70 Hz; frequency itself is measured from positive-sequence voltage (needs &gt;10 V, and ≥3 cycles to measure), falling back to positive-sequence current (≥0.1× nominal CT rating), else pinned at FNOM.</p>
+<div class="callout warn"><strong>CT saturation escape hatch:</strong> the cosine filter's magnitude estimate collapses when a CT saturates hard. For phase 50 elements set above 8× the relay input rating (40 A in a 5 A relay), the SEL-751 and 751A also run a <strong>bipolar peak detector</strong> and switch to it when a harmonic-distortion index says the waveform is badly distorted — so high-set instantaneous elements still trip fast on a saturated CT.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The ANSI numbers you actually meet</h2>
+<p>IEEE device numbers are shorthand for protection functions. A microprocessor relay is a whole panel of them in one box — each number is now just a group of settings and Relay Word bits. The ones that matter on distribution feeders:</p>
+<table>
+  <tr><th>No.</th><th>Function</th><th>In a feeder relay (SEL naming)</th></tr>
+  <tr><td class="mono">50</td><td>Instantaneous / definite-time overcurrent</td><td>Four levels each: 50P (phase), 50N (neutral), 50G (residual), 50Q (neg-seq); pickup + delay (751A: 0.00–5.00 s; 751: 0.00–400.00 s)</td></tr>
+  <tr><td class="mono">51</td><td>Inverse-time overcurrent</td><td>51A/B/C per phase, 51P max-phase, 51N, 51G, 51Q — curve, time dial, reset choice</td></tr>
+  <tr><td class="mono">67</td><td>Directional overcurrent</td><td>50/51 supervised by direction logic (SEL-351, and SEL-751 with voltage inputs: 67 levels, DIR1–DIR4 routing)</td></tr>
+  <tr><td class="mono">27 / 59</td><td>Under- / overvoltage</td><td>Two levels each on the 751A; four levels each (plus phase-phase 27PP/59PP and sync-channel 27S/59S) on the 751; 59G zero-seq and 59Q neg-seq variants</td></tr>
+  <tr><td class="mono">81</td><td>Frequency</td><td>Six over/under levels 81D1–81D6 plus rate-of-change 81R (751 adds fast-ROCOF 81RF and vector shift 78VS for islanding) — load shedding</td></tr>
+  <tr><td class="mono">79</td><td>Automatic reclosing</td><td>Up to 4 shots, open-interval timers, Reset / Cycle / Lockout states</td></tr>
+  <tr><td class="mono">25</td><td>Synchronism check</td><td>VP vs VS voltage pair: healthy-voltage window, slip and angle limits, supervises close</td></tr>
+  <tr><td class="mono">32</td><td>Directional power</td><td>±watts / ±vars elements; needs accurate PT voltage (LOP supervision)</td></tr>
+  <tr><td class="mono">46</td><td>Current unbalance (neg-seq)</td><td>Done by the 50Q/51Q negative-sequence elements on SEL feeder relays</td></tr>
+  <tr><td class="mono">49</td><td>Thermal</td><td>RTD-based trip/warn per sensor on the SEL-751/751A (internal card or SEL-2600); the 751 adds an IEC thermal model (49IEC)</td></tr>
+  <tr><td class="mono">21</td><td>Distance (impedance)</td><td>Transmission-line relays — see §9</td></tr>
+  <tr><td class="mono">87</td><td>Differential</td><td>Transformer / bus / line relays — see §9</td></tr>
+  <tr><td class="mono">86</td><td>Lockout</td><td>Hand-reset lockout function/relay; blocks closing after serious trips (reclosers also “drive to lockout”)</td></tr>
+</table>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>50 vs 51: the two kinds of overcurrent</h2>
+<div class="twocol">
+<div class="card pair">
+<h3>50 — instantaneous / definite-time</h3>
+<p style="font-size:9pt">“Is current above X? Then trip after fixed delay D.” Both the SEL-751 and 751A give <strong>four levels</strong> per current type — e.g. <code>50P1P</code>–<code>50P4P</code>. Pickup and delay ranges (5 A nom): 751A OFF / 0.50–100.00 A, <code>50PnD</code> 0.00–5.00 s; 751 OFF / 0.25–100.00 A, 0.00–400.00 s. With delay 0 it operates in &lt;1.5 cycles. Use: high-set close-in fault clearing, breaker failure, blocking schemes.</p>
+</div>
+<div class="card latch">
+<h3>51 — inverse-time overcurrent</h3>
+<p style="font-size:9pt">“The further above pickup, the faster the trip.” Pickup <code>51_P</code> (5 A nom): 751A OFF / 0.50–16.00 A; 751 OFF / 0.25–24.00 A. Curve <code>51_C</code> (U1–U5, C1–C5; 751 adds IEEE E1–E3), time dial <code>51_TD</code>, electromechanical-reset choice <code>51_RS</code>, constant time adder <code>51_CT</code> (raises the whole curve), minimum response time <code>51_MR</code> (floor). Use: graded backup for everything downstream.</p>
+</div>
+</div>
+<p>Every element has a <strong>torque control</strong> SELOGIC equation — the name survives from electromechanical relays where control current literally produced disk torque. Per the SEL-751 and 751A manuals (same example in both): when <code>50P1TC := IN401</code>, the 50P1 element is operational only while IN401 is asserted. Directional supervision (§6) is exactly this mechanism.</p>
+<p>A 51 element publishes three bits: <strong>pickup</strong> (<code>51AP</code> — current above pickup, curve timing), <strong>trip</strong> (<code>51AT</code> — curve timed out), and <strong>reset</strong> (<code>51AR</code>). <code>ORED51T</code> asserts if any 51 trip bit does.</p>
+
+<div class="fig"><svg viewBox="0 0 700 252" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="14" font-size="9" font-weight="600" fill="#454956">The 50/51 race: evolving fault on one feeder</text>
+  <!-- row labels -->
+  <text x="104" y="46" font-size="8.5" fill="#454956" text-anchor="end" font-weight="600">|I|</text>
+  <text x="104" y="94" font-size="8.5" fill="#5468c4" text-anchor="end" font-weight="600">51AP</text>
+  <text x="104" y="124" font-size="8.5" fill="#5468c4" text-anchor="end" font-weight="600">51 timer</text>
+  <text x="104" y="156" font-size="8.5" fill="#d63a3a" text-anchor="end" font-weight="600">50P1</text>
+  <text x="104" y="186" font-size="8.5" fill="#d63a3a" text-anchor="end" font-weight="600">TRIP</text>
+  <text x="104" y="216" font-size="8.5" fill="#454956" text-anchor="end" font-weight="600">52A</text>
+  <!-- current magnitude trace -->
+  <line x1="110" y1="46" x2="660" y2="46" stroke="#e5e7eb" stroke-width="0.75"/>
+  <line x1="110" y1="32" x2="660" y2="32" stroke="#d63a3a" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.55"/>
+  <text x="658" y="29" font-size="7" fill="#d63a3a" text-anchor="end">50P1 pickup (high-set)</text>
+  <line x1="110" y1="47" x2="660" y2="47" stroke="#5468c4" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.55"/>
+  <text x="658" y="57" font-size="7" fill="#5468c4" text-anchor="end">51 pickup</text>
+  <path d="M110,52 H200 V40 H340 V26 H430 V60 H660" fill="none" stroke="#1a1a22" stroke-width="1.75"/>
+  <text x="152" y="66" font-size="7" fill="#8a8e9b" text-anchor="middle">load</text>
+  <text x="268" y="66" font-size="7" fill="#8a8e9b" text-anchor="middle">fault ~3× pickup</text>
+  <text x="384" y="20" font-size="7" fill="#8a8e9b" text-anchor="middle">evolves to 12×</text>
+  <text x="545" y="70" font-size="7" fill="#8a8e9b" text-anchor="middle">breaker open — current gone</text>
+  <!-- 51AP bit -->
+  <path d="M110,98 H200 V86 H436 V98 H660" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <!-- 51 timer ramp -->
+  <line x1="110" y1="112" x2="660" y2="112" stroke="#5468c4" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.5"/>
+  <text x="658" y="109" font-size="7" fill="#5468c4" text-anchor="end">51AT would assert here</text>
+  <path d="M110,131 H200 L372,118 V131 H660" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="290" y="141" font-size="7" fill="#8a8e9b" text-anchor="middle">curve timing toward trip</text>
+  <!-- 50P1 bit -->
+  <path d="M110,160 H344 V148 H436 V160 H660" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+  <!-- TRIP -->
+  <path d="M110,190 H352 V178 H446 V190 H660" fill="none" stroke="#d63a3a" stroke-width="1.75"/>
+  <!-- 52A -->
+  <path d="M110,214 H430 V226 H660" fill="none" stroke="#454956" stroke-width="1.5"/>
+  <text x="270" y="211" font-size="7" fill="#8a8e9b" text-anchor="middle">closed</text>
+  <text x="545" y="237" font-size="7" fill="#8a8e9b" text-anchor="middle">open</text>
+  <text x="352" y="247" font-size="8" fill="#a9adb8" text-anchor="middle">fault → 51 picks up and times · fault worsens past the 50P1 level → 50 asserts in &lt;1.5 cycles and wins the race → TRIP → breaker opens → elements drop out, 51 resets</text>
+  <g class="animlayer">
+    <line x1="110" y1="24" x2="110" y2="230" stroke="#d7930a" stroke-width="1.25" opacity="0.85">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 0;550 0;550 0" keyTimes="0;0.02;0.90;1" dur="11s" repeatCount="indefinite"/>
+    </line>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.16;0.18;0.94;1" dur="11s" repeatCount="indefinite"/>
+      <circle cx="200" cy="40" r="4" fill="none" stroke="#d7930a" stroke-width="1.75"/>
+      <text x="200" y="82" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle">fault — 51AP asserts</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.40;0.42;0.94;1" dur="11s" repeatCount="indefinite"/>
+      <circle cx="344" cy="148" r="4" fill="none" stroke="#d63a3a" stroke-width="1.75"/>
+      <text x="344" y="172" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">50P1 picks up</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.42;0.45;0.94;1" dur="11s" repeatCount="indefinite"/>
+      <text x="400" y="184" font-size="7.5" font-weight="600" fill="#d63a3a">TRIP asserts</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.54;0.57;0.94;1" dur="11s" repeatCount="indefinite"/>
+      <circle cx="430" cy="220" r="4" fill="none" stroke="#454956" stroke-width="1.75"/>
+      <text x="452" y="210" font-size="7.5" font-weight="600" fill="#454956">breaker opens</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">Logic-analyzer view of one fault. The 51 curve timer never finishes — the evolving fault crossed the 50P1 level and the instantaneous element tripped first. Had the fault stayed at 3×, the 51 would have timed out on its curve instead.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>The inverse-time curves: U1–U5 and C1–C5</h2>
+<p>The curve setting picks a shape; the <strong>time dial (TD)</strong> multiplies it. Operating time is a function of <em>M</em>, the current in multiples of pickup. U1–U3 conform to IEEE C37.112-1996; the equations below are identical in the SEL-751 and 751A manuals. TD ranges: <strong>0.50–15.00 for U.S. curves</strong> (both models); IEC: <strong>0.05–1.00 on the 751A, 0.01–1.50 on the 751</strong>. Curve timing accuracy (both): ±1.5 cycles plus ±4% between 2 and 30 multiples of pickup. The 751 additionally offers an <strong>IEEE family E1–E3</strong> (IEC 60255-151 Types D/E/F — e.g. E1 moderately inverse: TD·(0.1140 + 0.0515/(M<sup>0.02</sup>−1))) and a <code>51SAT</code> setting that flattens all curves above M = 30.</p>
+<table>
+  <tr><th>Curve</th><th>Character</th><th>Operating time t<sub>p</sub> (s)</th><th></th><th>Curve</th><th>Character</th><th>Operating time t<sub>p</sub> (s)</th></tr>
+  <tr><td class="mono">U1</td><td>Moderately inverse</td><td class="mono">TD·(0.0226 + 0.0104/(M<sup>0.02</sup>−1))</td><td></td><td class="mono">C1</td><td>Standard inverse</td><td class="mono">TD·0.14/(M<sup>0.02</sup>−1)</td></tr>
+  <tr><td class="mono">U2</td><td>Inverse</td><td class="mono">TD·(0.180 + 5.95/(M²−1))</td><td></td><td class="mono">C2</td><td>Very inverse</td><td class="mono">TD·13.5/(M−1)</td></tr>
+  <tr><td class="mono">U3</td><td>Very inverse</td><td class="mono">TD·(0.0963 + 3.88/(M²−1))</td><td></td><td class="mono">C3</td><td>Extremely inverse</td><td class="mono">TD·80/(M²−1)</td></tr>
+  <tr><td class="mono">U4</td><td>Extremely inverse</td><td class="mono">TD·(0.0352 + 5.67/(M²−1))</td><td></td><td class="mono">C4</td><td>Long-time inverse</td><td class="mono">TD·120/(M−1)</td></tr>
+  <tr><td class="mono">U5</td><td>Short-time inverse</td><td class="mono">TD·(0.00262 + 0.00342/(M<sup>0.02</sup>−1))</td><td></td><td class="mono">C5</td><td>Short-time inverse</td><td class="mono">TD·0.05/(M<sup>0.04</sup>−1)</td></tr>
+</table>
+<ul>
+  <li><strong>Steeper = “more inverse.”</strong> Extremely inverse (U4/C3) collapses fast at high current — the natural mate for fuses and reclosers, whose melting/clearing curves are also very steep. Moderately inverse (U1/C1) is flatter — timing changes less with fault-current variation, useful where source impedance swings.</li>
+  <li><strong>Electromechanical reset emulation</strong> (<code>51_RS := Y</code>): instead of resetting in 1 cycle when current drops below pickup, the element “spins back” like an induction disk on the curve's reset-time equation (e.g. U3: TD·3.88/(1−M²) for M&lt;1). Choose it when coordinating with actual electromechanical relays or reclosers upstream, so both devices ratchet toward trip the same way across repeated fault attempts.</li>
+  <li><strong>Constant time adder</strong> <code>51_CT</code> raises the whole curve by a fixed time; <strong>minimum response</strong> <code>51_MR</code> stops it from ever operating faster than a floor.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+  <defs><clipPath id="tccplot"><rect x="70" y="20" width="580" height="240"/></clipPath></defs>
+  <!-- grid -->
+  <g stroke="#e5e7eb" stroke-width="0.75">
+    <line x1="188" y1="20" x2="188" y2="260"/><line x1="257" y1="20" x2="257" y2="260"/>
+    <line x1="344" y1="20" x2="344" y2="260"/><line x1="463" y1="20" x2="463" y2="260"/>
+    <line x1="581" y1="20" x2="581" y2="260"/>
+    <line x1="70" y1="44" x2="650" y2="44"/><line x1="70" y1="86" x2="650" y2="86"/>
+    <line x1="70" y1="124" x2="650" y2="124"/><line x1="70" y1="166" x2="650" y2="166"/>
+    <line x1="70" y1="204" x2="650" y2="204"/><line x1="70" y1="228" x2="650" y2="228"/>
+  </g>
+  <rect x="70" y="20" width="580" height="240" fill="none" stroke="#a9adb8" stroke-width="1"/>
+  <!-- axis labels -->
+  <text x="66" y="47" font-size="8" fill="#6e7180" text-anchor="end">10 s</text>
+  <text x="66" y="89" font-size="8" fill="#6e7180" text-anchor="end">3 s</text>
+  <text x="66" y="127" font-size="8" fill="#6e7180" text-anchor="end">1 s</text>
+  <text x="66" y="169" font-size="8" fill="#6e7180" text-anchor="end">0.3 s</text>
+  <text x="66" y="207" font-size="8" fill="#6e7180" text-anchor="end">0.1 s</text>
+  <text x="66" y="231" font-size="8" fill="#6e7180" text-anchor="end">0.05 s</text>
+  <text x="188" y="272" font-size="8" fill="#6e7180" text-anchor="middle">2</text>
+  <text x="257" y="272" font-size="8" fill="#6e7180" text-anchor="middle">3</text>
+  <text x="344" y="272" font-size="8" fill="#6e7180" text-anchor="middle">5</text>
+  <text x="463" y="272" font-size="8" fill="#6e7180" text-anchor="middle">10</text>
+  <text x="581" y="272" font-size="8" fill="#6e7180" text-anchor="middle">20</text>
+  <text x="360" y="288" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">current — multiples of pickup (M), log scale</text>
+  <text x="24" y="140" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle" transform="rotate(-90 24 140)">trip time, log scale</text>
+  <!-- U3 TD=1 curve (dashed) -->
+  <path d="M139,84 C160,96 172,104 188,113 C215,126 234,135 257,143 C290,154 320,164 344,171 C375,178 402,184 425,188 C438,190 452,192 463,193 C500,197 545,200 581,202 C605,203 630,204 650,204" fill="none" stroke="#5468c4" stroke-width="1.25" stroke-dasharray="5 3" clip-path="url(#tccplot)"/>
+  <text x="238" y="122" font-size="8" fill="#5468c4">U3, TD = 1</text>
+  <!-- U3 TD=3 curve -->
+  <path id="tcc3" d="M139,45 C160,58 172,66 188,74 C215,88 234,97 257,105 C290,116 320,126 344,133 C375,140 402,146 425,150 C438,152 452,154 463,155 C500,159 545,162 581,164 C605,165 630,165 650,166" fill="none" stroke="#10a37f" stroke-width="2" clip-path="url(#tccplot)"/>
+  <text x="204" y="66" font-size="8.5" font-weight="600" fill="#10a37f">U3 very inverse, TD = 3</text>
+  <path d="M254,124 L250,136 M254,124 L262,133" fill="none" stroke="#5468c4" stroke-width="0.75"/>
+  <text x="260" y="146" font-size="7.5" fill="#5468c4">time dial slides the curve — same shape</text>
+  <!-- 50P1 instantaneous -->
+  <line x1="425" y1="150" x2="425" y2="252" stroke="#d63a3a" stroke-width="1" stroke-dasharray="4 3"/>
+  <path d="M425,252 H650" fill="none" stroke="#d63a3a" stroke-width="2"/>
+  <text x="536" y="246" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">50P1 instantaneous — &lt;1.5 cycles above 8× pickup</text>
+  <g class="animlayer">
+    <g>
+      <animateMotion keyPoints="0;0;1;1" keyTimes="0;0.03;0.88;1" calcMode="linear" dur="12s" repeatCount="indefinite">
+        <mpath href="#tcc3"/>
+      </animateMotion>
+      <line x1="0" y1="-300" x2="0" y2="300" stroke="#d7930a" stroke-width="1" opacity="0.7" clip-path="url(#tccplot)"/>
+      <circle r="4.5" fill="#d7930a"/>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.10;0.12;0.24;0.27;1" dur="12s" repeatCount="indefinite"/>
+      <text x="196" y="98" font-size="8" font-weight="600" fill="#9c6d06">M = 2 → 4.2 s</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.35;0.37;0.48;0.51;1" dur="12s" repeatCount="indefinite"/>
+      <text x="352" y="128" font-size="8" font-weight="600" fill="#9c6d06">M = 5 → 0.77 s</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.56;0.58;0.83;0.86;1" dur="12s" repeatCount="indefinite"/>
+      <text x="470" y="140" font-size="8" font-weight="600" fill="#d63a3a">past 8× — the 50 trips first anyway</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">A time-current characteristic (TCC) on log-log axes: U3 at TD = 3 (factory default for the phase 51s on both the SEL-751 and 751A), computed from the table above. The cursor rides the curve — higher fault current, faster trip. TD = 1 is the same curve shifted down by 3×. A high-set 50 element cuts across the bottom for close-in faults.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Phase, ground, neutral, negative-sequence</h2>
+<p>The same 50/51 machinery runs on four different measured quantities, because faults announce themselves differently:</p>
+<table>
+  <tr><th>Variant</th><th>Operates on</th><th>Catches</th><th>SEL-751/751A elements</th></tr>
+  <tr><td class="mono">P — phase</td><td>|IA|, |IB|, |IC| (50P uses max phase)</td><td>Multi-phase faults; must be set above load</td><td>50P1–4 · 51A/51B/51C · 51P1/51P2 (max-phase)</td></tr>
+  <tr><td class="mono">G — residual</td><td>3I0 computed from the phase CTs, or a core-balance/residual CT channel</td><td>Ground faults; can be set well below load since balanced load produces ~zero residual</td><td>50G1–4 · 51G1/51G2</td></tr>
+  <tr><td class="mono">N — neutral</td><td>The dedicated neutral current input channel (IN), incl. sensitive mA-range options</td><td>Ground faults via a separate measured neutral — down to milliamp pickups on sensitive models</td><td>50N1–4 · 51N1/51N2</td></tr>
+  <tr><td class="mono">Q — negative-seq</td><td>Computed I2 (unbalance component)</td><td>Phase-phase faults and unbalance, blind to balanced load — the modern “46”</td><td>50Q1–4 · 51QT</td></tr>
+</table>
+<p>Ground and negative-sequence elements are the sensitivity win of numerical relays: they see fault symptoms that balanced load current cannot produce, so their pickups go far below the phase elements'.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Directional supervision — 67 in plain terms</h2>
+<p>On a radial feeder, current above pickup means a downstream fault. Add a second source, a loop, or DG, and current magnitude alone can't tell <em>which side</em> the fault is on — a plain 51 would trip for faults behind it. A <strong>67 element is just a 50/51 whose torque control comes from direction logic</strong>: the relay compares the phase relationship of fault current against a polarizing voltage and declares <em>forward</em> or <em>reverse</em>.</p>
+<p>How the SEL-351 (the classic directional feeder relay) does it — and the SEL-751 with voltage inputs implements the same scheme, settings and thresholds included:</p>
+<ul>
+  <li><strong>Phase and negative-sequence direction</strong> come from a negative-sequence voltage-polarized element: it computes a negative-sequence impedance and compares it against forward/reverse thresholds derived from the <code>Z2F</code>/<code>Z2R</code> settings (e.g. forward threshold 0.75·Z2F − 0.25·(V2/I2) when Z2F ≤ 0). The results assert Relay Word bits <code>32QF</code>/<code>32PF</code> (forward) or <code>32QR</code>/<code>32PR</code> (reverse).</li>
+  <li><strong>Ground direction</strong> is chosen by the <code>ORDER</code> setting from up to six polarizing methods — negative-sequence voltage, zero-sequence voltage, current polarization from channel IN, plus low-impedance, Petersen-coil, and ungrounded system variants — with <em>Best Choice Ground Directional</em> logic picking the best available one.</li>
+  <li><strong>Routing:</strong> settings <code>DIR1</code>–<code>DIR4</code> assign forward or reverse to each overcurrent level; all the 51 time-overcurrent elements ride on DIR1. A directional 50 level gets a name like <code>67P1</code> with its own delay <code>67P1D</code>.</li>
+  <li><strong>Loss of potential:</strong> lose the PTs and voltage-based direction is meaningless. With <code>ELOP := Y</code> (351) or <code>EFWDLOP := Y</code> (751), the forward logic points assert during LOP — forward-set elements go nondirectional and keep protecting rather than going blind.</li>
+</ul>
+<div class="callout"><strong>Field intuition:</strong> a 67 that won't operate during testing is usually a direction problem, not a pickup problem — check polarizing voltage wiring, phase rotation, and whether LOP is asserted, before touching the overcurrent settings.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Voltage and frequency elements — 27, 59, 81</h2>
+<h3>27 / 59 voltage</h3>
+<ul>
+  <li>The SEL-751A gives <strong>two levels each</strong> of under- and overvoltage, set per-unit: <code>27P1P/27P2P</code> (OFF, 0.02–1.00 ×Vnm) and <code>59P1P/59P2P</code> (OFF, 0.02–1.20 ×Vnm). Vnm is per-unit nominal: VNOM for delta PTs, VNOM/1.732 for wye. The SEL-751 gives <strong>four levels each</strong>, set in volts secondary (OFF, 2.00–300.00 V; wye phase-phase to 520 V), plus phase-phase (27PP/59PP), sync-channel (27S/59S), and inverse-time (27I/59I) variants. Delay on both: 0.00–120.0 s.</li>
+  <li>Sequence variants: <code>59G</code> (zero-sequence/residual overvoltage — a ground-fault flag on high-impedance-grounded systems) and <code>59Q</code> (negative-sequence overvoltage), two levels each.</li>
+  <li><strong>Supervise 27 with LOP.</strong> Blown PT fuses look exactly like undervoltage. The loss-of-potential logic latches <code>LOP</code> when positive-sequence voltage drops with no corresponding change in sequence currents for 1 s (the 751A manual puts the drop threshold at &gt;25%, the 751 manual at &gt;20%; the 751 also keeps the LOP latch state through power loss). The factory default on both trips undervoltage as <code>(27P1T OR 27P2T) AND NOT LOP</code>.</li>
+</ul>
+<h3>81 frequency — load shedding</h3>
+<ul>
+  <li><strong>Six elements</strong> <code>81D1</code>–<code>81D6</code>, each OFF or 20.00–70.00 Hz (751A) / 15.00–70.00 Hz (751) with a 0.00–400.00 s delay; the 751 adds per-element torque control and optional voltage/current supervision (<code>81VSUP</code>/<code>81ISUP</code>). Set a level <em>below</em> FNOM and it's an underfrequency element; above, overfrequency. Stagger several levels/delays and you have an underfrequency load-shedding scheme in one relay.</li>
+  <li>The relay needs <strong>3 cycles to measure frequency</strong>; set delays no shorter than that (the 751A manual recommends ≥5 cycles, the 751 manual ≥3 cycles at the lowest pickup). Frequency comes from positive-sequence voltage (&gt;10 V), else positive-sequence current (≥0.1× nominal CT rating), else it's pinned at FNOM.</li>
+  <li><strong>81R rate-of-change</strong> (four elements, 0.10–15.00 Hz/s, trend INC/DEC/ABS, with voltage/current supervision) sheds load on the <em>slope</em> of decline — faster remedial action than waiting for an absolute threshold. Hysteresis (751A spec): picks up at 100% of setting, drops out at 95%. The 751's measuring window self-adjusts with the pickup: 3 cycles at ≥2.33 Hz/s, stretching to 30 cycles below 0.25 Hz/s.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Coordination and reclosing — 51 stacking and 79</h2>
+<h3>Making the curves stack</h3>
+<p>A feeder is a chain: substation relay → line recloser → lateral fuses. Coordination means the device nearest the fault always finishes first, and everything upstream has margin to spare. The levers, in the order you reach for them: <strong>pickup</strong> (who sees the fault at all), <strong>curve family</strong> (match the steepness of what's below you — extremely inverse near fuses), <strong>time dial</strong> (raise your curve clear of the downstream device's total clearing curve), then <code>51_CT</code>/<code>51_MR</code> for fixed offsets. Verify margin at the <em>maximum</em> fault current at the downstream device, where inverse curves are closest together; keep a deliberate time margin between curves there — and remember the relay's own curve tolerance (±1.5 cycles ± 4% on the SEL-751A) plus breaker interrupting time eat into whatever margin you draw.</p>
+<h3>The 79 recloser in the relay</h3>
+<p>Most feeder faults are temporary. The SEL-751/751A reclosing relay gives up to <strong>4 automatic reclosures</strong> (751A: <code>E79</code> := OFF, 1–4; 751: N, 1–4 or C1–C4) and lives in three states — bits <code>79RS</code> (Reset), <code>79CY</code> (Cycle), <code>79LO</code> (Lockout):</p>
+<div class="flow">
+  <div class="stage"><b>Reset</b><span>breaker closed for the qualifying reset time (79RSD, default 15 s) — ready for a full sequence</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Reclose cycle</b><span>trip → open interval times (79OI1–79OI4, 0–3000 s; 751A default 79OI1 = 5 s; the 751 ships with E79 := N and all OIs at 0) → CLOSE, qualified by 79CLS supervision (e.g. sync/voltage checks)</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Lockout</b><span>all shots unsuccessful, supervision failed, or a maintained lockout condition — no more closing until conditions clear and reset timing completes</span></div>
+</div>
+<ul>
+  <li><strong>Close failure:</strong> set <code>CFD</code> to the slowest breaker close time plus margin; if the breaker doesn't close in time, <code>CF</code> pulses and drives the reclosing relay to lockout.</li>
+  <li><strong>Sequence coordination</strong> (<code>79SEQ</code>) keeps the relay in step with a downstream line recloser: if an overcurrent pickup asserts ≥1.25 cycles and then drops out — no trip, breaker still closed — a downstream device cleared that fault, so the shot counter increments anyway. That lets the relay disable its fast elements in step with the recloser's fast/slow curve sequence instead of overreaching for faults beyond it.</li>
+  <li><strong>25 sync check</strong> supervises closing where both sides can be hot: VP vs VS must both sit inside the healthy-voltage window (<code>25VHI</code>/<code>25VLO</code>) with slip and angle inside limits before <code>79CLS</code> lets the open-interval close through.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Beyond the feeder: 21 and 87 in one paragraph each</h2>
+<div class="card latch">
+<h3>21 — distance</h3>
+<p style="font-size:9pt">A distance element divides voltage by current to estimate impedance to the fault. Because line impedance is proportional to length, a reach setting of, say, 80% of the line becomes a fault-location criterion that doesn't depend on source strength the way overcurrent does. Zones with increasing reach and delay replace the coordination stack: zone 1 trips instantly inside the line, zone 2 overreaches with delay as backup. Transmission-line territory — the SEL-351 notably has <em>no</em> phase distance elements; it borrows only the load-encroachment logic (blocking the region of the impedance plane where heavy load lives) from its distance-relay cousins.</p>
+</div>
+<div class="card pair">
+<h3>87 — differential</h3>
+<p style="font-size:9pt">A differential element compares current entering a zone against current leaving it — CTs on every boundary. Healthy or through-fault: currents balance. Internal fault: the difference (operate current) is the fault itself, so tripping is fast, sensitive, and needs no coordination with anything outside the zone. Restraint (percentage slope) keeps CT error and saturation from faking a difference during heavy through-faults. That's the whole idea behind transformer (87T), bus (87B), and line-current differential (87L) relays.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">10</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Element asserted, no trip?</strong> The bit isn't in the trip equation, or torque control is holding it off. Check <code>TR</code> and the <code>_TC</code> settings before doubting the element.</li>
+<li><strong>51 timing “wrong” during testing?</strong> Check the curve accuracy spec (±1.5 cyc ± 4%), whether <code>51_CT</code>/<code>51_MR</code> are nonzero, and whether EM reset from a previous shot left the emulated disk part-way travelled.</li>
+<li><strong>Voltage-based elements misbehaving?</strong> Look at <code>LOP</code> first. And on relays without voltage inputs installed, the manual hides these settings entirely — the elements don't exist.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:reference/ansi-device-numbers.md">ANSI Device Numbers</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+</div>
+<p class="footnote">Sources: SEL-751A Feeder Protection Relay IM, <span class="mono">751A_IM_20250411.pdf</span> (measurement chain, 50/51 element levels &amp; settings, curve equations U1–U5/C1–C5, curve accuracy, torque control, 27/59/59G/59Q, LOP, 81/81R, 79 states and sequence coordination, 25); SEL-751 Feeder Protection Relay IM, <span class="mono">751_IM_20260327.pdf</span> (Section 1 specs and Section 4: 50/51 ranges, E1–E3 curves and 51SAT, four-level 27/59 in volts, 81/81RF, 79 settings, LOP at 20%, peak detector, directional package Z2F/Z2R, ORDER, DIR1–DIR4, EFWDLOP) — the restored 751 manual confirms the shared claims (curve equations and accuracy, torque control, peak detector at 8×, 79SEQ's 1.25-cycle rule, U3/TD 3 defaults); model differences are stated inline. SEL-351-5,-6,-7 Directional Overcurrent Relay IM, <span class="mono">351-567_IM_20230831.pdf</span> (curve-equation cross-check, 67/directional control: Z2F/Z2R, 32QF/32PF routing, ORDER &amp; Best Choice Ground Directional, ELOP, load encroachment). §9 (21/87) is generic background, not model-specific. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

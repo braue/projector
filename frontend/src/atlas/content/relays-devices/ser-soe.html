@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SER &amp; SOE</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="SER,SOE,sequence of events,Fast SER,SNS,SET R,timestamp,1 ms,time sync,trigger list">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "SER &amp; SOE (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>SER &amp; SOE</h1>
+  <p>The continuous logs — what the relay records without being asked, how to choose the triggers, Fast SER streaming, and assembling one system-wide sequence out of many devices</p>
+  <div class="chips"><span>SER</span><span>Fast SER</span><span>SOE</span><span>SNS</span><span>1 ms</span><span>SET R</span><span>time sync</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">SER and SOE</h3>
+<ul style="margin-bottom:2px">
+<li><strong>SER logs digital state changes as they happen</strong> &mdash; 1&nbsp;ms tags, nonvolatile, no trigger and no window. It is running right now on every relay you own.</li>
+<li><strong>Fast SER pushes those entries to the RTAC live;</strong> the RTAC's merged, system-wide log is the SOE. The <code>SER</code> command is the after-the-fact pull.</li>
+<li><strong>Ordering events across devices is only as good as the time sync.</strong> Without a common IRIG-B or PTP source, a cross-device sequence is a guess.</li>
+<li><strong>The trigger list is a design decision.</strong> Defaults are rarely what you want; a bit you did not select is a bit that was never recorded.</li>
+<li><strong>SER answers &ldquo;what happened first?&rdquo;; the event report answers &ldquo;what did it look like?&rdquo;</strong> You need both, and they are separate records.</li>
+<li><strong>SOE is not the alarm list.</strong> Alarms are for operators to act on; SOE is the forensic record. Designing one to do the other's job fails at both.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>SER &mdash; the relay's own logbook</h2>
+<p>One row per digital state change, time-tagged to the millisecond with about &plusmn;&frac14;-cycle accuracy, written to nonvolatile memory as the change happens. No trigger to arm, no capture window to miss, and no dependence on anyone having asked for it.</p>
+<ul>
+<li><strong>You choose which Relay Word bits are monitored</strong> &mdash; up to 96 on the SEL-751A. The SEL-451 keeps the last 1000 entries.</li>
+<li><strong>Some things are logged automatically:</strong> power-ups, settings changes, and settings-group changes. That alone makes the SER the first place to look when a device &ldquo;started behaving differently.&rdquo;</li>
+<li><strong>Settings via <code>SET R</code>; retrieval via <code>SER</code>, or <code>CSER</code> for a comma-delimited form</strong> that imports cleanly into a spreadsheet.</li>
+<li><strong>It survives.</strong> Nonvolatile means a power cycle does not lose it &mdash; unlike the momentary state you were trying to observe.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A single fault, as the SER records it &mdash; rows land in real time, in order</text>
+
+  <!-- header -->
+  <line x1="20" y1="36" x2="680" y2="36" stroke="#10a37f" stroke-width="1.2"/>
+  <g font-size="7" fill="#6e7180">
+    <text x="26" y="32">DATE / TIME</text><text x="200" y="32">ELEMENT</text><text x="360" y="32">STATE</text><text x="470" y="32">WHAT IT MEANS</text>
+  </g>
+
+  <g font-family="Consolas, monospace" font-size="7.4" fill="#454956">
+    <g opacity="0">
+      <text x="26" y="54">08/22 14:07:31.412</text><text x="200" y="54">51P</text><text x="360" y="54">Asserted</text>
+      <text x="470" y="54" font-family="'Segoe UI',sans-serif" fill="#8a8e9b">phase time-overcurrent picks up</text>
+      <animate attributeName="opacity" values="0;0;1;1;1;1;1;1;0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <g opacity="0">
+      <text x="26" y="74">08/22 14:07:31.418</text><text x="200" y="74">51G</text><text x="360" y="74">Asserted</text>
+      <text x="470" y="74" font-family="'Segoe UI',sans-serif" fill="#8a8e9b">ground element picks up 6 ms later</text>
+      <animate attributeName="opacity" values="0;0;0;1;1;1;1;1;0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <g opacity="0">
+      <text x="26" y="94">08/22 14:07:31.664</text><text x="200" y="94">51GT</text><text x="360" y="94">Asserted</text>
+      <text x="470" y="94" font-family="'Segoe UI',sans-serif" fill="#8a8e9b">ground element times out first</text>
+      <animate attributeName="opacity" values="0;0;0;0;1;1;1;1;0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <g opacity="0">
+      <text x="26" y="114">08/22 14:07:31.666</text><text x="200" y="114">TRIP</text><text x="360" y="114">Asserted</text>
+      <text x="470" y="114" font-family="'Segoe UI',sans-serif" fill="#d63a3a">trip equation asserts</text>
+      <animate attributeName="opacity" values="0;0;0;0;0;1;1;1;0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <g opacity="0">
+      <text x="26" y="134">08/22 14:07:31.712</text><text x="200" y="134">52A</text><text x="360" y="134">Deasserted</text>
+      <text x="470" y="134" font-family="'Segoe UI',sans-serif" fill="#8a8e9b">breaker open, 46 ms after trip</text>
+      <animate attributeName="opacity" values="0;0;0;0;0;0;1;1;0" dur="8s" repeatCount="indefinite"/>
+    </g>
+    <g opacity="0">
+      <text x="26" y="154">08/22 14:07:32.212</text><text x="200" y="154">79RS</text><text x="360" y="154">Deasserted</text>
+      <text x="470" y="154" font-family="'Segoe UI',sans-serif" fill="#8a8e9b">reclose cycle begins</text>
+      <animate attributeName="opacity" values="0;0;0;0;0;0;0;1;0" dur="8s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <rect x="20" y="176" width="660" height="66" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="34" y="194" font-size="8" font-weight="600" fill="#0d7f63">What the millisecond column buys you</text>
+  <text x="34" y="210" font-size="7.8" fill="#454956">The 6&nbsp;ms between 51P and 51G says the fault involved ground almost immediately. The 2&nbsp;ms between 51GT and TRIP confirms the trip equation is what</text>
+  <text x="34" y="224" font-size="7.8" fill="#454956">responded, not something else. The 46&nbsp;ms from TRIP to 52A is the breaker's own clearing time &mdash; a number worth trending across operations, because a</text>
+  <text x="34" y="238" font-size="7.8" fill="#454956">breaker that is slowing down announces itself here long before it fails.</text>
+</svg></div>
+<p class="figcap">The event report shows the waveforms; the SER shows the sequence. Together they answer &ldquo;what happened&rdquo; and &ldquo;in what order.&rdquo; <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Choosing what to trigger on</h2>
+<p>An SER slot spent on a bit that never changes is wasted; a bit you needed and did not select is gone forever. The list is worth designing deliberately, and it belongs in the settings template so every relay of a type records the same things.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a">
+    <b>Always</b>
+    <span>TRIP and CLOSE &middot; every element that appears in the trip equation, both pickup and timeout &middot; 52A / 52B &middot; lockout (86) &middot; the relay's own alarm and self-test bits</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Nearly always</b>
+    <span>Reclose state bits (reset, in-progress, lockout, shot counter) &middot; loss of potential &middot; settings-group indication &middot; local/remote switch &middot; time-source status</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Scheme-dependent</b>
+    <span>Received and transmitted Mirrored Bits or GOOSE bits &middot; breaker-failure initiate and timeout &middot; permissives and blocks &middot; interlock inputs &middot; the outputs of any custom SELogic you wrote</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Worth adding</b>
+    <span>The inputs and outputs that go to other equipment &mdash; when the neighbouring device misbehaves, your SER is the evidence about what you sent it</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>Usually skip</b>
+    <span>Bits that chatter with load or measurement noise &middot; pickup bits of elements that pick up routinely &middot; anything that would fill the buffer in normal operation</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>Fix, do not filter</b>
+    <span>A genuinely chattering input should be debounced at the relay input, not excluded from the SER. Excluding it hides the problem</span>
+  </div>
+</div>
+<div class="callout warn">
+<strong>A full buffer overwrites the oldest entries.</strong> On a relay whose SER is filling with routine chatter, the fault you actually care about has already been pushed out by the time anyone looks. Check buffer utilization during commissioning, not after an event.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>From SER to SOE</h2>
+<p>SER is each relay's private log. <strong>SOE</strong> &mdash; sequence of events &mdash; is the same kind of data assembled system-wide: the RTAC or the SCADA master collects every device's state changes into one merged, time-ordered record.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ss" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Three relays' private logs, merged by timestamp into one story</text>
+
+  <g font-size="7.2">
+    <rect x="20" y="36" width="150" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="95" y="53" text-anchor="middle" font-weight="600" fill="#5468c4">Feeder relay SER</text>
+    <text x="95" y="67" text-anchor="middle" fill="#6e7180">51G pickup, TRIP, 52A open</text>
+
+    <rect x="20" y="96" width="150" height="46" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.2"/>
+    <text x="95" y="113" text-anchor="middle" font-weight="600" fill="#9c6d06">Bus relay SER</text>
+    <text x="95" y="127" text-anchor="middle" fill="#6e7180">51P pickup, no trip</text>
+
+    <rect x="20" y="156" width="150" height="46" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.2"/>
+    <text x="95" y="173" text-anchor="middle" font-weight="600" fill="#0d7f63">Recloser SER</text>
+    <text x="95" y="187" text-anchor="middle" fill="#6e7180">79 shots, lockout</text>
+  </g>
+
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#ss)">
+    <path d="M170,59 C210,59 220,110 258,116"/>
+    <path d="M170,119 H258"/>
+    <path d="M170,179 C210,179 220,128 258,122"/>
+  </g>
+  <circle r="3" fill="#5468c4"><animateMotion dur="2.4s" repeatCount="indefinite" path="M170,59 C210,59 220,110 258,116"/></circle>
+  <circle r="3" fill="#d7930a"><animateMotion dur="2.4s" begin="0.5s" repeatCount="indefinite" path="M170,119 H258"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.4s" begin="1s" repeatCount="indefinite" path="M170,179 C210,179 220,128 258,122"/></circle>
+
+  <rect x="262" y="88" width="140" height="60" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="332" y="108" text-anchor="middle" font-size="8.4" font-weight="600" fill="#0d7f63">RTAC SOE</text>
+  <text x="332" y="122" text-anchor="middle" font-size="7" fill="#6e7180">merged, time-ordered</text>
+  <text x="332" y="136" text-anchor="middle" font-size="7" fill="#6e7180">across every device</text>
+
+  <path d="M402,118 H438" stroke="#10a37f" stroke-width="1.2" marker-end="url(#ss)"/>
+
+  <!-- merged rows -->
+  <g font-family="Consolas, monospace" font-size="7" fill="#454956">
+    <text x="446" y="52">14:07:31.412  FDR1  51P  Asserted</text>
+    <text x="446" y="68">14:07:31.418  FDR1  51G  Asserted</text>
+    <text x="446" y="84">14:07:31.431  BUS   51P  Asserted</text>
+    <text x="446" y="100">14:07:31.664  FDR1  51GT Asserted</text>
+    <text x="446" y="116">14:07:31.666  FDR1  TRIP Asserted</text>
+    <text x="446" y="132">14:07:31.712  FDR1  52A  Deassert</text>
+    <text x="446" y="148">14:07:31.803  BUS   51P  Deassert</text>
+    <text x="446" y="164">14:07:32.212  FDR1  79RS Deassert</text>
+  </g>
+  <rect x="440" y="40" width="248" height="132" rx="5" fill="none" stroke="#e5e7eb"/>
+
+  <rect x="20" y="212" width="660" height="30" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="34" y="228" font-size="7.8" fill="#9c6d06">The bus relay picked up 13&nbsp;ms after the feeder and dropped out 91&nbsp;ms after the breaker opened &mdash; it saw the same fault through and correctly did not trip.</text>
+  <text x="34" y="239" font-size="7.8" fill="#9c6d06">That conclusion is only available because both devices shared a time source. On unsynchronized clocks the merged list is fiction.</text>
+</svg></div>
+<p class="figcap">Coordination is proven, or disproven, in this merged list. It is the single most valuable artifact after a misoperation. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Fast SER versus polled SER</h3>
+<table>
+  <tr><th></th><th>Polled (<code>SER</code> command)</th><th>Fast SER</th></tr>
+  <tr><td>How it works</td><td>You ask, the relay sends the log</td><td>Entries are pushed in real time over SEL protocol as they occur</td></tr>
+  <tr><td>Enabling</td><td>Always available</td><td>Enable bits <code>FSERPn</code>; point name strings supplied via <code>SNS</code></td></tr>
+  <tr><td>Latency</td><td>Whenever somebody fetches it</td><td>Live &mdash; the RTAC's SOE is current, not something you retrieve after the storm</td></tr>
+  <tr><td>Use for</td><td>After-the-fact investigation, and for devices without a live connection</td><td>Building a real-time system-wide SOE, and for feeding an alarm or historian pipeline</td></tr>
+</table>
+<div class="callout">
+<strong>Give the bits names.</strong> The <code>SNS</code> point-name strings are what turn a Fast SER stream from &ldquo;bit 47 changed&rdquo; into &ldquo;FDR1 breaker opened.&rdquo; Setting them during commissioning costs minutes; not setting them costs every future investigation.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Timestamps and what they are worth</h2>
+<ul>
+<li><strong>SER entries are tagged to 1&nbsp;ms with about &plusmn;&frac14;-cycle accuracy.</strong> Ordering events across devices is only meaningful when everything shares IRIG-B or PTP.</li>
+<li><strong>The 400-series tags COMTRADE samples to better than 10&nbsp;&micro;s</strong> &mdash; for exactly this reason.</li>
+<li><strong>Check the time-source status bit,</strong> not just that a cable is present. A relay in holdover is still producing timestamps; they are simply drifting. See <a href="atlas:comms/time-sync.html">Time Synchronization</a>.</li>
+<li><strong>Protocol timestamps are a different thing.</strong> On DNP3, points registered in the SER carry true device time; everything else carries scan time. Two points in the same SCADA event list can therefore have very different accuracy &mdash; see <a href="atlas:data-protocols/dnp3/on-sel-relays.html">DNP3 on SEL Relays</a>.</li>
+<li><strong>Record the time source in the investigation.</strong> &ldquo;All devices were IRIG-locked at the time&rdquo; is a sentence that makes a conclusion defensible.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>Using it</h2>
+<ol>
+<li><strong>Pull the SER before doing anything else</strong> when investigating. It is nonvolatile, but a settings change can clear buffers on some relays.</li>
+<li><strong>Export with <code>CSER</code></strong> and open it in a spreadsheet if you need to sort, filter, or merge with another device's log by hand.</li>
+<li><strong>Build the timeline first, then look at waveforms.</strong> The SER tells you which event report to open and what to look for in it &mdash; see Event Analysis.</li>
+<li><strong>Look for what did <em>not</em> happen.</strong> An element that should have picked up and did not is often the finding, and only the SER shows an absence.</li>
+<li><strong>Trend the intervals.</strong> Trip-to-52A across many operations is a breaker health measurement hiding in the log.</li>
+<li><strong>Check settings-change entries</strong> when a device &ldquo;started behaving differently.&rdquo; They are logged automatically, and they are frequently the answer.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">6</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Do not order cross-device events on unsynchronized clocks.</strong> Before trusting a system-wide sequence, confirm every device in it had IRIG-B or PTP at the time.</li>
+<li><strong>The bit you needed was not in the trigger list.</strong> The most common disappointment. Review and extend the list after every investigation that found a gap.</li>
+<li><strong>The buffer had already wrapped.</strong> Chattering bits fill it. Fix the chatter with input debounce rather than removing the point.</li>
+<li><strong>Fast SER stream missing names</strong> &rarr; <code>SNS</code> strings were never configured, so the SOE is full of unnamed bits.</li>
+<li><strong>SOE and the alarm list disagree.</strong> They should &mdash; the alarm list is filtered and prioritized for operators, the SOE is complete. Trust the SOE for forensics.</li>
+<li><strong>The RTAC's SOE only has what it was told to collect.</strong> A device that is polled but whose Fast SER is not enabled contributes only what the protocol map exposes.</li>
+<li><strong>Retention.</strong> Know how long the SOE is kept and where it is archived before you need a record from six months ago.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>
+  
+  <a href="atlas:comms/time-sync.html">Time Synchronization</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:data-protocols/sel-protocols.html">SEL Protocols</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Sources: SEL-751A Instruction Manual &sect;9 and Appendix C (SER settings via <code>SET R</code>, 96 monitored bits, automatic logging of power-ups and settings changes, Fast SER <code>FSERPn</code> enables, <code>SNS</code> point name strings); SEL-451 Instruction Manual (1000-entry SER buffer); SEL-400 Series Relays Instruction Manual (COMTRADE sample timestamping better than 10 &micro;s); SEL RTAC Programming Reference (SOE logger and harvester). The record-type overview table lives in <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

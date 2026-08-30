@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fault Indicators &amp; Line Sensors</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="FCI,fault indicator,SEL-FT50,SEL-RP50,FLT,FLR,TWFL,SEL-8315">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Fault Indicators & Line Sensors (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Fault Indicators &amp; Line Sensors</h1>
+  <p>Finding the faulted section fast — FCI decision logic, the LINAM FLT/FLR and FT50/RP50/FR12 wireless sensors, phase-comparison FCIs, and traveling-wave locating</p>
+  <div class="chips"><span>FCI</span><span>FLT/FLR</span><span>AutoRANGER</span><span>FT50/RP50/FR12</span><span>SEL-8315</span><span>SEL-TWFL</span><span>inrush restraint</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Fault indication</h3>
+<ul style="margin-bottom:2px">
+<li>Every indicator <strong>upstream</strong> of the fault carries fault current and flags; every one <strong>downstream</strong> stays clear. The crew drives flag-to-flag: the fault is between the last flagged and the first clear indicator.</li>
+<li>An indicator must be <strong>armed</strong> (sustained load current) before it can detect anything, and it must <strong>restrain during reclose energization</strong> — inrush looks exactly like fault current from a magnitude-only view.</li>
+<li><strong>SCADA-reported indicators beat local flags:</strong> a radio-and-DNP3 sensor tells the dispatcher which section is faulted before a truck rolls; a local-flag FCI still requires the patrol.</li>
+<li>Sensor pickup must sit <strong>above max load, below min fault current</strong>, and the sensor must trip <strong>faster than the upstream protection clears</strong> — otherwise it never sees the fault.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The problem: a long feeder, one fault, many miles of patrol</h2>
+<p>When a feeder locks out, the fault is somewhere on tens of miles of trunk, taps, and laterals. Without indication, crews patrol the whole thing. Faulted-circuit indicators (FCIs) segment the feeder: each one answers "did fault current pass <em>through me</em>?" — so the faulted section is bracketed by the last flagged device. SEL's FLT manual frames the payoff in reliability metrics: fault detection alone cuts locate time and improves <strong>CAIDI/SAIDI</strong>, and momentary-fault detection lets you chase causes that would otherwise only show up in <strong>MAIFI</strong>. The documented placement strategy: divide long feeders into sections, put sensors <strong>immediately downstream of taps and branches</strong> to name the faulted lateral, and use <strong>dips and risers</strong> (overhead↔underground transitions) as natural segment boundaries.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <rect x="18" y="70" width="62" height="40" rx="5" fill="#1a1a22"/>
+  <text x="49" y="87" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">Substation</text>
+  <text x="49" y="99" font-size="7.5" fill="#a9adb8" text-anchor="middle">breaker</text>
+  <line x1="80" y1="90" x2="660" y2="90" stroke="#454956" stroke-width="2.5"/>
+  <line x1="200" y1="90" x2="200" y2="160" stroke="#454956" stroke-width="1.5"/>
+  <line x1="360" y1="90" x2="360" y2="160" stroke="#454956" stroke-width="1.5"/>
+  <line x1="520" y1="90" x2="520" y2="160" stroke="#454956" stroke-width="1.5"/>
+  <text x="200" y="172" font-size="8" fill="#8a8e9b" text-anchor="middle">lateral A</text>
+  <text x="520" y="172" font-size="8" fill="#8a8e9b" text-anchor="middle">lateral C</text>
+  <!-- fault on lateral B -->
+  <g>
+    <path d="M356,144 l6,-9 -4,0 6,-9 -3,7 4,0 -9,11z" fill="#d63a3a"/>
+    <text x="360" y="152" font-size="8.5" font-weight="700" fill="#d63a3a" text-anchor="middle">FAULT</text>
+    <text x="360" y="162" font-size="7.5" fill="#d63a3a" text-anchor="middle">lateral B</text>
+  </g>
+  <!-- FCIs: tripped = red fill, clear = white/teal -->
+  <g font-size="7.5" font-weight="600" text-anchor="middle">
+    <rect x="142" y="82" width="16" height="16" rx="3" transform="rotate(45 150 90)" fill="#d63a3a"/>
+    <text x="150" y="70" fill="#d63a3a">F1 ⚑</text>
+    <rect x="292" y="82" width="16" height="16" rx="3" transform="rotate(45 300 90)" fill="#d63a3a"/>
+    <text x="300" y="70" fill="#d63a3a">F2 ⚑</text>
+    <rect x="352" y="112" width="16" height="16" rx="3" transform="rotate(45 360 120)" fill="#d63a3a"/>
+    <text x="382" y="124" fill="#d63a3a">FB ⚑</text>
+    <rect x="442" y="82" width="16" height="16" rx="3" transform="rotate(45 450 90)" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+    <text x="450" y="70" fill="#10a37f">F3 clear</text>
+    <rect x="592" y="82" width="16" height="16" rx="3" transform="rotate(45 600 90)" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+    <text x="600" y="70" fill="#10a37f">F4 clear</text>
+  </g>
+  <text x="350" y="205" font-size="8" fill="#a9adb8" text-anchor="middle">flags trip in sequence up to the faulted tap · downstream stays clear · crew drives to the last flag, finds lateral B</text>
+  <text x="350" y="218" font-size="8" fill="#a9adb8" text-anchor="middle">ghost truck = the same search with no FCIs: patrol every mile and every lateral</text>
+  <g class="animlayer">
+    <!-- fault flash -->
+    <circle cx="360" cy="140" r="10" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0.9;0;0.9;0;0" keyTimes="0;0.04;0.06;0.08;0.10;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="6;16;6;16;6;6" keyTimes="0;0.04;0.06;0.08;0.10;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- fault current pulse substation -> tap -> down lateral -->
+    <circle r="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.025;0.10;0.12;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M80,90 L360,90 L360,140" keyPoints="0;0;1;1" keyTimes="0;0.02;0.11;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- flag trip highlight rings, in sequence -->
+    <circle cx="150" cy="90" r="13" fill="none" stroke="#d63a3a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.045;0.065;0.11;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="90" r="13" fill="none" stroke="#d63a3a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.075;0.095;0.14;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="360" cy="120" r="13" fill="none" stroke="#d63a3a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.10;0.12;0.17;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- ghost truck: full patrol, slow, dashed -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.4;0.4;0;0" keyTimes="0;0.16;0.19;0.93;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <g>
+        <rect x="-11" y="-7" width="22" height="11" rx="2" fill="none" stroke="#8a8e9b" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <circle cx="-6" cy="6" r="3" fill="none" stroke="#8a8e9b" stroke-width="1.25"/>
+        <circle cx="6" cy="6" r="3" fill="none" stroke="#8a8e9b" stroke-width="1.25"/>
+        <text x="0" y="-12" font-size="7" fill="#8a8e9b" text-anchor="middle">no-FCI patrol</text>
+        <animateMotion path="M80,108 L200,108 L200,155 L200,108 L360,108 L360,132 L360,108 L520,108 L520,155 L520,108 L655,108" calcMode="linear" dur="12s" keyPoints="0;0;0.11;0.20;0.29;0.42;0.47;0.52;0.66;0.75;0.84;1" keyTimes="0;0.17;0.26;0.34;0.42;0.53;0.57;0.61;0.72;0.79;0.86;1" repeatCount="indefinite"/>
+      </g>
+    </g>
+    <!-- real truck: flag to flag, straight to the fault -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.19;0.55;0.60;1" dur="12s" repeatCount="indefinite"/>
+      <g>
+        <rect x="-11" y="-7" width="22" height="11" rx="2" fill="#10a37f"/>
+        <circle cx="-6" cy="6" r="3" fill="#1a1a22"/>
+        <circle cx="6" cy="6" r="3" fill="#1a1a22"/>
+        <text x="0" y="-11" font-size="7" font-weight="600" fill="#10a37f" text-anchor="middle">flag-to-flag</text>
+        <animateMotion path="M80,54 L150,54 L300,54 L360,54 L360,132" calcMode="linear" dur="12s" keyPoints="0;0;0.05;0.30;0.55;1" keyTimes="0;0.17;0.24;0.34;0.44;1" repeatCount="indefinite"/>
+      </g>
+    </g>
+    <!-- found marker -->
+    <text x="404" y="140" font-size="8.5" font-weight="700" fill="#10a37f" opacity="0">found ✓
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.90;0.94;1" dur="12s" repeatCount="indefinite"/>
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">Fault on lateral B: F1, F2 and the lateral sensor FB flag; F3/F4 downstream stay clear. The crew drives flag-to-flag straight to the faulted section, while the ghost truck patrols the entire feeder.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>How a faulted-circuit indicator decides</h2>
+<p>The FLT event engine (typical of a modern FCI) is a small state machine. Nothing happens unless the device is <strong>armed</strong>; everything it reports is classified by what the current does <em>afterward</em>:</p>
+<div class="flow">
+  <div class="stage"><b>1 · Arm</b><span>load current &gt; I<sub>ARM</sub> sustained for T<sub>ARM</sub> (defaults 5 A / 5 min). Not armed → no detection at all.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Fault stimulus</b><span>current above the active trip threshold for longer than the delay trip (default 3 half-cycles ≈ 24 ms at 60 Hz).</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Classify at T<sub>FLT</sub></b><span>wait 5 min (default): no load → <b>permanent fault</b>; outage then restoration → <b>momentary</b>; no protection operation at all → <b>disturbance</b>.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>4 · Reset</b><span>flag clears when arming requirements are met again (current restoration), at display time-out, or manually by magnet tool.</span></div>
+</div>
+<ul>
+  <li><strong>Reset methods, as documented:</strong> the FLT clears its permanent-fault display on <em>current restoration</em> (re-arming), on <em>time-out</em> (T<sub>PFD</sub>, default 8 h, range 1–48 h; T<sub>DIS</sub> for other events), or on a <em>manual</em> short magnet-tool press. The SEL-8315 resets automatically when current is detected on any phase and no fault is detected on any phase, sustained for one second.</li>
+  <li><strong>Inrush restraint:</strong> the moment an outage is detected the FLT enters restraint and ignores all events. On a permanent outage, restraint lasts the whole outage <em>plus</em> T<sub>ARM</sub> after restoration — so reclose energization inrush, however large, can never flag a healthy section. On momentary events restraint covers the T<sub>FLT</sub>/T<sub>LOC</sub> window, then the device rearms.</li>
+  <li><strong>Outage detection is dual-threshold:</strong> a fixed fast dropout I<sub>MIN</sub> (1–3 A hardware, ~75 ms response) plus a configurable slow dropout I<sub>DO</sub> (~30 s response) for circuits where <strong>backfeed current</strong> would keep I<sub>MIN</sub> from ever dropping out. Either one triggers the loss-of-current event.</li>
+  <li><strong>Half-cycle continuity rule:</strong> asymmetrical fault current that only crosses the threshold every other half-cycle still counts — pulses are treated as continuous if the waveform re-crosses within 1 cycle. No re-cross within a cycle → delay-trip counter resets, device rearms after 20 ms clean.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 226" xmlns="http://www.w3.org/2000/svg">
+  <!-- axes and reference lines -->
+  <line x1="40" y1="178" x2="688" y2="178" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="40" y1="70" x2="688" y2="70" stroke="#d63a3a" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="44" y="64" font-size="8" font-weight="600" fill="#d63a3a">active trip threshold</text>
+  <line x1="40" y1="148" x2="688" y2="148" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.7"/>
+  <text x="44" y="144" font-size="7.5" fill="#10a37f">I ARM</text>
+  <text x="34" y="100" font-size="8" fill="#8a8e9b" text-anchor="end" transform="rotate(-90 34 100)">I rms</text>
+  <!-- restraint shading -->
+  <rect x="150" y="30" width="115" height="148" fill="#d7930a" opacity="0.10"/>
+  <text x="207" y="42" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle">inrush restraint</text>
+  <text x="207" y="52" font-size="7.2" fill="#9c6d06" text-anchor="middle">spike ignored — no flag</text>
+  <!-- current trace -->
+  <path d="M40,138 L150,138 L152,178 L190,178 L192,48 C205,60 225,105 245,128 L265,136 L330,136 L385,136 L387,38 L432,38 L434,178 L560,178 L562,140 L688,140" fill="none" stroke="#5468c4" stroke-width="2"/>
+  <!-- event annotations -->
+  <text x="95" y="128" font-size="7.5" fill="#6e7180" text-anchor="middle">load</text>
+  <text x="171" y="192" font-size="7.5" fill="#6e7180" text-anchor="middle">trip / reclose</text>
+  <text x="203" y="86" font-size="7.5" fill="#9c6d06">inrush &gt; threshold</text>
+  <line x1="330" y1="130" x2="330" y2="112" stroke="#10a37f" stroke-width="1"/>
+  <text x="330" y="106" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">T ARM met → armed</text>
+  <text x="409" y="30" font-size="8" font-weight="700" fill="#d63a3a" text-anchor="middle">real fault</text>
+  <path d="M387,44 h10" stroke="#1a1a22" stroke-width="1"/>
+  <text x="401" y="48" font-size="7" fill="#454956">&gt; delay trip → stimulus</text>
+  <text x="497" y="192" font-size="7.5" fill="#6e7180" text-anchor="middle">protection clears — no load at T FLT → permanent fault</text>
+  <text x="561" y="130" font-size="7.5" fill="#10a37f" text-anchor="middle">restoration</text>
+  <text x="640" y="130" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">re-arms → flag auto-resets</text>
+  <!-- flag state bar -->
+  <text x="40" y="212" font-size="7.5" fill="#8a8e9b">FLAG:</text>
+  <rect x="72" y="205" width="323" height="8" rx="2" fill="#e5e7eb"/>
+  <rect x="395" y="205" width="245" height="8" rx="2" fill="#d63a3a"/>
+  <rect x="640" y="205" width="48" height="8" rx="2" fill="#e5e7eb"/>
+  <text x="517" y="222" font-size="7" fill="#d63a3a" text-anchor="middle">latched (LED flash pattern)</text>
+  <text x="664" y="222" font-size="7" fill="#8a8e9b" text-anchor="middle">clear</text>
+  <g class="animlayer">
+    <line x1="40" y1="24" x2="40" y2="213" stroke="#1a1a22" stroke-width="1" opacity="0.45">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="648 0" dur="11s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="192" cy="48" r="9" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.22;0.25;0.32;1" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="392" cy="38" r="9" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0.9;0;0" keyTimes="0;0.53;0.56;0.59;0.62;0.68;1" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="655" cy="140" r="9" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.93;0.96;1;1" dur="11s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">The restraint logic in one trace: reclose inrush exceeds the trip threshold but falls inside the restraint window — no flag. The real fault meets threshold + delay-trip duration while armed → flag latches; after restoration the arming requirements clear it automatically.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>LINAM FLT/FLR — the SCADA-reported fault &amp; load sensor</h2>
+<p>The <strong>LINAM FLT</strong> (Fault and Load Transmitter) clamps onto an overhead conductor; the <strong>LINAM FLR</strong> (receiver/concentrator, typically pole-mounted) collects up to <strong>96 FLTs</strong> over a purpose-built <strong>900 MHz</strong> point-to-multipoint radio (2-FSK, 62.5 kbps, AES-128, 16-bit CRC) and serves the data to SCADA/OMS/DMS as a <strong>DNP3 Level 2 outstation over IP</strong> — backhaul via SEL-3061 cellular, fiber, or third-party Ethernet radio. Models are per-country radio variants: FLT/FLR-1000 (USA, Canada, Mexico, Panama), -1003 (Peru), -1006 (Brazil), -1007 (Costa Rica), -1008/-1009 (Argentina/Ecuador). Typical link range: ~1 mile to a pole-mounted receiver antenna, ~3 miles to a 75 ft tower, 10 miles absolute max with clear line of sight — onsite testing required.</p>
+<div class="twocol">
+<div>
+<h3>Hardware &amp; mounting</h3>
+<ul>
+<li><strong>Overhead only</strong>, up to 69 kV; conductor 6.4–38.1 mm (0.25–1.50 in); 1.6 kg (3.6 lb); installed with a single hot stick. A spring-loaded clamp with a CT lock survives line whip; all interaction (wake, radio on/off, display reset, test) is via the CRSRTT magnet tool (short press 3–5 s, long 10–12 s).</li>
+<li><strong>Power:</strong> line harvesting needs ≥3.5 A load current; below that, batteries: rechargeable first (&gt;8 h of LED flashing per outage), then a non-rechargeable cell (&gt;1800 flash hours, 20-yr shelf life); ≥15-year service life. Low/critical battery and low-harvest states are alarmed; at critical, the radio shuts down after one final message.</li>
+<li><strong>Display:</strong> six ultra-bright LEDs (3 red, 3 yellow), 360°, visible 50 m by day / 100 m at night. Permanent fault = rotating red+yellow pattern; configurable yellow "local event" pattern for momentary faults, disturbances, permanent loss of current. Fast flash the first 4 h, then slow flash to save power. Works even unpaired from any FLR.</li>
+</ul>
+</div>
+<div>
+<h3>AutoRANGER trip logic</h3>
+<ul>
+<li><strong>10 trip thresholds</strong> enabled by default: 25 / 50 / 100 / 200 / 400 / 600 / 800 / 1000 / 1200 / 1600 A (each settable 25–1600 A). The FLT samples load every 5 s, keeps a 30 s rolling average, and autoranges: <strong>up</strong> one step when load exceeds 50% of the active threshold, <strong>down</strong> when load falls to 45% of the next lower one — overlapping bands give hysteresis so it never oscillates.</li>
+<li><strong>Delay trip</strong> per threshold: default 3 half-cycles (≈24 ms at 60 Hz), settable 1–50 half-cycles — the knob for building a trip response curve that stays <em>below</em> the protection curve (must trip before upstream protection clears) but above transient junk.</li>
+<li><strong>Fixed-threshold mode:</strong> disable all but one threshold. Then coordination is manual: above max load, below minimum fault current.</li>
+<li><strong>Coordination alarm:</strong> sustained load above the highest enabled threshold = settings conflict; the FLT refuses to arm and says so.</li>
+<li><strong>Fault magnitude</strong> is reported with the event, up to 1600 A (highest half-cycle rms during the stimulus; reclose inrush is never measured). Detection accuracy ±(2 A + 4%); max fault 25 kA for 10 cycles.</li>
+</ul>
+</div>
+</div>
+<table>
+  <tr><th>Setting</th><th>What it does</th><th>Default</th><th>Range</th></tr>
+  <tr><td class="mono">IARM / TARM</td><td>current + time to arm</td><td>5 A / 5 min</td><td>3–600 A / 15 s–90 h</td></tr>
+  <tr><td class="mono">Delay Trip</td><td>time above threshold to register a stimulus</td><td>3 half-cycles</td><td>1–50 half-cycles</td></tr>
+  <tr><td class="mono">TFLT</td><td>wait before classifying fault permanent/momentary</td><td>5 min</td><td>15 s–1 h</td></tr>
+  <tr><td class="mono">TLOC</td><td>wait before classifying loss-of-current perm./mom.</td><td>5 min</td><td>configurable</td></tr>
+  <tr><td class="mono">IDO</td><td>slow dropout threshold (backfeed cases)</td><td>—</td><td>user-set, ~30 s response</td></tr>
+  <tr><td class="mono">TPFD / TDIS</td><td>display time-outs (permanent fault / other events)</td><td>8 h / 8 h</td><td>1–48 h</td></tr>
+  <tr><td class="mono">THO</td><td>arming hold-off after a permanent event</td><td>1 h (disabled)</td><td>1–240 h</td></tr>
+  <tr><td class="mono">TSUI / TLUI</td><td>short / long load-report intervals</td><td>1 h / 24 h</td><td>5–60 min / 1–240 h</td></tr>
+  <tr><td class="mono">TPEK</td><td>rolling-average window for long-interval peak load</td><td>15 min</td><td>1–60 min</td></tr>
+</table>
+<p><strong>Messages and load data.</strong> Three message classes: <em>periodic</em> (Short Update: avg + peak load, as often as every 5 min; Long Update: 24 h avg/peak, battery voltage, event statistics), <em>exception</em> (fault stimulus, permanent/momentary fault, disturbance, permanent/momentary loss of current, restoration, deployment), <em>alarm</em> (coordination, low power, memory error). Only Permanent Fault, Restoration, and the periodic updates are enabled by default. Load accuracy ±(0.25 A + 1%) typical over 3–600 A. The FLR's DNP3 side builds a per-FLT data map (coordinate remove/remap with the SCADA engineer), reports by exception with per-point deadbands, sends unsolicited on <em>event count</em> or <em>oldest-event age</em>, and takes DNP3 time sync (Obj 50 Var 3).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>SEL-FT50 / SEL-RP50 / SEL-FR12 — line sensors at protection speed</h2>
+<p>Where FLT/FLR feeds SCADA, the <strong>FT50/FR12</strong> feeds the <em>relay</em>. Line-mounted FT50 transmitters (harvested line power, no batteries, lines to 38 kV, 600 A continuous / 25 kA 10-cycle withstand) radio to an FR12 receiver — through SEL-RP50 repeaters where terrain blocks line of sight — which hands the indications to a host relay over <strong>Mirrored Bits</strong>, fast enough to change a protection decision mid-fault.</p>
+<ul>
+  <li><strong>Timing (system IM):</strong> fault detection to relay input is <strong>6 ms typical, 16 ms max</strong> with the radio link active; from the low-current sleep state, still &lt;16 ms for faults above 400 A (&lt;100 ms below). The FR12's fault RMB asserts for at least <strong>116 ms</strong> and is <em>not</em> latched — relay logic seals it in (the FR12 front-panel FAULT LEDs do latch until reset). The AG schemes were margined on older 20–37 ms worst-case figures, so they hold with room to spare.</li>
+  <li><strong>Link status is monitoring only.</strong> The FT50 sends a link message every 15 s whenever it can harvest ≥ <strong>5 A primary</strong> (15 A on the Gen-1 Europe/Mexico FT50-0004/-0007); the FR12 flashes the LINK LED after 60 s without one. Because a lightly loaded (or de-energized) line silences the sensor, the documented rule is: the scheme must remain dependable if sensors go quiet — <strong>fault indications only ever <em>enhance</em> the scheme, never gate basic protection</strong>. Link alarms are supervised by a load detector (50L) and a long dropout (~5 min) to avoid nuisance SCADA alarms.</li>
+  <li><strong>Capacity &amp; mapping:</strong> one FR12 monitors up to <strong>12 FT50s</strong> in four trios (trio FAULT = OR, trio LINK = AND of the trio's installed units). With the default command set (relay transmits TMB1–TMB6 = 0): RMB1–RMB4 = fault on trio 1–4, RMB5–RMB8 = link status per trio; detailed command sets 2/3 (TMB3 = 1, TMB4 selects) return per-unit bits for units 1–6 / 7–12 instead. TMB7 clears FR12 link state; TMB8 is used to remotely reset FR12 targets (target reset button, breaker close, or a "fault indication but no trip within a minute" timer, so the FR12 HMI never shows stale targets).</li>
+  <li><strong>Pickup &amp; coordination:</strong> eight DIP-selected fault pickups, <strong>50–1200 A</strong> (detection accuracy 3% typical, 20% max on Gen-2 models). The IM's rule: keep the supervising host-relay element at least <strong>20% above</strong> the FT50 pickup and expected load below <strong>~85–90%</strong> of it (e.g., 400 A pickup → relay &gt; 480 A, load &lt; 360 A) — then the FT50 sees every fault the relay can. An overcurrent element must always supervise FT50 data used in trip decisions.</li>
+  <li><strong>RP50 repeater:</strong> line-powered like the FT50, each repeats one FT50's (or another RP50's) fault and link messages around a line-of-sight obstruction — installed in trios on the <em>same phase</em> with matching Unit/Network IDs, up to five sites in a row (Repeater ID 1 nearest the FT50, increasing toward the FR12; IDs may skip, never reverse). Each site adds ~1.5 ms of fault latency. States by load current: off &lt;5 A, sleep 5–25 A, awake &gt;25 A — a fault wakes even an off repeater by harvesting the fault current itself, but only if the repeater lies in the fault-current path; sleep-state link resync can take 30 min per site after an outage.</li>
+  <li><strong>Range &amp; commissioning:</strong> ~1 mile clear line of sight (pole-mount installs often limited to ~0.25 mile by Fresnel-zone intrusion); the FR12's RSSI mode (hold TARGET RESET) shows each link's strength on the 12 LINK LEDs at 2 dB per LED — ≥8 LEDs ≈ the recommended 15 dB fade margin. FT50/RP50 DIP settings are read at power-up only: the unit must fully de-energize (its LINK LED at the FR12 starts flashing) before a change takes.</li>
+  <li><strong>Serial setup (both AGs):</strong> <code>PROTO = MB8A</code>, <code>SPEED = 38400</code>, TXID/RXID mirrored against the FR12, and <code>RXDFLT = 00000000</code> so a failed channel can never fake a fault indication.</li>
+</ul>
+<div class="card latch">
+<h3>AG2017-29 — selective reclose blocking for feeder exit cables (SEL-351S)</h3>
+<p style="margin-bottom:2px">Underground exit cable faults are permanent; overhead faults are mostly temporary. A high-set element that blocks reclose must overreach the cable (the guide uses a <strong>20% margin</strong>: 50P2P = I<sub>f</sub>/[(1+k)·CTR]), so it also over-blocks some close-in overhead faults. Fix: a trio of FT50s at the riser pole. Torque-controlled 67P2/67G2 pick up for any possibly-in-cable fault; on their falling edge after a TRIP, <code>79DTL</code> drives lockout — <em>unless</em> the sealed-in FT50 indication (SV2T, qualified by 51P1) proves the fault was beyond the riser, permitting reclose. The elements run on the first shot only (<code>67P2TC = SH0</code>) so reclose inrush can't fire them. Fail-safe: if sensors don't report, you only over-block within the 20% margin.</p>
+</div>
+<div class="card pulse">
+<h3>AG2018-12 — block fuse-saving / dynamic coordination (SEL-651R)</h3>
+<p style="margin-bottom:2px">Fuse-saving trips a fast curve to beat lateral fuses — but where fault current is too high, the fuse can't be saved and the fast trip just adds a feeder-wide momentary. FT50 trios on the uncoordinated laterals let the recloser <strong>block its fast curve selectively</strong>: fault indication + time-overcurrent pickup seals in SV42T, which strips the fast-curve terms (51AT/51BT/51CT, 51G1T) from the trip equations, leaving the delay curve. The same logic gives <em>dynamic coordination</em> — fast tripping everywhere except behind a large (100T) fuse (fast curve ~50 ms vs delay 230 ms at 3 kA in the example). FT50 pickups go <strong>just above lateral peak load</strong> for speed; the relay stays secure because it must also see the fault itself. Fast curves are enabled on the first shot only — the guide is explicit that the FT50 <strong>cannot distinguish fault current from inrush</strong> and will report either; security lives in the host relay.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>SEL-8315 — phase-comparison FCIs for underground cable</h2>
+<p>In a duct bank, magnitude alone is weak evidence. The <strong>SEL-8315 PC FCI</strong> instead compares <strong>current polarity at both ends of a monitored cable section</strong>: two SEL-8315 control modules (one per end, on B-phase) plus four SEL-8316 split-core CTs (A and C phases), linked by fiber (multimode short-haul 250 m, long-haul 3100 m). Each end measures instantaneous polarity per cable and exchanges it over the fiber; <strong>in-phase = healthy through current, out-of-phase = fault inside the section</strong>. That inherent directionality is the security win — external faults, load, and <strong>backfeed</strong> all produce in-phase end-to-end current; only an in-zone fault reverses one end.</p>
+<ul>
+  <li><strong>Where it lives:</strong> solid-dielectric (XLPE) underground transmission, 69–230 kV, cable pulls ≤2,000 ft with splices in vaults — and splice failure is the leading cause of cable faults. PC FCIs at a vault's entrance and exit make the vault itself the zone: the troubleshooter reads each vault from the street with the RadioRANGER <strong>SEL-8310</strong> reader interrogating the <strong>SEL-8300</strong> wireless interface (sold separately) — no vault entry. On detection each 8315 pulses the interface, which latches the faulted phase.</li>
+  <li><strong>Self-powered:</strong> CT-harvested; any one phase &gt;150 A powers the three-phase set; 2000 A continuous; 40 kA symmetrical 6-cycle fault withstand; submersible to 15 ft (IEEE 495-2007 type tests).</li>
+  <li><strong>Speed &amp; reset:</strong> detection 35 ms max (&lt;25 ms typ.) at 150–200 A fault down to 15 ms max (&lt;8 ms typ.) above 800 A; with &gt;150 A pre-fault load, 15 ms max. Auto-reset when current on any phase + no fault on any phase persist for 1 s.</li>
+  <li><strong>LEDs:</strong> RX (green = receiving from the remote end) plus A/B/C — green = current detected, amber = fault on that phase; a faulted phase blinks ~once per 4 s after the cable de-energizes.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>SEL-TWFL — traveling-wave fault locating</h2>
+<p>FCIs bracket a fault to a section; a traveling-wave locator pins it to a tower. A fault launches wavefronts toward both line ends; the <strong>SEL-TWFL</strong> timestamps the first current TW at each terminal (1 Msps sampling, interpolated to ~0.1 µs) and solves <strong>m = (L/2)·(1 + (t<sub>S</sub>−t<sub>R</sub>)/T)</strong> for the multi-ended method. Its accuracy budget per the IM: the device itself contributes a median error under <strong>10 m</strong> (90th percentile &lt; 20 m, ideal conditions); field-proven total accuracy about <strong>one tower span (±300 m / ±1,000 ft)</strong> regardless of line length; roughly half that on cable (TW velocity is about half).</p>
+<ul>
+  <li><strong>Multi-ended</strong> needs a 64 kbps IEEE C37.94 multiplexed channel between ends and sub-microsecond clocks (IRIG-B from C37.118-grade GPS) at each. No channel? Ship the TW timestamps over <strong>DNP3</strong> and let an RTAC at the control center do the multi-ended math (AG2022-03; also the route for &gt;3-terminal lines).</li>
+  <li><strong>Single-ended</strong> uses the first TW plus its fault reflection (m = (L/2)·(t₁/T)) — no channel or remote timing needed, but reflection identification is ambiguous, so it evaluates the plausible reflections against the measured TW pattern (aided by the other methods' results) and returns the best answer plus up to <strong>three ranked alternates</strong> rather than one. Impedance-based multi- and single-ended methods back everything up when TW signals are unusable.</li>
+  <li><strong>Where it applies:</strong> two- and three-terminal, tapped, series-compensated, and <strong>hybrid overhead/cable lines</strong> (up to five sections with per-section propagation times; it corrects for the velocity change); one TWFL can monitor two lines at a substation. Triggered by the protection (contact or Mirrored Bits input); results via DNP3, front panel, ASCII, or the COMTRADE header. It's a transmission-class tool with standard protection CTs — the complement, not the replacement, of distribution FCIs.</li>
+  <li><strong>Setting it up right:</strong> measure TWLPT with a line-energization test on the 1 MHz recorder instead of calculating it — a 1 µs propagation-time error is up to <strong>150 m</strong> of multi-ended location error (75 m on cable); enter CT-cable propagation times (TWCPT — only the end-to-end <em>difference</em> matters, and single-ended results are immune). Two hard limits: a line terminating only on transformers or series reactors reflects away the current TWs (impedance methods must carry it), and <strong>auxiliary CTs in the current path kill TW measurement</strong> — wire the TWFL to the protection CTs directly.</li>
+  <li><strong>Line monitoring:</strong> counts and locates TWs from fault <em>precursors</em> (cracked insulators, vegetation, incipient cable faults), alarms when a location's event count crosses a threshold — condition-based maintenance before the fault. It locates with the multi-ended method, so it needs the channel + clocks; two blocking regions per line let a noisy or cable section carry its own alarm rule. Also a 12-channel <strong>1 MHz / 18-bit</strong> recorder (records to 1.2 s, back-to-back to 3.6 s, ~60 s total storage) for restrike/TRV work.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Feeding distribution automation</h2>
+<ul>
+  <li><strong>Local-flag-only FCIs</strong> (8315 with its handheld reader, an FLT with radio off) cut patrol time but only after a truck rolls. <strong>SCADA-reported</strong> sensors change the sequence: the FLR's DNP3 map puts fault status, outage status, fault magnitude, and load data in front of the dispatcher (or OMS/DMS) at lockout — the crew is dispatched to a section, not a feeder.</li>
+  <li><strong>Sectionalizing decisions ride on the same data:</strong> during restoration, operators pick up unfaulted segments from adjacent feeders — the FLT's 5-minute average/peak load numbers are the documented input for deciding which tie can absorb the load without overloading. Where switching is automated, this is DAC territory — see the <em>DAC</em> pages in atlas for the sectionalizing logic itself.</li>
+  <li><strong>Cheap remote status:</strong> an FLT immediately downstream of a non-SCADA breaker, recloser, or switch reports which device operated and whether the line is energized — remote visibility on equipment that has none.</li>
+  <li><strong>Into protection:</strong> FT50/FR12 is the wire from line sensor to relay logic (Section 4); the FR12 schemes surface their state to SCADA via display points, latches (e.g., "CABLE FAULT / BLOCK RECLOSE"), and SER trigger lists so operations can see why the scheme acted.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Field practice &amp; gotchas</h2>
+<ul>
+  <li><strong>Placement:</strong> immediately downstream of taps/branches (names the faulted lateral), at dips and risers, at sectionalizing points, and spaced along long trunks to divide them into patrol-sized sections.</li>
+  <li><strong>Coordinate with the protection curve — twice.</strong> The sensor must trip <em>faster</em> than the upstream device clears (FLT default 3 half-cycles beats any protection element) yet slow enough to ignore short non-fault current bursts. And the highest FLT threshold must sit above max load or the device declares a coordination alarm and won't arm.</li>
+  <li><strong>Respect the reclose cycle.</strong> A flag set by reclose inrush sends the crew to a healthy section. The FLT's inrush restraint handles this automatically; a fixed-threshold FCI without restraint must rely on threshold margin alone. On the relay side, the AG schemes enable fast curves / cable-fault elements on the <em>first shot only</em> for the same reason.</li>
+  <li><strong>Not armed = blind.</strong> An FLT on a dead or &lt;I<sub>ARM</sub> line detects nothing, and an FT50 below 5 A stops even its link status (though a fault itself wakes it in time to report). Design so quiet sensors degrade gracefully (fail-safe overreach, delay-curve fallback), never so protection depends on them.</li>
+  <li><strong>Backfeed:</strong> distributed sources can hold current above I<sub>MIN</sub> after the breaker opens — that's what the FLT's slow I<sub>DO</sub> dropout is for. The 8315's phase comparison is inherently immune: backfeed through a healthy section stays in-phase.</li>
+  <li><strong>Know the caps:</strong> FLT fault magnitude saturates at 1600 A reported; TWFL single-ended hands you candidates, not certainty; FT50 fault bits also fire on inrush — the host relay's own elements are the security.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num" style="background:#454956">§</span>Sources</h2>
+<div class="card" style="border-left-color:#454956; background:#fafbfc">
+<ul style="margin-bottom:2px; font-size:8.6pt">
+<li>LINAM FLT and LINAM FLR Fault and Load Transmitter and Receiver System Instruction Manual — <span class="mono">FLT-FLR_IM_20250820.pdf</span></li>
+<li>LINAM FLT and LINAM FLR Data Sheet — <span class="mono">FLT-FLR_DS_20250820.pdf</span></li>
+<li>SEL-FT50, SEL-RP50, and SEL-FR12 Wireless Protection System Instruction Manual — <span class="mono">FT50-RP50-FR12_IM_20260123.pdf</span> (system behavior, timing, command sets, RP50, commissioning)</li>
+<li>SEL AG2017-29, Using the SEL-FT50/SEL-FR12 System to Improve the Selectivity of Reclose Blocking for Feeder Exit Cables — <span class="mono">AG2017-29_20171006.pdf</span></li>
+<li>SEL AG2018-12, Using the SEL-FT50/SEL-FR12 System to Selectively Block Fuse-Saving and Accelerated Tripping in the SEL-651R — <span class="mono">AG2018-12_20180427.pdf</span></li>
+<li>SEL-8315 Phase Comparison Faulted Circuit Indicator Instruction Manual — <span class="mono">8315_IM_20171010.pdf</span></li>
+<li>SEL-TWFL Traveling-Wave Fault Locator and MHz Recorder Instruction Manual — <span class="mono">TWFL_IM_20240213.pdf</span> (methods, accuracy analysis, setup) and Data Sheet — <span class="mono">TWFL_DS_20240213.pdf</span></li>
+</ul>
+</div>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC &mdash; How It Decides</a>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:comms/radio-and-wan.html">Radio &amp; Wide-Area Links</a>
+  <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>
+</div>
+<p class="footnote">Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

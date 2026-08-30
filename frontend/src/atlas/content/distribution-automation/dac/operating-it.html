@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Operating It</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC,RTN,reset,abnormal,operator,FLISR">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Operating It (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Operating It</h1>
+  <p>RTN and Reset, abnormal conditions, and the edge cases operators actually ask about</p>
+  <div class="chips"><span>RTN</span><span>Reset</span><span>abnormal</span><span>CapacityLimit</span><span>close-onto-fault</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Operating rules</h3>
+<ul style="margin-bottom:8px">
+<li><strong>Reset is a target reset, not an abort.</strong> The only way to stop an event in progress is to disable the DAC.</li>
+<li><strong>Reset is never required for the next event.</strong> The DAC re-arms itself and works the present topology — but an unreset Command Failure or Close-onto-Fault latch sidelines that feeder until someone resets.</li>
+<li><strong>RTN pushes open points outward, never pulls them in</strong> — and it's all-or-nothing: if the whole feeder can't return, nothing moves.</li>
+</ul>
+<h3>The fine print that bites</h3>
+<ul style="margin-bottom:2px">
+<li>Fault-indication settings make or break the system: assert on <strong>pickup</strong> (not operation), never on ground OC alone, never on inrush.</li>
+<li>A fault indication anywhere on the feeder <strong>blocks open-phase evaluation</strong>.</li>
+<li>Command failures and close-onto-fault are <strong>latched until a Reset</strong>; close-onto-fault aborts the sequence instantly.</li>
+<li>SEL recommends <strong>leaving Load Shed disabled</strong> — humans decide to drop customers.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Operating it: RTN and Reset</h2>
+<p>Two operator commands, two different jobs: <strong>RTN moves switches; Reset clears indications.</strong> RTN never clears a target; Reset never operates a device.</p>
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dc1" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Two commands, two jobs &mdash; and the order they have to happen in</text>
+
+  <!-- RTN column -->
+  <rect x="20" y="34" width="310" height="96" rx="8" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="175" y="54" text-anchor="middle" font-size="9" font-weight="600" fill="#0d7f63">RTN &mdash; moves switches</text>
+  <text x="175" y="72" text-anchor="middle" font-size="7.6" fill="#454956">Finds every NC switch now open and NO switch now closed,</text>
+  <text x="175" y="84" text-anchor="middle" font-size="7.6" fill="#454956">then hands the job to the reconfiguration sequence.</text>
+  <text x="175" y="102" text-anchor="middle" font-size="7.6" fill="#0d7f63">Pushes open points outward only. All-or-nothing.</text>
+  <text x="175" y="118" text-anchor="middle" font-size="7.4" fill="#8a8e9b">Never clears a target.</text>
+
+  <!-- Reset column -->
+  <rect x="370" y="34" width="310" height="96" rx="8" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="525" y="54" text-anchor="middle" font-size="9" font-weight="600" fill="#5468c4">Reset &mdash; clears indications</text>
+  <text x="525" y="72" text-anchor="middle" font-size="7.6" fill="#454956">Mimics a relay target reset: event indicators, plus the</text>
+  <text x="525" y="84" text-anchor="middle" font-size="7.6" fill="#454956">latched Command Failure and Close-onto-Fault statuses.</text>
+  <text x="525" y="102" text-anchor="middle" font-size="7.6" fill="#5468c4">Also triggers an update poll.</text>
+  <text x="525" y="118" text-anchor="middle" font-size="7.4" fill="#8a8e9b">Never operates a device. Never aborts a sequence.</text>
+
+  <!-- the order -->
+  <text x="8" y="158" font-size="9" font-weight="600" fill="#454956">After a dirty event, the order is not optional</text>
+  <g font-size="7.6">
+    <rect x="20" y="168" width="140" height="40" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="90" y="184" text-anchor="middle" font-weight="600" fill="#d63a3a">1 &middot; Fix the cause</text>
+    <text x="90" y="198" text-anchor="middle" font-size="7" fill="#6e7180">repair, tags off last</text>
+
+    <rect x="192" y="168" width="140" height="40" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="262" y="184" text-anchor="middle" font-weight="600" fill="#5468c4">2 &middot; Reset</text>
+    <text x="262" y="198" text-anchor="middle" font-size="7" fill="#6e7180">the only way to clear the latches</text>
+
+    <rect x="364" y="168" width="140" height="40" rx="6" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="434" y="184" text-anchor="middle" font-weight="600" fill="#9c6d06">3 &middot; Confirm not abnormal</text>
+    <text x="434" y="198" text-anchor="middle" font-size="7" fill="#6e7180">or RTN will simply refuse</text>
+
+    <rect x="536" y="168" width="144" height="40" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="608" y="184" text-anchor="middle" font-weight="600" fill="#0d7f63">4 &middot; RTN</text>
+    <text x="608" y="198" text-anchor="middle" font-size="7" fill="#6e7180">restores the normal arrangement</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1.1" fill="none" marker-end="url(#dc1)">
+    <path d="M160,188 H190"/><path d="M332,188 H362"/><path d="M504,188 H534"/>
+  </g>
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M90,188 H262 H434 H608"
+      keyPoints="0;0.33;0.33;0.66;0.66;1;1" keyTimes="0;0.28;0.36;0.6;0.68;0.94;1" calcMode="linear"/>
+  </circle>
+
+  <rect x="20" y="224" width="660" height="30" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="34" y="240" font-size="7.8" fill="#9c3838">Skip step 1 and RTN re-energizes the faulted zone &mdash; protection trips again, Close-onto-Fault aborts the sequence instantly, and the latched abnormal takes the feeder out of play.</text>
+  <text x="34" y="250" font-size="7.8" fill="#9c3838">Skip step 2 and the feeder stays abnormal: blocked from AR, useless as a restoration source, and RTN refuses.</text>
+</svg></div>
+<p class="figcap">The hot-line tags are the procedural guard on step 1: while they are on the bounding devices the feeder is abnormal and RTN is refused &mdash; so tags come off last. <span class="print-note">(Animated in the browser.)</span></p>
+
+
+<h3>Return to normal</h3>
+<p><strong>RTN</strong> (feeder or scheme) identifies every NC switch now open and NO switch now closed, then hands the reconfiguration sequence the job. It can only <em>push</em> open points out to the feeder's normal extent — a feeder that didn't get the command won't operate its devices to help, so paired transfers need both feeders commanded within a short window (scheme RTN covers everyone). And it's all-or-nothing: if a complete, no-load-dropped path can't be found — capacity, voltage, abnormal tag, a closed normal-open that can't break load, or source groups that forbid the transition — <strong>nothing moves at all</strong> and <code>CapacityLimit</code> asserts.</p>
+<div class="callout keyfact">
+<p><strong>RTN before the fault is repaired = close-onto-fault.</strong> RTN is rejected while any event is still in progress, but once the sequence has completed, <strong>the DAC has no memory that the isolated zone is still faulted</strong> — fault indications age out in minutes and a standing FI is not an abnormal condition. An RTN issued before repair will re-energize the zone; protection trips again, Close-onto-Fault detection aborts the sequence immediately, and the latched abnormal (Reset-only) takes the feeder out of play. The procedural guard is the hot-line tags: while they're on the bounding devices the feeder is abnormal and RTN is refused — so tags come off <em>last</em>, and RTN goes out only on confirmed repair completion.</p>
+</div>
+
+<h3>What the Reset command actually resets</h3>
+<p>Reset controls exist per feeder and system-wide, bound to SCADA points, and are designed to mimic a relay Target Reset. Per the manual, each scope clears:</p>
+<table>
+  <tr><th></th><th>System-level Reset</th><th>Feeder-level Reset</th></tr>
+  <tr><td><strong>Event indicators</strong></td><td>System-level indicators (e.g., Permanent Fault Event, Event Failed due to Abnormal Status) <em>and</em> feeder-level indicators (e.g., Feeder Operated due to Permanent Fault Event, Feeder Reconfigured) for all feeders</td><td>Feeder-level event indicators — the manual lists these as reset "for all feeders" under both commands</td></tr>
+  <tr><td><strong>Latched device statuses</strong></td><td>Command Failure and Close-onto-Fault abnormal statuses, plus "Opened to Isolate Open Phase" targets, for <em>all</em> devices</td><td>The same three, but only for devices within the <em>normal extent</em> of the feeder — if the feeder is extended past its normal tie points, devices beyond them are not reset</td></tr>
+  <tr><td><strong>Side effect</strong></td><td>Update poll of every device in the system</td><td>Update poll of devices within the feeder's normal extent</td></tr>
+</table>
+<p style="font-size:8.6pt">Reset is the <strong>primary method</strong> of clearing Command Failure and Close-onto-Fault. Incoming resets are <strong>ignored while an event is being operated on anywhere in the system</strong>, and Reset never stops a sequence — disabling the DAC is the only abort. Separately, a scheme Reset issued while all feeders are idle sends feeders back through the Initialize state, re-evaluating the normal operating arrangement.</p>
+
+<h3>Which one do I advise?</h3>
+<ul>
+  <li><strong>RTN when the field work is done:</strong> fault repaired, locked-out device available again, tags off, comms healthy — any abnormal on the present or normal configuration blocks it. If restoration leaned on a neighbor, command both feeders together (or use scheme RTN), or it will legitimately do nothing.</li>
+  <li><strong>Reset after investigating a Command Failure or Close-onto-Fault</strong> — mandatory, it's the only thing that clears them. Until then the feeder is abnormal: blocked from AR, useless as a restoration source, and RTN will refuse. Order: fix the cause → Reset → confirm not abnormal → RTN.</li>
+  <li><strong>Reset as housekeeping:</strong> clear event targets after dispatch has reviewed them (the SOE and post-event reports keep the history), or force a fresh poll. Never as a stop button — it's ignored while anything is operating; disabling the DAC is the only abort.</li>
+</ul>
+
+<h3>Back-to-back events — no Reset in between</h3>
+<p>A Reset is <strong>not</strong> a re-arm switch. When reconfiguration completes, the event sequence returns to Idle with the feeder still Armed, and the next event is evaluated against the <strong>present topology</strong> — non-normal configuration explicitly has no impact on AR (sequential and concurrent faults are a core capability). What changes for event #2 is the physics: the tie that closed for event #1 is now a loaded closed switch, margins are thinner, and an alternate may already be spent — so the same fault that would have restored fully on a normal system may end in partial restoration or <code>CapacityLimit</code>.</p>
+<ul>
+  <li><strong>The exception is the Reset-only latches.</strong> If event #1 left a Command Failure or Close-onto-Fault standing, that feeder is abnormal — a second event on it is confirmed but <em>not operated on</em> (Abnormal Failure alarms instead), and the feeder can't restore anyone else either. This is the one way "we never hit Reset" turns into "the DAC did nothing the second time." Operating order after a dirty event: fix the cause → Reset → confirm the feeder is no longer abnormal → RTN.</li>
+  <li><strong>Live targets are flags, not a queue.</strong> A second permanent fault re-asserts the same event indicators, so the target list alone can't distinguish two events. The durable per-event record is the SOE log and the auto-generated post-event report — go there for event #1's story, not the targets.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Abnormal conditions — what takes a feeder out of play</h2>
+<p>One abnormal device = the whole feeder abnormal = excluded from solutions (it still gets polled in Update). Bypassed and out-of-service devices are exempt from abnormal declaration. The device dispositions matter: <strong>Inhibit</strong> = don't operate, trust reported status; <strong>Bypass</strong> = don't operate, assume closed; <strong>Out of service</strong> = don't operate, assume open. Inhibited/bypassed devices can't sectionalize; out-of-service/inhibited devices can't restore.</p>
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dc2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#d63a3a"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One abnormal device takes the whole feeder out of play &mdash; in both directions</text>
+
+  <!-- feeder -->
+  <line x1="60" y1="76" x2="620" y2="76" stroke="#1a1a22" stroke-width="2"/>
+  <text x="42" y="79" font-size="7.4" fill="#6e7180" text-anchor="end">source</text>
+  <g stroke="#1a1a22" stroke-width="1.3" fill="#fff">
+    <rect x="150" y="66" width="16" height="20"/>
+    <rect x="290" y="66" width="16" height="20"/>
+    <rect x="430" y="66" width="16" height="20"/>
+    <rect x="560" y="66" width="16" height="20"/>
+  </g>
+  <g font-size="7" fill="#6e7180" text-anchor="middle">
+    <text x="158" y="100">R-1</text><text x="298" y="100">R-2</text><text x="438" y="100">R-3</text><text x="568" y="100">tie</text>
+  </g>
+
+  <!-- the abnormal device -->
+  <circle cx="298" cy="76" r="16" fill="none" stroke="#d63a3a" stroke-width="2">
+    <animate attributeName="r" values="14;20;14" dur="1.8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  <text x="298" y="46" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle">one abnormal device</text>
+  <text x="298" y="34" font-size="7" fill="#8a8e9b" text-anchor="middle">hot-line tag, comms failure, command failure&hellip;</text>
+
+  <!-- feeder shading -->
+  <rect x="60" y="58" width="560" height="36" rx="8" fill="#d63a3a" opacity="0.08"/>
+  <text x="340" y="118" font-size="7.6" fill="#d63a3a" text-anchor="middle">&hellip;and the entire feeder is declared abnormal</text>
+
+  <!-- consequences -->
+  <g font-size="7.4">
+    <rect x="30" y="140" width="196" height="52" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="128" y="158" text-anchor="middle" font-weight="600" fill="#9c3838">Excluded from solutions</text>
+    <text x="128" y="172" text-anchor="middle" fill="#454956">no automatic restoration on it</text>
+    <text x="128" y="184" text-anchor="middle" fill="#454956">and RTN is refused</text>
+
+    <rect x="252" y="140" width="196" height="52" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="350" y="158" text-anchor="middle" font-weight="600" fill="#9c3838">Useless as an alternate</text>
+    <text x="350" y="172" text-anchor="middle" fill="#454956">a neighbouring feeder cannot</text>
+    <text x="350" y="184" text-anchor="middle" fill="#454956">lean on it either</text>
+
+    <rect x="474" y="140" width="196" height="52" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="572" y="158" text-anchor="middle" font-weight="600" fill="#0d7f63">Still polled</text>
+    <text x="572" y="172" text-anchor="middle" fill="#454956">Update continues, so the</text>
+    <text x="572" y="184" text-anchor="middle" fill="#454956">condition can clear itself</text>
+  </g>
+  <g stroke="#d63a3a" stroke-width="1.1" fill="none" marker-end="url(#dc2)" opacity="0.7">
+    <path d="M298,96 C240,110 180,124 128,138"/>
+    <path d="M298,96 V138"/>
+  </g>
+
+  <rect x="30" y="204" width="640" height="38" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="44" y="220" font-size="7.8" fill="#454956"><tspan font-weight="600">Two useful distinctions.</tspan> Bypassed and out-of-service devices are exempt from abnormal declaration &mdash; they are known-excluded, not broken.</text>
+  <text x="44" y="234" font-size="7.8" fill="#454956">And <tspan font-style="italic">non-normal configuration</tspan> is not abnormal: automatic restoration runs on the present topology regardless of where the open points are. Only RTN cares about normal.</text>
+</svg></div>
+<p class="figcap">Most &ldquo;why didn't the DAC operate?&rdquo; investigations end here: something on the feeder was abnormal, and one device is enough. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Condition</th><th>Notes</th><th>Clears</th></tr>
+  <tr><td>Hot-line tag</td><td>Local pushbutton or SCADA — source irrelevant</td><td>With the tag</td></tr>
+  <tr><td>Reclosing disabled</td><td>Ignored for devices in a configured "switch mode" group</td><td>With the status</td></tr>
+  <tr><td>Remote control disabled</td><td>Supervisory off at the control</td><td>With the status</td></tr>
+  <tr><td>Comms failure</td><td>Offline a whole integrity period, update-poll timeout, or never polled since boot</td><td>3 consecutive good responses (or 3 unique RTU watchdogs)</td></tr>
+  <tr><td>Command failure</td><td>3 retries exhausted; closed-transition open failure triggers the re-open safeguard</td><td><strong>Reset only</strong></td></tr>
+  <tr><td>Close-onto-fault</td><td>New FI right after a close, or close-then-trip with FI standing — <strong>aborts the sequence immediately</strong></td><td><strong>Reset only</strong></td></tr>
+  <tr><td>Device diagnostic</td><td>IED self-test failure</td><td>With the status</td></tr>
+  <tr><td>Voltage discrepancy</td><td>Live/dead patterns that can't be real (dead upstream of live, etc.), held one update time limit</td><td>Auto, when readings agree</td></tr>
+  <tr><td>Directional fault discrepancy</td><td>Loop systems: FI both directions — aborts immediately</td><td>With the status</td></tr>
+  <tr><td>Protection (breaker) failure</td><td>Outside events: abnormal. <em>During</em> an event: device treated as bypassed so FLISR can still run around it, then marked abnormal after</td><td>When the relay's 50BF latch drops</td></tr>
+</table>
+<p style="font-size:8.6pt">If voltage-discrepancy detection is <em>disabled</em>, a discrepancy raises no alarm — but open-phase detection on that feeder silently stops and the feeder is disqualified as a restoration source. Non-normal configuration (any device off its normal state) is <em>not</em> abnormal: AR runs on present topology regardless; only RTN cares about normal.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Edge cases operators actually ask about</h2>
+<table>
+  <tr><th style="width:34%">The question</th><th>What actually happens</th></tr>
+  <tr><td><strong>A second fault hits while the first sequence is still executing.</strong></td><td>New events are detected in every step, and "new event" is an explicit exit from the Reconfiguration step — the system pulls back, re-evaluates, and solves all confirmed events together (sequential and concurrent faults are a listed core capability). The exceptions that abort outright mid-sequence: close-onto-fault and directional fault discrepancy.</td></tr>
+  <tr><td><strong>Two feeders fault at once (storm).</strong></td><td>The reconfiguration sequence waits until every feeder's event sequence is idle, then evaluates all confirmed events in <em>one</em> solution pass — shared alternates get allocated by the criteria ladder, not first-come-first-served.</td></tr>
+  <tr><td><strong>Dispatch manually opens a modeled breaker or switch. Will the DAC "restore" around it?</strong></td><td>No. A device operating without a fault indication is a manual operation — no DA event (stated explicitly for UFLS breaker trips). The area downstream of a modeled open device simply isn't part of any feeder (a feeder is a source feeding zones through <em>closed</em> devices), so no open-phase pattern exists on the energized side. The DAC keeps running AR on the new present topology.</td></tr>
+  <tr><td><strong>Planned upstream / transmission switching kills station voltage.</strong></td><td>That <em>is</em> an event: loss of substation voltage is an open-phase (dead-bus) condition, and once the ~60 s confirm time runs out the DAC starts moving feeders to alternates. The 10 s detect delay only rides through brief switching transients. <strong>For planned upstream outages, disable the scheme or exclude the feeders first.</strong></td></tr>
+  <tr><td><strong>Will FLISR ever reclose the device that locked out?</strong></td><td>Only when it locked out upstream of the true fault — miscoordination correction, where the DAC isolates the real zone and then recloses the wrongly-operated upstream device. It never re-energizes the faulted zone itself.</td></tr>
+  <tr><td><strong>A hot-line tag goes on mid-event.</strong></td><td>On the event feeder before confirmation: the sequence aborts to Idle with Abnormal Failure alarms. On a candidate alternate during Update/Analyze: that feeder is dropped from solution consideration. During execution: the sequence can abort on <code>AbnormalCondition</code> when the reconfiguration time limit expires.</td></tr>
+  <tr><td><strong>The DAC reboots mid-event or while off-normal.</strong></td><td>Feeders come up in Initialize — internal variables and alarm conditions reset, the configuration re-evaluated, everything re-polled. The manual describes no mechanism for resuming a half-executed sequence, so expect the system as-switched, with targets rebuilt from live data, and finish by manual switching or RTN.</td></tr>
+  <tr><td><strong>Operator disables the DAC to abort a sequence. Then what?</strong></td><td>The sequence stops — that's the designed abort. No rollback of already-executed switching is described: whatever opened or closed stays that way, and the cleanup is manual (or RTN once re-enabled and healthy).</td></tr>
+  <tr><td><strong>An overload rides through a fault event.</strong></td><td>The fault wins. Overload monitoring only runs when no fault or open-phase condition is detected on the feeder and no abnormal conditions exist — the overload gets its turn afterward, when its (system-wide) confirm timer says so.</td></tr>
+  <tr><td><strong>Can I RTN with the scheme disabled?</strong></td><td>No. RTN acceptance requires the feeder Armed — plus no events ongoing anywhere, no abnormals on the present or normal configuration, and RTN enabled in the system.</td></tr>
+  <tr><td><strong>The deepest device never reports its fault indication.</strong></td><td>If it's comm-failed, the feeder is abnormal and the event is blocked — the protected case. If it's online but its FI logic just doesn't assert, the DAC locates the zone below the deepest FI <em>it can see</em> — one zone too far upstream, and isolation lands wrong. The manual's design assumption is FIs asserting on pickup at every device that saw fault current; this is why FI configuration is the make-or-break item.</td></tr>
+</table>
+<p style="font-size:8.6pt">Each answer above is built from explicit manual statements (event/RTN acceptance conditions, sequence exits, UFLS manual-operation rule, feeder definition, Initialize behavior); where a behavior is the <em>absence</em> of a described mechanism (reboot resumption, disable rollback), the entry says so rather than asserting a guarantee. For customer-facing procedures on those two, confirm with dac_support@selinc.com.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>"Why didn't it operate?" checklist:</strong> feeder Armed? abnormal tag anywhere on the feeder? did anything ever lock out (no lockout = no permanent fault)? open phase — was there an FI blocking it, or is voltage-discrepancy detection off? did Analyze or Update time out?</li>
+<li><strong>"Why did only part come back?"</strong> — <code>CapacityLimit</code>: margins, Level-1 voltage gates, nonpreferred-source penalties, or an abnormal neighbor. The event report has the scenario detail; the alarm doesn't.</li>
+<li><strong>After any event, expect the system off-normal until RTN</strong> — and remember RTN won't act at all if it can't do the whole job cleanly (§1).</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC &mdash; How It Decides</a>
+  <a href="atlas:distribution-automation/dac/optional-features.html">DAC &mdash; Optional Features</a>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:distribution-equipment/fault-indicators.html">Fault Indicators &amp; Sensors</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  
+</div>
+<p class="footnote">Source: SEL ES Distribution Automation Controller Operation Manual, date code 20250626 — Feeder/System Reset section, RTN acceptance conditions, abnormal-condition subsections; edge-case answers built from explicit manual statements, with absence-of-mechanism inferences flagged in place. SEL ES proprietary — internal use. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DNP3 Fundamentals</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DNP3,IEEE 1815,objects,variations,classes,IIN,integrity poll,unsolicited">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DNP3 Fundamentals (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DNP3 Fundamentals</h1>
+  <p>The protocol itself — layers, the data model, classes and polling, IIN bits, and time</p>
+  <div class="chips"><span>Class 0/1/2/3</span><span>Obj 1·2·30·32</span><span>IIN</span><span>port 20000</span><span>IEEE 1815</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">DNP3 in general</h3>
+<ul style="margin-bottom:2px">
+<li>DNP3 is <strong>event-oriented</strong>: the outstation remembers what changed; the master mostly collects events instead of re-reading everything.</li>
+<li>Every piece of data is an <strong>object group + variation</strong> at a <strong>point index</strong>. The variation is just the format of the same value.</li>
+<li><strong>Class 0</strong> is present values. <strong>Classes 1/2/3</strong> are buffered change events. Assigning a point's event class is what makes it report by exception.</li>
+<li>Quality flags travel with the data. A value without its flags is half a value.</li>
+<li>Every response carries <strong>IIN bits</strong> — the outstation telling you it has events, needs time, restarted, or overflowed. Read them.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The shape of the protocol</h2>
+<p>DNP3 (IEEE 1815) is a SCADA protocol between a <strong>master</strong> and an <strong>outstation</strong>, built as three layers that survive noisy channels:</p>
+<div class="flow">
+  <div class="stage"><b>Link layer</b><span>FT3 frames, 16-bit source + destination addresses, CRC every 16 bytes</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Transport function</b><span>splits large application messages across frames and reassembles them</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Application layer</b><span>function code + object headers + data; fragments confirmed and sequenced</span></div>
+</div>
+<p>It runs over serial (including multidrop — several outstation addresses on one line) or IP, where the same frames ride TCP or UDP, conventionally <strong>port 20000</strong>. Device addresses run 0–65519; 65535 is the all-stations broadcast. One physical device can host several DNP sessions, each with its own address pair and its own event queues.</p>
+<table>
+  <tr><th>FC</th><th>Request</th><th></th><th>FC</th><th>Request</th></tr>
+  <tr><td class="mono">1</td><td>Read</td><td></td><td class="mono">13 / 14</td><td>Cold / warm restart</td></tr>
+  <tr><td class="mono">2</td><td>Write (time, IIN clear)</td><td></td><td class="mono">20 / 21</td><td>Enable / disable unsolicited</td></tr>
+  <tr><td class="mono">3 / 4</td><td>Select / Operate (SBO)</td><td></td><td class="mono">23</td><td>Delay measurement (time sync)</td></tr>
+  <tr><td class="mono">5 / 6</td><td>Direct Operate / no-ack</td><td></td><td class="mono">129</td><td>Response</td></tr>
+  <tr><td class="mono">7–12</td><td>Freeze variants</td><td></td><td class="mono">130</td><td>Unsolicited response</td></tr>
+</table>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The data model: objects, variations, classes</h2>
+<p>Everything the outstation exposes is a numbered point inside an object group. The <strong>group</strong> says what kind of data; the <strong>variation</strong> says the encoding (bit width, flags, timestamp). Masters can request variation 0 — "give me your default."</p>
+<table>
+  <tr><th>Group</th><th>What it is</th><th>Variations you'll meet</th></tr>
+  <tr><td class="mono">1 / 2</td><td>Binary input — static / change event</td><td>packed bits or with flags; events with/without time</td></tr>
+  <tr><td class="mono">10 / 12</td><td>Binary output — status / CROB control</td><td>Obj 10 Var 2 = status with flags; Obj 12 Var 1 = CROB</td></tr>
+  <tr><td class="mono">20 / 22</td><td>Counter — static / change event</td><td>32- or 16-bit, with or without flags</td></tr>
+  <tr><td class="mono">21 / 23</td><td>Frozen counter — static / event</td><td>captured by freeze function codes</td></tr>
+  <tr><td class="mono">30 / 32</td><td>Analog input — static / change event</td><td>Var 1 = 32-bit int, Var 2 = 16-bit int, Var 5 = float</td></tr>
+  <tr><td class="mono">34</td><td>Analog input deadband (writable)</td><td>runtime deadband changes — volatile on SEL relays</td></tr>
+  <tr><td class="mono">40 / 41</td><td>Analog output — status / control block</td><td>the setpoint counterpart of Obj 10/12</td></tr>
+  <tr><td class="mono">50 / 51 / 52</td><td>Time: write / CTO / delay</td><td>time sync and common time-of-occurrence</td></tr>
+  <tr><td class="mono">60</td><td>Class objects</td><td>Var 1 = Class 0, Vars 2–4 = Classes 1–3</td></tr>
+</table>
+<p><strong>Classes are the routing layer for events.</strong> Class 0 means "current value of everything." Each event-capable point is assigned to Class 1, 2, or 3 (or None); a change beyond its deadband generates a buffered, timestamped event in that class. A point assigned Class None generates no events — and on the RTAC, Event Class None also excludes it from Class 0 responses.</p>
+<p><strong>Quality flags</strong> ride with most variations: online, restart, comm-lost, remote/local forced, chatter (binaries), over-range and rollover (analogs/counters). Comm-lost propagating through an RTAC to SCADA is how the master learns a downstream IED went dark without the point ever changing value.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>How data actually moves</h2>
+<div class="flow">
+  <div class="stage"><b>1 · Integrity poll</b><span>Class 1,2,3,0 — all buffered events, then a full snapshot. At startup and on restart/overflow.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Event polls</b><span>Class 1/2/3 on a short period — only what changed. The steady-state workload.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Unsolicited</b><span>outstation pushes events on its own when thresholds are met (if enabled).</span></div>
+</div>
+<p>That order matters: events first, snapshot second, so the master never overwrites fresh events with an older static value. Report-by-exception is what makes DNP3 cheap on bandwidth — a quiet substation produces near-zero traffic between integrity polls.</p>
+
+<div class="fig"><svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+  <rect x="40" y="8" width="110" height="22" rx="4" fill="#1a1a22"/>
+  <text x="95" y="23" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">Master</text>
+  <rect x="550" y="8" width="110" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="605" y="23" font-size="11" font-weight="600" fill="#1a1a22" text-anchor="middle">Outstation</text>
+  <line x1="95" y1="30" x2="95" y2="182" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="605" y1="30" x2="605" y2="182" stroke="#d0d3da" stroke-width="1.25"/>
+  <path d="M95,48 H598 M592,43 L599,48 L592,53" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="350" y="42" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">integrity poll — Class 1,2,3,0</text>
+  <path d="M605,70 H102 M108,65 L101,70 L108,75" fill="none" stroke="#5468c4" stroke-width="3"/>
+  <text x="350" y="64" font-size="9.5" fill="#5468c4" text-anchor="middle">all buffered events, then the full snapshot (big)</text>
+  <path d="M95,102 H598 M592,97 L599,102 L592,107" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="350" y="96" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">event poll — Class 1/2/3</text>
+  <path d="M605,122 H102 M108,117 L101,122 L108,127" fill="none" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="350" y="116" font-size="9.5" fill="#5468c4" text-anchor="middle">only what changed (tiny)</text>
+  <path d="M605,156 H102 M108,151 L101,156 L108,161" fill="none" stroke="#d7930a" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="350" y="150" font-size="9.5" font-weight="600" fill="#9c6d06" text-anchor="middle">unsolicited — outstation pushes events on its own</text>
+  <text x="350" y="176" font-size="8.5" fill="#a9adb8" text-anchor="middle">integrity at startup / restart / overflow · class polls as the steady state · unsolicited between polls if enabled</text>
+  <g class="animlayer">
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.10;0.12;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M95,48 L605,48" keyPoints="0;0;1;1" keyTimes="0;0.01;0.11;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="6" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.14;0.15;0.26;0.28;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M605,70 L95,70" keyPoints="0;0;1;1" keyTimes="0;0.14;0.27;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.40;0.41;0.50;0.52;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M95,102 L605,102" keyPoints="0;0;1;1" keyTimes="0;0.40;0.51;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="3" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.54;0.55;0.64;0.66;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M605,122 L95,122" keyPoints="0;0;1;1" keyTimes="0;0.54;0.65;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.78;0.79;0.90;0.92;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M605,156 L95,156" keyPoints="0;0;1;1" keyTimes="0;0.78;0.91;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">The three ways data moves, in the order a healthy session uses them.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<ul>
+  <li><strong>Deadbands create analog events.</strong> A point generates an event when it moves beyond its deadband from the last reported value. Deadband of 0 = an event on every scan — this burdens the device and the channel; don't do it.</li>
+  <li><strong>Event buffers are finite.</strong> SEL-751A: 1024 binary / 100 analog / 32 counter events per session. On overflow the outstation raises IIN2.3 and the master should integrity-poll to resynchronize.</li>
+  <li><strong>Unsolicited needs discipline on multidrop serial:</strong> two outstations pushing at once collide. The RTAC server offers randomized transmit min/max delays for exactly this; relays gate unsolicited with count (<code>NUMEVE</code>) and age (<code>AGEEVE</code>) thresholds, plus retry and offline timers.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 158" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="76" width="160" height="28" fill="#10a37f" opacity="0.10"/>
+  <rect x="180" y="54" width="210" height="28" fill="#10a37f" opacity="0.10"/>
+  <rect x="390" y="82" width="170" height="28" fill="#10a37f" opacity="0.10"/>
+  <rect x="560" y="46" width="128" height="28" fill="#10a37f" opacity="0.10"/>
+  <line x1="20" y1="90" x2="180" y2="90" stroke="#10a37f" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <line x1="180" y1="68" x2="390" y2="68" stroke="#10a37f" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <line x1="390" y1="96" x2="560" y2="96" stroke="#10a37f" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <line x1="560" y1="60" x2="688" y2="60" stroke="#10a37f" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+  <path d="M20,90 C60,86 90,94 120,88 C150,80 165,74 180,68 C220,54 250,58 280,64 C320,72 355,86 390,96 C430,106 460,100 490,88 C520,76 540,68 560,60 C600,50 640,56 688,54" fill="none" stroke="#5468c4" stroke-width="2"/>
+  <circle cx="180" cy="68" r="4.5" fill="#d63a3a"/>
+  <circle cx="390" cy="96" r="4.5" fill="#d63a3a"/>
+  <circle cx="560" cy="60" r="4.5" fill="#d63a3a"/>
+  <path d="M180,108 V126 M390,116 V126 M560,80 V126" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 2" opacity="0.7"/>
+  <text x="180" y="140" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">event</text>
+  <text x="390" y="140" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">event</text>
+  <text x="560" y="140" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">event</text>
+  <text x="24" y="48" font-size="8.5" fill="#10a37f">deadband around last reported value</text>
+  <path d="M96,52 C100,62 100,68 98,74" fill="none" stroke="#10a37f" stroke-width="0.75" opacity="0.6"/>
+  <text x="686" y="154" font-size="8.5" fill="#a9adb8" text-anchor="end">value leaves the band → event queued, band re-centers on the new reported value</text>
+  <g class="animlayer">
+    <line x1="20" y1="34" x2="20" y2="126" stroke="#1a1a22" stroke-width="1" opacity="0.4">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="668 0" dur="9s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="180" cy="68" r="9" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.22;0.25;0.33;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="390" cy="96" r="9" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.53;0.56;0.64;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="560" cy="60" r="9" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.79;0.82;0.90;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Report by exception: an analog generates an event only when it moves beyond the deadband from its last <em>reported</em> value — then the band re-centers there.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>IIN bits: the outstation's status line</h2>
+<p>Every response carries two Internal Indication bytes. These are the protocol's health telemetry — masters that ignore them miss restarts and lost events.</p>
+<div class="twocol">
+<div>
+<table>
+  <tr><th>Bit</th><th>Meaning</th></tr>
+  <tr><td class="mono">IIN1.0</td><td>Broadcast message received</td></tr>
+  <tr><td class="mono">IIN1.1–1.3</td><td>Class 1 / 2 / 3 events available — "come poll me"</td></tr>
+  <tr><td class="mono">IIN1.4</td><td>Need time — clock wants a sync</td></tr>
+  <tr><td class="mono">IIN1.5</td><td>Local control — some points switched to local</td></tr>
+  <tr><td class="mono">IIN1.6</td><td>Device trouble</td></tr>
+  <tr><td class="mono">IIN1.7</td><td>Device restart — expect an integrity poll</td></tr>
+</table>
+</div>
+<div>
+<table>
+  <tr><th>Bit</th><th>Meaning</th></tr>
+  <tr><td class="mono">IIN2.0</td><td>Function code not supported</td></tr>
+  <tr><td class="mono">IIN2.1</td><td>Requested objects unknown</td></tr>
+  <tr><td class="mono">IIN2.2</td><td>Parameter error in request</td></tr>
+  <tr><td class="mono">IIN2.3</td><td>Event buffer overflow — events were lost</td></tr>
+  <tr><td class="mono">IIN2.4</td><td>Operation already executing</td></tr>
+  <tr><td class="mono">IIN2.5</td><td>Configuration corrupt</td></tr>
+</table>
+</div>
+</div>
+<p style="font-size:8.6pt">The RTAC client auto-responds to IIN1.1–1.3 (polls the flagged class) by default — visible as the <code>Auto_Respond_to_IIN_*</code> POU pins. Auto-respond to <strong>Need Time is default FALSE</strong>: the RTAC won't time-sync an IED unless you enable it. The RTAC server exposes force pins for IIN1.6 and IIN2.3 so logic can flag trouble upstream.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Time: sync and timestamps</h2>
+<p>Two separate problems live here — setting the outstation's clock, and trusting the timestamps on events.</p>
+<ul>
+  <li><strong>Syncing:</strong> the master writes time (Object 50; Var 1 with Object 52 delay compensation on serial, Var 3 for LAN/WAN). SEL relays treat DNP time as <strong>backup only</strong> — the manuals state its accuracy is insufficient for protection and oscillography; IRIG-B is the real source. The per-session <code>TIMERQ</code> setting picks the posture: <code>I</code> (default — accept the write, ignore it), <code>M</code> (accept and use), or a period (actively request sync via IIN1.4).</li>
+  <li><strong>Timestamps:</strong> on SEL relays, ordinary binary inputs are scanned for DNP events at ~1–2 scans per second, and the event carries <em>scan time</em> — up to a second late. Points registered in the SER carry the true time of occurrence. <strong>Never build sequence-of-events analysis on non-SER DNP timestamps.</strong></li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>IIN1.7 (restart) or IIN2.3 (overflow) seen?</strong> Integrity-poll before trusting anything — buffered history is suspect.</li>
+<li><strong>Controls:</strong> everything about Group 12, control models, pulse timing, and SEL-specific control behavior lives in <em>DNP3 Controls</em> in atlas.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/protocol-chooser.html">Choosing a Protocol</a>
+  <a href="atlas:data-protocols/dnp3/controls.html">DNP3 Control Models</a>
+  <a href="atlas:data-protocols/dnp3/on-sel-relays.html">DNP3 on SEL Relays</a>
+  <a href="atlas:data-protocols/dnp3/on-the-rtac.html">DNP3 on the RTAC</a>
+  
+</div>
+<p class="footnote">Sources: SEL-751A IM App. D and SEL-400 Series Relays IM §16 (object support, event buffers, scan rates); ACSELERATOR RTAC SEL-5033 IM (client polling, IIN auto-respond — full text locally inside 3530-4_IM). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

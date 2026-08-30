@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Faults &amp; Fault Current</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="fault,short circuit,DC offset,asymmetry,X/R,decrement,arc resistance,fault study,duty,interrupting">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Faults &amp; Fault Current (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Faults &amp; Fault Current</h1>
+  <p>What a fault is, where the current comes from, what shape it has in time, and how to read the fault study that every setting depends on</p>
+  <div class="chips"><span>3P / LL / SLG / LLG</span><span>DC offset</span><span>X/R</span><span>decrement</span><span>arc resistance</span><span>fault study</span><span>duty</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Fault current in six sentences</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Most overhead faults are temporary.</strong> On distribution lines the large majority clear themselves once the arc is de-energized &mdash; which is the entire justification for reclosing.</li>
+<li><strong>Fault current is set by impedance, not by load.</strong> Between the source and the fault, sum the impedances; the current is what is left over. Load current is a rounding error by comparison.</li>
+<li><strong>The first cycle is not a sine wave.</strong> Inductive circuits force a decaying DC offset that can nearly double the first peak. Peak asymmetrical can approach 2.8 &times; the symmetrical RMS value on a very high X/R circuit.</li>
+<li><strong>Current decays.</strong> Generator contribution falls from subtransient through transient to steady state over several cycles to seconds; motor contribution disappears within a few cycles.</li>
+<li><strong>Arc and ground resistance are real and unhelpful.</strong> They reduce the current your relay sees, most severely for the ground faults you most want to detect.</li>
+<li><strong>The fault study is a settings input, not a formality.</strong> Maximum values set instantaneous pickups and equipment duty; <em>minimum</em> values set sensitivity and prove your protection reaches the far end.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What a fault actually is</h2>
+<p>A fault is an unintended conducting path: phase to ground, phase to phase, or some combination. The insulation that was doing its job &mdash; air, oil, porcelain, polymer, or distance &mdash; stopped doing it.</p>
+<table>
+  <tr><th>Cause</th><th>Typical fault</th><th>Temporary or permanent</th></tr>
+  <tr><td>Lightning (direct or induced)</td><td>SLG flashover across an insulator</td><td>Temporary &mdash; the arc self-extinguishes once de-energized</td></tr>
+  <tr><td>Wind, galloping, conductor slap</td><td>LL or LLG</td><td>Temporary</td></tr>
+  <tr><td>Tree contact, animal, bird</td><td>SLG, sometimes LL</td><td>Temporary if it burns clear; permanent if the tree stays</td></tr>
+  <tr><td>Broken conductor, downed wire</td><td>SLG, often high impedance</td><td>Permanent &mdash; and dangerous, because it may draw very little current</td></tr>
+  <tr><td>Failed cable, terminator, or bushing</td><td>SLG evolving to LLG</td><td>Permanent</td></tr>
+  <tr><td>Dig-in, vehicle contact, equipment failure</td><td>anything</td><td>Permanent</td></tr>
+  <tr><td>Switching error, closing into a ground</td><td>3P or LLG</td><td>Permanent until the grounds are removed</td></tr>
+</table>
+<p>The temporary/permanent split is why a distribution feeder relay recloses and a cable circuit generally does not: reclosing into a permanent cable fault buys nothing and destroys equipment. See <a href="atlas:protection/reclosing.html">Reclosing (79)</a>.</p>
+
+<div class="callout">
+<strong>Faults evolve.</strong> A single-phase-to-ground arc heats and ionizes air; within a few cycles it can involve a second phase. An event report that starts as A&ndash;G and ends as A&ndash;B&ndash;G is completely ordinary, and it explains why an element that was correctly restrained at fault inception may operate a cycle later.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The shape of the current in time</h2>
+<p>Close a switch onto an inductive short circuit and the current cannot jump &mdash; it must start from whatever it was. The solution is a steady-state sinusoid plus a decaying exponential sized to make the total start correctly. That exponential is the <strong>DC offset</strong>, and its time constant is &tau; = X&nbsp;/&nbsp;(&omega;R) = (X/R)&nbsp;/&nbsp;377 seconds at 60&nbsp;Hz.</p>
+
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A fault struck at a voltage zero on a high-X/R circuit &mdash; fully offset current</text>
+
+  <line x1="52" y1="140" x2="686" y2="140" stroke="#a9adb8" stroke-width="1"/>
+  <line x1="52" y1="30" x2="52" y2="230" stroke="#a9adb8" stroke-width="1"/>
+  <text x="30" y="86" font-size="7.4" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 30 86)">current</text>
+
+  <!-- pre-fault load -->
+  <path d="M52,140 C60,140 64,132 72,132 C80,132 84,148 92,148 C100,148 104,132 112,132 C118,132 121,140 124,140"
+        fill="none" stroke="#6e7180" stroke-width="1.3"/>
+  <text x="88" y="164" font-size="7" fill="#8a8e9b" text-anchor="middle">load</text>
+  <line x1="124" y1="30" x2="124" y2="230" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="128" y="40" font-size="7.4" fill="#d63a3a">fault inception</text>
+
+  <!-- DC offset envelope -->
+  <path d="M124,140 C180,102 260,84 340,80 C440,76 560,80 686,82" fill="none" stroke="#d7930a" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="352" y="74" font-size="7" fill="#9c6d06">DC offset decaying with &tau; = (X/R)/377</text>
+
+  <!-- offset fault current: sine riding on decaying dc -->
+  <path d="M124,140
+           C136,140 142,44 154,44 C166,44 172,138 184,138
+           C196,138 202,50 214,50 C226,50 232,136 244,136
+           C256,136 262,58 274,58 C286,58 292,134 304,134
+           C316,134 322,64 334,64 C346,64 352,132 364,132
+           C376,132 382,70 394,70 C406,70 412,130 424,130
+           C436,130 442,74 454,74 C466,74 472,128 484,128
+           C496,128 502,78 514,78 C526,78 532,126 544,126
+           C556,126 562,80 574,80 C586,80 592,124 604,124
+           C616,124 622,82 634,82 C646,82 652,122 664,122
+           C672,122 678,92 686,92"
+        fill="none" stroke="#d63a3a" stroke-width="1.6"/>
+
+  <!-- symmetric reference -->
+  <path d="M124,140 C136,140 142,88 154,88 C166,88 172,192 184,192 C196,192 202,88 214,88 C226,88 232,192 244,192
+           C256,192 262,88 274,88 C286,88 292,192 304,192 C316,192 322,88 334,88 C346,88 352,192 364,192
+           C376,192 382,88 394,88 C406,88 412,192 424,192 C436,192 442,88 454,88 C466,88 472,192 484,192
+           C496,192 502,88 514,88 C526,88 532,192 544,192 C556,192 562,88 574,88 C586,88 592,192 604,192
+           C616,192 622,88 634,88 C646,88 652,192 664,192 C672,192 678,140 686,140"
+        fill="none" stroke="#10a37f" stroke-width="1.1" opacity="0.45" stroke-dasharray="3 3"/>
+
+  <!-- sweep -->
+  <line y1="30" y2="230" stroke="#1a1a22" stroke-width="1" opacity="0.35">
+    <animate attributeName="x1" values="124;686" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="124;686" dur="5s" repeatCount="indefinite"/>
+  </line>
+
+  <g font-size="7.2">
+    <rect x="500" y="196" width="188" height="52" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <line x1="512" y1="208" x2="530" y2="208" stroke="#d63a3a" stroke-width="1.6"/>
+    <text x="536" y="211" fill="#454956">actual (asymmetrical) current</text>
+    <line x1="512" y1="222" x2="530" y2="222" stroke="#10a37f" stroke-width="1.1" stroke-dasharray="3 3"/>
+    <text x="536" y="225" fill="#454956">symmetrical component alone</text>
+    <line x1="512" y1="236" x2="530" y2="236" stroke="#d7930a" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text x="536" y="239" fill="#454956">DC offset envelope</text>
+  </g>
+
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="60" y="222">Peak of the first loop can reach ~2 &times; the peak of the</text>
+    <text x="60" y="233">symmetrical wave, i.e. up to ~2.8 &times; the symmetrical RMS.</text>
+  </g>
+</svg></div>
+<p class="figcap">The DC offset is what saturates CTs, what makes breaker &ldquo;momentary&rdquo; ratings different from &ldquo;interrupting&rdquo; ratings, and what a relay's digital filter is designed to reject. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Term</th><th>Meaning</th><th>Who cares</th></tr>
+  <tr><td><strong>Symmetrical RMS</strong></td><td>the steady 60&nbsp;Hz component only</td><td>relay settings, coordination studies &mdash; relays filter out DC</td></tr>
+  <tr><td><strong>Asymmetrical RMS</strong></td><td>total RMS including DC, in the first cycles</td><td>momentary (closing and latching) ratings of switchgear</td></tr>
+  <tr><td><strong>Peak asymmetrical</strong></td><td>the highest instantaneous value</td><td>mechanical forces on bus, CT saturation</td></tr>
+  <tr><td><strong>Interrupting duty</strong></td><td>current at breaker contact-parting time (typically 1.5&ndash;4 cycles)</td><td>breaker rating &mdash; decay has already started by then</td></tr>
+</table>
+
+<h3>Decrement: the sources fade at different rates</h3>
+<table>
+  <tr><th>Source</th><th>First cycle</th><th>3&ndash;10 cycles</th><th>Steady state</th></tr>
+  <tr><td>Utility / infinite bus</td><td>full</td><td>full</td><td>full &mdash; effectively constant</td></tr>
+  <tr><td>Synchronous generator</td><td>subtransient, set by X&Prime;<sub>d</sub> (largest)</td><td>transient, X&prime;<sub>d</sub></td><td>synchronous, X<sub>d</sub> &mdash; can fall <em>below</em> full-load current</td></tr>
+  <tr><td>Induction motor</td><td>roughly 4&ndash;6 &times; its full-load current</td><td>largely gone</td><td>none</td></tr>
+  <tr><td>Inverter-based resource (PV, battery, Type-4 wind)</td><td colspan="3">current-limited by control, commonly about 1.1&ndash;1.2 &times; rating, and the angle is whatever the control chooses &mdash; not a classical source at all</td></tr>
+</table>
+<div class="callout warn">
+<strong>The generator decrement trap.</strong> A synchronous generator's steady-state fault contribution can drop below its own rated current, so a plain overcurrent element may pick up and then drop out before timing out. This is why generator backup overcurrent is voltage-restrained or voltage-controlled (51V) &mdash; see <a href="atlas:protection/generator-protection.html">Generator Protection</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Where the current comes from</h2>
+<p>Fault current is a sum of contributions arriving from every direction that can supply it. That sum, not any single source, is what the breaker must interrupt &mdash; and the individual branches are what each relay sees.</p>
+
+<div class="fig"><svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="fc" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#d63a3a"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Contributions add at the fault; each relay only sees its own branch</text>
+
+  <!-- fault point -->
+  <g>
+    <circle cx="350" cy="120" r="13" fill="none" stroke="#d63a3a" stroke-width="2">
+      <animate attributeName="r" values="11;17;11" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.25;1" dur="1.4s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M344,110 L352,120 L346,120 L356,132" stroke="#d63a3a" stroke-width="2" fill="none"/>
+  </g>
+  <text x="350" y="152" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">FAULT &mdash; 12,400 A total</text>
+
+  <!-- sources -->
+  <g font-size="7.6">
+    <rect x="20" y="34" width="120" height="38" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="80" y="49" text-anchor="middle" font-weight="600" fill="#10a37f">Utility source</text>
+    <text x="80" y="63" text-anchor="middle" fill="#6e7180">9,800 A &middot; steady</text>
+
+    <rect x="20" y="94" width="120" height="38" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="80" y="109" text-anchor="middle" font-weight="600" fill="#5468c4">On-site generator</text>
+    <text x="80" y="123" text-anchor="middle" fill="#6e7180">1,900 A &middot; decays</text>
+
+    <rect x="20" y="154" width="120" height="38" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+    <text x="80" y="169" text-anchor="middle" font-weight="600" fill="#9c6d06">Motor load</text>
+    <text x="80" y="183" text-anchor="middle" fill="#6e7180">550 A &middot; gone in cycles</text>
+
+    <rect x="560" y="94" width="120" height="38" rx="5" fill="#fff" stroke="#6e7180" stroke-width="1.25"/>
+    <text x="620" y="109" text-anchor="middle" font-weight="600" fill="#454956">Inverter DER</text>
+    <text x="620" y="123" text-anchor="middle" fill="#6e7180">150 A &middot; current-limited</text>
+  </g>
+
+  <g stroke="#d63a3a" fill="none" marker-end="url(#fc)">
+    <path d="M140,53  C240,53  280,100 336,114" stroke-width="3"/>
+    <path d="M140,113 C230,113 270,116 335,119" stroke-width="1.9"/>
+    <path d="M140,173 C240,173 280,142 337,128" stroke-width="1.2"/>
+    <path d="M560,113 C480,113 420,118 366,120" stroke-width="0.9"/>
+  </g>
+
+  <circle r="3.5" fill="#d63a3a"><animateMotion dur="1.6s" repeatCount="indefinite" path="M140,53 C240,53 280,100 336,114"/></circle>
+  <circle r="3" fill="#d63a3a"><animateMotion dur="1.6s" begin="0.2s" repeatCount="indefinite" path="M140,113 C230,113 270,116 335,119"/></circle>
+  <circle r="2.5" fill="#d63a3a"><animateMotion dur="1.6s" begin="0.4s" repeatCount="indefinite" path="M140,173 C240,173 280,142 337,128"/></circle>
+  <circle r="2" fill="#d63a3a"><animateMotion dur="1.6s" begin="0.6s" repeatCount="indefinite" path="M560,113 C480,113 420,118 366,120"/></circle>
+
+  <rect x="8" y="200" width="684" height="24" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="215" font-size="7.8" fill="#9c6d06">Consequence: a relay upstream of the fault sees only its own contribution &mdash; so coordination margins must be checked against branch currents, never against the total.</text>
+</svg></div>
+<p class="figcap">The breaker interrupts the total; each relay measures a branch. Both numbers matter, and they are different numbers. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>What limits fault current</h2>
+<table>
+  <tr><th>Limiter</th><th>Typical magnitude</th><th>Note</th></tr>
+  <tr><td>Source (utility) impedance</td><td>often given as an available three-phase MVA or a short-circuit current at the point of delivery</td><td>Ask for both a maximum (strong system) and minimum (contingency) case &mdash; they set opposite ends of your settings</td></tr>
+  <tr><td>Transformer impedance</td><td>5&ndash;10% typical on distribution power transformers</td><td>Usually the dominant limit on a distribution bus; 1/Z<sub>pu</sub> gives the through-fault multiple of rating</td></tr>
+  <tr><td>Line / cable impedance</td><td>grows with distance</td><td>What makes the far-end fault the <em>minimum</em> case, and why an instantaneous element must be set not to overreach the line</td></tr>
+  <tr><td>Neutral grounding impedance</td><td>can limit ground fault to a few hundred amps, or a few amps</td><td>Only affects ground faults. See <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a></td></tr>
+  <tr><td>Arc resistance</td><td>volts per foot of arc; significant on low-current, long-arc faults</td><td>Reduces current and shifts the fault angle toward resistive &mdash; the reason quadrilateral distance characteristics have resistive reach</td></tr>
+  <tr><td>Ground / footing resistance</td><td>tens of ohms is common; far more in dry or rocky soil</td><td>The main reason a downed conductor may draw less than load current</td></tr>
+  <tr><td>Reactor, current-limiting fuse</td><td>by design</td><td>Deliberate limits added to keep duty within equipment ratings</td></tr>
+</table>
+
+<div class="callout keyfact">
+<strong>The high-impedance fault problem.</strong> A conductor lying on dry asphalt or gravel can draw only a few amperes &mdash; far below any pickup that would survive load. No conventional overcurrent element will ever see it, and no amount of sensitivity tuning changes that without tripping on load. Detection, where it exists, relies on arc signatures and harmonic content rather than magnitude, and it is a detection aid rather than a protection guarantee. Treat &ldquo;we will catch downed conductors with a sensitive ground element&rdquo; as a claim to be tested, not assumed.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Reading a fault study</h2>
+<p>A short-circuit study returns, for each bus or line location, the current for each fault type under at least two system conditions. What you take from it:</p>
+<table>
+  <tr><th>Number you need</th><th>Which case</th><th>What it sets</th></tr>
+  <tr><td>Maximum three-phase at the relay bus</td><td>strongest source, all generation on</td><td>Equipment duty; the upper end of your instantaneous (50) pickup; CT saturation check</td></tr>
+  <tr><td>Maximum current for a fault just beyond the next device</td><td>strongest source</td><td>Instantaneous pickup must sit <em>above</em> this to avoid overreaching &mdash; typically with a 20&ndash;30% margin</td></tr>
+  <tr><td>Minimum fault at the far end of the protected zone</td><td>weakest source, contingency, and including fault resistance</td><td>Sensitivity: the time-overcurrent (51) and ground pickups must reliably see this</td></tr>
+  <tr><td>Minimum SLG with assumed fault resistance</td><td>weakest source</td><td>Ground element pickup and, on lines, the resistive reach of distance elements</td></tr>
+  <tr><td>Through-fault at each downstream device</td><td>maximum</td><td>Coordination pairs: what both devices see simultaneously</td></tr>
+  <tr><td>X/R at the relay location</td><td>maximum case</td><td>CT sizing and saturation assessment; breaker asymmetrical duty</td></tr>
+</table>
+<div class="callout">
+<strong>The two-sided check.</strong> Every protective setting has to pass both directions: sensitive enough for the minimum credible fault it must detect, and secure enough for the maximum current it must ignore. If the two constraints cross &mdash; the minimum fault is below the maximum load, for instance &mdash; overcurrent alone cannot do the job, and you need a different quantity: negative sequence, distance, differential, or a communications-assisted scheme.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Fault current and equipment duty</h2>
+<ul>
+<li><strong>Interrupting rating</strong> &mdash; the symmetrical current a breaker can clear at contact-parting time, at a stated voltage. Modern ratings are symmetrical, with a separate multiplier for high X/R circuits.</li>
+<li><strong>Closing and latching (momentary) rating</strong> &mdash; the peak asymmetrical current the mechanism can survive if it closes into a fault. This is the number the DC offset attacks.</li>
+<li><strong>Short-time withstand</strong> &mdash; how long bus, cable, and CTs survive the current. Usually stated as a current for one or three seconds; scale with I&sup2;t.</li>
+<li><strong>CT saturation</strong> &mdash; the CT must reproduce the fault current, including its DC offset, long enough for the relay to decide. See <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>.</li>
+<li><strong>Arc-flash incident energy</strong> &mdash; driven by current <em>and</em> clearing time. Faster protection lowers incident energy, which is the entire premise of maintenance-mode settings and arc-flash detection. See <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a>.</li>
+</ul>
+<div class="callout warn">
+<strong>Slower is not safer.</strong> Adding time delay for coordination raises incident energy at the same rate it improves selectivity. The two goals genuinely conflict, and the resolution is usually a scheme &mdash; a maintenance setting group, bus blocking, arc-flash light detection &mdash; not a compromise delay.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Do not settle a study on the maximum case alone.</strong> Sensitivity failures &mdash; a far-end fault nobody trips for &mdash; are found in the minimum case, and they are the ones that burn conductors down.</li>
+<li><strong>Fault resistance is usually assumed zero in studies.</strong> Real ground faults are not. Ask what fault resistance was modeled before trusting a marginal sensitivity result.</li>
+<li><strong>Motor contribution is easy to forget</strong> on industrial and commercial buses, and it can add a meaningful percentage to first-cycle duty.</li>
+<li><strong>Inverter-based sources break classical assumptions.</strong> They may deliver barely more than rated current, and at a controlled angle rather than the network's natural fault angle &mdash; which can confuse directional and negative-sequence elements. Check the interconnection study, not a textbook. See <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>.</li>
+<li><strong>Measured never equals calculated.</strong> Arc resistance, source conditions at that instant, and pre-fault load all shift the number. Agreement within 10&ndash;20% on a phase fault is good; ground faults vary far more.</li>
+<li><strong>&ldquo;Available fault current&rdquo; on a nameplate is at the terminals.</strong> A few hundred feet of cable can cut it substantially &mdash; both good news for duty and bad news for sensitivity.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  
+</div>
+<p class="footnote">Fundamentals page. Fault behavior, decrement, and duty definitions follow standard IEEE short-circuit practice; the settings consequences (instantaneous margin above the downstream device, sensitivity to the minimum far-end fault, CT saturation with DC offset) follow SEL application practice as documented in SEL AG2019-01 and AG2023-23 (coordination), AG2002-10 (CT saturation and adaptive filtering), and the SEL-751A / SEL-451 instruction manuals. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

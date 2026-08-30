@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Power Transformers</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="transformer,nameplate,vector group,Dyn1,impedance,LTC,DETC,tap changer,cooling,ONAN,63,sudden pressure,DGA,thermal">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Power Transformers (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Power Transformers</h1>
+  <p>Nameplate to SCADA point — ratings and cooling stages, vector groups and the 30° shift, taps and LTCs, thermal limits, and the auxiliary devices you will be wiring and mapping</p>
+  <div class="chips"><span>nameplate</span><span>Dyn1</span><span>%Z</span><span>ONAN / ONAF</span><span>DETC / LTC</span><span>63 sudden pressure</span><span>49 thermal</span><span>DGA</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">What to know before you touch a transformer job</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The nameplate is the specification.</strong> Ratio, connection (vector group), impedance, cooling stages, and tap ranges all live there, and every setting downstream depends on reading it correctly.</li>
+<li><strong>Impedance is per-unit on the transformer's own base.</strong> An 8% transformer passes roughly 1/0.08 = 12.5 &times; its rated current into a bolted secondary fault &mdash; which is usually what sets the bus duty.</li>
+<li><strong>A delta&ndash;wye transformer shifts positive-sequence phase by 30&deg; and blocks zero sequence.</strong> Both facts shape protection: the shift needs compensation in a differential relay, and the block bounds every ground-fault zone.</li>
+<li><strong>DETC is de-energized only.</strong> Moving a de-energized tap changer under load destroys it. LTCs are the ones designed to switch on load, and they are the ones that wear out.</li>
+<li><strong>Cooling stages are ratings, not suggestions.</strong> A 20/26.6/33.3&nbsp;MVA transformer is only good for 33.3 with both fan stages running &mdash; so fan and pump status are protection-relevant SCADA points, not nice-to-haves.</li>
+<li><strong>Sudden pressure trips are not to be defeated for convenience.</strong> A 63 operation means gas is being generated inside the tank right now.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Reading the nameplate</h2>
+<table>
+  <tr><th>Nameplate item</th><th>Example</th><th>What it decides</th></tr>
+  <tr><td>MVA rating(s)</td><td>20 / 26.6 / 33.3 MVA</td><td>Base rating plus each forced-cooling stage. Loading limits, and which stage must be proven running</td></tr>
+  <tr><td>Voltage ratings</td><td>115 kV &ndash; 12.47 kV</td><td>Turns ratio, base voltages for per-unit, and PT/CT selection</td></tr>
+  <tr><td>Connection / vector group</td><td>Dyn1</td><td>Delta HV, grounded-wye LV, LV lagging HV by 30&deg;. Sets differential compensation and zero-sequence behavior</td></tr>
+  <tr><td>Impedance</td><td>8.5% at 20 MVA base</td><td>Through-fault current, voltage regulation, and parallel-operation compatibility</td></tr>
+  <tr><td>Cooling class</td><td>ONAN / ONAF / ONAF</td><td>Oil natural air natural, then two forced-air stages. Older labels: OA / FA / FOA</td></tr>
+  <tr><td>Tap information</td><td>DETC &plusmn;2 &times; 2.5%; LTC &plusmn;10% in 32 steps</td><td>Actual ratio in service, and whether the ratio can change while energized</td></tr>
+  <tr><td>Temperature rise</td><td>65 &deg;C rise</td><td>Thermal limits and how the 49 element and loading guide should be set</td></tr>
+  <tr><td>BIL</td><td>550 kV / 95 kV</td><td>Insulation level; relevant to surge arrester selection and to grounding decisions</td></tr>
+</table>
+
+<div class="callout">
+<strong>Photograph the nameplate on every site visit.</strong> It takes ten seconds and settles arguments that otherwise take a week: the actual DETC position, the real impedance, whether the LV neutral bushing CT exists, and the CT ratios that were actually supplied rather than the ones on the drawing.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Vector groups and the 30&deg; shift</h2>
+<p>The connection is written as a letter for the HV winding (capital), a letter for the LV winding (lower case), and a clock number giving how far the LV lags the HV in units of 30&deg;. <strong>Dyn1</strong> means delta HV, grounded wye LV, LV lagging by 30&deg;. <strong>Dyn11</strong> means the same windings with the LV <em>leading</em> by 30&deg; (330&deg; lag).</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Dyn1: the LV phasors sit 30&deg; behind the HV phasors &mdash; and zero sequence never crosses</text>
+
+  <!-- HV -->
+  <text x="120" y="36" font-size="8.4" font-weight="600" fill="#5468c4" text-anchor="middle">HV &mdash; delta</text>
+  <g stroke="#5468c4" stroke-width="2" fill="none">
+    <path d="M120,64 L74,146 L166,146 Z"/>
+  </g>
+  <g font-size="7.2" fill="#6e7180" text-anchor="middle">
+    <text x="120" y="58">H1</text><text x="66" y="158">H2</text><text x="174" y="158">H3</text>
+  </g>
+  <text x="120" y="180" font-size="7.4" fill="#8a8e9b" text-anchor="middle">no neutral &mdash; I&#8320; circulates inside</text>
+
+  <!-- core -->
+  <rect x="230" y="66" width="70" height="86" rx="4" fill="#fafbfc" stroke="#a9adb8" stroke-width="1.4"/>
+  <line x1="248" y1="66" x2="248" y2="152" stroke="#a9adb8"/>
+  <line x1="265" y1="66" x2="265" y2="152" stroke="#a9adb8"/>
+  <line x1="282" y1="66" x2="282" y2="152" stroke="#a9adb8"/>
+  <text x="265" y="166" font-size="7.4" fill="#8a8e9b" text-anchor="middle">core</text>
+
+  <!-- LV -->
+  <text x="400" y="36" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">LV &mdash; grounded wye</text>
+  <g stroke="#10a37f" stroke-width="2" fill="none">
+    <path d="M400,120 L400,68"/>
+    <path d="M400,120 L358,146"/>
+    <path d="M400,120 L442,146"/>
+  </g>
+  <circle cx="400" cy="120" r="3.5" fill="#1a1a22"/>
+  <line x1="400" y1="120" x2="400" y2="152" stroke="#1a1a22" stroke-width="1.4"/>
+  <path d="M390,152 H410 M393,157 H407 M396,162 H404" stroke="#1a1a22" stroke-width="1.4"/>
+  <g font-size="7.2" fill="#6e7180" text-anchor="middle">
+    <text x="400" y="62">X1</text><text x="350" y="158">X2</text><text x="450" y="158">X3</text>
+  </g>
+  <text x="400" y="180" font-size="7.4" fill="#8a8e9b" text-anchor="middle">neutral grounded &mdash; a zero-sequence source</text>
+
+  <!-- angle comparison -->
+  <text x="590" y="36" font-size="8.4" font-weight="600" fill="#d7930a" text-anchor="middle">The shift</text>
+  <circle cx="590" cy="112" r="46" fill="none" stroke="#e5e7eb"/>
+  <line x1="590" y1="112" x2="590" y2="66" stroke="#5468c4" stroke-width="2"/>
+  <line x1="590" y1="112" x2="613" y2="72" stroke="#10a37f" stroke-width="2">
+    <animateTransform attributeName="transform" type="rotate" values="0 590 112; 0 590 112; -30 590 112; -30 590 112" dur="4s" repeatCount="indefinite"/>
+  </line>
+  <path d="M590,82 A30,30 0 0,1 605,86" fill="none" stroke="#d7930a" stroke-width="1.2"/>
+  <text x="622" y="92" font-size="7.2" fill="#9c6d06">30&deg;</text>
+  <g font-size="7" fill="#6e7180">
+    <text x="596" y="62">HV</text><text x="622" y="68">LV</text>
+  </g>
+  <text x="590" y="180" font-size="7.4" fill="#8a8e9b" text-anchor="middle">the differential relay must undo this</text>
+
+  <rect x="8" y="196" width="684" height="46" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="212" font-size="8" font-weight="600" fill="#9c6d06">Two consequences you will meet on every transformer job</text>
+  <text x="20" y="226" font-size="7.8" fill="#454956">1. Differential (87T) must compensate both the ratio and the 30&deg; shift, or normal load looks like an internal fault.</text>
+  <text x="20" y="238" font-size="7.8" fill="#454956">2. A ground fault on the LV side draws zero-sequence current from the LV neutral only &mdash; the HV relay never sees ground current for it.</text>
+</svg></div>
+<p class="figcap">Modern relays compensate connection and ratio in software (a winding compensation setting), replacing the old practice of wiring CTs in delta to cancel the shift. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Group</th><th>Meaning</th><th>Where you meet it</th></tr>
+  <tr><td>Dyn1 / Dyn11</td><td>Delta HV, grounded-wye LV, &plusmn;30&deg;</td><td>The standard distribution substation transformer</td></tr>
+  <tr><td>YNd1 / YNd11</td><td>Grounded-wye HV, delta LV</td><td>Generator step-up units; transmission autos' tertiaries</td></tr>
+  <tr><td>YNyn0</td><td>Grounded wye both sides, no shift</td><td>Autotransformers and some transmission banks &mdash; zero sequence passes through, so ground coordination spans both sides</td></tr>
+  <tr><td>Dd0</td><td>Delta&ndash;delta, no shift</td><td>Industrial; no ground reference on either side</td></tr>
+</table>
+<p>How the relay handles all this is in <a href="atlas:protection/differential-87.html">Differential Protection (87)</a> and <a href="atlas:protection/transformer-protection.html">Transformer Protection</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Impedance, regulation, and paralleling</h2>
+<ul>
+<li><strong>Impedance sets through-fault current.</strong> A bolted secondary fault draws about 1/Z<sub>pu</sub> times rated current, ignoring source impedance &mdash; so 8% gives roughly 12.5&nbsp;pu. Add source impedance and the number comes down.</li>
+<li><strong>Impedance also sets voltage regulation.</strong> A higher-impedance unit limits fault duty but drops more volts under load. That tension is why 7&ndash;10% is the usual compromise on distribution transformers.</li>
+<li><strong>Paralleling requires matching.</strong> Same voltage ratio, same vector group (or a compatible one), and similar impedance on a common base. Mismatched impedance means the lower-impedance unit takes disproportionate load; mismatched vector group means large circulating current.</li>
+<li><strong>Through-fault duty is cumulative.</strong> Transformers have a through-fault withstand curve; repeated close-in faults on a feeder mechanically loosen windings over years. Counting through-faults is a legitimate SCADA point.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">4</span>Taps: DETC and LTC</h2>
+<div class="twocol">
+<div>
+<h3>De-energized tap changer (DETC)</h3>
+<ul>
+<li>A manual selector, typically <strong>&plusmn;2 &times; 2.5%</strong> in five positions, on the HV winding.</li>
+<li><strong>Only moved with the transformer de-energized and grounded.</strong> Operating it on load arcs the contacts and can flash the winding.</li>
+<li>Set once, to match the actual system voltage at that location. Its position is a nameplate/documentation fact you should verify, because it changes the true ratio and therefore your differential relay's TAP settings.</li>
+</ul>
+</div>
+<div>
+<h3>Load tap changer (LTC)</h3>
+<ul>
+<li>An on-load mechanism, usually <strong>&plusmn;10% in 32 steps</strong> (16 raise, 16 lower, plus neutral), with a diverter switch that transfers current without interrupting it.</li>
+<li>Driven by a voltage regulating relay measuring the LV bus, with a setpoint, a bandwidth, a time delay, and often line-drop compensation &mdash; the same control loop as a feeder regulator. See <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>.</li>
+<li>The <strong>highest-maintenance part of the transformer.</strong> Operation counters, motor run time, and tap position are the classic condition-monitoring points.</li>
+<li>Paralleled LTCs need a paralleling scheme (circulating-current or master/follower) or they will fight each other into opposite extremes.</li>
+</ul>
+</div>
+</div>
+<div class="callout warn">
+<strong>Tap position is a real analog point, and it is easy to get wrong.</strong> It usually arrives as a resistive position transmitter or a BCD contact set, and it is reported as a signed step number where neutral is zero. Confirm the sign convention and the neutral offset during commissioning by driving the LTC and watching the SCADA value &mdash; a tap point that reads 16 when the changer is at neutral is a very common finding.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Thermal behavior and loading</h2>
+<p>A transformer's real limit is insulation temperature, not current. Two temperatures matter: <strong>top oil</strong>, which you can measure directly, and <strong>winding hot spot</strong>, which you cannot &mdash; it is inferred from top oil plus a rise calculated from load current.</p>
+<table>
+  <tr><th>Quantity</th><th>Source</th><th>Use</th></tr>
+  <tr><td>Top-oil temperature</td><td>Dial thermometer with contacts, or an RTD</td><td>Alarm and fan-stage control; a SCADA analog worth trending</td></tr>
+  <tr><td>Winding temperature</td><td>&ldquo;Winding&rdquo; gauge &mdash; a thermal image device heated by a CT, or a relay's 49 thermal model</td><td>Alarm, trip, and forced-cooling start</td></tr>
+  <tr><td>Load current</td><td>CTs on both windings</td><td>Loading versus rating; input to the thermal model</td></tr>
+  <tr><td>Cooling stage status</td><td>Fan and pump contactor auxiliary contacts</td><td>Proves the higher MVA rating is actually available &mdash; map it</td></tr>
+  <tr><td>Ambient temperature</td><td>Station sensor</td><td>Loading guides are ambient-dependent; overloading in July is not the same as in January</td></tr>
+</table>
+<div class="callout">
+<strong>Short-time overload is legitimate and planned for.</strong> Loading guides allow substantial temporary overload at the cost of accelerated insulation aging, and utilities routinely use that headroom during contingencies. What matters operationally is that somebody is watching hot-spot temperature and duration &mdash; which makes those two points among the most valuable analogs on the whole transformer.
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Cooling stages are ratings: the nameplate MVA you may use depends on what is actually running</text>
+  <line x1="70" y1="150" x2="660" y2="150" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="150" stroke="#a9adb8"/>
+  <text x="52" y="94" font-size="7.4" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 52 94)">MVA</text>
+  <g font-size="7.4">
+    <rect x="110" y="106" width="120" height="44" rx="4" fill="#10a37f" opacity="0.8"/>
+    <text x="170" y="132" text-anchor="middle" fill="#fff">20 MVA</text>
+    <text x="170" y="166" text-anchor="middle" fill="#6e7180">ONAN</text>
+    <text x="170" y="178" text-anchor="middle" fill="#8a8e9b">no fans needed</text>
+
+    <rect x="270" y="82" width="120" height="68" rx="4" fill="#d7930a" opacity="0.8"/>
+    <text x="330" y="120" text-anchor="middle" fill="#fff">26.6 MVA</text>
+    <text x="330" y="166" text-anchor="middle" fill="#6e7180">ONAF stage 1</text>
+    <text x="330" y="178" text-anchor="middle" fill="#8a8e9b">first fan bank running</text>
+
+    <rect x="430" y="56" width="120" height="94" rx="4" fill="#d63a3a" opacity="0.8"/>
+    <text x="490" y="106" text-anchor="middle" fill="#fff">33.3 MVA</text>
+    <text x="490" y="166" text-anchor="middle" fill="#6e7180">ONAF stage 2</text>
+    <text x="490" y="178" text-anchor="middle" fill="#8a8e9b">both fan banks running</text>
+  </g>
+  <line x1="70" y1="56" x2="660" y2="56" stroke="#d63a3a" stroke-dasharray="4 3" opacity="0.6"/>
+  <text x="664" y="52" font-size="7" fill="#d63a3a" text-anchor="end">what SCADA thinks the rating is</text>
+  <circle r="5" fill="#1a1a22">
+    <animateMotion dur="7s" repeatCount="indefinite" path="M170,106 L330,82 L490,56 L330,82 L170,106"/>
+  </circle>
+  <rect x="70" y="188" width="590" height="18" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="84" y="201" font-size="7.6" fill="#9c3838">Fans fail silently. If SCADA assumes 33.3 MVA and both banks are down, the transformer is being overloaded and nobody is being told &mdash; so map cooling-stage status.</text>
+</svg></div>
+<p class="figcap">Cooling-stage status is protection-relevant data wearing the costume of a housekeeping alarm. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">6</span>The auxiliary devices you will wire and map</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a">
+    <b>Sudden pressure / rapid pressure rise (63)</b>
+    <span>Detects the pressure wave from internal arcing faster than differential can in some cases. Usually wired to trip through a lockout. Sensitive to through-fault shock and to pump operation &mdash; supervise carefully, never defeat.</span>
+  </div>
+  <div style="border-left:4px solid #d63a3a">
+    <b>Buchholz / gas accumulation relay</b>
+    <span>On conservator-type transformers: an alarm stage for slow gas accumulation and a trip stage for surge. Gas accumulation is an early warning of a developing internal fault.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Pressure relief device</b>
+    <span>Mechanical relief with an alarm contact and a flag. If it has operated, the transformer has already seen a serious internal event.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Oil level</b>
+    <span>Low level alarm on the main tank and on the LTC compartment. Low LTC oil is a common precursor to LTC failure.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Temperature devices (49)</b>
+    <span>Top oil and winding gauges, each typically with alarm and trip contacts plus fan-control stages. Analog outputs where available are far more useful than contacts alone.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Cooling system</b>
+    <span>Fan and pump contactors, control power loss, and stage-failure alarms. Loss of cooling silently reduces the rating.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>LTC monitoring</b>
+    <span>Tap position, operation counter, motor run/fail, out-of-step (on paralleled banks), and LTC oil temperature.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Dissolved gas analysis (DGA)</b>
+    <span>Online monitors report hydrogen and other key gases over Modbus or DNP3. Trend, do not alarm on a single reading &mdash; rate of change is the signal.</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>Bushing monitoring</b>
+    <span>Capacitance and power-factor trending on high-voltage bushings, where fitted. Bushing failure is a leading cause of catastrophic transformer loss.</span>
+  </div>
+</div>
+<div class="callout keyfact">
+<strong>Design the alarm hierarchy before you map the points.</strong> A transformer easily produces forty contacts. If all forty become individual SCADA alarms of equal priority, operators will learn to ignore all forty. Group them: one <em>trip</em> summary, one <em>urgent</em> alarm (gas, low oil, high winding temperature, cooling failure), and one <em>maintenance</em> alarm &mdash; with the detail available on demand from the RTAC or local HMI. Naming and grouping practice is in <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>The DETC position is not what the drawing says.</strong> Verify it physically, and correct the differential relay's ratio settings if it differs &mdash; a two-tap error is a 5% standing differential.</li>
+<li><strong>Neutral CT location matters.</strong> A CT on the neutral bushing sees only ground current from faults inside the transformer's grounded winding; a CT in the grounding conductor below the neutral connection may see additional paths. Confirm from the three-line drawing which one you have before setting restricted earth fault.</li>
+<li><strong>Sudden pressure relays misoperate on through-faults</strong> on some installations. The remedy is a supervision scheme (current check or a short time qualification), not disconnection.</li>
+<li><strong>Cooling stage status is a protection input in disguise.</strong> If the SCADA rating assumes ONAF and both fan banks have failed, the transformer is being overloaded and nobody is being told.</li>
+<li><strong>LTC paralleling schemes fail quietly.</strong> Two banks driving in opposite directions produce large circulating VArs long before anything trips. Trend tap positions of paralleled banks against each other.</li>
+<li><strong>Inrush on energization looks like an internal fault</strong> to anything that only measures current magnitude. Harmonic restraint handles it in the 87T, but a plain 50 on the HV must be set above inrush or delayed &mdash; see <a href="atlas:protection/transformer-protection.html">Transformer Protection</a>.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/transformer-protection.html">Transformer Protection</a>
+  <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>
+  <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>
+  <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Fundamentals page. Nameplate conventions, vector-group notation, cooling classes, and loading behavior follow standard IEEE C57 practice. The protection consequences (winding compensation, TAP settings, restricted earth fault, harmonic restraint) follow SEL practice as documented in the SEL-387 and SEL-487E instruction manuals and SEL AG2022-12, AG2007-06, and AG2000-01. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

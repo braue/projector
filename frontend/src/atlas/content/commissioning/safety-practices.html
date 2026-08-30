@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Safety Practices</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="safety,open CT,shorting,arc flash,LOTO,clearance,induced voltage,GPR,stored energy,backfeed,DC hazard">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Safety Practices (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Safety Practices</h1>
+  <p>The hazards that are specific to this work — open CT secondaries, station DC, arc flash, induced voltage, and stored energy — and the habits that keep them from mattering</p>
+  <div class="chips"><span>open CT</span><span>arc flash</span><span>LOTO</span><span>induced voltage</span><span>stored energy</span><span>test switches</span><span>grounding</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Non-negotiables</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Never open an energized CT secondary.</strong> Short it first, verify the short, then open. This is the hazard most specific to protection work and the one least understood by people from other trades.</li>
+<li><strong>Assume every conductor is energized until you have proven otherwise</strong> &mdash; with a tester you have just proven on a known source.</li>
+<li><strong>Station DC is not &ldquo;low voltage&rdquo; in the sense that matters.</strong> A battery is a very low impedance source; a dropped tool across the terminals is a several-thousand-ampere event.</li>
+<li><strong>Arc flash is about energy, not voltage.</strong> The incident-energy label on the panel is the number that decides what you wear and whether you open the door at all.</li>
+<li><strong>Backfeed is real.</strong> A de-energized circuit can be energized from a DER, a station service transformer, a closed tie, or a customer generator.</li>
+<li><strong>If you did not put the lock on, you do not own the clearance.</strong> Your own lock, your own tag, every time.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Open CT secondaries</h2>
+<p>A current transformer is a <em>current source</em>. The primary conductor determines the secondary current, and the CT will develop whatever voltage it takes to push that current through whatever is connected. Interrupt the circuit and &ldquo;whatever it takes&rdquo; becomes a very large number.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Normal burden versus an open circuit &mdash; what the CT does when you take its load away</text>
+
+  <!-- normal -->
+  <text x="170" y="38" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Normal &mdash; relay burden connected</text>
+  <line x1="60" y1="60" x2="280" y2="60" stroke="#1a1a22" stroke-width="2.4"/>
+  <text x="170" y="52" font-size="7" fill="#6e7180" text-anchor="middle">primary conductor</text>
+  <circle cx="170" cy="60" r="18" fill="none" stroke="#5468c4" stroke-width="1.6"/>
+  <line x1="152" y1="78" x2="110" y2="110" stroke="#5468c4" stroke-width="1.4"/>
+  <line x1="188" y1="78" x2="230" y2="110" stroke="#5468c4" stroke-width="1.4"/>
+  <rect x="140" y="110" width="60" height="26" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+  <text x="170" y="127" font-size="7.4" text-anchor="middle" fill="#0d7f63">relay</text>
+  <line x1="110" y1="110" x2="140" y2="123" stroke="#5468c4" stroke-width="1.4"/>
+  <line x1="200" y1="123" x2="230" y2="110" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="170" y="156" font-size="7.4" fill="#0d7f63" text-anchor="middle">a few volts across the burden</text>
+  <text x="170" y="168" font-size="7.4" fill="#8a8e9b" text-anchor="middle">core flux low, everything comfortable</text>
+  <circle r="3" fill="#5468c4">
+    <animateMotion dur="2s" repeatCount="indefinite" path="M152,78 L110,110 L140,123 L200,123 L230,110 L188,78"/>
+  </circle>
+
+  <!-- open -->
+  <text x="510" y="38" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">Open &mdash; circuit interrupted</text>
+  <line x1="400" y1="60" x2="620" y2="60" stroke="#1a1a22" stroke-width="2.4"/>
+  <text x="510" y="52" font-size="7" fill="#6e7180" text-anchor="middle">primary conductor (still energized)</text>
+  <circle cx="510" cy="60" r="18" fill="none" stroke="#d63a3a" stroke-width="1.6"/>
+  <line x1="492" y1="78" x2="450" y2="110" stroke="#d63a3a" stroke-width="1.4"/>
+  <line x1="528" y1="78" x2="570" y2="110" stroke="#d63a3a" stroke-width="1.4"/>
+  <line x1="450" y1="110" x2="490" y2="124" stroke="#d63a3a" stroke-width="1.4"/>
+  <line x1="530" y1="124" x2="570" y2="110" stroke="#d63a3a" stroke-width="1.4"/>
+  <!-- the gap -->
+  <g>
+    <path d="M492,126 q9,-8 18,0" stroke="#d63a3a" stroke-width="2" fill="none">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="0.3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M495,120 q7,-6 14,0" stroke="#d7930a" stroke-width="1.5" fill="none">
+      <animate attributeName="opacity" values="1;0.2;1" dur="0.3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <text x="510" y="150" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">thousands of volts across the break</text>
+  <text x="510" y="164" font-size="7.4" fill="#8a8e9b" text-anchor="middle">core driven deep into saturation, CT damaged, arc sustained</text>
+
+  <rect x="8" y="182" width="684" height="62" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="22" y="200" font-size="8.2" font-weight="600" fill="#9c3838">The rule, and the order</text>
+  <text x="22" y="216" font-size="7.8" fill="#454956">1. Short the CT circuit &mdash; at a test switch designed to make before break, or with a shorting jumper on the terminal block.</text>
+  <text x="22" y="228" font-size="7.8" fill="#454956">2. <tspan font-weight="600">Verify the short</tspan> &mdash; clamp the shorted path and confirm it is carrying the current. Do not assume the blade worked.</text>
+  <text x="22" y="240" font-size="7.8" fill="#454956">3. Only then open the circuit. Reverse the order to restore, and count your jumpers out.</text>
+</svg></div>
+<p class="figcap">Test switch mechanics &mdash; make-before-break on current blades, break-before-make on potential blades &mdash; are covered in <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout keyfact">
+<strong>The mirror-image hazard: shorting a PT secondary.</strong> A PT is a voltage source, so shorting it is a bolted fault limited only by its fuse. Current blades short; potential blades must never. Know which one your hand is on.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Arc flash</h2>
+<ul>
+<li><strong>The label is the instruction.</strong> Incident energy at the working distance, the arc-flash boundary, and the required PPE category are all on it. If there is no label, the equipment has not been studied and you should not be opening it.</li>
+<li><strong>Energy scales with clearing time,</strong> so anything that speeds up protection lowers the hazard &mdash; maintenance-mode settings, bus blocking, arc-flash detection. See <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a>.</li>
+<li><strong>Racking and switching are the high-risk operations.</strong> Remote racking and remote operation remove the person from the boundary entirely, which beats any amount of PPE.</li>
+<li><strong>De-energized is the goal.</strong> Every energized-work justification should be genuinely examined; &ldquo;it would be inconvenient to take an outage&rdquo; is not one.</li>
+<li><strong>Your settings changes change the label.</strong> Adding coordination delay raises incident energy. Feed protection changes back to whoever maintains the study &mdash; this is a real and frequently missed obligation.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>Station DC</h2>
+<ul>
+<li><strong>Very low source impedance.</strong> A wrench across the battery terminals produces thousands of amperes and an explosive arc. Insulated tools, no jewelry, one hand where practical.</li>
+<li><strong>DC arcs do not self-extinguish.</strong> There is no current zero. Open circuits at the device designed for it, never at a terminal block.</li>
+<li><strong>Hydrogen.</strong> Flooded batteries generate hydrogen while charging. Ventilation stays on; no ignition sources in the battery room.</li>
+<li><strong>Electrolyte.</strong> Face and eye protection, appropriate gloves, and know where the eyewash is before you need it.</li>
+<li><strong>A DC ground is a live hazard,</strong> not a nuisance alarm &mdash; a second ground can trip or block a breaker. See <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>.</li>
+<li><strong>Your test equipment can create a ground.</strong> Grounded-chassis instruments on a floating DC system are a common cause of &ldquo;a ground appeared while you were on site.&rdquo;</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">4</span>Induced voltage, GPR, and stored energy</h2>
+<table>
+  <tr><th>Hazard</th><th>Why it exists</th><th>Control</th></tr>
+  <tr><td><strong>Induced voltage on a de-energized line</strong></td><td>A parallel energized circuit couples capacitively and magnetically. The line is de-energized and still dangerous</td><td>Grounds applied at the work location, not just at the ends. Treat an isolated line as energized until grounded</td></tr>
+  <tr><td><strong>Ground potential rise</strong></td><td>Fault current into the ground grid raises the whole station above remote earth &mdash; potentially by thousands of volts</td><td>Why substation communications use fiber, and why copper leaving the station needs isolation. See <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a></td></tr>
+  <tr><td><strong>Charged capacitors</strong></td><td>A bank holds charge after opening; discharge devices take minutes, and units above 600&nbsp;V are required to reach 50&nbsp;V or less within five minutes</td><td>Wait the required time, then ground and short before touching. See <a href="atlas:distribution-equipment/capacitor-control.html">Capacitor Banks</a></td></tr>
+  <tr><td><strong>Breaker stored energy</strong></td><td>Charged closing springs, compressed gas, or hydraulic pressure will operate the mechanism whether or not you are ready</td><td>Discharge the mechanism per the manufacturer's procedure before working on it. Blocking devices where provided</td></tr>
+  <tr><td><strong>Backfeed</strong></td><td>DER, station service transformers, closed ties, customer generators, and control-power transformers</td><td>Identify every source before clearance. A single-source assumption is how people are hurt on &ldquo;dead&rdquo; equipment. See <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a></td></tr>
+  <tr><td><strong>SF<sub>6</sub> and arc byproducts</strong></td><td>Decomposition products after an internal arc are toxic and corrosive</td><td>Follow the site's procedure for opening a faulted SF<sub>6</sub> device; do not improvise</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>Clearances and lockout</h2>
+<ol>
+<li><strong>Identify every source of energy</strong> &mdash; electrical, mechanical, stored, and pneumatic or hydraulic.</li>
+<li><strong>Isolate</strong> with a device capable of isolation, and open it visibly where the design provides for that.</li>
+<li><strong>Lock and tag</strong> with your own lock and your own tag. Group lockboxes exist for multi-person work; use them properly.</li>
+<li><strong>Test for absence of voltage</strong> with an instrument you have proven on a known live source immediately before and immediately after &mdash; live, dead, live.</li>
+<li><strong>Ground where required.</strong> Personal protective grounds are what protect against re-energization and induced voltage, not the isolation itself.</li>
+<li><strong>Verify with the operator</strong> what has actually been done, in the words of the clearance, before you start.</li>
+<li><strong>Restore in reverse,</strong> deliberately, with the same rigor &mdash; grounds removed and counted, locks removed by their owners, and the operator informed.</li>
+</ol>
+<div class="callout warn">
+<strong>The most dangerous moment is restoration.</strong> Everyone is tired, the work is &ldquo;done,&rdquo; and the pressure is to finish. This is precisely when a shorting screw stays in, a ground stays on, or a lock is cut because the owner has gone home. Slow down for the last thirty minutes.
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="sp1" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Live &ndash; dead &ndash; live: the only test result you can act on</text>
+  <g font-size="7.4">
+    <rect x="30" y="38" width="170" height="56" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.4"/>
+    <text x="115" y="58" text-anchor="middle" font-size="8.4" font-weight="600" fill="#d63a3a">1 &middot; Prove on a known live source</text>
+    <text x="115" y="74" text-anchor="middle" fill="#6e7180">the tester reads voltage &mdash;</text>
+    <text x="115" y="86" text-anchor="middle" fill="#6e7180">so it works right now</text>
+    <rect x="250" y="38" width="170" height="56" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.4"/>
+    <text x="335" y="58" text-anchor="middle" font-size="8.4" font-weight="600" fill="#5468c4">2 &middot; Test the isolated circuit</text>
+    <text x="335" y="74" text-anchor="middle" fill="#6e7180">phase to phase and</text>
+    <text x="335" y="86" text-anchor="middle" fill="#6e7180">phase to ground, every one</text>
+    <rect x="470" y="38" width="200" height="56" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.4"/>
+    <text x="570" y="58" text-anchor="middle" font-size="8.4" font-weight="600" fill="#d63a3a">3 &middot; Prove on the live source again</text>
+    <text x="570" y="74" text-anchor="middle" fill="#6e7180">because a tester that failed</text>
+    <text x="570" y="86" text-anchor="middle" fill="#6e7180">between steps reads &ldquo;dead&rdquo; too</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1.2" fill="none" marker-end="url(#sp1)">
+    <path d="M200,66 H248"/><path d="M420,66 H468"/>
+  </g>
+  <circle r="4.5" fill="#d63a3a"><animateMotion dur="6s" repeatCount="indefinite" path="M115,66 H335 H570"/></circle>
+  <rect x="30" y="110" width="640" height="42" rx="6" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="44" y="128" font-size="8" font-weight="600" fill="#9c6d06">Then, and only then, apply grounds</text>
+  <text x="44" y="144" font-size="7.8" fill="#454956">Personal protective grounds are what protect against re-energization and induced voltage. Isolation and a lock do not; they only make re-energization unlikely.</text>
+  <rect x="30" y="160" width="640" height="40" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="44" y="178" font-size="8" font-weight="600" fill="#9c3838">Count everything out</text>
+  <text x="44" y="192" font-size="7.8" fill="#454956">Grounds on / grounds off &middot; jumpers in / jumpers out &middot; shorting screws in / out &middot; locks on / locks off. Out loud, with a second person, at the end of the job.</text>
+</svg></div>
+<p class="figcap">The restoration half of this list is where the mistakes happen, because everyone is tired and the work feels finished. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">6</span>Working on in-service protection</h2>
+<p>Much automation work happens on live equipment where the protection must stay in service, or where taking it out has to be explicit and temporary.</p>
+<ul>
+<li><strong>Know what you are removing from service, and tell someone.</strong> Isolating a trip circuit for testing is a protection outage. It should be logged, time-bounded, and known to operations.</li>
+<li><strong>Use the relay's own facilities</strong> where possible &mdash; test modes, disabled outputs, settings groups &mdash; rather than physically isolating, so the state is visible and recorded.</li>
+<li><strong>One protection out at a time.</strong> Primary and backup out simultaneously is an unprotected circuit.</li>
+<li><strong>Write down every isolation as you make it</strong> and check the list before you leave. This list and the shorting-jumper count are the two most important pieces of paper on the job.</li>
+<li><strong>Beware the accidental trip.</strong> Injecting into a relay whose outputs are still connected trips the breaker. Confirm isolation before injecting, every time.</li>
+<li><strong>Announce before you operate anything.</strong> A breaker that operates unexpectedly is a hazard to whoever is working on it elsewhere.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Habits</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>Say what you are about to do</b><span>Out loud, to whoever is with you. &ldquo;I am about to open the current blade on phase B&rdquo; is the sentence that gets corrected before it becomes an incident.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>Prove your tester</b><span>Live, dead, live. On a known source, every time, not once at the start of the week.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Count things</b><span>Jumpers in, jumpers out. Grounds on, grounds off. Locks on, locks off. Out loud, with a second person.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Photograph before you disturb</b><span>Switch positions, terminal landings, jumper placement. Ten seconds now, an hour saved later.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Stop when surprised</b><span>A surprise means your model is wrong. Continuing with a wrong model is how incidents are built.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Refuse the rushed job</b><span>&ldquo;We just need it back by six&rdquo; is not a safety plan. The outage can be extended; the injury cannot be undone.</span></div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">8</span>Gotchas</h2>
+<ul>
+<li><strong>Assuming a test switch shorted correctly.</strong> Blades corrode. Verify with a clamp on the shorted path.</li>
+<li><strong>Meggering with electronics connected.</strong> Destroys relay inputs, RTAC I/O, and surge suppressors. Build the disconnection into the written procedure.</li>
+<li><strong>Confusing current and potential blades.</strong> They look similar and behave oppositely.</li>
+<li><strong>Trusting a label on an unlabeled-in-practice panel.</strong> Trace it. Panels get modified and labels do not.</li>
+<li><strong>Working from a drawing that is out of date.</strong> Verify before you rely, and red-line what you find &mdash; see <a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a>.</li>
+<li><strong>Forgetting the second source.</strong> Station service, control power transformers, DER, and closed ties.</li>
+<li><strong>PPE selected by habit rather than by label.</strong> The study exists; read it.</li>
+<li><strong>The unlabeled temporary jumper.</strong> If it is temporary, it is labeled and it is on the list. Otherwise it is permanent and nobody knows why.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>
+  <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a>
+  
+  <a href="atlas:start-here/field-kit.html">The Field Kit</a>
+</div>
+<p class="footnote">Practice page. This page describes hazards and habits specific to protection and automation work; it does not replace your organization's safety rules, its clearance procedure, or the applicable electrical safety standard, all of which take precedence. The open-CT hazard, capacitor discharge-device requirement, ground potential rise, and arc-flash energy-versus-clearing-time relationship are grounded in the sources cited on the linked pages. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

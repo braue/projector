@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AC Power Basics</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="phasor,RMS,three-phase,wye,delta,power factor,real power,reactive,per-unit,impedance,X/R,PHROT">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "AC Power Basics (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>AC Power Basics</h1>
+  <p>Phasors, three-phase connections, real and reactive power, impedance, and per-unit — the arithmetic every setting sheet assumes you already have</p>
+  <div class="chips"><span>phasors</span><span>RMS</span><span>wye / delta</span><span>P Q S</span><span>power factor</span><span>X/R</span><span>per-unit</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">The arithmetic you will use every day</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Everything is RMS unless it says otherwise.</strong> A &ldquo;120&nbsp;V&rdquo; PT secondary peaks at 170&nbsp;V. Relay settings, nameplates, and meters are RMS; oscillography and insulation ratings are peak.</li>
+<li><strong>A phasor is a snapshot of a spinning vector.</strong> Magnitude plus angle, all referenced to one arbitrary zero &mdash; almost always V<sub>A</sub>. Angles only mean something relative to that reference.</li>
+<li><strong>Wye: V<sub>LL</sub> = &radic;3 &times; V<sub>LN</sub>, I<sub>line</sub> = I<sub>phase</sub>. Delta: V<sub>LL</sub> = V<sub>phase</sub>, I<sub>line</sub> = &radic;3 &times; I<sub>phase</sub>.</strong> Getting this backwards is the single most common wiring-and-settings error.</li>
+<li><strong>S = &radic;3 &middot; V<sub>LL</sub> &middot; I<sub>line</sub></strong> for a balanced three-phase circuit, in VA. <strong>P = S cos&thinsp;&phi;</strong>, <strong>Q = S sin&thinsp;&phi;</strong>.</li>
+<li><strong>Faults are inductive; load is not.</strong> Load current sits near unity power factor; fault current lags by 60&ndash;85&deg;. That angle difference is what every directional element lives on.</li>
+<li><strong>Per-unit divides out the transformers.</strong> Z<sub>base</sub> = V<sub>base</sub>&sup2;&nbsp;/&nbsp;S<sub>base</sub>. Once everything is in per-unit on one base, you can add impedances across voltage levels without thinking about turns ratios.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Sine, RMS, and the rotating phasor</h2>
+<p>A 60&nbsp;Hz voltage is <em>v</em>(t) = V<sub>peak</sub>&nbsp;sin(&omega;t + &theta;), with &omega; = 2&pi;&middot;60 = 377&nbsp;rad/s. Working with that time function directly is miserable, so the whole industry does one trick: freeze the rotation. Draw the peak value as an arrow at angle &theta;, agree that everything rotates counter-clockwise at the same speed, and now addition of waveforms becomes addition of arrows.</p>
+<p><strong>RMS</strong> is the value that delivers the same heating as an equal DC value. For a sine wave, V<sub>rms</sub> = V<sub>peak</sub>&nbsp;/&nbsp;&radic;2 = 0.707&nbsp;V<sub>peak</sub>. Phasor magnitudes in protection work are RMS by convention, so a 120&nbsp;V phasor means 120&nbsp;V RMS and 169.7&nbsp;V peak.</p>
+
+<div class="fig"><svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The one picture: a rotating arrow and the wave it traces</text>
+
+  <!-- phasor circle -->
+  <circle cx="105" cy="115" r="72" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="33" y1="115" x2="177" y2="115" stroke="#e5e7eb"/>
+  <line x1="105" y1="43" x2="105" y2="187" stroke="#e5e7eb"/>
+  <text x="182" y="118" font-size="7.4" fill="#8a8e9b">real</text>
+  <text x="98" y="38" font-size="7.4" fill="#8a8e9b">imag</text>
+
+  <g>
+    <line x1="105" y1="115" x2="177" y2="115" stroke="#5468c4" stroke-width="2"/>
+    <circle cx="177" cy="115" r="4" fill="#5468c4"/>
+    <animateTransform attributeName="transform" type="rotate" from="0 105 115" to="-360 105 115" dur="4s" repeatCount="indefinite"/>
+  </g>
+  <text x="105" y="205" font-size="7.6" fill="#8a8e9b" text-anchor="middle">V&ang;&theta; &mdash; rotating at &omega; = 377 rad/s</text>
+
+  <!-- wave -->
+  <line x1="210" y1="115" x2="686" y2="115" stroke="#a9adb8" stroke-width="1"/>
+  <path d="M210,115 C222,115 228,50 246,50 C264,50 270,180 288,180 C306,180 312,50 330,50 C348,50 354,180 372,180 C390,180 396,50 414,50 C432,50 438,180 456,180 C474,180 480,50 498,50 C516,50 522,180 540,180 C558,180 564,50 582,50 C600,50 606,180 624,180 C642,180 648,50 666,50 C678,50 682,115 686,115"
+        fill="none" stroke="#5468c4" stroke-width="1.6" opacity="0.35"/>
+  <g font-size="7.4" fill="#8a8e9b">
+    <line x1="210" y1="50" x2="686" y2="50" stroke="#e5e7eb" stroke-dasharray="3 3"/>
+    <text x="690" y="53" text-anchor="end" fill="#d63a3a">+V&#8202;<tspan font-size="6">peak</tspan> = 170 V</text>
+    <line x1="210" y1="69" x2="686" y2="69" stroke="#e5e7eb" stroke-dasharray="3 3"/>
+    <text x="690" y="66" text-anchor="end" fill="#10a37f">V&#8202;<tspan font-size="6">rms</tspan> = 120 V</text>
+    <text x="215" y="128">one cycle = 16.67 ms at 60 Hz</text>
+  </g>
+
+  <!-- tracing dot on the wave -->
+  <circle r="4" fill="#5468c4">
+    <animateMotion dur="4s" repeatCount="indefinite"
+      path="M210,115 C222,115 228,50 246,50 C264,50 270,180 288,180 C306,180 312,50 330,50 C348,50 354,180 372,180 C390,180 396,50 414,50 C432,50 438,180 456,180 C474,180 480,50 498,50 C516,50 522,180 540,180 C558,180 564,50 582,50 C600,50 606,180 624,180 C642,180 648,50 666,50 C678,50 682,115 686,115"/>
+  </circle>
+
+  <text x="448" y="205" font-size="7.6" fill="#8a8e9b" text-anchor="middle">the arrow's vertical projection, plotted against time</text>
+</svg></div>
+<p class="figcap">The arrow and the wave are the same object. Protection engineers work with the arrow because arrows add; relays compute the arrow from samples of the wave using a Fourier filter. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout">
+<strong>What the relay actually does.</strong> A digital relay samples each input (typically 16&ndash;32 samples/cycle), then runs a one-cycle discrete Fourier transform to extract the <em>fundamental</em> phasor &mdash; magnitude and angle at exactly 60&nbsp;Hz &mdash; discarding harmonics and DC offset. That is why relay metering reads the fundamental while a true-RMS clamp meter reads everything: on a distorted waveform the two legitimately disagree. See <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a> for filtered versus raw.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Three phase, and the two connections</h2>
+<p>Three sources 120&deg; apart deliver constant instantaneous power, need no neutral when balanced, and let a motor start itself. Everything downstream inherits that structure. The two ways to connect three windings &mdash; wye and delta &mdash; produce different relationships between what you measure at a terminal and what exists in a winding.</p>
+
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Wye and delta &mdash; where the &radic;3 lives</text>
+
+  <!-- WYE -->
+  <text x="105" y="34" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">WYE (star)</text>
+  <g stroke="#5468c4" stroke-width="2" fill="none">
+    <path d="M105,120 L105,62"/>
+    <path d="M105,120 L55,149"/>
+    <path d="M105,120 L155,149"/>
+  </g>
+  <circle cx="105" cy="120" r="4" fill="#1a1a22"/>
+  <text x="112" y="132" font-size="7.4" fill="#6e7180">N</text>
+  <g font-size="7.6" fill="#1a1a22" text-anchor="middle">
+    <text x="105" y="56">A</text><text x="46" y="160">B</text><text x="164" y="160">C</text>
+  </g>
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="105" y="182" text-anchor="middle">V<tspan font-size="6" dy="2">LN</tspan><tspan dy="-2"> = 7.2 kV (winding)</tspan></text>
+    <text x="105" y="194" text-anchor="middle">V<tspan font-size="6" dy="2">LL</tspan><tspan dy="-2"> = &radic;3 &times; 7.2 = 12.47 kV</tspan></text>
+    <text x="105" y="206" text-anchor="middle" fill="#10a37f">I<tspan font-size="6" dy="2">line</tspan><tspan dy="-2"> = I</tspan><tspan font-size="6" dy="2">phase</tspan></text>
+    <text x="105" y="222" text-anchor="middle">neutral available &mdash; can be grounded</text>
+  </g>
+
+  <!-- DELTA -->
+  <text x="305" y="34" font-size="9" font-weight="600" fill="#d7930a" text-anchor="middle">DELTA</text>
+  <g stroke="#5468c4" stroke-width="2" fill="none">
+    <path d="M305,62 L255,150 L355,150 Z"/>
+  </g>
+  <g font-size="7.6" fill="#1a1a22" text-anchor="middle">
+    <text x="305" y="56">A</text><text x="246" y="161">B</text><text x="364" y="161">C</text>
+  </g>
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="305" y="182" text-anchor="middle" fill="#d7930a">V<tspan font-size="6" dy="2">LL</tspan><tspan dy="-2"> = V</tspan><tspan font-size="6" dy="2">phase</tspan><tspan dy="-2"> = 12.47 kV</tspan></text>
+    <text x="305" y="194" text-anchor="middle">I<tspan font-size="6" dy="2">line</tspan><tspan dy="-2"> = &radic;3 &times; I</tspan><tspan font-size="6" dy="2">phase</tspan></text>
+    <text x="305" y="222" text-anchor="middle">no neutral &mdash; needs a grounding bank</text>
+  </g>
+
+  <!-- phasor triangle showing sqrt3 -->
+  <text x="540" y="34" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">Why &radic;3</text>
+  <g>
+    <line x1="540" y1="140" x2="540" y2="76" stroke="#10a37f" stroke-width="2"/>
+    <line x1="540" y1="140" x2="485" y2="172" stroke="#10a37f" stroke-width="2"/>
+    <line x1="540" y1="140" x2="595" y2="172" stroke="#10a37f" stroke-width="2"/>
+    <line x1="540" y1="76" x2="485" y2="172" stroke="#d7930a" stroke-width="2" stroke-dasharray="4 3">
+      <animate attributeName="stroke-dashoffset" values="14;0" dur="1.2s" repeatCount="indefinite"/>
+    </line>
+    <text x="497" y="106" font-size="7.4" fill="#9c6d06">V<tspan font-size="6" dy="2">AB</tspan></text>
+    <text x="547" y="108" font-size="7.4" fill="#0d7f63">V<tspan font-size="6" dy="2">AN</tspan></text>
+    <text x="498" y="164" font-size="7.4" fill="#0d7f63">V<tspan font-size="6" dy="2">BN</tspan></text>
+  </g>
+  <text x="540" y="194" font-size="7.2" fill="#8a8e9b" text-anchor="middle">V<tspan font-size="6" dy="2">AB</tspan><tspan dy="-2"> = V</tspan><tspan font-size="6" dy="2">AN</tspan><tspan dy="-2"> &minus; V</tspan><tspan font-size="6" dy="2">BN</tspan></text>
+  <text x="540" y="206" font-size="7.2" fill="#8a8e9b" text-anchor="middle">two equal arrows 120&deg; apart</text>
+  <text x="540" y="218" font-size="7.2" fill="#8a8e9b" text-anchor="middle">subtract to &radic;3 &times; the length, at +30&deg;</text>
+
+  <rect x="8" y="234" width="684" height="20" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="248" font-size="7.8" fill="#9c6d06">That +30&deg; is the same 30&deg; that appears across every delta&ndash;wye transformer &mdash; and the reason differential relays need connection compensation.</text>
+</svg></div>
+<p class="figcap">&radic;3 is not a magic constant; it is what you get subtracting two equal phasors 120&deg; apart. <span class="print-note">(The dashed construction line animates in the browser.)</span></p>
+
+<table>
+  <tr><th>Quantity</th><th>Wye</th><th>Delta</th></tr>
+  <tr><td>Line-to-line voltage</td><td>&radic;3 &times; winding voltage</td><td>= winding voltage</td></tr>
+  <tr><td>Line current</td><td>= winding current</td><td>&radic;3 &times; winding current</td></tr>
+  <tr><td>Neutral</td><td>exists; can be solidly, impedance-, or un-grounded</td><td>none &mdash; ground reference must be created</td></tr>
+  <tr><td>Zero-sequence current</td><td>flows out the neutral, so ground faults are visible</td><td>circulates inside the delta, invisible from outside</td></tr>
+  <tr><td>Typical use</td><td>distribution feeders, transformer high sides, PT connections needing V<sub>0</sub></td><td>transformer low sides, motor windings, PTs for line-to-line only</td></tr>
+</table>
+
+<div class="callout warn">
+<strong>The PT connection changes what the relay can protect.</strong> Wye-connected PTs give the relay V<sub>A</sub>, V<sub>B</sub>, V<sub>C</sub> and therefore 3V<sub>0</sub> &mdash; needed for ground directional elements and for 59N. Open-delta PTs give only line-to-line voltages: no zero sequence, no ground directional. Check which one you have before promising a ground directional element. See <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Real, reactive, and apparent power</h2>
+<p>Current that is in phase with voltage does work. Current that is 90&deg; out of phase does not &mdash; it sloshes energy into and out of magnetic and electric fields twice per cycle. Split the current into those two components and you get the power triangle.</p>
+
+<table>
+  <tr><th>Symbol</th><th>Name</th><th>Unit</th><th>Balanced three-phase formula</th><th>What it is</th></tr>
+  <tr><td><strong>P</strong></td><td>real (active) power</td><td>W / kW / MW</td><td>&radic;3 &middot; V<sub>LL</sub> &middot; I &middot; cos&thinsp;&phi;</td><td>work: heat, torque, light. What you are billed for.</td></tr>
+  <tr><td><strong>Q</strong></td><td>reactive power</td><td>var / kvar / Mvar</td><td>&radic;3 &middot; V<sub>LL</sub> &middot; I &middot; sin&thinsp;&phi;</td><td>magnetizing and charging current. Sets voltage.</td></tr>
+  <tr><td><strong>S</strong></td><td>apparent power</td><td>VA / kVA / MVA</td><td>&radic;3 &middot; V<sub>LL</sub> &middot; I</td><td>what the conductors and transformer actually carry &mdash; the rating.</td></tr>
+  <tr><td><strong>pf</strong></td><td>power factor</td><td>&mdash;</td><td>cos&thinsp;&phi; = P / S</td><td>fraction of the current doing work.</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The power triangle as power factor falls from 1.0 to 0.6 &mdash; watch S grow while P stays put</text>
+
+  <line x1="60" y1="170" x2="420" y2="170" stroke="#a9adb8"/>
+  <line x1="60" y1="170" x2="60" y2="40" stroke="#a9adb8"/>
+  <text x="240" y="188" font-size="7.6" fill="#8a8e9b" text-anchor="middle">P &mdash; real power (MW), unchanged: the customer's load is the load</text>
+  <text x="34" y="105" font-size="7.6" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 34 105)">Q (Mvar)</text>
+
+  <!-- fixed P -->
+  <line x1="60" y1="170" x2="300" y2="170" stroke="#10a37f" stroke-width="3"/>
+  <text x="180" y="164" font-size="7.6" fill="#0d7f63" text-anchor="middle">P = 10 MW</text>
+
+  <!-- animated Q and S -->
+  <line x1="300" y1="170" x2="300" y2="170" stroke="#d7930a" stroke-width="3">
+    <animate attributeName="y2" values="170;170;60;60;170" dur="8s" repeatCount="indefinite"/>
+  </line>
+  <line x1="60" y1="170" x2="300" y2="170" stroke="#5468c4" stroke-width="2.5">
+    <animate attributeName="y2" values="170;170;60;60;170" dur="8s" repeatCount="indefinite"/>
+  </line>
+  <circle cx="300" r="4.5" fill="#5468c4">
+    <animate attributeName="cy" values="170;170;60;60;170" dur="8s" repeatCount="indefinite"/>
+  </circle>
+  <text x="312" y="115" font-size="7.6" fill="#9c6d06">Q grows</text>
+  <text x="150" y="108" font-size="7.6" fill="#5468c4">S = &radic;(P&sup2; + Q&sup2;)</text>
+
+  <!-- readouts -->
+  <g font-size="7.8">
+    <rect x="450" y="40" width="240" height="130" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="464" y="58" font-weight="600" fill="#1a1a22">At the same 10 MW of real load</text>
+    <text x="464" y="76" fill="#0d7f63">pf 1.00 &rarr; S = 10.0 MVA, I = 100%</text>
+    <text x="464" y="92" fill="#6e7180">pf 0.95 &rarr; S = 10.5 MVA, I = 105%</text>
+    <text x="464" y="108" fill="#9c6d06">pf 0.85 &rarr; S = 11.8 MVA, I = 118%</text>
+    <text x="464" y="124" fill="#d63a3a">pf 0.60 &rarr; S = 16.7 MVA, I = 167%</text>
+    <text x="464" y="146" font-size="7.2" fill="#8a8e9b">Poor power factor buys nothing and costs</text>
+    <text x="464" y="157" font-size="7.2" fill="#8a8e9b">conductor heating, transformer capacity, and volts.</text>
+  </g>
+  <text x="8" y="202" font-size="7.6" fill="#8a8e9b">This is the entire business case for capacitor banks: supply the Q locally so the line does not have to carry it. See Capacitor Bank Control.</text>
+</svg></div>
+<p class="figcap">Reactive power is not wasted energy &mdash; it is energy that never leaves. But the current carrying it is real, and it heats real conductors. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout">
+<strong>Sign conventions, the perennial argument.</strong> By IEEE convention, power flowing <em>out</em> of the bus into the line is positive, a <em>lagging</em> (inductive) load absorbs positive Q, and a capacitor supplies negative Q (i.e. absorbs &minus;Q). Relays let you flip the reference with a CT polarity setting, which means half the &ldquo;wrong sign&rdquo; calls are actually a polarity setting, not a wiring error. Four-quadrant metering is covered in <a href="atlas:relays-devices/metering.html">Revenue &amp; Panel Metering</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Impedance and the X/R ratio</h2>
+<p>Z = R + jX. Resistance dissipates; reactance stores. What matters in protection is the <em>ratio</em>, because it decides both the fault current angle and how much DC offset the fault carries.</p>
+
+<table>
+  <tr><th>Element</th><th>Typical X/R</th><th>Fault current lags by</th><th>Consequence</th></tr>
+  <tr><td>Generator terminals</td><td>20&ndash;80</td><td>87&ndash;89&deg;</td><td>Heavy, long-decaying DC offset; CT saturation risk</td></tr>
+  <tr><td>Transmission line</td><td>5&ndash;20</td><td>79&ndash;87&deg;</td><td>Distance element angles set near 85&deg;</td></tr>
+  <tr><td>Distribution feeder near the bus</td><td>3&ndash;8</td><td>72&ndash;83&deg;</td><td>Directional elements set around 60&ndash;75&deg;</td></tr>
+  <tr><td>Distribution feeder, far end</td><td>0.5&ndash;2</td><td>27&ndash;63&deg;</td><td>Arc and conductor resistance dominate; ground faults can be very resistive</td></tr>
+  <tr><td>Load</td><td>0.3&ndash;0.5</td><td>&plusmn;15&ndash;30&deg;</td><td>Comfortably outside any fault-angle window &mdash; this is what makes directional supervision work</td></tr>
+</table>
+
+<div class="callout keyfact">
+<strong>DC offset is not a measurement error.</strong> When a fault strikes at a voltage zero on a highly inductive circuit, the current must start at zero, so it carries an exponentially decaying DC component that can nearly double the first peak. Time constant &tau; = X&nbsp;/&nbsp;(&omega;R) &mdash; so a high X/R means the offset lingers for many cycles. This is what saturates CTs, what makes the first cycle of an event report look asymmetric, and why relays use filters that reject DC. See <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a> and <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Per-unit &mdash; the unit system that deletes transformers</h2>
+<p>Pick a base power (S<sub>base</sub>, one value for the whole study) and a base voltage for each voltage level (V<sub>base</sub>, normally nominal line-to-line). Everything else follows:</p>
+<table>
+  <tr><th>Base quantity</th><th>Formula</th><th>Example: 100 MVA base, 12.47 kV</th></tr>
+  <tr><td>Base current</td><td>I<sub>base</sub> = S<sub>base</sub> / (&radic;3 &middot; V<sub>base</sub>)</td><td>100&nbsp;MVA / (1.732 &times; 12.47&nbsp;kV) = 4630&nbsp;A</td></tr>
+  <tr><td>Base impedance</td><td>Z<sub>base</sub> = V<sub>base</sub>&sup2; / S<sub>base</sub></td><td>(12.47&nbsp;kV)&sup2; / 100&nbsp;MVA = 1.555&nbsp;&Omega;</td></tr>
+  <tr><td>Per-unit value</td><td>X<sub>pu</sub> = X<sub>actual</sub> / Z<sub>base</sub></td><td>0.5&nbsp;&Omega; line = 0.32&nbsp;pu</td></tr>
+  <tr><td>Rebasing</td><td>Z<sub>new</sub> = Z<sub>old</sub> &middot; (S<sub>new</sub>/S<sub>old</sub>) &middot; (V<sub>old</sub>/V<sub>new</sub>)&sup2;</td><td>a 10% transformer on its own 20&nbsp;MVA base = 0.50&nbsp;pu on 100&nbsp;MVA</td></tr>
+</table>
+<p>The payoff: a per-unit impedance is <em>the same number on both sides of a transformer</em>. A short-circuit study can add the source, transformer, and line impedances in a single series string with no turns-ratio arithmetic, and fault current in per-unit is simply 1&nbsp;/&nbsp;Z<sub>total</sub>.</p>
+
+<div class="callout">
+<strong>Worked example.</strong> A 12.47&nbsp;kV bus is fed by a 20&nbsp;MVA transformer with 8% impedance from a stiff source. On a 100&nbsp;MVA base the transformer is 0.08 &times; (100/20) = 0.40&nbsp;pu. Ignoring source impedance, three-phase fault current = 1&nbsp;/&nbsp;0.40 = 2.5&nbsp;pu = 2.5 &times; 4630 = <strong>11,600&nbsp;A</strong>. That single number sets your instantaneous pickup, your CT requirements, and your equipment duty.
+</div>
+
+<h3>Per-unit inside the relay</h3>
+<p>Relays use a second, smaller per-unit system: quantities normalized to the relay's <em>nominal</em> inputs. A &ldquo;1.0&nbsp;pu voltage&rdquo; setting means nominal secondary voltage (typically 67&nbsp;V line-to-neutral or 120&nbsp;V line-to-line); a per-unit current setting is referenced to the nominal CT secondary (5&nbsp;A or 1&nbsp;A). This is why the same setting file will not simply drop into a relay with a different nominal input rating &mdash; see <a href="atlas:relays-devices/settings-management.html">Settings Management</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Phase rotation and reference</h2>
+<p>Rotation (or phase sequence) is the order in which the phases reach their peaks: <strong>ABC</strong> (positive/&ldquo;normal&rdquo;) or <strong>ACB</strong>. It is a property of the system, and it must be set correctly in the relay &mdash; on SEL relays the <code>PHROT</code> setting &mdash; because every negative-sequence and directional calculation depends on it.</p>
+<ul>
+<li><strong>Get it wrong and positive and negative sequence swap places.</strong> A healthy balanced system will then appear to the relay as pure negative sequence: 46 elements pick up, directional elements point the wrong way, and nothing about the metering looks obviously broken.</li>
+<li><strong>Angles are relative.</strong> Relay displays reference everything to V<sub>A</sub> (or to the first available voltage). An event report showing I<sub>A</sub> at &minus;75&deg; means seventy-five degrees lagging <em>that reference</em>, not any absolute truth.</li>
+<li><strong>Prove rotation on site</strong> with a rotation meter or by reading the relay's own sequence quantities under known load. Do not infer it from wire colors.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>&radic;3 applied twice, or not at all.</strong> The classic scaling bug: a value that is 1.73&times; or 0.577&times; what it should be is almost never a CT problem, it is a wye/delta assumption.</li>
+<li><strong>RMS versus fundamental.</strong> On a feeder with heavy harmonics, a true-RMS clamp meter and the relay's metering will differ by several percent. Both are right; they measure different things.</li>
+<li><strong>&ldquo;120&nbsp;V&rdquo; is ambiguous.</strong> It may mean 120&nbsp;V line-to-line (so 69.3&nbsp;V line-to-neutral) or 120&nbsp;V line-to-neutral (208&nbsp;V line-to-line). Always ask which, and check the relay's <code>VNOM</code>/<code>PTR</code> settings against the actual PT.</li>
+<li><strong>kVA is not kW.</strong> Transformer and conductor ratings are apparent power. Sizing on kW at an assumed unity power factor undersizes real installations.</li>
+<li><strong>Per-unit values are meaningless without their base.</strong> &ldquo;8% impedance&rdquo; on the nameplate means 8% <em>on the transformer's own rating</em>. Rebase before combining.</li>
+<li><strong>Angle sign conventions vary.</strong> Some tools show current angle leading positive, some lagging positive. Confirm with a known case (load at near unity) before trusting a directional conclusion.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>
+  <a href="atlas:fundamentals/transformers.html">Transformers</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:reference/formulas.md">Formulas &amp; Quick Math</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+</div>
+<p class="footnote">Fundamentals page. Conventions and nominal values follow SEL relay practice as documented in the SEL-751/751A and SEL-451 instruction manuals (<code>PHROT</code>, <code>VNOM</code>, <code>CTR</code>/<code>PTR</code>, fundamental-phasor metering); the per-unit and power relationships are standard power-system arithmetic. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

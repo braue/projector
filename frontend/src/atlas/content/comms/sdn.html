@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Software-Defined Networking</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="SDN,SEL-2740S,SEL-5056,OpenFlow,flows,failover,OT networking">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Software-Defined Networking (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Software-Defined Networking</h1>
+  <p>SEL OT SDN — deny-by-default flow forwarding engineered ahead of time, with the control plane pulled out into the SEL-5056 Flow Controller</p>
+  <div class="chips"><span>OT SDN</span><span>SEL-5056</span><span>2740S</span><span>OpenFlow 1.3</span><span>flows</span><span>deny-by-default</span><span>fast failover</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Philosophy</h3>
+<ul style="margin-bottom:8px">
+<li>An SDN switch forwards <strong>only conversations you engineered</strong> as flow entries. A packet with no matching flow is <strong>dropped</strong> — deny-by-default, zero trust.</li>
+<li>No MAC learning, no spanning tree, no broadcast domains. The switch is a look-up table; the thinking lives in the <strong>SEL-5056 Flow Controller</strong>.</li>
+</ul>
+<h3>Operations</h3>
+<ul style="margin-bottom:2px">
+<li>The 5056 is an <strong>engineering and monitoring tool, not a runtime dependency</strong>: once programmed, switches keep operating (and failing over) with the controller offline.</li>
+<li>Failover paths are <strong>pre-programmed</strong> (Fast Failover groups). Healing is measured in microseconds, not RSTP reconvergence time.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What OT SDN is</h2>
+<p>Traditional switches decide <em>how</em> to forward (control plane) and forward (data plane) in the same box, using MAC learning and RSTP. OT SDN pulls the control plane out into central software — the SEL-5056 — and leaves the switch as a programmable match-and-action look-up table. SEL's user guide is explicit that "the OT SDN underlay control plane replaces the legacy RSTP managed switch control plane." OpenFlow 1.3 is the language between controller and switch; STP and dynamic MAC learning are removed entirely.</p>
+<p>Every allowed conversation is a <strong>flow entry</strong>: match fields (which packets), instructions/actions (what to do with them), and counters (proof it's happening). You engineer flows ahead of time — <em>proactive traffic engineering</em> — including the backup paths for every failure, so nothing has to converge after a fault. What you get, per the UG: deny-by-default network access control with Layer 1–4 packet inspection at every port, sub-millisecond network healing, and the certainty that each host receives exactly the traffic you provisioned and nothing else.</p>
+<div class="callout">A destination MAC starting <code>01:</code> no longer means "multicast to everyone on the VLAN." <strong>You</strong> decide where a GOOSE frame goes, per subscriber, per circuit — micro-segmentation down to individual conversations, with no VLAN management overhead (SEL-5056 IM).</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>SDN vs. RSTP/MAC-learning — the honest contrast</h2>
+<p>Same three-switch network, two philosophies. RSTP <em>discovers</em> a topology and reacts to failures; SDN is <em>told</em> a topology and has the reactions pre-programmed. (For the RSTP side in depth — root bridges, ring/ladder sizing — see <strong>RSTP &amp; Topologies</strong> in atlas.)</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- panel titles -->
+  <text x="172" y="14" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">OT SDN — engineered flows</text>
+  <text x="528" y="14" font-size="9.5" font-weight="600" fill="#454956" text-anchor="middle">RSTP + MAC learning — flood &amp; learn</text>
+  <line x1="350" y1="6" x2="350" y2="216" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- ===== SDN panel (left): SW1 top-left, SW2 top-right, SW3 bottom-center ===== -->
+  <g>
+    <rect x="60" y="30" width="64" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="92" y="44" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW1</text>
+    <rect x="220" y="30" width="64" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="252" y="44" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW2</text>
+    <rect x="140" y="120" width="64" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="172" y="134" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW3</text>
+    <line x1="124" y1="41" x2="220" y2="41" stroke="#a9adb8" stroke-width="1.75"/>
+    <line x1="103" y1="52" x2="155" y2="120" stroke="#a9adb8" stroke-width="1.75"/>
+    <line x1="241" y1="52" x2="189" y2="120" stroke="#a9adb8" stroke-width="1.75"/>
+    <!-- hosts -->
+    <rect x="14" y="66" width="70" height="20" rx="4" fill="#10a37f" opacity="0.14" stroke="#10a37f" stroke-width="1"/><text x="49" y="79" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">Relay (pub)</text>
+    <line x1="62" y1="66" x2="80" y2="52" stroke="#10a37f" stroke-width="1.25"/>
+    <rect x="256" y="66" width="60" height="20" rx="4" fill="#5468c4" opacity="0.14" stroke="#5468c4" stroke-width="1"/><text x="286" y="79" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle">HMI</text>
+    <line x1="272" y1="66" x2="262" y2="52" stroke="#5468c4" stroke-width="1.25"/>
+    <rect x="140" y="168" width="76" height="20" rx="4" fill="#10a37f" opacity="0.14" stroke="#10a37f" stroke-width="1"/><text x="178" y="181" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">Relay (sub)</text>
+    <line x1="176" y1="168" x2="173" y2="142" stroke="#10a37f" stroke-width="1.25"/>
+    <rect x="230" y="140" width="60" height="20" rx="4" fill="#d63a3a" opacity="0.12" stroke="#d63a3a" stroke-width="1"/><text x="260" y="153" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">Laptop</text>
+    <line x1="234" y1="140" x2="200" y2="136" stroke="#d63a3a" stroke-width="1.25" stroke-dasharray="3 2"/>
+    <text x="172" y="207" font-size="7.5" fill="#a9adb8" text-anchor="middle">GOOSE flow: relay → SW1 → SW3 → subscriber only.</text>
+    <text x="172" y="217" font-size="7.5" fill="#a9adb8" text-anchor="middle">Laptop frames match no flow → dropped at the port.</text>
+  </g>
+  <!-- ===== Legacy panel (right): same layout, +356 -->
+  <g>
+    <rect x="416" y="30" width="64" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="448" y="44" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW1</text>
+    <rect x="576" y="30" width="64" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="608" y="44" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW2</text>
+    <rect x="496" y="120" width="64" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="528" y="134" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW3</text>
+    <line x1="480" y1="41" x2="576" y2="41" stroke="#a9adb8" stroke-width="1.75"/>
+    <line x1="459" y1="52" x2="511" y2="120" stroke="#a9adb8" stroke-width="1.75"/>
+    <line x1="597" y1="52" x2="545" y2="120" stroke="#d0d3da" stroke-width="1.75" stroke-dasharray="5 3"/>
+    <text x="590" y="95" font-size="6.8" fill="#a9adb8" text-anchor="middle">RSTP blocked</text>
+    <rect x="370" y="66" width="70" height="20" rx="4" fill="#10a37f" opacity="0.14" stroke="#10a37f" stroke-width="1"/><text x="405" y="79" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">Relay (pub)</text>
+    <line x1="418" y1="66" x2="436" y2="52" stroke="#10a37f" stroke-width="1.25"/>
+    <rect x="612" y="66" width="60" height="20" rx="4" fill="#5468c4" opacity="0.14" stroke="#5468c4" stroke-width="1"/><text x="642" y="79" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle">HMI</text>
+    <line x1="628" y1="66" x2="618" y2="52" stroke="#5468c4" stroke-width="1.25"/>
+    <rect x="496" y="168" width="76" height="20" rx="4" fill="#10a37f" opacity="0.14" stroke="#10a37f" stroke-width="1"/><text x="534" y="181" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">Relay (sub)</text>
+    <line x1="532" y1="168" x2="529" y2="142" stroke="#10a37f" stroke-width="1.25"/>
+    <rect x="586" y="140" width="60" height="20" rx="4" fill="#d63a3a" opacity="0.12" stroke="#d63a3a" stroke-width="1"/><text x="616" y="153" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">Laptop</text>
+    <line x1="590" y1="140" x2="556" y2="136" stroke="#d63a3a" stroke-width="1.25"/>
+    <text x="528" y="207" font-size="7.5" fill="#a9adb8" text-anchor="middle">Multicast GOOSE floods every port in the VLAN;</text>
+    <text x="528" y="217" font-size="7.5" fill="#a9adb8" text-anchor="middle">the laptop is on the network the moment it links up.</text>
+  </g>
+  <!-- ===== animation ===== -->
+  <g class="animlayer">
+    <!-- SDN: GOOSE frame follows engineered path pub->SW1->SW3->sub -->
+    <rect x="-8" y="-4.5" width="16" height="9" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.30;0.33;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M62,70 L92,45 L172,127 L176,172" keyPoints="0;0;1;1" keyTimes="0;0.02;0.31;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <text x="110" y="100" font-size="7.2" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.09;0.26;0.30;1" dur="14s" repeatCount="indefinite"/>GOOSE — engineered flow</text>
+    <!-- Legacy: GOOSE floods to all three destinations -->
+    <rect x="-8" y="-4.5" width="16" height="9" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.30;0.33;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M418,70 L448,45 L528,127 L532,172" keyPoints="0;0;1;1" keyTimes="0;0.02;0.31;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-8" y="-4.5" width="16" height="9" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.30;0.33;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M418,70 L448,45 L608,41 L630,68" keyPoints="0;0;1;1" keyTimes="0;0.02;0.31;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-8" y="-4.5" width="16" height="9" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.30;0.33;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M528,127 L556,136 L612,150" keyPoints="0;0;1;1" keyTimes="0;0.14;0.31;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <text x="528" y="100" font-size="7.2" font-weight="600" fill="#6e7180" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.09;0.26;0.30;1" dur="14s" repeatCount="indefinite"/>multicast → every port</text>
+    <!-- Phase B: laptop transmits. SDN: dropped. Legacy: forwarded -->
+    <rect x="-8" y="-4.5" width="16" height="9" rx="2" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.45;0.47;0.62;0.64;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M256,148 L206,138" keyPoints="0;0;1;1" keyTimes="0;0.45;0.62;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.61;0.63;0.88;0.92;1" dur="14s" repeatCount="indefinite"/>
+      <line x1="200" y1="128" x2="214" y2="142" stroke="#d63a3a" stroke-width="2.5"/>
+      <line x1="214" y1="128" x2="200" y2="142" stroke="#d63a3a" stroke-width="2.5"/>
+      <text x="172" y="158" font-size="7.2" font-weight="600" fill="#d63a3a" text-anchor="middle">no matching flow → dropped</text>
+    </g>
+    <rect x="-8" y="-4.5" width="16" height="9" rx="2" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.45;0.47;0.86;0.89;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M612,148 L556,136 L515,124 L459,50 L448,43 L418,68" keyPoints="0;0;1;1" keyTimes="0;0.45;0.87;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <text x="528" y="158" font-size="7.2" font-weight="600" fill="#d7930a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.61;0.63;0.88;0.92;1" dur="14s" repeatCount="indefinite"/>learned + forwarded — it's in</text>
+  </g>
+</svg></div>
+<p class="figcap">Left: the GOOSE frame rides only its engineered flow path; the laptop's frames die at the ingress port. Right: multicast reaches every VLAN member and the unknown laptop participates immediately.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<table>
+<tr><th style="width:24%"></th><th>RSTP / MAC learning</th><th>OT SDN</th></tr>
+<tr><td><strong>Forwarding decision</strong></td><td>Learned MAC table + flood unknowns</td><td>Engineered flow entries; unmatched = dropped</td></tr>
+<tr><td><strong>Loops</strong></td><td>RSTP blocks spare links; a missed loop is a broadcast storm</td><td>No loops possible — every path is explicitly programmed (5056 IM)</td></tr>
+<tr><td><strong>Failure response</strong></td><td>Reconvergence after the fault (blocked link unblocks)</td><td>Pre-programmed backup in a Fast Failover group; healing in microseconds</td></tr>
+<tr><td><strong>Multicast / broadcast</strong></td><td>Floods the VLAN; confined only by VLAN/priority engineering</td><td>No broadcast domains — multicast delivered only to provisioned subscribers</td></tr>
+<tr><td><strong>Unknown device</strong></td><td>Works the moment it links up</td><td>Denied by default; optionally tapped to an IDS and alarmed</td></tr>
+<tr><td><strong>Segmentation</strong></td><td>VLANs + L3 boundaries</td><td>Per-conversation micro-segmentation, no VLAN overhead</td></tr>
+<tr><td><strong>Config surface</strong></td><td>Per-switch settings</td><td>One controller; switches have no user interface at all</td></tr>
+</table>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The pieces</h2>
+<div class="twocol">
+<div>
+<div class="card teal"><h3>SEL-5056 Flow Controller</h3>
+<p style="font-size:9pt">Central software (Windows Server 2022 or SEL Blueframe; browser UI) that commissions, configures, and monitors every SDN switch — OpenFlow 1.3 plus REST. Does topology discovery, end-to-end circuit provisioning, and telemetry; can also manage third-party OpenFlow 1.3 switches. Imports IEC 61850 SCD files, RTAC config files, and Visio drawings to automate provisioning.</p></div>
+<div class="card latch"><h3>The switches</h3>
+<p style="font-size:9pt"><strong>SEL-2740S</strong>: 20-port modular flagship (6 hot-swappable module slots; rack/panel/surface mount), 8,192 flow entries in 4 tables, 256 groups × 30 action buckets, 4 WRR queues (8:4:2:1), store-and-forward, IEEE 1613 / IEC 61850-3. <strong>SEL-2742</strong>: 12-port compact/DIN-rail sibling, 8,192 flows, two PoE+ ports (5–6), IEEE 1613. Newer <strong>SEL-2731</strong> (24-port, 8,192 flows) and <strong>SEL-2741</strong> (24-port, 16,384 flows) run the same OT SDN firmware; the family also includes the 2743 (8-port) and 2744 (10-port).</p></div>
+</div>
+<div>
+<div class="card pulse"><h3>Adoption — how a switch joins</h3>
+<p style="font-size:9pt">Out of the box, a switch publishes an <strong>OpenFlow discovery packet</strong> (LLDP-structured, Layer 2) every few seconds announcing its default IP — front port <code>ETH F</code> in <code>169.254.x.x/16</code>, data-plane ports in <code>192.168.x.x/16</code> (last two octets random). The 5056 commissions it over REST (port 443): IP, time, certificates, controller address. The switch then connects to the controller on TCP <strong>6653</strong> (OpenFlow, TLS with X.509). "Adopted" = connected on both interfaces. A switch pairs with <strong>one</strong> controller and stops advertising; re-homing it requires a factory reset (pinhole button or controller action).</p></div>
+<div class="card pair"><h3>Controller offline ≠ network down</h3>
+<p style="font-size:9pt">Flows are stored in the switch and <strong>retained through power cycles even with the controller offline</strong> (SDN UG). Per the 5056 IM: once configured, the controller "no longer needs to be online for proper network operations" and "is not a single point of failure." Offline you lose engineering, monitoring, and host discovery — not forwarding or failover. Exception: flows with idle/hard timeouts are deleted on switch reset or power cycle.</p></div>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Flows in depth</h2>
+<p>A flow entry = general settings (flow ID, table, <strong>priority 0–65535</strong>, idle/hard timeout) + <strong>match fields</strong> + <strong>instructions</strong> + counters. On ingress, table 0 is searched; a Goto-Table entry chains the search through all four tables. Highest-priority match wins (the 5056 checks for overlapping flows and flags them). <strong>No match anywhere → the packet is dropped.</strong></p>
+<h3>Match fields (5056 IM Table 12.6)</h3>
+<table>
+<tr><th>Layer</th><th>Fields</th><th>Notes</th></tr>
+<tr><td>L1</td><td><code>InPort</code></td><td>Physical ingress port</td></tr>
+<tr><td>L2</td><td><code>EthSrc</code> <code>EthDst</code> <code>EthType</code> <code>VlanVid</code> <code>VlanPcp</code></td><td>MACs maskable (e.g. <code>01:00:00:00:00:00/01:…</code> = all multicast); VlanVid can match none/present/specific/range</td></tr>
+<tr><td>L3</td><td><code>IpProto</code> <code>Ipv4Src</code> <code>Ipv4Dst</code> <code>ArpOp</code> <code>ArpSpa</code> <code>ArpTpa</code></td><td>IPs maskable like subnet masks (e.g. <code>192.168.0.0/255.255.0.0</code>)</td></tr>
+<tr><td>L4</td><td><code>TcpSrc</code> <code>TcpDst</code> <code>UdpSrc</code> <code>UdpDst</code></td><td>Friendly names built in: GOOSE <code>0x88B8</code>, SV <code>0x88BA</code>, PTP <code>0x88F7</code>, SEL87L <code>0x892B</code>, DNP3 <code>20000</code>, MMS <code>102</code>, Modbus <code>502</code>, Synchrophasors <code>4712/4713</code>…</td></tr>
+</table>
+<p>Every present match field must match for the entry to match; absent fields are wildcards. More fields = more exclusive; masks widen a field back out.</p>
+<h3>Instructions, actions, groups</h3>
+<ul>
+<li><strong>Instructions</strong> (applied in order): <code>Meter</code> (rate limit), <code>Clear-Actions</code>, <code>Write-Actions</code>, <code>Goto-Table</code>.</li>
+<li><strong>Actions</strong> inside Write-Actions: <code>PopVlan</code>, <code>PushVlan</code>, <code>SetVlanId</code>, <code>SetVlanPcp</code>, <code>SetQueue</code> (1–4), <code>Group</code>, <code>Output</code>. If no Output action ever executes against a packet, it's dropped.</li>
+<li><strong>Group types</strong>: <em>Indirect</em> (port aliasing — change one Output instead of every flow), <em>All</em> (replicate to a set of ports — how multicast fan-out is built), <em>Select</em> (round-robin link aggregation), <em>Fast Failover</em> (ordered buckets with liveness — the redundancy mechanism, §6).</li>
+<li><strong>Table-miss entries</strong> (priority 0, no match fields) catch everything unmatched. The 5056 installs four of them — ARP, GOOSE, SV, other — that send rate-metered copies to the controller for <em>host discovery</em>; delete/disable them if you don't want discovery. A table-miss with no Output drops the packet.</li>
+<li><strong>Priorities to respect</strong>: the 5056's own commissioning flows sit at 0, 1, 60000, and 65000 (aliases starting <code>SEL-5056:</code>). Keep user flows between 2 and 59999 — 100–64000 recommended. Protocol default is 2000; SEL recommends <strong>≥15000 for GOOSE and SV</strong> so they land in flow table 0 (lowest latency).</li>
+</ul>
+<div class="callout warn"><strong>VLANs, repurposed.</strong> Segmentation doesn't need VLANs here — there are no broadcast domains. But the system quietly uses VLAN tags to "color" packets in flight (applied at the first switch, stripped at the last, up to three tags). Use the 5056's <strong>VID reservation</strong> feature so your real VLAN IDs (e.g. tagged GOOSE from relays) never collide with the automation's designation tags.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Engineering a network — the 5056 workflow</h2>
+<div class="flow">
+  <div class="stage"><b>1 · Design</b><span>Draw topology + hosts (online or offline, even before hardware) — UI, Visio import, or Network Builder CSV; import SCD/RTAC files</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Discover &amp; adopt</b><span>Switches self-announce; auto-adopt when physical matches design (mismatch blocks adoption), or adopt manually</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Provision circuits</b><span>Source + destination(s) + protocol; path planner derives flows, groups, redundancy on every switch</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>4 · Verify &amp; baseline</b><span>Circuit status, SAT report, difference report vs. drawings, counters</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>5 · Operate</b><span>Telemetry every 10 s, Syslog, taps; controlled change management</span></div>
+</div>
+<ul>
+<li><strong>Circuits, not switch logins.</strong> A circuit is one communications channel: one source, one or more destinations (multicast only), one <strong>protocol</strong>. You never configure individual switches — the path planner works out which switches need which flows, end to end.</li>
+<li><strong>Protocols are reusable match profiles</strong> — e.g. HTTPS = EthType IPv4 + IpProto TCP + TcpDst 443. Bidirectional (TCP) circuits get the reverse-direction flows generated automatically. Per-protocol options: <em>Proactive Failover</em> (redundancy at each hop — SEL says keep it on), source-address matching, <em>MAC Address</em> lock (so an authorized IP device can't be silently swapped), egress queue (Critical/High/Medium/Low), hard timeout.</li>
+<li><strong>Applications</strong> create and manage circuits in bulk from host profiles (recommended over one-at-a-time circuits); SCD import auto-provisions all MMS, GOOSE, and SV circuits from the same file that programmed the relays.</li>
+<li><strong>Statuses tell you what's real:</strong> Controller Status = the path planner planned it; Switch Status = the flows are actually programmed (offline designs sit at Pending until switches sync). <strong>Replan</strong> after topology/port changes re-derives paths with minimal disruption.</li>
+<li><strong>Testing:</strong> the <strong>Site Acceptance Test report</strong> lists every circuit as source port / destination port / switch ports / exact match fields — one row per port combination — a complete test checklist. The <strong>Usage Statistics report</strong> tracks flow/group/meter headroom per switch (warns at 90%). <strong>Network Builder difference reports</strong> diff a proposed build against what's deployed — your drawings become the configuration baseline.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Failover — pre-programmed, not reconverged</h2>
+<p>Redundancy is compiled into each circuit at provisioning time. The first switch's flow points at a <strong>Fast Failover group</strong>: an ordered list of action buckets, each watching a port (or group) for <em>liveness</em>. The packet goes to the first live bucket; if the primary link is down, the very next packet takes the backup bucket's path. No election, no BPDUs, no learning — the SDN UG rates healing at <strong>less than a millisecond</strong>, and the 2740S/2742 manuals say faults heal "in microseconds." If no bucket is live, the packet is dropped.</p>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <!-- network: SW1 left, SW2 top-mid, SW3 right; primary SW1-SW2-SW3 top, backup SW1-SW3 bottom -->
+  <rect x="40" y="58" width="70" height="24" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="75" y="73" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW1</text>
+  <rect x="315" y="18" width="70" height="24" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="350" y="33" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW2</text>
+  <rect x="590" y="58" width="70" height="24" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="625" y="73" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SW3</text>
+  <line x1="110" y1="64" x2="315" y2="32" stroke="#10a37f" stroke-width="2"/>
+  <line x1="385" y1="32" x2="590" y2="64" stroke="#10a37f" stroke-width="2"/>
+  <text x="350" y="12" font-size="7.8" fill="#10a37f" text-anchor="middle">primary — bucket 1 (watch port live)</text>
+  <line x1="110" y1="78" x2="590" y2="78" stroke="#a9adb8" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="350" y="92" font-size="7.8" fill="#a9adb8" text-anchor="middle">backup — bucket 2, already programmed, used only if bucket 1's watch port is down</text>
+  <text x="18" y="72" font-size="7.5" fill="#6e7180" text-anchor="end">pub ▶</text>
+  <text x="682" y="72" font-size="7.5" fill="#6e7180" text-anchor="start">▶ sub</text>
+  <!-- timeline -->
+  <text x="40" y="130" font-size="8.5" font-weight="600" fill="#1a1a22">After the link fails:</text>
+  <text x="120" y="150" font-size="8" fill="#10a37f" text-anchor="end">OT SDN</text>
+  <rect x="130" y="142" width="5" height="11" fill="#10a37f"/>
+  <text x="142" y="151" font-size="7.5" fill="#6e7180">&lt; 1 ms — next packet takes bucket 2 (µs-scale healing; watch-port liveness, no protocol exchange)</text>
+  <text x="120" y="176" font-size="8" fill="#454956" text-anchor="end">RSTP</text>
+  <rect x="130" y="168" width="330" height="11" fill="#454956" opacity="0.75"/>
+  <text x="468" y="177" font-size="7.5" fill="#6e7180">detect → BPDU exchange → alternate port unblocks → reconverge (see RSTP &amp; Topologies)</text>
+  <text x="130" y="196" font-size="7.2" fill="#a9adb8">not to scale — RSTP reconvergence is a protocol negotiation after the fault; SDN failover is a lookup that was programmed before it</text>
+  <text x="130" y="212" font-size="7.2" fill="#d7930a">1 Gbps copper gotcha: IEEE requires a 720 ms wait before declaring link-down — SEL SDN switches let you disable that wait (Gigabit Copper Fast Failover)</text>
+  <g class="animlayer">
+    <!-- packets on primary -->
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.28;0.31;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,64 L350,30 L590,64" keyPoints="0;0;1;1" keyTimes="0;0.02;0.29;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- failure X -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0;0" keyTimes="0;0.33;0.35;0.72;0.76;1" dur="12s" repeatCount="indefinite"/>
+      <line x1="480" y1="38" x2="496" y2="54" stroke="#d63a3a" stroke-width="3"/>
+      <line x1="496" y1="38" x2="480" y2="54" stroke="#d63a3a" stroke-width="3"/>
+      <text x="488" y="66" font-size="7.8" font-weight="600" fill="#d63a3a" text-anchor="middle">link fails</text>
+    </g>
+    <!-- backup activates -->
+    <line x1="110" y1="78" x2="590" y2="78" stroke="#10a37f" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.38;0.40;0.90;0.95;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <text x="350" y="106" font-size="7.4" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.40;0.88;0.92;1" dur="12s" repeatCount="indefinite"/>bucket 1 not live → bucket 2, immediately</text>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.44;0.68;0.71;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,78 L590,78" keyPoints="0;0;1;1" keyTimes="0;0.42;0.69;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.58;0.60;0.84;0.87;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M110,78 L590,78" keyPoints="0;0;1;1" keyTimes="0;0.58;0.85;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Both paths exist in the switch before the fault. Failover is bucket selection by port liveness — the controller is not consulted and doesn't need to be online.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Why this suits protection traffic</h2>
+<ul>
+<li><strong>GOOSE and Sampled Values are deterministic here.</strong> Multicast is delivered only to provisioned subscribers over known paths with known backups — no flooding, no reconvergence gap during a fault. SEL positions OT SDN for "even the most demanding Ethernet communications, such as IEC 61850-9-2 sampled values." Give GOOSE/SV protocols priority ≥15000 (flow table 0) and a high egress queue. Mechanics of GOOSE itself: see <strong>IEC 61850 GOOSE</strong> in atlas.</li>
+<li><strong>Per-circuit QoS without tags.</strong> The egress queue is set by flow, not by VLAN PCP — untagged traffic still gets priority treatment, per conversation.</li>
+<li><strong>PTP-aware:</strong> switches are IEEE C37.238-2017 Power Profile P2P transparent clocks (disabled by default); provision PTP as a multicast circuit to every clock, client, and switch.</li>
+<li><strong>PRP interplay:</strong> the 5056 supports PRP port groups (dual-connected hosts) and the switches protect against singly-attached-node flooding — see <strong>PRP, HSR &amp; Redundancy</strong> in atlas.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Operational care &amp; monitoring</h2>
+<ul>
+<li><strong>Plug in an unplanned device → nothing happens.</strong> Its frames match no flow and are dropped (host-discovery table-miss may report it to the controller). Every new conversation — a test set, a vendor laptop — needs a circuit first. Plan for this during commissioning outages.</li>
+<li><strong>Make the denial visible:</strong> <em>unplanned traffic taps</em> forward unmatched traffic to a tap destination (e.g. an IDS), rate-metered, optionally VLAN-tagged per switch+port (starting VID + port number) so you can see exactly where it entered. The alarm contact can be set to latch if an unused port ever links up.</li>
+<li><strong>Timed conversations:</strong> hard-timeout circuits (0.0–18.2 h) auto-disable in the switch even with the controller offline — SEL's pattern for remote vendor access and rarely-used, higher-risk circuits.</li>
+<li><strong>Counters everywhere:</strong> per-port packets/bytes, per-flow packets/bytes/duration, per-group and per-meter counts. A circuit's <em>View Flows</em> shows its counters — a flow at zero while the publisher publishes is your mis-match clue; <em>Reset Traffic</em> zeroes them for a clean test.</li>
+<li><strong>Circuit taps</strong> mirror any conversation to any port on the network (with optional redundancy and metering) — no dedicated mirror-port infrastructure.</li>
+<li><strong>Change management is transactional:</strong> with <em>Active Configuration</em> off, changes queue as synchronization events you authorize deliberately. Modify in-band-management flows farthest-from-controller first, one at a time.</li>
+<li><strong>Logs:</strong> switches store 4,096 events locally and Syslog (UDP or TLS) to up to three servers; the 5056 also collects everything centrally. SNMPv2c/v3 is read-only. OpenFlow changes batch into single log lines (<code>Fa</code>/<code>Fd</code>/<code>Fm</code>… + hex IDs, 10 s intervals).</li>
+<li><strong>Replacement is an adoption action:</strong> the 5056 holds every switch's configuration; Replace programs a factory-fresh unit before or after physical install.</li>
+</ul>
+<div class="callout keyfact"><strong>The trade:</strong> everything must be engineered — there is no "just plug it in." The discipline that makes the network secure and deterministic is the same discipline that makes an unplanned addition a change-management event, not a field improvisation.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Two devices can't talk</strong> → no circuit, or the protocol's match fields don't fit the real packets (wrong EthType/port, unexpected VLAN tag). Check the circuit's flow counters — zero hits means the match is wrong or the traffic isn't arriving.</li>
+<li><strong>Circuit shows Controller Status Success, Switch Status Pending/Failed</strong> → switches offline or out of sync; synchronize (SEL suggests trying twice if an event won't clear) and read the per-setting rejection error.</li>
+<li><strong>Gigabit copper failover feels slow</strong> → the standards-mandated 720 ms link-down wait is still enabled; disable it (Gigabit Copper Fast Failover).</li>
+<li><strong>Switch won't adopt to a new controller</strong> → by design; factory-reset it first — pinhole button, an assigned digital input (asserted 5 s), or from the current controller.</li>
+<li><strong>Flow table pressure</strong> → run the Usage Statistics report; enable flow compression on circuits; remember deleting a group/meter deletes every flow referencing it.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/rstp-topologies.html">RSTP &amp; Topologies</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:comms/prp-hsr-redundancy.html">PRP &amp; HSR Redundancy</a>
+  <a href="atlas:reference/sel-software-map.md">SEL Software Map</a>
+</div>
+<p class="footnote">Sources: SEL Software-Defined Networking User's Guide, SDN_UG_20250815 (OT SDN concept, deny-by-default, adoption/commissioning, controller-offline retention, Gigabit Copper Fast Failover, logging, cybersecurity, SEL-2731/2741 resources); SEL-5056 Network Management System IM, 5056_IM (OpenFlow flows/matches/instructions/groups/meters, table-miss, default flow priorities, circuits/protocols/applications, taps, unplanned traffic, microsegmentation, reports, workflow); SEL-2740S SDN Switch IM, 2740S_IM (hardware, specs, microsecond healing); SEL-2742 Ethernet Switch IM, 2742_IM (hardware, PoE+, specs). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

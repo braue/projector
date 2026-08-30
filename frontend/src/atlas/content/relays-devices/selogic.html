@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SELogic Control Equations</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="SELogic,Relay Word,equations,timers,latches,math,SV,LT">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "SELogic Control Equations (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+  .eq { display: block; background: #f2f3f5; border-radius: 4px; padding: 4px 9px; font-family: "Consolas", "Cascadia Mono", monospace; font-size: 8.6pt; margin: 4px 0 7px; white-space: normal; }
+  .eq i { color: #8a8e9b; font-style: normal; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>SELogic Control Equations</h1>
+  <p>The programmable logic inside SEL relays — Relay Word bits, operators, timers, latches, and where the equations plug in (TR, CL, ER, outputs)</p>
+  <div class="chips"><span>:=</span><span>R_TRIG</span><span>SVnnPU/DO</span><span>LTnn SET/RST</span><span>TR · ER</span><span>torque control</span><span>Relay Word</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">&#9776;</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">SELogic in general</h3>
+<ul style="margin-bottom:2px">
+<li>Every SEL relay is programmed the same way: <strong>Relay Word bits</strong> (element pickups, timeouts, inputs, outputs, latches) combined by <strong>SELogic control equations</strong> that feed the trip, close, output, and event logic.</li>
+<li>Two generations in the field: <strong>classic</strong> (SEL-351 series — one-line equations, <code>=</code>, six operators, no math) and <strong>free-form</strong> (SEL-751/751A and 400 series — <code>:=</code>, edge triggers, comparisons, math, comments).</li>
+<li><strong>Timer units differ by generation:</strong> the SEL-351 sets SV timers in <em>cycles</em>; the SEL-751/751A set them in <em>seconds</em>. Check before you copy settings between platforms.</li>
+<li><strong>Latch bits (LTnn) are nonvolatile</strong> and burn flash writes; <strong>SELogic variables/timers (SVnn) are volatile</strong> and reset on power loss.</li>
+<li>Equations are processed in a <strong>fixed order every ¼ cycle</strong> — logic later in the order (SVs, outputs) lags logic earlier in it (trip) by one interval.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The vocabulary: Relay Word bits</h2>
+<p>A <strong>Relay Word bit</strong> is a single logic result — logical 1 (asserted) or logical 0 (deasserted) — updated once per processing interval. The Relay Word is the collection of all of them, organized in rows of 8 bits that you can inspect live with the <code>TAR</code> command (or front panel <em>Targets</em> menu). Every protection element, input, output, and internal function publishes its state here, and SELogic equations consume nothing else.</p>
+<table>
+  <tr><th>Bit</th><th>What it is</th><th></th><th>Bit</th><th>What it is</th></tr>
+  <tr><td class="mono">51P1P / 51PT</td><td>time-overcurrent pickup / timed out</td><td></td><td class="mono">IN101</td><td>optoisolated input energized</td></tr>
+  <tr><td class="mono">50P1</td><td>instantaneous overcurrent above pickup</td><td></td><td class="mono">OUT101</td><td>output contact equation result</td></tr>
+  <tr><td class="mono">TRIP / CLOSE</td><td>trip / close logic outputs</td><td></td><td class="mono">LT01, SV01T</td><td>latch bit, SELogic timer output</td></tr>
+  <tr><td class="mono">52A, SH0, LOP</td><td>breaker closed, shot counter at 0, loss of potential</td><td></td><td class="mono">RB01, LB01, PB03_PUL</td><td>remote bit, local bit, pushbutton pulse</td></tr>
+  <tr><td class="mono">SGn</td><td>active settings group indication (751A: SG1–3; 751: SG1–4; 351: SG1–6)</td><td></td><td class="mono">OC, CC</td><td>serial/remote OPEN and CLOSE commands</td></tr>
+</table>
+<p>Time-overcurrent elements uniquely expose three states: pickup (<code>51P</code> — above pickup, timing), timeout (<code>51PT</code> — curve timed out, the bit you trip on), and reset (<code>51PR</code> — fully reset). Trip on the <code>T</code> bit; supervise unlatch with the pickup bit.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Two generations you meet in the field</h2>
+<table>
+  <tr><th></th><th>Classic — SEL-351-5, -6, -7</th><th>Free-form — SEL-751 / SEL-751A</th><th>Free-form multi-line — SEL-400 series</th></tr>
+  <tr><td><strong>Assignment</strong></td><td><code>TR = 51PT + 51GT</code></td><td><code>TR := ORED51T OR ...</code></td><td><code>PSV01 := ...</code> (freeform lists)</td></tr>
+  <tr><td><strong>Operators</strong></td><td>6 only: <code>/</code> <code>\</code> <code>( )</code> <code>!</code> <code>*</code> <code>+</code></td><td>Boolean + edge + comparison + math</td><td>Boolean + edge + comparison + math</td></tr>
+  <tr><td><strong>Edge detect</strong></td><td><code>/IN101</code> rising, <code>\81D1T</code> falling</td><td><code>R_TRIG IN101</code>, <code>F_TRIG IN101</code></td><td><code>R_TRIG</code> / <code>F_TRIG</code></td></tr>
+  <tr><td><strong>Math</strong></td><td>none</td><td>math variables — 751A: MV01–MV32; 751: MV01–MV64; fixed-point (751 firmware R500+: IEEE 754 binary32 float)</td><td>protection + automation math variables (PMV/AMV)</td></tr>
+  <tr><td><strong>Limits</strong></td><td>15 bits/equation; 486 elements + 54 edge ops per group; parentheses <em>cannot</em> nest</td><td>15 elements/equation, 14 parenthesis sets, nesting OK; <code>#</code> comments, <code>\</code> line continuation</td><td>multi-line freeform, evaluated in written order; a variable may be defined more than once (last one processed wins)</td></tr>
+  <tr><td><strong>Variables / latches</strong></td><td>SV1–SV16, LT1–LT16</td><td>751A: SV01–SV32, LT01–LT32, 32 counters, 32 MVs; 751: 64 of each (enable counts with <code>ESV</code>/<code>ELAT</code>/<code>ESC</code>/<code>EMV</code>)</td><td>protection (PSV/PMV) and automation (ASV/AMV) sets</td></tr>
+  <tr><td><strong>Timer units</strong></td><td>cycles, 0.25-cycle steps (SV1T–SV6T: 0–999999 cyc ≈ 4.5 h; SV7T–SV16T: 0–16000 cyc ≈ 4.5 min)</td><td>seconds, 0.00–3000.00 (both PU and DO; both models)</td><td>—</td></tr>
+  <tr><td><strong>Processing</strong></td><td>every ¼ cycle, fixed order (App. G Table G.3)</td><td>every ¼ cycle; 751A: two outputs selectable at 1/16 cycle for arc flash (<code>AOUTSLOT</code>); 751: math variables/analog quantities every 25 ms, arc-flash logic + 2 fast hybrid outputs at 1/16 cycle</td><td>two engines: protection at the protection interval (typically 8× per cycle; 2.083 ms on an SEL-451); automation every ~8–24 ms depending on logic load</td></tr>
+</table>
+<div class="callout warn"><strong>400-series rule:</strong> never mix engine types in one equation — a protection Boolean asserted for one 2 ms protection interval will usually be missed entirely by an automation equation that runs every 8–24 ms. Keep protection variables with protection logic and automation with automation.</div>
+<p>On the classic 351, every SELogic setting <em>must</em> be set — single bit, combination, or directly <code>1</code>/<code>0</code>; blank is not allowed, and each hard-coded 1 or 0 still counts one element against the 486 budget. On settings save the relay reports <code>xxx Elements and yy Edges remain available</code>.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Operators, precedence, and edge triggers</h2>
+<div class="twocol">
+<div>
+<h3>SEL-751/751A (751A Table 4.36; 751 Table 4.77 — highest first)</h3>
+<table>
+  <tr><th>Operator</th><th>Function</th></tr>
+  <tr><td class="mono">( )&nbsp;&nbsp;-</td><td>parentheses; math negation</td></tr>
+  <tr><td class="mono">NOT</td><td>Boolean NOT (also on parenthesized groups)</td></tr>
+  <tr><td class="mono">R_TRIG&nbsp;F_TRIG</td><td>rising / falling edge — single bits only, output = 1 for one processing interval</td></tr>
+  <tr><td class="mono">*&nbsp;&nbsp;/</td><td>multiply, divide (math)</td></tr>
+  <tr><td class="mono">+&nbsp;&nbsp;-</td><td>add, subtract (math)</td></tr>
+  <tr><td class="mono">&lt; &gt; &lt;= &gt;=</td><td>comparison → Boolean result</td></tr>
+  <tr><td class="mono">=&nbsp;&nbsp;&lt;&gt;</td><td>equality / inequality → Boolean</td></tr>
+  <tr><td class="mono">AND</td><td>Boolean AND</td></tr>
+  <tr><td class="mono">OR</td><td>Boolean OR (lowest)</td></tr>
+</table>
+</div>
+<div>
+<h3>SEL-351 (Table G.1 — processing order)</h3>
+<table>
+  <tr><th>Operator</th><th>Function</th></tr>
+  <tr><td class="mono">/</td><td>rising-edge detect</td></tr>
+  <tr><td class="mono">\</td><td>falling-edge detect</td></tr>
+  <tr><td class="mono">( )</td><td>parentheses (no nesting)</td></tr>
+  <tr><td class="mono">!</td><td>NOT</td></tr>
+  <tr><td class="mono">*</td><td>AND</td></tr>
+  <tr><td class="mono">+</td><td>OR</td></tr>
+</table>
+<p style="font-size:8.6pt">Same-precedence operators evaluate left to right. Edge operators apply to <em>individual</em> Relay Word bits only, never to parenthesized groups — on both generations.</p>
+</div>
+</div>
+<p>Edge triggers are what keep the <strong>event report trigger</strong> alive: <code>ER = /51P + /51G + /OUT103</code> (351 factory) fires a fresh report on each new assertion. Without the <code>/</code>, a still-asserted <code>51P</code> would mask the later breaker-failure <code>OUT103</code> edge. The 751/751A equivalent: <code>ER := R_TRIG IN101 OR R_TRIG IN102</code> (the 751 ships with <code>ER := R_TRIG 51P1P OR R_TRIG 51G1P OR R_TRIG 50P1P OR R_TRIG 50G1P OR R_TRIG 51N1P OR R_TRIG CF</code>). <code>NOT R_TRIG x</code> is legal (751/751A) as long as NOT comes first.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <!-- static ladder -->
+  <text x="20" y="64" font-size="9" font-weight="600" fill="#1a1a22">IN101</text>
+  <text x="20" y="74" font-size="7" fill="#8a8e9b">BF initiate</text>
+  <text x="20" y="128" font-size="9" font-weight="600" fill="#1a1a22">50P1</text>
+  <text x="20" y="138" font-size="7" fill="#8a8e9b">phase fault det.</text>
+  <text x="20" y="152" font-size="9" font-weight="600" fill="#1a1a22">50N1</text>
+  <line x1="70" y1="60" x2="180" y2="60" stroke="#a9adb8" stroke-width="1.5"/>
+  <line x1="70" y1="124" x2="180" y2="124" stroke="#a9adb8" stroke-width="1.5"/>
+  <line x1="70" y1="148" x2="180" y2="148" stroke="#a9adb8" stroke-width="1.5"/>
+  <rect x="180" y="48" width="52" height="48" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="206" y="76" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">OR</text>
+  <rect x="180" y="112" width="52" height="48" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="206" y="140" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">OR</text>
+  <polyline points="232,72 266,72 266,90 300,90" fill="none" stroke="#a9adb8" stroke-width="1.5"/>
+  <polyline points="232,136 266,136 266,114 300,114" fill="none" stroke="#a9adb8" stroke-width="1.5"/>
+  <rect x="300" y="76" width="56" height="52" rx="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="328" y="106" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">AND</text>
+  <line x1="356" y1="102" x2="420" y2="102" stroke="#a9adb8" stroke-width="1.5"/>
+  <circle cx="384" cy="102" r="3" fill="#454956"/>
+  <text x="384" y="120" font-size="8" font-weight="600" fill="#454956" text-anchor="middle">SV7</text>
+  <!-- feedback -->
+  <polyline points="384,102 384,32 158,32 158,84 180,84" fill="none" stroke="#a9adb8" stroke-width="1.25" stroke-dasharray="4 3"/>
+  <text x="271" y="27" font-size="7.5" fill="#8a8e9b" text-anchor="middle">seal-in feedback — SV7 appears in its own equation</text>
+  <!-- timer -->
+  <rect x="420" y="78" width="110" height="48" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="475" y="94" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">timer SV7T</text>
+  <text x="475" y="106" font-size="7.5" fill="#6e7180" text-anchor="middle">SV7PU = 12 cyc</text>
+  <text x="475" y="116" font-size="7.5" fill="#6e7180" text-anchor="middle">SV7DO = 2 cyc</text>
+  <line x1="530" y1="102" x2="580" y2="102" stroke="#a9adb8" stroke-width="1.5"/>
+  <rect x="580" y="84" width="100" height="36" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="630" y="99" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">OUT102</text>
+  <text x="630" y="111" font-size="7.5" fill="#8a8e9b" text-anchor="middle">BF backup trip</text>
+  <text x="350" y="180" font-size="8.5" font-family="Consolas, monospace" fill="#454956" text-anchor="middle">SV7 = (SV7 + IN101) * (50P1 + 50N1)&#160;&#160;&#160;&#160;OUT102 = SV7T</text>
+  <text x="350" y="196" font-size="8" fill="#a9adb8" text-anchor="middle">a BFI pulse arms the seal-in; fault detectors hold it; if current persists past SV7PU the backup trip asserts</text>
+  <g class="animlayer">
+    <!-- highlights: dur 10s. fault 0.10-0.55, BFI 0.15-0.30, SV7 0.15-0.55, timer full 0.45, out 0.45-0.60 -->
+    <line x1="70" y1="124" x2="180" y2="124" stroke="#10a37f" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.10;0.11;0.54;0.56;1" dur="10s" repeatCount="indefinite"/>
+    </line>
+    <line x1="70" y1="60" x2="180" y2="60" stroke="#d7930a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.15;0.16;0.29;0.31;1" dur="10s" repeatCount="indefinite"/>
+    </line>
+    <polyline points="232,136 266,136 266,114 300,114" fill="none" stroke="#10a37f" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.10;0.11;0.54;0.56;1" dur="10s" repeatCount="indefinite"/>
+    </polyline>
+    <polyline points="232,72 266,72 266,90 300,90" fill="none" stroke="#10a37f" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.15;0.16;0.54;0.56;1" dur="10s" repeatCount="indefinite"/>
+    </polyline>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.15;0.16;0.54;0.56;1" dur="10s" repeatCount="indefinite"/>
+      <line x1="356" y1="102" x2="420" y2="102" stroke="#10a37f" stroke-width="2.5"/>
+      <polyline points="384,102 384,32 158,32 158,84 180,84" fill="none" stroke="#10a37f" stroke-width="2" stroke-dasharray="4 3"/>
+    </g>
+    <!-- timer fill -->
+    <rect x="422" y="119" height="5" rx="2" fill="#5468c4" width="0">
+      <animate attributeName="width" values="0;0;106;106;0;0" keyTimes="0;0.15;0.45;0.55;0.56;1" dur="10s" repeatCount="indefinite"/>
+    </rect>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.45;0.46;0.59;0.61;1" dur="10s" repeatCount="indefinite"/>
+      <line x1="530" y1="102" x2="580" y2="102" stroke="#d63a3a" stroke-width="2.5"/>
+      <rect x="580" y="84" width="100" height="36" rx="5" fill="none" stroke="#d63a3a" stroke-width="2"/>
+    </g>
+    <text x="125" y="112" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.10;0.11;0.24;0.26;1" dur="10s" repeatCount="indefinite"/>
+      fault: 50P1 asserts
+    </text>
+    <text x="125" y="48" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.15;0.16;0.29;0.31;1" dur="10s" repeatCount="indefinite"/>
+      BFI pulse (then drops)
+    </text>
+    <text x="475" y="140" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.32;0.44;0.45;1" dur="10s" repeatCount="indefinite"/>
+      seal-in holds; timer runs
+    </text>
+    <text x="630" y="132" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.45;0.46;0.59;0.61;1" dur="10s" repeatCount="indefinite"/>
+      breaker failed — backup trip
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">The SEL-351 manual's dedicated breaker-failure scheme, live: initiate pulse arms a seal-in, fault detectors hold it, and the SV timer converts persistence into a backup trip. If the breaker clears in time, 50P1/50N1 drop and the seal-in releases before SV7PU expires.<span class="print-note"> &#9654; Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Timers: pickup and dropout</h2>
+<p>Every SELogic variable SVnn drives a timer with two settings: <strong>pickup</strong> (<code>SVnnPU</code> — the input must stay asserted this long before <code>SVnnT</code> asserts) and <strong>dropout</strong> (<code>SVnnDO</code> — <code>SVnnT</code> holds this long after the input deasserts). An input pulse shorter than the pickup time produces nothing.</p>
+
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="55" font-size="9" font-weight="600" fill="#1a1a22">SVnn</text>
+  <text x="20" y="66" font-size="7" fill="#8a8e9b">equation result</text>
+  <text x="20" y="128" font-size="9" font-weight="600" fill="#1a1a22">SVnnT</text>
+  <text x="20" y="139" font-size="7" fill="#8a8e9b">timer output</text>
+  <!-- input waveform -->
+  <polyline points="75,72 120,72 120,48 180,48 180,72 260,72 260,48 520,48 520,72 685,72" fill="none" stroke="#454956" stroke-width="2"/>
+  <!-- output waveform -->
+  <polyline points="75,145 360,145 360,121 580,121 580,145 685,145" fill="none" stroke="#10a37f" stroke-width="2"/>
+  <!-- guides -->
+  <line x1="260" y1="42" x2="260" y2="152" stroke="#a9adb8" stroke-width="0.75" stroke-dasharray="3 2"/>
+  <line x1="360" y1="42" x2="360" y2="152" stroke="#a9adb8" stroke-width="0.75" stroke-dasharray="3 2"/>
+  <line x1="520" y1="42" x2="520" y2="152" stroke="#a9adb8" stroke-width="0.75" stroke-dasharray="3 2"/>
+  <line x1="580" y1="42" x2="580" y2="152" stroke="#a9adb8" stroke-width="0.75" stroke-dasharray="3 2"/>
+  <!-- PU annotation -->
+  <path d="M262,108 H358 M262,108 l6,-3 v6 z M358,108 l-6,-3 v6 z" fill="#5468c4" stroke="#5468c4" stroke-width="1"/>
+  <text x="310" y="102" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">SVnnPU</text>
+  <path d="M522,108 H578 M522,108 l6,-3 v6 z M578,108 l-6,-3 v6 z" fill="#5468c4" stroke="#5468c4" stroke-width="1"/>
+  <text x="550" y="102" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">SVnnDO</text>
+  <!-- short pulse note -->
+  <text x="150" y="38" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">shorter than PU — no output</text>
+  <text x="350" y="172" font-size="8" fill="#a9adb8" text-anchor="middle">SEL-751/751A: PU/DO in seconds, 0.00–3000.00 &#183; SEL-351: cycles in 0.25-cycle steps (SV1T–SV6T to 999999 cyc; SV7T–SV16T to 16000 cyc)</text>
+  <text x="350" y="188" font-size="8" fill="#a9adb8" text-anchor="middle">a re-assertion during dropout re-seals the output; PU = 0 passes the input straight through</text>
+  <g class="animlayer">
+    <line x1="75" y1="34" x2="75" y2="156" stroke="#1a1a22" stroke-width="1" opacity="0.4">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="610 0" dur="9s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="150" cy="48" r="8" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.11;0.13;0.20;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="360" cy="121" r="8" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.45;0.47;0.55;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="580" cy="145" r="8" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.81;0.83;0.91;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Pickup/dropout timing: the first pulse dies inside the pickup delay; the sustained assertion produces an output delayed by PU and stretched by DO.<span class="print-note"> &#9654; Animated in the HTML edition.</span></p>
+
+<div class="callout warn"><strong>Volatility:</strong> SV variables and timers reset to logical 0 on power loss (all platforms) and, on the SEL-751/751A, on any settings change too. On the SEL-351 a settings change or <em>group</em> change retains SV states — which is exactly what creates the group-change race in Section 8.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Latches and counters</h2>
+<div class="twocol">
+<div>
+<h3>Latch bits — LTnn</h3>
+<p>Each latch control switch has two SELogic inputs — <code>SETnn</code> and <code>RSTnn</code> — driving Relay Word bit <code>LTnn</code>. Reset wins if both assert. State is <strong>nonvolatile</strong>: retained through power loss and settings changes (though an output contact mapped to a latch still de-energizes while power is off, then restores). SEL-351: LT1–LT16; SEL-751A: LT01–LT32; SEL-751: LT01–LT64 (enable count with <code>ELAT</code>).</p>
+<p>Classic SCADA toggle (351 factory pattern — one pulsed contact alternately enables/disables reclosing):</p>
+<span class="eq">SET1 = /IN104 * !LT1<br>RST1 = /IN104 * LT1<br>79DTL = !LT1 <i># drive-to-lockout when disabled</i></span>
+</div>
+<div>
+<h3>Counters — SCnn (SEL-751/751A)</h3>
+<p>Up/down counters (IEC 1131-3 counter block; 32 on the 751A, 64 on the 751): SELogic inputs <code>SCnnR</code> (reset), <code>SCnnLD</code> (load preset <code>SCnnPV</code>), <code>SCnnCU</code>/<code>SCnnCD</code> (count up/down, rising-edge); outputs <code>SCnnQU</code> (count reached preset), <code>SCnnQD</code> (count = 0), and the analog value <code>SCnn</code> usable in comparisons. Input precedence: R &gt; LD &gt; CU &gt; CD. Counters live in <strong>volatile</strong> memory — power loss zeroes them. <code>SCnnCD := NA</code> disables the counter entirely.</p>
+</div>
+</div>
+<div class="callout keyfact"><strong>Latch flash budget:</strong> latch states are written to nonvolatile memory on every change, and the memory has a finite write life — the SEL-751 and SEL-751A manuals both allow an average of <strong>70 cumulative latch state changes per day</strong> for a 25-year service life (exceeding it can end in a flash self-test failure). SETnn/RSTnn must never produce continuous cyclical latching; qualify them with timers. The same warning applies to settings-group changes on the SEL-351: about <strong>one group change per day</strong> average for 25 years.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Math equations and the memory-register trick</h2>
+<p>Free-form platforms add math variables (SEL-751A: <code>MV01–MV32</code>; SEL-751: <code>MV01–MV64</code>; enabled by <code>EMV</code>; 400 series: <code>PMV</code>/<code>AMV</code>). Results are stored as 32-bit fixed point — 24 integer bits, 7 fraction bits, 1 sign — range ±16,777,215.99, clipped at the limits. Internally values scale by 128 with rounding at <em>each</em> operation, so <strong>order matters</strong>: <code>MV01 := (60/4160) * 100000</code> reports 1562.5 (the tiny quotient rounds first), while <code>MV01 := (60 * 100000)/4160</code> reports 1442.3. Multiply before you divide, and scale fractional constants up. (SEL-751 firmware R500-V0 and higher switches MVs to IEEE 754 binary32 floating point, range ±3.4e38 — the ×128 ordering trick no longer applies, but float rounding on large products does.)</p>
+<p>Relay Word bits used in math count as 0/1 — which gives you if/else in one line (751/751A manual example):</p>
+<span class="eq">MV01 := 12 * IN101 + (MV01 + 1) * NOT IN101 <i># 12 while IN101 high, else increment each pass</i></span>
+<p>AG2010-17 builds a whole toolbox from that one shape on SEL-400 series relays. The basic <strong>memory register</strong> — hold an analog when a control bit drops:</p>
+<span class="eq">ASV245 := 3P &gt; AMV245 <i># new maximum seen?</i><br>AMV245 := 3P * ASV245 + AMV245 * NOT ASV245 <i># max-demand register</i></span>
+<ul>
+  <li><strong>FIFO buffer:</strong> chain registers <code>AMV252 := AMV251 * pulse + AMV252 * NOT pulse</code> … — and write the <em>last</em> register's equation first, because freeform evaluates top-to-bottom and each equation must read its neighbor before it updates.</li>
+  <li><strong>Search / integrating timer / signal switch:</strong> same pattern; a variable may be assigned several times in the list — the last assignment processed is what is reported. Integrating timers belong in <em>protection</em> logic, whose interval is a fixed fraction of a cycle, not in automation logic whose interval floats with load.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Where the equations plug in</h2>
+<table>
+  <tr><th>Equation</th><th>Feeds</th><th>SEL-751/751A factory default / notes</th></tr>
+  <tr><td class="mono">TR</td><td>trip logic → TRIP bit</td><td>751A: <code>TR := ORED50T OR ORED51T OR 81D1T ... OR REMTRIP OR SV01 OR OC OR SV04T</code>; 751: <code>TR := ORED50T OR ORED51T OR ORED81T OR REMTRIP OR OC OR SV04T</code> (plus separate <code>MTR</code> manual-trip equation). TRIP holds ≥ <code>TDURD</code> (0.0–400.0 s, default 0.5). Put <strong>TRIP</strong>, not TR, in the output equation — TR isn't stretched or latched.</td></tr>
+  <tr><td class="mono">REMTRIP</td><td>remote-trip input into TR</td><td><code>REMTRIP := 0</code>; set to an input (<code>IN303</code>) so the HMI targets show "Remote Trip".</td></tr>
+  <tr><td class="mono">ULTRIP / ULTR</td><td>trip unlatch</td><td><code>ULTRIP := NOT (51P1P OR 51G1P OR 51N1P OR 52A)</code> — TRIP releases only after TDURD, TR deasserted, and unlatch (or target reset) true. 351: <code>ULTR = !(51P + 51G)</code>.</td></tr>
+  <tr><td class="mono">52A</td><td>breaker status</td><td><code>52A := 0</code> default (no aux wired). <code>52A := IN101</code> for a 52a contact, <code>!IN101</code> for a 52b. Close logic is <strong>inoperative</strong> while 52A := 0 on reclosing models.</td></tr>
+  <tr><td class="mono">CL / ULCL</td><td>close logic → CLOSE bit</td><td><code>CL := SV03T AND LT02 OR CC</code>. CLOSE seals in until ULCL, 52A, or close-failure (<code>CFD</code> timer, default 1.0 s) unlatches it.</td></tr>
+  <tr><td class="mono">OUTnnn</td><td>output contacts</td><td><code>OUT101 := HALARM OR SALARM</code>, <code>OUT102 := CLOSE</code>, <code>OUT103 := TRIP</code>; per-contact fail-safe <code>OUTnnnFS</code>. Unused outputs: set the equation to 0.</td></tr>
+  <tr><td class="mono">ER</td><td>event report trigger</td><td>Fires on 0→1 transitions for non-trip records; anything already in TR triggers automatically. Use edge operators per term.</td></tr>
+  <tr><td class="mono">SS1–SS3 (751: SS1–SS4; 351: SS1–SS6)</td><td>active settings group</td><td>Group equations have priority over the <code>GROUP n</code> command when they evaluate 1; qualified by <code>TGR</code> delay (751/751A: 0–400 s, default 3). <code>SGn</code> bits indicate the active group; the 751 is disabled for &lt;1 s while a group change processes (latch, local, and remote bits are retained).</td></tr>
+  <tr><td class="mono">67P1TC, 51PTC …</td><td>torque control (351 series)</td><td>Enable/disable overcurrent elements by logic — directional supervision, cold-load schemes. Factory set to 1; <strong>cannot be set directly to 0</strong>.</td></tr>
+  <tr><td class="mono">TMBnA/B</td><td>Mirrored Bits transmit</td><td>Each transmitted bit is its own SELogic equation — see Mirrored Bits in atlas.</td></tr>
+  <tr><td class="mono">FAULT, BKMON, 79CLS, DPnn</td><td>metering blank-out, breaker monitor, reclose supervision, display points</td><td>Nearly every conditional input in the logic diagrams is a SELogic setting.</td></tr>
+</table>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Gotchas: processing order, races, group changes</h2>
+<ul>
+  <li><strong>Everything runs in a fixed order, every ¼ cycle</strong> (351 App. G Table G.3): inputs/acquisition → latches → torque control → overcurrent elements → <em>trip logic</em> → close/reclose → <em>SELogic variables/timers</em> → output contacts → display points → settings-group control → ER → Mirrored Bits transmit. A bit computed later in the order isn't seen by earlier logic until the <em>next</em> interval.</li>
+  <li><strong>SVs are processed after TR</strong> — tripping via an SV bit (like the factory <code>TR := ... OR SV01</code>) adds up to ¼ cycle. Negligible for most schemes; know it exists.</li>
+  <li><strong>Group-change race (351):</strong> SV states carry through an active-group change and are evaluated once by the <em>new</em> group's equations before being recomputed. If Group 3 has <code>TR = SV7 + ...</code> and SV7 happened to be asserted at the changeover, you trip on the first pass. Use the same variables for the same purpose in every group, and test group transitions for mission-critical logic.</li>
+  <li><strong>Element budgets are real:</strong> 15 elements per equation on both platforms (spill into an SV as an intermediate); the 351 additionally caps 486 elements + 54 edge operators per group; on the 751A, everything after <code>#</code> is comment and <code>\</code> continues a line.</li>
+  <li><strong>Equations live per settings group</strong> (751A protection logic; 351 all SELogic) — a scheme that works in Group 1 does not exist in Group 2 unless you copied it there.</li>
+  <li><strong>Counters and edge triggers interact with the interval:</strong> R_TRIG/F_TRIG outputs and pushbutton <code>_PUL</code> bits last exactly one processing interval — logic in a slower engine (400-series automation) or downstream of the order can miss them.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Sources</h2>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+  <a href="atlas:rtac-automation/rtac-logic.html">IEC 61131-3 Logic on the RTAC</a>
+</div>
+<p class="footnote">SEL-751A Feeder Protection Relay IM — <code>751A_IM_20250411.pdf</code> (Section 4: operators Table 4.36/4.37, latches, SVs, counters, math variables, trip/close logic, settings groups; Section 9: ER). &#183; SEL-751 Feeder Protection Relay IM — <code>751_IM_20260327.pdf</code> (Section 4: operators Table 4.77/4.78, latch/SV/counter/MV counts and settings, floating-point math R500+, trip/close defaults, settings groups SS1–SS4; Section 1: processing specs). The restored 751 manual confirms the shared free-form claims (operators and precedence, 15-element/14-parenthesis limits, 3000 s timers, latch nonvolatility and the 70-changes/day write budget, counter block and precedence, fixed-point math and ordering) — where the models differ (32 vs 64 variables, group count, TR default, arc-flash outputs) both are stated inline. &#183; SEL-351-5, -6, -7 Relay IM — <code>351-567_IM_20230831.pdf</code> (Appendix G: classic operators, limits, processing order Table G.3; Section 7: SV timers, latches, setting groups). &#183; SEL AG2010-17, "Implementing Memory Register Functions Using Advanced SELOGIC Control Equation Math Functions in SEL-400 Series Relays" — <code>AG2010-17_20101029.pdf</code> (two logic engines, freeform ordering, memory-register patterns). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

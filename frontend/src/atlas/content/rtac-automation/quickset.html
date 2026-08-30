@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QuickSet &amp; Engineering Access</title>
+<meta name="atlas-order" content="90">
+<meta name="atlas-tags" content="QuickSet,SEL-5030,settings,RDB,design templates,drivers,FID">
+<style>
+@page {
+size: letter;
+margin: 0.55in 0.6in 0.7in 0.6in;
+@bottom-left { content: "QuickSet & Engineering Access (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+@bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+.masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+.masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+.masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+.chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+p { margin-bottom: 6px; }
+ul { margin: 0 0 7px 16px; }
+li { margin-bottom: 3.5px; }
+strong { color: #1a1a22; }
+
+table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+.card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+.card h3 { margin-top: 0; }
+.card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+.card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+.card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+.card.teal  { border-left-color: #10a37f; }
+
+.callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+.warn { background: #fdf3e7; border-left-color: #d7930a; }
+.keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+.flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+.flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+.flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+.flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+.flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+.twocol { display: flex; gap: 16px; }
+.twocol > div { flex: 1; }
+
+section { page-break-inside: auto; }
+.keep { page-break-inside: avoid; }
+
+.footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+.fig { margin: 8px 0 4px; }
+.fig svg { width: 100%; height: auto; display: block; }
+.fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+.print-note { display: none; }
+@media print {
+.animlayer { display: none !important; }
+.print-note { display: inline; }
+}
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+<h1>QuickSet &amp; Engineering Access</h1>
+<p>acSELerator QuickSet SEL-5030 — the settings round-trip (read → edit offline → compare → send), the RDB database, design templates, and the rest of the engineering toolbox</p>
+<div class="chips"><span>SEL-5030</span><span>Relay.rdb</span><span>FID / Z-number</span><span>File &gt; Send</span><span>Edit &gt; Compare</span><span>templates</span><span>OTTER / TAIL</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">QuickSet discipline</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Read before you edit, save before and after every change</strong> — SEL's own recommendation. The database copy is only the truth if you keep it that way.</li>
+<li><strong>The settings file must match the relay</strong>: part number and Z-number (driver version) both, or the send fails with an error.</li>
+<li><strong>Sending settings to the active group disables the relay briefly</strong> (SEL-751A: up to 5 s on save; &lt;1 s on a group change). Editing a <em>non-active</em> group interrupts nothing.</li>
+<li><strong>Back up the .rdb</strong> — QuickSet keeps only the last three saves beside the file (an <code>_rdb_backups</code> folder); uninstalling doesn't delete it, but off-machine backup is on you. Keep the working copy on a <strong>local drive</strong>, not a network share — SEL warns of save conflicts and latency corruption (multi-user access belongs in Device Manager).</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What QuickSet is</h2>
+<p>ACSELERATOR QuickSet (SEL-5030) is SEL's PC-side <strong>setting, event analysis, and measurement tool</strong> — the standard engineering-access front end for SEL relays. It is <strong>driver-based</strong>: each relay model and settings version has its own settings driver, selected by the Z-number in the relay's FID string. The suite (as documented for the SEL-751A):</p>
+<table>
+<tr><th>Application</th><th>What it does</th></tr>
+<tr><td><strong>Rules-Based Settings Editor</strong></td><td>On/offline settings with interdependency checks; manages settings for many devices in a database</td></tr>
+<tr><td><strong>HMI</strong></td><td>Summary view of device operation — live metering, targets, control; simplifies commissioning testing</td></tr>
+<tr><td><strong>Design Templates</strong> <span style="color:#8a8e9b">(licensed versions)</span></td><td>Store standardized settings as templates; lock settings to your standards, or lock and hide unused ones</td></tr>
+<tr><td><strong>Event Analysis</strong></td><td>Oscillography and event retrieval/viewing tools</td></tr>
+<tr><td><strong>Setting Database Management</strong></td><td>The .rdb database of device settings</td></tr>
+<tr><td><strong>Terminal</strong></td><td>Direct ASCII connection (<code>Ctrl+T</code>), with connection logging</td></tr>
+<tr><td><strong>Help</strong></td><td>General plus device-specific settings help (<code>F1</code>)</td></tr>
+</table>
+<p>You never <em>need</em> QuickSet — every SEL relay is settable from an ASCII terminal or the front panel — but QuickSet adds the rules-based checks, SELOGIC Expression Builder, HMI, event analysis, and the settings library.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Connecting: the engineering-access session</h2>
+<p>QuickSet talks to a relay through any of its comm ports (SEL-751A: PORT 1–4 or front-panel PORT F). Connection setup lives under <strong>Communications &gt; Parameters</strong>:</p>
+<ul>
+<li><strong>Serial:</strong> match the PC COM port to the relay's port settings — 751A serial defaults <code>SPEED := 9600</code>, 8-N-1. Mismatched speed/framing = no prompt.</li>
+<li><strong>Network:</strong> pick <em>Network</em> as the Active Connection Type and enter the IP parameters (751A Ethernet defaults: <code>IPADDR := 192.168.1.2</code>, <code>SUBNETM := 255.255.255.0</code>). The <strong>File Transfer Option</strong> offers FTP, Telnet, Raw TCP, or SSH; for the 751A, always select <strong>FTP</strong>.</li>
+<li><strong>Connection profiles:</strong> <em>Save to Address Book</em> stores a named network profile, recalled from the <em>Connection Name</em> dropdown (the address book lives at <code>%AppData%\Roaming\SEL\AcSELerator\QuickSet\AddressBook.txt</code>). QuickSet talks to <strong>one connected device at a time</strong>.</li>
+<li><strong>Passwords in the profile:</strong> the connection dialog carries the <strong>Access Level 1 and 2 passwords</strong>; QuickSet presents them as it escalates. Reads work at Level 1; the <code>SET</code> machinery behind a send needs Level 2.</li>
+<li><strong>Sanity check:</strong> open <strong>Communications &gt; Terminal</strong> (<code>Ctrl+T</code>), press Enter for a prompt, issue <code>ID</code> — the reply carries the FID, boot FID, and <code>PARTNO</code>. Record the Z-number. <strong>Communications &gt; Logging &gt; Terminal Logging</strong> records the terminal session to a text file; the <strong>Connection Log</strong> keeps a log of the whole QuickSet session (all connections) until cleared.</li>
+</ul>
+<div class="twocol">
+<div>
+<table>
+<tr><th>Level</th><th>Prompt</th><th>Gets you</th></tr>
+<tr><td class="mono">0</td><td class="mono">=</td><td>Almost nothing; <code>ACC</code> to go up</td></tr>
+<tr><td class="mono">1</td><td class="mono">=&gt;</td><td>View: SHOW, ID, metering, events</td></tr>
+<tr><td class="mono">2</td><td class="mono">=&gt;&gt;</td><td>Change: SET, control, PAS</td></tr>
+<tr><td class="mono">C</td><td class="mono">==&gt;&gt;</td><td>Factory calibration (restricted)</td></tr>
+</table>
+</div>
+<div>
+<table>
+<tr><th>Level</th><th>751A factory default password</th></tr>
+<tr><td class="mono">1</td><td class="mono">OTTER</td></tr>
+<tr><td class="mono">2</td><td class="mono">TAIL</td></tr>
+<tr><td class="mono">C</td><td class="mono">CLARKE</td></tr>
+</table>
+</div>
+</div>
+<div class="callout warn"><strong>Password fine print (751A):</strong> ≤12 characters, case-sensitive; the relay prompts up to <strong>three times</strong> per attempt. Change defaults at installation (<code>PAS 1</code>/<code>PAS 2</code>). After <code>T_OUT</code> minutes idle (default 5) a serial port drops from Level 2 back to Level 0. A main-board jumper can bypass the password requirement locally; the alarm contact still pulses on Level 2 entry.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The settings round-trip</h2>
+<p>The workflow that everything else hangs off. Settings transfer <strong>as files, not one setting at a time</strong> — which is why version matching (§5) matters.</p>
+<div class="flow">
+<div class="stage"><b>1 · Read</b><span>File &gt; Read pulls the device's settings into a new Settings Editor record (Transfer Status window)</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>2 · Edit offline</b><span>settings tree, range + interdependency checks, Expression Builder for SELOGIC</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>3 · Save</b><span>File &gt; Save stores the record in the active .rdb database</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>4 · Compare</b><span>Edit &gt; Compare diffs old vs. new and produces a settings change report</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>5 · Send</b><span>File &gt; Send transfers checked settings classes; relay disables briefly while enabling them</span></div>
+</div>
+
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+<rect x="16" y="30" width="150" height="130" rx="8" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+<text x="91" y="46" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">QuickSet PC</text>
+<rect x="30" y="56" width="122" height="92" rx="5" fill="#10a37f" opacity="0.08" stroke="#10a37f" stroke-width="1"/>
+<text x="91" y="69" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">database copy (.rdb)</text>
+<rect x="40" y="78" width="102" height="11" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+<rect x="40" y="94" width="102" height="11" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+<rect x="40" y="110" width="102" height="11" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+<text x="46" y="86.5" font-size="7" fill="#6e7180">51P1P = 6.00</text>
+<text x="46" y="102.5" font-size="7" fill="#6e7180">TR = 51P1T + 50P1</text>
+<text x="46" y="118.5" font-size="7" fill="#6e7180">TDURD = 12.0</text>
+<text x="91" y="142" font-size="7" fill="#8a8e9b" text-anchor="middle">Read → Edit → Save → Compare</text>
+
+<rect x="536" y="30" width="148" height="130" rx="8" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+<text x="610" y="46" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">SEL-751A</text>
+<text x="610" y="60" font-size="7.5" fill="#6e7180" text-anchor="middle">active settings: Group 1</text>
+<circle cx="576" cy="76" r="5" fill="#10a37f" id="enled"/>
+<text x="588" y="79" font-size="7.5" fill="#454956">ENABLED</text>
+<circle cx="576" cy="94" r="5" fill="#e5e7eb"/>
+<text x="588" y="97" font-size="7.5" fill="#454956">ALARM</text>
+<rect x="556" y="112" width="108" height="34" rx="4" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+<text x="610" y="126" font-size="7" fill="#6e7180" text-anchor="middle">protecting the feeder…</text>
+<text x="610" y="138" font-size="7" fill="#6e7180" text-anchor="middle">save disables ≤ 5 s</text>
+
+<line x1="166" y1="70" x2="536" y2="70" stroke="#d0d3da" stroke-width="1"/>
+<line x1="166" y1="130" x2="536" y2="130" stroke="#d0d3da" stroke-width="1"/>
+<text x="351" y="64" font-size="8" font-weight="600" fill="#5468c4" text-anchor="middle">READ — device settings flow into a database record</text>
+<text x="351" y="124" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">SEND — checked classes only, after the compare</text>
+
+<rect x="300" y="138" width="102" height="26" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1"/>
+<text x="351" y="149" font-size="7" font-weight="600" fill="#9c6d06" text-anchor="middle">gate: sending to the</text>
+<text x="351" y="158" font-size="7" font-weight="600" fill="#9c6d06" text-anchor="middle">ACTIVE group?</text>
+
+<text x="350" y="186" font-size="8" fill="#a9adb8" text-anchor="middle">read pulls a copy · edits accumulate offline · compare shows the diff · send crosses the gate · relay disables ≤5 s, then re-enables</text>
+<text x="350" y="200" font-size="8" fill="#a9adb8" text-anchor="middle">edits to a non-active group cross without interrupting protection</text>
+
+<g class="animlayer">
+<!-- READ token: relay -> PC -->
+<g opacity="0">
+<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.13;0.15;1" dur="14s" repeatCount="indefinite"/>
+<rect x="-10" y="-6" width="20" height="12" rx="2" fill="#5468c4">
+<animateMotion path="M536,70 L166,70" keyPoints="0;0;1;1" keyTimes="0;0.01;0.14;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+</rect>
+</g>
+<!-- edits accumulate: three rows flash amber -->
+<rect x="40" y="78" width="102" height="11" rx="2" fill="#d7930a" opacity="0">
+<animate attributeName="opacity" values="0;0;0.35;0.35;0;0" keyTimes="0;0.18;0.20;0.30;0.32;1" dur="14s" repeatCount="indefinite"/>
+</rect>
+<rect x="40" y="94" width="102" height="11" rx="2" fill="#d7930a" opacity="0">
+<animate attributeName="opacity" values="0;0;0.35;0.35;0;0" keyTimes="0;0.22;0.24;0.30;0.32;1" dur="14s" repeatCount="indefinite"/>
+</rect>
+<rect x="40" y="110" width="102" height="11" rx="2" fill="#d7930a" opacity="0">
+<animate attributeName="opacity" values="0;0;0.35;0.35;0;0" keyTimes="0;0.26;0.28;0.30;0.32;1" dur="14s" repeatCount="indefinite"/>
+</rect>
+<text x="91" y="35" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle" opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.20;0.30;0.33;1" dur="14s" repeatCount="indefinite"/>
+offline edits…
+</text>
+<!-- compare: three diff outlines pulse red -->
+<g opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.38;0.50;0.53;1" dur="14s" repeatCount="indefinite"/>
+<rect x="39" y="77" width="104" height="13" rx="2" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+<rect x="39" y="93" width="104" height="13" rx="2" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+<rect x="39" y="109" width="104" height="13" rx="2" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+<text x="91" y="35" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">Edit &gt; Compare: 3 differences</text>
+</g>
+<!-- send token: PC -> gate (pause) -> relay -->
+<g opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.56;0.57;0.80;0.82;1" dur="14s" repeatCount="indefinite"/>
+<rect x="-10" y="-6" width="20" height="12" rx="2" fill="#10a37f">
+<animateMotion path="M166,130 L351,130 L351,130 L536,130" keyPoints="0;0.45;0.55;1" keyTimes="0;0.62;0.72;0.81" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+</rect>
+</g>
+<!-- gate flash while token is held -->
+<rect x="300" y="138" width="102" height="26" rx="4" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+<animate attributeName="opacity" values="0;0;1;0;1;0;0" keyTimes="0;0.62;0.65;0.68;0.71;0.74;1" dur="14s" repeatCount="indefinite"/>
+</rect>
+<!-- relay disable pulse: ENABLED off, ALARM red -->
+<circle cx="576" cy="76" r="5" fill="#e5e7eb">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.83;0.93;0.95;1" dur="14s" repeatCount="indefinite"/>
+</circle>
+<circle cx="576" cy="94" r="5" fill="#d63a3a" opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.83;0.90;0.92;1" dur="14s" repeatCount="indefinite"/>
+</circle>
+<text x="610" y="158" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.83;0.93;0.95;1" dur="14s" repeatCount="indefinite"/>
+relay disabled — saving
+</text>
+</g>
+</svg></div>
+<p class="figcap">One full round-trip: read into the database, edits accumulate offline, the compare flags three diffs, the send pauses at the active-group gate, and the relay disables for up to 5 s (ENABLED out, ALARM pulses) while it enables the new settings.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>Partial vs. full sends (and reads)</h3>
+<p>The <strong>File &gt; Send</strong> dialog lists the settings classes as checkboxes — you send what you check (Group 1, Logic 1, Global, Port F, DNP maps…), and the Transfer Status window counts the files across (e.g. "6 of 11"). Two IM fine points: QuickSet <strong>auto-selects any class where changes have been made</strong>, even if you didn't check it — deselect deliberately if you mean to hold a change back; and for a clean transfer the target port's auto-messages should be off (<code>AUTO := N</code>). A change window that only touches Group 2 logic need only send Group 2 files. Under a design template, the <em>template designer</em> controls which groups get sent (§7).</p>
+<p><strong>Partial reads</strong> exist too (Tools &gt; Options &gt; Settings &gt; <em>Specify groups on settings read</em>) — but any class you <em>don't</em> read is filled with <strong>default settings</strong> in the resulting editor. A partial read is not a partial picture of the relay; save one over your database record and the unread classes silently revert to defaults.</p>
+
+<h3>The compare window</h3>
+<p><strong>Edit &gt; Compare</strong> diffs the open settings against a saved file: a settings tree, side-by-side <em>Current</em> (active editor) vs <em>Other</em> (comparison file) values and comments, and a filtered report. Six filters classify every setting — <strong>Changed / Unchanged / Missing</strong> (exists in only one file), each with <strong>Hidden / Invalid / Designer</strong> subsets — with counts per category ("Changed: 39/41" = 2 more hidden). <strong>View &gt; Ignore Comments</strong> matters when comparing against settings read from a device: <em>the relay doesn't store QuickSet comments</em>, so without it every commented setting shows as a diff. <strong>File &gt; Save Report</strong> exports the comparison as HTML. Enable <em>Prompt for action on settings read</em> (Tools &gt; Options &gt; Settings) and every read offers <strong>Compare / Merge / Open</strong> — the as-found-vs-as-left check in one step. <strong>Edit &gt; Merge</strong> is the sibling: selectively pull settings from a saved file (e.g. a company-standard scheme) into the open editor via the same comparison view.</p>
+
+<h3>What interrupts protection (SEL-751A, as documented)</h3>
+<ul>
+<li><strong>Saving new settings:</strong> relay disabled <strong>up to 5 s</strong> while it stores and enables them — ALARM bit sets momentarily, ENABLED LED extinguishes.</li>
+<li><strong>Active-group change:</strong> disabled <strong>&lt;1 s</strong>; elements, timers and logic reset, but local/remote/latch bit states are retained and output contacts hold until the new group's logic is processed.</li>
+<li><strong>Editing a non-active group:</strong> <strong>no interruption</strong> — unless the change alters SS1–SS3 and triggers a group switch.</li>
+<li><strong>Side effects:</strong> an active-group settings change drives the reclosing relay to last shot and reloads the reset timer (79RSLD). Plan sends around reclose state.</li>
+<li><strong>Lockout windows:</strong> <code>SET</code> is unavailable up to <strong>90 s after power-up</strong> and <strong>40 s after a settings change</strong>; after a PORT 1 (Ethernet) or Logic change, a further change may need up to 2 minutes.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>The relay-side structure QuickSet exposes</h2>
+<p>QuickSet's settings tree mirrors the relay's settings classes. The SEL-751A stores <strong>eight classes</strong> in nonvolatile memory; the same classes are reachable by ASCII <code>SET</code>/<code>SHO</code> (Level 2 / Level 1) and, for Global/Group/Port, from the front panel:</p>
+<table>
+<tr><th>Class</th><th>Instances</th><th>ASCII</th><th>Contents</th></tr>
+<tr><td><strong>Relay Group</strong></td><td>n = 1, 2, 3</td><td class="mono">SET n</td><td>Protection elements, timers — per group</td></tr>
+<tr><td><strong>Logic Group</strong></td><td>n = 1, 2, 3</td><td class="mono">SET L n</td><td>SELOGIC control equations — per group</td></tr>
+<tr><td><strong>Global</strong></td><td>1</td><td class="mono">SET G</td><td>Configuration, group selection (SS1–SS3, TGR), input debounce, Event Messenger</td></tr>
+<tr><td><strong>Port</strong></td><td>p = F, 1 (Eth), 2, 3, 4</td><td class="mono">SET P p</td><td>Per-port comms parameters and protocol</td></tr>
+<tr><td><strong>Front Panel</strong></td><td>1</td><td class="mono">SET F</td><td>Display and LED settings</td></tr>
+<tr><td><strong>Report</strong></td><td>1</td><td class="mono">SET R</td><td>SER and Event Report settings</td></tr>
+<tr><td><strong>Modbus</strong></td><td>1</td><td class="mono">SET M</td><td>Modbus user map</td></tr>
+<tr><td><strong>DNP3</strong></td><td>1</td><td class="mono">SET D</td><td>DNP3 map settings</td></tr>
+</table>
+<p><strong>Groups:</strong> each of the three settings groups is a complete set of relay + logic settings; only one is active. The active group is selected by SELOGIC settings <code>SS1</code>–<code>SS3</code> (which win when asserted) or the <code>GROUP n</code> command, qualified by <code>TGR</code> (0–400 s, default 3), indicated by Relay Word bits <code>SGn</code>, and retained through power loss. In QuickSet the tree stays constant while settings for absent hardware or disabled functions dim.</p>
+<p>Editing aids: right-click a setting for <strong>Previous Value</strong> / <strong>Default Value</strong>; out-of-range entries list as errors at the bottom (double-click to jump there); the ellipsis beside a SELOGIC setting opens the <strong>Expression Builder</strong> (enable the function under Logic Settings &gt; SELOGIC Enable first). <strong>Tools &gt; Settings &gt; Import/Export</strong> round-trips settings to a small text file.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Drivers, FID, and moving settings between relays</h2>
+<p>Every send is a file-for-file match against what the relay expects. Two identifiers must agree with the target, both visible in the <code>ID</code> reply:</p>
+<ul>
+<li><strong>Part number</strong> (<code>PARTNO</code>) — the hardware option string the settings file was built for.</li>
+<li><strong>Z-number</strong> — from the FID (e.g. <code>SEL-751A-R100-V0-Z001001-…</code>); its <strong>first three digits are the settings driver version</strong>, shown in the Settings Editor's lower-left corner. Editor driver and relay FID must match.</li>
+</ul>
+<p>Replacing a relay with a newer vintage (AG2007-04's SEL-351S case: Z006 file, Z007 relay)? Salvage the old file in two moves, keeping the original via Save As:</p>
+<div class="flow">
+<div class="stage"><b>1 · Edit &gt; Part Number</b><span>convert the file's part number to the new relay's; Save As under a new name</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>2 · Tools &gt; Settings &gt; Convert</b><span>convert the file's Z-number to the new driver version</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>3 · Review the report</b><span>the Convert Settings report lists missed, changed, and invalid settings — read it before trusting the file</span></div>
+<div class="arr">→</div>
+<div class="stage"><b>4 · Send</b><span>now the file matches; transfer proceeds</span></div>
+</div>
+<div class="callout keyfact"><strong>If the file doesn't match, the send fails</strong> — QuickSet displays an error and transfers nothing. That's the safe direction; the dangerous direction is a conversion whose report you didn't read. In the convert report the <em>newly converted</em> settings sit in the <em>Current</em> column; the pre-conversion values in the other. Convert can even cross product families — with proportionally more of the report demanding attention.</div>
+<p>Drivers install through <strong>SEL Compass</strong> (Install Devices button; SEL recommends closing QuickSet while installing). Don't know the Z-number yet? Create the file with the <em>largest</em> Z offered and convert once <code>ID</code> tells you. No driver available at all? The <strong>universal driver</strong> opens the file in the legacy grid editor — no rules checking, the relay simply rejects anything invalid.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>The settings database (.rdb)</h2>
+<p>QuickSet stores every device's settings as records in an <strong>.rdb database file</strong> (default <code>Relay.rdb</code>, shipped with example settings). Each unique relay gets its own record; kept current, the database is the record of truth for the fleet.</p>
+<ul>
+<li><strong>File &gt; Database Manager</strong> creates databases and manages records: per-database and per-device <strong>description fields</strong> (protection scheme, comms particulars — use them), <strong>Rename/Copy/Delete</strong> on device settings, <strong>Import/Export</strong> to text, and a <strong>Copy/Move Settings Between Settings Databases</strong> tab with side-by-side A/B databases (arrows copy or move a device between them). An <strong>Optimize</strong> button reclaims space left by deleted/modified settings when an .rdb balloons.</li>
+<li><strong>Organize deliberately:</strong> SEL suggests multiple databases grouping similar protection schemes or geographic areas — one .rdb per substation or per standard is the usual shape. Performance guidance: keep it under <strong>~500 settings files per .rdb</strong>, and on a <strong>local drive</strong> (network shares risk save conflicts and latency corruption — QuickSet shows a warning symbol in the save dialog).</li>
+<li><strong>Automatic backups:</strong> every save rotates a backup into an <code>_rdb_backups</code> folder beside the .rdb — default last <strong>3 generations</strong>, named <code>.01</code> (newest) upward, adjustable under Tools &gt; Options &gt; Main &gt; <em>Database Backup</em>. Restore = rename the extension back to <code>.rdb</code>. Off-machine backup is still yours to arrange. Default location on install: <code>%AppData%\Roaming\SEL\AcSELerator\QuickSet\Relay.RDB</code> (AG2013-20 also lists <code>...\Program Files (x86)\SEL\AcSELerator\QuickSet\bin</code>) — or just search for <code>*.rdb</code>.</li>
+</ul>
+<h3>Clean install / migration (AG2013-08, AG2013-20)</h3>
+<p>When QuickSet locks up, fails to update through SEL Compass, or misbehaves, the documented fix is a clean reinstall: <strong>back up all .rdb files first</strong> (uninstall leaves the RDB behind, but don't bet on it); back up any Device Manager database via <em>Database Manager &gt; AcSELerator Database tab &gt; Backup Database</em> (run as administrator). Then uninstall QuickSet, QuickSet Designer, SEL Commissioning Assistant, and SEL-5025 Secure Port Service; delete leftover <code>SEL\AcSELerator</code> folders under Program Files, AppData\Roaming, and ProgramData; reinstall from selinc.com. PC migration is the same move: carry the .rdb files, reinstall the software.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Design Templates (AG2019-24)</h2>
+<p>Design Templates are the standardization layer: a <strong>template designer</strong> (licensed QuickSet feature) builds a locked, calculated settings front-end; <strong>template users</strong> fill in a handful of fields per feeder and everything else is derived or fixed. Per AG2019-24, templates minimize the settings visible to the person setting the relay, control what can change and what gets sent (including value ranges), and make standardized panels consistent across engineers.</p>
+<ul>
+<li><strong>Three views:</strong> the Settings Editor, the <strong>Design Template Editor</strong> (designer-only: equations, variables, layout), and the <strong>Design Template Preview</strong> (what the user sees). The designer can deny users the Settings Editor entirely.</li>
+<li><strong>Locking a setting:</strong> right-click → <em>Add to Design Template</em> turns the field green (read-only), creates a template variable, and binds the setting via an equation — visible but not editable. <em>Add … as Constant</em> freezes it at the current value and hides it from the user.</li>
+<li><strong>Equations</strong> use <code>[a^b]</code> syntax (<code>a</code> = group or <code>UV</code> for a user variable; <code>b</code> = the setting) and compute settings from user input — unit conversions (primary→secondary via <code>[1^CTR]</code>), decision logic (frequency threshold from load type), even error-check fields that glow red until the user affirms a checklist item.</li>
+<li><strong>Ranges with teeth:</strong> a panel's range validates entry (out-of-range highlights yellow), supports step sizes (<code>0..10[.5]</code>), and can itself be computed from settings like the CT ratio.</li>
+<li><strong>Distribution:</strong> the template is just an .rdb the designer hands out; each feeder becomes an instance filled in through the preview. <strong>Tools &gt; Groups to Send</strong> (per settings file) controls what an unlicensed user can send — including a <em>Designer Template settings only</em> filter — but it binds only if <em>Allow switching to Settings Editor from Design Template</em> is unchecked; otherwise the user can hop to the Settings Editor and send anything. Supporting relays store the template package in the relay as <code>SWCFG.zip</code>, and a read from such a relay restores the template configuration itself.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+<rect x="20" y="46" width="132" height="96" rx="8" fill="#10a37f" opacity="0.09" stroke="#10a37f" stroke-width="1.5"/>
+<text x="86" y="64" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">Template .rdb</text>
+<text x="86" y="76" font-size="7" fill="#10a37f" text-anchor="middle">designer-locked</text>
+<rect x="32" y="84" width="108" height="12" rx="2" fill="#10a37f" opacity="0.25"/>
+<text x="38" y="93" font-size="7" fill="#1a1a22">51P1P = f(MinTrip/CTR)</text>
+<rect x="32" y="100" width="108" height="12" rx="2" fill="#10a37f" opacity="0.25"/>
+<text x="38" y="109" font-size="7" fill="#1a1a22">NFREQ = 60 (locked)</text>
+<rect x="32" y="116" width="108" height="12" rx="2" fill="#fff" stroke="#d0d3da" stroke-width="0.75"/>
+<text x="38" y="125" font-size="7" fill="#6e7180">MinTrip = user entry</text>
+<text x="86" y="154" font-size="7" fill="#8a8e9b" text-anchor="middle">green = locked · white = user field</text>
+
+<g id="inst1">
+<rect x="330" y="14" width="120" height="44" rx="6" fill="#fff" stroke="#454956" stroke-width="1.1"/>
+<text x="390" y="30" font-size="8" font-weight="600" fill="#1a1a22" text-anchor="middle">FDR-1 instance</text>
+<text x="390" y="43" font-size="7" fill="#6e7180" text-anchor="middle">MinTrip = 400 A</text>
+</g>
+<g id="inst2">
+<rect x="330" y="72" width="120" height="44" rx="6" fill="#fff" stroke="#454956" stroke-width="1.1"/>
+<text x="390" y="88" font-size="8" font-weight="600" fill="#1a1a22" text-anchor="middle">FDR-2 instance</text>
+<text x="390" y="101" font-size="7" fill="#6e7180" text-anchor="middle">MinTrip = 350 A</text>
+</g>
+<g id="inst3">
+<rect x="330" y="130" width="120" height="44" rx="6" fill="#fff" stroke="#454956" stroke-width="1.1"/>
+<text x="390" y="146" font-size="8" font-weight="600" fill="#1a1a22" text-anchor="middle">FDR-3 instance</text>
+<text x="390" y="159" font-size="7" fill="#6e7180" text-anchor="middle">MinTrip = 600 A</text>
+</g>
+<line x1="152" y1="80" x2="330" y2="36" stroke="#10a37f" stroke-width="1.25"/>
+<line x1="152" y1="94" x2="330" y2="94" stroke="#10a37f" stroke-width="1.25"/>
+<line x1="152" y1="108" x2="330" y2="152" stroke="#10a37f" stroke-width="1.25"/>
+
+<rect x="500" y="36" width="184" height="60" rx="6" fill="#fbeeee" stroke="#d63a3a" stroke-width="1"/>
+<text x="592" y="52" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">edit NFREQ (locked)</text>
+<text x="592" y="65" font-size="7.5" fill="#d63a3a" text-anchor="middle">field is read-only green —</text>
+<text x="592" y="76" font-size="7.5" fill="#d63a3a" text-anchor="middle">the template refuses the change</text>
+<rect x="500" y="112" width="184" height="60" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1"/>
+<text x="592" y="128" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">edit MinTrip (user field)</text>
+<text x="592" y="141" font-size="7.5" fill="#0d8266" text-anchor="middle">range-checked, step-rounded,</text>
+<text x="592" y="152" font-size="7.5" fill="#0d8266" text-anchor="middle">then equations recalc 51P1P</text>
+<text x="350" y="192" font-size="8" fill="#a9adb8" text-anchor="middle">one locked standard stamps out per-feeder instances · locked fields bounce edits · user fields flow through the equations</text>
+
+<g class="animlayer">
+<!-- stamping tokens along the three lines -->
+<rect x="-9" y="-6" width="18" height="12" rx="2" fill="#10a37f" opacity="0">
+<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.10;0.12;1" dur="12s" repeatCount="indefinite"/>
+<animateMotion path="M152,80 L330,36" keyPoints="0;0;1;1" keyTimes="0;0.01;0.11;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+</rect>
+<rect x="-9" y="-6" width="18" height="12" rx="2" fill="#10a37f" opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.12;0.13;0.21;0.23;1" dur="12s" repeatCount="indefinite"/>
+<animateMotion path="M152,94 L330,94" keyPoints="0;0;1;1" keyTimes="0;0.12;0.22;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+</rect>
+<rect x="-9" y="-6" width="18" height="12" rx="2" fill="#10a37f" opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.23;0.24;0.32;0.34;1" dur="12s" repeatCount="indefinite"/>
+<animateMotion path="M152,108 L330,152" keyPoints="0;0;1;1" keyTimes="0;0.23;0.33;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+</rect>
+<!-- instance outline flashes as each is stamped -->
+<rect x="329" y="13" width="122" height="46" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+<animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.10;0.13;0.18;1" dur="12s" repeatCount="indefinite"/>
+</rect>
+<rect x="329" y="71" width="122" height="46" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+<animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.21;0.24;0.29;1" dur="12s" repeatCount="indefinite"/>
+</rect>
+<rect x="329" y="129" width="122" height="46" rx="6" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+<animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.32;0.35;0.40;1" dur="12s" repeatCount="indefinite"/>
+</rect>
+<!-- edit attempt bounces off locked box -->
+<g opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.47;0.62;0.64;1" dur="12s" repeatCount="indefinite"/>
+<circle r="5" fill="#d63a3a">
+<animateMotion path="M690,20 L600,40 L640,16" keyPoints="0;0.6;1" keyTimes="0;0.54;0.62" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+</circle>
+</g>
+<g opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.53;0.55;0.63;0.65;1" dur="12s" repeatCount="indefinite"/>
+<line x1="585" y1="82" x2="599" y2="92" stroke="#d63a3a" stroke-width="2.5"/>
+<line x1="599" y1="82" x2="585" y2="92" stroke="#d63a3a" stroke-width="2.5"/>
+</g>
+<!-- allowed edit passes through -->
+<g opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.71;0.88;0.90;1" dur="12s" repeatCount="indefinite"/>
+<circle r="5" fill="#10a37f">
+<animateMotion path="M690,190 L600,140" keyPoints="0;1" keyTimes="0;0.80" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+</circle>
+</g>
+<path d="M580,162 L588,170 L602,156" fill="none" stroke="#10a37f" stroke-width="2.5" opacity="0">
+<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.80;0.82;0.92;0.95;1" dur="12s" repeatCount="indefinite"/>
+</path>
+</g>
+</svg></div>
+<p class="figcap">The template flow: one locked standard stamps out three feeder instances; an attempted edit of a locked setting bounces (red ✕), while an allowed user field accepts the edit (teal ✓) and the equations recalculate the derived settings.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>The rest of the toolbox</h2>
+<div class="twocol">
+<div>
+<h3>HMI — live metering, targets, control</h3>
+<ul>
+<li><strong>Tools &gt; HMI &gt; HMI:</strong> device overview (main-board contact I/O, 16 user-assignable target LEDs), metering screens, and a <strong>Targets</strong> view of every Relay Word bit's live state.</li>
+<li>The <strong>Status and SER screens mirror the ASCII <code>STA</code> and <code>SER</code> commands</strong>; the Control screen resets metering, clears Event History / SER / MB report / LDP, triggers events, resets targets, syncs IRIG, sets time/date, and operates remote bits.</li>
+</ul>
+</div>
+<div>
+<h3>Event retrieval</h3>
+<ul>
+<li><strong>Tools &gt; Events &gt; Get Event Files</strong> lists the relay's history; pick 4 samples/cycle filtered (default) or 16 s/c raw under Options, then <em>Get Selected Event</em>. <em>View Combined Event Files</em> overlays up to three. Waveform anatomy → <em>Oscillography &amp; Event Reports</em> in atlas.</li>
+<li>SER retrieval and interpretation → <em>SER &amp; SOE</em> in atlas.</li>
+<li><strong>Tools &gt; Firmware Loader</strong> upgrades relay firmware (.s19/.z19 — .z19 loads much faster); it offers to save settings and events first (take it), then loads over Xmodem — expect 15–40 minutes. Also in the Tools menu: Chart Viewer and the Motor Start Report.</li>
+</ul>
+</div>
+</div>
+<p style="font-size:8.6pt">Adjacent tooling: the RTAC's engineering tool is ACSELERATOR RTAC (SEL-5033); AG2017-38's <em>Commissioning Assistant</em> spreadsheet generates IEC 61131-3 watch/force code for point-to-point checkout — the RTAC analog of QuickSet's HMI commissioning. QuickSet's own integrated <em>Commissioning Assistant</em> is narrower: it commissions SEL-487E/SEL-787 transformer schemes — hunting single-contingency wiring errors (crossed phases, wrong CT tap, reversed polarity) and computing compensation matrices.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Gotchas &amp; troubleshooting</h2>
+<ul>
+<li><strong>Driver/FID mismatch:</strong> send fails with an error. Check the Settings Editor's driver number (lower-left) against the first three Z-number digits from <code>ID</code>. Fix the part number + Tools &gt; Settings &gt; Convert — and read the Convert report (§5).</li>
+<li><strong>Partial read filled with defaults:</strong> classes you don't select on a group-specified read come back as <em>default settings</em>, not the relay's — never save a partial read over the fleet record (§3).</li>
+<li><strong>Sent to the wrong group:</strong> Group/Logic 1, 2, 3 are separate send checkboxes. Confirm which group is <em>active</em> (<code>GROUP</code> command, front panel, SGn bits) before assuming your change is live — a send to a non-active group changes nothing in service (and interrupts nothing).</li>
+<li><strong>Password lockouts:</strong> the relay prompts only three times per attempt; a changed-and-forgotten Level 2 password means no settings access — recovery is physical (the password jumper). Keep the connection profile's stored passwords in sync when you rotate them.</li>
+<li><strong>"Relay Configuration in Progress":</strong> not a fault — you're inside the 90 s post-power-up / 40 s post-change window. Wait and retry.</li>
+<li><strong>Database sprawl:</strong> every engineer with a private <code>Relay.rdb</code> is a fork of the truth. Use named per-substation databases, fill in the description fields, consolidate with Copy/Move — and read-and-save from the device around each change window so the record matches the relay.</li>
+<li><strong>No prompt in Terminal:</strong> port/speed/framing mismatch, or the relay port's protocol isn't SEL. Match the relay's <code>SET P</code> values; PORT F defaults 9600/8/N/1.</li>
+<li><strong>Connected but transfers fail (serial):</strong> flow control — SEL's rule is hardware (RTS/CTS) flow control for speeds above 9600. Sends also want the port's auto-messages off (<code>AUTO := N</code>).</li>
+<li><strong>Telnet transfers fail:</strong> QuickSet's Ymodem bytes read as Telnet control characters and kill the transfer — switch the File Transfer Option to <strong>Raw TCP</strong> (or FTP/SSH where supported).</li>
+<li><strong>File transfers through an RTAC:</strong> a plain port-forward isn't enough — the RTAC must provide a <em>direct transparent connection</em> for QuickSet file transfers to pass.</li>
+<li><strong>Settings open painfully slowly:</strong> QuickSet running in Windows compatibility mode — turn it off in the shortcut's Properties.</li>
+<li><strong>QuickSet itself misbehaving:</strong> the documented cure is the clean reinstall of §6 — back up .rdb files first.</li>
+</ul>
+</section>
+
+<section class="keep">
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:relays-devices/firmware-upgrades.html">Firmware Upgrades</a>
+  <a href="atlas:start-here/field-kit.html">The Field Kit</a>
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+  <a href="atlas:reference/sel-software-map.md">SEL Software Map</a>
+</div>
+<p class="footnote">Sources: ACSELERATOR QuickSet SEL-5030 Software Instruction Manual (QuickSet_IM.pdf, date code 20260805) — §2 (connect, part number, read/send, RDB backups), §3 (communication parameters, address book, terminal, logging, troubleshooting), §5 (settings editor, read/send group selection, compare/merge/convert, database management), §6 (Design Templates, Groups to Send, template file storage), §7 (firmware loader, Commissioning Assistant, HMI) · SEL-751A Relay Instruction Manual (751A_IM_20250411.pdf) — §3 PC Software (QuickSet suite as shipped for the 751A, Transfer Status), §4 (settings groups, SS1–SS3, group-change behavior), §6 Settings (classes, SET/SHO, save-disable timing), §7 Communications (access levels, passwords, port defaults) · AG2019-24 (Design Templates — Job Done examples) · AG2007-04 (loading SEL-351S settings: part number + Z-number conversion) · AG2013-08 / AG2013-20 (clean install, RDB locations) · SEL-735 IM (read/save-around-changes recommendation) · AG2017-38 (RTAC Commissioning Assistant, adjacent tooling). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

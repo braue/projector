@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Station DC Systems</title>
+<meta name="atlas-order" content="90">
+<meta name="atlas-tags" content="DC,battery,charger,float,equalize,VLA,VRLA,DC ground,trip circuit,125 V DC,IEEE 450,duty cycle">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Station DC Systems (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Station DC Systems</h1>
+  <p>The battery, the charger, and the DC panel that every trip circuit depends on — plus why a single DC ground is the most under-rated hazard in the control house</p>
+  <div class="chips"><span>125 V DC</span><span>float / equalize</span><span>VLA / VRLA</span><span>DC ground</span><span>trip circuit</span><span>selectivity</span><span>IEEE 450</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Station DC</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The battery is the only thing that works when everything else has failed.</strong> That is its entire job: hold up protection, control, and communications through a station AC outage.</li>
+<li><strong>The charger runs the station; the battery covers the gap.</strong> In normal operation the charger supplies the load and floats the battery. Losing the charger is not immediately visible &mdash; and that is the danger.</li>
+<li><strong>DC is ungrounded, and one ground does nothing.</strong> The <em>second</em> ground completes a circuit that can trip a breaker, block a trip, or short the battery. Find and clear the first one.</li>
+<li><strong>Selectivity on DC is real work.</strong> A fault on one circuit must clear its own fuse or breaker without dropping the whole panel &mdash; and DC arcs do not self-extinguish at a current zero, because there is none.</li>
+<li><strong>Trip coils are short-time rated.</strong> The 52a contact, not the relay, is what interrupts trip-coil current &mdash; see <a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a>.</li>
+<li><strong>Battery condition is a maintenance program, not an alarm.</strong> A battery that has never been capacity-tested is a battery of unknown capability.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Why the station runs on DC</h2>
+<ul>
+<li><strong>It survives the AC outage.</strong> A fault that drops station service must not also disable the protection that is trying to clear it.</li>
+<li><strong>It is a stored-energy source with predictable behavior.</strong> Trip coils and closing mechanisms need a reliable current pulse at a known voltage, on demand, with no dependence on generation.</li>
+<li><strong>No zero crossings, no phase.</strong> Simple, deterministic contact logic; no synchronism concerns in control circuits.</li>
+</ul>
+<table>
+  <tr><th>Nominal system</th><th>Typical use</th><th>Cell count (lead-acid, 2 V nominal)</th></tr>
+  <tr><td>125 V DC</td><td>The utility standard for trip, close, and control</td><td>58&ndash;60 cells</td></tr>
+  <tr><td>250 V DC</td><td>Large transmission stations, long cable runs</td><td>116&ndash;120 cells</td></tr>
+  <tr><td>48 V DC</td><td>Communications, telecom equipment, some IEDs</td><td>23&ndash;24 cells</td></tr>
+  <tr><td>24 V DC</td><td>Small control systems, some I/O</td><td>&mdash;</td></tr>
+</table>
+<div class="callout">
+<strong>Relays and RTACs are usually wide-range.</strong> SEL devices are commonly ordered with a power supply that accepts a broad DC range covering 125&nbsp;V DC nominal (and often 120&nbsp;V AC as well), so a modest DC sag does not drop the intelligence. Check the ordering option on the device rather than assuming &mdash; the low-voltage supply variants exist too, and they are not interchangeable.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The three pieces and what each does</h2>
+
+<div class="fig"><svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dcm" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Normal operation, then station AC is lost &mdash; watch where the current comes from</text>
+
+  <!-- AC source -->
+  <rect x="20" y="40" width="90" height="42" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.4"/>
+  <text x="65" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">Station AC</text>
+  <text x="65" y="72" text-anchor="middle" font-size="7.2" fill="#6e7180">120/240 V</text>
+  <rect x="20" y="40" width="90" height="42" rx="5" fill="#d63a3a" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.25;0.25;0" dur="10s" repeatCount="indefinite"/>
+  </rect>
+  <text x="65" y="96" text-anchor="middle" font-size="7.2" fill="#d63a3a" opacity="0">
+    LOST
+    <animate attributeName="opacity" values="0;0;1;1;0" dur="10s" repeatCount="indefinite"/>
+  </text>
+
+  <!-- charger -->
+  <rect x="150" y="40" width="100" height="42" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="200" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Charger</text>
+  <text x="200" y="72" text-anchor="middle" font-size="7.2" fill="#6e7180">float 2.17&ndash;2.25 V/cell</text>
+
+  <!-- battery -->
+  <rect x="150" y="140" width="100" height="60" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="200" y="160" text-anchor="middle" font-size="8.2" font-weight="600" fill="#10a37f">Battery</text>
+  <text x="200" y="174" text-anchor="middle" font-size="7.2" fill="#6e7180">58&ndash;60 cells</text>
+  <text x="200" y="188" text-anchor="middle" font-size="7.2" fill="#6e7180">8-hour duty cycle</text>
+
+  <!-- DC bus -->
+  <line x1="300" y1="30" x2="300" y2="230" stroke="#1a1a22" stroke-width="2.4"/>
+  <text x="300" y="24" text-anchor="middle" font-size="7.6" fill="#1a1a22">DC bus (125 V)</text>
+
+  <!-- loads -->
+  <g font-size="7.4">
+    <rect x="380" y="40" width="130" height="30" rx="4" fill="#fff" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="445" y="59" text-anchor="middle" fill="#d63a3a">Trip &amp; close circuits</text>
+    <rect x="380" y="80" width="130" height="30" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="445" y="99" text-anchor="middle" fill="#5468c4">Relays &amp; RTAC</text>
+    <rect x="380" y="120" width="130" height="30" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="445" y="139" text-anchor="middle" fill="#10a37f">Comms &amp; inverters</text>
+    <rect x="380" y="160" width="130" height="30" rx="4" fill="#fff" stroke="#6e7180" stroke-width="1.3"/>
+    <text x="445" y="179" text-anchor="middle" fill="#454956">Emergency lighting</text>
+    <rect x="380" y="200" width="130" height="30" rx="4" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="445" y="219" text-anchor="middle" fill="#9c6d06">Breaker spring motors</text>
+  </g>
+
+  <!-- wires -->
+  <g stroke="#a9adb8" stroke-width="1.4" fill="none">
+    <path d="M110,61 H148"/>
+    <path d="M200,82 V138"/>
+    <path d="M250,61 H300"/>
+    <path d="M250,170 H300"/>
+    <path d="M300,55 H378"/><path d="M300,95 H378"/><path d="M300,135 H378"/><path d="M300,175 H378"/><path d="M300,215 H378"/>
+  </g>
+
+  <!-- flow: charger to bus (normal) -->
+  <circle r="3.5" fill="#5468c4">
+    <animateMotion dur="1.4s" repeatCount="indefinite" path="M250,61 H300"/>
+    <animate attributeName="opacity" values="1;1;0;0;1" dur="10s" repeatCount="indefinite"/>
+  </circle>
+  <!-- flow: battery to bus (outage) -->
+  <circle r="3.5" fill="#10a37f" opacity="0">
+    <animateMotion dur="1.4s" repeatCount="indefinite" path="M250,170 H300"/>
+    <animate attributeName="opacity" values="0;0;1;1;0" dur="10s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- voltage trace -->
+  <text x="540" y="252" font-size="7.4" fill="#8a8e9b" text-anchor="middle">DC bus voltage over the outage</text>
+  <line x1="530" y1="244" x2="690" y2="244" stroke="#e5e7eb"/>
+  <path d="M530,238 H578 C592,238 596,246 610,250 C640,258 668,262 690,266" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="530" y="234" font-size="6.8" fill="#8a8e9b">float 132 V</text>
+  <text x="690" y="276" font-size="6.8" fill="#8a8e9b" text-anchor="end">end of duty cycle &asymp; 105 V</text>
+
+  <rect x="8" y="248" width="500" height="26" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="265" font-size="7.8" fill="#9c6d06">The switchover is silent and instantaneous &mdash; nothing operates, nothing clicks. Only a charger-failure or DC-undervoltage alarm tells anyone.</text>
+</svg></div>
+<p class="figcap">In normal operation the battery does nothing but sit at float. That is why a dead battery can go unnoticed for years unless someone tests it. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>The battery</h3>
+<table>
+  <tr><th>Type</th><th>Characteristics</th><th>Field notes</th></tr>
+  <tr><td><strong>Vented lead-acid (VLA / flooded)</strong></td><td>Long life, visible plates, requires watering and ventilation</td><td>The traditional substation choice. Specific gravity and individual cell voltage readings are meaningful diagnostics</td></tr>
+  <tr><td><strong>Valve-regulated lead-acid (VRLA)</strong></td><td>Sealed, no watering, smaller footprint, shorter and less predictable life</td><td>Popular in small enclosures; degrades with heat and can fail without obvious warning &mdash; impedance testing is the usual monitoring method</td></tr>
+  <tr><td><strong>Nickel-cadmium</strong></td><td>Tolerant of temperature extremes and deep discharge, higher cost, different cell voltage (~1.2 V nominal, so more cells)</td><td>Used where environment is harsh; charger settings are entirely different from lead-acid &mdash; never assume</td></tr>
+</table>
+<p>Sizing follows a <strong>duty cycle</strong>: a defined sequence of loads over a defined time (commonly 8&nbsp;hours), including the momentary high-current pulses of tripping and closing at the end, when the battery is at its weakest. The end-of-discharge voltage limit is what determines whether the last trip works.</p>
+
+<h3>The charger</h3>
+<ul>
+<li><strong>Float</strong> &mdash; the normal mode: a constant voltage that holds the battery full and carries the station load. Roughly 2.17&ndash;2.25&nbsp;V per lead-acid cell, giving about 130&ndash;135&nbsp;V on a 60-cell 125&nbsp;V system.</li>
+<li><strong>Equalize</strong> &mdash; a periodic elevated voltage to bring weak cells back into line on flooded batteries. Higher bus voltage during equalize, which some connected equipment dislikes; VRLA batteries generally must not be equalized.</li>
+<li><strong>Current limit</strong> &mdash; the charger will not deliver unlimited current, so after a deep discharge the recharge takes many hours. Plan on that during restoration.</li>
+<li><strong>Alarms</strong> &mdash; charger failure, AC input failure, DC overvoltage and undervoltage, and ground detection. All of these deserve to be individual SCADA points.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>DC grounds — the quiet hazard</h2>
+<p>Station DC is deliberately <strong>ungrounded</strong>: neither the positive nor the negative rail is bonded to earth. That way a single accidental ground anywhere in the system does not cause current to flow and nothing misoperates. It is a fault-tolerant design &mdash; but only for the first fault.</p>
+
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One ground: harmless. Two grounds: a breaker trips by itself.</text>
+
+  <!-- rails -->
+  <line x1="70" y1="46" x2="640" y2="46" stroke="#d63a3a" stroke-width="2"/>
+  <text x="60" y="49" font-size="7.4" fill="#d63a3a" text-anchor="end">(+)</text>
+  <line x1="70" y1="176" x2="640" y2="176" stroke="#1a1a22" stroke-width="2"/>
+  <text x="60" y="179" font-size="7.4" fill="#1a1a22" text-anchor="end">(&minus;)</text>
+
+  <!-- trip rung -->
+  <line x1="200" y1="46" x2="200" y2="86" stroke="#a9adb8" stroke-width="1.5"/>
+  <line x1="200" y1="86" x2="220" y2="72" stroke="#5468c4" stroke-width="2"/>
+  <circle cx="200" cy="86" r="2.5" fill="#5468c4"/><circle cx="226" cy="86" r="2.5" fill="#5468c4"/>
+  <text x="212" y="64" font-size="7.2" fill="#5468c4" text-anchor="middle">relay contact (open)</text>
+  <line x1="226" y1="86" x2="300" y2="86" stroke="#a9adb8" stroke-width="1.5"/>
+  <rect x="300" y="72" width="52" height="28" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.4"/>
+  <text x="326" y="90" font-size="7.6" font-weight="600" fill="#9c6d06" text-anchor="middle">TC</text>
+  <line x1="352" y1="86" x2="420" y2="86" stroke="#a9adb8" stroke-width="1.5"/>
+  <line x1="420" y1="86" x2="420" y2="176" stroke="#a9adb8" stroke-width="1.5"/>
+
+  <!-- ground 1 on positive side of coil (i.e. between contact and coil) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;1;1;1;1" dur="9s" repeatCount="indefinite"/>
+    <line x1="270" y1="86" x2="270" y2="222" stroke="#d63a3a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <path d="M258,222 H282 M262,227 H278 M266,232 H274" stroke="#d63a3a" stroke-width="1.5"/>
+    <text x="270" y="248" font-size="7.2" fill="#d63a3a" text-anchor="middle">ground 1 &mdash; chafed wire</text>
+  </g>
+
+  <!-- ground 2 on the positive rail -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0;1;1" dur="9s" repeatCount="indefinite"/>
+    <line x1="520" y1="46" x2="520" y2="222" stroke="#d63a3a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <path d="M508,222 H532 M512,227 H528 M516,232 H524" stroke="#d63a3a" stroke-width="1.5"/>
+    <text x="520" y="248" font-size="7.2" fill="#d63a3a" text-anchor="middle">ground 2 &mdash; somewhere else entirely</text>
+  </g>
+
+  <!-- current path when both present -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;0;1;1" dur="9s" repeatCount="indefinite"/>
+    <path d="M520,46 H352 M352,86 H270 M270,86 V222 M270,225 H520 M520,225 V46" fill="none" stroke="#d63a3a" stroke-width="2.6" opacity="0.28"/>
+    <circle r="4" fill="#d63a3a">
+      <animateMotion dur="1.6s" repeatCount="indefinite" path="M520,46 H352 L352,86 H270 V222 H520 V46"/>
+    </circle>
+  </g>
+
+  <g font-size="7.4">
+    <rect x="70" y="196" width="170" height="52" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="82" y="212" font-weight="600" fill="#0d7f63">Stage 1 &mdash; one ground</text>
+    <text x="82" y="225" fill="#454956">No complete circuit. Nothing</text>
+    <text x="82" y="236" fill="#454956">operates. Only the detector knows.</text>
+  </g>
+  <g font-size="7.4">
+    <rect x="560" y="60" width="132" height="70" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="572" y="76" font-weight="600" fill="#9c3838">Stage 2 &mdash; second ground</text>
+    <text x="572" y="90" fill="#454956">Earth becomes a conductor</text>
+    <text x="572" y="102" fill="#454956">that bypasses the open relay</text>
+    <text x="572" y="114" fill="#454956">contact. The trip coil energizes.</text>
+    <text x="572" y="126" fill="#d63a3a">The breaker trips by itself.</text>
+  </g>
+</svg></div>
+<p class="figcap">The same mechanism runs in reverse: a pair of grounds in the wrong places can also <em>short out</em> a trip coil, so the breaker refuses to trip when asked. Both failure modes are silent until they matter. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Finding a DC ground</h3>
+<ol>
+<li><strong>Detect.</strong> A ground detector measures each rail to earth. Balanced (roughly half the bus voltage on each rail) is healthy; one rail near zero and the other near full bus voltage means a ground on the rail reading near zero.</li>
+<li><strong>Confirm it is real,</strong> not a leakage path through a surge-protective device or a piece of test equipment someone left connected.</li>
+<li><strong>Halve the system.</strong> Open one DC branch breaker at a time, watching the detector. When the indication clears, the ground is on that branch. Coordinate this with operations &mdash; you are removing protection while you do it.</li>
+<li><strong>Halve the branch.</strong> Continue subdividing at terminal blocks until you reach the offending cable or device.</li>
+<li><strong>Expect the usual suspects:</strong> a chafed conductor at a cable entry or a hinge, moisture in an outdoor cabinet or breaker mechanism, a failed surge suppressor, or a device with a leaky internal filter capacitor.</li>
+</ol>
+<div class="callout keyfact">
+<strong>Treat a DC ground as an active fault, not a nuisance alarm.</strong> The station is now one chafed wire away from an unexplained trip or a blocked trip. Utilities that formally require clearing DC grounds within a set number of hours do so for a good reason.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Distribution and selectivity</h2>
+<ul>
+<li><strong>Separate circuits for separate functions.</strong> Trip circuits, close circuits, relay power, communications, and lighting each get their own protective device &mdash; and dual-trip breakers get two entirely independent trip supplies.</li>
+<li><strong>Selectivity matters more than on AC.</strong> A branch fault that trips the main DC breaker takes the whole station's protection out. Verify coordination between the branch device and the main, using DC ratings.</li>
+<li><strong>Devices must be DC-rated.</strong> A DC arc has no current zero to help it extinguish, so an AC-rated breaker or fuse is not a substitute. Voltage rating for DC service is specific and non-negotiable.</li>
+<li><strong>Cable voltage drop is a design constraint.</strong> Trip-coil current pulses on long runs can drop enough voltage that the coil sees less than its minimum pickup at end-of-discharge battery voltage. This is why the sizing calculation puts the trip at the <em>end</em> of the duty cycle.</li>
+<li><strong>Label everything.</strong> Which breaker feeds which panel is exactly the knowledge you will need at 2&nbsp;a.m. with a ground on the system.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>What to monitor, and what to map</h2>
+<table>
+  <tr><th>Point</th><th>Type</th><th>Why</th></tr>
+  <tr><td>DC bus voltage</td><td>analog</td><td>The single most informative point. Float, equalize, and discharge are all visible in the trend</td></tr>
+  <tr><td>Charger AC input failure</td><td>status</td><td>The station is now running on the battery, on a clock</td></tr>
+  <tr><td>Charger failure / output failure</td><td>status</td><td>Distinct from AC loss; the charger itself has quit</td></tr>
+  <tr><td>DC undervoltage / overvoltage</td><td>status</td><td>Under: discharging or a failed charger. Over: charger regulation failure, which cooks the battery</td></tr>
+  <tr><td>DC ground detected (+ and &minus;)</td><td>status</td><td>Two points, not one &mdash; knowing which rail halves the search</td></tr>
+  <tr><td>Battery breaker / fuse open</td><td>status</td><td>The battery is disconnected. The station will run fine until the AC fails, then it will not</td></tr>
+  <tr><td>Battery current (charge / discharge)</td><td>analog</td><td>Distinguishes float from an actual discharge, and shows recharge progress</td></tr>
+  <tr><td>Cell or string monitor alarms</td><td>status</td><td>Where a monitoring system is installed &mdash; typically over Modbus into the RTAC</td></tr>
+  <tr><td>Trip-coil monitoring per breaker</td><td>status</td><td>Proves the trip path is continuous. Arguably the highest-value status point in the station</td></tr>
+</table>
+<div class="callout">
+<strong>Alarm the loss of redundancy, not just the loss of function.</strong> &ldquo;Charger AC failed&rdquo; and &ldquo;battery breaker open&rdquo; are both conditions where nothing is wrong <em>yet</em>. Those are exactly the alarms worth waking someone for, because the consequence arrives later and all at once.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Maintenance you will encounter</h2>
+<ul>
+<li><strong>Monthly/quarterly inspection</strong> &mdash; float voltage, connection integrity, electrolyte level and appearance, ambient temperature, corrosion.</li>
+<li><strong>Annual detailed inspection</strong> &mdash; individual cell voltages, connection resistance measurements, and specific gravity on flooded batteries.</li>
+<li><strong>Capacity (load) test</strong> &mdash; discharging the battery through a known load and timing it against the duty cycle. This is the only test that actually proves capacity; the industry practice (IEEE 450 for vented lead-acid, IEEE 1188 for VRLA) defines intervals and the end-of-life threshold, commonly 80% of rated capacity.</li>
+<li><strong>Impedance / conductance trending</strong> &mdash; a proxy for cell health, especially on VRLA where a capacity test is disruptive. Useful for trends, not as a substitute for a capacity test.</li>
+</ul>
+<div class="callout warn">
+<strong>A capacity test removes the battery from service.</strong> The station is on the charger alone for the duration, so a station AC loss during the test is a real exposure. Plan it, coordinate it, and know how to abort.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Never open a DC circuit under load casually.</strong> DC arcs sustain. Use the disconnecting device provided, and be aware that terminal blocks are not switches.</li>
+<li><strong>Polarity matters and is not always obvious.</strong> Reversing a DC supply into a relay or an RTAC can damage the input. Confirm with a meter, not with wire color.</li>
+<li><strong>The charger's equalize mode raises bus voltage</strong> above float for hours. Equipment with a narrow input range, and any DC undervoltage/overvoltage alarm thresholds, must tolerate it.</li>
+<li><strong>Test equipment can create a DC ground.</strong> Grounded-chassis instruments connected to a floating DC system are a common source of &ldquo;a ground appeared while you were on site.&rdquo;</li>
+<li><strong>Battery room ventilation is a real hazard control</strong> on flooded batteries &mdash; charging generates hydrogen. Do not disable the fan, and do not work with an ignition source in the room.</li>
+<li><strong>A battery is a very low-impedance source.</strong> Dropping a wrench across the terminals is a several-thousand-ampere event. Insulated tools, one hand, no jewelry.</li>
+<li><strong>Both trip supplies through one breaker</strong> defeats the dual-trip design. Verify the actual feed of TC1 and TC2 at the panel, not on the drawing.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>
+  <a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a>
+  <a href="atlas:commissioning/safety-practices.html">Safety Practices</a>
+  <a href="atlas:protection/breaker-failure.html">Breaker Failure &amp; Breaker Monitoring</a>
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Fundamentals page. Battery types, float and equalize practice, duty-cycle sizing, and maintenance intervals follow standard industry practice (IEEE 450 / 1188 / 485 families). Device power-supply ranges and trip-circuit monitoring behavior follow SEL practice as documented in the SEL-751/751A and SEL-451 instruction manuals. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

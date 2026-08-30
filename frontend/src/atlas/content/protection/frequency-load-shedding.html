@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Frequency Elements &amp; Load Shedding</title>
+<meta name="atlas-order" content="130">
+<meta name="atlas-tags" content="81,81U,81O,81R,ROCOF,UFLS,load shedding,underfrequency,27B81,staging,restoration,islanding">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Frequency Elements &amp; Load Shedding (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Frequency Elements &amp; Load Shedding</h1>
+  <p>Why frequency falls, how 81 elements are staged, rate-of-change schemes, undervoltage blocking, and the restoration problem nobody plans for</p>
+  <div class="chips"><span>81U / 81O</span><span>81R ROCOF</span><span>UFLS</span><span>27B81 block</span><span>staging</span><span>restoration</span><span>islanding</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Frequency</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Frequency is the balance indicator.</strong> Mechanical power in equals electrical load plus losses, or the rotating masses make up the difference and speed changes. Falling frequency means not enough generation, right now.</li>
+<li><strong>Load shedding buys time.</strong> Deliberately dropping some load restores the balance before the whole system collapses. Selective, temporary, and staged.</li>
+<li><strong>Stage it.</strong> First stage just below normal, later stages for progressively larger excursions, each with its own delay and its own block of load.</li>
+<li><strong>Frequency measurement needs voltage.</strong> Every frequency element must be blocked below a voltage threshold, or it will measure nonsense during a fault and shed load for no reason.</li>
+<li><strong>Rate of change (ROCOF) is faster but less secure.</strong> It reacts to the initial slope, which is proportional to the size of the imbalance &mdash; useful for severe events, hazardous for stable oscillations.</li>
+<li><strong>Restoration is the hard part.</strong> Shedding is automatic and takes seconds; restoring is manual, coordinated, and takes far longer than anyone expects.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Why frequency falls</h2>
+<p>In a stable system, total mechanical power input from the generators equals the sum of all connected load plus system losses. Disturb that balance and the rotors of the turbine-generators &mdash; which act as repositories of kinetic energy &mdash; make up the difference. Insufficient mechanical input slows them down, and frequency declines in proportion.</p>
+<p>The rate of decline depends on two things: how large the imbalance is, and how much rotating inertia the system has. A large generation loss on a small island collapses frequency in seconds; the same loss on a large interconnected system produces a shallow dip that governors correct.</p>
+
+<div class="fig"><svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Generation lost at t = 0 &mdash; with and without load shedding</text>
+
+  <line x1="70" y1="200" x2="660" y2="200" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="200" stroke="#a9adb8"/>
+  <g font-size="7" fill="#8a8e9b">
+    <line x1="66" y1="60" x2="70" y2="60" stroke="#a9adb8"/><text x="62" y="63" text-anchor="end">60.0 Hz</text>
+    <line x1="66" y1="96" x2="70" y2="96" stroke="#a9adb8"/><text x="62" y="99" text-anchor="end">59.5</text>
+    <line x1="66" y1="132" x2="70" y2="132" stroke="#a9adb8"/><text x="62" y="135" text-anchor="end">59.0</text>
+    <line x1="66" y1="168" x2="70" y2="168" stroke="#a9adb8"/><text x="62" y="171" text-anchor="end">58.5</text>
+    <text x="365" y="220" text-anchor="middle">seconds</text>
+  </g>
+
+  <!-- shed stage lines -->
+  <line x1="70" y1="82" x2="660" y2="82" stroke="#d7930a" stroke-dasharray="4 3" opacity="0.7"/>
+  <text x="664" y="85" font-size="6.8" fill="#9c6d06" text-anchor="end">Stage 1 &mdash; 59.8 Hz</text>
+  <line x1="70" y1="110" x2="660" y2="110" stroke="#d7930a" stroke-dasharray="4 3" opacity="0.7"/>
+  <text x="664" y="113" font-size="6.8" fill="#9c6d06" text-anchor="end">Stage 2 &mdash; 59.4 Hz</text>
+  <line x1="70" y1="140" x2="660" y2="140" stroke="#d63a3a" stroke-dasharray="4 3" opacity="0.7"/>
+  <text x="664" y="143" font-size="6.8" fill="#d63a3a" text-anchor="end">Stage 3 &mdash; 59.0 Hz</text>
+
+  <!-- no shedding: collapse -->
+  <path d="M120,60 C160,66 200,96 250,132 C300,166 360,190 430,198" fill="none" stroke="#d63a3a" stroke-width="1.8"/>
+  <text x="330" y="186" font-size="7.2" fill="#d63a3a">no shedding &mdash; generator underfrequency trips, collapse</text>
+
+  <!-- with shedding: arrest and recover -->
+  <path d="M120,60 C150,64 178,78 200,88 L206,88 C216,92 224,100 232,106 L240,106 C252,104 268,96 290,88 C330,74 400,66 500,63 C560,61 620,60 656,60"
+        fill="none" stroke="#10a37f" stroke-width="1.8"/>
+  <circle cx="203" cy="88" r="4" fill="#d7930a"/>
+  <text x="196" y="80" font-size="6.8" fill="#9c6d06" text-anchor="end">Stage 1 sheds</text>
+  <circle cx="236" cy="106" r="4" fill="#d7930a"/>
+  <text x="244" y="120" font-size="6.8" fill="#9c6d06">Stage 2 sheds</text>
+  <text x="430" y="56" font-size="7.2" fill="#0d7f63">arrested, then governors restore</text>
+
+  <!-- moving markers -->
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M120,60 C160,66 200,96 250,132 C300,166 360,190 430,198"/>
+  </circle>
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M120,60 C150,64 178,78 200,88 L206,88 C216,92 224,100 232,106 L240,106 C252,104 268,96 290,88 C330,74 400,66 500,63 C560,61 620,60 656,60"/>
+  </circle>
+  <line x1="120" y1="40" x2="120" y2="204" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.4"/>
+  <text x="124" y="46" font-size="7" fill="#1a1a22">generation lost</text>
+
+  <rect x="70" y="234" width="590" height="40" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="84" y="250" font-size="7.8" fill="#454956"><tspan font-weight="600">The race:</tspan> generator underfrequency protection will eventually trip the remaining machines, which turns a deficit into a blackout.</text>
+  <text x="84" y="264" font-size="7.8" fill="#454956">Load shedding must arrest the decline <tspan font-style="italic">above</tspan> those trip points &mdash; which is why the last shedding stage sits above the first generator trip setting.</text>
+</svg></div>
+<p class="figcap">Shedding is not a nicety. Without it, generator underfrequency protection takes the rest of the system down to protect the individual machines. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Designing a shedding scheme</h2>
+<p>SEL's application guidance for underfrequency load shedding lists five things to settle before any settings are entered:</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>Number of stages</b><span>Three to five is typical. More stages means finer granularity and more coordination work.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>Frequency setting per stage</b><span>Stage 1 just below normal system frequency; later stages for progressively larger excursions.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>Time delay per stage</b><span>The initial shed delay and the delays between subsequent sheds. Long enough to ride through transients, short enough to matter.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>MVA shed at each stage</b><span>The load actually dropped. This is a system-planning number, allocated down to individual feeders.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Maximum overload</b><span>The worst imbalance the scheme must survive. Sets how much total load has to be sheddable.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>And, in practice: who gets shed</b><span>Feeder selection is a policy matter &mdash; hospitals, water, and critical infrastructure are typically excluded, which means somebody else is shed twice as often.</span></div>
+</div>
+
+<h3>How the elements are built</h3>
+<p>On SEL relays a frequency element is a level detector on measured system frequency plus a timer. A single element type serves both directions: with a pickup <em>below</em> nominal it acts as an underfrequency detector; with a pickup <em>above</em> nominal it acts as an overfrequency detector. Each element has a corresponding timer for the stage delay. Relays typically provide several such elements &mdash; the SEL-387E used in SEL's load-shedding application guide provides six &mdash; so one relay can implement a complete multi-stage scheme.</p>
+<div class="callout warn">
+<strong>Use the instantaneous frequency elements for testing only.</strong> SEL's guidance is explicit on this: the undelayed outputs exist so you can verify pickup on a test set. A production scheme sheds through the timed outputs, because a momentary frequency excursion during a fault is not a generation deficit.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Undervoltage blocking &mdash; the setting nobody should skip</h2>
+<p>Frequency is measured from a voltage waveform. During a fault, or when the PT circuit fails, that waveform may be depressed, distorted, or absent &mdash; and the frequency the relay computes from it becomes meaningless.</p>
+<ul>
+<li><strong>Every frequency element is supervised by an undervoltage block.</strong> On the SEL-387E this is element <code>27B81P</code>, which disables the frequency elements when system voltage falls below its setting; equivalent blocks exist across the SEL relay families.</li>
+<li><strong>Set it above the voltage at which frequency measurement stops being trustworthy</strong> and below normal operating voltage with margin. Too high and a legitimate voltage sag blocks shedding when you need it; too low and a fault produces spurious sheds.</li>
+<li><strong>The measurement source matters.</strong> The SEL-387E measures system frequency from A-phase voltage. A single-phase measurement means a fault or fuse failure on that one phase disables the whole scheme &mdash; another reason the undervoltage block, and an alarm on it, is essential.</li>
+<li><strong>Alarm the block.</strong> A load-shedding scheme that has silently been blocked for months by a blown PT fuse is worse than no scheme, because everyone believes it is there.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">4</span>Rate of change of frequency</h2>
+<p>The initial slope of the frequency decline is proportional to the size of the imbalance divided by the system inertia. Measuring that slope (81R, or ROCOF) therefore tells you <em>how bad</em> the event is well before the frequency has actually fallen very far.</p>
+<table>
+  <tr><th></th><th>Level-based (81U)</th><th>Rate-based (81R)</th></tr>
+  <tr><td>Reacts to</td><td>Frequency crossing a threshold</td><td>How fast frequency is changing</td></tr>
+  <tr><td>Speed</td><td>Waits for the decline to develop</td><td>Can act within a few cycles of a large event</td></tr>
+  <tr><td>Security</td><td>Good &mdash; frequency is a slow, system-wide quantity</td><td>Lower &mdash; power swings, faults, and local oscillations all produce apparent rate</td></tr>
+  <tr><td>Typical use</td><td>The backbone of any shedding scheme</td><td>Adaptive schemes: shed a larger block immediately when the rate indicates a severe deficit; also the standard islanding detector on DER</td></tr>
+</table>
+<p>SEL's application guidance shows the standard combination: an underfrequency element for the level, with a second element and a latch arranged so that a fast rate of decline escalates the response &mdash; shedding a deeper stage immediately rather than waiting for frequency to reach it. On DER interties, ROCOF and vector shift serve a different purpose entirely &mdash; detecting that the local generator has been islanded. See <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>.</p>
+<div class="callout">
+<strong>Inertia is falling, and it changes these settings.</strong> As synchronous generation is displaced by inverter-based resources, system inertia drops and the same MW imbalance produces a steeper frequency slope. Schemes designed decades ago against a high-inertia system may act too late. This is an active area of change &mdash; check the current regional requirement rather than copying an old settings file.
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Level detection waits for the fall; rate detection reads the slope &mdash; and its slope depends on inertia</text>
+  <line x1="70" y1="150" x2="400" y2="150" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="150" stroke="#a9adb8"/>
+  <line x1="70" y1="110" x2="400" y2="110" stroke="#d7930a" stroke-dasharray="4 3"/>
+  <text x="404" y="113" font-size="7" fill="#9c6d06">81U threshold</text>
+  <path d="M80,44 C120,50 180,88 240,120 C290,146 340,158 396,162" fill="none" stroke="#d63a3a" stroke-width="1.7"/>
+  <text x="118" y="60" font-size="7" fill="#d63a3a">low inertia &mdash; steep</text>
+  <path d="M80,44 C160,48 260,64 396,84" fill="none" stroke="#5468c4" stroke-width="1.7"/>
+  <text x="250" y="62" font-size="7" fill="#5468c4">high inertia &mdash; shallow</text>
+  <circle cx="200" cy="110" r="4.5" fill="#d63a3a"/>
+  <text x="196" y="102" font-size="7" fill="#d63a3a" text-anchor="end">81U picks up here</text>
+  <circle cx="110" cy="48" r="4.5" fill="#10a37f"/>
+  <text x="118" y="42" font-size="7" fill="#0d7f63">81R could act here</text>
+  <text x="235" y="176" font-size="7.4" fill="#8a8e9b" text-anchor="middle">time after generation loss</text>
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="5s" repeatCount="indefinite" path="M80,44 C120,50 180,88 240,120 C290,146 340,158 396,162"/>
+  </circle>
+
+  <g font-size="7.4">
+    <rect x="430" y="34" width="256" height="72" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="444" y="52" font-weight="600" fill="#0d7f63">Rate buys time</text>
+    <text x="444" y="68" fill="#454956">The initial slope is proportional to the size of</text>
+    <text x="444" y="80" fill="#454956">the imbalance, so a steep slope justifies</text>
+    <text x="444" y="92" fill="#454956">shedding a deeper stage immediately.</text>
+
+    <rect x="430" y="116" width="256" height="84" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="444" y="134" font-weight="600" fill="#9c3838">Rate costs security</text>
+    <text x="444" y="150" fill="#454956">Power swings, faults, and motor starting all</text>
+    <text x="444" y="162" fill="#454956">produce apparent rate. And as inertia falls,</text>
+    <text x="444" y="174" fill="#454956">the same imbalance produces a steeper slope &mdash;</text>
+    <text x="444" y="188" fill="#9c3838">so old settings may now act too late, or too soon.</text>
+  </g>
+</svg></div>
+<p class="figcap">This is why level detection stays the backbone and rate detection is an accelerator, not a replacement. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">5</span>Overfrequency, and the other direction</h2>
+<ul>
+<li><strong>Overfrequency (81O)</strong> means surplus generation &mdash; typically after a system separation where an island keeps more generation than load. The response is generator runback or tripping, not load restoration.</li>
+<li><strong>Islanded operation</strong> is where both directions matter at once: a small island with local generation swings quickly in either direction, and the frequency elements are doing real control work rather than emergency backstop.</li>
+<li><strong>Off-frequency accumulators</strong> on generators track cumulative time spent in bands where turbine blades fatigue &mdash; a separate concern from system stability. See <a href="atlas:protection/generator-protection.html">Generator Protection</a>.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Implementation and integration</h2>
+<table>
+  <tr><th>Aspect</th><th>Practice</th></tr>
+  <tr><td>Where the scheme lives</td><td>In the relay, always. Frequency response is a protection-timescale function &mdash; not RTAC logic. See <a href="atlas:start-here/the-job.html">Substation Automation, End to End</a> on timescales</td></tr>
+  <tr><td>Arming and disarming</td><td>Schemes are sometimes armed only in certain system configurations. Whatever the mechanism, its state must be visible in SCADA</td></tr>
+  <tr><td>SCADA points</td><td>Scheme armed/disarmed, each stage's pickup and operate, undervoltage block active, and which feeders are currently shed</td></tr>
+  <tr><td>Records</td><td>SER entries for each stage operation with true timestamps. After a real event, the sequence across the whole system is reconstructed from these &mdash; see <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a></td></tr>
+  <tr><td>Restoration</td><td>Almost never automatic. Restoring load too quickly re-creates the deficit. Automatic restoration schemes exist but require frequency <em>and</em> a confirmed margin, plus staggered timing so every feeder does not return at once</td></tr>
+  <tr><td>Compliance</td><td>UFLS settings are usually mandated regionally, and changing them unilaterally is not an option. Document the source of every setting</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Test the scheme end to end at least once.</strong> Inject a declining frequency ramp into the relay and watch the stages operate in order, with the right delays, opening the right breakers. A scheme verified only element-by-element on the bench has never been proven as a scheme &mdash; and it may be years before a real event tests it for you.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Undervoltage block set wrong or disabled.</strong> The single most common cause of spurious load shedding during a nearby fault.</li>
+<li><strong>Frequency measured from one phase.</strong> A single blown PT fuse takes out the whole scheme. Alarm the loss of potential.</li>
+<li><strong>All stages on the same relay and the same breaker.</strong> Staging means nothing if every stage sheds the same load.</li>
+<li><strong>Stage timers too long.</strong> A cascade that takes eight seconds to complete has already lost the race against the generators' own underfrequency trips.</li>
+<li><strong>Instantaneous elements left in service</strong> after testing. They will shed on a transient.</li>
+<li><strong>No plan for restoration.</strong> After a real event, operators need a documented, staggered restoration order. Writing it during the event does not go well.</li>
+<li><strong>Settings copied from an old file</strong> without checking the current regional requirement, or without accounting for changed system inertia.</li>
+<li><strong>The scheme disarmed for testing and left disarmed.</strong> Make the armed state a SCADA point with an alarm on disarm.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/generator-protection.html">Generator Protection</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+  <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a>
+</div>
+<p class="footnote">Sources: SEL AG2000-16 &ldquo;Underfrequency Load Shedding With the SEL-387E Relay&rdquo; (Wronski) &mdash; the power-balance and rotating-inertia explanation of frequency decline, the six frequency elements with pickup above or below nominal selecting over- or underfrequency behavior, per-element timers for initial and subsequent shed delays, the instruction that instantaneous elements are for testing only, frequency measurement from A-phase voltage, the <code>27B81P</code> undervoltage element that disables the frequency elements below its setting, the five scheme-design criteria (number of stages, frequency per stage, time delay per stage, MVA shed per stage, maximum overload), the three-stage staging philosophy, and the rate-of-frequency-change variant using a latch. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

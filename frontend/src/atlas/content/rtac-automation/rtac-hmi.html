@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Web HMI &amp; Diagram Builder</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="HMI,Diagram Builder,bay screen,web,trends,alarms,controls">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Web HMI & Diagram Builder (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+  .filecards .red { border-left: 4px solid #d63a3a; } .filecards .red b { color: #d63a3a; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Web HMI &amp; Diagram Builder</h1>
+  <p>The RTAC in a browser — the zero-config web interface, Diagram Builder screens bound to project tags, operator controls with confirm dialogs, and Axion bay screens</p>
+  <div class="chips"><span>SEL-5035</span><span>HPRJ / .binz</span><span>request groups</span><span>HMI Remote Write</span><span>read-only mode</span><span>SEL-5036</span><span>AG2024-06</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Every RTAC ships a <strong>web interface for free</strong> — reports, live data, diagnostics — over HTTPS. The graphical <strong>HMI is an ordered option</strong> built in ACSELERATOR Diagram Builder (SEL-5035) and loaded onto the RTAC.</li>
+<li>An HMI screen is just <strong>controls bound to RTAC tags</strong>. The browser polls the RTAC in <em>request groups</em>: event polls fetch only changed tags, integrity polls refresh everything.</li>
+<li>Controls are gated twice: the <strong>HMI Local/Remote Write permission</strong> on the user's role, and per-diagram <strong>role-based security</strong> configured in Diagram Builder. By default a confirm dialog appears <em>before and after</em> every control.</li>
+<li>The <strong>HMI runtime (.binz) version must match the Diagram Builder project version</strong> — and clear the browser cache after a runtime upload, or screens render inconsistently.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The built-in web interface — what you get with zero config</h2>
+<p>Browse to <code>https://&lt;RTAC-IP&gt;</code>. Defaults: Eth-1 on an SEL-3555/3560/3350 is <code>192.168.1.2</code>; a USB-B connection to an SEL-3530/3505/2241 answers at <code>172.29.131.1</code>. You must type <code>https://</code> yourself unless <strong>Enable HTTP Redirect</strong> (port 80 → 443 forwarding, <em>disabled by default</em>) is turned on. On first connect there are no accounts — the RTAC prompts you to create the first administrator with a complex password (8–72 chars, upper + lower + number + special). Forget it and you're opening the case for the bypass jumpers.</p>
+<table>
+<tr><th>Page</th><th>What it gives you, unconfigured</th></tr>
+<tr><td><strong>Dashboard</strong></td><td>Device name/location, session settings, alarm/HMI behavior flags (Table 5.1 of the 5033 IM)</td></tr>
+<tr><td><strong>Alarm Summary &amp; SOE</strong></td><td>Logging for all tags with cross-IED timestamp compensation; 30,000 records on most models, 500,000 on SEL-3350/3555/3560; bursts of 500 entries in 100 ms or 100/s continuous</td></tr>
+<tr><td><strong>Live Data</strong></td><td>Near-real-time view of any tag or POU pin (enabled per tag in the project) — values can also be <em>forced</em> from here for commissioning</td></tr>
+<tr><td><strong>Connected IED</strong></td><td>Remote IEDs by port, connection settings and comms status; R151+ on 3555/3560/3350 adds an online protocol dissector and pcap captures</td></tr>
+<tr><td><strong>Event Collection</strong></td><td>CEV/COMTRADE events collected from IEDs, sortable, downloadable</td></tr>
+<tr><td><strong>Network Utilities</strong></td><td>Ping, TCP port check, and an "All Ethernet" pcap capture</td></tr>
+<tr><td><strong>Diagnostics</strong></td><td>Firewall, physical interfaces, routing table, exe-GUARD, PRP, ARP table</td></tr>
+</table>
+<p>The <strong>web-based HMI is optional</strong> — ordered from the factory or added later through SEL sales; most RTAC and Axion models support it (the SEL-3505/3505-3 currently do not). Because it's web-based, multiple people can view it simultaneously, and the only client software is a browser. The <strong>Default Home Page</strong> dashboard setting can drop users straight into an HMI project at login.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Diagram Builder: create → bind → publish</h2>
+<div class="flow">
+  <div class="stage"><b>1 · New project</b><span>SEL-5035, File &gt; New. Role-based security off by default</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Import tags</b><span>direct from a live RTAC (IP + login), from the local ACSELERATOR RTAC database (127.0.0.1), or a 2-column CSV</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Draw &amp; bind</b><span>drag a tag onto the diagram (adopts its default control) or drag a control and set its Tag Name property</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>4 · Send to RTAC</b><span>RTAC Connections utility (port 5432, or configurable 5433) uploads the project</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>5 · Operate</b><span>project appears under the HMI tab of the web interface, named by its Navigation Link Text</span></div>
+</div>
+<p><strong>Tags come in two flavors:</strong> <em>device tags</em> (from device connections in the RTAC project) and <em>virtual tags</em>. Diagram Builder has no scripting engine — do math in RTAC logic, land the result in a virtual tag, display that. CSV import is two columns (Tag Type, Tag Name) and <strong>overwrites all existing tags</strong> — export, append, re-import to add.</p>
+<p><strong>Diagram types:</strong> ordinary <em>Diagrams</em> (only these can be the project default), <em>Popup Diagrams</em> (created on demand at runtime, auto-deleted on close), and <em>Synthetic Diagrams</em> (templates driven by the Substitution Control's tag/property substitution — one template, many bays).</p>
+<div class="filecards">
+  <div class="cfg"><b>.hprb</b><span>compressed local save format for Diagram Builder projects</span></div>
+  <div class="hdr"><b>.hprj</b><span>HMI Project XML — the format the RTAC stores; auto-converted on send/read</span></div>
+  <div class="dat"><b>.hmid</b><span>single diagram; "Save To Template File" strips the tags, layout only</span></div>
+  <div class="red"><b>.hprjson</b><span>export format uploadable through the browser to an RTAC on firmware R152+</span></div>
+</div>
+<div class="callout warn"><strong>Version discipline:</strong> the HMI runtime binary (<code>.binz</code>) on the RTAC should always match the Diagram Builder project version. From firmware R143, a firmware update auto-updates the .binz; otherwise push it with Tools &gt; HMI Runtime Binary Upload (or auto-upload via RTAC Connection Settings). After any .binz upload, <strong>clear the browser cache</strong> or the HMI may render inconsistently.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The control catalog</h2>
+<table>
+<tr><th>Family</th><th>Controls (all bind to specific RTAC tag types)</th></tr>
+<tr><td><strong>Status labels</strong></td><td>Metering (MV), Complex Metering (CMV, angle show/hide), Directional Metering (MV/CMV with arrows), Status (SPS), String Data (STR), Binary Counter (BCR), Integer Status</td></tr>
+<tr><td><strong>Gauges</strong></td><td>Linear Gauge (BCR/INS/LBCR/MV; gradient, solid, or dynamic fill), Phase Angle Gauge (up to 8 CMV needles on one dial)</td></tr>
+<tr><td><strong>Outputs</strong></td><td>Breaker Bit (trip/close), DNP Binary, Double Point (set/clear), Analog, Integer, String, LED (LEDC), Mirrored Bit, Modbus Coil, Remote Bit (RB), Input/Output</td></tr>
+<tr><td><strong>Steps</strong></td><td>Analog Step (BAC), Binary Step (BSC) — raise/lower; Integer Step (ISC) — set an exact position</td></tr>
+<tr><td><strong>One-line symbols</strong></td><td>Breaker, Disconnect Switch (SPS open/closed), Capacitor, Conductor (animated flow, speed from an analog tag), CT/PT, Generator, Ground, Reactor, Voltage Regulator, Transformer, Input LED, Protection Indication (ACT/ACD — per-phase trip, and fault direction with ACD)</td></tr>
+<tr><td><strong>Annunciation</strong></td><td>Annunciator Tile (fill color from a tag; double-click opens a child diagram; can flash if anything on the child alarms), Acknowledgeable Annunciator Tile (four alarm states, ack from the HMI)</td></tr>
+<tr><td><strong>Misc / trend</strong></td><td>Label, Image, Multi Image (2 images from a Boolean, up to 5 from an analog), Shape, Rotating Fan, Hyperlink, Group Box, Button + String Output pairs, Indirect Tag / Indirect Tag Link (one diagram serves many redundant bays), Multifunction Control, Trend Control (static, up to 4 traces)</td></tr>
+</table>
+<p class="figcap">Runtime overlays you'll see on any control: <strong>!</strong> or a yellow ! circle = bad tag quality · padlock = locked (read-only mode or Always Authenticate) · pink ⊕ = a Control Window is configured · bell = alarm on the child diagram · blue ? = child has a bad-quality control.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Data binding — how a tag change reaches the screen</h2>
+<p>Every control and status belongs to a <strong>request group</strong>. Two timers per group drive updates: the <strong>Event Poll Interval</strong> fetches only tags that changed since the last poll; the <strong>Integrity Poll Interval</strong> refreshes every tag in the group. Put fast-moving metering in a quick group and static nameplate data in a slow one. A group that grows past <strong>250 tags</strong> silently spawns an overflow group polling at the default interval.</p>
+
+<div class="fig"><svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+  <!-- RTAC box -->
+  <rect x="15" y="30" width="200" height="130" rx="8" fill="#fff" stroke="#454956" stroke-width="1.5"/>
+  <text x="115" y="47" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">RTAC — tag database</text>
+  <rect x="30" y="58" width="170" height="20" rx="3" fill="#f2f3f5" stroke="#d0d3da" stroke-width="1"/>
+  <text x="38" y="72" font-size="8" font-family="Consolas,monospace" fill="#454956">BRK_1.52A</text>
+  <text x="150" y="72" font-size="8" font-family="Consolas,monospace" font-weight="700" fill="#d63a3a">TRUE
+    <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.14;0.15;0.97;1" dur="12s" repeatCount="indefinite"/></text>
+  <g class="animlayer"><text x="150" y="72" font-size="8" font-family="Consolas,monospace" font-weight="700" fill="#10a37f" opacity="0">FALSE
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.14;0.15;0.97;1" dur="12s" repeatCount="indefinite"/></text></g>
+  <rect x="30" y="84" width="170" height="20" rx="3" fill="#f2f3f5" stroke="#d0d3da" stroke-width="1"/>
+  <text x="38" y="98" font-size="8" font-family="Consolas,monospace" fill="#454956">FDR1.IA.instMag</text>
+  <text x="150" y="98" font-size="8" font-family="Consolas,monospace" fill="#454956">402 A</text>
+  <text x="115" y="126" font-size="7.5" fill="#8a8e9b" text-anchor="middle">device + virtual tags,</text>
+  <text x="115" y="137" font-size="7.5" fill="#8a8e9b" text-anchor="middle">imported into Diagram Builder</text>
+  <!-- link -->
+  <line x1="215" y1="95" x2="440" y2="95" stroke="#6e7180" stroke-width="2"/>
+  <text x="327" y="86" font-size="8" font-weight="600" fill="#6e7180" text-anchor="middle">HTTPS · request group polls</text>
+  <text x="327" y="112" font-size="7.3" fill="#a9adb8" text-anchor="middle">event poll: changed tags only · integrity poll: all tags in group</text>
+  <!-- browser -->
+  <rect x="440" y="20" width="245" height="150" rx="8" fill="#fff" stroke="#454956" stroke-width="1.5"/>
+  <rect x="440" y="20" width="245" height="20" rx="8" fill="#f2f3f5" stroke="#454956" stroke-width="1.5"/>
+  <circle cx="454" cy="30" r="3" fill="#d0d3da"/><circle cx="464" cy="30" r="3" fill="#d0d3da"/>
+  <text x="562" y="34" font-size="7.5" font-family="Consolas,monospace" fill="#6e7180" text-anchor="middle">https://rtac — HMI runtime</text>
+  <!-- one-line -->
+  <line x1="562" y1="52" x2="562" y2="76" stroke="#454956" stroke-width="2"/>
+  <line x1="562" y1="118" x2="562" y2="142" stroke="#454956" stroke-width="2"/>
+  <!-- breaker closed (filled red) -->
+  <g>
+    <rect x="548" y="76" width="28" height="42" fill="#d63a3a" stroke="#1a1a22" stroke-width="1.5">
+      <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.42;0.44;0.97;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="548" y="76" width="28" height="42" fill="#fff" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.42;0.44;0.97;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  <text x="600" y="90" font-size="8.5" font-weight="600" fill="#1a1a22">BRK-1</text>
+  <text x="600" y="102" font-size="8" fill="#d63a3a">CLOSED
+    <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.42;0.44;0.97;1" dur="12s" repeatCount="indefinite"/></text>
+  <g class="animlayer"><text x="600" y="102" font-size="8" fill="#10a37f" opacity="0">OPEN
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.42;0.44;0.97;1" dur="12s" repeatCount="indefinite"/></text></g>
+  <text x="522" y="158" font-size="8" font-family="Consolas,monospace" fill="#454956" text-anchor="end">402 A</text>
+  <text x="527" y="158" font-size="7" fill="#8a8e9b">metering label (MV)</text>
+  <!-- animation layer -->
+  <g class="animlayer">
+    <!-- change highlight on tag row -->
+    <rect x="30" y="58" width="170" height="20" rx="3" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.13;0.15;0.24;0.28;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- event poll request (right to left) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.19;0.27;0.28;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M440,89 L226,89" keyPoints="0;0;1;1" keyTimes="0;0.18;0.27;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+      <rect x="-11" y="-6" width="22" height="12" rx="2" fill="#5468c4"/>
+      <text x="0" y="2.5" font-size="6.5" fill="#fff" font-weight="700" text-anchor="middle">poll</text>
+    </g>
+    <!-- event poll response (left to right) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.29;0.30;0.40;0.41;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M226,101 L440,101" keyPoints="0;0;1;1" keyTimes="0;0.29;0.40;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+      <rect x="-16" y="-6" width="32" height="12" rx="2" fill="#10a37f"/>
+      <text x="0" y="2.5" font-size="6" fill="#fff" font-weight="700" text-anchor="middle">changed</text>
+    </g>
+    <!-- widget update flash -->
+    <rect x="544" y="72" width="36" height="50" fill="none" stroke="#d7930a" stroke-width="2" rx="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0;1;0;0" keyTimes="0;0.43;0.46;0.49;0.52;0.55;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <text x="327" y="135" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.60;0.63;0.83;0.86;1" dur="12s" repeatCount="indefinite"/>
+      integrity poll at its own interval refreshes ALL tags in the group
+    </text>
+  </g>
+  <text x="350" y="182" font-size="8" fill="#a9adb8" text-anchor="middle">52A flips in the tag database → next event poll carries only the change → breaker symbol re-renders open</text>
+</svg></div>
+<p class="figcap">The binding loop: tag change → event poll → widget update. The frozen frame shows the closed state and the poll path.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+<li><strong>Quality rides along.</strong> A bad-quality tag paints its control with a quality indicator (exclamation point on analog displays, yellow circle elsewhere); annunciator tiles inherit bad quality from any child.</li>
+<li><strong>Broken bindings are visible.</strong> HMI <em>Debug Mode</em> (gear icon → enable → relaunch) flags controls whose tag was removed or whose type no longer matches the RTAC project. The in-editor HMI Preview always runs with Debug Mode on and can optionally pull live data from an RTAC.</li>
+<li><strong>Tag hygiene matters:</strong> File &gt; Remove Unused Tags shrinks the project and its browser load time; only tags in the project are available for dynamic trending.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Operator controls — select, confirm, and who's allowed</h2>
+<p>By default the HMI shows a <strong>warning dialog before</strong> a control command is sent and a <strong>confirmation after</strong> the RTAC acknowledges it (Project Settings &gt; Control Behavior; can be relaxed globally or per control). Breaker, Disconnect Switch, and Multifunction controls can also carry a <strong>Control Window</strong> — a docked or floating popup (opened by Ctrl+click or double-click, with its own timeout) listing the bound analog/binary I/O with custom button text; at least one binary output must be assigned or it won't appear. The <em>Hide Logical Command Column</em> property decides whether operators see the raw operation names (trip, close, pulse…).</p>
+
+<div class="fig"><svg viewBox="0 0 700 205" xmlns="http://www.w3.org/2000/svg">
+  <!-- lanes -->
+  <text x="80" y="16" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Operator (browser)</text>
+  <text x="350" y="16" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">HMI runtime</text>
+  <text x="620" y="16" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">RTAC</text>
+  <line x1="80" y1="24" x2="80" y2="160" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="350" y1="24" x2="350" y2="160" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="620" y1="24" x2="620" y2="160" stroke="#d0d3da" stroke-width="1.25"/>
+  <!-- static storyline (visible when printed) -->
+  <g font-size="7.8">
+    <line x1="80" y1="40" x2="350" y2="40" stroke="#454956" stroke-width="1.5" marker-end="none"/>
+    <text x="215" y="35" fill="#454956" text-anchor="middle">click Breaker control</text>
+    <rect x="272" y="48" width="156" height="22" rx="4" fill="#fff" stroke="#d7930a" stroke-width="1.5"/>
+    <text x="350" y="62" fill="#9c6d06" text-anchor="middle" font-size="7.5">warning: "operate this control?"</text>
+    <line x1="80" y1="82" x2="350" y2="82" stroke="#454956" stroke-width="1.5"/>
+    <text x="215" y="78" fill="#454956" text-anchor="middle">confirm</text>
+    <line x1="350" y1="96" x2="620" y2="96" stroke="#d63a3a" stroke-width="1.75"/>
+    <text x="485" y="91" fill="#d63a3a" text-anchor="middle">control tag fires (e.g., Breaker Bit trip/close)</text>
+    <line x1="620" y1="116" x2="350" y2="116" stroke="#10a37f" stroke-width="1.75"/>
+    <text x="485" y="111" fill="#10a37f" text-anchor="middle">ack + status tag returns on next poll</text>
+    <line x1="350" y1="138" x2="80" y2="138" stroke="#454956" stroke-width="1.5"/>
+    <text x="215" y="133" fill="#454956" text-anchor="middle">confirmation dialog · symbol flips state</text>
+  </g>
+  <!-- failure branch -->
+  <g font-size="7.6">
+    <rect x="20" y="168" width="660" height="32" rx="5" fill="#fbeeee" stroke="#d63a3a" stroke-width="1"/>
+    <text x="34" y="181" fill="#d63a3a" font-weight="700">✗ denied:</text>
+    <text x="90" y="181" fill="#454956">no HMI Remote Write permission on the role, HMI in read-only mode, or Always Authenticate = True →</text>
+    <text x="90" y="193" fill="#454956">control shows a padlock and a login prompt instead of operating; nothing is sent until valid credentials are entered.</text>
+  </g>
+  <!-- animation: moving now cursor + step highlights -->
+  <g class="animlayer">
+    <line x1="0" y1="0" x2="0" y2="0" stroke="none"/>
+    <rect x="18" y="30" width="680" height="20" rx="3" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0.12;0.12;0;0;0;0;0;0.12" keyTimes="0;0.10;0.13;0.5;0.6;0.7;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="18" y="48" width="680" height="24" rx="3" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.14;0.14;0;0" keyTimes="0;0.12;0.14;0.24;0.27;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="18" y="74" width="680" height="16" rx="3" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.12;0.12;0;0" keyTimes="0;0.26;0.28;0.36;0.39;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="18" y="90" width="680" height="14" rx="3" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.14;0.14;0;0" keyTimes="0;0.38;0.40;0.48;0.51;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="18" y="108" width="680" height="14" rx="3" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.14;0.14;0;0" keyTimes="0;0.50;0.52;0.60;0.63;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="18" y="128" width="680" height="16" rx="3" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.14;0.14;0;0" keyTimes="0;0.62;0.64;0.74;0.77;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="20" y="168" width="660" height="32" rx="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.10;0.10;0;0" keyTimes="0;0.80;0.82;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <!-- command packet -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.40;0.41;0.47;0.48;1" dur="14s" repeatCount="indefinite"/>
+      <rect x="-10" y="-5" width="20" height="10" rx="2" fill="#d63a3a">
+        <animateMotion path="M350,96 L620,96" keyPoints="0;0;1;1" keyTimes="0;0.40;0.47;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.53;0.59;0.60;1" dur="14s" repeatCount="indefinite"/>
+      <rect x="-10" y="-5" width="20" height="10" rx="2" fill="#10a37f">
+        <animateMotion path="M620,116 L350,116" keyPoints="0;0;1;1" keyTimes="0;0.52;0.59;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">One control, end to end — and the branch where it never leaves the browser. The dialogs shown are the project defaults.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>What can lock a control</h3>
+<ul>
+<li><strong>Role permission.</strong> Issuing controls requires the <strong>HMI Remote Write</strong> permission (remote browser) or <strong>HMI Local Write</strong> (local display) — held by Administrator, Engineer, and HMI Operator accounts by default. Roles and the permission model live on the security page in atlas.</li>
+<li><strong>Read-only mode.</strong> With <em>Enable HMI Read-Only Mode</em> set on the RTAC Dashboard, a timed-out session keeps showing data but every control locks; operating one prompts a login. (Activating read-only from the HMI without the RTAC-side flag just logs you out.) Conversely: Web Session Time-out = 0 keeps the HMI open and users can send controls and ack alarms <em>without re-authenticating</em>.</li>
+<li><strong>Always Authenticate = True</strong> on a control forces a credential prompt on every operation; <strong>Locked on Operator Blocked</strong> locks the control while its control tag has bad quality (an authenticated user can override).</li>
+<li><strong>Per-diagram roles.</strong> With role-based security enabled, the runtime Project Outline splits into <em>Available</em> and <em>Disabled</em> diagrams per user. Role names typed in Diagram Builder must match the RTAC's role names <em>exactly</em> — Diagram Builder has no awareness of the RTAC's role list or hierarchy, and you maintain the inheritance by hand. Requires HTML5 rendering (firmware R141+).</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Trends, SOE, and alarms in the runtime</h2>
+<div class="twocol">
+<div>
+<h3>Trending</h3>
+<ul>
+<li><strong>Static trends</strong>: built in Diagram Builder (Trend Groups → Trend control → up to 4 tags); visible to all clients, unconfigurable at runtime.</li>
+<li><strong>Dynamic trends</strong>: created live (Trending &gt; Create Trend), tags picked from the project, per-series colors, panning and point indicators.</li>
+<li><strong>Tooltip trends</strong>: double-click a metering label with <code>Enable Tooltip Trending = True</code>; up to 10 at once, minimizable to the diagram base.</li>
+<li>Default trend settings (legend, gradients, axes, 12/24-h time) are set from the HMI; time-format changes need an HMI reload to apply.</li>
+</ul>
+</div>
+<div>
+<h3>SOE &amp; Alarms viewers</h3>
+<ul>
+<li>Both viewers show at most <strong>200 records</strong> — the full archive lives in the web interface reports / Alarm Summary. Timestamps are <strong>UTC by default, no DST</strong>; a manual offset applies to both viewers and only persists if you log out of the web interface.</li>
+<li>Ack/delete single, selected, or all records; CSV export; saveable <code>.fltrs</code> filters; preconfigured filters for the four alarm states (Active/Inactive × Ack/Unack); per-severity alarm sounds keyed to the tag processor's Logging Priority.</li>
+<li><strong>Acking in the HMI acks the RTAC Alarm Summary too</strong> — one alarm state, two views. Auto-polling of the Alarms Viewer is off by default (you reload manually).</li>
+<li><strong>Alarm history view</strong> (runtime 3.11.0.231+, firmware R155+): a per-alarm chronology of alarm, return-to-normal, and ack events; buffer depth set by <em>Max Alarm History Events Per Tag</em> (10–100).</li>
+<li>Acknowledgeable annunciator tiles have four states; from R155/R201, <em>Reacknowledge on Alarm Normalization</em> (Dashboard) decides whether a cleared alarm must be re-acked before it drops off.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Bay screens — the Axion touchscreen flavor</h2>
+<p>Local touchscreens on bay control units use a different tool: <strong>ACSELERATOR Bay Screen Builder (SEL-5036)</strong>, auto-installed with the settings software for touchscreen-equipped SEL devices. Insert an <em>SEL Touchscreen</em> device in the ACSELERATOR RTAC project, hit <strong>Edit</strong> on the default bay screens, and Bay Screen Builder launches with a live link back — File &gt; Export Package becomes <strong>Publish Package</strong>, sending the <code>.ldme</code> graphics package straight into the RTAC project. Tag binding then happens <em>in ACSELERATOR RTAC</em>: selecting a label on the published screen auto-highlights its settings row for tag assignment (per AG2024-06).</p>
+<ul>
+<li><strong>Symbol sets:</strong> ANSI or IEC, chosen at project creation. Breakers, truck breakers, load-break switches, disconnects (plain, motor-operated, three-position), dynamic Analog/Digital labels, Navigation and Operation buttons, plus static symbols. Whether a symbol is operator-controllable is set in the device's settings software, not in Bay Screen Builder.</li>
+<li><strong>Dynamic coloring:</strong> breaker/switch symbols carry a Close/Open/Alarm color scheme — <em>Red-Green-Amber</em>, <em>Green-Red-Amber</em>, or <em>Black-White-Gray</em> — and a preview State (Closed/Open/Alarm) for design-time checks.</li>
+<li><strong>Confirmed operation:</strong> Operation buttons (Axion BCU via ACSELERATOR RTAC only — QuickSet-configured devices don't support them) have <em>Confirmation Screen Enabled</em>, 40-char prompt text, and a <em>Critical Action</em> flag that turns the YES button red. Pressed and disabled color states are separately settable.</li>
+<li><strong>Validation:</strong> the Project Analysis pane lists errors/warnings and a Constraints Summary; a project must satisfy all symbol constraints to be exported (invalid ones can still be saved).</li>
+<li><strong>Alarm screens the AG2024-06 way:</strong> paired digital labels per signal (Alarm text bound to the status tag, Normal text bound to <code>NOT</code> the tag — only one renders), timestamps split into seven INS virtual tags with the <code>dateTime_t_Deconstructor</code> function block in CFC logic, analog labels bound to each piece. Publish, map, go online.</li>
+</ul>
+<p class="figcap">Axion hardware, EtherCAT I/O, and touchscreen module details live on the Axion page in atlas.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Publishing, versions &amp; runtime hygiene</h2>
+<ul>
+<li><strong>RTAC Connections</strong> (in Diagram Builder) uploads, downloads, and deletes HMI project files on the RTAC by IP + credentials. From firmware <strong>R152</strong> the web interface can do it too: Device Management shows and updates the HMI Runtime binary; Project Management &gt; HMI Project Upload lists, uploads (.hprjson/.hprz), and downloads project files.</li>
+<li><strong>What operators see:</strong> uploaded projects appear under the HMI tab named by the project's <em>Navigation Link Text</em>; one diagram is the project default. Check the running runtime version from the HMI settings gear (<em>HMI Version:</em>) or Device Management.</li>
+<li><strong>HMI settings can be pinned:</strong> attach an HMI runtime settings file to the project and set <em>Enforce HMI Runtime Settings</em> to stop operators changing them; <em>Settings Presets</em> (JSON in <code>%APPDATA%\SEL\AcSELerator\DiagramBuilder\Presets</code>) standardize control colors and properties across an organization.</li>
+<li><strong>An HMI firmware upgrade via MOT file erases the loaded RTAC project</strong> — resend it afterward. From R143, firmware updates carry the matching .binz automatically.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Performance &amp; gotchas</h2>
+<div class="callout keyfact"><strong>The expensive controls, per SEL's own table:</strong> Conductor, Rotating Fan, and Trend Control are <em>Very High</em> impact; anything animation-enabled (breakers, annunciators, shapes, images, status labels) is <em>High</em>; metering labels are <em>Moderate</em>; plain outputs and static symbols are <em>Low</em>. These are design guidelines, not hard limits.</div>
+<ul>
+<li><strong>Browsers:</strong> Chromium-based (Chrome 40+, Edge 13+, Opera 27+ per Table B.1) rendering in HTML5 — the default on firmware R134+. HTML5-only controls (Multi Image, Rotating Fan, role-secured projects) need R141+. Keep browsers current; a browser update can change HMI behavior.</li>
+<li><strong>Trend budget:</strong> ≤ 4 traces per trend, and typically ≤ 8 trends per project — prefer multiple traces on one trend over many trends, spread static trends across diagrams, and soak-test for days before commissioning.</li>
+<li><strong>Poll only what you need:</strong> request-group intervals, analog deadbands, device poll rates, and total tag count all load the RTAC; an RTAC busy with automation tasks serves the HMI slowly. On Axion systems, an overloaded task (EtherCAT processing regularly over 500 µs) shows up as poor web HMI performance.</li>
+<li><strong>Concurrent sessions degrade big projects</strong> — the Dashboard's <em>Allowed Web Connections</em> caps them. A <em>Low Performance mode</em> in the HMI browser settings sheds CPU load, useful when driving the RTAC's own local display.</li>
+<li><strong>Misconfigurations cost cycles:</strong> nonexistent tags or type mismatches between the Diagram Builder and RTAC projects hurt performance and light up in Debug Mode; use the Project Report to find them. Enable <em>lazy loading of diagrams</em> for big projects (skips diagrams not tied to alarming annunciators).</li>
+<li><strong>SOE auto-refresh is a load</strong> — keep record generation and viewer auto-collection only as fast as the application needs.</li>
+<li><strong>Tag import/binding lives on the tags page in atlas; the tag database and logic that feed virtual tags are on the logic page.</strong></li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num" style="background:#454956">§</span>Sources</h2>
+<div class="card" style="border-left-color:#454956">
+<ul style="margin-bottom:2px; font-size: 8.6pt;">
+<li>ACSELERATOR Diagram Builder SEL-5035 Software Instruction Manual (20260305) — <code>Diagram_Builder_IM_20251015.pdf</code></li>
+<li>ACSELERATOR RTAC SEL-5033 Software Instruction Manual, Sections 1, 5 &amp; 8 (20260313) — <code>3530-4_IM_20241217_20260313.pdf</code></li>
+<li>ACSELERATOR Bay Screen Builder SEL-5036 Software Instruction Manual (20260313) — <code>BayScreen_IM_20230201.pdf</code></li>
+<li>SEL AG2024-06, "Deploying Custom Alarm Screens in an SEL-2240 Axion Bay Controller" — <code>AG2024-06_20240510.pdf</code></li>
+</ul>
+</div>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:rtac-automation/rtac-security.html">RTAC Users &amp; Security</a>
+  <a href="atlas:rtac-automation/sel-computers.html">Substation Computers &amp; Blueframe</a>
+</div>
+<p class="footnote">Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

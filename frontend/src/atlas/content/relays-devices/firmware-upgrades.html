@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Firmware Upgrades</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="firmware,FID,driver,upgrade,rollback,settings migration,RTAC firmware,security advisory,fleet inventory">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Firmware Upgrades (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Firmware Upgrades</h1>
+  <p>When to upgrade, what an FID change breaks, the sequence that does not lose settings, and how to do it on an RTAC without stranding the substation</p>
+  <div class="chips"><span>FID</span><span>driver</span><span>settings compatibility</span><span>rollback</span><span>outage window</span><span>RTAC firmware</span><span>fleet strategy</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Firmware</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The device is not protecting during the upgrade.</strong> Plan it as an outage of that protection, with whatever backup or clearance that implies.</li>
+<li><strong>The FID string defines the settings universe.</strong> New firmware can add, rename, remove, or re-default settings, and the QuickSet driver must match the FID.</li>
+<li><strong>Save everything first &mdash; settings, events, SER &mdash; and verify the saves.</strong> Some upgrades clear records; some clear settings entirely.</li>
+<li><strong>Have a rollback plan, and confirm the previous firmware is actually obtainable</strong> before you start.</li>
+<li><strong>Upgrade for a reason.</strong> A security fix, a defect that affects you, or a feature you need. &ldquo;It is newer&rdquo; is not a reason to disturb a working protection scheme.</li>
+<li><strong>Test after, not just before.</strong> A firmware change is a settings change with a wider blast radius; re-prove the elements and the I/O.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Reasons to upgrade &mdash; and to wait</h2>
+<div class="twocol">
+<div>
+<h3>Upgrade when</h3>
+<ul>
+<li><strong>A security advisory affects your deployment.</strong> These are the least optional. Treat them on a schedule, with a documented risk assessment if you defer.</li>
+<li><strong>A published defect matches behavior you have seen</strong> &mdash; or could plausibly hit you.</li>
+<li><strong>You need a capability the current firmware lacks:</strong> a protocol, an element, a protection feature.</li>
+<li><strong>Fleet consistency</strong> &mdash; several firmware revisions of the same model in one system multiplies the settings variants you must maintain.</li>
+<li><strong>Before a major project,</strong> so the whole installation starts from one baseline rather than accumulating differences.</li>
+</ul>
+</div>
+<div>
+<h3>Wait when</h3>
+<ul>
+<li><strong>The relay is working and nothing on the release notes applies to you.</strong> Protection stability has real value.</li>
+<li><strong>The release is very new</strong> and nobody in your organization has run it. Let it season somewhere low-consequence first.</li>
+<li><strong>You cannot get an outage window</strong> that makes the risk acceptable.</li>
+<li><strong>The settings migration is not understood.</strong> If you cannot say in advance which settings change and how, you are not ready.</li>
+<li><strong>You have no rollback.</strong> Never start an upgrade you cannot undo.</li>
+</ul>
+</div>
+</div>
+<div class="callout">
+<strong>Read the release notes properly.</strong> Not the headline &mdash; the settings-compatibility section, the known-issues list, and any note about record buffers or defaults. That is where the surprises are documented, and the surprises are the whole risk.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>What an FID change means</h2>
+<p>The firmware identification string identifies exactly which build is running. It is not cosmetic: it is what QuickSet uses to select the driver, which in turn determines which settings exist, what their ranges are, and which Relay Word bits are available.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">What can happen to a settings file when the FID changes underneath it</text>
+
+  <!-- old / new columns -->
+  <rect x="40" y="36" width="230" height="180" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="155" y="54" text-anchor="middle" font-size="8.4" font-weight="600" fill="#5468c4">Old FID &mdash; settings present</text>
+  <rect x="430" y="36" width="230" height="180" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="545" y="54" text-anchor="middle" font-size="8.4" font-weight="600" fill="#10a37f">New FID &mdash; settings present</text>
+
+  <g font-size="7.6" font-family="Consolas, monospace">
+    <text x="60" y="80" fill="#454956">50P1P = 6.00</text>
+    <text x="60" y="102" fill="#454956">51P1TD = 2.50</text>
+    <text x="60" y="124" fill="#454956">E79 = 3</text>
+    <text x="60" y="146" fill="#454956">TDURD = 9.000</text>
+    <text x="60" y="168" fill="#454956">(none)</text>
+    <text x="60" y="190" fill="#454956">OLDSET = Y</text>
+
+    <text x="450" y="80" fill="#454956">50P1P = 6.00</text>
+    <text x="450" y="102" fill="#454956">51P1TD = 2.50</text>
+    <text x="450" y="124" fill="#454956">E79 = 3</text>
+    <text x="450" y="146" fill="#454956">TDURD = 9.000</text>
+    <text x="450" y="168" fill="#0d7f63">NEWSET = &lt;default&gt;</text>
+    <text x="450" y="190" fill="#8a8e9b">(removed)</text>
+  </g>
+
+  <g stroke-width="1.3" fill="none">
+    <path d="M272,77 H428" stroke="#10a37f" marker-end="url(#fw)"/>
+    <path d="M272,99 H428" stroke="#10a37f" marker-end="url(#fw)"/>
+    <path d="M272,121 H428" stroke="#10a37f" marker-end="url(#fw)"/>
+    <path d="M272,143 H428" stroke="#10a37f" marker-end="url(#fw)"/>
+    <path d="M340,165 H428" stroke="#d7930a" stroke-dasharray="4 3" marker-end="url(#fw2)"/>
+    <path d="M272,187 H340" stroke="#d63a3a" stroke-dasharray="4 3"/>
+  </g>
+  <defs>
+    <marker id="fw" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker>
+    <marker id="fw2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#d7930a"/></marker>
+  </defs>
+  <text x="350" y="72" text-anchor="middle" font-size="7.2" fill="#0d7f63">carried across unchanged</text>
+  <text x="350" y="160" text-anchor="middle" font-size="7.2" fill="#9c6d06">new setting appears at its default</text>
+  <text x="306" y="200" text-anchor="middle" font-size="7.2" fill="#d63a3a">setting no longer exists</text>
+
+  <circle r="3.5" fill="#10a37f">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M272,77 H428"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="indefinite"/>
+  </circle>
+
+  <rect x="8" y="224" width="684" height="22" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="239" font-size="7.8" fill="#9c6d06">The dangerous case is the middle one: a new setting silently taking its factory default, in a scheme that assumed it did not exist. Diff the before and after, every time.</text>
+</svg></div>
+<p class="figcap">Most settings migrate cleanly. It is the handful that do not which need your attention, and only a diff will show them. <span class="print-note">(Animated in the browser.)</span></p>
+
+<ul>
+<li><strong>Record the FID before and after.</strong> <code>ID</code> or <code>STA</code> gives it; put both in the work record.</li>
+<li><strong>Update QuickSet's driver</strong> for the new FID before attempting to read or write settings, or the tool and the relay will disagree about what exists.</li>
+<li><strong>Do not assume the settings file transfers.</strong> Read the migrated settings <em>out of the relay</em> after the upgrade and diff them against your pre-upgrade export.</li>
+<li><strong>Relay Word bits can change too,</strong> which means SELogic equations, SER trigger lists, and protocol maps may all need review &mdash; not just element pickups.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>The sequence</h2>
+<ol>
+<li><strong>Plan the outage.</strong> Confirm what backup protection exists, obtain clearance, and agree with operations exactly what will be out and for how long.</li>
+<li><strong>Capture everything.</strong> Full settings read to <code>.rdb</code> and text export, all event reports, SER, load profile, breaker wear and counter values, and the FID. Verify the files open before proceeding.</li>
+<li><strong>Confirm the rollback path.</strong> You have the previous firmware image, and you have confirmed the device supports downgrading to it.</li>
+<li><strong>Isolate.</strong> Trip outputs disabled or the trip circuit isolated, per site practice, so nothing unexpected operates during the upgrade.</li>
+<li><strong>Transfer the firmware.</strong> Over the front serial port or over Ethernet, depending on the model and site policy. Do not interrupt it &mdash; a partial write can leave the device unbootable.</li>
+<li><strong>Let it restart and settle.</strong> Confirm the new FID, and confirm self-tests pass.</li>
+<li><strong>Read settings back and diff</strong> against the pre-upgrade export. Resolve every difference deliberately &mdash; do not accept &ldquo;probably fine&rdquo;.</li>
+<li><strong>Re-verify the essentials:</strong> at least one element by injection, contact inputs and outputs, clock source, protocol sessions online, and SCADA points reading correctly.</li>
+<li><strong>Restore isolation, restore targets and counters where applicable,</strong> and confirm with operations that the device is reporting normally.</li>
+<li><strong>Archive the as-left</strong> with the new FID recorded, and update the fleet inventory.</li>
+</ol>
+<div class="callout warn">
+<strong>The counters and accumulators are not settings.</strong> Breaker wear, operation counts, through-fault accumulation, energy registers, and motor thermal state may or may not survive an upgrade. Record their values first so the history is not simply lost, and note in the work record if they were reset.
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">What is out of service, and for how long &mdash; the reason an upgrade is an outage, not a task</text>
+  <line x1="80" y1="150" x2="670" y2="150" stroke="#a9adb8"/>
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="80" y="166">plan</text>
+    <text x="180" y="166">capture</text>
+    <text x="290" y="166">isolate</text>
+    <text x="400" y="166">transfer</text>
+    <text x="500" y="166">restart</text>
+    <text x="580" y="166">verify</text>
+    <text x="666" y="166" text-anchor="end">restore</text>
+  </g>
+  <g font-size="7.4">
+    <text x="72" y="52" text-anchor="end" fill="#454956">Protection</text>
+    <rect x="80" y="42" width="200" height="16" rx="3" fill="#10a37f" opacity="0.7"/>
+    <rect x="280" y="42" width="330" height="16" rx="3" fill="#d63a3a" opacity="0.75"/>
+    <rect x="610" y="42" width="58" height="16" rx="3" fill="#10a37f" opacity="0.7"/>
+    <text x="445" y="54" text-anchor="middle" font-size="7" fill="#fff">out of service</text>
+
+    <text x="72" y="82" text-anchor="end" fill="#454956">SCADA data</text>
+    <rect x="80" y="72" width="320" height="16" rx="3" fill="#10a37f" opacity="0.7"/>
+    <rect x="400" y="72" width="180" height="16" rx="3" fill="#d7930a" opacity="0.75"/>
+    <rect x="580" y="72" width="88" height="16" rx="3" fill="#10a37f" opacity="0.7"/>
+    <text x="490" y="84" text-anchor="middle" font-size="7" fill="#fff">stale / offline</text>
+
+    <text x="72" y="112" text-anchor="end" fill="#454956">Records</text>
+    <rect x="80" y="102" width="100" height="16" rx="3" fill="#10a37f" opacity="0.7"/>
+    <rect x="180" y="102" width="488" height="16" rx="3" fill="#6e7180" opacity="0.45"/>
+    <text x="424" y="114" text-anchor="middle" font-size="7" fill="#fff">may be cleared &mdash; capture before this point</text>
+  </g>
+  <line y1="36" y2="146" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.4">
+    <animate attributeName="x1" values="80;670" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="80;670" dur="6s" repeatCount="indefinite"/>
+  </line>
+  <rect x="80" y="176" width="588" height="20" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="92" y="190" font-size="7.6" fill="#9c6d06">On an RTAC the SCADA row is the whole substation, not one device &mdash; coordinate with the control centre, and expect an alarm flood on return.</text>
+</svg></div>
+<p class="figcap">Never start an upgrade without knowing what is covering the protection, and without the previous firmware image in hand. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">4</span>RTAC and other platforms</h2>
+<table>
+  <tr><th>Device</th><th>What is different</th><th>Practical consequence</th></tr>
+  <tr><td><strong>RTAC</strong></td><td>Firmware and the project are separate things, and the ACSELERATOR RTAC software version, the firmware version, and the project's target version must all be compatible</td><td>Upgrade the software first, then the firmware, then re-send the project. Check the compatibility notes before touching anything &mdash; see <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a></td></tr>
+  <tr><td><strong>RTAC, operationally</strong></td><td>Every protocol session it hosts goes away during the upgrade</td><td>SCADA loses the whole substation, not one device. Coordinate with the control centre, and expect an alarm flood on return</td></tr>
+  <tr><td><strong>Ethernet switches</strong></td><td>An upgrade means a reboot, and a reboot means the network reconverges</td><td>On an RSTP network the topology change ripples; on an SDN network flows are preserved but the path is gone during the reboot. Plan around redundancy, and never upgrade both halves of a redundant pair at once</td></tr>
+  <tr><td><strong>Clocks</strong></td><td>Time source disappears during the upgrade</td><td>Devices go to holdover. Brief is fine; confirm they re-acquire, and check <code>TSOK</code>/<code>IRIGOK</code> afterward &mdash; see <a href="atlas:comms/time-sync.html">Time Synchronization</a></td></tr>
+  <tr><td><strong>Security gateways</strong></td><td>Upgrading the gateway removes your own remote access</td><td>Do it on site, or with a proven out-of-band path. People have locked themselves out of substations this way</td></tr>
+  <tr><td><strong>Merging units / digital secondary</strong></td><td>The relay loses its analog data source</td><td>Selective protection disabling engages by design; know exactly what remains protected</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>Fleet strategy</h2>
+<ul>
+<li><strong>Maintain an inventory:</strong> device, site, model, part number, FID, and last upgrade date. Without it, &ldquo;which relays are affected by this advisory?&rdquo; is a multi-week survey.</li>
+<li><strong>Define a baseline version per model</strong> and a schedule for moving to it. Drifting fleets are unmanageable fleets.</li>
+<li><strong>Pilot every new version</strong> on a small number of low-consequence devices, and let it run for a defined period before general rollout.</li>
+<li><strong>Bundle upgrades with other outage work</strong> &mdash; the outage is usually the scarce resource, not the labor.</li>
+<li><strong>Track security advisories deliberately.</strong> Subscribe, triage each one against your inventory, and record the decision even when the decision is to defer.</li>
+<li><strong>Never upgrade redundant pairs together.</strong> Primary and backup relays, redundant RTACs, paired switches &mdash; stagger them so a bad release cannot take both.</li>
+</ul>
+<div class="callout keyfact">
+<strong>An unrecorded upgrade is worse than no upgrade.</strong> When a relay behaves unexpectedly two years later, the first question is what changed. If the FID in the archive does not match the FID in the relay and nobody knows why, you are troubleshooting blind.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Gotchas</h2>
+<ul>
+<li><strong>Starting without the rollback image.</strong> Confirm you can actually obtain the current version before you replace it.</li>
+<li><strong>Interrupting the transfer.</strong> A dropped serial link or a closed laptop mid-write can brick the device. Power, cable, and patience.</li>
+<li><strong>Assuming settings survived.</strong> Always read back and diff. Always.</li>
+<li><strong>Forgetting the QuickSet driver.</strong> The tool must know the new FID before it can read the relay properly.</li>
+<li><strong>Losing event history</strong> that was the reason for the visit. Capture records before the upgrade, not after.</li>
+<li><strong>Upgrading the security gateway remotely.</strong> Reliable way to end a remote session permanently.</li>
+<li><strong>Skipping the post-upgrade injection test.</strong> A migrated pickup that silently defaulted looks fine in the file listing and fails on the day.</li>
+<li><strong>Upgrading during a storm season or a critical loading period</strong> because the change window happened to be open. The outage window is not the only constraint that matters.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:rtac-automation/quickset.html">Engineering Access &amp; QuickSet</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+</div>
+<p class="footnote">Practice page. FID-and-driver behavior, settings-class migration, and the upgrade paths (front serial port or Ethernet, and web-server-based upgrade on models that offer it) follow the SEL-751/751A, SEL-849, and SEL-710-5 documentation and the ACSELERATOR QuickSet SEL-5030 instruction manual; RTAC software / firmware / project compatibility follows the ACSELERATOR RTAC SEL-5033 documentation. The workflow reflects standard utility practice for in-service protection devices. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

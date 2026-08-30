@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Axion I/O</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="Axion,SEL-2240,EtherCAT,I/O,SEL-2245,LEA,modules">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Axion I/O (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Axion I/O</h1>
+  <p>The SEL-2240 family — modular substation I/O on a deterministic EtherCAT backplane, with an RTAC as the single CPU for up to 60 modules across distributed nodes</p>
+  <div class="chips"><span>SEL-2240</span><span>EtherCAT</span><span>SEL-2243</span><span>2244 DI/DO</span><span>2245-4 CT/PT</span><span>LEA</span><span>1 ms SER</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>An Axion <strong>node</strong> = chassis/backplane (SEL-2242) + at least one <strong>SEL-2243 Power Coupler</strong> + I/O modules. Exactly <strong>one RTAC per EtherCAT network</strong> (integrated SEL-2241/-2241-2 module or an external SEL-3350/3555), controlling as many as <strong>60 modules across six nodes</strong>.</li>
+<li>The internode bus is <strong>EtherCAT</strong> — a real-time Ethernet fieldbus where one telegram carries every module's data and each device reads/writes it on the fly. No switches, ever, on EtherCAT ports.</li>
+<li>Modules install <strong>contiguously from Slot A, no gaps</strong>; the Node Connections Editor listing must match physical placement or the network won't initialize.</li>
+<li>Default failure posture: 25 ms of message errors → the whole network shuts down and <strong>all outputs de-energize</strong> (<code>Disable_On_Network_Error</code> = TRUE).</li>
+<li>Every input gets a <strong>1 ms SER time stamp</strong>; AC modules across the system sample synchronously against a common reference.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What an Axion is</h2>
+<p>The SEL-2240 Axion is SEL's modular I/O and control platform: it pairs the RTAC's protocol engine, security, and IEC 61131 logic with a suite of rugged I/O modules, connected over a <strong>deterministic Ethernet network</strong>. A node is a 10-slot, 4-slot, or dual 4-slot chassis holding an optional integrated RTAC module, one or more power couplers, and up to nine I/O modules in any mix — the node doesn't need to be full. Scale past one chassis by linking nodes over EtherCAT, which the manual describes as creating a <strong>"virtual Ethernet backplane"</strong> between I/O nodes with no loss of speed or determinism; a single CPU serves the whole network. Fiber between nodes buys electrical isolation and distance.</p>
+<p>Typical roles (per the IM's applications section): distributed I/O in the yard with fiber back to the control house instead of high-energy copper runs, RTU replacement, bay control with the optional 7-inch touchscreen (10-slot, RTAC module in Slot A required), synchronized metering for load-shed / microgrid / sync-check schemes, and DFR-style recording.</p>
+<p style="font-size:8.6pt;color:#6e7180">  </p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>EtherCAT: how the bus stays deterministic</h2>
+<p>EtherCAT (a Beckhoff-originated open standard) fixes the two problems that make plain Ethernet a poor fieldbus — nondeterminism and per-device frame overhead. The trick: <strong>one telegram carries I/O for many devices</strong>, under a dedicated EtherType. Each module's FPGA/ASIC is configured at network initialization (the FMMU process) to know exactly which bytes of the telegram are "its" region — and the RTAC keeps the system deterministic by starting every telegram on a fixed schedule.</p>
+
+<div class="fig"><svg viewBox="0 0 700 235" xmlns="http://www.w3.org/2000/svg">
+  <!-- master node -->
+  <rect x="18" y="30" width="180" height="130" rx="7" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="108" y="46" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Node 1 — RTAC master</text>
+  <rect x="30" y="56" width="60" height="24" rx="3" fill="#1a1a22"/>
+  <text x="60" y="71" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">SEL-2241</text>
+  <rect x="96" y="56" width="44" height="24" rx="3" fill="#10a37f" opacity="0.16" stroke="#10a37f"/>
+  <text x="118" y="71" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">2243</text>
+  <rect x="146" y="56" width="44" height="24" rx="3" fill="#f2f3f5" stroke="#d0d3da"/>
+  <text x="168" y="71" font-size="7.5" fill="#6e7180" text-anchor="middle">2244</text>
+  <!-- tag DB -->
+  <rect x="30" y="92" width="160" height="58" rx="4" fill="#fafbfc" stroke="#d0d3da"/>
+  <text x="110" y="104" font-size="7.8" font-weight="600" fill="#454956" text-anchor="middle">RTAC tag database</text>
+  <rect id="dbrow1" x="38" y="110" width="144" height="9" rx="2" fill="#e5e7eb"/>
+  <rect id="dbrow2" x="38" y="123" width="144" height="9" rx="2" fill="#e5e7eb"/>
+  <rect id="dbrow3" x="38" y="136" width="144" height="9" rx="2" fill="#e5e7eb"/>
+  <text x="41" y="117.5" font-size="6.4" fill="#6e7180" font-family="Consolas, monospace">Node2_SlotB_ECAT.INPUT_001</text>
+  <text x="41" y="130.5" font-size="6.4" fill="#6e7180" font-family="Consolas, monospace">Node2_SlotC_ECAT.IA_FUND</text>
+  <text x="41" y="143.5" font-size="6.4" fill="#6e7180" font-family="Consolas, monospace">Node3_SlotB_ECAT.INPUT_014</text>
+  <!-- remote node 2 -->
+  <rect x="278" y="42" width="170" height="76" rx="7" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="363" y="57" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">Node 2 — remote</text>
+  <rect x="290" y="66" width="42" height="24" rx="3" fill="#10a37f" opacity="0.16" stroke="#10a37f"/>
+  <text x="311" y="81" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">2243</text>
+  <rect x="338" y="66" width="42" height="24" rx="3" fill="#f2f3f5" stroke="#d0d3da"/>
+  <text x="359" y="81" font-size="7.5" fill="#6e7180" text-anchor="middle">2244 DI</text>
+  <circle id="ch1" cx="359" cy="98" r="4" fill="#d0d3da"/>
+  <rect x="386" y="66" width="42" height="24" rx="3" fill="#f2f3f5" stroke="#d0d3da"/>
+  <text x="407" y="81" font-size="7.5" fill="#6e7180" text-anchor="middle">2245-4</text>
+  <circle id="ch2" cx="407" cy="98" r="4" fill="#d0d3da"/>
+  <!-- remote node 3 -->
+  <rect x="512" y="42" width="170" height="76" rx="7" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="597" y="57" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">Node 3 — remote</text>
+  <rect x="524" y="66" width="42" height="24" rx="3" fill="#10a37f" opacity="0.16" stroke="#10a37f"/>
+  <text x="545" y="81" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">2243</text>
+  <rect x="572" y="66" width="42" height="24" rx="3" fill="#f2f3f5" stroke="#d0d3da"/>
+  <text x="593" y="81" font-size="7.5" fill="#6e7180" text-anchor="middle">2244 DI</text>
+  <circle id="ch3" cx="593" cy="98" r="4" fill="#d0d3da"/>
+  <!-- links -->
+  <line x1="198" y1="86" x2="278" y2="86" stroke="#6e7180" stroke-width="2"/>
+  <line x1="448" y1="86" x2="512" y2="86" stroke="#6e7180" stroke-width="2"/>
+  <text x="238" y="80" font-size="7" fill="#6e7180" text-anchor="middle">coupler OUT → IN</text>
+  <text x="480" y="80" font-size="7" fill="#6e7180" text-anchor="middle">OUT → IN</text>
+  <text x="350" y="180" font-size="8" fill="#a9adb8" text-anchor="middle">one telegram, fixed schedule · each module reads its outputs / writes its inputs on the fly (1–2 ns forwarding) · full round trip &lt; 100 µs</text>
+  <text x="350" y="196" font-size="8" fill="#a9adb8" text-anchor="middle">network + INPUT_SOE buffers update every 1 ms · daisy-chain, star, or combination — always one path per node</text>
+  <g class="animlayer">
+    <!-- telegram out -->
+    <g>
+      <rect x="-16" y="-6" width="32" height="12" rx="2" fill="#10a37f" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;1;1;0;0" keyTimes="0;0.02;0.2;0.3;0.44;0.47;1" dur="8s" repeatCount="indefinite"/>
+        <animateMotion path="M198,86 L363,86 L597,86 L363,86 L198,86" keyPoints="0;0.11;0.39;0.5;0;0" keyTimes="0;0.11;0.22;0.33;0.45;1" calcMode="linear" dur="8s" repeatCount="indefinite"/>
+      </rect>
+      <text x="0" y="-10" font-size="6.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">telegram
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.44;0.47;1" dur="8s" repeatCount="indefinite"/>
+        <animateMotion path="M198,86 L363,86 L597,86 L363,86 L198,86" keyPoints="0;0.11;0.39;0.5;0;0" keyTimes="0;0.11;0.22;0.33;0.45;1" calcMode="linear" dur="8s" repeatCount="indefinite"/>
+      </text>
+    </g>
+    <!-- channel writes flash as telegram passes -->
+    <circle cx="359" cy="98" r="4" fill="#d7930a" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.10;0.13;0.20;1" dur="8s" repeatCount="indefinite"/></circle>
+    <circle cx="407" cy="98" r="4" fill="#d7930a" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.12;0.15;0.22;1" dur="8s" repeatCount="indefinite"/></circle>
+    <circle cx="593" cy="98" r="4" fill="#d7930a" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.20;0.23;0.30;1" dur="8s" repeatCount="indefinite"/></circle>
+    <!-- db rows flash when telegram returns -->
+    <rect x="38" y="110" width="144" height="9" rx="2" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.46;0.50;0.60;1" dur="8s" repeatCount="indefinite"/></rect>
+    <rect x="38" y="123" width="144" height="9" rx="2" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.48;0.52;0.62;1" dur="8s" repeatCount="indefinite"/></rect>
+    <rect x="38" y="136" width="144" height="9" rx="2" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;0.5;0;0" keyTimes="0;0.50;0.54;0.64;1" dur="8s" repeatCount="indefinite"/></rect>
+    <text x="110" y="168" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">tags updated
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.47;0.50;0.68;0.72;1" dur="8s" repeatCount="indefinite"/>
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">One RTAC, one telegram, every module. The frame streams out through the node chain, each module writes its channel states into its assigned region on the fly, and the completed telegram lands back in the RTAC tag database.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Topologies:</strong> daisy-chain (sequential), star, or a combination — couplers create the links. Star topologies still ride the same sequential telegram; a star just gives each branch its own slot on the "message train." Hard rule: <strong>only one path</strong> between the first node and any remote node (no rings).</li>
+  <li><strong>Port roles:</strong> the coupler's <code>PORT 1</code> in Slot A is the node's incoming (IN) port; every other coupler port is outgoing (OUT). <code>PORT 2</code> never operates as an IN port. Connect OUT of one node to IN of the next.</li>
+  <li><strong>Media &amp; distance:</strong> coupler EtherCAT ports are 10/100BASE-T copper or 100BASE-FX fiber (LC). Copper EtherCAT cables must be <strong>&lt; 3 m</strong> (use double-shielded CAT5E/CAT6; SEL-C627F). Fiber: multimode ≈ <strong>2 km</strong>, single-mode ≈ <strong>15 km</strong> approximate range.</li>
+</ul>
+<div class="callout keyfact"><strong>Never connect an EtherCAT port to an Ethernet switch</strong>, media converter, or any other Ethernet device. Coupler ports connect only to other couplers of the same type or to an RTAC's EtherCAT port — anything else can stop or destabilize the whole network (IM caution).</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The physical pieces</h2>
+<table>
+  <tr><th>Part</th><th>Role</th><th>Key facts</th></tr>
+  <tr><td class="mono">SEL-2242</td><td>Chassis / backplane</td><td>10-slot, 4-slot, or dual 4-slot; slots A–J; optional 7-in touchscreen (10-slot rack-mount, RTAC in Slot A, R149+ modules). Node power budget: <strong>75 W</strong> total.</td></tr>
+  <tr><td class="mono">SEL-2241</td><td>Integrated RTAC (legacy)</td><td>533 MHz CPU, 1 GB RAM; 2 Ethernet (copper or fiber) + 4 DB-9 serial; IRIG-B in/out (BNC); dedicated backplane EtherCAT port.</td></tr>
+  <tr><td class="mono">SEL-2241-2</td><td>Integrated RTAC (current)</td><td>Intel Atom quad-core 1.6 GHz, 4 GB ECC; 3 GbE ports (2 RJ45 or 2 SFP + 1 RJ45), 4 RJ45 serial w/ IRIG-B out, DisplayPort, 2×USB; drop-in replacement for the 2241.</td></tr>
+  <tr><td class="mono">SEL-2243</td><td>Power coupler</td><td>Node power supply <em>and</em> the 2 dedicated EtherCAT ports. 120/240 Vac / 125/250 Vdc or 24/48 Vdc models. Redundant pair load-shares with <strong>zero switching delay</strong> on failure; hot-pluggable. Without an RTAC module, a 10-slot chassis takes up to 3 couplers, a 4-slot up to 4 (more couplers = more star branches).</td></tr>
+</table>
+<p><strong>Slot rules:</strong> Slot A = RTAC module or power coupler only. Slots B/C = coupler or I/O. Slots D–J = I/O (4-slot backplanes also allow a coupler in Slot D). Couplers occupy contiguous slots from A (or from B when an RTAC module holds A); I/O modules then fill contiguous slots — <strong>all empty slots to the right</strong>. Sum module burdens (IM table) to stay under 75 W per node.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Module catalog</h2>
+<table>
+  <tr><th>Module</th><th>I/O</th><th>Range</th><th>Accuracy / speed (typ.)</th></tr>
+  <tr><td class="mono">2244-2</td><td>24 DI (6 indep. + 18 common)</td><td>24–250 V ac/dc (per-module voltage)</td><td>debounce per §6; ac or dc mode</td></tr>
+  <tr><td class="mono">2244-3</td><td>16 DO, Form A/B</td><td>250 Vdc / 240 Vac rated</td><td>pickup/dropout 8 ms; 30 A make; 6 A carry</td></tr>
+  <tr><td class="mono">2244-4</td><td>32 DI, common-return banks</td><td>24/48 Vdc, 110/125 V ac/dc</td><td>same tag model as 2244-2</td></tr>
+  <tr><td class="mono">2244-5</td><td>10 fast high-current DO</td><td>19.2–275 Vdc / 19.2–250 Vac</td><td><strong>12 µs pickup</strong> @ 250 V; 10 A inductive break</td></tr>
+  <tr><td class="mono">2245-2</td><td>16 dc AI (pairs)</td><td>±20 mA, ±2 mA, ±10 V</td><td>16-bit; 0.25 % (V) / 0.5 % (I) FS, 0.05–0.1 % field-cal.; 1 ksps</td></tr>
+  <tr><td class="mono">2245-22</td><td>4 AI extended range</td><td>5–400 V (dc: 0–300 V; ac mode = PT input)</td><td>0.25 % FS; 24 ksps sampling</td></tr>
+  <tr><td class="mono">2245-3</td><td>8 dc AO</td><td>±20.48 mA / ±10.24 V</td><td>0.2–0.3 % FS; 1 ms step response</td></tr>
+  <tr><td class="mono">2245-4</td><td>4 CT + 4 PT ac metering</td><td>0.05–22 A / 5–400 V, 45–65 Hz</td><td>±0.1 % &amp; ±0.1°; C37.118 Level 1 synchrophasors</td></tr>
+  <tr><td class="mono">2245-411</td><td>4 CT + 4 LEA</td><td>0.05–22 A / 0.05–22 Vac</td><td>±0.1 %; synchrophasors incl. 120 msg/s</td></tr>
+  <tr><td class="mono">2245-221</td><td>4 LEA</td><td>0.05–22 Vac (V<sub>NOM</sub> 1.5 V, 30 V pk)</td><td>±0.1 % rms above 50 mV</td></tr>
+  <tr><td class="mono">2245-42</td><td>3 CT + 3 PT ac protection</td><td>0.1–20 A / 6.7–300 V, 40–90 Hz</td><td>±0.1 %; 250 Hz updates; harmonics to 63rd; 24 kHz records</td></tr>
+  <tr><td class="mono">2245-431 / -432</td><td>8 LEA + 4 PT / 12 LEA</td><td>0.033–10 Vac (LEA), 6.7–300 Vac (PT)</td><td>24-bit; LEA ±0.25 % typ. (V<sub>NOM</sub> 333 mV); frequency-group tracking like the -42</td></tr>
+</table>
+<p style="font-size:8.6pt">Every module type can repeat freely within a node, with two documented ceilings: max <strong>three 2245-3 analog-output modules per backplane</strong> (two with the touchscreen), and as many as sixteen 2245-4 or 2245-221 modules per system. DI voltage level is fixed per module at ordering; DO contact form (A/B/mixed) likewise.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Configuring Axion in ACSELERATOR RTAC</h2>
+<ul>
+  <li><strong>Insert modules:</strong> Insert ribbon → <strong>SEL Axion</strong> → pick Power Coupler / Digital / Analog type. The only Connection Type is Client-Ethernet (the module is an EtherCAT server). Names get an <code>_ECAT</code> suffix, and the module name becomes the <strong>prefix of every tag</strong> it owns — so name modules by node + slot (<code>Node_2_Slot_C_ECAT</code>) and tags locate themselves.</li>
+  <li><strong>Node Connections Editor</strong> (click <em>EtherCAT I/O Network</em> in the project tree): attach modules to nodes so the listing <strong>exactly matches physical slot placement</strong> — the network cannot autoconfigure otherwise. Add nodes with <code>+</code>, define the internode cabling (which OUT port feeds which node's IN port). The editor only accepts valid topologies. SEL recommends adding and verifying <strong>one node at a time</strong>.</li>
+  <li><strong>EtherCAT Discovery:</strong> or do it backwards — cable everything, go online, run Discovery, and Import the found topology. Import <strong>overwrites existing EtherCAT/module settings with defaults</strong>, so save a project copy first. On R153+ firmware, unused ports/empty slots are disabled once settings load — force the <code>EN</code> POU pin FALSE to re-enable discovery of new hardware.</li>
+  <li><strong>External RTAC:</strong> SEL-3530/-3530-4/-3350/-3555 must first dedicate an Ethernet port to EtherCAT via the web UI (Ethernet Network → Enable EtherCAT). One port only, all other services drop off it, it can't be the gateway port, and bonding/DHCP/PRP are unavailable; don't assign 128.0.0.0 anywhere. SEL-3555/3560E use PCI expansion-card ports. Integrated 2241/2241-2 modules skip all this — the backplane port is factory-fixed EtherCAT.</li>
+  <li><strong>Health at a glance:</strong> the network's POU pins expose <code>Client_State</code> (5 = operational; 11–14 = error, incl. 13 = burden &gt; 70 %, 14 = processing interval exceeded), message counters, <code>Servers_Attached_Count</code>, execution times (<code>Client_Max_us</code>), and <code>Time_Synchronization</code> — network time-sync quality in ns.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>How module points appear as tags</h2>
+<p>Each module carries a fixed tag set, updated by the network automatically and evaluated by the logic engine at the task rate (100 ms default). Two diagnostics ride on every module: <code>STATUS</code> (Operational / Non-Operational) and <code>ERROR</code> (No Error / Cable Error — the wiring no longer matches settings). Disable unneeded tags — on AC/LEA modules only <em>enabled</em> tags occupy the EtherCAT frame, and an over-full frame throws "EtherCAT Bandwidth Exceeded."</p>
+<div class="twocol">
+<div>
+<h3>Digital inputs — three tags per point</h3>
+<ul>
+  <li><code>INPUT_xxx</code> — debounced state for logic; last recorded state at the task rate.</li>
+  <li><code>INPUT_SOE_xxx</code> — state + time stamp <strong>buffered every 1 ms</strong> by the EtherCAT network, independent of the logic interval (4 ms–1 s). Log this for high-speed SER.</li>
+  <li><code>INPUT_EDGE_xxx</code> — time of <em>first</em> assertion, before debounce qualifies. (SOE/EDGE disabled by default on R118+; unavailable in ac mode.)</li>
+  <li>DC mode: user-set pickup/dropout debounce (default 10 ms). AC mode: fixed 2 ms pickup / 16 ms dropout — and it's processor-hungry: ≤ 2 nodes of ac inputs, keep <code>Client_Max_us</code> under ~500 µs.</li>
+</ul>
+</div>
+<div>
+<h3>Outputs and analogs</h3>
+<ul>
+  <li>DO points are <strong>IOC tags</strong>: <code>operSet</code> / <code>operClear</code> / <code>status</code>, plus <code>operPulse</code> with <code>OnDur/offDur/numPls</code> — native pulse trains, mappable straight from a DNP TRIP/CLOSE via the Tag Processor. Pulses execute in multiples of the RTE cycle.</li>
+  <li>dc AI points are <strong>MV tags</strong> (<code>INPUT_VALUE_xxx</code>) with engineering-unit scaling (EU high/low vs. physical high/low — e.g. 4–20 mA ⇒ −50…150 °C), high/low warn + alarm setpoints with deadband, rate-of-change alarm, and filter A/B/C selection.</li>
+  <li>AC/LEA measurements are <strong>Simple Tags</strong>: CMV vectors (<code>vector_t</code> mag∠ang) and MV reals; timestamp/quality attach automatically when mapped in the Tag Processor.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>The AC metering module (SEL-2245-4), in depth</h2>
+<p>Four CTs (1 A or 5 A nominal, <strong>no setting needed</strong> — 0.05–22 A continuous, 22–100 A symmetrical for 25 s, 500 A 1 s withstand) and four PTs (300 V nominal, 5–400 V L-N measuring, 600 V for 10 s), delta or wye, ABC/ACB. Settings: CT ratio 1–50,000, PT ratio 1–10,000, per-tag enables for three streams:</p>
+<ul>
+  <li><strong>RMS</strong> (kV units, 5 Hz update) and <strong>fundamental</strong> (V units, 200 Hz update) magnitudes/angles, sequence components I0/I1/I2/V0/V1/V2 (±0.2 %), per-phase and 3-phase P/Q/S/PF (±0.1 % typ.), frequency ±0.005 Hz.</li>
+  <li><strong>Synchrophasors:</strong> IEEE C37.118.1-2011 (+a-2014) <strong>Level 1</strong>, software-selectable P or M class; VA/VB/VC/VS, IA/IB/IC/IN, V1/I1, f and df/dt at 120 Hz processing; message rates to 60 (or 120 on 2245-4/-42/-411 with a 2241-2/3350/3555/3560 CPU).</li>
+  <li><strong>Waveform recording:</strong> triggered COMTRADE at 1/2/4/8/24 kHz, records 6 s @ 24 kHz up to 144 s @ 1 kHz, edge-triggered by the module's <code>Event_Trigger</code> Boolean, two back-to-back events, stored locally then fetched via the RTAC web Event Collection page. Pad pre-trigger by ≥ 2 task cycles — the trigger travels over EtherCAT.</li>
+</ul>
+<p style="font-size:8.6pt">Because all AC modules in an Axion sample against a common reference, multi-module measurements are inherently phase-comparable — the basis for sync-check, load-shed, and microgrid schemes without post-alignment. For protection-grade work the <strong>2245-42</strong> adds 40–90 Hz tracking, 250 Hz updates, harmonics to the 63rd, frequency groups, Recording Groups (combined COMTRADE with 2244 digitals, up to 6 groups), and the <strong>Axion Wave Server</strong> — 3 kHz point-on-wave streaming over C37.118 (3,000 msg/s, 96 channels, needs a 2241-2/3350/3555/3560). A full DFR build scales to <strong>192 analog channels</strong> (2245-42/-43 modules; SEL-3555 required above 96) and 1,728 digital channels, storing up to 1,024 COMTRADE records and 500,000 1 ms SOE entries — sized to exceed NERC PRC-002/PRC-028 (system DS).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>LEA inputs: metering without the PT</h2>
+<p>LEA = <strong>low-energy analog</strong> — millivolt-to-tens-of-volts signals from low-energy sensors instead of 300 V-class instrument transformers. The <strong>2245-221</strong> (4 LEA) and the LEA half of the <strong>2245-411</strong> measure 0.05–22 Vac rms (V<sub>NOM</sub> 1.5 V, 30 V peak, 300 V 10 s surge) at ±0.1 % typical above 50 mV, with per-channel magnitude (0.5–1.5×) and angle (±10°) compensation settings to calibrate the sensor string. The IM's application list is blunt about the point: connect <strong>external split-core CTs and eliminate outage costs</strong> — clamp on, don't break the circuit. The -431/-432 variants extend the family with 0.033–10 Vac LEA voltage inputs. LEA modules carry the same Simple-Tag streams, oscillography, and (on the -411, -431, and -432) synchrophasor support as the CT/PT module.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Timing &amp; determinism, as documented</h2>
+<ul>
+  <li><strong>Network scan:</strong> telegrams start on a fixed schedule; the EtherCAT network updates — and buffers DI SOE state — <strong>every millisecond</strong>. All inputs get 1 ms SER time stamps.</li>
+  <li><strong>Logic:</strong> IEC 61131 tasks run 4 ms–1 s (two task classes; high-speed automation "as fast as one millisecond" per the IM); tasks evenly divisible into 1 s align to the top of the second.</li>
+  <li><strong>Time sources:</strong> IRIG-B in/out on the RTAC module (demodulated accuracy 500 ns on the 2241), NTP/SNTP (±1 ms) and PTP; the 2241-2 data sheet claims <strong>sub-microsecond</strong> sync via IRIG-B or PTP for PMU work. The <code>Time_Synchronization</code> POU pin reports whole-network sync quality in nanoseconds.</li>
+  <li><strong>Budget discipline:</strong> Client_State 13 fires at &gt; 70 % network burden, 14 when the processing interval is exceeded — the documented fix is fewer enabled tags, fewer ac-debounce inputs, or splitting I/O across multiple RTACs.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">10</span>Failure, diagnostics &amp; field practice</h2>
+
+<div class="fig"><svg viewBox="0 0 700 205" xmlns="http://www.w3.org/2000/svg">
+  <!-- timeline -->
+  <line x1="30" y1="168" x2="670" y2="168" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="115" y="182" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">healthy</text>
+  <text x="330" y="182" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">module lost (&gt; 25 ms)</text>
+  <text x="545" y="182" font-size="8" font-weight="600" fill="#d7930a" text-anchor="middle">replace → commission → restored</text>
+  <line x1="225" y1="162" x2="225" y2="174" stroke="#8a8e9b" stroke-width="1"/>
+  <line x1="445" y1="162" x2="445" y2="174" stroke="#8a8e9b" stroke-width="1"/>
+  <!-- module -->
+  <rect x="40" y="30" width="120" height="88" rx="6" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="100" y="46" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">I/O module</text>
+  <circle cx="60" cy="62" r="5" fill="#10a37f"/><text x="72" y="65" font-size="7.5" fill="#454956">ENABLED</text>
+  <circle cx="60" cy="82" r="5" fill="#f2f3f5" stroke="#d0d3da"/><text x="72" y="85" font-size="7.5" fill="#454956">ALARM</text>
+  <text x="100" y="108" font-size="7" fill="#8a8e9b" text-anchor="middle">per-point red LEDs →</text>
+  <!-- tag panel -->
+  <rect x="250" y="30" width="200" height="88" rx="6" fill="#fafbfc" stroke="#d0d3da"/>
+  <text x="350" y="46" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">RTAC diagnostic tags</text>
+  <text x="262" y="66" font-size="7.5" font-family="Consolas, monospace" fill="#6e7180">STATUS = <tspan id="stv" fill="#10a37f" font-weight="700">Operational</tspan></text>
+  <text x="262" y="84" font-size="7.5" font-family="Consolas, monospace" fill="#6e7180">ERROR&#160;&#160;= No Error / Cable Error</text>
+  <text x="262" y="102" font-size="7.5" font-family="Consolas, monospace" fill="#6e7180">Offline, Servers_Detached_Count…</text>
+  <!-- network response -->
+  <rect x="540" y="30" width="140" height="88" rx="6" fill="#fff" stroke="#d0d3da"/>
+  <text x="610" y="46" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">Network response</text>
+  <text x="610" y="64" font-size="7.3" fill="#6e7180" text-anchor="middle">Disable_On_Network_Error</text>
+  <text x="610" y="78" font-size="7.3" fill="#6e7180" text-anchor="middle">TRUE → all traffic stops,</text>
+  <text x="610" y="90" font-size="7.3" fill="#6e7180" text-anchor="middle">outputs de-energize</text>
+  <text x="610" y="104" font-size="7.3" fill="#6e7180" text-anchor="middle">FALSE → rest keeps running</text>
+  <line x1="160" y1="74" x2="250" y2="74" stroke="#8a8e9b" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="450" y1="74" x2="540" y2="74" stroke="#8a8e9b" stroke-width="1" stroke-dasharray="4 3"/>
+  <g class="animlayer">
+    <!-- now cursor -->
+    <line x1="30" y1="158" x2="30" y2="176" stroke="#1a1a22" stroke-width="1.5">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="640 0" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <!-- fault phase: enabled goes dark, alarm red, status flips -->
+    <circle cx="60" cy="62" r="5" fill="#f2f3f5" stroke="#d0d3da" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.63;0.66;1" dur="12s" repeatCount="indefinite"/></circle>
+    <circle cx="60" cy="82" r="5" fill="#d63a3a" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.63;0.66;1" dur="12s" repeatCount="indefinite"/></circle>
+    <rect x="253" y="57" width="194" height="12" fill="#fbeeee" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.63;0.66;1" dur="12s" repeatCount="indefinite"/></rect>
+    <text x="316" y="66" font-size="7.5" font-family="Consolas, monospace" font-weight="700" fill="#d63a3a" opacity="0">Non-Operational
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.63;0.66;1" dur="12s" repeatCount="indefinite"/></text>
+    <rect x="40" y="30" width="120" height="88" rx="6" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.30;0.32;0.44;0.48;1" dur="12s" repeatCount="indefinite"/></rect>
+    <text x="100" y="24" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">module removed / comm lost
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.44;0.48;1" dur="12s" repeatCount="indefinite"/></text>
+    <!-- restore phase -->
+    <text x="100" y="24" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">commissioned — LEDs cycle, joins network
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.68;0.92;0.96;1" dur="12s" repeatCount="indefinite"/></text>
+    <circle cx="60" cy="62" r="8" fill="none" stroke="#10a37f" stroke-width="2" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0;0.9;0;0" keyTimes="0;0.66;0.70;0.74;0.78;0.84;1" dur="12s" repeatCount="indefinite"/></circle>
+  </g>
+</svg></div>
+<p class="figcap">The fault loop: module drops off the network → its ENABLED LED goes dark and ALARM lights, the module's <code>STATUS</code> tag flips to Non-Operational — and, at the default setting, the whole network halts with outputs de-energized. Commissioning the replacement brings it back automatically.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<div class="twocol">
+<div>
+<h3>LEDs, everywhere the same</h3>
+<ul>
+  <li><strong>ENABLED</strong> (green): module operating normally on the network. <strong>ALARM</strong> (red): network initializing, or trouble.</li>
+  <li>Coupler adds <strong>POWER</strong> (green = supply healthy); 2244 modules add a red LED per I/O point (lit when asserted); RTAC modules add programmable bicolor LEDs and the Form C alarm contact.</li>
+  <li><strong>LAMP TEST</strong> button on each coupler lights every LED in the node.</li>
+</ul>
+<h3>Choose your failure posture</h3>
+<ul>
+  <li><code>Disable_On_Network_Error</code> defaults <strong>TRUE</strong>: 25 ms of message errors kills all EtherCAT traffic and de-asserts every output — fail-safe, but one dead module downs the network. Set FALSE to keep the surviving modules running.</li>
+</ul>
+</div>
+<div>
+<h3>Swapping modules</h3>
+<ul>
+  <li><strong>Planned change:</strong> go online → Connections tab → <strong>Decommission</strong> the module first (clears its network settings so it's a clean spare; skipping this poisons the next system it lands in). Never decommission while network errors exist.</li>
+  <li><strong>Failed module, network down:</strong> swap hardware, then force the <code>EN</code> pin FALSE and unforce (F6 / Shift+F6) to restart EtherCAT.</li>
+  <li><strong>Failed module, network up:</strong> install, right-click → <strong>Commission</strong>, then cycle the module — tip it out until its LEDs extinguish, press back in. It joins automatically.</li>
+  <li>I/O terminal strips unplug (retaining screws) so wiring stays put. Couplers: de-energize first; a single-coupler node dies with its coupler. SFPs are the only hot-swap-rated connector; changing them live can drop the EtherCAT network.</li>
+</ul>
+</div>
+</div>
+<p style="font-size:8.6pt"><strong>Wiring quick facts:</strong> no bare conductors — ferrule or spade terminals. Coupler power: 14 AWG (15 A breaker) or 12 AWG (20 A); ground GND(3) and the backplane lug with ≤ 2 m of 14 AWG. DI/DO: 24–12 AWG (2244-2/DO), 28–16 AWG (2244-4, 2245-2). Fuse contact inputs ≤ 8 A. On the 2245-2, tie all input returns (even unused) together for command/control use. Coupler primary fuses are field-replaceable.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">11</span>Sources</h2>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring</a>
+  <a href="atlas:rtac-automation/rtac-hmi.html">RTAC Web HMI</a>
+</div>
+<p class="footnote">SEL-2240 Axion Instruction Manual, hardware sections (architecture, chassis/slot rules, module specs and accuracy, topologies, LEDs, module replacement, wiring) and ACSELERATOR RTAC SEL-5033 Instruction Manual Section 6: Axion EtherCAT I/O (EtherCAT operation, connection rules, project configuration, tags, POU pins, client states, wave server) — both inside <span class="mono">2240_IM_20250423_20260313.pdf</span>. SEL-2240 Axion system data sheet, 2026 edition (<span class="mono">2240_DS_20260320.pdf</span>) — module ratings and accuracy cross-checked against it; source of the six-node ceiling, the -431/-432 synchrophasor and 24-bit/LEA figures, and the DFR channel-scale numbers. Module data sheets: SEL-2244 (<span class="mono">2244_DS_20250423.pdf</span>), SEL-2245-2 (<span class="mono">2245-2_DS_20250423.pdf</span>), SEL-2245-4 (<span class="mono">2245-4_DS_20250423.pdf</span>), SEL-2245-221 (<span class="mono">2245-221_DS_20240716.pdf</span>), SEL-2241-2 (<span class="mono">2241-2_DS_20260320.pdf</span>). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

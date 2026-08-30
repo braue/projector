@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IEC 61131-3 Logic on the RTAC</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="IEC 61131-3,structured text,POU,function block,scan,logic">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "IEC 61131-3 Logic on the RTAC (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  pre.code { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 8.4pt; line-height: 1.45; background: #f7f8f9; border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 5px; padding: 7px 10px; margin: 5px 0 8px; overflow-x: auto; white-space: pre; page-break-inside: avoid; }
+  pre.code .cm { color: #8a8e9b; }
+  pre.code .kw { color: #5468c4; font-weight: 600; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>IEC 61131-3 Logic on the RTAC</h1>
+  <p>Programs, function blocks, and Structured Text on the RTAC logic engine — the task/scan model, SEL tag structures, timers and triggers, and the mistakes that load the default project</p>
+  <div class="chips"><span>ST / LD / CFC</span><span>task cycle</span><span>TON R_TRIG</span><span>operSet.ctlVal</span><span>q.validity</span><span>RETAIN</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>User logic runs in the <strong>IEC 61131 logic engine</strong> on a fixed <strong>task cycle</strong>: every cycle the protocol tasks, Tag Processor, and your POUs execute in the order set on the <strong>Main Controller</strong> tab. Nothing in logic updates faster than the cycle time.</li>
+<li>Three POU kinds: <strong>Programs</strong> (standalone, keep their VARs), <strong>Function Blocks</strong> (instanced, stateful — timers, counters), <strong>Functions</strong> (stateless, same in → same out).</li>
+<li>A function block only runs when its instance is <strong>called this scan</strong>. A TON inside an IF that stops being true stops timing.</li>
+<li>SEL tags are structures: read <code>.stVal</code>/<code>.instMag</code>, check <code>.q.validity</code>, command with a <strong>rising edge on <code>operSet.ctlVal</code></strong>.</li>
+<li>An endless loop or over-tight cycle isn't a slowdown — the <strong>watchdog replaces your project with the default project</strong> and deasserts all contacts.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Where your logic runs</h2>
+<p>The RTAC splits work between <strong>protocol engines</strong> (client/server drivers that move data in and out) and the <strong>logic engine</strong> (the IEC 61131-3 runtime that executes your code against the tag database). The 5033 manual gives you three places to put logic, in ascending order of power:</p>
+<div class="flow">
+  <div class="stage"><b>1 · Tag Processor expression</b><span>Structured Text in a Source Expression column — scale, combine, or gate values on their way to a Destination Tag. All assignments complete before data passes to the protocols.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · User Logic POUs</b><span>Programs, functions, function blocks, GVLs, and data types under the IEC 61131-3 ribbon — the real programming area.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Device Controller CFC</b><span>Continuous Function Chart against a device's controller PINs — for advanced per-device applications.</span></div>
+</div>
+<ul>
+  <li><strong>Languages:</strong> the RTAC supports only <strong>Structured Text (ST)</strong>, <strong>Ladder Diagram (LD)</strong>, and <strong>Continuous Function Chart (CFC)</strong> of the IEC 61131-3 set. This page focuses on ST; LD/CFC use the same operators and function blocks as boxes and pins.</li>
+  <li><strong>Contrast with relay logic:</strong> this is a full programming environment with loops, structures, and libraries — not the fixed-form Boolean equations of SELogic on the relays (see <em>SELogic Control Equations</em> in atlas). Protection-speed decisions stay in the relay; the RTAC orchestrates.</li>
+  <li>If you write ST in the Tag Processor, review the generated code in the <strong>Code tab</strong> after saving and check for "invalid statement" warnings — SEL's own note.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">2</span>The task/scan model</h2>
+<p>Everything is periodic. The RTAC executes all tasks each <strong>task cycle time</strong> interval they are assigned to. Two configurable processing cycles exist: the <strong>main task</strong> (SCADA and slower work) and the <strong>automation task</strong>, which runs independently and faster — as fast as <strong>1 ms</strong>. By default every task runs in the main cycle; you move tasks to the automation cycle from the Main Controller tab (<em>Move To</em>).</p>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <rect x="18" y="22" width="160" height="58" rx="6" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="98" y="38" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Collect</text>
+  <text x="98" y="51" font-size="9" fill="#6e7180" text-anchor="middle">protocol clients poll IEDs;</text>
+  <text x="98" y="62" font-size="9" fill="#6e7180" text-anchor="middle">values land in tags (val + q + t)</text>
+  <path d="M178,51 H222 M216,46 L223,51 L216,56" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <rect x="226" y="12" width="248" height="78" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="350" y="28" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">Execute — one task cycle</text>
+  <text x="350" y="42" font-size="9" fill="#454956" text-anchor="middle">tasks run in the configured order</text>
+  <text x="350" y="56" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">protocols → Tag Processor → user POUs</text>
+  <text x="350" y="70" font-size="9" fill="#6e7180" text-anchor="middle">(order set on the Main Controller tab —</text>
+  <text x="350" y="81" font-size="9" fill="#6e7180" text-anchor="middle">collect before your logic consumes)</text>
+  <path d="M474,51 H518 M512,46 L519,51 L512,56" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <rect x="522" y="22" width="160" height="58" rx="6" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="602" y="38" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Publish</text>
+  <text x="602" y="51" font-size="9" fill="#6e7180" text-anchor="middle">server protocols answer</text>
+  <text x="602" y="62" font-size="9" fill="#6e7180" text-anchor="middle">SCADA with the fresh values</text>
+
+  <line x1="20" y1="172" x2="688" y2="172" stroke="#6e7180" stroke-width="1.25"/>
+  <g stroke="#6e7180" stroke-width="1">
+    <line x1="40" y1="166" x2="40" y2="178"/><line x1="190" y1="166" x2="190" y2="178"/>
+    <line x1="340" y1="166" x2="340" y2="178"/><line x1="490" y1="166" x2="490" y2="178"/>
+    <line x1="640" y1="166" x2="640" y2="178"/>
+  </g>
+  <text x="40" y="190" font-size="9" fill="#6e7180" text-anchor="middle">t0</text>
+  <text x="190" y="190" font-size="9" fill="#6e7180" text-anchor="middle">+T</text>
+  <text x="340" y="190" font-size="9" fill="#6e7180" text-anchor="middle">+2T</text>
+  <text x="490" y="190" font-size="9" fill="#6e7180" text-anchor="middle">+3T</text>
+  <text x="640" y="190" font-size="9" fill="#6e7180" text-anchor="middle">+4T</text>
+  <rect x="40" y="148" width="104" height="14" rx="2" fill="#10a37f" opacity="0.75"/>
+  <rect x="190" y="148" width="104" height="14" rx="2" fill="#10a37f" opacity="0.75"/>
+  <rect x="340" y="148" width="150" height="14" rx="2" fill="#10a37f" opacity="0.75"/>
+  <rect x="490" y="148" width="42" height="14" rx="2" fill="#d63a3a"/>
+  <rect x="536" y="148" width="104" height="14" rx="2" fill="#d7930a" opacity="0.8"/>
+  <text x="128" y="140" font-size="9" fill="#10a37f">tasks finish inside the cycle</text>
+  <text x="511" y="140" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">overrun</text>
+  <text x="588" y="126" font-size="9" fill="#9c6d06" text-anchor="middle">next cycle starts late</text>
+  <text x="354" y="210" font-size="9" fill="#8a8e9b" text-anchor="middle">overrun: nothing is dropped — the run borrows time from following cycles; web/HMI access degrades.</text>
+  <text x="354" y="222" font-size="9" fill="#8a8e9b" text-anchor="middle">Rule: set cycle time ≥ 140% of the overall task timer (Tags view, online).</text>
+  <g class="animlayer">
+    <circle r="5" fill="#10a37f">
+      <animateMotion path="M60,51 L350,51 L660,51" keyPoints="0;0.5;1" keyTimes="0;0.5;1" calcMode="linear" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.95;1" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="0" y1="132" x2="0" y2="180" stroke="#1a1a22" stroke-width="1.25" opacity="0.5">
+      <animateTransform attributeName="transform" type="translate" values="40 0;640 0" dur="10s" repeatCount="indefinite"/>
+    </line>
+    <rect x="490" y="148" width="42" height="14" rx="2" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0.9;0;0" keyTimes="0;0.72;0.78;0.84;0.90;0.96;1" dur="10s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">One task cycle: collect → execute in configured order → publish. Below: cycle times that divide evenly into one second start at the top of the second; an overrun (red) is absorbed by later cycles, not dropped.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Alignment:</strong> cycle times evenly divisible into 1 s execute at the top of each second of system time (100 ms → first cycle at the top of the second, then every 100 ms). Non-divisible times still lock to system time, just not to the second boundary.</li>
+  <li><strong>Sizing:</strong> online, the Tags view shows per-task and overall task timers in µs. SEL's rule: main cycle time ≥ <strong>140%</strong> of the overall task timer, leaving headroom for web/HMI access. A 20 ms cycle with 50 ms of work doesn't drop tasks — it borrows subsequent cycles and degrades web performance.</li>
+  <li><strong>Controls are edge-sampled per cycle.</strong> A control high→low→high inside one cycle stores only the last value — the edge is missed. SEL's rule: don't execute control operations faster than <strong>half the cycle interval</strong>.</li>
+  <li><strong>Main and automation tasks are isolated.</strong> They run at different priorities (automation is higher and can interrupt main), so referencing a tag owned by the other task's GVLs or devices is a <strong>compilation error</strong> — it prevents the race where automation rewrites values mid-read. To pass data across, use the <strong>CrossTaskData</strong> library (<code>fb_CrossTaskWrite</code>/<code>fb_CrossTaskRead</code>: one writer per mutex ID, mutex-protected copies via <code>ADR()</code>/<code>SIZEOF()</code>). Automation task timers live at <code>SEL_RTAC.Application.Automation_SystemTotal_task_timer</code> in a watch window.</li>
+</ul>
+<div class="callout keyfact"><strong>The watchdog is the enforcement.</strong> The RTE Performance Watchdog (time-out set on the Main Controller tab) monitors task run time. If a task monopolizes the CPU — an endless <code>WHILE</code>, for instance — the RTAC <strong>loads the default project in place of yours</strong>, logs the RTEWatchdog expiration, lights ALARM, and deasserts all contacts. The RTE Exception Watchdog does the same for NULL-pointer-style faults.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>POU types: Program, Function Block, Function</h2>
+<table>
+  <tr><th>POU</th><th>State</th><th>Use it for</th><th>Rules that matter</th></tr>
+  <tr><td><strong>Program</strong></td><td>VARs retained while running</td><td>Top-level logic; the only POU that can stand alone — you can't use the others without one</td><td>Unique name; acts directly on globals; one program's VARs invisible to another</td></tr>
+  <tr><td><strong>Function Block</strong></td><td>Per-instance, retained between calls</td><td>Timers, counters, anything with memory — declare instances in VAR, one per use</td><td>Runs only when referenced: <code>myTon(IN := x, PT := T#3S);</code> then read <code>myTon.Q</code></td></tr>
+  <tr><td><strong>Function</strong></td><td>None (VARs lost on return; VAR_STAT is the exception)</td><td>Repetitive stateless math — same inputs always return the same output (think <code>SQRT()</code>)</td><td>Call by assignment <code>y := Fn(a, b);</code> or with outputs <code>Fn(a, out1 =&gt; loc1);</code></td></tr>
+</table>
+<div class="callout warn"><strong>Function blocks must be called every scan to keep running.</strong> SEL's own example: if a program guards <code>my_ton(IN := b, PT := T#3S);</code> inside <code>IF a THEN … a := FALSE; END_IF</code>, the TON starts timing on the first scan and then <em>never executes again</em> — it never reaches PT. Call the instance unconditionally; gate its <code>IN</code> instead.</div>
+<p>Variable classes: <code>VAR</code> (local), <code>VAR_INPUT</code>, <code>VAR_OUTPUT</code>, <code>VAR_IN_OUT</code> (by reference — can't be a constant, can't be read through the instance), <code>VAR_TEMP</code> (reinitialized every call), <code>VAR_STAT</code> (static, survives calls), <code>VAR CONSTANT</code>, <code>VAR_GLOBAL</code> in GVLs (reference globals with the leading-dot scope operator <code>.iGlobVar1</code> when a local shadows them), and <code>VAR_GLOBAL RETAIN</code> (§9).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Structured Text essentials</h2>
+<div class="twocol">
+<div>
+<pre class="code"><span class="cm">(* declaration part of the POU *)</span>
+<span class="kw">VAR</span>
+   n      : INT := 12;      <span class="cm">(* init optional; default 0 *)</span>
+   ratio  : REAL;
+   almTmr : TON;            <span class="cm">(* FB instance *)</span>
+   msg    : STRING(35) := 'hello';
+<span class="kw">END_VAR</span>
+
+<span class="cm">// body — both comment styles appear in SEL examples</span>
+ratio := INT_TO_REAL(n) / 100.0;   <span class="cm">(* no implicit narrowing;
+                                      convert explicitly *)</span>
+
+<span class="kw">IF</span> temp &lt; 17.0 <span class="kw">THEN</span>
+   heating_on := TRUE;
+<span class="kw">ELSIF</span> temp &gt; 25.0 <span class="kw">THEN</span>
+   heating_on := FALSE;
+<span class="kw">ELSE</span>
+   <span class="cm">(* hold state *)</span>
+<span class="kw">END_IF</span>;</pre>
+</div>
+<div>
+<pre class="code"><span class="kw">CASE</span> mode <span class="kw">OF</span>
+   1, 5   : BOOL1 := TRUE;      <span class="cm">(* value lists *)</span>
+   10..20 : BOOL3 := TRUE;      <span class="cm">(* ranges *)</span>
+<span class="kw">ELSE</span>
+   BOOL1 := NOT BOOL1;
+<span class="kw">END_CASE</span>;
+
+<span class="kw">FOR</span> i := 1 <span class="kw">TO</span> 100 <span class="kw">BY</span> 2 <span class="kw">DO</span>
+   <span class="kw">IF</span> arr[i] = 70 <span class="kw">THEN</span> j := i; <span class="kw">EXIT</span>; <span class="kw">END_IF</span>;
+<span class="kw">END_FOR</span>;
+
+<span class="kw">WHILE</span> counter &lt;&gt; 0 <span class="kw">DO</span>       <span class="cm">(* REPEAT…UNTIL also exists;</span>
+   var1 := var1 * 2;         <span class="cm">   CONTINUE skips ahead.
+   counter := counter - 1;      Endless loops starve the CPU
+                                and trip the watchdog. *)</span>
+<span class="kw">END_WHILE</span>;
+
+<span class="kw">IF</span> abort <span class="kw">THEN RETURN</span>; <span class="kw">END_IF</span>;  <span class="cm">(* leave the POU *)</span></pre>
+</div>
+</div>
+<ul>
+  <li><strong>Operators, high to low:</strong> <code>( )</code> · function call · <code>EXPT</code> · negation <code>-</code> · <code>NOT</code> · <code>*</code> <code>/</code> <code>MOD</code> · <code>+</code> <code>-</code> · <code>&lt; &gt; &lt;= &gt;=</code> · <code>=</code> <code>&lt;&gt;</code> · <code>AND</code>/<code>&amp;</code> · <code>XOR</code> · <code>OR</code>. Parenthesize anyway: <code>(4+2)*6 ≠ 4+(2*6)</code>.</li>
+  <li><strong>Identifiers:</strong> not case-sensitive (<code>Var1</code> = <code>var1</code>); no spaces/specials; no repeated underscores; unlimited length; single-character <code>S</code> and <code>R</code> are reserved. Same name in two programs is fine — the namespace differs; GVL names qualify collisions (<code>gvl1.myVar</code>).</li>
+  <li><strong>FOR trap (documented):</strong> if the end value equals the counter type's limit (SINT counter to 127), the loop never terminates.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Data types: IEC scalars and SEL structures</h2>
+<div class="twocol">
+<div>
+<table>
+  <tr><th>Type</th><th>Size</th><th>Range / note</th></tr>
+  <tr><td class="mono">BOOL</td><td>8 bits</td><td>TRUE/FALSE (a whole byte each)</td></tr>
+  <tr><td class="mono">INT / UINT</td><td>16</td><td>−32768..32767 / 0..65535</td></tr>
+  <tr><td class="mono">DINT / UDINT</td><td>32</td><td>±2.1 G / 0..4.29 G</td></tr>
+  <tr><td class="mono">SINT·USINT·LINT·ULINT</td><td>8/64</td><td>plus BYTE, WORD, DWORD, LWORD bit types</td></tr>
+  <tr><td class="mono">REAL / LREAL</td><td>32/64</td><td>float; ~1.18e−38..3.4e+38 for REAL</td></tr>
+  <tr><td class="mono">STRING(n)</td><td>n ch</td><td>default 80, max 255; literals in 'single quotes'</td></tr>
+  <tr><td class="mono">TIME</td><td>32</td><td>ms resolution; literals <code>T#12h34m15s</code>, <code>T#100S12ms</code></td></tr>
+  <tr><td class="mono">LTIME</td><td>64</td><td>ns resolution; <code>LTIME#2s34ms2us44ns</code></td></tr>
+  <tr><td class="mono">DATE · TOD · DT</td><td>32</td><td><code>D#1996-05-06</code>, <code>TOD#15:36:30.123</code>, <code>DT#…</code></td></tr>
+</table>
+</div>
+<div>
+<p style="font-size:9pt">Number literals: <code>2#1001_0011</code>, <code>8#67</code>, <code>16#A</code>; typed literals pin a width: <code>var1 := DINT#34;</code>. The compiler refuses implicit large→small conversions — use <code>*_TO_*</code> functions. Custom structures come from the DTE (<code>TYPE…STRUCT…END_STRUCT…END_TYPE</code>); UNION and WSTRING are supported extensions.</p>
+<p style="font-size:9pt"><strong>SEL data classes</strong> wrap every protocol/system tag in an IEC 61850-shaped structure — value plus quality plus time:</p>
+<table>
+  <tr><th>Class</th><th>Shape</th></tr>
+  <tr><td class="mono">SPS</td><td><code>.stVal</code> BOOL · <code>.q</code> · <code>.t</code> — the basic status point</td></tr>
+  <tr><td class="mono">MV</td><td><code>.instMag</code> (raw) · <code>.mag</code> (deadbanded) · <code>.range</code> · <code>.q</code> · <code>.t</code> · deadband config</td></tr>
+  <tr><td class="mono">CMV</td><td>complex MV: mag + angle <em>in degrees</em> (trig functions want radians — <code>deg_to_rad()</code>)</td></tr>
+  <tr><td class="mono">SPC</td><td>control point: <code>.operSet</code>/<code>.operClear</code> (each an operSPC with <code>.ctlVal</code>, pulseConfig) + <code>.status</code> SPS</td></tr>
+  <tr><td class="mono">others</td><td>APC setpoints, BCR counters, DPC/DPS doubles, INS/INC integers, STR, TIM, protocol-specific DNPC/MRBC/SRBC/SBRC…</td></tr>
+</table>
+</div>
+</div>
+<p><strong>quality_t</strong> rides on every tag: <code>.q.validity</code> ∈ {good, invalid, reserved, questionable}, plus <code>.q.detailQual</code> flags (overflow, outOfRange, badReference, oscillatory, failure, oldData, inconsistent, inaccurate), <code>.q.source</code> (process/substituted), <code>.q.test</code>, <code>.q.operatorBlocked</code>. Timestamps (<code>.t</code>) carry clock-sync flags and a source (IRIG_B, NTP, DNP, PTP…). Full structure detail: the <em>tags &amp; quality</em> page in atlas.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>The function blocks you actually use</h2>
+<table>
+  <tr><th>FB</th><th>Behavior (per the 5033 reference)</th></tr>
+  <tr><td class="mono">TON</td><td>Turn-<strong>on</strong> delay: rising IN starts ET counting (ms) toward PT; Q TRUE once ET = PT and IN still TRUE. IN FALSE → Q FALSE, ET := 0.</td></tr>
+  <tr><td class="mono">TOF</td><td>Turn-<strong>off</strong> delay: IN TRUE → Q TRUE immediately; on falling IN, ET counts to PT, then Q drops.</td></tr>
+  <tr><td class="mono">TP</td><td>Pulse: rising IN → Q TRUE for exactly PT, regardless of IN dropping early.</td></tr>
+  <tr><td class="mono">R_TRIG / F_TRIG</td><td>Rising/falling edge detect: Q TRUE for <strong>one processing interval</strong> on the edge, then FALSE even if CLK holds.</td></tr>
+  <tr><td class="mono">CTU / CTD / CTUD</td><td>Counters (WORD): CTU counts rising CU edges up to PV (Q at CV ≥ PV; RESET zeroes); CTD counts down from PV to 0 (LOAD reloads); CTUD does both.</td></tr>
+  <tr><td class="mono">SR</td><td><strong>Set-dominant</strong> latch: Q1 = (NOT RESET AND Q1) OR SET1 — SET wins if both high.</td></tr>
+  <tr><td class="mono">RS</td><td><strong>Reset-dominant</strong> latch: Q1 = NOT RESET1 AND (Q1 OR SET) — RESET wins if both high.</td></tr>
+  <tr><td class="mono">SEL extras</td><td>TEX (expiration timer — Q one cycle when ET = PT), TI/TIV (self-restarting interval timer, TIV validates PT range), TPUDO (pickup + dropout delays in one block), PulseDecoder (executes a pulseConfig on any BOOL), RTC.</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 252" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="45" font-size="9" font-weight="600" fill="#454956">CMD (operSet</text>
+  <text x="10" y="56" font-size="9" font-weight="600" fill="#454956">.ctlVal)</text>
+  <text x="10" y="96" font-size="9" font-weight="600" fill="#5468c4">R_TRIG.Q</text>
+  <text x="10" y="140" font-size="9" font-weight="600" fill="#10a37f">TON.ET</text>
+  <text x="10" y="200" font-size="9" font-weight="600" fill="#d7930a">TON.Q</text>
+  <g stroke="#e5e7eb" stroke-width="0.75">
+    <line x1="100" y1="20" x2="100" y2="232"/><line x1="680" y1="20" x2="680" y2="232"/>
+  </g>
+  <path d="M100,52 H160 V34 H400 V52 H540 V34 H580 V52 H680" fill="none" stroke="#454956" stroke-width="1.75"/>
+  <path d="M100,100 H160 V84 H172 V100 H540 V84 H552 V100 H680" fill="none" stroke="#5468c4" stroke-width="1.75"/>
+  <line x1="100" y1="122" x2="680" y2="122" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="4 3"/>
+  <text x="676" y="118" font-size="9" fill="#10a37f" text-anchor="end">PT</text>
+  <path d="M100,158 H160 L310,122 H400 V158 H540 L580,148 V158 H680" fill="none" stroke="#10a37f" stroke-width="1.75"/>
+  <path d="M160,158 L310,122 H400 V158 Z" fill="#10a37f" opacity="0.12"/>
+  <path d="M100,206 H310 V188 H400 V206 H680" fill="none" stroke="#d7930a" stroke-width="2"/>
+  <path d="M165,170 H305 M165,166 V174 M305,166 V174" stroke="#8a8e9b" stroke-width="0.75" fill="none"/>
+  <text x="235" y="182" font-size="9" fill="#8a8e9b" text-anchor="middle">PT (e.g. T#3s)</text>
+  <text x="160" y="28" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">edge → Q for 1 scan</text>
+  <text x="310" y="222" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">ET = PT → Q asserts</text>
+  <text x="408" y="180" font-size="9" fill="#6e7180">IN drops →</text>
+  <text x="408" y="191" font-size="9" fill="#6e7180">Q FALSE, ET := 0</text>
+  <text x="560" y="240" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">held &lt; PT — never asserts</text>
+  <g class="animlayer">
+    <line x1="0" y1="22" x2="0" y2="212" stroke="#1a1a22" stroke-width="1.25" opacity="0.55">
+      <animateTransform attributeName="transform" type="translate" values="100 0;680 0" dur="10s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="160" cy="34" r="8" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.08;0.11;0.18;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="310" cy="122" r="8" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.34;0.37;0.44;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="400" cy="196" r="8" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.50;0.53;0.60;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="580" cy="152" r="8" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.80;0.83;0.90;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">R_TRIG + TON on one input. The edge gives one scan of Q; the TON needs IN held for the full PT — the second, short assert never produces an output. IN dropping resets ET to 0.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Tags in logic: read, check, write</h2>
+<ul>
+  <li><strong>Naming:</strong> <code>Device.Point.attribute</code>, autocompleted as you type — <code>Relay_1_DNP.AI_0000.instMag</code> (client device → first analog input → instantaneous value). Everything from protocol clients/servers, virtual tag lists, and GVLs is global to user logic.</li>
+  <li><strong>Check quality before acting.</strong> SEL's own Tag Processor example gates a mapping on <code>Line_1_DNP.AI_0000.q.validity = GOOD</code> and falls back to the backup relay's tag otherwise. In POUs, compare against the enumeration (<code>x.q.validity = validity_t.good</code>) or run <code>ValidityCheck(tq := x.q);</code> — it forces validity to <em>invalid</em> on overflow/badReference/failure and <em>questionable</em> on oldData/outOfRange/oscillatory/inconsistent/inaccurate.</li>
+  <li><strong>Write controls with edges.</strong> Control classes expose oper structures; a <strong>rising edge on <code>operSet.ctlVal</code></strong> issues the operation, and the value must return low before it can trigger again — writing TRUE a second time does nothing (SEL's Mirrored Bits example: <code>SEL_351R_1_MB.TMB_1.operSet := TRUE</code> sets status once; only <code>operClear</code> after it changes anything). Physical contact outputs follow the same operSet/operClear/status pattern. Verb-level detail (pulseConfig, DNP verbs): <em>RTAC Quick Facts</em> and the DNP pages in atlas.</li>
+  <li><strong>Deadbanded vs raw:</strong> MV gives you <code>.instMag</code> (every scan) and <code>.mag</code> (deadbanded); pick deliberately.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Patterns</h2>
+<div class="twocol">
+<div>
+<pre class="code"><span class="cm">(* Edge-detect a SCADA command — act exactly once.
+   DNPC verbs: operClose/operTrip/operLatch…/operPulse *)</span>
+trigClose(CLK := SCADA_DNP.BO_0000.operClose.ctlVal);
+<span class="kw">IF</span> trigClose.Q <span class="kw">AND</span> permissive <span class="kw">THEN</span>
+   Relay_SEL.RB01.operSet.ctlVal := TRUE;  <span class="cm">(* SRBC *)</span>
+<span class="kw">ELSE</span>
+   Relay_SEL.RB01.operSet.ctlVal := FALSE;
+<span class="kw">END_IF</span>;
+<span class="cm">(* the FALSE write re-arms the downstream edge *)</span></pre>
+<pre class="code"><span class="cm">(* Seal-in / latch: SR is set-dominant *)</span>
+sealed(SET1 := startCmd, RESET := stopCmd OR tripOK);
+Run_Status.stVal := sealed.Q1;
+<span class="cm">(* Q1 = (NOT RESET AND Q1) OR SET1 *)</span></pre>
+</div>
+<div>
+<pre class="code"><span class="cm">(* Time-delayed alarm, quality-gated: 5 s of proof *)</span>
+vGood  := Bus_DNP.AI_0003.q.validity = validity_t.good;
+almTmr(IN := vGood AND
+             (Bus_DNP.AI_0003.instMag &gt; HiLimit),
+       PT := T#5S);          <span class="cm">(* call every scan! *)</span>
+Volt_High.stVal := almTmr.Q;</pre>
+<pre class="code"><span class="cm">(* Toggle a test value once per second (1 s cycle) —
+   heartbeat for mapping checks *)</span>
+TestBit.stVal := NOT TestBit.stVal;
+<span class="cm">(* flips once per task cycle; at 100 ms it's 5 Hz.
+   Online, Watch/Force in Online Debug does the same
+   without code *)</span></pre>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Gotchas &amp; fine print</h2>
+<ul>
+  <li><strong>Retained variables:</strong> <code>VAR_GLOBAL RETAIN</code> survives power cycles, reboots, and project sends — but initializers in the declaration are <strong>ignored</strong> (existing memory wins); initialize in a program if you need a value. Memory budget is <strong>28.5 KB</strong> (check consumption with <code>SIZEOF()</code>). The <strong>list order is the identity</strong>: append new variables at the end, keep one retained list per project, and if you must reorder, check <em>Re-initialize Retain Variables</em> on the send.</li>
+  <li><strong>Downloads:</strong> <em>Send Complete Project</em> updates all settings and <strong>restarts the RTAC</strong> (non-retained state resets). <em>Send only custom IEC 61131 logic</em> skips the reset for quick iteration — but sends no other settings, so always finish with a complete-project send to put the unit in service and keep the readable-back copy current.</li>
+  <li><strong>Task starvation is real:</strong> the automation task preempts main. Endless/tight loops, array overruns, and bad pointers can trip the watchdogs — and RTE Performance/Exception/OOM watchdog expiry <strong>replaces your project with the default project</strong> and deasserts every contact. Log <code>Application_Status</code> in the Tag Processor to catch restarting tasks.</li>
+  <li><strong>Unused GVLs get optimized out</strong> at compile — you can't watch or force their variables online. Reference them somewhere if you need them live.</li>
+  <li><strong>Memory layout isn't yours:</strong> never assume tag lists are contiguous or ordered in memory; renaming variables can move them. Use arrays/structures when layout matters; pragmas like <code>{attribute 'subsequent'}</code> are suggestions, not guarantees.</li>
+  <li><strong>Angles:</strong> CMV angles are degrees; the built-in trig is radians — <code>deg_to_rad()</code>/<code>rad_to_deg()</code>.</li>
+  <li><strong>Debugging:</strong> Online Debug gives watch/force of any tag; the Output window lists compile errors — double-click to jump to the line.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:rtac-automation/axion.html">Axion I/O</a>
+  <a href="atlas:rtac-automation/rtac-hmi.html">RTAC Web HMI</a>
+  <a href="atlas:start-here/the-job.html">Substation Automation, End to End</a>
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 Software Instruction Manual (full text embedded in 3530-4_IM_20241217_20260313.pdf) &mdash; Section 1 (task cycle time, overrun, edge sampling), Section 10: Custom Logic (POU types, variables, precedence, retain), Section 12 (watchdogs, debug), Appendix B: IEC 61131-3 Programming Reference (operands, instructions, predefined FBs, data types/classes, quality_t); SEL RTAC Programming Reference (ProgrammingReference_20250916.pdf) &mdash; Section 6: CrossTaskData (task priorities, cross-task mutex). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

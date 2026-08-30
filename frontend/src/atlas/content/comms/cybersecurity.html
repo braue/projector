@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Substation Cybersecurity</title>
+<meta name="atlas-order" content="100">
+<meta name="atlas-tags" content="cybersecurity,access level,SEL-3620,SEL-3622,passwords,NERC CIP,syslog">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Substation Cybersecurity (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Substation Cybersecurity</h1>
+  <p>Defense in depth from the fence to the relay prompt — access levels, security gateways, per-user credentials, and the logs that prove who did what</p>
+  <div class="chips"><span>ACC/2AC/CAL</span><span>SEL-3620</span><span>deny-by-default</span><span>IPsec</span><span>LDAP</span><span>Syslog</span><span>SALARM</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Substation security</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Change the default passwords at installation.</strong> Every SEL relay ships with published defaults (<code>OTTER</code>/<code>TAIL</code>/…) and the manuals warn in bold that leaving them invites unauthorized access.</li>
+<li>Relay access-level passwords are <strong>shared accounts by design</strong> — no audit trail of who used them. A security gateway's proxy replaces them with per-user credentials and logs every command.</li>
+<li>The gateway firewall is <strong>deny-by-default</strong>: no rule, no traffic. Rules process in priority order; the first match wins.</li>
+<li><strong>Every layer should log.</strong> Gateway → Syslog + Commands and Devices report. Relay → SALARM pulse on failed/elevated access, SER for event history.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The threat model, in field terms</h2>
+<p>The substation's exposure is mostly its <strong>engineering access paths</strong> — the same serial ports, Telnet sessions, and dial-ins engineers use for settings work. The 3610/3620/3622 manual frames the classic problem plainly: to touch a relay you log in to a <strong>global shared account</strong> ("Access Level 1 for read-only, Access Level 2 for read-write"), so the password must be shared among everyone, and there may be no audit trail beyond changed settings or an alarm-contact pulse.</p>
+<ul>
+  <li><strong>Serial went routable.</strong> The SEL-3610/3620 convert serial DNP3 and Modbus to Ethernet (Raw TCP/UDP encapsulation, Modbus TCP) — the manual's job examples even run DNP3 over cellular. Yesterday's null-modem cable is now a network path, which is exactly why the same boxes carry a firewall and VPN.</li>
+  <li><strong>People, not just attackers.</strong> The gateway's account features target insider/lifecycle risk: disable accounts during extended leave, delete them on departure ("to prevent security breaches"), and every account change is logged with who made it.</li>
+  <li><strong>Physical access at remote sites.</strong> The SEL-3622 is built for small remote enclosures where "physical access can be a bigger concern" — accelerometer, light sensor, and input contact detect tampering.</li>
+  <li><strong>Plaintext legacy protocols.</strong> The SEL-751A's Ethernet services are Telnet and FTP; the SEL-751 adds an HTTP web server (on by default) and IEC 61850 MMS; serial ports speak SEL ASCII, Modbus, DNP3 — none encrypted. The 751 manual says it itself: FTP, HTTP, and Telnet "do not inherently support message encryption" and recommends a security gateway plus SEL SDN. Protection has to come from the layer in front (SSH/IPsec on the gateway).</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Defense in depth: the layers</h2>
+<p>No single control carries the weight. The documented stack: <strong>physical</strong> (locks, tamper sensors) → <strong>network segmentation</strong> (VLANs, routing) → <strong>gateway</strong> (firewall, VPN, user auth) → <strong>device access levels</strong> (passwords per level, port restrictions) → <strong>logging</strong> (Syslog, reports, SER, alarm contact). An intruder has to beat all of them; a legitimate engineer passes through all of them leaving a trail.</p>
+
+<div class="fig"><svg viewBox="0 0 700 252" xmlns="http://www.w3.org/2000/svg">
+  <!-- layer bands -->
+  <rect x="148" y="34" width="120" height="128" rx="7" fill="#454956" opacity="0.08" stroke="#454956" stroke-width="1.25"/>
+  <text x="208" y="52" font-size="9.5" font-weight="600" fill="#454956" text-anchor="middle">Firewall</text>
+  <text x="208" y="64" font-size="8" fill="#6e7180" text-anchor="middle">stateful · deny-by-default</text>
+  <rect x="318" y="34" width="120" height="128" rx="7" fill="#5468c4" opacity="0.08" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="378" y="52" font-size="9.5" font-weight="600" fill="#5468c4" text-anchor="middle">Gateway login</text>
+  <text x="378" y="64" font-size="8" fill="#6e7180" text-anchor="middle">per-user · LDAP/RADIUS/local</text>
+  <rect x="488" y="34" width="120" height="128" rx="7" fill="#10a37f" opacity="0.08" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="548" y="52" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">Relay access level</text>
+  <text x="548" y="64" font-size="8" fill="#6e7180" text-anchor="middle">ACC / 2AC passwords</text>
+  <!-- static denial labels -->
+  <text x="208" y="176" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">no rule → dropped</text>
+  <text x="378" y="176" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">no account → refused</text>
+  <text x="548" y="176" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">3 bad passwords → SALARM</text>
+  <!-- actors -->
+  <text x="60" y="90" font-size="9.5" font-weight="600" fill="#d63a3a" text-anchor="middle">intruder</text>
+  <text x="60" y="130" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">engineer</text>
+  <!-- log ribbon -->
+  <rect x="148" y="196" width="460" height="26" rx="5" fill="#fafbfc" stroke="#d0d3da" stroke-width="1"/>
+  <text x="160" y="213" font-size="8.5" fill="#6e7180">log:</text>
+  <text x="208" y="213" font-size="8" fill="#454956" text-anchor="middle">conn established</text>
+  <text x="378" y="213" font-size="8" fill="#5468c4" text-anchor="middle">user login ok</text>
+  <text x="548" y="213" font-size="8" fill="#10a37f" text-anchor="middle">ACC · 2AC by user</text>
+  <text x="350" y="243" font-size="8" fill="#a9adb8" text-anchor="middle">an attack must beat every layer · a legitimate session passes every layer and is logged at each one</text>
+  <g class="animlayer">
+    <!-- attempt 1: stopped at firewall -->
+    <circle r="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.01;0.09;0.11;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M85,86 L148,86" keyPoints="0;0;1;1" keyTimes="0;0.01;0.09;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.09;0.10;0.15;0.17;1" dur="14s" repeatCount="indefinite"/>
+      <line x1="141" y1="79" x2="155" y2="93" stroke="#d63a3a" stroke-width="3"/>
+      <line x1="155" y1="79" x2="141" y2="93" stroke="#d63a3a" stroke-width="3"/>
+    </g>
+    <!-- attempt 2: through firewall (allowed port), stopped at gateway login -->
+    <circle r="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.19;0.30;0.32;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M85,86 L208,86 L318,86" keyPoints="0;0;1;1" keyTimes="0;0.18;0.30;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.31;0.36;0.38;1" dur="14s" repeatCount="indefinite"/>
+      <line x1="311" y1="79" x2="325" y2="93" stroke="#d63a3a" stroke-width="3"/>
+      <line x1="325" y1="79" x2="311" y2="93" stroke="#d63a3a" stroke-width="3"/>
+    </g>
+    <!-- attempt 3: reaches relay, wrong password x3 -->
+    <circle r="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.39;0.40;0.52;0.54;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M85,86 L208,86 L378,86 L488,86" keyPoints="0;0;1;1" keyTimes="0;0.39;0.52;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="548" cy="86" r="10" fill="none" stroke="#d7930a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0.9;0;0.9;0;0" keyTimes="0;0.52;0.53;0.54;0.55;0.56;0.57;0.59;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <text x="548" y="106" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.53;0.62;0.64;1" dur="14s" repeatCount="indefinite"/>
+      still Level 0 · SALARM pulses
+    </text>
+    <!-- legit engineer sails through -->
+    <circle r="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.68;0.69;0.94;0.96;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M85,126 L208,126 L378,126 L548,126 L640,126" keyPoints="0;0;1;1" keyTimes="0;0.68;0.94;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <text x="208" y="144" font-size="9" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.74;0.75;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>✓</text>
+    <text x="378" y="144" font-size="9" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.80;0.81;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>✓</text>
+    <text x="548" y="144" font-size="9" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.87;0.88;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>✓</text>
+    <rect x="148" y="196" width="460" height="26" rx="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.10;0.10;0;0" keyTimes="0;0.68;0.72;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">Three failed break-in attempts, each stopped one layer deeper — then a legitimate session passing every layer, with a log entry at each. Physical security (locks, SEL-3622 tamper sensors) sits in front of all of it.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Relay access levels: the 751/751A / 451 model</h2>
+<p>SEL relays gate every command behind a hierarchy of access levels, each with its own password. On the <strong>SEL-751 and SEL-751A</strong> the ladder is 0 → 1 → 2 → C (identical levels, prompts, and defaults); the <strong>SEL-451</strong> (400 series) splits the middle into job-specific levels so a switching operator never needs the settings password.</p>
+<table>
+  <tr><th>751/751A level</th><th>Prompt</th><th>Enter with</th><th>What it allows</th><th>Default password</th></tr>
+  <tr><td class="mono">0</td><td class="mono">=</td><td class="mono">(connect) / QUIT</td><td>A few commands only (incl. what comms processors need); first layer of security</td><td>none — no password to descend</td></tr>
+  <tr><td class="mono">1</td><td class="mono">=&gt;</td><td class="mono">ACC</td><td>Reviewing information — settings, metering — not changing it</td><td class="mono">OTTER</td></tr>
+  <tr><td class="mono">2</td><td class="mono">=&gt;&gt;</td><td class="mono">2AC</td><td>Changing relay settings; PULSE outputs; PAS password changes</td><td class="mono">TAIL</td></tr>
+  <tr><td class="mono">C</td><td class="mono">==&gt;&gt;</td><td class="mono">CAL</td><td>Restricted — SEL factory/field service use only, on SEL's direction</td><td class="mono">CLARKE</td></tr>
+</table>
+<p>On the SEL-451 the levels are <strong>0, 1, B, P, A, O, 2, C</strong> — entry is sequential (Level 1 first, then any <code>xAC</code> command): <code>ACC</code>→1 (<code>OTTER</code>), <code>BAC</code>→B breaker control (<code>EDITH</code>), <code>PAC</code>→P protection settings (<code>AMPERE</code>), <code>AAC</code>→A automation settings (<code>VOLTA</code>), <code>OAC</code>→O output settings (<code>WATT</code>), <code>2AC</code>→2 everything (<code>TAIL</code>), <code>CAL</code>→C from Level 2 only (<code>Sel-1</code>). The manual's advice: <strong>set unique passwords for each access level</strong> so breaker, protection, automation, and settings duties are separately credentialed.</p>
+
+<h3>Failed attempts, timeouts, and the ALARM contact</h3>
+<ul>
+  <li><strong>751/751A:</strong> three wrong passwords → the relay <strong>pulses SALARM for one second</strong> and stays at Access Level 0. SALARM also pulses on <em>successful</em> Level 2/Level C entry (or denial), on settings changes, group changes, and password changes — and the factory default output equation is <code>OUT101 := HALARM OR SALARM</code>, so all of it reaches the alarm contact SCADA watches. (751 R402+ also locks the IEC 61850 MMS server out after three failed passwords within a minute.)</li>
+  <li><strong>451:</strong> third failed attempt → asserts <strong>BADPASS</strong> and SALARM for one second, prints <em>"ACCESS BY UNAUTHORIZED PERSONS STRICTLY PROHIBITED"</em>, blocks further attempts for <strong>30 seconds</strong>, and on Ethernet/DNP3/Mirrored Bits virtual-terminal connections <strong>terminates the connection</strong>. SALARM also asserts whenever B/P/A/O/2 is entered from a lower level.</li>
+  <li><strong>Timeouts drop you back down.</strong> 751/751A serial: after <code>T_OUT</code> minutes idle at Level 2 (0–30, default 5; 0 = never) the port returns to Level 0. Telnet: <code>TIDLE</code> 1–30 min, default 15. Front panel: <code>FP_TO</code> resets to Level 1 and abandons unsaved setting edits. 451 ports behave the same via SET P timeouts.</li>
+  <li><strong>Hardware overrides exist — treat them as physical security.</strong> 751/751A main-board jumper A bypasses passwords entirely (the alarm contact still closes on Level 2/C entry; on the 751 the bypass only reaches the port's <code>MAXACC</code> cap); jumper B enables OPEN/CLOSE breaker commands — <strong>default off on the 751A, but shipped ON on the 751</strong> — remote bits are always live either way. The 451 offers <code>PAS n DISABLE</code> for temporary unprotected access to a level — same idea in software.</li>
+</ul>
+
+<h3>Per-port restrictions</h3>
+<ul>
+  <li><strong>751/751A:</strong> every port has <code>EPORT := Y/N</code> (disable unused ports) and a single <code>PROTO</code> (SEL ASCII, DNP, Modbus, Mirrored Bits…) — a port speaks one protocol. On Ethernet, each service is individually gated: <code>ETELNET</code>, <code>EFTPSERV</code>, <code>E61850</code>, <code>EMOD</code> (0–2 sessions), <code>EDNP</code> (751A: 0–3 sessions; 751: 0–5) — all off or minimal unless needed. <code>FASTOP := N</code> (default) blocks binary Fast Operate control messages on that port. <strong>The 751 additionally ships an HTTP web server on by default (<code>EHTTP := Y</code>, port 80, own <code>HTTPACC</code> level cap and idle timeout)</strong> — unsecure HTTP; disable it or cap it like any other service.</li>
+  <li><strong>451 and 751 (not the 751A):</strong> <code>MAXACC</code> — a per-port cap on the maximum access level, "useful to restrict what remote users can do": a SCADA-facing port can be pinned so no one can ever reach settings through it. On the 751 it is on every serial and Ethernet port (default 2), with separate <code>FTPACC</code>/<code>HTTPACC</code> caps — and even the password-bypass jumper obeys it.</li>
+</ul>
+<div class="callout keyfact"><strong>Passwords on the relay:</strong> up to 12 characters, any printable ASCII, case-sensitive. Strong per the manuals: all 12 characters, mixed case plus a digit or special character, not a name/date/word (e.g. <code>#0t3579!ijd7</code>). The 451 front panel can only type letters, digits, underscore, and period — keep passwords to those characters if you need front-panel elevation.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>The security gateway: SEL-3610 / 3620 / 3622</h2>
+<p>Three boxes, one family. The <strong>SEL-3610</strong> is a cryptographic port server — 17 serial ports mapped to Ethernet (SSH, Telnet, Raw TCP, Modbus TCP, UDP). The <strong>SEL-3620</strong> adds the security core: router, VPN endpoint, <strong>stateful deny-by-default firewall</strong>, single-sign-on proxy access to IEDs, and automated IED password management. The <strong>SEL-3622</strong> is the same gateway shrunk for remote sites — 4 serial ports, low power, physical tamper sensors. All run <strong>exe-GUARD</strong> whitelist malware protection (always on, R200+) and accept only SEL-signed firmware.</p>
+
+<h3>Stateful firewall</h3>
+<ul>
+  <li><strong>Deny by default</strong> — every connection is refused until a rule explicitly allows it. Rules filter on transport protocol, IP address/group, port/group, and <strong>encryption state</strong>; actions are Accept, Drop, or Reject (Reject tells the source).</li>
+  <li><strong>Priority order, first match.</strong> If the rule list is exhausted, the packet drops. Order matters: a global "allow UDP" above an interface-specific "deny UDP" makes the deny dead — the manual calls this out explicitly.</li>
+  <li>Global toggles: <strong>Drop Ping</strong> and <strong>Drop Traceroute</strong> (both on by default), <strong>Must Be Encrypted</strong> (drop anything outside an established IPsec tunnel), <strong>Allow All Encrypted</strong>. All firewall configuration changes are logged.</li>
+  <li><strong>NAT</strong> (R202+): outbound NAT plus port forwarding (up to 200 entries). Notably, ACSELERATOR RTAC (SEL-5033), web UIs, SNMP, and RDP <em>cannot</em> be proxied — the manual's answer is NAT port forwarding for those.</li>
+</ul>
+
+<h3>User-based proxy: killing the shared password</h3>
+<p>Users connect to a <strong>Script-Enabled Master Port (SMP)</strong> — SSH, Telnet, Raw TCP, serial, or modem — and log in with their <em>own</em> username and password, verified against local accounts, <strong>LDAP</strong>, or <strong>RADIUS</strong>. Groups (Supervisors / Engineers / IT in the manual's example) map to per-IED, per-access-level permissions in the QuickSet Connection Directory: check boxes for <code>CONN</code>, <code>ACC</code>, <code>2AC</code>, <code>CAL</code> on each relay. Then:</p>
+<ul>
+  <li><code>WHO</code> lists the devices that user may reach; <code>SEL n</code> connects to one.</li>
+  <li>Typing <code>ACC</code>, <code>2AC</code>, <code>CAL</code> (also <code>PAC</code>, <code>BAC</code>, <code>OAC</code>, <code>AAC</code>, <code>EAC</code>, <code>EZA</code>, <code>BRE</code>) triggers a <strong>script</strong>: the gateway enters the relay's stored password itself — <strong>the engineer never learns the relay password</strong>.</li>
+  <li><code>PAS</code> is blocked at the proxy ("Command not allowed") — password changes belong to the gateway's password manager, not to users. <code>&lt;Ctrl+W&gt;</code> ends the IED session; <code>KILL</code> aborts a stalled script.</li>
+  <li>Local user store: up to 256 accounts, two roles (Administrator / Technician), enable/disable for leave, delete on departure; passphrases ≥ 8 characters from all four character sets (up to 127, spaces allowed), never displayed or stored in cleartext. Three failed web logins lock the username for 30 seconds and <strong>pulse the gateway's alarm contact three times</strong>.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 302" xmlns="http://www.w3.org/2000/svg">
+  <!-- lifelines -->
+  <rect x="30" y="8" width="110" height="22" rx="4" fill="#1a1a22"/>
+  <text x="85" y="23" font-size="10.5" font-weight="600" fill="#fff" text-anchor="middle">Engineer</text>
+  <rect x="255" y="8" width="110" height="22" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="310" y="23" font-size="10.5" font-weight="600" fill="#5468c4" text-anchor="middle">SEL-3620</text>
+  <rect x="450" y="8" width="110" height="22" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="505" y="23" font-size="10.5" font-weight="600" fill="#10a37f" text-anchor="middle">SEL-751A</text>
+  <line x1="85" y1="30" x2="85" y2="290" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="310" y1="30" x2="310" y2="290" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="505" y1="30" x2="505" y2="290" stroke="#d0d3da" stroke-width="1.25"/>
+  <!-- log ribbon -->
+  <rect x="580" y="34" width="112" height="230" rx="6" fill="#fafbfc" stroke="#d0d3da" stroke-width="1"/>
+  <text x="636" y="50" font-size="8.5" font-weight="600" fill="#6e7180" text-anchor="middle">SESSION LOG</text>
+  <text x="588" y="72" font-size="8" fill="#9c6d06">syslog: IPsec up</text>
+  <text x="588" y="104" font-size="8" fill="#5468c4">syslog: Bob login</text>
+  <text x="588" y="140" font-size="8" fill="#454956">proxy: sess→751A</text>
+  <text x="588" y="192" font-size="8" fill="#10a37f">report: ACC · Bob</text>
+  <text x="588" y="258" font-size="8" fill="#10a37f">report: 2AC · Bob</text>
+  <!-- static sequence arrows -->
+  <path d="M85,62 H303 M297,57 L304,62 L297,67" fill="none" stroke="#d7930a" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="195" y="56" font-size="9" font-weight="600" fill="#9c6d06" text-anchor="middle">IPsec VPN tunnel established</text>
+  <path d="M85,94 H303 M297,89 L304,94 L297,99" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="195" y="88" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">SSH to SMP · login "Bob"</text>
+  <path d="M85,130 H303 M297,125 L304,130 L297,135" fill="none" stroke="#454956" stroke-width="1.25"/>
+  <text x="195" y="124" font-size="9" fill="#454956" text-anchor="middle">*WHO → SEL 1 (authorized list)</text>
+  <path d="M85,160 H303 M297,155 L304,160 L297,165" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="195" y="154" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">ACC</text>
+  <path d="M310,182 H498 M492,177 L499,182 L492,187" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="405" y="176" font-size="9" fill="#10a37f" text-anchor="middle">script enters Level 1 password</text>
+  <path d="M505,204 H92 M98,199 L91,204 L98,209" fill="none" stroke="#8a8e9b" stroke-width="1.25"/>
+  <text x="298" y="198" font-size="9" fill="#6e7180" text-anchor="middle">Level 1 · =&gt; (Bob never saw the password)</text>
+  <path d="M85,228 H303 M297,223 L304,228 L297,233" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="195" y="222" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">2AC</text>
+  <path d="M310,248 H498 M492,243 L499,248 L492,253" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="405" y="242" font-size="9" fill="#10a37f" text-anchor="middle">script enters Level 2 password</text>
+  <path d="M505,272 H92 M98,267 L91,272 L98,277" fill="none" stroke="#8a8e9b" stroke-width="1.25"/>
+  <text x="278" y="266" font-size="9" fill="#6e7180" text-anchor="middle">Level 2 · =&gt;&gt; — relay pulses SALARM (normal)</text>
+  <circle cx="505" cy="272" r="6" fill="none" stroke="#d7930a" stroke-width="2"/>
+  <g class="animlayer">
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.08;0.10;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M85,62 L310,62" keyPoints="0;0;1;1" keyTimes="0;0.01;0.09;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.13;0.14;0.21;0.23;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M85,94 L310,94" keyPoints="0;0;1;1" keyTimes="0;0.13;0.22;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#454956" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.27;0.28;0.35;0.37;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M85,130 L310,130" keyPoints="0;0;1;1" keyTimes="0;0.27;0.36;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.40;0.41;0.47;0.49;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M85,160 L310,160" keyPoints="0;0;1;1" keyTimes="0;0.40;0.48;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.50;0.51;0.57;0.59;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M310,182 L505,182" keyPoints="0;0;1;1" keyTimes="0;0.50;0.58;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#8a8e9b" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.60;0.61;0.68;0.70;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M505,204 L85,204" keyPoints="0;0;1;1" keyTimes="0;0.60;0.69;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.72;0.73;0.79;0.81;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M85,228 L310,228" keyPoints="0;0;1;1" keyTimes="0;0.72;0.80;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.83;0.88;0.90;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M310,248 L505,248" keyPoints="0;0;1;1" keyTimes="0;0.82;0.89;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#8a8e9b" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.91;0.92;0.98;1;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M505,272 L85,272" keyPoints="0;0;1;1" keyTimes="0;0.91;0.99;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="505" cy="272" r="10" fill="none" stroke="#d7930a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0.9;0;0" keyTimes="0;0.89;0.905;0.92;0.935;0.96;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- log entries reveal -->
+    <rect x="582" y="62" width="108" height="14" fill="#fff" opacity="0.85">
+      <animate attributeName="opacity" values="0.85;0.85;0;0" keyTimes="0;0.09;0.10;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="582" y="94" width="108" height="14" fill="#fff" opacity="0.85">
+      <animate attributeName="opacity" values="0.85;0.85;0;0" keyTimes="0;0.22;0.23;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="582" y="130" width="108" height="14" fill="#fff" opacity="0.85">
+      <animate attributeName="opacity" values="0.85;0.85;0;0" keyTimes="0;0.36;0.37;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="582" y="182" width="108" height="14" fill="#fff" opacity="0.85">
+      <animate attributeName="opacity" values="0.85;0.85;0;0" keyTimes="0;0.69;0.70;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="582" y="248" width="108" height="14" fill="#fff" opacity="0.85">
+      <animate attributeName="opacity" values="0.85;0.85;0;0" keyTimes="0;0.99;0.995;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">A remote engineering session end to end: VPN → per-user gateway login → proxied relay session climbing ACC→2AC with scripted passwords — and the log ribbon filling in at every step (Syslog + Commands and Devices report).<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>Automated IED password management</h3>
+<ul>
+  <li>The gateway holds up to three passwords per IED account level: <strong>Initial</strong> (as first uploaded), <strong>Current</strong> (on the IED now), <strong>Proposed</strong> (generated, pending apply) — Generate and Apply are always separate steps.</li>
+  <li>Changes can be manual, <strong>scheduled</strong> (e.g. every 90 days — "satisfies regulatory password requirements"), or triggered externally (ACSELERATOR TEAM). Covers SEL IEDs, GE Multilin relays, and third-party IEDs with ASCII (or SSH) interfaces.</li>
+  <li><strong>Checkout</strong> temporarily reverts an IED to initial passwords for test-set work; check-in restores the secure one. <strong>Revert</strong> puts defaults back in emergencies.</li>
+  <li>Before any firmware change, settings upload, or Connection Directory upload: <strong>download the Managed Device Passwords report (PDF + JSON) to secure offline storage</strong> — several documented scenarios can desynchronize ("lose") current passwords.</li>
+</ul>
+
+<h3>VPN and encrypted transport</h3>
+<ul>
+  <li><strong>IPsec</strong> (3620: 16 simultaneous tunnels; 3622: 4; not on the 3610) to another 3620/3622, a Lemnos-compliant device, or a Cisco L3 device; peers authenticate by pre-shared passphrase or X.509 certificate. Combine with the firewall's <strong>Must Be Encrypted</strong> to force all traffic through the tunnel.</li>
+  <li><strong>MACsec</strong> (802.1AE) for layer-2 link protection; <strong>SSH</strong> for serial tunneling and the SMP; the management web UI is <strong>HTTPS with TLS 1.2/1.3</strong> only.</li>
+  <li>Legacy Windows tools that only speak serial/Telnet ride through via <strong>SEL-5827/5828 virtual port clients</strong>, which tunnel their plaintext inside SSH to the gateway.</li>
+</ul>
+<div class="callout warn"><strong>Emergency access:</strong> if the WAN (and therefore LDAP/RADIUS) is down, you still need in. SEL's documented practice: a local emergency account on every gateway, same name everywhere, strong generated password, <strong>changed after each use and rotated regularly "as required by NERC CIP regulations"</strong> (App. C; SEL provides sample scripts to automate it fleet-wide).</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Passwords in practice</h2>
+<table>
+  <tr><th>Where</th><th>Rules (as documented)</th><th>Defaults to kill</th></tr>
+  <tr><td><strong>SEL-751 / 751A / 451 relays</strong></td><td>≤ 12 chars, printable ASCII, case-sensitive; strong = full 12, mixed case + digit/special, no words</td><td class="mono">OTTER · TAIL · CLARKE (751/751A) · EDITH · AMPERE · VOLTA · WATT · Sel-1 (451)</td></tr>
+  <tr><td><strong>SEL-3600 gateways</strong></td><td>8–127 chars, must include upper + lower + digit + special, spaces OK; never displayed/stored in cleartext; users change their own on first login</td><td>none — commissioning forces you to create the first admin account</td></tr>
+</table>
+<ul>
+  <li><strong>The shared-password problem:</strong> relay passwords are per-<em>level</em>, not per-person — everyone with Level 2 duty knows the same secret, and it must be re-issued every time someone leaves. The gateway proxy dissolves this: people carry personal credentials, the gateway alone knows relay passwords and rotates them on schedule.</li>
+  <li><strong>Passwords should never be shared or written down</strong> (gateway manual, verbatim). The one sanctioned exception: the Managed Device Passwords report kept offline in secure storage for disaster recovery.</li>
+  <li>Both relay manuals carry the same boxed warning: change default passwords to private ones at installation; SEL disclaims damage from unauthorized access if you don't.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Secure protocols across the fleet</h2>
+<table>
+  <tr><th>Device</th><th>Encrypted options</th><th>Plaintext-only paths</th></tr>
+  <tr><td>SEL-751A</td><td>none in the box — protect with the layer in front</td><td>Telnet (<code>TPORT</code> 23), FTP, SEL ASCII serial, Modbus, DNP3</td></tr>
+  <tr><td>SEL-751</td><td>none in the box either (per-port/per-service <code>MAXACC</code> caps to limit damage)</td><td>same as 751A, plus HTTP web server (default on), IEC 61850 MMS/GOOSE, EtherNet/IP</td></tr>
+  <tr><td>SEL-451</td><td>none in the box (Ethernet card: Telnet/FTP, with per-port <code>MAXACC</code> caps)</td><td>same as above</td></tr>
+  <tr><td>SEL-3610</td><td>SSH serial tunneling, HTTPS (TLS 1.2/1.3) management</td><td>Telnet / Raw TCP / UDP mappings if you configure them</td></tr>
+  <tr><td>SEL-3620 / 3622</td><td>SSH (SMP + tunnels), IPsec VPN, MACsec, HTTPS management, X.509 + OCSP</td><td>whatever you deliberately map — firewall still gates it</td></tr>
+</table>
+<p>The pattern: <strong>terminate the encrypted session at the gateway</strong>, let the last plaintext hop be a serial cable or a switch port inside the protected zone. That is the architecture the 3610/3620/3622 manual is built around.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Logging &amp; monitoring: proving who did what</h2>
+<div class="twocol">
+<div>
+<h3>Gateway records</h3>
+<ul>
+  <li><strong>Syslog (RFC 5424):</strong> 60,000 events in nonvolatile storage (oldest overwritten), forwarded to up to <strong>3 remote servers</strong> / SIEMs (Splunk, QRadar, LogRhythm named). Seven severities (informational→emergency), four facilities (Kernel, User, System, Security), IRIG-B/NTP timestamped. Covers logins, config changes, firewall changes, exe-GUARD violations, IPsec changes.</li>
+  <li><strong>Firewall verbose logging:</strong> every connection established/closed/dropped/rejected with protocol, source/dest IP:port, and action (Off / Blocked / All / Custom per rule, R208+). Watch the 60k limit on noisy networks.</li>
+  <li><strong>Commands and Devices report:</strong> every ASCII command run through the SMP — user, command, source IP or COM port, UTC timestamp to the second. PDF + JSON, up to 20,000 events per report, optional encryption. This is the audit trail shared relay accounts never had.</li>
+</ul>
+</div>
+<div>
+<h3>Relay records</h3>
+<ul>
+  <li><strong>SALARM → alarm contact:</strong> access-level entries, three failed passwords, settings and password changes all pulse SALARM, and <code>OUT101 := HALARM OR SALARM</code> by default — SCADA sees a contact close within seconds of someone knocking on the relay.</li>
+  <li><strong>SER:</strong> assign <code>SALARM</code> (751/751A default: <code>SER4 := SALARM</code>) and security-relevant Relay Word bits to the Sequential Events Recorder for a timestamped on-relay history — see <em>SER &amp; SOE</em> in atlas.</li>
+  <li><strong>451 extras:</strong> <code>BADPASS</code> Relay Word bit for failed password attempts — usable in SELogic and SER like any other bit.</li>
+</ul>
+</div>
+</div>
+<div class="card pulse">
+<h3>Compliance drivers (only as far as the docs go)</h3>
+<ul style="margin-bottom:2px">
+  <li>exe-GUARD whitelist protection "helps support <strong>NERC CIP compliance</strong> efforts" (built with DOE, Dominion, Sandia).</li>
+  <li>Emergency-account passwords must be "changed regularly <strong>as required by NERC CIP regulations</strong>."</li>
+  <li>Scheduled password rotation with complexity enforcement "satisfies regulatory password requirements, and ensures that no weak or default passwords are in use." The manuals cite no clause numbers — audit specifics live with your compliance team, not in the IMs.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Proxy is authorization, not a wall:</strong> a user <em>without</em> permission to a level "will still be granted access, if they have knowledge of the access passwords of the device" — unmatched input passes straight through to the IED. Password management (so nobody knows the passwords) is what closes that hole.</li>
+<li><strong>Binary mode bypasses scripting:</strong> in SMP binary transfer mode everything except <code>&lt;Ctrl+W&gt;</code> goes straight to the device — use only where required (GE relays, Modbus).</li>
+<li><strong>Firewall rule "works on one interface, not another"</strong> → check rule priority in Integrated View; a higher-priority global rule may be eating the packet first.</li>
+<li><strong>Locked out of a relay at Level 2?</strong> Wait out the timeout (T_OUT/TIDLE drops the port to Level 0) — that's the feature working. Forgotten relay passwords with no gateway record: 751/751A jumper A bypasses passwords locally (physical access required, alarm still pulses; the 751 bypass stops at the port's MAXACC).</li>
+<li><strong>QuickSet Connection Directory uploads:</strong> use a dedicated <code>quickset</code> Technician-level account (one login per account at a time on the web server) and keep usernames/groups exactly matched — case-sensitive — between Device Manager and the gateway.</li>
+<li><strong>RTAC users/LDAP internals</strong> are their own topic — see <em>RTAC Users, Security &amp; LDAP</em> in atlas. This page covers the substation-wide picture and the relay/gateway ends.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/rtac-security.html">RTAC Users &amp; Security</a>
+  <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>
+  <a href="atlas:comms/vlans.html">VLANs</a>
+  <a href="atlas:relays-devices/firmware-upgrades.html">Firmware Upgrades</a>
+  <a href="atlas:reference/standards-map.md">Standards Map</a>
+  <a href="atlas:start-here/field-kit.html">The Field Kit</a>
+</div>
+<p class="footnote">Sources: SEL-3610/SEL-3620/SEL-3622 IM (3610-3620-3622_IM_20241010.pdf) — product features, users, firewall/NAT/IPsec, proxy &amp; password management, Syslog, cybersecurity appendix; SEL-751A IM (751A_IM_20250411.pdf) — access levels, PAS/password rules, port settings, SALARM/jumpers; SEL-751 IM (751_IM_20260327.pdf) — confirms the shared 751A claims and sources the 751 deltas (per-port MAXACC/FTPACC/HTTPACC, EHTTP web server, EDNP 0–5, jumper B default ON, MMS lockout, gateway+SDN recommendation); SEL-451 IM (451_IM_20190325.pdf) — B/P/A/O access model, MAXACC, BADPASS/lockout. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Modbus on SEL Relays</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="Modbus,SEL-751,fixed map,user map,SET M,coils,SEL-735">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Modbus on SEL Relays (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Modbus on SEL Relays</h1>
+  <p>The server side of Modbus on SEL gear — enabling ports, the 751A's fixed register map region by region, the command registers, SET M user maps, and the SEL-735 meter as the contrast case</p>
+  <div class="chips"><span>EMOD</span><span>SLAVEID</span><span>SET M</span><span>BLKMBSET</span><span>2000h</span><span>MOD_001–125</span><span>BADCRC</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>SEL relays and meters are Modbus <strong>servers only</strong> — they answer, they never poll. The RTAC is the usual client (→ <em>Modbus on the RTAC</em>).</li>
+<li><strong>The map is fixed and model-specific.</strong> SEL-751A puts IA at 650; the SEL-751 puts it at 320. Never carry addresses between models — pull them from <em>your</em> manual.</li>
+<li><strong>Everything is a scaled integer.</strong> Register value × the map's multiplier = the real value. Skip the multiplier column and you are 10× or 100× off.</li>
+<li><strong>User map:</strong> registers 1–125 hold <em>addresses</em>, 126–250 hold <em>values</em>. Poll 126, not 1 — a wall of suspiciously round numbers means you polled the pointers.</li>
+<li>Output control is deliberate: coils <strong>pulse</strong> (self-resetting), and <code>LOGIC COMMAND</code> (2000h) is a whole-register write, never a bit operation.</li>
+<li>The 751A has <strong>no Modbus password</strong> — it trusts the master. Set <code>BLKMBSET := ALL</code> unless your PLC/DCS is genuinely supposed to write settings. The SEL-751 needs no such guard — its map has <em>no settings region at all</em>; it hardens TCP instead with per-session master-IP whitelists (<code>MODIP1/2</code>). The SEL-735 meter is the opposite: settings writes need the Access Level E password first.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Which SEL boxes speak Modbus, and how</h2>
+<table>
+  <tr><th>Device</th><th>Role</th><th>Function codes</th><th>Notes</th></tr>
+  <tr><td>SEL-700G, 701, 710(-5), 734, 735, 751(A), 787(-1..-4)</td><td>RTU server (serial) + TCP server</td><td class="mono">01–06, 10</td><td>the common core every family member answers</td></tr>
+  <tr><td>+ SEL-749M</td><td>server</td><td class="mono">03, 04, 06, 10</td><td>register access only — no coil/discrete reads or single-coil writes</td></tr>
+  <tr><td>SEL-700G, 710(-5), 749M, 751(A), 787</td><td>server</td><td class="mono">60h, 61h, 62h, 7Dh, 7Eh</td><td>SEL extensions: read setting metadata/text/enums; encapsulated packet + NOP (DeviceNet heartbeat)</td></tr>
+  <tr><td>SEL-701 only</td><td>server</td><td class="mono">07h</td><td>Read Exception Status</td></tr>
+  <tr><td>SEL-700 series exc. 735</td><td>server</td><td class="mono">08h</td><td>loopback echo test (subfunction 0000h)</td></tr>
+  <tr><td>SEL-735 / 734 meters</td><td>server</td><td class="mono">01–06, 10 only</td><td>no 08h, no SEL extension codes; adds exception code 8 (Memory Error)</td></tr>
+</table>
+<p><strong>Ports (751A):</strong> serial Modbus RTU runs on any of the independent serial ports — front <code>F</code> (EIA-232), <code>PORT 2</code> (fiber serial), <code>PORT 3</code> (EIA-232 or EIA-485 by ordering option), <code>PORT 4</code> comms card (EIA-485 port 4A <em>or</em> EIA-232 port 4C — <code>COMMINF := 232/485</code> selects, never both at once). Modbus TCP rides the Ethernet <code>PORT 1</code>, up to <strong>two concurrent sessions</strong>, with the device IP as the Modbus identifier. The SEL-735's Ethernet port supports <strong>five</strong> simultaneous Modbus TCP sessions on port 502.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Enabling it: port settings walk-through (751A)</h2>
+<h3>Serial RTU — SET P per port</h3>
+<ul>
+  <li><code>PROTO := MOD</code> — switches the port to Modbus RTU and <strong>deactivates SEL ASCII on that port</strong> (you lose the terminal there; use another port for ASCII).</li>
+  <li><code>SPEED</code> 300–38400 (default 9600) · <code>BITS</code> 7/8 (8) · <code>PARITY</code> O/E/N (N) · <code>STOP</code> 1/2 (1) — match the master exactly.</li>
+  <li><code>SLAVEID</code> 1–247 (default 1) — must be unique per device on the multidrop line; two servers with the same ID is a broken network.</li>
+  <li>Port 4 only: <code>COMMINF := 485</code> if you wired the 485 terminals.</li>
+</ul>
+<h3>Modbus TCP — Port 1 settings</h3>
+<ul>
+  <li><code>EMOD := 0–2</code> — number of enabled Modbus TCP sessions. <code>MODNUM1/MODNUM2</code> (1–65534, default 502) set each session's TCP port; <code>MTIMEO1/MTIMEO2</code> (15–900 s, default 15) drop a dead session after that much idle time.</li>
+  <li>Port numbers must be unique across protocols (Telnet <code>TPORT</code>, DNP <code>DNPNUM</code>, SNTP) and must avoid the fixed ports 20, 21, 23, 102, 502 used elsewhere — the relay refuses the save and jumps to the offending setting. MODNUM1 and MODNUM2 <em>may</em> equal each other.</li>
+</ul>
+<div class="callout keyfact"><strong>BLKMBSET — set it before anything polls.</strong> Global setting, three values: <code>NONE</code> (factory default — all setting changes allowed via Modbus/DeviceNet), <code>R_S</code> (blocks restore-to-factory-defaults only), <code>ALL</code> (blocks every settings write). SEL's manual warns in as many words: under conditions like a PLC/DCS reboot there is a strong possibility the master pushes <em>default</em> settings into the relay, overwriting yours. If the master shouldn't write settings, <code>BLKMBSET := ALL</code>. (751A/DeviceNet-family setting — the SEL-751 has no BLKMBSET and nothing for it to protect: no Modbus-writable settings exist in its map, §3 callout.)</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Anatomy of the fixed map (751A Table E.34)</h2>
+<p>One flat register space, read with FC 03 or 04 (both hit the same map). Region by region, with the real address ranges:</p>
+<table>
+  <tr><th>Registers</th><th>Region</th><th>What lives there</th></tr>
+  <tr><td class="mono">1–125</td><td>User map pointers</td><td><code>MOD_001–125</code> (R/W) — each holds a fixed-map <em>address</em> in 610–1947</td></tr>
+  <tr><td class="mono">126–250</td><td>User map values</td><td>(R) live copies of whatever 1–125 point at — the block SCADA should poll</td></tr>
+  <tr><td class="mono">260–609</td><td>Settings</td><td>R/W: 260 = BLOCK MODBUS SET, then general, group, every protection element (50/51/27/59/81, RTD, recloser…), logic, front panel, reset, date/time</td></tr>
+  <tr><td class="mono">610–649</td><td>Device status</td><td>self-test results (FPGA, RAM, ROM, clock, card/CT status, serial number), RELAY STATUS 638 (0 = enabled)</td></tr>
+  <tr><td class="mono">650–663</td><td>Current data</td><td>IA/IB/IC/IN/IG mag (A, ×1) + angle (deg, ×0.1), Iavg, 3I2, imbalance</td></tr>
+  <tr><td class="mono">664–689</td><td>Voltage &amp; power</td><td>VS/VDC; VAB…VG (V ×1, angles ×0.1); P/Q/S (kW/kVAR/kVA ×1), PF ×0.01, FREQ ×0.01</td></tr>
+  <tr><td class="mono">690–711</td><td>Energy</td><td>32-bit HI/LO pairs (MWh/MVARh ×0.001) + last-reset timestamp</td></tr>
+  <tr><td class="mono">712–749</td><td>RTD, light sensor, RMS</td><td>RTD1–12 (°C ×1; 7FFFh = open, 8000h = short), arc-flash light %, RMS meter</td></tr>
+  <tr><td class="mono">750–1610</td><td>Max/min + AI + MV</td><td>every quantity's max/min with full timestamps; analog inputs; math variables MV01–32 as H/L pairs</td></tr>
+  <tr><td class="mono">1611–1704</td><td>Counters, breaker, demand</td><td>SC01–32 counters; breaker monitor (trip counts, contact wear %); demand + peak demand (IAD at 1689)</td></tr>
+  <tr><td class="mono">1746–1779</td><td>Historical data</td><td>event history access window — see §6</td></tr>
+  <tr><td class="mono">1780–1788</td><td>Trip/warn status</td><td>latched cause-of-trip bitmaps (TRIP STATUS LO/HI, WARN LO/HI) — latched at TRIP rising edge, cleared only by target reset</td></tr>
+  <tr><td class="mono">1789–1804</td><td>Comm counters</td><td>the Modbus health counters — see §8</td></tr>
+  <tr><td class="mono">1805–1924</td><td>Relay Word rows</td><td>ROW_0–ROW_119, one row per register, 8 bits in the low byte (0–255)</td></tr>
+  <tr><td class="mono">1948–2070</td><td>Extra settings</td><td>later-firmware settings (arc flash, 81RF…)</td></tr>
+  <tr><td class="mono">2000h–2101h+</td><td>Control I/O</td><td>LOGIC COMMAND / RESET COMMAND (write-only) + FAST STATUS readback — see §4</td></tr>
+  <tr><td class="mono">3000h–303Ch</td><td>Region indices</td><td>the map's own directory: each register returns a region's start address</td></tr>
+  <tr><td class="mono">4000h–401Fh</td><td>Product info</td><td>vendor 865 = SEL, product code, firmware rev, SETTINGS TIMEOUT (4010h), ERROR REGISTER (4016h) + ERROR ADDRESS</td></tr>
+</table>
+<ul>
+  <li><strong>Scaling:</strong> register × multiplier = system value. The manual's own example: register 651 (IA angle) reads 300 → 30.0° (×0.1). Energy pair: MWH3PO HI at 690, LO at 691, concatenate then ×0.001.</li>
+  <li><strong>Relay Word rows two ways:</strong> FC 03 on 1805+ returns the row as a register (bits packed low byte, e.g. ROW_0: bit 7 = ENABLED, bit 6 = TRIP, bits 5–0 = target LEDs). FC 02 exposes the same bits individually at discrete address <code>row × 8 + bit</code>, rows 0–119 = addresses 0–959, numbered right-most bit first.</li>
+  <li><strong>Hardware-dependent:</strong> the relay only answers for installed cards — AI/RTD/extra-I/O blocks of the map exist only when the hardware does.</li>
+</ul>
+<div class="callout warn"><strong>Same family ≠ same map — SEL-751 vs 751A, concretely</strong> (verified against the SEL-751 IM 2026, Table E.35). The user-map blocks 1–125 / 126–250 match; everything after them parts ways. <strong>751 layout:</strong> reset bits at <strong>261</strong> (R/W) and date/time at 270–275, self-test at 280–319 (RELAY STATUS 312), IA at <strong>320</strong> (A ×1), VAB at <strong>335</strong> in <strong>kV ×0.01</strong>, per-phase power 360+, energy pairs 380+ (MWH3PI HI/LO = 380/381), RTDs 400+, demand 450+, history select <strong>1692</strong>, trip/warn 1730–1733, comm counters 1740–1749, Relay Word rows 0–159 at <strong>1760–1919</strong> (rows 160–328 continue at 1921–2089; AG2022-04's worked example: PB05 = row 15 bit 3 → register 1775 reads 8, discrete input 123). <strong>What the 751 lacks:</strong> any settings region — no settings writes over Modbus, no BLKMBSET, no remote set-to-defaults (its 2001h bit 1 is reserved); user-map pointers accept 280–1981 (751A: 610–1947). <strong>What it adds:</strong> <code>MODIP1/MODIP2</code> lock each Modbus TCP session to one master IP (0.0.0.0 = any master); coils extend past RB32 to <strong>RB33–64</strong> (set/clear 91–122, pulse from 123) and expansion-card OUTE outputs, with set/clear RB01–32 starting at coil 27, not 30. On the 751A: IA at 650, VAB in V ×1 at 667, rows at 1805+. Every address on this page is 751A unless marked.</div>
+
+<div class="fig"><svg viewBox="0 0 700 292" xmlns="http://www.w3.org/2000/svg">
+  <text x="95" y="14" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">SEL-751A fixed map</text>
+  <g font-family="Consolas, monospace" font-size="7.5">
+    <rect x="20" y="20" width="150" height="24" rx="3" fill="#e7f6f1" stroke="#10a37f"/><text x="26" y="30" fill="#1a1a22">1–125 pointers</text><text x="26" y="40" fill="#1a1a22">126–250 values</text>
+    <rect x="20" y="46" width="150" height="18" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="26" y="58" fill="#8a8e9b">260–609 settings (R/W)</text>
+    <rect x="20" y="66" width="150" height="18" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="26" y="78" fill="#8a8e9b">610–649 self-test</text>
+    <rect x="20" y="86" width="150" height="26" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/><text x="26" y="97" fill="#1a1a22">650–711 metering</text><text x="26" y="107" fill="#1a1a22">I·V·P·energy</text>
+    <rect x="20" y="114" width="150" height="18" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="26" y="126" fill="#8a8e9b">750–1610 max/min, AI</text>
+    <rect x="20" y="134" width="150" height="18" rx="3" fill="#fdf3e7" stroke="#d7930a"/><text x="26" y="146" fill="#1a1a22">1689–1704 demand</text>
+    <rect x="20" y="154" width="150" height="18" rx="3" fill="#eef0f8" stroke="#5468c4"/><text x="26" y="166" fill="#1a1a22">1746–1779 history</text>
+    <rect x="20" y="174" width="150" height="18" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="26" y="186" fill="#8a8e9b">1789–1804 counters</text>
+    <rect x="20" y="194" width="150" height="18" rx="3" fill="#e9eaee" stroke="#454956"/><text x="26" y="206" fill="#1a1a22">1805–1924 RW rows</text>
+    <rect x="20" y="214" width="150" height="18" rx="3" fill="#fbeeee" stroke="#d63a3a"/><text x="26" y="226" fill="#1a1a22">2000h commands (W)</text>
+    <rect x="20" y="234" width="150" height="18" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="26" y="246" fill="#8a8e9b">4000h product info</text>
+  </g>
+
+  <!-- three scattered polls -->
+  <text x="285" y="14" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">without user map: 3 polls</text>
+  <g font-family="Consolas, monospace" font-size="7.5" fill="#454956">
+    <path d="M262,99 H176 M182,94 L175,99 L182,104" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+    <text x="268" y="96">poll 1 · FC 03</text><text x="268" y="106">start 650 qty 40</text>
+    <path d="M262,143 H176 M182,138 L175,143 L182,148" fill="none" stroke="#d7930a" stroke-width="1.4"/>
+    <text x="268" y="140">poll 2 · FC 03</text><text x="268" y="150">start 1689 qty 3</text>
+    <path d="M262,203 H176 M182,198 L175,203 L182,208" fill="none" stroke="#454956" stroke-width="1.4"/>
+    <text x="268" y="200">poll 3 · FC 03</text><text x="268" y="210">start 1805 qty 10</text>
+  </g>
+  <text x="285" y="238" font-size="7.5" fill="#8a8e9b" text-anchor="middle">wanted registers &gt;1000</text>
+  <text x="285" y="248" font-size="7.5" fill="#8a8e9b" text-anchor="middle">addresses apart</text>
+
+  <!-- user map -->
+  <text x="530" y="14" font-size="8.5" font-weight="600" fill="#10a37f" text-anchor="middle">with SET M: 1 poll</text>
+  <g font-family="Consolas, monospace" font-size="7.5">
+    <rect x="405" y="20" width="120" height="98" rx="3" fill="#fff" stroke="#454956"/>
+    <text x="411" y="31" fill="#1a1a22">MOD_001 := IA_MAG</text>
+    <text x="411" y="43" fill="#1a1a22">MOD_002 := IB_MAG</text>
+    <text x="411" y="55" fill="#1a1a22">MOD_003 := VAB_MAG</text>
+    <text x="411" y="67" fill="#1a1a22">MOD_004 := P</text>
+    <text x="411" y="79" fill="#1a1a22">MOD_005 := FREQ</text>
+    <text x="411" y="91" fill="#1a1a22">MOD_006 := IAD</text>
+    <text x="411" y="103" fill="#1a1a22">MOD_007 := ROW_0</text>
+    <text x="411" y="114" fill="#8a8e9b">pointers · regs 1–125</text>
+    <rect x="552" y="20" width="120" height="98" rx="3" fill="#eef0f8" stroke="#5468c4"/>
+    <text x="558" y="31" fill="#1a1a22">126 = IA value</text>
+    <text x="558" y="43" fill="#1a1a22">127 = IB value</text>
+    <text x="558" y="55" fill="#1a1a22">128 = VAB value</text>
+    <text x="558" y="67" fill="#1a1a22">129 = P value</text>
+    <text x="558" y="79" fill="#1a1a22">130 = FREQ value</text>
+    <text x="558" y="91" fill="#1a1a22">131 = IAD value</text>
+    <text x="558" y="103" fill="#1a1a22">132 = ROW_0 bits</text>
+    <text x="558" y="114" fill="#8a8e9b">values · regs 126–250</text>
+  </g>
+  <g stroke="#8a8e9b" stroke-width="0.9" fill="none" opacity="0.85">
+    <path d="M528,28 H549 M545,25 L550,28 L545,31"/>
+    <path d="M528,64 H549 M545,61 L550,64 L545,67"/>
+    <path d="M528,100 H549 M545,97 L550,100 L545,103"/>
+  </g>
+  <text x="538" y="134" font-size="7.5" fill="#8a8e9b" text-anchor="middle">relay mirrors each pointed-at register's live value</text>
+  <path d="M552,148 L672,148" fill="none" stroke="#10a37f" stroke-width="2"/>
+  <text x="612" y="162" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">FC 03 · start 126 · qty 7 ✓</text>
+  <g font-family="Consolas, monospace">
+    <text x="612" y="186" font-size="7.5" fill="#d63a3a" text-anchor="middle">✕ FC 03 start 1 returns 650, 652,</text>
+    <text x="612" y="196" font-size="7.5" fill="#d63a3a" text-anchor="middle">667… — those are addresses,</text>
+    <text x="612" y="206" font-size="7.5" fill="#d63a3a" text-anchor="middle">not measurements</text>
+  </g>
+  <text x="350" y="274" font-size="8" fill="#a9adb8" text-anchor="middle">SET M (or QuickSet's Modbus User Map screen, or remote FC 06 writes to regs 1–125) loads labels into MOD_001–125;</text>
+  <text x="350" y="286" font-size="8" fill="#a9adb8" text-anchor="middle">the relay copies the pointed-at values into 126–250 · one contiguous poll replaces three scattered ones</text>
+
+  <g class="animlayer">
+    <!-- poll cursor visiting three regions -->
+    <rect x="18" y="84" width="154" height="30" rx="3" fill="none" stroke="#10a37f" stroke-width="2.2" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.13;0.16;1" dur="13s" repeatCount="indefinite"/></rect>
+    <rect x="18" y="132" width="154" height="22" rx="3" fill="none" stroke="#d7930a" stroke-width="2.2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.19;0.29;0.32;1" dur="13s" repeatCount="indefinite"/></rect>
+    <rect x="18" y="192" width="154" height="22" rx="3" fill="none" stroke="#454956" stroke-width="2.2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.32;0.35;0.45;0.48;1" dur="13s" repeatCount="indefinite"/></rect>
+    <!-- pointer resolution dots -->
+    <circle r="3.5" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.50;0.52;0.60;0.62;1" dur="13s" repeatCount="indefinite"/><animateMotion path="M528,28 H552" keyPoints="0;0;1;1" keyTimes="0;0.51;0.61;1" calcMode="linear" dur="13s" repeatCount="indefinite"/></circle>
+    <circle r="3.5" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.56;0.58;0.66;0.68;1" dur="13s" repeatCount="indefinite"/><animateMotion path="M528,64 H552" keyPoints="0;0;1;1" keyTimes="0;0.57;0.67;1" calcMode="linear" dur="13s" repeatCount="indefinite"/></circle>
+    <circle r="3.5" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.72;0.74;1" dur="13s" repeatCount="indefinite"/><animateMotion path="M528,100 H552" keyPoints="0;0;1;1" keyTimes="0;0.63;0.73;1" calcMode="linear" dur="13s" repeatCount="indefinite"/></circle>
+    <!-- single poll window over the value block -->
+    <rect x="550" y="18" width="124" height="102" rx="4" fill="none" stroke="#10a37f" stroke-width="2.4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.76;0.79;0.93;0.97;1" dur="13s" repeatCount="indefinite"/></rect>
+  </g>
+</svg></div>
+<p class="figcap">The map tour: three scattered polls (metering 650+, demand 1689+, Relay Word rows 1805+) collapse into one contiguous read of the user-map value block once the pointers are set.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Controls: coils and the command registers</h2>
+<h3>FC 05 coils — everything pulses</h3>
+<table>
+  <tr><th>Coil address</th><th>Action on write FF00h</th><th>Behavior</th></tr>
+  <tr><td class="mono">0–26</td><td>Pulse OUT101…OUT504</td><td><strong>self-resetting</strong> — the physical output pulses for 1 second, then the coil clears itself</td></tr>
+  <tr><td class="mono">30–58</td><td>Set/clear RB01–RB32</td><td>FF00h asserts the remote bit, 0000h clears it — this pair does latch</td></tr>
+  <tr><td class="mono">59–90</td><td>Pulse RB01–RB32</td><td>remote bit asserts for <strong>one SELOGIC processing interval</strong>, then clears — your logic must catch the edge</td></tr>
+</table>
+<p style="font-size:8.6pt">Coil 1 is at address 0. A disabled relay answers coil writes with exception code 4 (Device Error). FC 01 reads back the same coil list; FC 02 reads Relay Word bit status instead (§3).</p>
+<h3>The command registers (2000h region)</h3>
+<ul>
+  <li><strong>LOGIC COMMAND (2000h, write-only):</strong> bit 0 = Breaker Close, bit 1 = Breaker Open, bit 3 = Return Status select (which FAST STATUS register a 7Dh response carries), bits 4–14 = DeviceNet aux commands. <strong>Not a bit operation</strong> — the write replaces the whole register, so every output's intended state must be in every write.</li>
+  <li><strong>RESET COMMAND (2001h, write-only):</strong> bit 0 = Trip (target) Reset, bit 1 = Set to Defaults (blocked by <code>BLKMBSET := R_S</code> or <code>ALL</code>), bit 2 = Reset Stat Data, bit 3 = Reset Hist Data, bit 4 = Reset Comm Counters, bit 6 = Reset Energy, bit 7 = Reset Max/Min, bit 8 = Reset Demand, bit 9 = Reset Peak Demand. On the SEL-751 the register is named RESET DATA: bit 1 is reserved (no remote set-to-defaults), bit 10 resets breaker-monitor data, and the same bits are also writable at plain register 261.</li>
+  <li><strong>Readback:</strong> FAST STATUS 0/1 (2100h/2101h) mirror trip/warn state plus every input and output contact status — poll them after a command to confirm the action landed. FC 7Dh bundles a control write and a status read in one query (that's how the DeviceNet card keeps its heartbeat).</li>
+</ul>
+<h3>Writing settings (751A, when BLKMBSET allows it)</h3>
+<p style="font-size:8.6pt">Any register in the settings regions can be written with FC 06/10 — but the relay only <em>acknowledges</em>; it holds the edits until no further writes arrive for SETTINGS TIMEOUT (4010h, 500–65535 ms, default 750 ms), then attempts the save. If a setting interdependency rule fails, <strong>nothing</strong> is saved: the Config Fault bit (TRIP STATUS HI bit 12) asserts and ERROR REGISTER (4016h) + ERROR ADDRESS (4017h) say why and where. There is no Modbus password on the 751A — the manual assumes "an intelligent master system" provides the security. <strong>SEL-751: none of this applies</strong> — its map has no settings registers, so a master cannot save (or corrupt) settings over Modbus at all; the 4010h/4016h/4017h product-info registers still exist at the same addresses.</p>
+
+<div class="fig"><svg viewBox="0 0 700 258" xmlns="http://www.w3.org/2000/svg">
+  <rect x="14" y="8" width="120" height="22" rx="4" fill="#1a1a22"/>
+  <text x="74" y="23" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">SCADA client</text>
+  <rect x="566" y="8" width="120" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="626" y="23" font-size="10" font-weight="600" fill="#1a1a22" text-anchor="middle">SEL-751A server</text>
+  <line x1="74" y1="30" x2="74" y2="248" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="626" y1="30" x2="626" y2="248" stroke="#d0d3da" stroke-width="1.25"/>
+
+  <!-- success path -->
+  <text x="90" y="48" font-size="8" font-weight="600" fill="#10a37f">① FC 06 · write 2000h = 0001h  (bit 0: Breaker Close — whole register)</text>
+  <path d="M80,56 H618 M612,51 L619,56 L612,61" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <g font-size="7.5" fill="#454956">
+    <text x="632" y="72">CRC ✓ · SLAVEID ✓ · relay enabled ✓</text>
+    <text x="632" y="82">register writable ✓ → execute</text>
+  </g>
+  <text x="332" y="100" font-size="8" font-weight="600" fill="#5468c4" text-anchor="end">② echo response (write accepted)</text>
+  <path d="M618,106 H82 M88,101 L81,106 L88,111" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <g font-size="7.5" fill="#454956">
+    <text x="632" y="120">close logic runs → CLOSE</text>
+    <text x="632" y="130">equation drives the contact</text>
+  </g>
+  <text x="90" y="146" font-size="8" font-weight="600" fill="#10a37f">③ FC 03 · read 2100h FAST STATUS 0</text>
+  <path d="M80,152 H618 M612,147 L619,152 L612,157" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="332" y="168" font-size="8" font-weight="600" fill="#5468c4" text-anchor="end">④ status bits: output asserted ✓ — command confirmed</text>
+  <path d="M618,174 H82 M88,169 L81,174 L88,179" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+
+  <!-- rejected path -->
+  <text x="90" y="198" font-size="8" font-weight="600" fill="#d7930a">⑤ FC 06 · write settings register — but BLKMBSET := ALL</text>
+  <path d="M80,204 H618 M612,199 L619,204 L612,209" fill="none" stroke="#d7930a" stroke-width="1.5"/>
+  <g font-size="7.5" fill="#d63a3a">
+    <text x="632" y="218">settings locked →</text>
+    <text x="632" y="228">reject, count Illegal Write</text>
+  </g>
+  <text x="332" y="234" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="end">⑥ exception: FC 86h (06h + MSB) · code 02 Illegal Data Address</text>
+  <path d="M618,240 H82 M88,235 L81,240 L88,245" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+
+  <g class="animlayer">
+    <circle r="5" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.12;0.14;1" dur="12s" repeatCount="indefinite"/><animateMotion path="M74,56 L626,56" keyPoints="0;0;1;1" keyTimes="0;0.02;0.13;1" calcMode="linear" dur="12s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#5468c4" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.17;0.19;0.28;0.30;1" dur="12s" repeatCount="indefinite"/><animateMotion path="M626,106 L74,106" keyPoints="0;0;1;1" keyTimes="0;0.18;0.29;1" calcMode="linear" dur="12s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#10a37f" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.33;0.35;0.44;0.46;1" dur="12s" repeatCount="indefinite"/><animateMotion path="M74,152 L626,152" keyPoints="0;0;1;1" keyTimes="0;0.34;0.45;1" calcMode="linear" dur="12s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#5468c4" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.59;0.61;1" dur="12s" repeatCount="indefinite"/><animateMotion path="M626,174 L74,174" keyPoints="0;0;1;1" keyTimes="0;0.49;0.60;1" calcMode="linear" dur="12s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#d7930a" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.68;0.77;0.79;1" dur="12s" repeatCount="indefinite"/><animateMotion path="M74,204 L626,204" keyPoints="0;0;1;1" keyTimes="0;0.67;0.78;1" calcMode="linear" dur="12s" repeatCount="indefinite"/></circle>
+    <circle r="5" fill="#d63a3a" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.84;0.93;0.96;1" dur="12s" repeatCount="indefinite"/><animateMotion path="M626,240 L74,240" keyPoints="0;0;1;1" keyTimes="0;0.83;0.94;1" calcMode="linear" dur="12s" repeatCount="indefinite"/></circle>
+  </g>
+</svg></div>
+<p class="figcap">A command write, end to end: validate → execute → echo → confirm via FAST STATUS. The failure branch returns the function code with its top bit set plus one exception byte — and bumps the matching comm counter.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>The user map in depth (SET M)</h2>
+<p>The manual's four-step recipe, verbatim in spirit:</p>
+<ul>
+  <li><strong>1.</strong> List the quantities SCADA needs (up to 125), in the order the master expects them.</li>
+  <li><strong>2.</strong> Look up each label in Table E.33 (<code>IA_MAG</code> 650, <code>VAB_MAG</code> 667, <code>P</code> 685, <code>FREQ</code> 689, <code>IAD</code> 1689, <code>ROW_0</code> 1805, …). Valid pointer targets are 610–1947 (SEL-751: 280–1981) — measurement and status space, not settings. Reserved gaps can be mapped too, as <code>RES_xxxx</code>.</li>
+  <li><strong>3.</strong> Load them into <code>MOD_001–125</code> — via the ASCII <code>SET M</code> command, QuickSet's Modbus User Map screen, <em>or remotely</em> by writing the addresses into registers 1–125 with FC 06/10 (the AG2016-11 pattern automates exactly this from an RTAC).</li>
+  <li><strong>4.</strong> Poll <strong>126–250</strong> with FC 03 or 04. One contiguous block, one poll.</li>
+</ul>
+<div class="callout keyfact"><strong>The poll-the-copy trap.</strong> SEL calls it out as the classic error: masters polling registers 1–125 get the <em>pointer table</em> back — the values are the fixed-map addresses (650, 652, 667…), which look plausibly like data. If SCADA shows constant round numbers that never move, you are reading the map of the map. Start the poll at 126.</div>
+<p style="font-size:8.6pt"><strong>Planning a SCADA poll:</strong> one poll can read at most 125 registers, so the user map is exactly one poll wide. Put 32-bit pairs (energy HI/LO, MV H/L) in adjacent slots in the right order, group by type so the client's variation config stays simple, and leave spare slots at the end — appending later doesn't renumber what SCADA already maps. Without a user map, the practical alternative is over-polling a range and discarding (cheaper than many small polls, per AG2015-29) — the user map beats both.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Reading event history over Modbus</h2>
+<p>The 751A exposes its last <strong>50 event summaries</strong> through a select-then-read window in the Historical Data region:</p>
+<ul>
+  <li><code>1746</code> NO. EVENT LOGS (how many exist) · <code>1747</code> EVENT LOG SEL (R/W) — <strong>write the event number 1–50</strong> you want. (SEL-751: count at 1691, select at 1692, window 1693–1718 — same freeze/free-run semantics, and its window adds fault location and fault impedance, with a trip-type enum running 0–71.)</li>
+  <li>Then read <code>1748–1773</code>: timestamp (seconds ×0.01, minutes, hours, day/month/year), EVENT TYPE (enum 0–55: which 50/51/27/59/81/RTD/arc-flash element tripped, or fault type with/without OC trip), EVENT TARGETS (front-panel LED bitmap), fault-time IA/IB/IC/IN/IG, VAB/VBC/VCA, VG, delta/wye, frequency (×0.01), max RTDs.</li>
+  <li>Writing a nonzero selection <strong>freezes</strong> the window on that event; <strong>write 0</strong> to return to free-running mode, where the registers always track the latest event. After a power cycle the window shows the latest event.</li>
+</ul>
+<p style="font-size:8.6pt">That's summaries only — full oscillography still comes via SEL ASCII/QuickSet, not Modbus. (The SEL-735 meter goes further: full SER records and load-profile history are readable over Modbus — §7.)</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>The SEL-735 meter: a second map, different rules</h2>
+<p>Same protocol, different philosophy — the 735's map is <strong>typed</strong> (INT/UINT, INT×10/×100/×1000, LONG, LONG×10…×10000, STRING, ENUM, BITMAP) instead of a multiplier column, and revenue data gets real access control.</p>
+<table>
+  <tr><th>Registers</th><th>Region</th><th>Contrast with the 751A</th></tr>
+  <tr><td class="mono">0–61</td><td>Device config</td><td>FID, serial number, MID/TID as null-terminated STRINGs (the Meter ID spans 11 registers)</td></tr>
+  <tr><td class="mono">70–81</td><td>Control I/O</td><td>Password (70–74, write-only STRING), Drop Access 75, <strong>Save Settings 76</strong>, Discard 77, resets 78–80</td></tr>
+  <tr><td class="mono">100–149</td><td>Device Word status</td><td>one row per register — packed in the <strong>most significant byte</strong> (751A rows pack the LSB)</td></tr>
+  <tr><td class="mono">160–182</td><td>Comm counters + diagnostics</td><td>same counter idea; BATT/TEMP enums (0 OK / 1 WARN / 2 FAIL)</td></tr>
+  <tr><td class="mono">200–205</td><td>Time (R/W)</td><td>set the meter clock via Modbus writes</td></tr>
+  <tr><td class="mono">210–266</td><td>SER access</td><td>write a start date/time (210–215) + Selected Starting Record (216), read count available (217) and <strong>10 records per window</strong> — write 11 to get records 11–20</td></tr>
+  <tr><td class="mono">350–599</td><td>V, I, power, demand</td><td>metering is 32-bit <strong>LONG100</strong> pairs (÷100), most significant word in the lower address</td></tr>
+  <tr><td class="mono">600–631+</td><td>Energy</td><td>WH3_DEL/REC, per-phase, NET — 32-bit LONG; units follow the meter's energy scaling settings</td></tr>
+  <tr><td class="mono">5000–9085</td><td>Load profile</td><td>select recorder (5000), channel names 5020–5170, starting date/time 5180–5185, then up to 100 records per window</td></tr>
+  <tr><td class="mono">9100–9349</td><td>User map</td><td>same two-block scheme, different addresses: pointers 9100–9224 (R/W), values 9225–9349 (R)</td></tr>
+</table>
+<div class="callout warn"><strong>Password-gated writes.</strong> MID, TID, password, device time, and the user map are settable — but only after writing a valid <strong>Access Level E password</strong> (default <code>BLONDEL</code>) into registers 70–74 with FC 10h, packed two ASCII characters per register (B=66, L=76 → 16972 in register 70). Writes then land in a <em>temporary copy</em> until you write 0x0001 to Save Settings (76); write 0x0001 to Discard (77) or Drop Access (75) to abandon, and access times out 15 minutes after the last valid write. AG2016-11 automates the whole dance (password → map → save) from an RTAC with the FileIO library. Coils exist too: 0–2 OUT101–103, 3–6 OUT401–404, 7–22 RB01–16, 23–38 pulse RB — physical coils self-resetting, same as the relay.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Troubleshooting on the relay end</h2>
+<h3>The comm counters tell you which failure (751A registers 1789–1798 · 751: same ten counters, same order, at 1740–1749)</h3>
+<table>
+  <tr><th>Register</th><th>Counter</th><th>It increments when…</th></tr>
+  <tr><td class="mono">1789 / 1790</td><td>NUM MSG RCVD / NUM OTHER MSG</td><td>valid frames for me / valid frames addressed to some other SLAVEID — proves the wire works</td></tr>
+  <tr><td class="mono">1791</td><td>INVALID ADDR</td><td>query touched a register/coil outside the map, or a region this hardware doesn't have → exception 02h</td></tr>
+  <tr><td class="mono">1792 / 1793</td><td>BAD CRC / UART ERROR</td><td>corrupt frames or byte-level errors — wiring, termination, or a baud/parity/stop mismatch</td></tr>
+  <tr><td class="mono">1794 / 1795</td><td>ILLEGAL FUNCTION / ILLEGAL REGISTER</td><td>unsupported FC (e.g. FC 0Fh to a 751A) / bad register count in the query</td></tr>
+  <tr><td class="mono">1796</td><td>ILLEGAL WRITE</td><td>write to read-only or locked registers — the BLKMBSET signature</td></tr>
+  <tr><td class="mono">1797 / 1798</td><td>BAD PKT FORMAT / LENGTH</td><td>malformed queries → exception 03h</td></tr>
+</table>
+<p style="font-size:8.6pt">Reset them with RESET COMMAND bit 4. FC 08h subfunction 0000h is a pure echo — the definitive "is the channel itself good" test.</p>
+<h3>Symptom → cause</h3>
+<ul>
+  <li><strong>Dead silence:</strong> RTU discards bad-CRC and other-address frames without replying. If NUMOTH climbs but NUMRCV doesn't → wrong SLAVEID. BADCRC/UARTERR climbing → serial parameters or wiring. Nothing climbing → wrong port, <code>PROTO</code> not MOD, or Port 4 <code>COMMINF</code> on the wrong interface.</li>
+  <li><strong>Exception 02h on reads that "should work":</strong> 0-based vs 4X off-by-one, a register range spanning into reserved space, or hardware-dependent registers for a card that isn't installed.</li>
+  <li><strong>Exception 02h on writes:</strong> read-only target or settings locked (<code>BLKMBSET</code>). Exception 04h: relay disabled. Exception 06h: busy — retry.</li>
+  <li><strong>Values wrong by a clean factor:</strong> multiplier not applied (×0.1 angles, ×0.01 PF/frequency, ×0.001 energy), or a 32-bit pair read in the wrong register order.</li>
+  <li><strong>TCP session dies mid-shift:</strong> MTIMEO (default 15 s) closed an idle session — poll faster than the timeout or raise it.</li>
+  <li><strong>EIA-485 physical layer (751A):</strong> four-wire — +TX, −TX, +RX, −RX plus Shield on the 5-pin plug-in connector (terminals _01–_05), wire AWG 26–14 stripped 8 mm. EIA-232 is good to 15 m in low noise; EIA-485 to 1200 m <em>with proper line termination at the receiver</em>. Past ~100 ft where metallic cable isn't appropriate, SEL points at its fiber transceivers (SEL-2800 family).</li>
+  <li><strong>Settings changed by themselves:</strong> a Modbus/DeviceNet master wrote them (a rebooting PLC can push defaults). <code>BLKMBSET := ALL</code>, and check ERROR REGISTER 4016h for the write trail.</li>
+</ul>
+<p style="font-size:8.6pt"><strong>  </p>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/modbus/fundamentals.html">Modbus Fundamentals</a>
+  <a href="atlas:data-protocols/modbus/on-the-rtac.html">Modbus on the RTAC</a>
+  <a href="atlas:relays-devices/metering.html">Revenue &amp; Panel Metering</a>
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+</div>
+<p class="footnote">Sources: SEL-751A Relay Instruction Manual (751A_IM_20250411.pdf) — Appendix E: Modbus Communications (function codes, exception codes, coil tables, Table E.33 labels, Table E.34 register map, SET M, history access, command/product regions), Section 4 SET P port settings &amp; BLKMBSET, Section 2/7 EIA-485 wiring and distances; SEL-751 Relay Instruction Manual (751_IM_20260327.pdf) — Appendix E: Modbus Communications (Table E.35 register map, Table E.14 coils, SET M/Table E.33, history access, control &amp; product regions) and Section 4 port settings (EMOD/MODNUM/MTIMEO/MODIP) — the source for every SEL-751 (no A) address and the map-divergence callout in §3; SEL AG2015-29, "Modbus User Map Configuration on SEL-700 Series Relays" — user map worked example, poll-planning rationale; SEL AG2016-11, "Setting the Modbus User Map on the SEL-734 and SEL-735 Meters Using the RTAC and FileIO Library" — EAC password mechanics, 735/734 user map addresses; SEL-735 Instruction Manual (735_IM_20250711.pdf) — Appendix E: Modbus and FTP Communications Protocols (data types, register map, SER/load-profile access, password control); SEL AG2022-04, "Modbus Configuration for SEL-700 Series Relays and RTAC Devices" — device/function-code support matrix, SEL-751 map examples. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

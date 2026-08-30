@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Arc-Flash Detection</title>
+<meta name="atlas-order" content="140">
+<meta name="atlas-tags" content="arc flash,AFD,50PAF,50NAF,TOL,time-overlight,light sensor,point sensor,loop sensor,AOUTSLOT,incident energy,maintenance mode">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Arc-Flash Detection (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Arc-Flash Detection</h1>
+  <p>Light plus current, in a handful of milliseconds — sensors, elements, the trip equation SEL recommends, and the other ways to lower incident energy</p>
+  <div class="chips"><span>AFD</span><span>50PAF / 50NAF</span><span>TOL</span><span>point &amp; loop sensors</span><span>AOUTSLOT</span><span>maintenance mode</span><span>SEL-751</span><span>SEL-849</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Arc-flash detection</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Incident energy is current times time.</strong> You usually cannot change the current, so the only lever is clearing time &mdash; and arc-flash detection exists to make that time very small.</li>
+<li><strong>Light is faster than current filtering.</strong> The arc-flash overcurrent elements work on <strong>raw A/D samples</strong> and need only two consecutive samples above threshold, so the current decision is made in a fraction of a cycle rather than a full one.</li>
+<li><strong>Trip on light AND current.</strong> Light alone is fast but insecure; current alone is what you already have. The combination is both fast and secure, and it is the recommended scheme.</li>
+<li><strong>Sensors must see the arc, and must not see the sun.</strong> Direct sunlight can exceed 20,000&nbsp;lux &mdash; comparable to an arc &mdash; so do not install arc-flash sensors where sunlight can reach them.</li>
+<li><strong>The output contact matters.</strong> Fast high-current interrupting outputs operate roughly 8&nbsp;ms faster than standard outputs &mdash; but only in non-failsafe mode &mdash; and the output must be listed in <code>AOUTSLOT</code> so its logic is processed every 1/16 cycle instead of every 1/4 cycle.</li>
+<li><strong>Detection is one of several tools.</strong> Maintenance-mode settings groups, bus blocking schemes, and remote racking all reduce exposure too, and they are complementary.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Why clearing time is the whole game</h2>
+<p>An arcing fault in switchgear releases energy into the surrounding air as heat, pressure, and molten metal. The energy a worker at a given distance receives &mdash; incident energy &mdash; scales roughly with the arcing current and directly with how long the arc burns. Halve the clearing time and you halve the incident energy.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Same arcing fault, four clearing times &mdash; the energy delivered scales with duration</text>
+
+  <line x1="120" y1="196" x2="670" y2="196" stroke="#a9adb8"/>
+  <text x="395" y="216" font-size="7.4" fill="#8a8e9b" text-anchor="middle">relative incident energy at the working distance</text>
+
+  <g font-size="7.6">
+    <text x="112" y="52" text-anchor="end" fill="#454956">Coordination delay</text>
+    <text x="112" y="63" text-anchor="end" fill="#8a8e9b">~500 ms</text>
+    <rect x="120" y="38" width="530" height="22" rx="3" fill="#d63a3a"/>
+    <text x="658" y="53" font-size="7.4" fill="#d63a3a">very high</text>
+
+    <text x="112" y="92" text-anchor="end" fill="#454956">Instantaneous 50</text>
+    <text x="112" y="103" text-anchor="end" fill="#8a8e9b">~80 ms (relay + breaker)</text>
+    <rect x="120" y="78" width="85" height="22" rx="3" fill="#d7930a"/>
+    <text x="213" y="93" font-size="7.4" fill="#9c6d06">high</text>
+
+    <text x="112" y="132" text-anchor="end" fill="#454956">Maintenance-mode setting</text>
+    <text x="112" y="143" text-anchor="end" fill="#8a8e9b">~60 ms</text>
+    <rect x="120" y="118" width="64" height="22" rx="3" fill="#5468c4"/>
+    <text x="192" y="133" font-size="7.4" fill="#5468c4">reduced</text>
+
+    <text x="112" y="172" text-anchor="end" fill="#454956">Arc-flash detection</text>
+    <text x="112" y="183" text-anchor="end" fill="#8a8e9b">~40 ms, mostly breaker time</text>
+    <rect x="120" y="158" width="42" height="22" rx="3" fill="#10a37f"/>
+    <text x="170" y="173" font-size="7.4" fill="#0d7f63">lowest achievable with this breaker</text>
+  </g>
+
+  <!-- sweeping timer -->
+  <line y1="32" y2="192" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.4">
+    <animate attributeName="x1" values="120;670" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="120;670" dur="5s" repeatCount="indefinite"/>
+  </line>
+
+  <rect x="8" y="222" width="684" height="16" rx="3" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="20" y="234" font-size="7.6" fill="#0d7f63">Below the detection time, the breaker's own interrupting time dominates &mdash; which is why detection speed eventually stops helping and arc-quenching devices take over.</text>
+</svg></div>
+<p class="figcap">Detection removes the relay's decision time from the total. What remains is the breaker, and that sets the floor. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>The sensors</h2>
+<p>Arc-flash light sensors are rugged flexible optical assemblies that plug into the relay's arc-flash input card with a dual V-pin latch. A black-jacketed zipcord duplex fiber &mdash; two fiber leads molded together &mdash; runs from the card to the detection area, where it connects to the clear light-sensing portion.</p>
+<div class="twocol">
+<div>
+<h3>Point sensors</h3>
+<ul>
+<li>A small collector lens aimed at a <strong>specific area</strong> &mdash; a breaker compartment, a cable termination cubicle.</li>
+<li>The black-jacketed fiber run is limited to <strong>35&nbsp;metres (about 115&nbsp;ft)</strong>.</li>
+<li>Two variants: a <strong>standard point sensor</strong> mounted inside the switchgear, and a <strong>window point sensor</strong> mounted outside &mdash; useful where the interior is hard to access.</li>
+</ul>
+</div>
+<div>
+<h3>Fiber loop sensors</h3>
+<ul>
+<li>A length of clear-jacketed fiber routed as a <strong>loop through a larger area</strong> &mdash; a bus compartment, a whole cubicle row.</li>
+<li>The clear-jacketed loop portion can run up to <strong>50&nbsp;metres</strong>, with black-jacketed sections up to <strong>30&nbsp;metres</strong>, and the <strong>total fiber length of the sensor must be under 70&nbsp;metres</strong>.</li>
+<li>Better coverage, less precise location &mdash; you learn that <em>somewhere</em> in the loop's area an arc occurred.</li>
+</ul>
+</div>
+</div>
+<div class="callout warn">
+<strong>Placement is the design.</strong> A sensor that cannot see the arc detects nothing, and a sensor that can see daylight is a nuisance trip waiting for a sunny afternoon. Point sensors in compartments where you want to know exactly which one; loop sensors for open bus areas. Never where direct sunlight can reach.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>The elements, and how to set them</h2>
+<table>
+  <tr><th>Element</th><th>What it is</th><th>Setting guidance</th></tr>
+  <tr><td><strong>50PAF</strong> &mdash; arc-flash phase overcurrent</td><td>Works on raw A/D samples; requires two consecutive samples above threshold to declare an overcurrent condition</td><td>Set <code>50PAFP</code> at <strong>at least twice the expected maximum load</strong>. Fast sample-based detectors are susceptible to harmonics, so the margin is there to prevent unintended pickup</td></tr>
+  <tr><td><strong>50NAF</strong> &mdash; arc-flash neutral overcurrent</td><td>Same fast sample-based detection, on the neutral quantity</td><td>Set <code>50NAFP</code> like a standard neutral overcurrent element plus margin for harmonics &mdash; about <strong>half the available ground-fault current</strong>, but never below the natural ground current produced by load or system unbalance</td></tr>
+  <tr><td><strong>TOL</strong> &mdash; time-overlight</td><td>One inverse TOL element per light sensor input. Two settings per element: the sensor type (none, point, or fiber loop) and the pickup in percent of A/D converter range</td><td>Set <code>TOLnP</code> at the lowest level above the highest expected ambient light at that sensor. A properly placed sensor reads <strong>100%</strong> during a real arc-flash event, so there is enormous headroom</td></tr>
+</table>
+
+<h3>Measuring the ambient</h3>
+<p>The recommended way to establish the TOL pickup is to expose each sensor to its worst-case ambient light and read the actual value, using the <code>MET L</code> command (or <em>Meter &rarr; Light Intensity</em> from the front panel):</p>
+<pre style="background:#f2f3f5;border-radius:6px;padding:8px 12px;font-family:Consolas,monospace;font-size:8.5pt;line-height:1.5;overflow-x:auto;margin:6px 0 10px">=&gt;&gt; MET L &lt;Enter&gt;
+
+SEL-751A                        Date: 12/01/2008 Time: 15:45:14
+FEEDER RELAY                    Time Source: External
+
+Light Intensity
+
+LS1 (%)                    2.4
+LS2 (%)                    1.9
+LS3 (%)                    0.7
+LS4 (%)                    2.3</pre>
+<p>Ambient in the low single digits of percent, an arc at 100% &mdash; the separation is large, which is why a small margin above measured ambient is sufficient as long as the trip is also supervised by current.</p>
+<div class="callout">
+<strong>The overcurrent elements will pick up briefly during inrush.</strong> That is expected and harmless, because the light supervision keeps the relay from declaring an arc-flash condition. This is the practical reason the AND scheme is preferred: each element covers the other's false-positive mode.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>The trip logic</h2>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Light and current must both be present &mdash; and the output path is chosen for speed</text>
+
+  <!-- inputs -->
+  <rect x="20" y="46" width="130" height="40" rx="5" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+  <text x="85" y="64" text-anchor="middle" font-size="8" font-weight="600" fill="#9c6d06">TOLn</text>
+  <text x="85" y="78" text-anchor="middle" font-size="7" fill="#6e7180">light above pickup</text>
+
+  <rect x="20" y="112" width="130" height="40" rx="5" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+  <text x="85" y="130" text-anchor="middle" font-size="8" font-weight="600" fill="#d63a3a">50PAF or 50NAF</text>
+  <text x="85" y="144" text-anchor="middle" font-size="7" fill="#6e7180">2 consecutive A/D samples</text>
+
+  <!-- AND gate -->
+  <path d="M200,54 H236 A34,34 0 0,1 236,140 H200 Z" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <text x="222" y="102" text-anchor="middle" font-size="8.4" font-weight="600" fill="#1a1a22">AND</text>
+  <line x1="150" y1="66" x2="200" y2="72" stroke="#d7930a" stroke-width="1.4"/>
+  <line x1="150" y1="132" x2="200" y2="122" stroke="#d63a3a" stroke-width="1.4"/>
+
+  <!-- OR with TRIP -->
+  <line x1="270" y1="97" x2="310" y2="97" stroke="#1a1a22" stroke-width="1.4"/>
+  <path d="M312,72 q22,25 0,50 q18,-25 0,-50" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <path d="M312,72 q22,25 0,50 H330 A26,26 0 0,0 330,72 Z" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <text x="330" y="101" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a22">OR</text>
+  <rect x="236" y="160" width="76" height="24" rx="4" fill="#eef0f9" stroke="#5468c4" stroke-width="1.2"/>
+  <text x="274" y="176" text-anchor="middle" font-size="7.6" fill="#5468c4">TRIP</text>
+  <path d="M312,172 H320 V122" stroke="#5468c4" stroke-width="1.3" fill="none"/>
+
+  <!-- output -->
+  <line x1="356" y1="97" x2="400" y2="97" stroke="#1a1a22" stroke-width="1.4"/>
+  <rect x="400" y="76" width="150" height="42" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="475" y="94" text-anchor="middle" font-size="8" font-weight="600" fill="#0d7f63">OUTxxx</text>
+  <text x="475" y="108" text-anchor="middle" font-size="7" fill="#6e7180">fast high-current interrupting</text>
+  <line x1="550" y1="97" x2="600" y2="97" stroke="#1a1a22" stroke-width="1.4"/>
+  <rect x="600" y="80" width="80" height="34" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <text x="640" y="101" text-anchor="middle" font-size="7.6" fill="#1a1a22">trip coil</text>
+
+  <!-- pulse animation -->
+  <circle r="3.5" fill="#d7930a"><animateMotion dur="2.4s" repeatCount="indefinite" path="M150,66 L200,72"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" repeatCount="indefinite"/></circle>
+  <circle r="3.5" fill="#d63a3a"><animateMotion dur="2.4s" repeatCount="indefinite" path="M150,132 L200,122"/><animate attributeName="opacity" values="0;1;1;0" dur="2.4s" repeatCount="indefinite"/></circle>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="2.4s" begin="0.5s" repeatCount="indefinite" path="M270,97 H680"/><animate attributeName="opacity" values="0;0;1;1;0" dur="2.4s" begin="0.5s" repeatCount="indefinite"/></circle>
+
+  <!-- equation and notes -->
+  <rect x="20" y="196" width="660" height="46" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="34" y="213" font-size="8" font-weight="600" fill="#1a1a22">The recommended equation</text>
+  <text x="34" y="228" font-size="8.4" font-family="Consolas, monospace" fill="#0d7f63">OUTxxx = (50PAF OR 50NAF) AND TOLn OR TRIP</text>
+  <text x="360" y="228" font-size="7.4" fill="#8a8e9b">&mdash; and add the arc-flash conditions to the TR equation as well, so trip seal-in and event triggering still apply.</text>
+</svg></div>
+<p class="figcap">Multiple sensors covering one section are simply OR'd together in the TOL term. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h4>Two speed details that are easy to miss</h4>
+<ul>
+<li><strong>Use the fast high-current interrupting outputs</strong> for the arc-flash trip. They operate about <strong>8&nbsp;ms faster</strong> than standard outputs &mdash; but that advantage exists only in <em>non-failsafe</em> mode. Configure a fast output in failsafe mode and it is no quicker than a standard one.</li>
+<li><strong>Include the output in <code>AOUTSLOT</code>.</strong> Doing so causes that output's logic to be processed every <strong>1/16 of a cycle</strong> instead of the relay's typical 1/4-cycle interval. On a 60&nbsp;Hz system that is roughly a 3&nbsp;ms saving, for free.</li>
+</ul>
+<div class="callout warn">
+<strong>The unsupervised variant exists, and is normally not recommended.</strong> <code>OUTxxx = TOLn OR TRIP</code> trips on light alone. It is marginally faster and considerably less secure, since bright light by itself will trip the breaker. Reserve it for genuinely noncritical loads, and understand exactly what will trip them.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Commissioning</h2>
+<ol>
+<li><strong>Current only.</strong> With a standard test set, apply currents below <code>50PAFP</code> and <code>50NAFP</code>, then ramp up slowly and verify the <code>50PAF</code> and <code>50NAF</code> Relay Word bits assert. Confirm the relay does <em>not</em> trip on arc-flash logic with current alone.</li>
+<li><strong>Light only.</strong> Expose each sensor to a light source above its <code>TOLnP</code> pickup and verify the corresponding <code>TOL</code> bit asserts &mdash; and again that no trip occurs with light alone.</li>
+<li><strong>Both together.</strong> Apply current above pickup and light above pickup simultaneously; the relay should trip, and the event report should show both conditions.</li>
+<li><strong>Verify sensor-to-compartment mapping.</strong> Illuminate one sensor at a time and confirm the relay identifies the right one. Mislabeled sensors give you a fast trip and no idea where the arc was.</li>
+<li><strong>Record the ambient readings</strong> from <code>MET L</code> as your as-commissioned baseline, so a future drift (a new light fixture, a door left open) is detectable.</li>
+<li><strong>Check the output configuration:</strong> the trip output is a fast high-current interrupting contact, it is in non-failsafe mode, and it is listed in <code>AOUTSLOT</code>.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">6</span>The other levers on incident energy</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #5468c4">
+    <b>Maintenance-mode settings group</b>
+    <span>A second settings group with a fast, low-set instantaneous, selected only while people are working nearby. Trades selectivity for speed, deliberately and temporarily. Needs a clear indication and a SCADA point so nobody leaves it in.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Bus blocking / zone-selective interlocking</b>
+    <span>Feeder relays send a fast block to the main when they see the fault; absent a block, the main trips immediately. Gives near-instantaneous bus protection without sacrificing feeder selectivity.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Bus differential</b>
+    <span>Where a dedicated 87B exists it clears bus faults in under a cycle with no coordination delay at all &mdash; see <a href="atlas:protection/bus-protection-87b.html">Bus Protection</a>.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Remote racking and remote operation</b>
+    <span>Moves the person out of the arc-flash boundary entirely. The most effective mitigation is not being there.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Arc-quenching / crowbar devices</b>
+    <span>Deliberately create a bolted fault to collapse the arc voltage, transferring energy away from the arc. Fast, expensive, and independent of breaker time.</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>Study, label, and PPE</b>
+    <span>The incident-energy study and the equipment label are what make every other decision defensible &mdash; and they must be updated when protection settings change.</span>
+  </div>
+</div>
+<div class="callout keyfact">
+<strong>Changing protection settings changes the arc-flash label.</strong> If you make a coordination change that adds delay, the incident energy at that equipment went up and the label is now wrong. Feed protection changes back to whoever owns the arc-flash study &mdash; this is a real and frequently missed obligation.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Which relays, and gotchas</h2>
+<p>SEL relays that combine light sensing with fast overcurrent for arc-flash detection include the <strong>SEL-751</strong> and <strong>SEL-751A</strong> feeder relays, the <strong>SEL-710-5</strong> motor relay, the <strong>SEL-851</strong> feeder relay, and the <strong>SEL-849</strong> motor management relay. The SEL-849 has a built-in fiber-optic arc-flash detector input; the SEL-710-5 offers four- or eight-channel arc-flash detector cards as options.</p>
+<ul>
+<li><strong>Sunlight.</strong> Above about 20,000&nbsp;lux, direct sun looks like an arc. Never place sensors where sun can reach them, including through a door that is opened for maintenance.</li>
+<li><strong>Fiber length limits are hard limits.</strong> 35&nbsp;m for a point sensor's black fiber; 30&nbsp;m black plus 50&nbsp;m clear with a 70&nbsp;m total for a loop. Exceeding them costs sensitivity quietly.</li>
+<li><strong>Failsafe mode silently removes the speed benefit</strong> of the fast output. Check the mode, not just the contact type.</li>
+<li><strong>Forgetting <code>AOUTSLOT</code></strong> leaves a few milliseconds on the table for no reason.</li>
+<li><strong>Setting <code>50PAFP</code> from load rather than from twice load</strong> risks harmonic pickup on the sample-based detector.</li>
+<li><strong>Omitting the arc-flash terms from <code>TR</code></strong> means no trip seal-in and no event report &mdash; you get the trip but lose the evidence.</li>
+<li><strong>Sensor damage during construction.</strong> Clear fiber is not rugged cable. Inspect and re-run <code>MET L</code> after any switchgear work.</li>
+<li><strong>Arc-flash detection does not replace the study.</strong> It lowers the number; somebody still has to calculate and label it.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:commissioning/safety-practices.html">Safety Practices</a>
+  <a href="atlas:protection/bus-protection-87b.html">Bus Protection (87B)</a>
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
+  <a href="atlas:protection/motor-protection.html">Motor Protection</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+</div>
+<p class="footnote">Sources: SEL AG2011-01 &ldquo;Using SEL Relays for Arc-Flash Detection&rdquo; (Zeller, Hargrave, Haas; date code 20230518) &mdash; relay list (SEL-751, SEL-751A, SEL-710-5, SEL-851, SEL-849), point and loop sensor construction and length limits (35 m black-jacketed for point sensors; up to 30 m black plus up to 50 m clear with a 70 m total for loop sensors), the raw-A/D two-consecutive-sample basis of 50PAF/50NAF, the 50PAFP &ge; 2&times; maximum load and 50NAFP &asymp; half available ground-fault current guidance, TOL element settings and the <code>MET L</code> ambient-measurement method with its sample output, the &gt;20,000 lux sunlight caution, the fast high-current interrupting output 8 ms advantage and its non-failsafe-only caveat, the <code>AOUTSLOT</code> 1/16-cycle versus 1/4-cycle processing note, the recommended equation <code>OUTxxx = (50PAF OR 50NAF) AND TOLn OR TRIP</code> and the less-secure light-only alternative, the recommendation to add arc-flash conditions to <code>TR</code>, and the commissioning sequence. SEL-849 and SEL-710-5 data sheets (20250117, 20250501) for the built-in and optional arc-flash detector input configurations. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

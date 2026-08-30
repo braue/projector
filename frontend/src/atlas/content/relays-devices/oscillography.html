@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Oscillography — EVE, CEV & COMTRADE</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="event report,COMTRADE,oscillography,waveform,filtered,raw,EVE">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Oscillography — EVE, CEV & COMTRADE (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Oscillography — EVE, CEV & COMTRADE</h1>
+  <p>Triggered waveform capture — anatomy, filtered vs. raw, the report flavors, retrieval, and file sets</p>
+  <div class="chips"><span>EVE</span><span>CEV</span><span>COMTRADE</span><span>LER</span><span>TRI</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">The two shapes</h3>
+<ul style="margin-bottom:8px">
+<li>Everything recorded is one of two shapes: a <strong>triggered waveform snapshot</strong> (EVE / CEV / COMTRADE) or a <strong>continuous change log</strong> (SER, and SOE at the system level). SUM and HIS are the index cards.</li>
+<li>Waveforms answer <em>what did the signals do</em>. The SER answers <em>what happened first</em>. A complete analysis pulls both.</li>
+<li>A snapshot only exists if something triggered it — TRIP/TR, the <code>ER</code> equation, or a <code>TRI</code>/<code>TRIGGER</code> command. No trigger, no record.</li>
+</ul>
+<h3>Oscillography</h3>
+<ul style="margin-bottom:2px">
+<li>The relay is always buffering; the trigger just <strong>freezes a window</strong> — PRE cycles of prefault, LER cycles total.</li>
+<li><strong>Filtered is the relay's eye</strong> (triage). <strong>Raw is the system's truth</strong> (analysis) — DC offset, harmonics, CT saturation only show in <code>CEV R</code> or native COMTRADE.</li>
+<li>Storage is finite and nonvolatile: new events push out the oldest — and <strong>changing LER erases everything stored</strong>. Retrieve first, reconfigure second.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Two kinds of records</h2>
+<p>Oscillography is a snapshot: analog samples and Relay Word bits for a fixed window around a trigger, nothing outside it. The log runs continuously: one timestamped entry per state change, no waveform. The same disturbance lands in both — differently.</p>
+<div class="fig"><svg viewBox="0 0 700 132" xmlns="http://www.w3.org/2000/svg">
+  <text x="24" y="20" font-size="9.5" font-weight="600" fill="#5468c4">SER / SOE — continuous log</text>
+  <line x1="24" y1="42" x2="688" y2="42" stroke="#5468c4" stroke-width="1.5"/>
+  <g stroke="#5468c4" stroke-width="1.75">
+    <line x1="70" y1="34" x2="70" y2="50"/><line x1="210" y1="34" x2="210" y2="50"/>
+    <line x1="412" y1="34" x2="412" y2="50"/><line x1="422" y1="34" x2="422" y2="50"/><line x1="432" y1="34" x2="432" y2="50"/><line x1="444" y1="34" x2="444" y2="50"/>
+    <line x1="560" y1="34" x2="560" y2="50"/>
+  </g>
+  <text x="70" y="62" font-size="8" fill="#a9adb8" text-anchor="middle">power-up</text>
+  <text x="210" y="62" font-size="8" fill="#a9adb8" text-anchor="middle">setting change</text>
+  <text x="428" y="62" font-size="8" fill="#a9adb8" text-anchor="middle">pickup · trip · 52a (1 ms tags)</text>
+  <text x="560" y="62" font-size="8" fill="#a9adb8" text-anchor="middle">reclose</text>
+  <line x1="410" y1="12" x2="410" y2="118" stroke="#d63a3a" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="410" y="10" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">fault / trigger</text>
+  <text x="24" y="88" font-size="9.5" font-weight="600" fill="#9c6d06">EVE / CEV / COMTRADE — triggered snapshot</text>
+  <line x1="24" y1="106" x2="368" y2="106" stroke="#e5e7eb" stroke-width="4"/>
+  <line x1="512" y1="106" x2="688" y2="106" stroke="#e5e7eb" stroke-width="4"/>
+  <rect x="368" y="96" width="42" height="20" fill="#d7930a" opacity="0.22" stroke="#d7930a" stroke-width="1"/>
+  <rect x="410" y="96" width="102" height="20" fill="#d7930a" opacity="0.42" stroke="#d7930a" stroke-width="1"/>
+  <text x="389" y="110" font-size="7.5" fill="#9c6d06" text-anchor="middle">PRE</text>
+  <text x="461" y="110" font-size="7.5" fill="#7c4a06" text-anchor="middle">fault + clearing</text>
+  <text x="600" y="102" font-size="8" fill="#d0d3da" text-anchor="middle">nothing recorded out here</text>
+  <text x="686" y="130" font-size="8.5" fill="#a9adb8" text-anchor="end">time →</text>
+  <g class="animlayer">
+    <line x1="24" y1="26" x2="24" y2="118" stroke="#1a1a22" stroke-width="1" opacity="0.4">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="664 0" dur="10s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="70" cy="42" r="6" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.06;0.08;0.14;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="210" cy="42" r="6" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.27;0.29;0.35;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="428" cy="42" r="10" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.5;0;0" keyTimes="0;0.58;0.60;0.63;0.67;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="368" y="96" width="144" height="20" fill="none" stroke="#d63a3a" stroke-width="1.75" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.58;0.60;0.75;0.80;1" dur="10s" repeatCount="indefinite"/>
+    </rect>
+    <circle cx="560" cy="42" r="6" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.79;0.81;0.87;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">The log catches everything, thinly; the snapshot catches one window, densely.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The whole family at a glance</h2>
+<table>
+  <tr><th>Record</th><th>Shape</th><th>What it holds</th><th>Resolution</th><th>Typical retrieval</th></tr>
+  <tr><td><strong>Event Summary</strong></td><td>index</td><td>One-screen overview: date/time, event type, targets, fault values. Auto-messaged out a port when <code>AUTO = Y</code>.</td><td>—</td><td class="mono">SUM / CSUMMARY</td></tr>
+  <tr><td><strong>Event History</strong></td><td>index</td><td>List of stored events (number, date/time, type) — pick which report to pull.</td><td>—</td><td class="mono">HIS / CHISTORY</td></tr>
+  <tr><td><strong>Event Report</strong></td><td>snapshot</td><td>ASCII oscillogram: filtered analogs + selected Relay Word bits, human-readable columns.</td><td>4 s/cyc (typ.)</td><td class="mono">EVE n (EVE R = raw)</td></tr>
+  <tr><td><strong>Compressed Event</strong></td><td>snapshot</td><td>Comma-delimited ASCII with checksums, built for software; carries <em>all</em> Relay Word bits (+ extras like frequency, arc-flash light).</td><td>¼-cyc; R = 1/16-cyc raw; L = 8 s/cyc (400 ser.)</td><td class="mono">CEV n / CEV R / CEV L</td></tr>
+  <tr><td><strong>COMTRADE</strong></td><td>snapshot</td><td>IEEE C37.111 interchange file set (.CFG/.DAT/.HDR) any tool can read. Native binary on 400-series (8 kHz raw, &lt;10 µs tags); others via conversion.</td><td>up to 8 kHz</td><td class="mono">FILE / FTP</td></tr>
+  <tr><td><strong>SER</strong></td><td>log</td><td>Sequential Events Recorder — chronological digital state changes: monitored Relay Word bits plus automatic entries (power-up, settings change, group change). Nonvolatile.</td><td>1 ms tags</td><td class="mono">SER / CSER</td></tr>
+  <tr><td><strong>Fast SER</strong></td><td>stream</td><td>Same SER entries pushed in real time over SEL Fast SER protocol to an RTAC / comms processor (point names via <code>SNS</code>).</td><td>1 ms tags</td><td>collected automatically</td></tr>
+  <tr><td><strong>SOE</strong></td><td>log</td><td>Sequence of Events — the <em>system-level</em> log the RTAC/SCADA assembles from Fast SER, DNP events, and its own diagnostics.</td><td>as sourced</td><td>RTAC web UI / CSV</td></tr>
+</table>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Oscillography: anatomy of a capture</h2>
+<p>All flavors of event report share the same capture machinery — they differ only in formatting and sample treatment. The relay samples continuously into a rolling buffer; a trigger (TRIP/TR, the <code>ER</code> SELOGIC equation, or a <code>TRI</code>/<code>TRIGGER</code> command) freezes a window of it into storage.</p>
+<div class="fig"><svg viewBox="0 0 700 112" xmlns="http://www.w3.org/2000/svg">
+  <text x="24" y="16" font-size="9" fill="#a9adb8">rolling buffer — always sampling, continuously overwritten</text>
+  <rect x="24" y="24" width="664" height="14" rx="3" fill="#f2f3f5" stroke="#d0d3da" stroke-width="1"/>
+  <line x1="330" y1="46" x2="330" y2="96" stroke="#d7930a" stroke-width="1"/>
+  <line x1="560" y1="46" x2="560" y2="96" stroke="#d7930a" stroke-width="1"/>
+  <rect x="330" y="56" width="100" height="30" fill="#d7930a" opacity="0.20" stroke="#d7930a" stroke-width="1"/>
+  <rect x="430" y="56" width="130" height="30" fill="#d7930a" opacity="0.40" stroke="#d7930a" stroke-width="1"/>
+  <text x="380" y="70" font-size="8.5" fill="#9c6d06" text-anchor="middle">PRE cycles</text>
+  <text x="380" y="80" font-size="7.5" fill="#9c6d06" text-anchor="middle">prefault (baseline)</text>
+  <text x="495" y="70" font-size="8.5" fill="#7c4a06" text-anchor="middle">LER − PRE cycles</text>
+  <text x="495" y="80" font-size="7.5" fill="#7c4a06" text-anchor="middle">fault, trip, clearing</text>
+  <line x1="430" y1="46" x2="430" y2="92" stroke="#d63a3a" stroke-width="1.25" stroke-dasharray="4 3"/>
+  <text x="430" y="44" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">trigger instant</text>
+  <path d="M330,100 H560 M330,96 V104 M560,96 V104" stroke="#a9adb8" stroke-width="0.75" fill="none"/>
+  <text x="445" y="111" font-size="8" fill="#a9adb8" text-anchor="middle">total = LER setting (e.g. 15 or 64 cycles on a 751A) — changing LER clears stored events</text>
+  <g class="animlayer">
+    <rect x="24" y="24" width="26" height="14" rx="3" fill="#10a37f" opacity="0.35">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 638 0; 0 0; 638 0" keyTimes="0;0.45;0.451;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </rect>
+    <circle cx="430" cy="31" r="8" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0;0.9;0;0" keyTimes="0;0.27;0.29;0.34;0.72;0.74;0.79;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="330" y="56" width="230" height="30" fill="none" stroke="#d63a3a" stroke-width="1.75" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0;0.9;0.9;0" keyTimes="0;0.29;0.31;0.42;0.45;0.74;0.76;0.95;1" dur="9s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">Prefault data exists because the buffer was already running — the trigger freezes PRE cycles of the past plus the rest of the window.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Filtered vs. raw — the distinction that matters</h2>
+<div class="fig"><svg viewBox="0 0 700 112" xmlns="http://www.w3.org/2000/svg">
+  <text x="24" y="16" font-size="9.5" font-weight="600" fill="#10a37f">Filtered (relay's eye) — EVE, CEV</text>
+  <path d="M24,64 q16,-46 32,0 q16,46 32,0 q16,-46 32,0 q16,46 32,0 q16,-46 32,0 q16,46 32,0 q16,-46 32,0 q16,46 32,0 q16,-46 32,0" fill="none" stroke="#10a37f" stroke-width="2"/>
+  <text x="24" y="102" font-size="8" fill="#a9adb8">fundamental only — what the elements measured; clean magnitudes</text>
+  <text x="380" y="16" font-size="9.5" font-weight="600" fill="#d63a3a">Raw (system's truth) — EVE R, CEV R, COMTRADE</text>
+  <path d="M380,74 q10,-62 24,-18 q8,26 16,30 q4,2 8,-2 q12,-50 26,-16 q7,18 14,22 q5,3 10,-3 q12,-42 26,-12 q7,16 14,19 q5,2 10,-3 q12,-38 26,-10 q7,14 14,17 q5,2 10,-3 q12,-34 26,-9 q7,13 14,15 q5,2 10,-3 q12,-31 26,-8" fill="none" stroke="#d63a3a" stroke-width="2"/>
+  <text x="380" y="102" font-size="8" fill="#a9adb8">DC offset, harmonics, CT saturation visible — use for real analysis</text>
+  <g class="animlayer">
+    <circle r="4" fill="#10a37f"><animateMotion dur="6s" repeatCount="indefinite" path="M24,64 q16,-46 32,0 q16,46 32,0 q16,-46 32,0 q16,46 32,0 q16,-46 32,0 q16,46 32,0 q16,-46 32,0 q16,46 32,0 q16,-46 32,0"/></circle>
+    <circle r="4" fill="#d63a3a"><animateMotion dur="6s" repeatCount="indefinite" path="M380,74 q10,-62 24,-18 q8,26 16,30 q4,2 8,-2 q12,-50 26,-16 q7,18 14,22 q5,3 10,-3 q12,-42 26,-12 q7,16 14,19 q5,2 10,-3 q12,-38 26,-10 q7,14 14,17 q5,2 10,-3 q12,-34 26,-9 q7,13 14,15 q5,2 10,-3 q12,-31 26,-8"/></circle>
+  </g>
+</svg></div>
+<p class="figcap">Same current, two renderings: the filter strips exactly the evidence (offset, harmonics, saturation) that explains a misoperation.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>The report flavors</h2>
+<div class="card eve">
+  <h3><span class="hexref">EVE n · EVE R n (raw)</span>EVE — ASCII event report</h3>
+  <p>Human-readable columns straight on the terminal: filtered analogs at 4 samples/cycle plus selected Relay Word bits. Quick sanity check — did the right element pick up? <code>EVE R</code> swaps in raw analogs (16 samples/cycle on the SEL-751A).</p>
+</div>
+<div class="card eve">
+  <h3><span class="hexref">CEV n · CEV R (raw) · CEV L (8 s/cyc, 400 series)</span>CEV — Compressed ASCII event report</h3>
+  <p>Same capture, machine-friendly: comma-delimited with checksums, consumed by SynchroWAVe Event and comms processors. Carries <strong>all</strong> Relay Word bits, plus channels the plain EVE lacks (frequency, arc-flash light on the SEL-751A). <strong>Use <code>CEV R</code> for accurate analysis</strong> — SEL says so explicitly.</p>
+</div>
+<div class="card eve">
+  <h3><span class="hexref">IEEE C37.111-1999 / -2013 · .CFG + .DAT + .HDR</span>COMTRADE — the interchange standard</h3>
+  <p>Vendor-neutral file set every analysis tool reads. 400-series relays (SEL-451 etc.) record it natively — binary, raw, up to 8 kHz sampling, time-tagged to better than 10 µs — retrieved by FTP/<code>FILE</code>. For relays that only produce ASCII/CEV, SynchroWAVe Event converts to COMTRADE for other tools.</p>
+</div>
+<div class="callout warn">
+<p><strong>Storage is finite and nonvolatile.</strong> The SEL-751A keeps 77 fifteen-cycle or 19 sixty-four-cycle reports; new events push out the oldest. Records survive power loss — but <strong>changing LER erases them all</strong>, so pull critical events before editing report settings.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Getting the data out</h2>
+<div class="twocol">
+<div>
+<h3>SEL-700/300 series style (e.g. SEL-751A)</h3>
+<table>
+  <tr><th>Command</th><th>Gets you</th></tr>
+  <tr><td class="mono">SUM</td><td>Latest event summary</td></tr>
+  <tr><td class="mono">HIS</td><td>Index of stored events</td></tr>
+  <tr><td class="mono">EVE n / EVE R n</td><td>ASCII report, filtered / raw</td></tr>
+  <tr><td class="mono">CEV n / CEV R n</td><td>Compressed report, ¼-cyc / 1/16-cyc raw</td></tr>
+  <tr><td class="mono">SER</td><td>Sequential Events Recorder log</td></tr>
+  <tr><td class="mono">TRI</td><td>Force a capture right now</td></tr>
+  <tr><td class="mono">FIL DIR / READ</td><td>File-based transfer</td></tr>
+</table>
+</div>
+<div>
+<h3>SEL-400 series style (e.g. SEL-451)</h3>
+<table>
+  <tr><th>Command</th><th>Gets you</th></tr>
+  <tr><td class="mono">SUMMARY / CSUMMARY</td><td>Event summary</td></tr>
+  <tr><td class="mono">HISTORY / CHISTORY</td><td>Event index</td></tr>
+  <tr><td class="mono">EVENT / CEVENT (CEV L)</td><td>Report; L = 8 samples/cycle</td></tr>
+  <tr><td class="mono">SER / CSER</td><td>SER log (1000 entries)</td></tr>
+  <tr><td class="mono">TRIGGER</td><td>Force a capture</td></tr>
+  <tr><td class="mono">FILE / FTP</td><td>Binary COMTRADE retrieval</td></tr>
+  <tr><td class="mono">SNS</td><td>Fast SER point name strings</td></tr>
+</table>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Inside a COMTRADE record</h2>
+<div class="filecards">
+  <div class="cfg"><b>EVENT_0012.CFG</b><span>channel names, ratios, units, sample rates, standard year</span><span style="color:#a9adb8">(plain text — read this first)</span></div>
+  <div class="dat"><b>EVENT_0012.DAT</b><span>the samples — analog channels + digital states, binary or ASCII</span><span style="color:#a9adb8">(useless without the .CFG)</span></div>
+  <div class="hdr"><b>EVENT_0012.HDR</b><span>free-form text: device ID, firmware, settings in service at capture</span><span style="color:#a9adb8">(context for the analyst)</span></div>
+</div>
+<p class="figcap" style="text-align:center">one event = one file set, same base name — keep them together; C37.111-2013 adds an optional .INF companion</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>An event you can't find may never have triggered.</strong> Only TRIP/TR, the ER equation, or a TRI command start a capture — a picked-up-but-never-tripped disturbance needs ER terms (e.g. pickup bits) to be recorded.</li>
+<li><strong>Summaries are not reports.</strong> Auto-messaged summaries (and history rows) are pointers; the stored report is the evidence. Archive the report, not the summary.</li>
+<li><strong>Some channels only exist in one flavor.</strong> On the SEL-751A, frequency and arc-flash light channels appear in CEV, not in plain EVE.</li>
+<li><strong>Tooling:</strong> ACSELERATOR Analytic Assistant (SEL-5601) was discontinued in 2019 — SEL-5601-2 SynchroWAVe Event is its replacement for plotting CEV/COMTRADE records.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+  
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+  
+  <a href="atlas:comms/time-sync.html">Time Synchronization</a>
+</div>
+<p class="footnote">Sources: SEL-751A IM §9 "Analyzing Events" and App. C; SEL-451-6 IM command summary and COMTRADE sections. Details vary by model and firmware — the relay’s own manual wins. Companion in atlas: SER &amp; SOE. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

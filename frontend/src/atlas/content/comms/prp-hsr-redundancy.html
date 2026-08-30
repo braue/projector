@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PRP, HSR & Redundancy</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="PRP,HSR,IEC 62439-3,DAN,SAN,RedBox,redundancy">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "PRP, HSR & Redundancy (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>PRP, HSR & Redundancy</h1>
+  <p>Endpoint redundancy from relay failover to zero-loss duplication — NETMODE, bonding, bridging, PRP, HSR, and RedBoxes</p>
+  <div class="chips"><span>PRP</span><span>HSR</span><span>NETMODE</span><span>bonding</span><span>RedBox</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Redundancy</h3>
+<ul style="margin-bottom:2px">
+<li>Redundancy is layered: switch-level (RSTP), link-level (relay failover, RTAC bonding), and network-level (<strong>PRP</strong> — two complete LANs; <strong>HSR</strong> — one ring, frames both directions). PRP/HSR recover <em>seamlessly</em>; everything else takes a switchover hit.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Redundancy at the endpoints</h2>
+<p>Switch-level redundancy (RSTP — see RSTP &amp; Topologies in atlas) protects the fabric. The endpoints have their own layer, and the options differ by device:</p>
+<table>
+  <tr><th>Mechanism</th><th>Where</th><th>Behavior</th><th>Fine print</th></tr>
+  <tr><td><strong>Fixed</strong></td><td>Dual-port relays (<code>NETMODE</code>)</td><td>One port in use, the other dark</td><td>Simplest; no redundancy</td></tr>
+  <tr><td><strong>Failover</strong></td><td>Dual-port relays</td><td>Primary + standby as one adapter; standby takes over on link failure</td><td><code>NETPORT</code> picks the primary; <code>FTIME</code> 0.10–65 s (default 1 s) sets the switchover delay</td></tr>
+  <tr><td><strong>Switched</strong></td><td>Dual-port relays</td><td>Both ports active as an internal unmanaged switch — daisy-chain/ring wiring</td><td>The relay becomes part of the network path; a powered-down relay breaks the chain</td></tr>
+  <tr><td><strong>Isolated IP</strong></td><td>400-series relays</td><td>GOOSE on both ports, IP traffic restricted to one (<code>NETPORT</code>)</td><td>For a port that leaves the security perimeter; PTP only on the IP port</td></tr>
+  <tr><td><strong>PRP (relay)</strong></td><td>400-series (<code>NETMODE = PRP</code>)</td><td>Same zero-loss duplication, relay-side</td><td><code>PRPTOUT</code> / <code>PRPINTV</code> / <code>PRPADDR</code> mirror the RTAC's PRP knobs; <code>LNKFAIL</code>/<code>LNKFL2</code> Relay Word bits flag port failures</td></tr>
+  <tr><td><strong>HSR</strong></td><td>400-series five-port SFP card</td><td>One ring, every frame sent both directions — seamless like PRP without a second LAN</td><td>IEC 62439-3; every device in the ring must be HSR-capable; station and process bus supported</td></tr>
+  <tr><td><strong>Bonding — backup</strong></td><td>RTAC NIC pairs</td><td>One IP, one active port; second activates after the down-delay of failed link checks</td><td>Like relay failover, RTAC-side</td></tr>
+  <tr><td><strong>Bonding — aggregate</strong></td><td>RTAC NIC pairs</td><td>One IP, both ports active — bandwidth + redundancy</td><td>Requires an aggregate-capable (LACP) switch peer; bonding is not a switch or router</td></tr>
+  <tr><td><strong>Bridging</strong></td><td>RTAC NICs</td><td>Ports act as one unmanaged switch (one IP, own MACs) — build rings without an external switch</td><td>Runs STP (priority 32768, hello 2 s, max age 20 s, fwd delay 15 s); STP can be disabled per bridge</td></tr>
+  <tr><td><strong>PRP</strong></td><td>RTAC NIC pairs (IEC 62439-3)</td><td>Every frame duplicated onto two independent LANs; receiver keeps the first, discards the twin — <strong>zero-loss failover</strong></td><td>Up to 5 pairs (R147+); incompatible with DHCP, bridging, bonding, EtherCAT on that NIC; both LANs must be fully separate</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 148" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="56" width="100" height="34" rx="5" fill="#1a1a22"/>
+  <text x="70" y="70" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">RTAC</text>
+  <text x="70" y="82" font-size="7" fill="#c9ccd8" text-anchor="middle">PRP pair — one IP</text>
+  <rect x="280" y="16" width="140" height="26" rx="5" fill="#10a37f" opacity="0.12" stroke="#10a37f" stroke-width="1"/>
+  <text x="350" y="33" font-size="8.5" font-weight="600" fill="#10a37f" text-anchor="middle">LAN A — its own switches</text>
+  <rect x="280" y="106" width="140" height="26" rx="5" fill="#5468c4" opacity="0.12" stroke="#5468c4" stroke-width="1"/>
+  <text x="350" y="123" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">LAN B — its own switches</text>
+  <rect x="580" y="56" width="100" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="630" y="70" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay / IED</text>
+  <text x="630" y="82" font-size="7" fill="#a9adb8" text-anchor="middle">PRP-attached</text>
+  <path d="M120,64 C190,50 230,32 280,29 M420,29 C470,32 520,50 580,64" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <path d="M120,82 C190,96 230,116 280,119 M420,119 C470,116 520,96 580,82" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="350" y="76" font-size="8" fill="#a9adb8" text-anchor="middle">same frame, tagged A and B with a sequence number —</text>
+  <text x="350" y="88" font-size="8" fill="#a9adb8" text-anchor="middle">first arrival wins, the duplicate is discarded</text>
+  <g class="animlayer">
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.05;0.42;0.46;1" dur="8s" repeatCount="indefinite"/>
+      <animateMotion path="M120,64 C190,50 230,32 280,29 L420,29 C470,32 520,50 580,64" keyPoints="0;0;1;1" keyTimes="0;0.04;0.43;1" calcMode="linear" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0.9;0;0" keyTimes="0;0.05;0.46;0.52;0.58;1" dur="8s" repeatCount="indefinite"/>
+      <animateMotion path="M120,82 C190,96 230,116 280,119 L420,119 C470,116 520,96 580,82" keyPoints="0;0;1;1" keyTimes="0;0.04;0.50;1" calcMode="linear" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="630" cy="64" r="9" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.43;0.46;0.53;1" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <text x="630" y="46" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0;0" keyTimes="0;0.43;0.47;0.56;1" dur="8s" repeatCount="indefinite"/>
+      A arrived first — accepted
+    </text>
+    <text x="630" y="104" font-size="7.5" font-weight="600" fill="#a9adb8" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0;0" keyTimes="0;0.50;0.54;0.64;1" dur="8s" repeatCount="indefinite"/>
+      duplicate discarded
+    </text>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.68;0.70;0.94;0.98;1" dur="8s" repeatCount="indefinite"/>
+      <line x1="342" y1="21" x2="358" y2="37" stroke="#d63a3a" stroke-width="2.5"/>
+      <line x1="358" y1="21" x2="342" y2="37" stroke="#d63a3a" stroke-width="2.5"/>
+      <text x="350" y="10" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" dominant-baseline="hanging"></text>
+      <text x="490" y="50" font-size="7.5" font-weight="600" fill="#5468c4">LAN A dies → B copy still lands: zero lost frames</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">PRP is the only option here with <em>zero</em> switchover time — there's nothing to switch, both copies were already in flight. The cost: two complete, independent LANs.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<p style="font-size:8.6pt">Diagnostics: the RTAC web interface shows PRP conversations by source MAC (PRP is Layer 2 — correlate with the ARP table below it), the next expected A/B sequence numbers (incrementing = healthy), and a LAN ID Error flag that means A-tagged frames are arriving on the B port or vice versa — a cabling or LAN-separation mistake.</p>
+
+<div class="callout">
+<p><strong>The IEC 62439-3 vocabulary — DANs, SANs, and RedBoxes.</strong> A device with both PRP ports built in (an RTAC PRP pair, a 400-series relay in <code>NETMODE = PRP</code>) is a <strong>DAN</strong> — dual-attached node. A plain single-port device is a <strong>SAN</strong> — single-attached node: it can live on LAN A <em>or</em> LAN B (and only sees devices reachable on that LAN), or sit behind a <strong>RedBox</strong> — a redundancy box that does the duplicate/discard on behalf of everything plugged into it, making its SANs look dual-attached. HSR uses the same vocabulary, with the added rule that every node <em>in the ring</em> must speak HSR — non-HSR gear attaches through a RedBox, never inline. Note: these are the standard's terms; the SEL manuals in this folder configure DAN behavior directly (RTAC, 400-series) and don't document a standalone SEL RedBox product — plan third-party or check current SEL offerings if you need one.</p>
+</div>
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">HSR: one ring, every frame sent both ways &mdash; the same zero-loss guarantee as PRP, without a second LAN</text>
+
+  <!-- ring -->
+  <path d="M200,60 H420 A56,56 0 0,1 420,172 H200 A56,56 0 0,1 200,60 Z"
+        fill="none" stroke="#1a1a22" stroke-width="2"/>
+
+  <!-- nodes -->
+  <g>
+    <circle cx="200" cy="60" r="18" fill="#fff" stroke="#10a37f" stroke-width="1.6"/>
+    <text x="200" y="64" text-anchor="middle" font-size="7.6" fill="#0d7f63">RTAC</text>
+    <circle cx="420" cy="60" r="18" fill="#fff" stroke="#5468c4" stroke-width="1.6"/>
+    <text x="420" y="64" text-anchor="middle" font-size="7.6" fill="#5468c4">IED 1</text>
+    <circle cx="420" cy="172" r="18" fill="#fff" stroke="#5468c4" stroke-width="1.6"/>
+    <text x="420" y="176" text-anchor="middle" font-size="7.6" fill="#5468c4">IED 2</text>
+    <circle cx="200" cy="172" r="18" fill="#fff" stroke="#5468c4" stroke-width="1.6"/>
+    <text x="200" y="176" text-anchor="middle" font-size="7.6" fill="#5468c4">IED 3</text>
+  </g>
+
+  <!-- both directions -->
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="3s" repeatCount="indefinite"
+      path="M200,60 H420 A56,56 0 0,1 420,172 H200 A56,56 0 0,1 200,60"/>
+  </circle>
+  <circle r="4" fill="#d7930a">
+    <animateMotion dur="3s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"
+      path="M200,60 H420 A56,56 0 0,1 420,172 H200 A56,56 0 0,1 200,60"/>
+  </circle>
+  <text x="310" y="52" font-size="7.2" fill="#0d7f63" text-anchor="middle">copy A, clockwise</text>
+  <text x="310" y="192" font-size="7.2" fill="#9c6d06" text-anchor="middle">copy B, counter-clockwise</text>
+
+  <!-- break -->
+  <g>
+    <line x1="300" y1="52" x2="320" y2="68" stroke="#d63a3a" stroke-width="2.4">
+      <animate attributeName="opacity" values="0;0;1;1;0" dur="9s" repeatCount="indefinite"/>
+    </line>
+    <text x="310" y="34" font-size="7.2" fill="#d63a3a" text-anchor="middle" opacity="0">
+      link broken here
+      <animate attributeName="opacity" values="0;0;1;1;0" dur="9s" repeatCount="indefinite"/>
+    </text>
+  </g>
+
+  <!-- notes -->
+  <g font-size="7.4">
+    <rect x="480" y="42" width="208" height="60" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="494" y="60" font-weight="600" fill="#0d7f63">The guarantee</text>
+    <text x="494" y="76" fill="#454956">The receiver keeps the first copy to arrive</text>
+    <text x="494" y="88" fill="#454956">and discards the twin. A single break costs</text>
+    <text x="494" y="99" fill="#454956">nothing &mdash; the other direction still lands.</text>
+
+    <rect x="480" y="112" width="208" height="60" rx="6" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="494" y="130" font-weight="600" fill="#9c6d06">The membership rule</text>
+    <text x="494" y="146" fill="#454956">Every device in the ring must speak HSR.</text>
+    <text x="494" y="158" fill="#454956">Anything else attaches through a RedBox &mdash;</text>
+    <text x="494" y="169" fill="#454956">never inline.</text>
+  </g>
+
+  <rect x="8" y="204" width="684" height="48" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="22" y="222" font-size="8" font-weight="600" fill="#1a1a22">PRP versus HSR, in one line</text>
+  <text x="22" y="238" font-size="7.8" fill="#454956">PRP buys seamless recovery with a <tspan font-style="italic">second complete network</tspan>; HSR buys it with a <tspan font-style="italic">second direction around one ring</tspan> &mdash; cheaper in switches, stricter about membership.</text>
+  <text x="22" y="249" font-size="7.8" fill="#8a8e9b">Both are IEC 62439-3, and both use the same DAN / SAN / RedBox vocabulary.</text>
+</svg></div>
+<p class="figcap">On the SEL-400 series, HSR runs on the five-port SFP card and supports both station and process bus. <span class="print-note">(Animated in the browser.)</span></p>
+<p style="font-size:8.6pt"><strong>PRP vs. HSR in one line:</strong> PRP buys seamless recovery with a <em>second complete network</em>; HSR buys it with a <em>second direction around one ring</em> — cheaper in switches, stricter about membership.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Relay drops offline for ~a second during switch maintenance</strong> → that's <code>FTIME</code> doing its failover job. In switched mode instead, remember the relay itself is now inline: powering it down opens the chain.</li>
+<li><strong>PRP LAN ID Error = TRUE</strong> → the A and B networks are cross-connected somewhere. PRP's guarantee depends on the two LANs being fully independent.</li>
+<li><strong>HSR ring dead after adding a device</strong> → something non-HSR went inline. Only HSR nodes (or a RedBox fronting the stranger) belong in the ring.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/rstp-topologies.html">RSTP &amp; Topologies</a>
+  <a href="atlas:comms/sdn.html">Software-Defined Networking</a>
+  <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>
+  <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 IM §8 (bonding/bridging/PRP, PRP diagnostics — full text locally inside 3530-4_IM); SEL-751A IM §7 (NETMODE fixed/failover/switched, NETPORT, FTIME); SEL-400 Series Relays IM §15 (ISOLATEIP/PRP/HSR modes, LNKFAIL/LNKFL2, five-port Ethernet card). DAN/SAN/RedBox definitions are IEC 62439-3 standard terminology. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DNP3 on the RTAC</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DNP3,RTAC,client,server,operPulse,pulseConfig,map,session">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DNP3 on the RTAC (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DNP3 on the RTAC</h1>
+  <p>The RTAC end in one place — six tags and pulseConfig, client polling, server maps, and event buffers</p>
+  <div class="chips"><span>operSPC</span><span>ctlVal</span><span>pulseConfig</span><span>shared map</span><span>custom requests</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Controls</h3>
+<ul style="margin-bottom:8px">
+<li>Verb tags fire on the <strong>rising edge</strong> of <code>ctlVal</code>. One scan of TRUE = one control sent.</li>
+<li>Holding <code>ctlVal</code> TRUE does nothing extra. It only blocks the next control until it goes FALSE.</li>
+<li>A failed control never retries itself. Re-issue with a fresh edge.</li>
+<li>The per-point <strong>On/Off Pulse Duration</strong> and <strong>Number of Pulses</strong> settings fill the CROB's timing fields.</li>
+<li>RTAC and Axion contact outputs <strong>do</strong> execute those durations, rounded up to the task cycle.</li>
+</ul>
+<h3>Data &amp; polling</h3>
+<ul style="margin-bottom:2px">
+<li>The client integrity-polls at startup, then runs class polls. Controls jump the queue — an outstanding poll is interrupted.</li>
+<li>The server keeps a <strong>separate event queue per server device</strong>, even when several share one map.</li>
+<li>Nothing flows by itself: the Tag Processor moves data between client tags and server maps.</li>
+<li>Server event buffers default to one entry per tag — latest value only. Configure <strong>SOE mode</strong> for true event history.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Controls: six tags, one pulseConfig</h2>
+<p>Both the RTAC's DNP <strong>client</strong> and <strong>server</strong> maps create every binary output as one base point (<code>BO_00007</code>) with six members: <code>.status</code> (SPS) plus one operate structure per verb. <strong>All five verbs exist on every point</strong> — the RTAC does not pick a control model for you; it will build (or accept) any of the five codes. Model discipline lives in your logic and your published points list.</p>
+
+<table>
+  <tr><th>Member</th><th>Type</th><th>What it does</th></tr>
+  <tr><td><code>.ctlVal</code></td><td class="mono">BOOL</td><td>Rising edge triggers the control. <strong>Must return FALSE before it can trigger again.</strong></td></tr>
+  <tr><td><code>.pulseConfig</code></td><td class="mono">pulseConfig_t</td><td><code>cmdQual</code> (pulse | persist), <code>onDur</code>, <code>offDur</code> (UDINT ms), <code>numPls</code>. Defaults for the pulse verbs: 2000 / 2000 / 1.</td></tr>
+  <tr><td><code>.q</code> / <code>.t</code> / <code>.origin</code></td><td class="mono">quality_t …</td><td>Quality, timestamp, originator category.</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 118" xmlns="http://www.w3.org/2000/svg">
+  <text x="112" y="40" font-size="10" fill="#8a8e9b" text-anchor="end">ctlVal</text>
+  <path d="M120,48 H170 V26 H420 V48 H500 V26 H600 V48 H688" fill="none" stroke="#10a37f" stroke-width="2.25" stroke-linejoin="round"/>
+  <text x="295" y="20" font-size="9" fill="#a9adb8" text-anchor="middle">held TRUE for seconds — nothing more happens</text>
+  <text x="112" y="86" font-size="10" fill="#8a8e9b" text-anchor="end">controls sent</text>
+  <path d="M170,72 V94 M165,88 L170,95 L175,88" fill="none" stroke="#d7930a" stroke-width="2"/>
+  <text x="170" y="110" font-size="9" font-weight="600" fill="#9c6d06" text-anchor="middle">1 control</text>
+  <path d="M500,72 V94 M495,88 L500,95 L505,88" fill="none" stroke="#d7930a" stroke-width="2"/>
+  <text x="500" y="110" font-size="9" font-weight="600" fill="#9c6d06" text-anchor="middle">1 control</text>
+  <text x="460" y="66" font-size="8.5" fill="#a9adb8" text-anchor="middle">must go low first…</text>
+  <g class="animlayer">
+    <line x1="120" y1="12" x2="120" y2="100" stroke="#1a1a22" stroke-width="1" opacity="0.4">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="568 0" dur="8s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="170" cy="26" r="7" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.07;0.10;0.17;1" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="500" cy="26" r="7" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.65;0.68;0.75;1" dur="8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Edge-triggered: a control fires only on the FALSE→TRUE transition. The long hold sends nothing extra; the second control needs a fresh edge.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<div class="callout">
+<p><strong>Does it matter how long you hold <code>ctlVal</code> high? No.</strong> One scan of TRUE issues exactly one control; ten more seconds of TRUE issues nothing more. The hold time only affects re-arming — the value must go low before the next control can fire. The idiom is a one-scan assert. Continuous assignment (<code>ctlVal := SomeCondition;</code>) is safe but fires only on the FALSE→TRUE transition of the condition. And a failed control never retries itself — check the outcome and re-issue with a fresh edge.</p>
+</div>
+
+<h3>The timing settings</h3>
+<p>On the device's <strong>Binary Outputs</strong> settings tab, each verb row has four columns — <strong>Control Model</strong> (Pulse | Persist), <strong>Number of Pulses</strong> (default 1), <strong>On Pulse Duration</strong> (default 2000 ms), <strong>Off Pulse Duration</strong> (default 2000 ms). They initialize the verb's <code>pulseConfig</code>; logic can overwrite it at run time before asserting <code>ctlVal</code>. The latch verbs carry the columns too, but latch codes have no timing.</p>
+
+<h3>As client, as server, as contact</h3>
+<ul>
+  <li><strong>Client:</strong> a rising edge on a verb's <code>ctlVal</code> makes the client build the CROB from that verb's code + pulseConfig and send it (SBO or direct per Output Control Type; a pending poll is interrupted for it). <code>.status</code> is filled by static polls of Object 10 — the state the outstation <em>reports</em>, not proof the process moved.</li>
+  <li><strong>Server:</strong> an incoming CROB routes by control code to the matching verb tag (<code>0x81</code> → <code>operTrip.ctlVal</code>, <code>0x01</code> → <code>operPulse.ctlVal</code>, …). Your logic or Tag Processor acts on the verb and writes feedback into <code>.status</code> — nothing updates automatically. Configure the executed pulse timing <em>on the RTAC point</em>; don't rely on the master's CROB on-time passing through. The Tag Processor can also convert verb types end-to-end (SCADA trip/close → IED latch on/off) by matching the Control Type column.</li>
+  <li><strong>Contact outputs:</strong> RTAC and Axion digital outputs run pulse trains natively — assert <code>onDur</code>, deassert <code>offDur</code>, repeat <code>numPls</code> times, quantized <em>up</em> to RTE-cycle multiples (100 ms task: onDur 97 → 100 ms, offDur 103 → 200 ms). <code>operClear</code> cancels a pulse in progress; <code>numPls=0</code> or <code>onDur=0</code> also cancel; <code>offDur=0</code> merges into one continuous <code>onDur×numPls</code> assertion. The <code>PulseDecoder</code> function block gives the same behavior to any BOOL in logic.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Data: client polling and server maps</h2>
+<h3>As client (master)</h3>
+<ul>
+  <li>Issues an integrity poll at communications startup, then periodic integrity and class polls (typical settings: integrity every 60 s, Class 1/2/3 every few seconds, with poll timeout and retry counts per session). Controls interrupt an outstanding poll.</li>
+  <li>Beyond the built-in polls, up to <strong>15 custom requests</strong> per session cover anything else: explicit object reads, counter freezes, etc.</li>
+  <li>Client and Server DNP Address settings mirror the relay's <code>REPADR</code> / <code>DNPADR</code> — the most common "no comms" mistake is crossing them.</li>
+</ul>
+<h3>As server (outstation)</h3>
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dq" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One shared map, several server devices &mdash; and why each master gets its own event history</text>
+
+  <!-- tag database -->
+  <rect x="20" y="46" width="130" height="150" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="85" y="66" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Tag database</text>
+  <g font-size="7" fill="#6e7180">
+    <text x="85" y="84" text-anchor="middle">FDR1_52_Pos</text>
+    <text x="85" y="98" text-anchor="middle">FDR1_IA</text>
+    <text x="85" y="112" text-anchor="middle">FDR2_52_Pos</text>
+    <text x="85" y="126" text-anchor="middle">XFMR1_TopOil</text>
+    <text x="85" y="140" text-anchor="middle">&hellip;</text>
+  </g>
+  <text x="85" y="176" text-anchor="middle" font-size="7" fill="#8a8e9b">populated by the</text>
+  <text x="85" y="187" text-anchor="middle" font-size="7" fill="#8a8e9b">Tag Processor</text>
+
+  <path d="M150,120 H196" stroke="#10a37f" stroke-width="1.3" marker-end="url(#dq)"/>
+
+  <!-- shared map -->
+  <rect x="200" y="70" width="140" height="104" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="270" y="90" text-anchor="middle" font-size="8.2" font-weight="600" fill="#0d7f63">DNP Server</text>
+  <text x="270" y="103" text-anchor="middle" font-size="8.2" font-weight="600" fill="#0d7f63">Shared Map</text>
+  <text x="270" y="122" text-anchor="middle" font-size="7" fill="#6e7180">BI 0&hellip;n &middot; AI 0&hellip;n &middot; BO 0&hellip;n</text>
+  <text x="270" y="136" text-anchor="middle" font-size="7" fill="#6e7180">one definition of the point list</text>
+  <text x="270" y="156" text-anchor="middle" font-size="7" fill="#8a8e9b">per-point event class</text>
+
+  <!-- three server devices, each with its own queue -->
+  <g font-size="7.2">
+    <rect x="392" y="42" width="126" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="455" y="60" text-anchor="middle" font-weight="600" fill="#9c6d06">Server device A</text>
+    <text x="455" y="74" text-anchor="middle" fill="#6e7180">own event queue</text>
+    <text x="455" y="86" text-anchor="middle" fill="#8a8e9b">own address, own session</text>
+
+    <rect x="392" y="104" width="126" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="455" y="122" text-anchor="middle" font-weight="600" fill="#9c6d06">Server device B</text>
+    <text x="455" y="136" text-anchor="middle" fill="#6e7180">own event queue</text>
+    <text x="455" y="148" text-anchor="middle" fill="#8a8e9b">independent read pointer</text>
+
+    <rect x="392" y="166" width="126" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="455" y="184" text-anchor="middle" font-weight="600" fill="#9c6d06">Server device C</text>
+    <text x="455" y="198" text-anchor="middle" fill="#6e7180">own event queue</text>
+    <text x="455" y="210" text-anchor="middle" fill="#8a8e9b">same points, separate history</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#dq)">
+    <path d="M340,110 C364,110 368,68 390,68"/>
+    <path d="M340,122 H390"/>
+    <path d="M340,134 C364,134 368,192 390,192"/>
+  </g>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.4s" repeatCount="indefinite" path="M340,110 C364,110 368,68 390,68"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.4s" begin="0.5s" repeatCount="indefinite" path="M340,122 H390"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.4s" begin="1s" repeatCount="indefinite" path="M340,134 C364,134 368,192 390,192"/></circle>
+
+  <!-- masters -->
+  <g font-size="7.2" fill="#6e7180">
+    <rect x="560" y="42" width="120" height="52" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="620" y="66" text-anchor="middle" fill="#454956">Primary SCADA</text>
+    <text x="620" y="80" text-anchor="middle">reads and clears its own</text>
+
+    <rect x="560" y="104" width="120" height="52" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="620" y="128" text-anchor="middle" fill="#454956">Backup SCADA</text>
+    <text x="620" y="142" text-anchor="middle">unaffected by the primary</text>
+
+    <rect x="560" y="166" width="120" height="52" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="620" y="190" text-anchor="middle" fill="#454956">Historian</text>
+    <text x="620" y="204" text-anchor="middle">gets the full history too</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1.1" fill="none">
+    <path d="M518,68 H558"/><path d="M518,130 H558"/><path d="M518,192 H558"/>
+  </g>
+
+  <rect x="8" y="230" width="684" height="26" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="247" font-size="7.8" fill="#9c6d06">Consequence: one master reading events does not consume another's. Also &mdash; the default buffer is one entry per tag, latest value only. For real history, configure SOE mode and size the buffer for the poll interval.</text>
+</svg></div>
+<p class="figcap">Shared map defines <em>what</em> the points are; each server device owns <em>when</em> its master last saw them. <span class="print-note">(Animated in the browser.)</span></p>
+
+<ul>
+  <li>Server points live in a <strong>DNP Server Shared Map</strong> (up to 100 maps, 10,000 tags per type) that the Tag Processor populates. Several server devices can share one map — but each keeps <strong>its own event queue</strong>, so two masters each get their own copy of every event.</li>
+  <li>Event buffers are per type (binary/analog/counter), sizable 1–65,535. Default is one entry per tag — latest change only. <strong>SOE mode</strong> buffers everything; on overflow the oldest events are kept and <em>new</em> ones discarded, so poll fast enough.</li>
+  <li>Each point carries a per-point Event Class (binaries default Class 1, analogs Class 2, everything else Class 0 / static-only).</li>
+  <li>Ethernet servers either allow anonymous clients or enforce an allowlist of up to 20 client IPs; serial servers can share one port as a virtual multidrop, and failover to a second serial or tunneled path with one shared event queue. Secure Authentication v5 is available (R143+), with per-function-code challenges and DNP user roles.</li>
+  <li>Capacity: 200 DNP clients/servers on most models, 500 on the SEL-3560 class.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>No comms, addresses look right?</strong> Check both directions: relay <code>DNPADR</code> = RTAC's Server DNP Address <em>and</em> relay <code>REPADR</code> = RTAC's Client DNP Address. On Ethernet also the relay's configured master IP (<code>DNPIP</code>) and the RTAC server's client-IP allowlist — both ends filter by address.</li>
+<li><strong>Don't map the same server index twice</strong> on an RTAC shared map — duplicate indices don't generate events.</li>
+<li><strong>After a failover or second master connects,</strong> remember each RTAC server device has its own event queue: master B gets its own event history, not what master A already read.</li>
+<li><strong>Any verb is live on every RTAC point.</strong> <code>operPulse</code> to a trip/close point isn't blocked by the RTAC — the outstation's model decides. Asserting two verbs in the same scan is two separate controls, not a merged one.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3 Fundamentals</a>
+  <a href="atlas:data-protocols/dnp3/controls.html">DNP3 Control Models</a>
+  <a href="atlas:data-protocols/dnp3/on-sel-relays.html">DNP3 on SEL Relays</a>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 IM (DNP client/server config Table 2.23, DNPC data type, output contact pulse behavior, shared maps, SOE buffers, failover, SAv5 — full text locally inside 3530-4_IM); this workstation’s RTAC project exports (per-verb settings columns and defaults). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

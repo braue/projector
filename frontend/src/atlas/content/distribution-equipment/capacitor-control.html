@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Capacitor Banks &amp; Control</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="capacitor,shunt,unbalance,87V,fuse,inrush,point-on-wave,volt/VAr,power factor,SEL-2411,resonance">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Capacitor Banks &amp; Control (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Capacitor Banks &amp; Control</h1>
+  <p>Why banks are switched, how unbalance protection works when a can fails, the IEEE limits that set every setting, switching transients, and the control strategies that decide when to close</p>
+  <div class="chips"><span>shunt capacitor</span><span>unbalance</span><span>87V</span><span>can fuses</span><span>inrush</span><span>point-on-wave</span><span>volt/VAr</span><span>SEL-2411</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Capacitor banks</h3>
+<ul style="margin-bottom:2px">
+<li><strong>A shunt capacitor bank is an economical generator of reactive power.</strong> It corrects power factor, supports voltage, reduces losses, and lets the network carry more real power.</li>
+<li><strong>The failure mode is progressive.</strong> One capacitor element fails, the remaining elements in that group take more voltage, and the next failure comes faster. Unbalance protection exists to catch it before the cascade.</li>
+<li><strong>The IEEE limits are the settings basis.</strong> Continuous operation is permitted up to <strong>110% of rated RMS voltage</strong>, <strong>180% of rated RMS current</strong> including harmonics, and <strong>135% of rated reactive power</strong>. Those numbers, not intuition, bound your alarm and trip levels.</li>
+<li><strong>Energizing a bank is a transient event.</strong> Inrush is limited by series impedance or by point-on-wave switching, not by hoping.</li>
+<li><strong>A capacitor stays charged after it opens.</strong> Units rated above 600&nbsp;V must have an internal discharge device that brings residual voltage to 50&nbsp;V or less in five minutes &mdash; which is why the reclose block after opening is measured in minutes, not seconds.</li>
+<li><strong>Control strategy is a system decision.</strong> Voltage, VAr, time, temperature, or a coordinated volt/VAr scheme &mdash; each answers a different question.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What the bank is for</h2>
+<p>Reactive power must be supplied somewhere. Supplying it from a capacitor bank near the load, rather than from generation at the far end of the network, is dramatically cheaper: it frees line and transformer capacity, cuts I&sup2;R losses, and raises local voltage. The arithmetic is on the <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a> page &mdash; at 0.85 power factor, the same 10&nbsp;MW load draws 18% more current than at unity.</p>
+<table>
+  <tr><th>Type</th><th>Where</th><th>Switching</th></tr>
+  <tr><td><strong>Fixed bank</strong></td><td>Substation bus or pole-mounted on the feeder</td><td>Always in service. Sized for minimum load so it never overcorrects</td></tr>
+  <tr><td><strong>Switched substation bank</strong></td><td>Distribution or transmission bus, often in stages</td><td>Breaker or vacuum switch, controlled by voltage, VAr, or a scheme</td></tr>
+  <tr><td><strong>Pole-mounted switched bank</strong></td><td>Out on the feeder, closer to the load it serves</td><td>Oil or vacuum switches with a dedicated capacitor control</td></tr>
+  <tr><td><strong>Series capacitor</strong></td><td>Transmission lines</td><td>A different animal entirely &mdash; compensates line reactance and complicates distance protection</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>How a bank is built, and how it fails</h2>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A bank is groups in series, units in parallel &mdash; and losing one element redistributes voltage onto its neighbours</text>
+
+  <!-- healthy bank -->
+  <text x="150" y="36" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Healthy</text>
+  <g stroke="#1a1a22" stroke-width="1.2" fill="none">
+    <line x1="150" y1="44" x2="150" y2="56"/>
+  </g>
+  <g>
+    <!-- 3 series groups of 4 parallel units -->
+    <g id="g1">
+      <rect x="96" y="56" width="108" height="44" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+      <text x="150" y="72" text-anchor="middle" font-size="7" fill="#0d7f63">group 1 &mdash; 4 units</text>
+      <text x="150" y="90" text-anchor="middle" font-size="7.4" fill="#454956">V/3 across it</text>
+    </g>
+    <g>
+      <rect x="96" y="110" width="108" height="44" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+      <text x="150" y="126" text-anchor="middle" font-size="7" fill="#0d7f63">group 2 &mdash; 4 units</text>
+      <text x="150" y="144" text-anchor="middle" font-size="7.4" fill="#454956">V/3 across it</text>
+    </g>
+    <g>
+      <rect x="96" y="164" width="108" height="44" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+      <text x="150" y="180" text-anchor="middle" font-size="7" fill="#0d7f63">group 3 &mdash; 4 units</text>
+      <text x="150" y="198" text-anchor="middle" font-size="7.4" fill="#454956">V/3 across it</text>
+    </g>
+  </g>
+  <line x1="150" y1="100" x2="150" y2="110" stroke="#1a1a22" stroke-width="1.2"/>
+  <line x1="150" y1="154" x2="150" y2="164" stroke="#1a1a22" stroke-width="1.2"/>
+  <line x1="150" y1="208" x2="150" y2="222" stroke="#1a1a22" stroke-width="1.2"/>
+  <path d="M138,222 H162 M142,227 H158 M146,232 H154" stroke="#1a1a22" stroke-width="1.3"/>
+
+  <text x="290" y="130" font-size="16" fill="#a9adb8" text-anchor="middle">&rarr;</text>
+  <text x="290" y="148" font-size="7" fill="#8a8e9b" text-anchor="middle">one unit</text>
+  <text x="290" y="158" font-size="7" fill="#8a8e9b" text-anchor="middle">fuses out</text>
+
+  <!-- degraded -->
+  <text x="430" y="36" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">One unit lost from group 2</text>
+  <line x1="430" y1="44" x2="430" y2="56" stroke="#1a1a22" stroke-width="1.2"/>
+  <rect x="376" y="56" width="108" height="44" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.2"/>
+  <text x="430" y="72" text-anchor="middle" font-size="7" fill="#9c6d06">group 1 &mdash; 4 units</text>
+  <text x="430" y="90" text-anchor="middle" font-size="7.4" fill="#454956">slightly less voltage</text>
+
+  <rect x="376" y="110" width="108" height="44" rx="4" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.4"/>
+  <text x="430" y="126" text-anchor="middle" font-size="7" fill="#d63a3a">group 2 &mdash; 3 units left</text>
+  <text x="430" y="144" text-anchor="middle" font-size="7.4" fill="#d63a3a">
+    higher voltage on each
+    <animate attributeName="opacity" values="1;0.35;1" dur="1.6s" repeatCount="indefinite"/>
+  </text>
+
+  <rect x="376" y="164" width="108" height="44" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.2"/>
+  <text x="430" y="180" text-anchor="middle" font-size="7" fill="#9c6d06">group 3 &mdash; 4 units</text>
+  <text x="430" y="198" text-anchor="middle" font-size="7.4" fill="#454956">slightly less voltage</text>
+  <line x1="430" y1="100" x2="430" y2="110" stroke="#1a1a22" stroke-width="1.2"/>
+  <line x1="430" y1="154" x2="430" y2="164" stroke="#1a1a22" stroke-width="1.2"/>
+  <line x1="430" y1="208" x2="430" y2="222" stroke="#1a1a22" stroke-width="1.2"/>
+  <path d="M418,222 H442 M422,227 H438 M426,232 H434" stroke="#1a1a22" stroke-width="1.3"/>
+
+  <!-- the cascade -->
+  <rect x="510" y="56" width="182" height="152" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="524" y="74" font-size="8.2" font-weight="600" fill="#1a1a22">Why it accelerates</text>
+  <text x="524" y="92" font-size="7.4" fill="#454956">Fewer units in a group means less</text>
+  <text x="524" y="103" font-size="7.4" fill="#454956">capacitance, so a larger share of the</text>
+  <text x="524" y="114" font-size="7.4" fill="#454956">phase voltage lands on that group.</text>
+  <text x="524" y="132" font-size="7.4" fill="#9c3838">Each survivor now runs overvoltaged,</text>
+  <text x="524" y="143" font-size="7.4" fill="#9c3838">so the next failure comes sooner &mdash;</text>
+  <text x="524" y="154" font-size="7.4" fill="#9c3838">and the one after that sooner still.</text>
+  <text x="524" y="172" font-size="7.4" fill="#0d7f63">Unbalance protection alarms at the</text>
+  <text x="524" y="183" font-size="7.4" fill="#0d7f63">first loss and trips before the survivors</text>
+  <text x="524" y="194" font-size="7.4" fill="#0d7f63">exceed their voltage rating.</text>
+
+  <rect x="8" y="248" width="684" height="44" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="22" y="266" font-size="8" font-weight="600" fill="#0d7f63">The IEEE continuous-operation limits that bound every setting</text>
+  <text x="22" y="282" font-size="7.8" fill="#454956">110% of rated RMS voltage (crest 1.2&radic;2 of rated RMS including harmonics, excluding transients) &nbsp;&middot;&nbsp; 180% of rated RMS current including fundamental and harmonics &nbsp;&middot;&nbsp; 135% of rated reactive power</text>
+</svg></div>
+<p class="figcap">Alarm on the first unit lost so it can be replaced during planned work; trip before the remaining units exceed their rating. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Fusing</h3>
+<ul>
+<li><strong>Externally fused</strong> &mdash; a fuse on each unit. A failed unit is isolated and visibly identifiable, and the remaining units carry on at elevated voltage.</li>
+<li><strong>Internally fused</strong> &mdash; fuses on individual elements inside the can. Failures are less disruptive but not visible from outside; only unbalance measurement finds them.</li>
+<li><strong>Fuseless</strong> &mdash; series strings designed so a failed element short-circuits and the string continues with slightly higher voltage on the rest. Relies entirely on unbalance protection.</li>
+<li>Individual capacitor fuses also handle the <strong>discharge current from parallel units</strong> into a failed one &mdash; a large, fast transient that the fuse must clear.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>The protection package</h2>
+<table>
+  <tr><th>Condition</th><th>Protection</th></tr>
+  <tr><td>Overcurrent from a fault on the capacitor bank bus</td><td>Power fuses, overcurrent relays, or a bus protection scheme</td></tr>
+  <tr><td>System surge voltages</td><td>Surge arresters</td></tr>
+  <tr><td>Overcurrent from an individual capacitor unit failure</td><td>Individual capacitor fuses</td></tr>
+  <tr><td>Continuous capacitor unit overvoltage</td><td><strong>Unbalance sensing</strong> based on current or voltage measurement; phase voltage relays</td></tr>
+  <tr><td>Discharge current from parallel capacitor units</td><td>Individual capacitor fuses</td></tr>
+  <tr><td>Inrush current caused by switching</td><td>Switched or fixed impedance in series with the bank; point-on-wave switching control</td></tr>
+  <tr><td>Arc-over within the capacitor rack</td><td>Unbalance sensing, overcurrent relays</td></tr>
+  <tr><td>Circuit breaker failure</td><td>Breaker failure logic</td></tr>
+</table>
+
+<h3>Unbalance sensing &mdash; the element that matters most</h3>
+<ul>
+<li><strong>Voltage differential (87V)</strong> compares the voltage across part of the bank against a reference tap. Because it looks at the bank's internal division of voltage rather than at the system, it is <strong>immune to system unbalance</strong> &mdash; which is the central problem with current-based schemes on distribution systems that are never perfectly balanced.</li>
+<li><strong>Neutral current or neutral voltage unbalance</strong> is the alternative: measure the current in the neutral of a grounded bank, or the voltage across the neutral of an ungrounded one. Simpler, but it responds to system unbalance and to inherent bank tolerance as well as to failed units.</li>
+<li><strong>Two stages.</strong> Alarm at the loss of the first unit; trip before the survivors exceed the 110% continuous voltage limit. The number of units per group determines how much margin exists between those two points.</li>
+<li><strong>Inherent unbalance must be compensated.</strong> Manufacturing tolerance means a healthy bank shows a small standing unbalance. Measure it at commissioning and set the compensation, or you lose most of your sensitivity to the first failed unit.</li>
+</ul>
+<div class="callout warn">
+<strong>Do not set unbalance protection from a formula alone.</strong> Measure the actual standing unbalance on the energized, healthy bank and compare it against the calculation. A large discrepancy means either a unit is already gone, the compensation is wrong, or the bank is not built the way the drawing says.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Switching transients</h2>
+<p>Energizing a capacitor into a bus is closing a switch onto an initially uncharged capacitance. The current inrush is limited only by the source impedance and any deliberate series impedance, and the voltage transient propagates.</p>
+<ul>
+<li><strong>Inrush magnitude and frequency</strong> can be very high, especially <em>back-to-back</em> &mdash; energizing one bank while a parallel bank is already in service, where the already-charged bank supplies a very fast, very large current into the new one.</li>
+<li><strong>Mitigation:</strong> a switched or fixed impedance in series with the bank (an inrush reactor), or <strong>point-on-wave switching control</strong> that closes each pole at the instant its voltage is near zero.</li>
+<li><strong>Voltage magnification</strong> downstream is the customer-facing consequence: the switching transient can be amplified at a lower-voltage capacitor elsewhere on the system, tripping drives and sensitive loads.</li>
+<li><strong>Restrike</strong> during opening is the switch's problem, and it is why capacitor switching duty is a specific switch rating rather than a general one.</li>
+<li><strong>Reclose blocking.</strong> A bank that has just opened is charged. Units rated above 600&nbsp;V must discharge to 50&nbsp;V or less within five minutes via an internal discharge device &mdash; so the control must block reclosing for at least that long. Closing onto a charged bank produces a transient far worse than normal energization.</li>
+</ul>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A capacitor and a regulator both controlling the same voltage &mdash; and what stops them fighting</text>
+  <line x1="60" y1="180" x2="660" y2="180" stroke="#a9adb8"/>
+  <line x1="60" y1="30" x2="60" y2="180" stroke="#a9adb8"/>
+  <text x="42" y="104" font-size="7.4" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 42 104)">voltage</text>
+
+  <!-- bandwidth band -->
+  <rect x="60" y="76" width="600" height="40" fill="#10a37f" opacity="0.10"/>
+  <line x1="60" y1="76" x2="660" y2="76" stroke="#10a37f" stroke-dasharray="4 3"/>
+  <line x1="60" y1="116" x2="660" y2="116" stroke="#10a37f" stroke-dasharray="4 3"/>
+  <text x="664" y="79" font-size="7" fill="#0d7f63" text-anchor="end">upper bandwidth</text>
+  <text x="664" y="128" font-size="7" fill="#0d7f63" text-anchor="end">lower bandwidth</text>
+  <text x="664" y="99" font-size="7" fill="#8a8e9b" text-anchor="end">setpoint</text>
+
+  <!-- hunting trace -->
+  <path d="M60,140 C110,138 140,126 170,110 L170,84 C210,86 240,96 270,112 L270,138 C310,136 340,124 370,108 L370,82 C410,84 440,94 470,110"
+        fill="none" stroke="#d63a3a" stroke-width="1.6"/>
+  <text x="180" y="72" font-size="7.2" fill="#d63a3a">cap closes</text>
+  <text x="278" y="150" font-size="7.2" fill="#d63a3a">regulator lowers</text>
+  <text x="380" y="72" font-size="7.2" fill="#d63a3a">cap closes again&hellip;</text>
+
+  <!-- settled trace -->
+  <path d="M470,110 C520,104 570,98 660,96" fill="none" stroke="#10a37f" stroke-width="1.8"/>
+  <text x="560" y="88" font-size="7.2" fill="#0d7f63">settled, once the delays are staggered</text>
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="7s" repeatCount="indefinite"
+      path="M60,140 C110,138 140,126 170,110 L170,84 C210,86 240,96 270,112 L270,138 C310,136 340,124 370,108 L370,82 C410,84 440,94 470,110 C520,104 570,98 660,96"/>
+  </circle>
+
+  <rect x="60" y="192" width="600" height="24" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="74" y="208" font-size="7.8" fill="#9c6d06">The cure is design, not tuning after the fact: wider bandwidths, deliberately different time delays, and a defined precedence between the two controls.</text>
+</svg></div>
+<p class="figcap">Every hunting cycle is a switch operation, and switch mechanisms have a finite number of them. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">5</span>Control strategies</h2>
+<table>
+  <tr><th>Strategy</th><th>Closes when</th><th>Suits</th><th>Watch out for</th></tr>
+  <tr><td><strong>Voltage</strong></td><td>Local voltage falls below a setpoint</td><td>Feeder banks whose job is voltage support</td><td>Hunting with a regulator that is also controlling voltage &mdash; the two must be coordinated by bandwidth and delay</td></tr>
+  <tr><td><strong>VAr</strong></td><td>Measured reactive flow exceeds a threshold</td><td>Substation banks correcting power factor at a defined point</td><td>Requires voltage and current measurement, and a clear sign convention</td></tr>
+  <tr><td><strong>Current</strong></td><td>Load current exceeds a threshold</td><td>A crude proxy for VAr where voltage is unavailable</td><td>Load current and reactive demand are only loosely related</td></tr>
+  <tr><td><strong>Time of day</strong></td><td>A schedule</td><td>Predictable daily load shapes</td><td>Holidays, weekends, and weather. Almost always combined with a voltage override</td></tr>
+  <tr><td><strong>Temperature</strong></td><td>Ambient exceeds a threshold</td><td>Air-conditioning-driven load</td><td>A proxy for load, not load itself</td></tr>
+  <tr><td><strong>SCADA / scheme</strong></td><td>A control centre or a volt/VAr optimization system decides</td><td>Coordinated system-wide operation</td><td>Needs a reliable comms path and a defined local fallback when it is lost</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Every automatic strategy needs guard rails.</strong> A voltage override that opens the bank on overvoltage regardless of the primary strategy; a minimum time between operations to protect the switch; a daily operation limit; and a defined behavior when communications fail. Switch mechanisms have a finite number of operations, and a control that hunts will consume them in months.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Integration</h2>
+<ul>
+<li><strong>Status points:</strong> bank position per stage, control mode (auto/manual/local/remote), unbalance alarm and trip, blown-fuse indication where available, switch operation counter.</li>
+<li><strong>Analogs:</strong> bus voltage, bank current per phase, neutral or unbalance quantity, reactive power, and the number of operations today.</li>
+<li><strong>Controls:</strong> open and close per stage, with feedback from the position status &mdash; never from the fact that a command was sent. See <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>.</li>
+<li><strong>The unbalance quantity is worth trending</strong> as an analog even when it is nowhere near alarm. A slow drift is a unit degrading, and it gives you months of warning.</li>
+<li><strong>Coordinate with the regulator.</strong> A capacitor bank and a voltage regulator both controlling the same feeder voltage will fight unless their setpoints, bandwidths, and delays are designed together &mdash; see <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>.</li>
+<li><strong>Where a programmable controller drives the scheme,</strong> an SEL-2411 Programmable Automation Controller is a common choice: ruggedized to industrial and utility standards, &minus;40 to +85&nbsp;&deg;C, a fast 4&nbsp;ms logic loop, 1&nbsp;ms-accurate sequential events recording, and the usual protocol set (Modbus RTU and TCP, DNP3 serial and LAN/WAN, Mirrored Bits, SEL ASCII and binary, IEC 61850) with PRP and RSTP.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Unbalance protection left at calculated settings.</strong> Measure the standing unbalance on the healthy bank and compensate, or the first failed unit will be invisible.</li>
+<li><strong>Reclose block too short.</strong> The discharge device needs its five minutes. Closing early is a violent event.</li>
+<li><strong>Overcorrection at light load.</strong> A fixed bank sized for peak raises voltage above limits overnight. Size fixed banks for minimum load and switch the rest.</li>
+<li><strong>Harmonic resonance.</strong> A capacitor bank and the source inductance form a resonant circuit. If that resonance lands near a harmonic the load produces, currents can be amplified severely &mdash; and the 180% current limit is reached with a perfectly normal fundamental. Detuning reactors are the usual answer.</li>
+<li><strong>Hunting against the regulator.</strong> Two controllers, one voltage, no coordination. Widen bandwidths and stagger delays.</li>
+<li><strong>Blown fuse not reported.</strong> A visibly blown fuse on a pole-top bank can sit for a year. Unbalance alarming into SCADA is what closes that gap.</li>
+<li><strong>Switch duty ignored.</strong> Capacitor switching is a specific duty. A general-purpose switch will fail early, and it will fail while closing.</li>
+<li><strong>Treating a series capacitor like a shunt one.</strong> Series compensation changes line impedance and can invert the apparent direction seen by distance elements &mdash; an entirely different protection problem.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>
+  <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:relays-devices/metering.html">Revenue &amp; Panel Metering</a>
+</div>
+<p class="footnote">Sources: SEL AG2000-18 &ldquo;Grounded Shunt Capacitor Bank Protection Scheme Using SEL-287V and SEL-352 Relays&rdquo; (Wronski) &mdash; the condition-versus-protection table (bus faults, surge voltages, individual unit failure, continuous unit overvoltage, discharge current from parallel units, switching inrush, rack arc-over, breaker failure), the IEEE construction and operating limits (100&ndash;115% of rated reactive power at rated sinusoidal voltage and frequency at 25&nbsp;&deg;C; continuous operation limits of 110% rated RMS voltage with crest 1.2&radic;2 including harmonics but excluding transients, 180% of rated RMS current including fundamental and harmonics, and 135% of rated reactive power; internal discharge device reducing residual voltage to 50&nbsp;V or less in five minutes for units above 600&nbsp;V), and the observation that the SEL-287V voltage differential scheme is by nature immune to system unbalance. SEL-2411 Programmable Automation Controller Data Sheet (20250228) for the controller characteristics cited. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Control Wiring &amp; Terminations</title>
+<meta name="atlas-order" content="100">
+<meta name="atlas-tags" content="terminal block,test switch,FT-1,shorting,shield ground,wetting voltage,interposing relay,megger,landing,labeling">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Control Wiring &amp; Terminations (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Control Wiring &amp; Terminations</h1>
+  <p>Terminal blocks, test switches, wire and cable practice, shield grounding, and relay I/O — the physical layer everything else in the panel depends on</p>
+  <div class="chips"><span>terminal blocks</span><span>FT-1 test switch</span><span>shorting</span><span>shield grounding</span><span>wetting voltage</span><span>interposing relay</span><span>labeling</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Wiring practice</h3>
+<ul style="margin-bottom:2px">
+<li><strong>CT circuits short before they open.</strong> Every test switch, shorting terminal block, and procedure exists to guarantee that order. Get it backwards and you have an open CT secondary at lethal voltage.</li>
+<li><strong>PT circuits open before they short.</strong> The opposite rule &mdash; a PT is a voltage source and shorting it is a fault. Test switch blades for potential and for current are deliberately different, and they are not interchangeable.</li>
+<li><strong>One shield ground per run.</strong> Ground the shield at one end only (normally the panel end) so power-frequency current cannot circulate through it.</li>
+<li><strong>Separate AC, DC, and signal.</strong> Different ducts or at least different bundles. Coupling from a trip-coil pulse into an unshielded signal pair is a real and repeatable phenomenon.</li>
+<li><strong>Label as you land.</strong> An unlabeled wire is unlabeled forever, because nobody goes back.</li>
+<li><strong>Torque matters.</strong> Loose terminations heat, oxidize, and eventually open &mdash; and a loose CT terminal is an open CT waiting for the next fault.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Terminal blocks</h2>
+<table>
+  <tr><th>Type</th><th>What it does</th><th>Where you meet it</th></tr>
+  <tr><td><strong>Plain feed-through</strong></td><td>Joins field wire to panel wire</td><td>Everywhere. The default</td></tr>
+  <tr><td><strong>Sliding-link / knife-disconnect</strong></td><td>Opens the circuit at the block without removing a wire</td><td>Trip circuits, alarm circuits, anywhere you want to isolate for testing</td></tr>
+  <tr><td><strong>Shorting (CT) block</strong></td><td>Provides a screw or link that shorts the circuit before it can be opened</td><td>Every CT secondary that does not land on a test switch</td></tr>
+  <tr><td><strong>Fused block</strong></td><td>Feed-through with an integral fuse and often a blown-fuse indicator</td><td>PT secondaries, DC branch circuits to individual devices</td></tr>
+  <tr><td><strong>Test / injection block</strong></td><td>Accepts a test plug that isolates the device and presents test points</td><td>Relay panels; the FT-family switches below are the classic form</td></tr>
+  <tr><td><strong>Ground bar</strong></td><td>Single-point bonding for shields and circuit grounds</td><td>Once per panel, tied to the station ground grid</td></tr>
+</table>
+<div class="callout">
+<strong>Terminal-block numbering is the vocabulary of field troubleshooting.</strong> &ldquo;TB4-7&rdquo; means block four, terminal seven, and it should mean the same thing on the drawing, on the block, and in the test procedure. When the three disagree, stop and reconcile before doing anything else.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Test switches — and the sequence that keeps you alive</h2>
+<p>An FT-1-style test switch (and its many equivalents) puts a hinged blade in each circuit so a relay can be isolated and a test set inserted without unlanding a wire. The critical property is the <em>order in which contacts make and break</em> as the blade swings.</p>
+
+<div class="fig"><svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Current blade opening: the shorting bar makes contact <tspan font-weight="700">before</tspan> the through path breaks</text>
+
+  <!-- stage labels -->
+  <g font-size="7.6" fill="#8a8e9b">
+    <text x="110" y="34" text-anchor="middle" font-weight="600" fill="#10a37f">1 &middot; Closed (normal)</text>
+    <text x="350" y="34" text-anchor="middle" font-weight="600" fill="#d7930a">2 &middot; Shorting bar engages</text>
+    <text x="590" y="34" text-anchor="middle" font-weight="600" fill="#5468c4">3 &middot; Through path opens</text>
+  </g>
+
+  <!-- three panels -->
+  <g stroke-width="1.6" fill="none">
+    <!-- panel 1 -->
+    <rect x="30" y="46" width="160" height="110" rx="6" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
+    <line x1="44" y1="80" x2="176" y2="80" stroke="#1a1a22"/>
+    <line x1="44" y1="130" x2="176" y2="130" stroke="#1a1a22"/>
+    <circle cx="76" cy="80" r="3" fill="#1a1a22" stroke="none"/><circle cx="144" cy="80" r="3" fill="#1a1a22" stroke="none"/>
+    <text x="110" y="70" font-size="7" fill="#8a8e9b" stroke="none" text-anchor="middle">CT secondary through the relay</text>
+    <text x="110" y="146" font-size="7" fill="#0d7f63" stroke="none" text-anchor="middle">shorting bar clear</text>
+
+    <!-- panel 2 -->
+    <rect x="270" y="46" width="160" height="110" rx="6" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
+    <line x1="284" y1="80" x2="416" y2="80" stroke="#1a1a22"/>
+    <line x1="316" y1="80" x2="316" y2="112" stroke="#d7930a"/>
+    <line x1="384" y1="80" x2="384" y2="112" stroke="#d7930a"/>
+    <line x1="316" y1="112" x2="384" y2="112" stroke="#d7930a" stroke-width="2.4"/>
+    <circle cx="316" cy="80" r="3" fill="#1a1a22" stroke="none"/><circle cx="384" cy="80" r="3" fill="#1a1a22" stroke="none"/>
+    <text x="350" y="70" font-size="7" fill="#8a8e9b" stroke="none" text-anchor="middle">both paths carry current</text>
+    <text x="350" y="132" font-size="7" fill="#9c6d06" stroke="none" text-anchor="middle">short established</text>
+
+    <!-- panel 3 -->
+    <rect x="510" y="46" width="160" height="110" rx="6" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
+    <line x1="524" y1="80" x2="556" y2="80" stroke="#1a1a22"/>
+    <line x1="624" y1="80" x2="656" y2="80" stroke="#1a1a22"/>
+    <line x1="556" y1="80" x2="578" y2="62" stroke="#5468c4" stroke-width="2.4"/>
+    <line x1="556" y1="80" x2="556" y2="112" stroke="#d7930a"/>
+    <line x1="624" y1="80" x2="624" y2="112" stroke="#d7930a"/>
+    <line x1="556" y1="112" x2="624" y2="112" stroke="#d7930a" stroke-width="2.4"/>
+    <circle cx="556" cy="80" r="3" fill="#1a1a22" stroke="none"/><circle cx="624" cy="80" r="3" fill="#1a1a22" stroke="none"/>
+    <text x="590" y="70" font-size="7" fill="#8a8e9b" stroke="none" text-anchor="middle">relay isolated, CT still shorted</text>
+    <text x="590" y="132" font-size="7" fill="#5468c4" stroke="none" text-anchor="middle">safe to insert a test plug</text>
+  </g>
+
+  <!-- animated current dots -->
+  <circle r="3" fill="#d63a3a"><animateMotion dur="1.2s" repeatCount="indefinite" path="M44,80 H176"/></circle>
+  <circle r="3" fill="#d63a3a"><animateMotion dur="1.2s" repeatCount="indefinite" path="M284,80 H316 V112 H384 V80 H416"/></circle>
+  <circle r="3" fill="#d63a3a"><animateMotion dur="1.2s" repeatCount="indefinite" path="M524,80 H556 V112 H624 V80 H656"/></circle>
+
+  <!-- the wrong order -->
+  <rect x="30" y="176" width="640" height="100" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="46" y="196" font-size="8.4" font-weight="600" fill="#9c3838">If the order were reversed &mdash; open first, then short</text>
+  <line x1="60" y1="226" x2="180" y2="226" stroke="#1a1a22" stroke-width="1.6"/>
+  <line x1="240" y1="226" x2="360" y2="226" stroke="#1a1a22" stroke-width="1.6"/>
+  <g>
+    <path d="M182,226 q14,-10 28,0" stroke="#d63a3a" stroke-width="1.6" fill="none">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="0.35s" repeatCount="indefinite"/>
+    </path>
+    <path d="M186,220 q12,-8 24,0" stroke="#d7930a" stroke-width="1.2" fill="none">
+      <animate attributeName="opacity" values="1;0.2;1" dur="0.35s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <text x="212" y="212" font-size="7.6" fill="#d63a3a" text-anchor="middle">arc</text>
+  <text x="380" y="220" font-size="7.8" fill="#454956">The CT drives its core into saturation trying to push rated current through an open circuit.</text>
+  <text x="380" y="233" font-size="7.8" fill="#454956">Secondary voltage rises to whatever it takes &mdash; thousands of volts, easily lethal, and</text>
+  <text x="380" y="246" font-size="7.8" fill="#454956">destructive to the CT itself. This is why the shorting sequence is mechanical, not procedural.</text>
+  <text x="46" y="266" font-size="7.6" font-weight="600" fill="#9c3838">Potential blades are the opposite: they break the voltage circuit and must never short it.</text>
+</svg></div>
+<p class="figcap">Make-before-break on current, break-before-make on potential. Confirm which blade you are touching before you touch it. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout warn">
+<strong>Trust the blade, but verify.</strong> Test switches age; contacts corrode and shorting bars wear. Before opening a current blade on unfamiliar equipment, confirm the short with a clamp meter on the shorted path, or install an external shorting jumper on the terminal block first. It costs two minutes.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Wire and cable</h2>
+<table>
+  <tr><th>Circuit</th><th>Typical conductor</th><th>Notes</th></tr>
+  <tr><td>CT secondary</td><td>Heavier gauge, sized so total burden stays within the CT's accuracy class</td><td>Burden is a design calculation, not a guess &mdash; see <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a></td></tr>
+  <tr><td>PT secondary</td><td>Moderate gauge, fused at the source</td><td>Voltage drop on long runs shifts measured magnitude and angle</td></tr>
+  <tr><td>Trip / close</td><td>Sized for the coil pulse at end-of-discharge battery voltage</td><td>Voltage drop calculation matters more than ampacity</td></tr>
+  <tr><td>Status / alarm contacts</td><td>Light gauge, often multi-pair shielded</td><td>Shielded and separated from trip circuits</td></tr>
+  <tr><td>Analog signals (4&ndash;20 mA, RTD)</td><td>Twisted shielded pair, sometimes individually shielded pairs</td><td>Shield grounded at one end only</td></tr>
+  <tr><td>Serial data</td><td>Twisted shielded pair for EIA-485; fiber wherever it leaves the building</td><td>See <a href="atlas:comms/serial-comms.html">Serial Comms</a></td></tr>
+  <tr><td>Ethernet</td><td>Shielded copper inside the panel, fiber between buildings and to the yard</td><td>Ground potential rise makes copper between structures a liability</td></tr>
+</table>
+
+<h3>Separation and shielding</h3>
+<ul>
+<li><strong>Route power, control, and signal cables in separate trays or ducts</strong> where possible, and cross at right angles where they must cross.</li>
+<li><strong>Twist plus shield beats shield alone.</strong> Twisting rejects magnetically induced noise; the shield handles capacitive coupling. Both matter in a substation.</li>
+<li><strong>Ground the shield at one end.</strong> Grounding both ends creates a loop that carries power-frequency and fault current, injecting exactly the noise the shield was supposed to stop. The usual exception is high-frequency-dominated environments, where a capacitive ground at the far end is used &mdash; follow the site standard, and be consistent.</li>
+<li><strong>Keep the shield continuous and land it on the panel ground bar,</strong> not on a random screw. Pigtails should be short.</li>
+<li><strong>Anything leaving the control house on copper</strong> deserves surge protection and, ideally, should not be copper at all. See <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a> on ground potential rise.</li>
+</ul>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One shield ground works; two make a loop that carries the noise you were trying to stop</text>
+  <text x="170" y="38" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Grounded at one end</text>
+  <line x1="50" y1="66" x2="290" y2="66" stroke="#5468c4" stroke-width="1.4"/>
+  <line x1="50" y1="74" x2="290" y2="74" stroke="#5468c4" stroke-width="1.4"/>
+  <path d="M46,58 H294 M46,82 H294" stroke="#8a8e9b" stroke-width="1.2"/>
+  <text x="170" y="52" font-size="7" fill="#8a8e9b" text-anchor="middle">shield</text>
+  <line x1="50" y1="82" x2="50" y2="100" stroke="#1a1a22" stroke-width="1.3"/>
+  <path d="M40,100 H60 M43,105 H57 M46,110 H54" stroke="#1a1a22" stroke-width="1.2"/>
+  <circle cx="290" cy="82" r="3" fill="none" stroke="#8a8e9b"/>
+  <text x="170" y="130" font-size="7.4" fill="#0d7f63" text-anchor="middle">no closed path &mdash; no circulating current</text>
+  <text x="170" y="142" font-size="7.4" fill="#8a8e9b" text-anchor="middle">the shield still intercepts capacitive coupling</text>
+
+  <text x="500" y="38" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">Grounded at both ends</text>
+  <line x1="380" y1="66" x2="620" y2="66" stroke="#5468c4" stroke-width="1.4"/>
+  <line x1="380" y1="74" x2="620" y2="74" stroke="#5468c4" stroke-width="1.4"/>
+  <path d="M376,58 H624 M376,82 H624" stroke="#8a8e9b" stroke-width="1.2"/>
+  <line x1="380" y1="82" x2="380" y2="100" stroke="#1a1a22" stroke-width="1.3"/>
+  <path d="M370,100 H390 M373,105 H387 M376,110 H384" stroke="#1a1a22" stroke-width="1.2"/>
+  <line x1="620" y1="82" x2="620" y2="100" stroke="#1a1a22" stroke-width="1.3"/>
+  <path d="M610,100 H630 M613,105 H627 M616,110 H624" stroke="#1a1a22" stroke-width="1.2"/>
+  <path d="M380,100 C440,118 560,118 620,100" stroke="#d63a3a" stroke-width="1.6" fill="none" stroke-dasharray="5 3"/>
+  <circle r="3.5" fill="#d63a3a">
+    <animateMotion dur="2s" repeatCount="indefinite" path="M380,100 C440,118 560,118 620,100"/>
+  </circle>
+  <text x="500" y="132" font-size="7.4" fill="#d63a3a" text-anchor="middle">ground potential difference drives current through the shield</text>
+  <text x="500" y="144" font-size="7.4" fill="#8a8e9b" text-anchor="middle">and that current couples straight into the pair inside</text>
+
+  <rect x="50" y="160" width="600" height="32" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="64" y="176" font-size="7.8" fill="#454956"><tspan font-weight="600">The usual exception:</tspan> in high-frequency-dominated environments a capacitive ground at the far end is used, which grounds for RF and not for power frequency.</text>
+  <text x="64" y="188" font-size="7.8" fill="#454956">Follow the site standard, and above all be consistent &mdash; a mixed convention is worse than either rule applied uniformly.</text>
+</svg></div>
+<p class="figcap">Noise that tracks load current, or appears only during faults, is this picture until proven otherwise. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">4</span>Relay I/O: what the terminals actually expect</h2>
+<div class="twocol">
+<div>
+<h3>Binary inputs</h3>
+<ul>
+<li>Optically isolated inputs with a <strong>voltage threshold</strong>. Ordering options set the range (24, 48, 125, or 250&nbsp;V DC families), and a 125&nbsp;V input will not reliably operate on 48&nbsp;V.</li>
+<li><strong>Wetting voltage</strong> comes from the station battery through the field contact. The relay input is the load; the contact is the switch.</li>
+<li>Long cable runs have capacitance. A high-impedance input plus a long cable can hold enough charge to look asserted after the contact opens &mdash; this is why relays offer a settable input debounce and, on some models, a higher pickup threshold option.</li>
+<li>SEL relays let you assign each input in SELogic and set a debounce time; use it rather than fighting chatter downstream in the RTAC.</li>
+</ul>
+</div>
+<div>
+<h3>Output contacts</h3>
+<ul>
+<li><strong>Standard versus high-current interrupting.</strong> Trip-rated outputs can make and carry trip-coil current; general-purpose contacts often cannot interrupt inductive DC. Check the ordering option against the duty.</li>
+<li><strong>Form A / Form B / Form C</strong> &mdash; normally open, normally closed, changeover. Choose by fail-safe behavior: what should this contact do when the relay loses power?</li>
+<li><strong>Interposing relays</strong> bridge the gap when a relay output cannot handle the load, when many contacts are needed, or when circuit separation is required. They add 5&ndash;15&nbsp;ms &mdash; acceptable for alarms, sometimes not for protection.</li>
+<li><strong>Minimum trip duration</strong> (SEL <code>TDURD</code>-style settings) holds the output asserted long enough for the breaker to act; the 52a contact does the interrupting.</li>
+</ul>
+</div>
+</div>
+<div class="callout keyfact">
+<strong>Decide the de-energized state deliberately.</strong> A trip output should be normally open (a dead relay must not trip). An alarm contact is often normally closed, so loss of the relay itself raises the alarm. Choosing by habit rather than by intent is how a failed device silently stops reporting.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Landing wires well</h2>
+<ul>
+<li><strong>Strip to the right length.</strong> Bare conductor visible outside the terminal is a short waiting to happen; insulation inside the clamp is a joint that will heat.</li>
+<li><strong>Ferrules on stranded conductors</strong> where the block calls for them; never tin stranded wire for a screw terminal &mdash; solder creeps and the joint loosens.</li>
+<li><strong>One conductor per terminal</strong> unless the block is explicitly designed for two. Doubling up under a screw guarantees an intermittent later.</li>
+<li><strong>Torque to specification,</strong> and re-check after the first thermal cycle on anything carrying real current.</li>
+<li><strong>Dress the bundle</strong> with a service loop at each device so a relay can be removed without unlanding half the panel.</li>
+<li><strong>Label both ends</strong> with the wire number from the drawing. Heat-shrink markers survive; adhesive labels in a hot panel do not.</li>
+<li><strong>Leave spare capacity.</strong> Spare terminals, spare pairs in every cable, and duct fill under the limit. Every one of them will be used within five years.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Proving the wiring</h2>
+<table>
+  <tr><th>Test</th><th>What it proves</th><th>Cautions</th></tr>
+  <tr><td>Point-to-point continuity (&ldquo;ring out&rdquo;)</td><td>The wire goes where the drawing says</td><td>De-energize and isolate both ends. A tone generator and probe is faster than two people with radios</td></tr>
+  <tr><td>Insulation resistance (megger)</td><td>Cable insulation is sound</td><td><strong>Disconnect electronics first.</strong> A megger will destroy relay inputs, RTAC I/O, and surge suppressors. Never megger a CT secondary with the relay connected</td></tr>
+  <tr><td>Contact operation</td><td>The field device really does change state</td><td>Operate from the field end, watch the relay input, then watch the SCADA point &mdash; all three, once</td></tr>
+  <tr><td>Secondary injection</td><td>CT/PT circuits reach the relay with correct magnitude and polarity</td><td>See Test Equipment and Relay Checkout</td></tr>
+  <tr><td>Load check</td><td>Real primary current and voltage produce sensible phasors</td><td>The only test that catches a swapped phase on an otherwise perfect circuit</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>The shorting screw left in.</strong> The single most common commissioning error, and the most consequential: the relay sees no current and protects nothing. Count them in, count them out.</li>
+<li><strong>Two shields grounded.</strong> Produces intermittent noise that tracks load current and is maddening to chase. Check both ends of any suspect run.</li>
+<li><strong>Wetting voltage borrowed from the wrong supply.</strong> Inputs wetted from a different DC source than the contact's circuit create a path between supplies &mdash; and a DC ground on one becomes a DC ground on both.</li>
+<li><strong>Interposing relay contacts rated for AC only.</strong> They will weld on DC. Check the DC rating specifically.</li>
+<li><strong>Spare wires left unterminated and unlabeled</strong> in a live panel. Cap and land them on spare terminals, and mark them on the drawing.</li>
+<li><strong>Terminal blocks used as splices.</strong> Acceptable and normal &mdash; but only if the drawing shows it. An undocumented jumper is a future misdiagnosis.</li>
+<li><strong>Megger applied with a device connected.</strong> Instant, expensive, and entirely avoidable. Build it into the written procedure, not into someone's memory.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:commissioning/safety-practices.html">Safety Practices</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>
+  
+  <a href="atlas:relays-devices/relay-anatomy.html">Relay Anatomy</a>
+  <a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a>
+</div>
+<p class="footnote">Fundamentals page. Terminal-block, test-switch, shielding, and separation practice follow standard utility installation practice and IEEE guidance (IEEE 525 for cable systems, C57.13.3 for instrument transformer secondary grounding). Relay input threshold options, contact ratings, input debounce, and minimum trip duration follow SEL practice as documented in the SEL-751/751A and SEL-451 instruction manuals and their ordering information. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

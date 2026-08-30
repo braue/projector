@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motor Protection</title>
+<meta name="atlas-order" content="90">
+<meta name="atlas-tags" content="motor,49,thermal model,TCU,trip class,46,unbalance,locked rotor,load jam,66,starts per hour,RTD,SEL-710,SEL-849,CBCT">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Motor Protection (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Motor Protection</h1>
+  <p>Why motors are protected thermally rather than by fault magnitude — the thermal model, unbalance, jam and locked rotor, starts-per-hour, RTDs, and what the SEL-710 and SEL-849 actually give you</p>
+  <div class="chips"><span>49 thermal</span><span>%TCU</span><span>trip class</span><span>46 unbalance</span><span>50P LR / LJ</span><span>66 starts/hr</span><span>RTD</span><span>SEL-710-5</span><span>SEL-849</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Motors</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The enemy is heat, not current.</strong> A motor is destroyed by accumulated thermal damage to insulation, so the primary element is a <strong>thermal model (49)</strong> that integrates I&sup2;t, not a simple overcurrent pickup.</li>
+<li><strong>Starting looks exactly like a fault</strong> &mdash; typically 6&ndash;8 times full-load current for several seconds. Every element has to be secure through that, which is why a motor relay needs to know it is starting.</li>
+<li><strong>Negative-sequence current heats the rotor disproportionately.</strong> A small voltage unbalance produces a much larger current unbalance, and the resulting double-frequency rotor currents heat far faster than positive-sequence current of the same magnitude. The thermal model must include it.</li>
+<li><strong>Single-phasing is the classic motor killer.</strong> The motor keeps turning, the remaining phases overload, and nothing looks dramatic until the windings fail.</li>
+<li><strong>Thermal capacity is a budget you spend and slowly get back.</strong> Two successive cold starts may be allowed; a third is often not, and the relay's starts-per-hour and time-between-starts logic exists to enforce that.</li>
+<li><strong>Set the relay from the motor's data, not from the feeder's.</strong> Full-load amps, locked-rotor current and time, service factor, and the thermal limit curve are motor nameplate and manufacturer data.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The life of a motor, in current</h2>
+<p>Everything a motor relay does is anchored to this one waveform: a very large inrush and starting current for a few seconds, then a long steady run near full-load amps, punctuated by whatever the load does to it.</p>
+
+<div class="fig"><svg viewBox="0 0 700 270" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A start, a run, a jam &mdash; and what each element is watching for</text>
+
+  <!-- axes -->
+  <line x1="56" y1="200" x2="686" y2="200" stroke="#a9adb8"/>
+  <line x1="56" y1="34" x2="56" y2="200" stroke="#a9adb8"/>
+  <g font-size="7" fill="#8a8e9b">
+    <text x="50" y="200" text-anchor="end">0</text>
+    <line x1="52" y1="176" x2="56" y2="176" stroke="#a9adb8"/><text x="50" y="179" text-anchor="end">1&times; FLA</text>
+    <line x1="52" y1="128" x2="56" y2="128" stroke="#a9adb8"/><text x="50" y="131" text-anchor="end">3&times;</text>
+    <line x1="52" y1="56" x2="56" y2="56" stroke="#a9adb8"/><text x="50" y="59" text-anchor="end">6&times;</text>
+    <text x="370" y="222" text-anchor="middle">time</text>
+  </g>
+  <line x1="56" y1="176" x2="686" y2="176" stroke="#10a37f" stroke-dasharray="3 3" opacity="0.5"/>
+
+  <!-- current profile -->
+  <path d="M56,200 L86,52 C110,52 150,54 175,60 C196,66 210,110 224,168 C240,176 300,176 360,176
+           C420,176 460,176 470,176 C480,176 486,140 500,132 C520,132 560,132 590,132
+           C600,132 606,176 616,176 C640,176 670,176 686,176"
+        fill="none" stroke="#d63a3a" stroke-width="1.8"/>
+
+  <!-- phase shading -->
+  <rect x="56" y="34" width="170" height="166" fill="#fdf3e7" opacity="0.4"/>
+  <rect x="226" y="34" width="244" height="166" fill="#e7f6f1" opacity="0.35"/>
+  <rect x="470" y="34" width="146" height="166" fill="#fbeeee" opacity="0.35"/>
+  <g font-size="7.6" font-weight="600">
+    <text x="140" y="46" fill="#9c6d06" text-anchor="middle">START</text>
+    <text x="348" y="46" fill="#0d7f63" text-anchor="middle">RUNNING</text>
+    <text x="543" y="46" fill="#9c3838" text-anchor="middle">LOAD JAM</text>
+  </g>
+
+  <!-- moving marker -->
+  <circle r="4.5" fill="#d63a3a">
+    <animateMotion dur="9s" repeatCount="indefinite"
+      path="M56,200 L86,52 C110,52 150,54 175,60 C196,66 210,110 224,168 C240,176 300,176 360,176 C420,176 460,176 470,176 C480,176 486,140 500,132 C520,132 560,132 590,132 C600,132 606,176 616,176 C640,176 670,176 686,176"/>
+  </circle>
+
+  <!-- annotations -->
+  <g font-size="7" fill="#454956">
+    <text x="96" y="72">6&ndash;8&times; FLA for a few seconds</text>
+    <text x="96" y="83" fill="#8a8e9b">relay knows this is a start &mdash; 49 accumulates, 50P LR supervises</text>
+    <text x="240" y="166">steady near FLA</text>
+    <text x="240" y="192" fill="#8a8e9b">49 slowly cools &middot; 46 watches unbalance &middot; 37 watches for load loss</text>
+    <text x="500" y="122">2&ndash;3&times; FLA with the rotor still turning</text>
+    <text x="500" y="192" fill="#8a8e9b">50P LJ picks up: overload while running, not a fault</text>
+  </g>
+
+  <rect x="8" y="232" width="684" height="34" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="248" font-size="7.8" fill="#454956"><tspan font-weight="600">The design problem in one line:</tspan> the start looks like a fault, the jam looks like a heavy start, and a locked rotor looks like a start that never ends.</text>
+  <text x="20" y="260" font-size="7.8" fill="#454956">The relay separates them using elapsed time since start, whether current ever fell back toward FLA, and whether the motor is confirmed running.</text>
+</svg></div>
+<p class="figcap">Distinguishing these three regions is most of what a motor relay does; the elements are just the consequences. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>The thermal model (49)</h2>
+<p>Rather than a fixed time-current curve, a motor relay maintains a running estimate of how hot the machine is, expressed as <strong>percent thermal capacity used (%TCU)</strong>. Current heats; time cools. The relay trips when %TCU reaches 100.</p>
+<p>The SEL-710 and SEL-849 both implement a patented thermal model that tracks stator and rotor heating separately, includes negative-sequence heating, and behaves differently while accelerating than while running. On the SEL-849 the relay <strong>trips when either the stator or the rotor thermal estimate reaches 100 percent</strong>.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Thermal capacity as a bucket: each start fills it, running near FLA holds it, idle time drains it</text>
+
+  <!-- bucket -->
+  <rect x="60" y="40" width="90" height="150" rx="6" fill="#fff" stroke="#1a1a22" stroke-width="1.6"/>
+  <line x1="60" y1="40" x2="150" y2="40" stroke="#d63a3a" stroke-width="2"/>
+  <text x="158" y="44" font-size="7.4" fill="#d63a3a">100% &mdash; TRIP</text>
+  <line x1="60" y1="115" x2="150" y2="115" stroke="#e5e7eb" stroke-dasharray="3 3"/>
+  <text x="158" y="118" font-size="7.2" fill="#8a8e9b">50%</text>
+  <rect x="61" y="150" width="88" height="39" fill="#d7930a" opacity="0.6">
+    <animate attributeName="y" values="189;92;100;104;46;52;150;189"
+      dur="14s" repeatCount="indefinite"/>
+    <animate attributeName="height" values="0;97;89;85;143;137;39;0"
+      dur="14s" repeatCount="indefinite"/>
+  </rect>
+  <text x="105" y="208" font-size="7.4" fill="#8a8e9b" text-anchor="middle">%TCU</text>
+
+  <!-- timeline events -->
+  <g font-size="7.4">
+    <line x1="230" y1="190" x2="670" y2="190" stroke="#a9adb8"/>
+    <g fill="#454956">
+      <circle cx="270" cy="190" r="3.5" fill="#d7930a"/><text x="270" y="180" text-anchor="middle">start 1</text>
+      <circle cx="350" cy="190" r="3.5" fill="#10a37f"/><text x="350" y="180" text-anchor="middle">run</text>
+      <circle cx="430" cy="190" r="3.5" fill="#10a37f"/><text x="430" y="180" text-anchor="middle">cool</text>
+      <circle cx="500" cy="190" r="3.5" fill="#d7930a"/><text x="500" y="180" text-anchor="middle">start 2</text>
+      <circle cx="580" cy="190" r="3.5" fill="#d63a3a"/><text x="580" y="180" text-anchor="middle">start 3 blocked</text>
+      <circle cx="650" cy="190" r="3.5" fill="#10a37f"/><text x="650" y="180" text-anchor="middle">cooled</text>
+    </g>
+    <line y1="46" y2="196" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.4">
+      <animate attributeName="x1" values="230;670" dur="14s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="230;670" dur="14s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <g font-size="7.6">
+    <rect x="230" y="40" width="440" height="120" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="244" y="58" font-weight="600" fill="#1a1a22">What fills and empties the bucket</text>
+    <text x="244" y="76" fill="#454956"><tspan font-weight="600">Fills:</tspan> I&sup2;t during acceleration (the dominant contributor), running current above the overload pickup,</text>
+    <text x="244" y="88" fill="#454956">and negative-sequence current weighted far more heavily than positive sequence.</text>
+    <text x="244" y="106" fill="#454956"><tspan font-weight="600">Empties:</tspan> time, at a rate set by whether the motor is running (fan cooling) or stopped (still cooling,</text>
+    <text x="244" y="118" fill="#454956">but much more slowly). Separate running and stopped cooling time constants are a standard setting.</text>
+    <text x="244" y="140" fill="#9c3838"><tspan font-weight="600">The consequence:</tspan> the same start that is harmless on a cold motor can trip a hot one. That is correct behavior,</text>
+    <text x="244" y="152" fill="#9c3838">and explaining it to operations is part of commissioning a motor relay.</text>
+  </g>
+  <text x="8" y="238" font-size="7.6" fill="#8a8e9b">The relay reports %TCU as a live metering value &mdash; map it to SCADA. It is the single most useful motor analog after current.</text>
+</svg></div>
+<p class="figcap">A motor thermal element has memory. Restoring a tripped motor by cycling power does not reset the machine's temperature, and a relay that forgets is worse than one that remembers. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Three ways to set it</h3>
+<p>The SEL-849 data sheet describes three routes to the same model, and the same choice exists on the SEL-710 family:</p>
+<table>
+  <tr><th>Method</th><th>What you enter</th><th>Use when</th></tr>
+  <tr><td><strong>IEC or NEMA trip class</strong></td><td>Class 5, 10, 20, or 30</td><td>You have little motor data and need conventional, defensible protection. The class number is roughly the allowed locked-rotor time in seconds at 6&times; FLA</td></tr>
+  <tr><td><strong>Motor nameplate ratings</strong></td><td>Full-load current, locked-rotor current, hot stall (safe stall) time, overload pickup level</td><td>The normal case. Gives a model matched to the actual machine</td></tr>
+  <tr><td><strong>Standard thermal limit curve</strong></td><td>One of 45 built-in curves</td><td>You are replacing an existing relay and must emulate its behavior, or the motor manufacturer specifies a curve</td></tr>
+</table>
+<div class="callout">
+<strong>Get the hot and cold stall times right.</strong> &ldquo;Safe stall time&rdquo; from the motor manufacturer is given for a cold motor and a hot motor, and they differ substantially. Using the cold value for a machine that starts frequently sets the protection above what the motor can actually survive.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Unbalance, single-phasing, and phase reversal</h2>
+<ul>
+<li><strong>46 &mdash; current unbalance.</strong> Trips for single-phasing or heavy unbalance. This is in addition to the unbalance contribution already inside the thermal model, and it exists because a severe unbalance needs a faster response than thermal accumulation provides.</li>
+<li><strong>47 &mdash; phase reversal.</strong> Detects incorrect rotation and trips after a delay. On the SEL-849 this works even without voltage inputs, from current alone &mdash; genuinely useful after any maintenance that disturbed the cabling.</li>
+<li><strong>Why unbalance is so damaging:</strong> the motor's negative-sequence impedance is close to its locked-rotor impedance, so a few percent of negative-sequence voltage drives a much larger percentage of negative-sequence current, and that current induces double-frequency currents in the rotor, where the heating is concentrated and least well cooled.</li>
+</ul>
+<div class="callout warn">
+<strong>A blown fuse upstream is the classic case.</strong> The motor continues to run on two phases, drawing heavily unbalanced current, sounding rough, and heating the rotor fast. Nothing about the total current is dramatic. The 46 element and the thermal model's negative-sequence term are what save the machine.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>The rest of the element set</h2>
+<table>
+  <tr><th>Element</th><th>Detects</th><th>Notes on setting</th></tr>
+  <tr><td><strong>50P LR</strong> &mdash; locked rotor</td><td>The motor drew starting current and never accelerated</td><td>Supervised by start detection and a timer derived from the safe stall time. This is the element that saves a stalled machine before the thermal model would</td></tr>
+  <tr><td><strong>50P LJ</strong> &mdash; load jam / stalled rotor</td><td>Current rises well above FLA while the motor is confirmed running</td><td>Set above the highest legitimate running load and below locked-rotor current; short delay to ride through load transients</td></tr>
+  <tr><td><strong>37 (C, P)</strong> &mdash; undercurrent / load loss</td><td>Lost coupling, broken belt, dry pump, closed valve</td><td>A process-protection element more than a machine-protection one, and often the most appreciated by operations</td></tr>
+  <tr><td><strong>66</strong> &mdash; starts per hour, plus time-between-starts and antibackspin</td><td>Operator or control system restarting too aggressively</td><td>Comes straight from motor manufacturer limits. Antibackspin prevents restarting a machine that is still coasting in reverse</td></tr>
+  <tr><td><strong>50/51 (P, G, Q, N)</strong></td><td>Cable and winding short circuits</td><td>Instantaneous phase set above locked-rotor current with margin; ground elements set far more sensitively</td></tr>
+  <tr><td><strong>Ground via a CBCT</strong></td><td>Winding or cable ground faults on a high-resistance grounded system</td><td>The SEL-849 accepts an external core-balance CT specifically for sensitive ground detection on HRG systems &mdash; see <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a></td></tr>
+  <tr><td><strong>49P thermistor / RTDs</strong></td><td>Actual measured winding and bearing temperature</td><td>The SEL-849 takes a PTC thermistor input; the SEL-710-5 monitors up to 10 RTDs internally, or up to 12 through an SEL-2600 RTD module. Real temperature beats an estimate &mdash; use it when the machine is instrumented</td></tr>
+  <tr><td><strong>14</strong> &mdash; speed switch</td><td>Confirms the shaft is turning</td><td>Removes ambiguity between a long start and a locked rotor. The SEL-710-5 also offers a virtual speed switch</td></tr>
+  <tr><td><strong>Breaker / contactor failure</strong></td><td>The starter did not open when told</td><td>Especially important with contactors, which cannot interrupt fault current &mdash; the upstream device must be told</td></tr>
+  <tr><td><strong>AFD</strong> &mdash; arc-flash detection</td><td>Light plus overcurrent inside the MCC or switchgear</td><td>Built into the SEL-849; optional four- or eight-channel on the SEL-710-5. See <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a></td></tr>
+</table>
+
+<h3>Voltage-based additions</h3>
+<p>Both relays offer optional voltage inputs, which unlock over/undervoltage, over/underfrequency, directional power, power factor, and loss of potential. On the SEL-849 the voltage inputs connect directly up to 690&nbsp;V AC and can be configured as a single phase-to-phase, a single phase-to-neutral, open-delta, or four-wire wye. Undervoltage matters operationally: a voltage dip that stalls a motor is followed by an inrush from every motor on the bus when voltage returns, which is why <strong>undervoltage automatic restart</strong> logic is a standard scheme rather than an exotic one.</p>
+
+<h3>Synchronous machines</h3>
+<p>The SEL-710-5 offers an optional synchronous motor card that adds starting control, power-factor or reactive-power closed-loop regulation, and loss-of-field, out-of-step, pull-out, field resistance, field voltage, and field current protection. A synchronous motor that loses field pulls out of step and draws heavy reactive current &mdash; it must be detected and dealt with quickly.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Monitoring and what to send to SCADA</h2>
+<p>Motor relays are unusually rich in operational data, and much of it is more valuable than the trip contacts.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f">
+    <b>%TCU (stator and rotor)</b>
+    <span>How close the machine is to a thermal trip, right now. The single best predictor of an impending motor outage.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Motor start report</b>
+    <span>Both relays capture a dedicated start report &mdash; current, voltage, duration, and thermal usage for each start. The SEL-710-5 adds exciter voltage and current for synchronous machines.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Start trending and statistics</b>
+    <span>Starting current and time drifting upward across months is a mechanical problem announcing itself early.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>RTD temperatures</b>
+    <span>Winding and bearing temperatures as analogs, not just alarm contacts.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Starts remaining / time until start permitted</b>
+    <span>Answers the operator's actual question, and prevents the &ldquo;why won't it start&rdquo; call.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Load profile and demand</b>
+    <span>Both relays record load profile; useful for process troubleshooting well beyond protection.</span>
+  </div>
+</div>
+<p>Both relays speak DNP3 (serial and LAN/WAN), Modbus RTU and TCP, IEC 61850, EtherNet/IP, and SEL protocols, with an integrated web server for events, SER, and start reports. Integration practice is in <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Gotchas</h2>
+<ul>
+<li><strong>Setting FLA from the starter's rating instead of the motor's.</strong> The relay's entire thermal model scales from FLA; get it wrong and every element is wrong by the same factor.</li>
+<li><strong>Ignoring the service factor.</strong> A 1.15 service factor motor is allowed to run continuously above nameplate FLA. Setting the overload pickup at exactly 1.00 produces nuisance trips on a machine that is operating within its rating.</li>
+<li><strong>Instantaneous phase pickup set below locked-rotor current.</strong> The motor will trip on every start, and someone will &ldquo;fix&rdquo; it by disabling the element.</li>
+<li><strong>Forgetting that thermal state persists.</strong> A relay that has just tripped thermally will block the restart, and that block is protection working. Do not defeat it &mdash; wait, or investigate why the machine is hot.</li>
+<li><strong>Residual ground on a high-resistance grounded system without a CBCT.</strong> The available ground current is a few amperes; a residual element derived from phase CTs cannot resolve it. Specify the core-balance CT at design time, not after commissioning fails.</li>
+<li><strong>VFD-fed motors are a different problem.</strong> Both relays support VFD configuration explicitly, but the current waveform, frequency, and the drive's own protection all change the picture. Do not apply an across-the-line configuration to a drive-fed machine.</li>
+<li><strong>RTD wiring errors read as plausible temperatures.</strong> A swapped or shorted RTD pair produces a believable number. Verify each channel against an actual measurement during commissioning.</li>
+<li><strong>Contactors are not breakers.</strong> A contactor cannot interrupt fault current; for short circuits the relay must trip an upstream device, and the coordination scheme must reflect that.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:protection/generator-protection.html">Generator Protection</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Sources: SEL-849 Motor Management Relay Data Sheet (20250117) &mdash; thermal model with separate stator and rotor estimates, three setting methods including IEC/NEMA classes 5/10/20/30 and 45 standard thermal limit curves, built-in Rogowski window CTs to FLA = 256 A, external CBCT for HRG ground detection, ANSI function list (14, 27, 32, 37, 46, 47, 49, 50 P/G/Q/N, 50PAF/50GAF, 50P LR, 50P LJ, 51, 55, 59, 60, 66, 81, 90), voltage input configurations to 690 V AC, and protocol list. SEL-710-5 Motor Protection Relay Data Sheet (20250501) &mdash; enhanced thermal model feature list, broken rotor bar detection, RTD counts (10 internal, 12 via SEL-2600), optional synchronous motor card elements, optional 4- and 8-channel arc-flash detector inputs, and LEA/Rogowski input options. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

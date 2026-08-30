@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RSTP & Topologies</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="RSTP,spanning tree,ring,root bridge,convergence,topology,loop">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "RSTP & Topologies (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>RSTP & Topologies</h1>
+  <p>Loops, root bridges, and reconvergence — plus ring vs. ladder sizing from AG2017-21</p>
+  <div class="chips"><span>RSTP</span><span>root bridge</span><span>ring</span><span>ladder</span><span>BPDU Guard</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Switching</h3>
+<ul style="margin-bottom:8px">
+<li>A loop without RSTP is a <strong>broadcast storm</strong>. RSTP keeps one path alive and holds the spares blocked until a failure.</li>
+<li><strong>Engineer the root bridge</strong> — set a low priority on your chosen root and backup root, or the network elects one by lowest MAC and you get whatever that is.</li>
+</ul>
+<h3>Sizing</h3>
+<ul style="margin-bottom:2px">
+<li>Topology by size: <strong>ring ≤ 5 switches, ladder for 6–10</strong>, extension ladders for geography — and split the Layer 2 domain around 100–200 end devices.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Loops and RSTP</h2>
+<p>Redundant paths mean loops, and a switched loop with no protocol is a broadcast storm — frames circulating and multiplying until the network chokes. RSTP's job is to keep exactly one active path between any two points and hold the spare links <strong>blocked</strong>, then unblock them when a working link dies (reconvergence).</p>
+
+<div class="fig"><svg viewBox="0 0 700 168" xmlns="http://www.w3.org/2000/svg">
+  <rect x="60" y="20" width="110" height="30" rx="5" fill="#1a1a22"/>
+  <text x="115" y="33" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">SW1 — root</text>
+  <text x="115" y="44" font-size="7" fill="#c9ccd8" text-anchor="middle">priority 4096 (engineered)</text>
+  <rect x="530" y="20" width="110" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="585" y="33" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">SW2</text>
+  <text x="585" y="44" font-size="7" fill="#a9adb8" text-anchor="middle">backup root 8192</text>
+  <rect x="530" y="118" width="110" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="585" y="131" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">SW3</text>
+  <rect x="60" y="118" width="110" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="115" y="131" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">SW4</text>
+  <line x1="170" y1="35" x2="530" y2="35" stroke="#10a37f" stroke-width="2"/>
+  <line x1="585" y1="50" x2="585" y2="118" stroke="#10a37f" stroke-width="2"/>
+  <line x1="115" y1="50" x2="115" y2="118" stroke="#10a37f" stroke-width="2"/>
+  <line x1="170" y1="133" x2="530" y2="133" stroke="#a9adb8" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="350" y="126" font-size="7.8" fill="#a9adb8" text-anchor="middle">blocked (alternate) — RSTP holds it in reserve</text>
+  <text x="350" y="28" font-size="7.8" fill="#10a37f" text-anchor="middle">active path</text>
+  <text x="350" y="160" font-size="8" fill="#a9adb8" text-anchor="middle">ring of 4 — one link always blocked; on failure the blocked link goes active and traffic reroutes</text>
+  <g class="animlayer">
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.26;0.29;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M115,50 L115,118 M115,118 L115,50 L170,35 L530,35 L585,50 L585,118" keyPoints="0;0;1;1" keyTimes="0;0.01;0.27;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0;0" keyTimes="0;0.36;0.38;0.62;0.66;1" dur="12s" repeatCount="indefinite"/>
+      <line x1="342" y1="27" x2="358" y2="43" stroke="#d63a3a" stroke-width="3"/>
+      <line x1="358" y1="27" x2="342" y2="43" stroke="#d63a3a" stroke-width="3"/>
+      <text x="350" y="58" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">link fails</text>
+    </g>
+    <line x1="170" y1="133" x2="530" y2="133" stroke="#10a37f" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.48;0.52;0.92;0.97;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <text x="350" y="146" font-size="7.8" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0.95;0;0" keyTimes="0;0.48;0.52;0.90;0.95;1" dur="12s" repeatCount="indefinite"/>
+      alternate unblocks — reconverged
+    </text>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.60;0.62;0.88;0.91;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M115,50 L115,118 L170,133 L530,133 L585,118" keyPoints="0;0;1;1" keyTimes="0;0.60;0.89;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Traffic between SW4 and SW3 takes the long way while all links are healthy; the moment the top link dies, the blocked link opens and the path flips.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Root bridge selection is yours to engineer.</strong> Lowest bridge priority wins (default 32768, range 0–61440); a tie falls to lowest MAC address — i.e., a random switch. SEL's guidance: deliberately set a root and a backup root with low non-default priorities, and remember SEL switches log every root change.</li>
+  <li><strong>Hops are bounded:</strong> Max Age (6–40, default 20) is how many hops from the root a BPDU stays valid. Deep topologies and dual-connected rings can balloon hop counts after a failure (AG2017-21's example: 2 hops before, 11 after) — reconvergence and latency suffer.</li>
+  <li><strong>Topology guidance (AG2017-21):</strong> ring for ≤5 switches, ladder for 6–10; keep IED-to-IED hop counts small.</li>
+  <li><strong>Edge ports:</strong> set switch ports feeding IEDs to fast/edge mode so they forward immediately instead of waiting out RSTP transitions — and enable BPDU Guard on ports facing non-RSTP gear.</li>
+  <li><strong>SDN is the other answer</strong> (SEL-2740S + SEL-5056 Flow Controller): deny-by-default, every conversation an engineered OpenFlow entry, no MAC learning or spanning tree, failover paths pre-planned for sub-millisecond healing, and flows persist even with the controller offline. Different philosophy: RSTP discovers a topology; SDN is told one.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Choosing a topology</h2>
+<p>AG2017-21's sizing rules, condensed. The driver is always hop count between end devices — hops set both latency and how ugly reconvergence gets.</p>
+
+<div class="fig"><svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg">
+  <text x="120" y="16" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Ring — ≤ 5 switches</text>
+  <rect x="60" y="30" width="44" height="20" rx="4" fill="#1a1a22"/><text x="82" y="44" font-size="8" fill="#fff" text-anchor="middle">root</text>
+  <rect x="140" y="30" width="44" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <rect x="60" y="86" width="44" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <rect x="140" y="86" width="44" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <line x1="104" y1="40" x2="140" y2="40" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="82" y1="50" x2="82" y2="86" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="162" y1="50" x2="162" y2="86" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="104" y1="96" x2="140" y2="96" stroke="#a9adb8" stroke-width="1.75" stroke-dasharray="5 3"/>
+  <text x="120" y="122" font-size="7.5" fill="#a9adb8" text-anchor="middle">one blocked link · quick convergence</text>
+  <text x="120" y="133" font-size="7.5" fill="#a9adb8" text-anchor="middle">standard caps rings at 40 nodes — stop at 5</text>
+
+  <text x="350" y="16" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Ladder — 6–10 switches</text>
+  <rect x="270" y="30" width="44" height="20" rx="4" fill="#1a1a22"/><text x="292" y="44" font-size="8" fill="#fff" text-anchor="middle">root</text>
+  <rect x="386" y="30" width="52" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/><text x="412" y="44" font-size="7.5" fill="#6e7180" text-anchor="middle">backup</text>
+  <rect x="270" y="66" width="44" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <rect x="386" y="66" width="52" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <rect x="270" y="102" width="44" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <rect x="386" y="102" width="52" height="20" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <line x1="292" y1="50" x2="292" y2="66" stroke="#10a37f" stroke-width="1.75"/><line x1="292" y1="86" x2="292" y2="102" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="412" y1="50" x2="412" y2="66" stroke="#10a37f" stroke-width="1.75"/><line x1="412" y1="86" x2="412" y2="102" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="314" y1="40" x2="386" y2="40" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="314" y1="76" x2="386" y2="76" stroke="#a9adb8" stroke-width="1.75" stroke-dasharray="5 3"/>
+  <line x1="314" y1="112" x2="386" y2="112" stroke="#a9adb8" stroke-width="1.75" stroke-dasharray="5 3"/>
+  <text x="350" y="139" font-size="7.5" fill="#a9adb8" text-anchor="middle">rungs = pre-built backups, normally blocked</text>
+
+  <text x="580" y="16" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Extension ladder — geography</text>
+  <rect x="500" y="30" width="70" height="20" rx="4" fill="#10a37f" opacity="0.15" stroke="#10a37f" stroke-width="1"/><text x="535" y="44" font-size="7.5" fill="#10a37f" text-anchor="middle">local ladder</text>
+  <rect x="590" y="30" width="70" height="20" rx="4" fill="#10a37f" opacity="0.15" stroke="#10a37f" stroke-width="1"/><text x="625" y="44" font-size="7.5" fill="#10a37f" text-anchor="middle">local ladder</text>
+  <rect x="545" y="86" width="70" height="20" rx="4" fill="#10a37f" opacity="0.15" stroke="#10a37f" stroke-width="1"/><text x="580" y="100" font-size="7.5" fill="#10a37f" text-anchor="middle">local ladder</text>
+  <line x1="570" y1="40" x2="590" y2="40" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="545" y1="50" x2="568" y2="86" stroke="#10a37f" stroke-width="1.75"/>
+  <line x1="617" y1="50" x2="594" y2="86" stroke="#10a37f" stroke-width="1.75"/>
+  <text x="580" y="122" font-size="7.5" fill="#a9adb8" text-anchor="middle">ladders joined when home-runs are impossible;</text>
+  <text x="580" y="133" font-size="7.5" fill="#a9adb8" text-anchor="middle">split L2 domains at ~100–200 end devices (L3 boundary)</text>
+  <g class="animlayer">
+    <line x1="104" y1="96" x2="140" y2="96" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0.8;0;0.8;0;0" keyTimes="0;0.10;0.20;0.30;0.40;1" dur="6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="314" y1="76" x2="386" y2="76" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.8;0;0.8;0;0" keyTimes="0;0.35;0.45;0.55;0.65;0.75;1" dur="6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="314" y1="112" x2="386" y2="112" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.8;0;0.8;0;0" keyTimes="0;0.35;0.45;0.55;0.65;0.75;1" dur="6s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">Blocked links (dashed) are the reserve capacity — RSTP holds them Discarding until a failure. Highlighted links pulse in the HTML edition.<span class="print-note"> ▶ Lightly animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Ring for five switches or fewer</strong> — few hops, quick convergence, cable-efficient. The RSTP standard technically allows a 40-node ring; don't — reconvergence time and hop count make big rings unfit for anything mission-critical.</li>
+  <li><strong>Ladder for six to ten</strong> — two rails (root and backup root at the top), rungs as normally-blocked cross-links ready to activate. A 10-switch, 4-rung ladder of 24-port switches yields 200+ usable ports.</li>
+  <li><strong>Extension ladder</strong> when geography forbids home-run cables — join local ladders, and consider a Layer 3 boundary as the network grows: SEL's guidance is to keep a Layer 2 domain to roughly <strong>100–200 end devices</strong> before segregating into subnets (see IP Addressing, Gateways &amp; DNS in atlas).</li>
+  <li><strong>On the SEL-2730M, use the SFP ports (1–4) for switch-to-switch links</strong> — first-priority in SEL's port plan, with copper 9–24 as fallback; ports 5–8 are better kept for normally-blocked backup links than primary trunks.</li>
+  <li><strong>Avoid casually dual-connecting rings:</strong> the AG's real-world example went from 2 hops between relays to 11 after a single link failure. Interconnect deliberately, near the roots.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Whole-network stutter after a cable move</strong> → a loop closed somewhere RSTP isn't running (or was plugged into edge/BPDU-guarded ports). Broadcast storms look like everything failing at once.</li>
+<li><strong>Random switch is root</strong> → nobody set priorities; the lowest MAC won the election. Engineer root + backup root, and watch the root-change logs after any network event.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/vlans.html">VLANs</a>
+  <a href="atlas:comms/prp-hsr-redundancy.html">PRP &amp; HSR Redundancy</a>
+  <a href="atlas:comms/sdn.html">Software-Defined Networking</a>
+  <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>
+  <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>
+</div>
+<p class="footnote">Sources: SEL RSTP User Guide (root bridge selection, priorities, Max Age, edge ports, BPDU Guard); SEL AG2017-21 (ring/ladder/extension-ladder sizing, 40-node ring cap, L2 domain sizing, 2730M port priorities, reconvergence hop examples); SEL SDN User Guide / SEL-2740S. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

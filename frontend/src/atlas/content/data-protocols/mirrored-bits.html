@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mirrored Bits</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="Mirrored Bits,MB,RMB,TMB,teleprotection,serial,channel">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Mirrored Bits (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card.blue  { border-left-color: #5468c4; } .card.blue h3 { color: #5468c4; }
+  .card.amber { border-left-color: #d7930a; } .card.amber h3 { color: #9c6d06; }
+  .card.red   { border-left-color: #d63a3a; } .card.red h3 { color: #d63a3a; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Mirrored Bits</h1>
+  <p>SEL's relay-to-relay protocol — eight logic bits mirrored each way, continuously, over a channel the relay itself monitors</p>
+  <div class="chips"><span>TMB/RMB</span><span>MB · MB8 · MBT</span><span>ROK RBAD CBAD</span><span>TXID/RXID</span><span>POTT / DTT</span><span>LOO loopback</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Mirrored Bits is a <strong>virtual 8-output-to-8-input connection in both directions</strong> between two SEL devices over one full-duplex serial channel. Set a TMB like an output contact (SELogic); use the mirrored RMB at the far end like a control input.</li>
+<li>The message is sent <strong>continuously</strong> — every processing interval — whether or not anything changed. That is what lets the relay monitor the channel: <strong>ROK</strong> (receiving OK, now) → <strong>RBAD</strong> (outage longer than RBADPU) → <strong>CBAD</strong> (long-term unavailability over CBADPU ppm).</li>
+<li><strong>TXID here must equal RXID there</strong>, and never set a port's own TXID = RXID (that would let it accept its own looped-back message).</li>
+<li>When the channel is bad, each RMB falls back to its <strong>RXDFLT</strong> character: <code>0</code>, <code>1</code>, or <code>X</code> (hold last good). For permissive/trip bits, default to <code>0</code>.</li>
+<li>Both ends must match <strong>protocol variant and baud</strong>. MB8 (10-bit characters) for radios, CSU/DSUs and the SEL-2505; MBT only for the Pulsar MBT9600 analog modem.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What it is, and what it replaces</h2>
+<p>Mirrored Bits is SEL's direct relay-to-relay communications protocol: each device continuously transmits the state of eight <strong>Transmit Mirrored Bits (TMB1–TMB8)</strong> and continuously receives eight <strong>Receive Mirrored Bits (RMB1–RMB8)</strong> from its peer. Where a hard-wired scheme needs an output contact, a run of control cable, and an input at the far end — per signal, per direction — Mirrored Bits gives you eight signals each way on one serial channel, with almost no wiring and with the channel itself supervised by the relay. Typical uses: <strong>pilot protection schemes (POTT/blocking), direct transfer trip, remote control and remote sensing</strong>, automated sectionalizing, and bus protection via a logic processor.</p>
+
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <rect x="30" y="26" width="160" height="146" rx="7" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="110" y="42" font-size="10" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay 1 · TXID=1</text>
+  <rect x="510" y="26" width="160" height="146" rx="7" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="590" y="42" font-size="10" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay 2 · RXID=1</text>
+  <!-- relay1 TMB column -->
+  <text x="48" y="62" font-size="8" font-weight="600" fill="#454956">TMB (tx)</text>
+  <circle cx="52" cy="74" r="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="63" y="77.5" font-size="8.5" fill="#454956">TMB1 = KEY</text>
+  <circle cx="52" cy="92" r="5" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="63" y="95.5" font-size="8.5" fill="#8a8e9b">TMB2…TMB8</text>
+  <text x="48" y="122" font-size="8" font-weight="600" fill="#454956">RMB (rx)</text>
+  <circle cx="52" cy="134" r="5" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="63" y="137.5" font-size="8.5" fill="#8a8e9b">RMB1…RMB8</text>
+  <text x="48" y="160" font-size="8" fill="#10a37f" font-weight="600">ROK ✓</text>
+  <!-- relay2 columns -->
+  <text x="528" y="62" font-size="8" font-weight="600" fill="#454956">RMB (rx)</text>
+  <circle cx="532" cy="74" r="5" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="543" y="77.5" font-size="8.5" fill="#454956">RMB1 → PT</text>
+  <circle cx="532" cy="92" r="5" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="543" y="95.5" font-size="8.5" fill="#8a8e9b">RMB2…RMB8</text>
+  <text x="528" y="122" font-size="8" font-weight="600" fill="#454956">TMB (tx)</text>
+  <circle cx="532" cy="134" r="5" fill="#fff" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="543" y="137.5" font-size="8.5" fill="#8a8e9b">TMB1…TMB8</text>
+  <text x="528" y="160" font-size="8" fill="#10a37f" font-weight="600">ROK ✓</text>
+  <!-- channel lines -->
+  <line x1="190" y1="74" x2="510" y2="74" stroke="#d0d3da" stroke-width="1.5"/>
+  <path d="M503,70 L510,74 L503,78" fill="none" stroke="#d0d3da" stroke-width="1.5"/>
+  <line x1="510" y1="134" x2="190" y2="134" stroke="#d0d3da" stroke-width="1.5"/>
+  <path d="M197,130 L190,134 L197,138" fill="none" stroke="#d0d3da" stroke-width="1.5"/>
+  <text x="350" y="64" font-size="8.5" font-weight="600" fill="#6e7180" text-anchor="middle">a message every processing interval — even when nothing changes</text>
+  <text x="350" y="148" font-size="8.5" font-weight="600" fill="#6e7180" text-anchor="middle">full duplex: both directions, simultaneously, all the time</text>
+  <text x="350" y="192" font-size="8" fill="#a9adb8" text-anchor="middle">each message carries all 8 TMB states · a changed bit simply rides in the next message and every one after it</text>
+  <g class="animlayer">
+    <!-- continuous frame streams -->
+    <g>
+      <rect x="-9" y="-4.5" width="18" height="9" rx="2" fill="#454956" opacity="0.85">
+        <animateMotion path="M200,74 L500,74" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="fill" values="#454956;#454956;#10a37f;#10a37f;#454956;#454956" keyTimes="0;0.30;0.32;0.60;0.62;1" dur="10s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-9" y="-4.5" width="18" height="9" rx="2" fill="#454956" opacity="0.85">
+        <animateMotion path="M200,74 L500,74" begin="-0.66s" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="fill" values="#454956;#454956;#10a37f;#10a37f;#454956;#454956" keyTimes="0;0.30;0.32;0.60;0.62;1" dur="10s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-9" y="-4.5" width="18" height="9" rx="2" fill="#454956" opacity="0.85">
+        <animateMotion path="M200,74 L500,74" begin="-1.33s" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="fill" values="#454956;#454956;#10a37f;#10a37f;#454956;#454956" keyTimes="0;0.30;0.32;0.60;0.62;1" dur="10s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-9" y="-4.5" width="18" height="9" rx="2" fill="#454956" opacity="0.85">
+        <animateMotion path="M500,134 L200,134" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-9" y="-4.5" width="18" height="9" rx="2" fill="#454956" opacity="0.85">
+        <animateMotion path="M500,134 L200,134" begin="-0.66s" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-9" y="-4.5" width="18" height="9" rx="2" fill="#454956" opacity="0.85">
+        <animateMotion path="M500,134 L200,134" begin="-1.33s" dur="2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <!-- TMB1 asserts at relay1, RMB1 mirrors at relay2 one message later -->
+    <circle cx="52" cy="74" r="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.31;0.60;0.61;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="532" cy="74" r="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.335;0.345;0.635;0.645;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <text x="350" y="94" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.32;0.34;0.56;0.58;1" dur="10s" repeatCount="indefinite"/>
+      TMB1 = 1 rides in every message until it drops out — RMB1 mirrors it ≈ one message later
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">The steady-state exchange: frames flow both ways every processing interval. When TMB1 asserts (teal), the far end's RMB1 mirrors it after the next good message clears the security counters.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<p>The TMB acronyms grow a channel suffix on multi-channel devices — the SEL-751/751A and SEL-311 family support channels <strong>A and B</strong> (<code>TMB1A…TMB8A</code>, <code>RMB1B…</code>); the SEL-2100 Logic Processor uses <code>TxPn/RxPn</code> across 15 ports. The channel letter is <em>not</em> part of the wire message, so any Mirrored Bits device can talk to any other with a compatible message format. SEL-2505/2506 Remote I/O Modules extend Mirrored Bits to devices that don't speak it: eight contact inputs/outputs mirrored over fiber back to a relay or logic processor.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>On the wire</h2>
+<p>A Mirrored Bits message is <strong>four characters</strong>. Each character carries a start bit, <strong>six data bits</strong>, one parity bit, and one stop bit (MB / MBT — nine bits per character) or two stop bits (MB8 — a ten-bit character, for channel equipment that counts bits). Within the four characters, <strong>each of the eight data bits is repeated three times</strong>, and the peer's ID is encoded.</p>
+
+<div class="fig"><svg viewBox="0 0 700 96" xmlns="http://www.w3.org/2000/svg">
+  <text x="30" y="18" font-size="9" font-weight="600" fill="#454956">One message = 4 characters, sent back-to-back every processing interval</text>
+  <g>
+    <rect x="30" y="26" width="150" height="24" rx="3" fill="#10a37f" opacity="0.14" stroke="#10a37f"/>
+    <rect x="186" y="26" width="150" height="24" rx="3" fill="#10a37f" opacity="0.14" stroke="#10a37f"/>
+    <rect x="342" y="26" width="150" height="24" rx="3" fill="#10a37f" opacity="0.14" stroke="#10a37f"/>
+    <rect x="498" y="26" width="150" height="24" rx="3" fill="#10a37f" opacity="0.14" stroke="#10a37f"/>
+    <text x="105" y="41" font-size="8.5" fill="#1a1a22" text-anchor="middle">char 1</text>
+    <text x="261" y="41" font-size="8.5" fill="#1a1a22" text-anchor="middle">char 2</text>
+    <text x="417" y="41" font-size="8.5" fill="#1a1a22" text-anchor="middle">char 3</text>
+    <text x="573" y="41" font-size="8.5" fill="#1a1a22" text-anchor="middle">char 4</text>
+  </g>
+  <g>
+    <rect x="30" y="60" width="46" height="20" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="53" y="73" font-size="8" fill="#6e7180" text-anchor="middle">start</text>
+    <rect x="80" y="60" width="240" height="20" rx="3" fill="#5468c4" opacity="0.16" stroke="#5468c4"/><text x="200" y="73" font-size="8" fill="#454956" text-anchor="middle">6 data bits (bits repeated 3× across the message + encoded ID)</text>
+    <rect x="324" y="60" width="60" height="20" rx="3" fill="#d7930a" opacity="0.16" stroke="#d7930a"/><text x="354" y="73" font-size="8" fill="#454956" text-anchor="middle">parity</text>
+    <rect x="388" y="60" width="120" height="20" rx="3" fill="#f2f3f5" stroke="#d0d3da"/><text x="448" y="73" font-size="8" fill="#6e7180" text-anchor="middle">1 stop (MB/MBT) · 2 stop (MB8)</text>
+    <text x="520" y="73" font-size="8" fill="#a9adb8"></text>
+  </g>
+</svg></div>
+<p class="figcap">Message and character framing. MB8's extra stop bit makes the character look like standard 8-N-1 to bit-counting channel equipment (radios, some CSU/DSUs).</p>
+
+<h3>Data integrity — four checks on every message</h3>
+<ul>
+  <li><strong>Character checks</strong> — parity, framing, overrun errors reject the message.</li>
+  <li><strong>Redundancy</strong> — the three copies of each of the 8 bits must agree.</li>
+  <li><strong>Addressing</strong> — the encoded ID must match the receiving port's RXID setting.</li>
+  <li><strong>Timing</strong> — at least one message must arrive in the time three have been sent (seven for MB8 on the SEL-751/751A).</li>
+</ul>
+<p><strong>ROK</strong> asserts only after synchronization plus <strong>two consecutive messages</strong> passing all checks; it deasserts <em>immediately</em> on one bad message. New bit states then pass through per-bit <strong>pickup/dropout security counters</strong> (<code>RMBnPU</code>/<code>RMBnDO</code>, 1–8 messages) — a counter of 1 passes every change, 8 demands eight consecutive consistent messages. Counters count <em>messages</em>, not time: 2 counts ≈ 30 ms at 2400 baud but ≈ 8.5 ms at 9600 on an SEL-751/751A.</p>
+
+<h3>Message rate and speed</h3>
+<p>In general a device transmits every processing interval: <strong>8×/cycle</strong> in SEL-321/SEL-421-class devices and SEL-2505/2506 modules, <strong>4×/cycle</strong> in the SEL-351/SEL-311 families and SEL-2100. The SEL-751 and SEL-751A send as fast as the baud allows below 9600 (15 ms at 2400, 7.5 ms at 4800) and self-pace to 4×/cycle at 9600–38400. SEL-400 series relays have a <code>TXMODE</code> setting — use <strong>Paced (P)</strong> whenever the peer is not another 400-series relay. Baud runs up to 38400 in SEL-300-series/SEL-2100 (57600 in the SEL-421); use the fastest the channel permits.</p>
+<table>
+  <tr><th>Baud</th><th>1/8-cycle devices (321, 421, 2505/2506)</th><th>1/4-cycle devices (351, 311, 2100)</th></tr>
+  <tr><td class="mono">38400</td><td>4.2 ms</td><td>8.3 ms</td></tr>
+  <tr><td class="mono">19200</td><td>6.3 ms</td><td>10.5 ms</td></tr>
+  <tr><td class="mono">9600</td><td>8.3 ms</td><td>12.5 ms</td></tr>
+  <tr><td class="mono">4800</td><td>12.5 ms</td><td>16.7 ms</td></tr>
+</table>
+<p class="figcap">Typical back-to-back one-way data delay, TMB asserted to RMB processed, excluding channel delay (AG2001-12 App. A). Measure the real channel with the ping-pong test: map an RMB straight back to a TMB and read the round trip from the SER.</p>
+
+<h3>Resynchronization</h3>
+<p>After <strong>two consecutive errors</strong> a device transmits an <strong>attention message</strong> containing its TXID, and keeps transmitting it until it receives an attention message carrying its own ID back — proving the loop is whole and fixing which byte starts a message. In a 3–4 device ring the attention message circulates the whole loop; the price is that one receive error anywhere takes down the entire loop, and one-way-only communication is impossible.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Physical channels</h2>
+<p>The relay end is always the same: an EIA-232 serial port (EIA-485/422 also on the RTAC). Full-duplex is mandatory — messages run both directions simultaneously. What sits between the ports:</p>
+<table>
+  <tr><th>Channel</th><th>Interface</th><th>Notes</th></tr>
+  <tr><td><strong>Dedicated fiber</strong> (best)</td><td>Port-powered fiber transceiver (5 Vdc on pin 1)</td><td>BER &lt; 10⁻⁹, delay ≈ 8 µs/km — negligible. SEL-2800M 500 m MM · 2815M 15 km MM · 2829M 23 km SM · 2830M 80 km · 2831M 110 km.</td></tr>
+  <tr><td><strong>Multiplexed digital network</strong></td><td>Async EIA-232 channel card, or sync 56/64 kbps data card</td><td>Async card: match baud + framing, or oversample ≥ 2.5× the relay baud. Sync card: keep relay ≤ 19200 baud. Mux resync few ms up to 60 ms; error-checking/compressing muxes can add tens of ms — check.</td></tr>
+  <tr><td><strong>Spread-spectrum radio</strong></td><td>900 MHz point-to-point (e.g. MDS TransNET 900), MB8</td><td>Radios are inherently half-duplex; use models that emulate full duplex (or two radios per end). No-error-detection radios add only a few ms; error-detecting ones can add 60+ ms.</td></tr>
+  <tr><td><strong>Analog microwave</strong></td><td>Pulsar MBT9600 four-wire modem, <code>PROTO := MBT</code></td><td>Purpose-built for Mirrored Bits: 9600 baud forced, &lt;12 ms delay, port-powered. Relay sends every 2nd interval and monitors CTS from the modem.</td></tr>
+  <tr><td><strong>Leased digital / analog circuits</strong></td><td>CSU/DSU (DS0) / four-wire modem</td><td><strong>Not recommended for protection</strong> — metallic pairs leaving the station pick up fault-generated noise exactly when the scheme needs the channel. Control/monitoring only.</td></tr>
+</table>
+<div class="callout warn"><strong>Remote I/O and test gear:</strong> SEL-2505/2506 Remote I/O Modules put eight contact I/O at the far end of a fiber pair, speaking MB8 (the SEL-2505 supports only MB8). The <strong>SEL-2505PB</strong> is the pilot-scheme test box: DIP switches set TX/RX address (1–4), baud (9600/19200/38400) and per-pair security counts; 8 pushbuttons drive TMBs by hand to simulate the remote relay. MB8 only — connect via SEL C234/null-modem cable or any SEL fiber transceiver.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Configuring an SEL relay (SEL-751/751A shown)</h2>
+<p>Three steps: set the port protocol (<code>SET P</code>), drive the TMBs (SELogic), use the RMBs (SELogic). Configure the port <em>before</em> connecting — an unconfigured port wired to a Mirrored Bits device appears locked up, and a Mirrored Bits device on a non-MB port keeps the port continuously busy.</p>
+<table>
+  <tr><th>Setting</th><th>Meaning</th><th>Range</th><th>Default</th></tr>
+  <tr><td class="mono">PROTO</td><td>MBA/MBB (6-data-bit std), MB8A/MB8B (8-data-bit format channels), MBTA/MBTB (Pulsar modem — forces 9600, no parity choice, no RTSCTS)</td><td class="mono">—</td><td class="mono">SEL</td></tr>
+  <tr><td class="mono">SPEED</td><td>Baud — match both ends; fastest the channel allows</td><td class="mono">300–38400</td><td class="mono">9600</td></tr>
+  <tr><td class="mono">TXID</td><td>ID of this device — must equal peer's RXID</td><td class="mono">1–4</td><td class="mono">2</td></tr>
+  <tr><td class="mono">RXID</td><td>ID of the device received from — must equal peer's TXID</td><td class="mono">1–4</td><td class="mono">1</td></tr>
+  <tr><td class="mono">RBADPU</td><td>Outage duration that asserts RBAD (accurate to ±1 s)</td><td class="mono">1–10000 s (751A) · 0–10000 s (751)</td><td class="mono">60</td></tr>
+  <tr><td class="mono">CBADPU</td><td>Channel unavailability that asserts CBAD</td><td class="mono">1–10000 ppm</td><td class="mono">1000</td></tr>
+  <tr><td class="mono">RXDFLT</td><td>Per-bit fallback while ROK is down: 1, 0, or X (hold last good)</td><td class="mono">8-char string</td><td class="mono">XXXXXXXX</td></tr>
+  <tr><td class="mono">RMBnPU / RMBnDO</td><td>Pickup / dropout security counters per bit</td><td class="mono">1–8 msgs</td><td class="mono">1</td></tr>
+</table>
+<p>Only one port may own each channel — assigning <code>MBA</code> when channel A already lives on another port errors out (<em>"This Mirrored Bits channel is assigned to another port"</em>). RMB states land in Relay Word rows (751A: rows 88/90; 751: rows 92/94) for use anywhere SELogic reaches, alongside status bits <code>ROKA/ROKB</code>, <code>RBADA/RBADB</code>, <code>CBADA/CBADB</code>, <code>LBOKA/LBOKB</code>.</p>
+
+<h3>A POTT scheme in four settings (AG96-13)</h3>
+<ul>
+  <li>Port at each end: <code>PROTO := MBA</code>, <code>SPEED := 38400</code>, IDs crossed (<code>TXID=2/RXID=1</code> ↔ <code>TXID=1/RXID=2</code>), <code>RXDFLT := 00000000</code> so a dead channel cannot permit a trip.</li>
+  <li>Enable the relay's POTT logic (<code>SET</code>).</li>
+  <li><code>TMB1 := KEY</code> — the permissive-key element now rides bit 1.</li>
+  <li><code>PT1 := RMB1A</code> (SEL-351/311 style) — the received permission feeds the trip logic, which the local Zone 2 / Level 2 element still supervises. That supervision is why security counters of 1 are normally fine for POTT.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <!-- power system -->
+  <line x1="70" y1="34" x2="630" y2="34" stroke="#454956" stroke-width="2.5"/>
+  <rect x="96" y="26" width="16" height="16" fill="#fff" stroke="#1a1a22" stroke-width="1.5"/>
+  <rect x="588" y="26" width="16" height="16" fill="#fff" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="104" y="18" font-size="8" fill="#454956" text-anchor="middle">bkr S</text>
+  <text x="596" y="18" font-size="8" fill="#454956" text-anchor="middle">bkr R</text>
+  <text x="350" y="18" font-size="8.5" fill="#8a8e9b" text-anchor="middle">protected line</text>
+  <!-- lifelines -->
+  <rect x="50" y="58" width="120" height="22" rx="4" fill="#1a1a22"/>
+  <text x="110" y="73" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">Relay S</text>
+  <rect x="530" y="58" width="120" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="590" y="73" font-size="10" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay R</text>
+  <line x1="110" y1="80" x2="110" y2="212" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="590" y1="80" x2="590" y2="212" stroke="#d0d3da" stroke-width="1.25"/>
+  <!-- static sequence annotations -->
+  <text x="118" y="102" font-size="8.5" fill="#d63a3a" font-weight="600">① fault in Z2 reach → KEY</text>
+  <text x="582" y="102" font-size="8.5" fill="#d63a3a" font-weight="600" text-anchor="end">① Z2 sees it too → KEY</text>
+  <path d="M110,116 H583 M577,111 L584,116 L577,121" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="350" y="110" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">② TMB1 = KEY → next message carries bit 1 = 1</text>
+  <path d="M590,140 H117 M123,135 L116,140 L123,145" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="350" y="134" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">② …and the mirror image, R → S</text>
+  <text x="118" y="166" font-size="8.5" fill="#5468c4" font-weight="600">③ RMB1 → PT · PT AND Z2</text>
+  <text x="582" y="166" font-size="8.5" fill="#5468c4" font-weight="600" text-anchor="end">③ RMB1 → PT · PT AND Z2</text>
+  <text x="118" y="188" font-size="9" font-weight="700" fill="#d63a3a">④ TRIP</text>
+  <text x="582" y="188" font-size="9" font-weight="700" fill="#d63a3a" text-anchor="end">④ TRIP</text>
+  <text x="350" y="208" font-size="8" fill="#a9adb8" text-anchor="middle">one-way bit transfer ≈ 8–12 ms back-to-back + channel delay · a dead channel (RXDFLT=0) just means no pilot speedup, Z2 time-delayed trip still clears the fault</text>
+  <g class="animlayer">
+    <!-- fault flash -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.10;0.12;0.75;0.80;1" dur="11s" repeatCount="indefinite"/>
+      <path d="M390,26 L382,38 L392,36 L384,48" fill="none" stroke="#d63a3a" stroke-width="2.5"/>
+      <text x="404" y="46" font-size="8.5" font-weight="700" fill="#d63a3a">fault</text>
+    </g>
+    <!-- KEY labels appear -->
+    <rect x="112" y="92" width="150" height="13" fill="#fff" opacity="0.95">
+      <animate attributeName="opacity" values="0.95;0.95;0;0;0.95;0.95" keyTimes="0;0.13;0.14;0.97;0.98;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="438" y="92" width="146" height="13" fill="#fff" opacity="0.95">
+      <animate attributeName="opacity" values="0.95;0.95;0;0;0.95;0.95" keyTimes="0;0.13;0.14;0.97;0.98;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <!-- permissive frames crossing -->
+    <rect x="-9" y="-5" width="18" height="10" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.19;0.34;0.35;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M110,116 L590,116" keyPoints="0;0;1;1" keyTimes="0;0.18;0.34;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-9" y="-5" width="18" height="10" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.19;0.34;0.35;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M590,140 L110,140" keyPoints="0;0;1;1" keyTimes="0;0.18;0.34;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <!-- PT masks lift -->
+    <rect x="112" y="156" width="160" height="13" fill="#fff" opacity="0.95">
+      <animate attributeName="opacity" values="0.95;0.95;0;0;0.95;0.95" keyTimes="0;0.36;0.38;0.97;0.98;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="428" y="156" width="156" height="13" fill="#fff" opacity="0.95">
+      <animate attributeName="opacity" values="0.95;0.95;0;0;0.95;0.95" keyTimes="0;0.36;0.38;0.97;0.98;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <!-- TRIP masks lift + breakers open -->
+    <rect x="112" y="178" width="60" height="13" fill="#fff" opacity="0.95">
+      <animate attributeName="opacity" values="0.95;0.95;0;0;0.95;0.95" keyTimes="0;0.44;0.46;0.97;0.98;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="522" y="178" width="62" height="13" fill="#fff" opacity="0.95">
+      <animate attributeName="opacity" values="0.95;0.95;0;0;0.95;0.95" keyTimes="0;0.44;0.46;0.97;0.98;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.93;0.97;1" dur="11s" repeatCount="indefinite"/>
+      <rect x="96" y="26" width="16" height="16" fill="#d63a3a"/>
+      <rect x="588" y="26" width="16" height="16" fill="#d63a3a"/>
+      <line x1="118" y1="34" x2="180" y2="34" stroke="#fff" stroke-width="3"/>
+      <line x1="520" y1="34" x2="586" y2="34" stroke="#fff" stroke-width="3"/>
+      <text x="350" y="58" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">both ends tripped high-speed — no waiting out the Zone 2 timer</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">POTT over Mirrored Bits: an in-section fault keys both ends; each relay trips when its own Zone 2 sees the fault AND the permissive bit arrives. A direct transfer trip (DTT) is the same plumbing with the received bit tripping without local supervision — which is why its RXDFLT and security counts deserve more caution.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Configuring the RTAC</h2>
+<p>The RTAC speaks Mirrored Bits like a relay but doubles as a gateway: map RMBs to DNP3 points for SCADA, or map SCADA/logic controls onto TMBs for high-speed control of an IED. Add an instance via <strong>Insert → Add SEL device → Mirrored Bits Protocol</strong>. It is serial-only (EIA-232 or EIA-485/422), strictly point-to-point — no multidrop, no Ethernet — one instance per serial port, as many as you have free ports (Com1/Com2 on SEL-3555/3560 excluded).</p>
+<table>
+  <tr><th>Setting / tag</th><th>What it does</th></tr>
+  <tr><td class="mono">Message Type</td><td>MB (6 data, 1 stop) · MB8 (2 stop) · MBT9600 (Pulsar modem: forces 9600, ≥2 ms gap after each message, RTS negative)</td></tr>
+  <tr><td class="mono">Accept Receive / Send Transmit Identification</td><td>The classic RXID / TXID — mismatched RXID rejects the message</td></tr>
+  <tr><td class="mono">Receive MB Bad Channel Pickup</td><td>Seconds without comms before <code>Rx_Channel_Bad</code> asserts (≙ RBAD)</td></tr>
+  <tr><td class="mono">PPM MB Unavailable Channel Pickup</td><td>Dropped-packet rate threshold for <code>Rx_Channel_Unavailable</code> (≙ CBAD); live value on <code>Rx_Channel_Unavailable_PPM</code></td></tr>
+  <tr><td class="mono">Transmission Mode</td><td><strong>Paced</strong> = one message per 3 ms for quarter-cycle relays; <strong>Normal</strong> for RTAC-to-RTAC and 400-series peers. Locked out at ≤ 9600 baud</td></tr>
+  <tr><td class="mono">Channel Fail State</td><td>Per-RMB: True / False / Previous — the RXDFLT equivalent</td></tr>
+  <tr><td class="mono">Pickup / Dropout Delay</td><td>Per-RMB security counters in consecutive packets</td></tr>
+</table>
+<p>Each TMB tag has three attributes: <code>operSet.ctlVal</code> and <code>operClear.ctlVal</code> (rising-edge set/clear — the pin must go low again before it can retrigger) and <code>status</code> (present state). Before acting on RMBs in logic, gate on the POU pin <code>Rx_OK_Instantaneous</code> and/or per-tag validity — SEL's recommended guard against acting on a dead channel. Loopback testing is done online by forcing the <code>Loop_Back_Without_Data</code> POU pin TRUE (auto-cancelled after the <em>Loopback Timeout</em> setting).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Failure modes, monitoring &amp; testing</h2>
+<div class="twocol">
+<div>
+<h3>The three channel-health bits</h3>
+<table>
+  <tr><th>Bit</th><th>Meaning</th></tr>
+  <tr><td class="mono">ROKc</td><td>Receiving OK <em>right now</em>. Drops instantly on: relay disabled, MB not enabled on the port, parity/framing/overrun, RX ID mismatch, message timeout (3 msgs MB / 7 msgs MB8), or loopback enabled.</td></tr>
+  <tr><td class="mono">RBADc</td><td>An outage outlasted RBADPU seconds (default 60). Clears when the channel recovers.</td></tr>
+  <tr><td class="mono">CBADc</td><td>Long-term unavailability exceeded CBADPU ppm (default 1000) — the "channel is quietly rotting" alarm.</td></tr>
+  <tr><td class="mono">LBOKc</td><td>Loopback OK — good data received from itself during a loopback test.</td></tr>
+</table>
+<p style="font-size:8.6pt">Combine RBAD/CBAD into your alarm SELogic — an output contact or SER entry to SCADA — so a failed pilot channel gets fixed before the fault that needs it.</p>
+</div>
+<div>
+<h3>Tools</h3>
+<ul>
+  <li><strong><code>COM</code> / <code>COMM</code> command</strong> — summary or long report of the last <strong>255 channel outages</strong>: date/time, recovery time, duration, and cause (parity, framing, overrun, data disagreement, ID error, timeout…). <code>COM C</code> clears.</li>
+  <li><strong><code>LOO</code> (loopback)</strong> — jumper TX to RX (or loop the channel at any point), then <code>LOO A</code>: the relay temporarily accepts its own TXID. ROK stays down, <strong>LBOK</strong> proves the path. RMBs sit at RXDFLT unless you add <code>DATA</code>. Defaults to 5 minutes (settable 1–5000); <code>LOO R</code> restores normal operation. Walk the loopback point outward to localize a bad segment.</li>
+  <li><strong>Ping-pong delay test</strong> — set far-end <code>TMBn := RMBn</code>, assert the bit, read round-trip from SER; channel one-way delay = (round trip − 2 × back-to-back) / 2.</li>
+  <li><strong>SEL-2505PB</strong> — hand-held TMB source for scheme testing without the remote relay.</li>
+</ul>
+</div>
+</div>
+<div class="callout keyfact"><strong>Classic gotchas:</strong> IDs not crossed (TXID↔RXID) — ROK never asserts. Port not configured before plugging in — device "locks up" / port continuously busy. MB vs MB8 mismatch across a radio or CSU/DSU — works never or intermittently. RXDFLT left at <code>XXXXXXXX</code> on a trip bit — a channel failure freezes the last state instead of failing safe. Loopback left enabled — it times out by design, but ROK is down the whole time. Ring topologies — any single receive error resynchronizes (and drops) the entire loop.</div>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/serial-comms.html">Serial Comms</a>
+  <a href="atlas:data-protocols/iec61850-goose.html">IEC 61850 &amp; GOOSE</a>
+  <a href="atlas:protection/distance-21.html">Distance Protection</a>
+  <a href="atlas:protection/line-differential-87l.html">Line Current Differential</a>
+  <a href="atlas:comms/radio-and-wan.html">Radio &amp; Wide-Area Links</a>
+</div>
+<p class="footnote">Sources: SEL AG96-13 "Applying MIRRORED BITS Communications to a POTT Scheme" (AG_9613.pdf); SEL AG2001-12 "Implementing MIRRORED BITS Technology Over Various Communications Media" (AG_AG2001-12_20070703.pdf); SEL AG2003-07 "MIRRORED BITS Communication With MDS Spread-Spectrum Radios" (AG_200307.pdf); SEL-751 Relay Instruction Manual, App. J &amp; §7 (751_IM_20260327.pdf) and SEL-751A Relay Instruction Manual, App. I / App. J / §4 &amp; §7 (751A_IM_20250411.pdf) — the two manuals agree on all relay-side specifics here except where scoped by model (RBADPU range, Relay Word rows); SEL-2505PB Instruction Manual (2505PB_IM_20150126.pdf); ACSELERATOR RTAC SEL-5033 Instruction Manual, Mirrored Bits chapter (3530-4_IM_20241217_20260313.pdf). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

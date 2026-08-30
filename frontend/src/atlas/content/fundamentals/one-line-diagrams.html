@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>One-Lines, Three-Lines &amp; Schematics</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="one-line,single-line,three-line,elementary,schematic,symbols,52a,52b,trip circuit,polarity,as-built,red-line">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "One-Lines, Three-Lines &amp; Schematics (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>One-Lines, Three-Lines &amp; Schematics</h1>
+  <p>The drawing set that describes a substation — what each drawing is for, the symbols, and how to trace a trip circuit from relay contact to breaker coil</p>
+  <div class="chips"><span>one-line</span><span>three-line</span><span>AC elementary</span><span>DC schematic</span><span>52a / 52b</span><span>polarity marks</span><span>as-built</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Reading the drawing set</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Each drawing answers one question.</strong> One-line: what is connected to what. Three-line: how the instrument transformers are wired. Elementary: how the control logic works. Connection diagram: which wire lands on which screw.</li>
+<li><strong>Contacts are drawn de-energized and de-operated.</strong> A contact shown open is open with the coil unpowered and the device in its normal (usually closed-breaker-free) state. This one convention explains most drawing confusion.</li>
+<li><strong>52a follows the breaker; 52b opposes it.</strong> 52a is closed when the breaker is closed. 52b is closed when the breaker is open. Memorize this; you will use it daily.</li>
+<li><strong>Polarity marks are not decoration.</strong> The dot on a CT or PT defines the direction of positive current, and getting one backwards inverts every directional and differential decision.</li>
+<li><strong>The drawing is a claim, not a fact.</strong> Trace and verify before you rely on it. Red-line what you find, and make sure the red-line becomes an as-built.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The drawing family</h2>
+<table>
+  <tr><th>Drawing</th><th>Shows</th><th>You use it to</th></tr>
+  <tr><td><strong>One-line (single-line) diagram</strong></td><td>Power apparatus and connectivity, three phases collapsed into one line</td><td>Understand the station: sources, buses, breakers, transformers, feeders, and where protection zones fall</td></tr>
+  <tr><td><strong>Three-line (AC schematic)</strong></td><td>All three phases explicitly, with CT and PT secondary circuits, polarities, and relay inputs</td><td>Verify CT ratios and connections, ground the right point, and understand what quantity each relay input actually receives</td></tr>
+  <tr><td><strong>AC elementary</strong></td><td>Instrument transformer secondary circuits including test switches and shorting arrangements</td><td>Plan safe secondary injection and know where you can open a circuit</td></tr>
+  <tr><td><strong>DC elementary (schematic)</strong></td><td>Control logic on the station battery: trip and close circuits, permissives, lockouts, alarms</td><td>Trace why something did or did not operate; design and check interlocks</td></tr>
+  <tr><td><strong>Connection / wiring diagram</strong></td><td>Physical terminals, wire numbers, cable numbers, and terminal-block layout</td><td>Land wires, troubleshoot with a meter, and write test procedures</td></tr>
+  <tr><td><strong>Panel layout / arrangement</strong></td><td>Physical placement of devices on a panel and dimensions</td><td>Plan cutouts, mounting, and cable entry</td></tr>
+  <tr><td><strong>Cable schedule</strong></td><td>Every cable, its route, size, conductor count, and endpoints</td><td>Pull the right cable and find a spare pair</td></tr>
+  <tr><td><strong>Points list</strong></td><td>Every SCADA point, its source, index, scaling, and destination</td><td>Everything on the automation side &mdash; see <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a></td></tr>
+</table>
+<div class="callout">
+<strong>The one-line is the index.</strong> Start there on any unfamiliar station, find the equipment you care about, note its device designation, and then pull the three-line and elementary for that designation. Working the other direction &mdash; starting from a schematic without knowing where it sits &mdash; wastes hours.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>One-line symbols, and a feeder to read</h2>
+
+<div class="fig"><svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Symbol legend</text>
+  <g stroke="#1a1a22" stroke-width="1.5" fill="none" font-size="7">
+    <!-- breaker -->
+    <line x1="30" y1="26" x2="30" y2="38"/><rect x="22" y="38" width="16" height="16" fill="#fff"/><line x1="30" y1="54" x2="30" y2="66"/>
+    <text x="46" y="50" fill="#6e7180" stroke="none">circuit breaker (drawn closed)</text>
+    <!-- open breaker -->
+    <line x1="200" y1="26" x2="200" y2="38"/><rect x="192" y="38" width="16" height="16" fill="#d63a3a" opacity="0.15"/><rect x="192" y="38" width="16" height="16"/><line x1="200" y1="54" x2="200" y2="66"/>
+    <text x="216" y="50" fill="#6e7180" stroke="none">breaker, shaded = open</text>
+    <!-- disconnect -->
+    <line x1="380" y1="26" x2="380" y2="38"/><line x1="380" y1="38" x2="392" y2="52"/><line x1="380" y1="54" x2="380" y2="66"/>
+    <text x="400" y="50" fill="#6e7180" stroke="none">disconnect switch (no load break)</text>
+    <!-- fuse -->
+    <line x1="580" y1="26" x2="580" y2="38"/><rect x="575" y="38" width="10" height="16"/><line x1="580" y1="54" x2="580" y2="66"/>
+    <text x="592" y="50" fill="#6e7180" stroke="none">fuse</text>
+
+    <!-- transformer -->
+    <circle cx="34" cy="90" r="9"/><circle cx="34" cy="102" r="9"/>
+    <text x="52" y="100" fill="#6e7180" stroke="none">two-winding transformer</text>
+    <!-- CT -->
+    <line x1="200" y1="82" x2="200" y2="110"/><circle cx="209" cy="96" r="7"/>
+    <text x="222" y="100" fill="#6e7180" stroke="none">current transformer</text>
+    <!-- PT -->
+    <circle cx="384" cy="90" r="7"/><circle cx="384" cy="102" r="7"/><line x1="370" y1="82" x2="370" y2="110"/><line x1="370" y1="96" x2="377" y2="96"/>
+    <text x="400" y="100" fill="#6e7180" stroke="none">potential transformer</text>
+    <!-- ground -->
+    <line x1="580" y1="82" x2="580" y2="98"/><line x1="570" y1="98" x2="590" y2="98"/><line x1="574" y1="102" x2="586" y2="102"/><line x1="578" y1="106" x2="582" y2="106"/>
+    <text x="598" y="100" fill="#6e7180" stroke="none">ground</text>
+
+    <!-- recloser -->
+    <line x1="30" y1="126" x2="30" y2="138"/><rect x="22" y="138" width="16" height="16" fill="#fff"/><text x="30" y="150" font-size="7" text-anchor="middle" stroke="none" fill="#1a1a22">R</text><line x1="30" y1="154" x2="30" y2="166"/>
+    <text x="46" y="150" fill="#6e7180" stroke="none">recloser</text>
+    <!-- capacitor -->
+    <line x1="200" y1="126" x2="200" y2="142"/><line x1="190" y1="142" x2="210" y2="142"/><line x1="190" y1="148" x2="210" y2="148"/><line x1="200" y1="148" x2="200" y2="166"/>
+    <text x="222" y="150" fill="#6e7180" stroke="none">shunt capacitor bank</text>
+    <!-- regulator -->
+    <circle cx="380" cy="146" r="11"/><line x1="373" y1="152" x2="387" y2="140"/><line x1="380" y1="126" x2="380" y2="135"/><line x1="380" y1="157" x2="380" y2="166"/>
+    <text x="400" y="150" fill="#6e7180" stroke="none">voltage regulator</text>
+    <!-- generator -->
+    <circle cx="580" cy="146" r="11"/><text x="580" y="150" font-size="8" text-anchor="middle" stroke="none" fill="#1a1a22">G</text>
+    <text x="598" y="150" fill="#6e7180" stroke="none">generator / DER</text>
+  </g>
+
+  <line x1="8" y1="180" x2="692" y2="180" stroke="#e5e7eb"/>
+  <text x="8" y="196" font-size="9" font-weight="600" fill="#454956">A distribution feeder, read left to right</text>
+
+  <g stroke="#1a1a22" stroke-width="1.6" fill="none" font-size="7.2">
+    <!-- source -->
+    <text x="34" y="222" fill="#6e7180" stroke="none">115 kV</text>
+    <line x1="34" y1="228" x2="34" y2="242"/>
+    <line x1="16" y1="242" x2="52" y2="242" stroke-width="2.5"/>
+    <text x="34" y="256" fill="#6e7180" stroke="none" text-anchor="middle">HV bus</text>
+    <line x1="34" y1="242" x2="34" y2="262"/>
+    <rect x="26" y="262" width="16" height="16" fill="#fff"/>
+    <text x="58" y="274" fill="#6e7180" stroke="none">52-H</text>
+    <line x1="34" y1="278" x2="34" y2="292"/>
+    <circle cx="34" cy="300" r="8"/><circle cx="34" cy="312" r="8"/>
+    <text x="58" y="308" fill="#6e7180" stroke="none">XFMR 1 &middot; 20/26.6/33.3 MVA &middot; Dyn1 &middot; 8.5%</text>
+    <line x1="34" y1="320" x2="34" y2="330"/>
+  </g>
+
+  <g stroke="#1a1a22" stroke-width="1.6" fill="none" font-size="7.2">
+    <!-- LV bus -->
+    <line x1="250" y1="248" x2="640" y2="248" stroke-width="2.5"/>
+    <text x="250" y="240" fill="#6e7180" stroke="none">12.47 kV bus</text>
+    <path d="M34,330 C120,330 160,270 250,258" stroke-dasharray="0"/>
+    <line x1="250" y1="258" x2="250" y2="248"/>
+
+    <!-- feeder 1 -->
+    <line x1="320" y1="248" x2="320" y2="262"/>
+    <rect x="312" y="262" width="16" height="16" fill="#fff"/>
+    <line x1="320" y1="278" x2="320" y2="292"/>
+    <circle cx="329" cy="286" r="6"/>
+    <line x1="320" y1="292" x2="320" y2="316"/>
+    <text x="320" y="330" fill="#6e7180" stroke="none" text-anchor="middle">FDR 1</text>
+    <text x="288" y="274" fill="#6e7180" stroke="none" text-anchor="end">52-1</text>
+    <text x="340" y="300" fill="#6e7180" stroke="none">600:5</text>
+
+    <!-- feeder 2 with recloser -->
+    <line x1="440" y1="248" x2="440" y2="262"/>
+    <rect x="432" y="262" width="16" height="16" fill="#fff"/>
+    <line x1="440" y1="278" x2="440" y2="300"/>
+    <rect x="432" y="300" width="16" height="16" fill="#fff"/>
+    <text x="440" y="312" font-size="7" text-anchor="middle" stroke="none" fill="#1a1a22">R</text>
+    <line x1="440" y1="316" x2="440" y2="322"/>
+    <text x="440" y="334" fill="#6e7180" stroke="none" text-anchor="middle">FDR 2 &rarr; R-14</text>
+
+    <!-- cap bank -->
+    <line x1="545" y1="248" x2="545" y2="266"/>
+    <rect x="537" y="266" width="16" height="16" fill="#fff"/>
+    <line x1="545" y1="282" x2="545" y2="296"/>
+    <line x1="535" y1="296" x2="555" y2="296"/><line x1="535" y1="302" x2="555" y2="302"/>
+    <line x1="545" y1="302" x2="545" y2="314"/>
+    <line x1="536" y1="314" x2="554" y2="314"/><line x1="539" y1="318" x2="551" y2="318"/>
+    <text x="570" y="292" fill="#6e7180" stroke="none">1.2 MVAr</text>
+
+    <!-- bus PT -->
+    <line x1="620" y1="248" x2="620" y2="266"/>
+    <circle cx="620" cy="274" r="7"/><circle cx="620" cy="286" r="7"/>
+    <line x1="620" y1="293" x2="620" y2="304"/>
+    <line x1="612" y1="304" x2="628" y2="304"/><line x1="615" y1="308" x2="625" y2="308"/>
+    <text x="640" y="282" fill="#6e7180" stroke="none">bus PT</text>
+  </g>
+
+  <!-- moving protection-zone highlight -->
+  <rect x="300" y="240" width="42" height="86" rx="6" fill="#10a37f" opacity="0.10">
+    <animate attributeName="x" values="300;420;525;300" dur="9s" repeatCount="indefinite"/>
+    <animate attributeName="width" values="42;42;42;42" dur="9s" repeatCount="indefinite"/>
+  </rect>
+  <text x="250" y="196" font-size="7.2" fill="#0d7f63" stroke="none">shaded band = the protection zone of one relay, sweeping across the three bus positions</text>
+</svg></div>
+<p class="figcap">Everything on a one-line is single-phase shorthand. The moment you need to know how the CTs are actually connected, you have outgrown it and need the three-line. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Device designations</h3>
+<p>Equipment is tagged so drawings, settings, and points lists can all refer to the same object. <code>52-1</code> is circuit breaker number 1 (52 being the ANSI number for an AC circuit breaker); <code>86T</code> is the transformer lockout relay; <code>R-14</code> is recloser 14. The suffix conventions vary between utilities, but the ANSI device number always carries the function &mdash; see <a href="atlas:reference/ansi-device-numbers.md">ANSI Device Numbers</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>The three-line: polarity and where the ground goes</h2>
+<p>The three-line drawing is where CT ratio, CT connection, polarity, grounding point, and relay input assignment all become explicit. Two details cause most field errors:</p>
+<ul>
+<li><strong>Polarity.</strong> Current entering the polarity-marked primary terminal produces current leaving the polarity-marked secondary terminal. Every directional element, every differential zone, and every power measurement depends on it. A reversed CT typically shows up as power flowing the wrong way on one phase, or as a differential current equal to twice the through current.</li>
+<li><strong>One ground per circuit.</strong> A CT secondary circuit is grounded at exactly one point &mdash; normally at the switchboard or panel, not at the CT. Two grounds create a parallel path that steals current; no ground leaves the circuit floating at dangerous potential.</li>
+</ul>
+<div class="callout warn">
+<strong>Never open an energized CT secondary.</strong> The CT is a current source; interrupting it drives the core into deep saturation and produces lethal voltage across the break. Short it first, at a test switch or with a shorting jumper on the terminal block, and verify the short before opening anything. See <a href="atlas:commissioning/safety-practices.html">Safety Practices</a> and <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>The DC schematic: tracing a trip</h2>
+<p>Control circuits live on the station battery &mdash; typically 125&nbsp;V DC, sometimes 48&nbsp;V or 250&nbsp;V. The elementary diagram is drawn as a ladder between the positive rail on the left and the negative rail on the right, with each rung one function.</p>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One trip rung, animated: relay contact closes &rarr; coil energizes &rarr; breaker opens &rarr; 52a interrupts the current</text>
+
+  <!-- rails -->
+  <line x1="60" y1="34" x2="60" y2="230" stroke="#d63a3a" stroke-width="2"/>
+  <text x="60" y="28" font-size="7.6" fill="#d63a3a" text-anchor="middle">(+) 125 V DC</text>
+  <line x1="640" y1="34" x2="640" y2="230" stroke="#1a1a22" stroke-width="2"/>
+  <text x="640" y="28" font-size="7.6" fill="#1a1a22" text-anchor="middle">(&minus;)</text>
+
+  <!-- rung -->
+  <line x1="60" y1="110" x2="170" y2="110" stroke="#a9adb8" stroke-width="1.6"/>
+  <!-- relay output contact -->
+  <g>
+    <line x1="170" y1="110" x2="196" y2="110" stroke="#a9adb8" stroke-width="1.6"/>
+    <line x1="196" y1="110" x2="216" y2="96" stroke="#5468c4" stroke-width="2">
+      <animate attributeName="y2" values="96;96;110;110;96" dur="6s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="196" cy="110" r="2.5" fill="#5468c4"/><circle cx="222" cy="110" r="2.5" fill="#5468c4"/>
+    <text x="206" y="82" font-size="7.4" fill="#5468c4" text-anchor="middle">OUT101</text>
+    <text x="206" y="128" font-size="6.8" fill="#8a8e9b" text-anchor="middle">relay trip output</text>
+  </g>
+  <line x1="222" y1="110" x2="300" y2="110" stroke="#a9adb8" stroke-width="1.6"/>
+  <!-- 52a -->
+  <g>
+    <line x1="300" y1="110" x2="326" y2="110" stroke="#a9adb8" stroke-width="1.6"/>
+    <line x1="326" y1="110" x2="346" y2="110" stroke="#10a37f" stroke-width="2">
+      <animate attributeName="y2" values="110;110;110;96;96;110" dur="6s" repeatCount="indefinite"/>
+    </line>
+    <circle cx="326" cy="110" r="2.5" fill="#10a37f"/><circle cx="352" cy="110" r="2.5" fill="#10a37f"/>
+    <text x="339" y="82" font-size="7.4" fill="#10a37f" text-anchor="middle">52a</text>
+    <text x="339" y="128" font-size="6.8" fill="#8a8e9b" text-anchor="middle">closed while breaker closed</text>
+  </g>
+  <line x1="352" y1="110" x2="440" y2="110" stroke="#a9adb8" stroke-width="1.6"/>
+  <!-- trip coil -->
+  <g>
+    <rect x="440" y="96" width="60" height="28" rx="4" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.5">
+      <animate attributeName="fill" values="#fdf3e7;#fdf3e7;#d7930a;#d7930a;#fdf3e7;#fdf3e7" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="470" y="114" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle">TC</text>
+    <text x="470" y="140" font-size="6.8" fill="#8a8e9b" text-anchor="middle">breaker trip coil</text>
+  </g>
+  <line x1="500" y1="110" x2="640" y2="110" stroke="#a9adb8" stroke-width="1.6"/>
+
+  <!-- current flow dots -->
+  <circle r="3" fill="#d63a3a" opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6s" repeatCount="indefinite"/>
+    <animateMotion dur="1.1s" repeatCount="indefinite" path="M60,110 H640"/>
+  </circle>
+
+  <!-- timeline -->
+  <line x1="60" y1="200" x2="640" y2="200" stroke="#e5e7eb"/>
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="60" y="216">t=0</text>
+    <text x="200" y="216">relay asserts</text>
+    <text x="340" y="216">coil current flows</text>
+    <text x="470" y="216">breaker travels open</text>
+    <text x="636" y="216" text-anchor="end">52a opens, coil de-energizes</text>
+  </g>
+  <circle r="4" fill="#1a1a22">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M60,200 H640"/>
+  </circle>
+
+  <rect x="8" y="234" width="684" height="58" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="250" font-size="8" font-weight="600" fill="#1a1a22">Why 52a is in the trip circuit</text>
+  <text x="20" y="264" font-size="7.8" fill="#454956">A trip coil is rated for short-time duty only. The relay output contact cannot safely interrupt inductive DC coil current, so the breaker's own 52a auxiliary contact does it &mdash;</text>
+  <text x="20" y="276" font-size="7.8" fill="#454956">the coil is de-energized by the breaker travelling open, not by the relay dropping out. This also means a relay may safely seal in its trip output for a minimum duration (SEL <code>TDURD</code>)</text>
+  <text x="20" y="288" font-size="7.8" fill="#454956">without any risk of holding the coil energized: 52a has already opened.</text>
+</svg></div>
+<p class="figcap">The sequence, and the reason for every element in it. Trace a real trip circuit this way and it stops being a maze. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Element you will meet on a trip rung</th><th>Purpose</th></tr>
+  <tr><td><strong>Relay output contact</strong></td><td>The decision. On SEL relays, driven by a SELogic trip equation with a minimum duration timer</td></tr>
+  <tr><td><strong>52a auxiliary contact</strong></td><td>Interrupts coil current when the breaker opens; protects the relay contact</td></tr>
+  <tr><td><strong>Trip coil (TC)</strong></td><td>Releases the breaker's stored energy. Short-time rated &mdash; continuous energization destroys it</td></tr>
+  <tr><td><strong>Trip coil monitor</strong></td><td>A high-impedance path (often a relay input, SEL <code>TRIPMON</code>-style logic) that proves the coil circuit is continuous while the breaker is closed</td></tr>
+  <tr><td><strong>86 lockout contact</strong></td><td>A hand-reset master trip relay: one operation trips everything in the zone and blocks closing until reset</td></tr>
+  <tr><td><strong>Control switch (101)</strong></td><td>Manual trip and close, with a pull-to-trip / push-to-close convention and a &ldquo;slip contact&rdquo; for supervision</td></tr>
+  <tr><td><strong>DC supply fuses / breakers</strong></td><td>Separate for trip and close, and frequently separate for each trip coil on dual-trip breakers</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Two trip coils means two of everything.</strong> Transmission breakers usually have TC1 and TC2 fed from separate DC circuits and driven by separate relays or separate outputs, so no single failure disables tripping. When you commission one, prove <em>each path independently</em> &mdash; testing only TC1 and assuming TC2 works is how a redundant scheme quietly becomes a single point of failure. Station DC itself is covered in <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Conventions that trip people up</h2>
+<ul>
+<li><strong>Shown de-energized.</strong> Every contact on a schematic is drawn in its state with no coil energized and the device in its reference condition. A normally-open contact of an operated relay is still drawn open.</li>
+<li><strong>&ldquo;Normally&rdquo; means the drawing state, not the usual operating state.</strong> A breaker that spends its life closed still has its 52a drawn open on a schematic that assumes an open breaker &mdash; check the drawing's stated reference condition.</li>
+<li><strong>Wire numbers versus terminal numbers.</strong> A wire number identifies the conductor across the whole station; a terminal number identifies a landing point on one block. Both appear, and they are not interchangeable.</li>
+<li><strong>Cross-reference notation.</strong> A coil on one sheet lists where its contacts appear, and each contact lists where its coil lives (typically as sheet/coordinate). Following these is how you trace a circuit across twenty drawings.</li>
+<li><strong>Dashed lines usually mean &ldquo;by others&rdquo; or &ldquo;future.&rdquo;</strong> Check the legend before assuming a dashed circuit exists.</li>
+<li><strong>Revision clouds and triangles</strong> mark what changed in the current revision. Read them first &mdash; they tell you what the last person found surprising.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Red-lines and as-builts</h2>
+<p>The drawing set is only useful if it matches the station. Keeping that true is a discipline, not an accident:</p>
+<ul>
+<li><strong>Mark up as you go, in red, on the paper copy you carried in.</strong> Wire actually landed on TB4-7, not TB4-6. CT is 800:5, not 600:5. Spare pair used for the new alarm.</li>
+<li><strong>Photograph the red-lines before leaving site.</strong> Paper gets lost between the truck and the office.</li>
+<li><strong>Submit them.</strong> A red-line that never reaches the drafting group is a private note, and the next crew will believe the original drawing.</li>
+<li><strong>Note what you verified, not just what you changed.</strong> &ldquo;Traced and confirmed as drawn&rdquo; on a sheet is genuinely valuable information.</li>
+</ul>
+<div class="callout">
+<strong>Treat drawing accuracy as part of the deliverable.</strong> On the automation side the equivalent artifact is the points list, and the same rule applies: the version in the field must equal the version in the archive. See FAT &amp; SAT.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>The one-line rarely shows the actual switching state.</strong> It shows normal configuration. Ask operations what is actually open before planning work.</li>
+<li><strong>CT ratio on the drawing may be the CT's <em>full</em> ratio</strong> while the relay is connected to a tap. Multi-ratio CTs (e.g. 600:5 multi-tap) are extremely common, and the tap in use is a wiring fact, not a drawing fact &mdash; verify it.</li>
+<li><strong>Test switch drawings hide the shorting sequence.</strong> Know which blade shorts before it opens; the wrong sequence opens an energized CT.</li>
+<li><strong>Relay I/O numbering differs by model and by ordering option.</strong> A schematic drawn for one relay model does not transfer to a retrofit without re-checking every terminal.</li>
+<li><strong>Multiple drawing revisions in the same panel</strong> is normal on old stations. Find the latest, and be suspicious where two sheets disagree &mdash; that disagreement is exactly where the field is unknown.</li>
+<li><strong>Alarm contacts are often wired in series strings.</strong> One point in SCADA, six possible causes, and no way to tell which. Recognize this pattern on the elementary and push back at design time if the point matters.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+  <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:reference/ansi-device-numbers.md">ANSI Device Numbers</a>
+  
+</div>
+<p class="footnote">Fundamentals page. Symbol and schematic conventions follow standard IEEE practice (C37.2 device numbers, IEEE 315 symbols) as they appear in utility drawing sets. Trip-circuit behavior and the minimum-trip-duration setting follow SEL relay practice as documented in the SEL-751/751A and SEL-451 instruction manuals. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IP Addressing, Gateways & DNS</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="IP,subnet,gateway,DNS,hostname,NIC,ping,Ethernet,addressing">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "IP Addressing, Gateways & DNS (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>IP Addressing, Gateways & DNS</h1>
+  <p>Subnets, CIDR, default and primary gateways, static routes — and where names actually matter on RTACs and relays</p>
+  <div class="chips"><span>IP / CIDR</span><span>gateway</span><span>static routes</span><span>DNS</span><span>hosts table</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Addressing</h3>
+<ul style="margin-bottom:8px">
+<li><strong>Same subnet = talk directly. Different subnet = talk through a gateway.</strong> Every one-way-comms mystery starts here.</li>
+<li>A device needs a <strong>default gateway configured</strong> the moment anything off its subnet must reach it — no gateway, no reply.</li>
+<li>On a multi-port RTAC, <strong>one interface's gateway is marked Primary</strong> — that's the router used for traffic the RTAC initiates off-subnet.</li>
+<li><strong>One subnet per interface.</strong> Two NICs on the same subnet (with one unplugged) silently eats traffic.</li>
+<li>Don't set unused Ethernet ports to an active subnet. Disable what you don't use.</li>
+</ul>
+<h3>Names</h3>
+<ul style="margin-bottom:2px">
+<li>Substations run on <strong>static IPs</strong>. DNS is for the RTAC reaching <em>out</em> — NTP by name, email, LDAP — not for SCADA polls.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Addressing: subnets and gateways</h2>
+<p>An IPv4 address plus its mask (CIDR) splits the world into <em>my subnet</em> and <em>everything else</em>. Traffic to the local subnet goes straight out the wire; traffic to anything else goes to the <strong>default gateway</strong> — the router's address, which must itself be on the local subnet. The RTAC states it plainly: packets matching the configured mask route directly; everything else is attempted via the default gateway, if configured.</p>
+
+<div class="fig"><svg viewBox="0 0 700 168" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="34" width="300" height="86" rx="6" fill="#10a37f" opacity="0.06" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="4 3"/>
+  <text x="30" y="30" font-size="9" font-weight="600" fill="#10a37f">station LAN — 10.20.1.0/24</text>
+  <rect x="40" y="52" width="92" height="30" rx="4" fill="#1a1a22"/>
+  <text x="86" y="65" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">RTAC</text>
+  <text x="86" y="76" font-size="7.5" fill="#c9ccd8" text-anchor="middle">10.20.1.10/24</text>
+  <rect x="200" y="52" width="92" height="30" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="246" y="65" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">Relay</text>
+  <text x="246" y="76" font-size="7.5" fill="#a9adb8" text-anchor="middle">10.20.1.21/24</text>
+  <rect x="252" y="94" width="60" height="22" rx="4" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+  <text x="282" y="104" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle">router</text>
+  <text x="282" y="113" font-size="7" fill="#a9adb8" text-anchor="middle">10.20.1.1</text>
+  <rect x="520" y="84" width="150" height="34" rx="4" fill="#fff" stroke="#a9adb8" stroke-width="1.25"/>
+  <text x="595" y="98" font-size="9" font-weight="600" fill="#6e7180" text-anchor="middle">SCADA master</text>
+  <text x="595" y="110" font-size="7.5" fill="#a9adb8" text-anchor="middle">172.16.5.40 — different subnet</text>
+  <line x1="132" y1="67" x2="200" y2="67" stroke="#d0d3da" stroke-width="1.25"/>
+  <path d="M132,72 C180,86 210,98 252,104" fill="none" stroke="#d0d3da" stroke-width="1.25"/>
+  <path d="M312,105 C390,108 450,100 520,100" fill="none" stroke="#d0d3da" stroke-width="1.25"/>
+  <text x="166" y="60" font-size="7.8" fill="#10a37f" text-anchor="middle">① same subnet — direct</text>
+  <text x="420" y="92" font-size="7.8" fill="#9c6d06" text-anchor="middle">② off-subnet — via the gateway</text>
+  <text x="420" y="146" font-size="7.8" fill="#d63a3a" text-anchor="middle">③ no gateway configured → requests arrive, replies die on the floor</text>
+  <g class="animlayer">
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.14;0.16;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M132,67 L200,67" keyPoints="0;0;1;1" keyTimes="0;0.02;0.15;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.24;0.25;0.40;0.42;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M132,72 C180,86 210,98 252,104" keyPoints="0;0;1;1" keyTimes="0;0.24;0.41;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.43;0.58;0.60;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M312,105 C390,108 450,100 520,100" keyPoints="0;0;1;1" keyTimes="0;0.42;0.59;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#a9adb8" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.71;0.84;0.86;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M520,100 C450,100 390,108 312,105 M312,105 C210,98 180,86 132,72" keyPoints="0;0;1;1" keyTimes="0;0.70;0.85;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.86;0.88;0.97;0.99;1" dur="11s" repeatCount="indefinite"/>
+      <line x1="112" y1="90" x2="128" y2="106" stroke="#d63a3a" stroke-width="2.5"/>
+      <line x1="128" y1="90" x2="112" y2="106" stroke="#d63a3a" stroke-width="2.5"/>
+      <text x="120" y="122" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">no gateway — reply unroutable</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">The classic failure: SCADA's poll <em>arrives</em> (the router knows the way in), but the RTAC has no gateway for the way back — connections half-open, pings one-way.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>CIDR is just the mask:</strong> /24 = 255.255.255.0 (254 hosts), /25 = .128, /30 = .252 (a 2-host link). The 5033 manual carries the full /0–/32 table.</li>
+</ul>
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The mask is the whole decision: which bits are &ldquo;my subnet&rdquo; and which identify the host</text>
+
+  <!-- address bits -->
+  <text x="20" y="40" font-size="7.6" font-weight="600" fill="#454956">10.20.1.21 / 24</text>
+  <g font-size="7">
+    <rect x="20"  y="48" width="150" height="24" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+    <text x="95" y="64" text-anchor="middle" fill="#0d7f63">10 . 20 . 1</text>
+    <rect x="174" y="48" width="70" height="24" rx="3" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.2"/>
+    <text x="209" y="64" text-anchor="middle" fill="#9c6d06">21</text>
+    <text x="95" y="86" text-anchor="middle" fill="#8a8e9b">network &mdash; 24 bits</text>
+    <text x="209" y="86" text-anchor="middle" fill="#8a8e9b">host &mdash; 8 bits</text>
+  </g>
+
+  <!-- mask ruler -->
+  <g font-size="6.6" fill="#8a8e9b">
+    <rect x="20" y="100" width="150" height="12" rx="2" fill="#10a37f" opacity="0.35"/>
+    <rect x="174" y="100" width="70" height="12" rx="2" fill="#d7930a" opacity="0.35"/>
+    <text x="20" y="126">255.255.255.0 &mdash; the same thing, written the old way</text>
+  </g>
+
+  <!-- CIDR table -->
+  <g font-size="7.2">
+    <text x="300" y="40" font-size="7.6" font-weight="600" fill="#454956">The masks you will actually type</text>
+    <line x1="300" y1="46" x2="500" y2="46" stroke="#10a37f" stroke-width="1"/>
+    <text x="300" y="60" fill="#6e7180">/24</text><text x="352" y="60" fill="#454956">255.255.255.0</text><text x="452" y="60" fill="#8a8e9b">254 hosts</text>
+    <text x="300" y="76" fill="#6e7180">/25</text><text x="352" y="76" fill="#454956">255.255.255.128</text><text x="452" y="76" fill="#8a8e9b">126 hosts</text>
+    <text x="300" y="92" fill="#6e7180">/26</text><text x="352" y="92" fill="#454956">255.255.255.192</text><text x="452" y="92" fill="#8a8e9b">62 hosts</text>
+    <text x="300" y="108" fill="#6e7180">/30</text><text x="352" y="108" fill="#454956">255.255.255.252</text><text x="452" y="108" fill="#8a8e9b">2 hosts &mdash; a point-to-point link</text>
+  </g>
+
+  <!-- the decision -->
+  <rect x="20" y="146" width="320" height="90" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="34" y="164" font-size="8" font-weight="600" fill="#0d7f63">Same subnet &rarr; talk directly</text>
+  <text x="34" y="180" font-size="7.6" fill="#454956">10.20.1.21 &rarr; 10.20.1.10: the masked network bits match,</text>
+  <text x="34" y="192" font-size="7.6" fill="#454956">so the frame goes straight out the wire.</text>
+  <text x="34" y="212" font-size="7.6" fill="#8a8e9b">No router involved, no gateway needed.</text>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="2s" repeatCount="indefinite" path="M40,224 H320"/></circle>
+
+  <rect x="360" y="146" width="328" height="90" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="374" y="164" font-size="8" font-weight="600" fill="#9c3838">Different subnet &rarr; talk through the gateway</text>
+  <text x="374" y="180" font-size="7.6" fill="#454956">10.20.1.21 &rarr; 172.16.5.40: the bits do not match, so the</text>
+  <text x="374" y="192" font-size="7.6" fill="#454956">frame goes to the default gateway &mdash; which must itself be</text>
+  <text x="374" y="204" font-size="7.6" fill="#454956">on the local subnet.</text>
+  <text x="374" y="222" font-size="7.6" fill="#9c3838">No gateway configured, no reply. Every one-way-comms mystery starts here.</text>
+  <circle r="3.5" fill="#d63a3a"><animateMotion dur="2s" repeatCount="indefinite" path="M380,232 H660"/></circle>
+</svg></div>
+<p class="figcap">Two devices with the same address but different masks will disagree about whether they are neighbours &mdash; and only one of them will be able to reach the other. <span class="print-note">(Animated in the browser.)</span></p>
+<ul>
+
+  <li><strong>Primary Gateway:</strong> on a multi-interface RTAC each NIC can define a default gateway, but exactly one is flagged Primary — the router the RTAC uses when <em>it</em> initiates traffic to another subnet. Incoming off-subnet traffic on any interface needs that interface's gateway configured for the replies.</li>
+  <li><strong>Static routes</strong> override the default gateway for specific destinations — the common substation case is multiple routers with IEDs behind each: Remote Network (single IP or CIDR range) + Remote Gateway + interface. (R154+ allows a route whose gateway is initially unreachable, for runtime IP-alias tricks — use with caution.)</li>
+  <li><strong>One subnet per interface.</strong> The 5033 manual's own worked example: three NICs on 10.201.10.x/24, one of them unplugged — the RTAC sends some traffic to the dead port and it's simply lost, because any same-subnet interface is a "valid" path. Different subnets per NIC, or bridge the ports if you want them switched.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Names: hostname, DNS, and the hosts table</h2>
+<p>Substation SCADA runs on static IPs — the DNP client polls <code>10.20.1.21</code>, not <code>feeder-relay-3.example.com</code>. DNS earns its place when the RTAC has to reach <em>out</em>:</p>
+<ul>
+  <li><strong>Hostname + DNS Suffix</strong> form the RTAC's fully qualified name (<code>myRTAC.ad.mynetwork.com</code>) for humans browsing to it.</li>
+  <li><strong>Primary / Secondary Nameserver</strong> are the resolvers the RTAC queries — needed when NTP servers are entered by name, for the DAC/event emailer's SMTP host, and for LDAP authentication.</li>
+  <li><strong>The Hosts table</strong> is the no-DNS escape hatch: static name→IP entries on the RTAC itself (the manual calls it out specifically for LDAP configuration). If the network has no resolver, put the names you need here.</li>
+</ul>
+<div class="callout">
+<p><strong>Design habit:</strong> nothing on the SCADA path should <em>depend</em> on DNS. If a resolver outage can stop polls, controls, or time sync, the design is wrong — names are for management-plane conveniences, IPs are for operations.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>RTAC interface checklist</h2>
+<p>Per-NIC, everything is deliberate — the defaults are conservative and several "it's dead" symptoms are just a disabled service:</p>
+<ul>
+  <li><strong>Per-interface enables:</strong> NIC itself, <strong>ping</strong>, web access, database (ODBC) access, EtherCAT dedication — each per port. A NIC with ping disabled looks down to your laptop and isn't. EtherCAT-dedicated ports can't carry the default gateway.</li>
+  <li><strong>Unused ports:</strong> leave them disabled, and never configured on an active subnet.</li>
+  <li><strong>Global settings:</strong> hostname, DNS suffix, nameservers, hosts table; TCP keep-alive time/probes/interval (how long half-dead sockets linger); HTTP→HTTPS redirect (off by default — browse to <code>https://</code> explicitly); URL whitelist for anything the web UI is allowed to reach out to (R143+).</li>
+  <li><strong>IPv6</strong> exists (disabled by default): web/database access supported, project download works, but live data in ACSELERATOR over IPv6 is not. Address goes in brackets: <code>https://[fdd2::1]</code>.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Works locally, dies remotely</strong> → missing or wrong default gateway on the device (§1's animation). <strong>One-way traffic</strong> → same, or a wrong mask putting the peer "on-subnet" when it isn't.</li>
+<li><strong>Intermittent losses on a multi-NIC RTAC</strong> → check for two interfaces sharing a subnet, one of them unplugged or on the wrong switch. The manual's own worked failure.</li>
+<li><strong>Ping fails but comms work</strong> (or vice versa) → per-NIC Enable PING setting; and remember ICMP proves reachability, not that DNP's TCP port is open.</li>
+<li><strong>Time-outs only on idle connections</strong> → TCP keep-alive settings on the RTAC vs. firewall idle timers between it and the master.</li>
+<li><strong>Duplicate IP</strong> → intermittent, ARP-dependent chaos; the RTAC's ARP table (PRP diagnostics page shows one) and switch MAC tables are the fastest way to find the second claimant.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/vlans.html">VLANs</a>
+  <a href="atlas:comms/rstp-topologies.html">RSTP &amp; Topologies</a>
+  <a href="atlas:comms/prp-hsr-redundancy.html">PRP &amp; HSR Redundancy</a>
+  <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 IM §8 Ethernet Security (per-NIC settings, gateways/Primary Gateway, CIDR table, subnet usage example, global IP settings, static routes, hosts/URL whitelist — full text locally inside 3530-4_IM); SEL-400 Series Relays IM §15 (default router examples, ETCPKA keepalives). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

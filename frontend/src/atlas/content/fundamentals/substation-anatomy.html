@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Substation Anatomy</title>
+<meta name="atlas-order" content="80">
+<meta name="atlas-tags" content="substation,bus arrangement,ring bus,breaker and a half,protection zones,control house,station service,ground grid,GPR">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Substation Anatomy (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Substation Anatomy</h1>
+  <p>What is in the yard, the bus arrangements and what each one costs you, how protection zones overlap, and what lives in the control house</p>
+  <div class="chips"><span>bus arrangements</span><span>ring bus</span><span>breaker-and-a-half</span><span>protection zones</span><span>control house</span><span>station service</span><span>ground grid</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Reading a station</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The bus arrangement is a reliability-versus-cost decision, and it dictates the protection.</strong> How many breakers per circuit, and what an outage of any one of them costs, is the whole design question.</li>
+<li><strong>Protection zones are bounded by CTs, and adjacent zones must overlap.</strong> A gap between zones is a piece of equipment nothing protects.</li>
+<li><strong>Everything in the control house runs on the battery.</strong> Lose station DC and you lose tripping, closing, and most of your intelligence &mdash; see <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>.</li>
+<li><strong>The ground grid is safety equipment.</strong> It exists to keep step and touch potentials survivable during a fault, not primarily to give relays a reference.</li>
+<li><strong>Nothing in the yard is single-phase.</strong> Three of everything, and the middle phase is usually the one you cannot reach.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What is in the yard</h2>
+<table>
+  <tr><th>Equipment</th><th>Does</th><th>Automation interest</th></tr>
+  <tr><td><strong>Line / dead-end structure</strong></td><td>Terminates incoming conductors mechanically</td><td>None directly &mdash; but line traps and CCVTs live here on transmission</td></tr>
+  <tr><td><strong>Surge arrester</strong></td><td>Clamps lightning and switching overvoltage to ground</td><td>Some have counters or leakage monitors worth trending</td></tr>
+  <tr><td><strong>Disconnect switch (89)</strong></td><td>Visible isolation. <em>Not</em> a load-break device unless specifically rated</td><td>Position contacts (89a/89b) for interlocking and SCADA; motor-operated switches add control points</td></tr>
+  <tr><td><strong>Circuit breaker (52)</strong></td><td>Interrupts load and fault current</td><td>Trip and close controls, 52a/52b status, trip-coil monitoring, operation counters, SF<sub>6</sub> density, mechanism alarms</td></tr>
+  <tr><td><strong>Current transformer</strong></td><td>Scales primary current for relays and meters</td><td>Defines the boundary of every protection zone; ratio and tap matter enormously</td></tr>
+  <tr><td><strong>Voltage transformer / CCVT</strong></td><td>Scales primary voltage</td><td>Provides polarizing and synchronism-check voltage; CCVTs have transient behavior distance relays must tolerate</td></tr>
+  <tr><td><strong>Power transformer</strong></td><td>Changes voltage level</td><td>The richest source of alarms and analogs in the station &mdash; see <a href="atlas:fundamentals/transformers.html">Power Transformers</a></td></tr>
+  <tr><td><strong>Bus</strong></td><td>Common connection point</td><td>Bus differential zone; bus voltage for sync-check and volt/VAr</td></tr>
+  <tr><td><strong>Capacitor bank / reactor</strong></td><td>Supplies or absorbs reactive power</td><td>Switching control, neutral unbalance protection, stage status &mdash; see <a href="atlas:distribution-equipment/capacitor-control.html">Capacitor Bank Control</a></td></tr>
+  <tr><td><strong>Voltage regulator</strong></td><td>Adjusts feeder voltage in steps</td><td>Tap position, mode, counters &mdash; see <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a></td></tr>
+  <tr><td><strong>Station service transformer</strong></td><td>Makes station AC from the yard</td><td>Loss of AC is a real alarm &mdash; the battery charger runs from it</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>Bus arrangements</h2>
+<p>The layout answers one question: when a breaker must come out of service &mdash; for maintenance or because it failed &mdash; what else goes with it?</p>
+
+<div class="fig"><svg viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Five arrangements, and the cost of taking one breaker out (highlighted circuits go dark)</text>
+
+  <g stroke="#1a1a22" stroke-width="1.4" fill="none" font-size="7">
+    <!-- Single bus -->
+    <text x="80" y="34" font-size="8.2" font-weight="600" fill="#1a1a22" text-anchor="middle" stroke="none">Single bus</text>
+    <line x1="20" y1="60" x2="140" y2="60" stroke-width="2.4"/>
+    <g>
+      <line x1="45" y1="60" x2="45" y2="74"/><rect x="39" y="74" width="12" height="12" fill="#fff"/><line x1="45" y1="86" x2="45" y2="100"/>
+      <line x1="80" y1="60" x2="80" y2="74"/><rect x="74" y="74" width="12" height="12" fill="#fff"/><line x1="80" y1="86" x2="80" y2="100"/>
+      <line x1="115" y1="60" x2="115" y2="74"/><rect x="109" y="74" width="12" height="12" fill="#fff"/><line x1="115" y1="86" x2="115" y2="100"/>
+    </g>
+    <rect x="16" y="52" width="128" height="52" rx="4" fill="#d63a3a" opacity="0.12" stroke="none"/>
+    <text x="80" y="118" font-size="7" fill="#9c3838" text-anchor="middle" stroke="none">bus fault or bus work = whole station out</text>
+    <text x="80" y="129" font-size="7" fill="#8a8e9b" text-anchor="middle" stroke="none">1 breaker per circuit &middot; cheapest</text>
+
+    <!-- Sectionalized -->
+    <text x="250" y="34" font-size="8.2" font-weight="600" fill="#1a1a22" text-anchor="middle" stroke="none">Sectionalized bus</text>
+    <line x1="190" y1="60" x2="240" y2="60" stroke-width="2.4"/>
+    <line x1="260" y1="60" x2="310" y2="60" stroke-width="2.4"/>
+    <line x1="240" y1="60" x2="244" y2="60"/><rect x="244" y="54" width="12" height="12" fill="#fff"/><line x1="256" y1="60" x2="260" y2="60"/>
+    <text x="250" y="48" font-size="6.4" fill="#6e7180" text-anchor="middle" stroke="none">tie</text>
+    <g>
+      <line x1="205" y1="60" x2="205" y2="74"/><rect x="199" y="74" width="12" height="12" fill="#fff"/><line x1="205" y1="86" x2="205" y2="100"/>
+      <line x1="228" y1="60" x2="228" y2="74"/><rect x="222" y="74" width="12" height="12" fill="#fff"/><line x1="228" y1="86" x2="228" y2="100"/>
+      <line x1="272" y1="60" x2="272" y2="74"/><rect x="266" y="74" width="12" height="12" fill="#fff"/><line x1="272" y1="86" x2="272" y2="100"/>
+      <line x1="295" y1="60" x2="295" y2="74"/><rect x="289" y="74" width="12" height="12" fill="#fff"/><line x1="295" y1="86" x2="295" y2="100"/>
+    </g>
+    <rect x="186" y="52" width="60" height="52" rx="4" fill="#d7930a" opacity="0.14" stroke="none"/>
+    <text x="250" y="118" font-size="7" fill="#9c6d06" text-anchor="middle" stroke="none">one bus section out, the other keeps running</text>
+    <text x="250" y="129" font-size="7" fill="#8a8e9b" text-anchor="middle" stroke="none">common on distribution</text>
+
+    <!-- Main and transfer -->
+    <text x="440" y="34" font-size="8.2" font-weight="600" fill="#1a1a22" text-anchor="middle" stroke="none">Main &amp; transfer</text>
+    <line x1="380" y1="56" x2="500" y2="56" stroke-width="2.4"/>
+    <line x1="380" y1="96" x2="500" y2="96" stroke-width="1.6" stroke-dasharray="4 3"/>
+    <text x="512" y="59" font-size="6.4" fill="#6e7180" stroke="none">main</text>
+    <text x="512" y="99" font-size="6.4" fill="#6e7180" stroke="none">transfer</text>
+    <g>
+      <line x1="405" y1="56" x2="405" y2="66"/><rect x="399" y="66" width="12" height="12" fill="#fff"/><line x1="405" y1="78" x2="405" y2="110"/>
+      <line x1="440" y1="56" x2="440" y2="66"/><rect x="434" y="66" width="12" height="12" fill="#fff"/><line x1="440" y1="78" x2="440" y2="110"/>
+      <line x1="475" y1="56" x2="475" y2="66"/><rect x="469" y="66" width="12" height="12" fill="#fff"/><line x1="475" y1="78" x2="475" y2="110"/>
+    </g>
+    <text x="440" y="124" font-size="7" fill="#0d7f63" text-anchor="middle" stroke="none">a bay's breaker can be bypassed onto the transfer bus</text>
+    <text x="440" y="135" font-size="7" fill="#8a8e9b" text-anchor="middle" stroke="none">but protection moves with it &mdash; a real operational chore</text>
+
+    <!-- Ring bus -->
+    <text x="150" y="176" font-size="8.2" font-weight="600" fill="#1a1a22" text-anchor="middle" stroke="none">Ring bus</text>
+    <path d="M90,206 H210 V276 H90 Z" stroke-width="2"/>
+    <rect x="126" y="200" width="12" height="12" fill="#fff"/>
+    <rect x="162" y="200" width="12" height="12" fill="#fff"/>
+    <rect x="126" y="270" width="12" height="12" fill="#fff"/>
+    <rect x="162" y="270" width="12" height="12" fill="#fff"/>
+    <line x1="90" y1="241" x2="60" y2="241"/><line x1="210" y1="241" x2="240" y2="241"/>
+    <line x1="150" y1="206" x2="150" y2="186"/><line x1="150" y1="276" x2="150" y2="296"/>
+    <text x="150" y="310" font-size="7" fill="#0d7f63" text-anchor="middle" stroke="none">any one breaker out and every circuit stays fed</text>
+    <text x="150" y="321" font-size="7" fill="#8a8e9b" text-anchor="middle" stroke="none">1 breaker per circuit &middot; but each circuit has two CT sets</text>
+
+    <!-- Breaker and a half -->
+    <text x="470" y="176" font-size="8.2" font-weight="600" fill="#1a1a22" text-anchor="middle" stroke="none">Breaker-and-a-half</text>
+    <line x1="360" y1="196" x2="580" y2="196" stroke-width="2.4"/>
+    <line x1="360" y1="296" x2="580" y2="296" stroke-width="2.4"/>
+    <text x="592" y="199" font-size="6.4" fill="#6e7180" stroke="none">bus 1</text>
+    <text x="592" y="299" font-size="6.4" fill="#6e7180" stroke="none">bus 2</text>
+    <g>
+      <line x1="405" y1="196" x2="405" y2="212"/><rect x="399" y="212" width="12" height="12" fill="#fff"/>
+      <line x1="405" y1="224" x2="405" y2="240"/><line x1="405" y1="240" x2="375" y2="240"/>
+      <line x1="405" y1="240" x2="405" y2="256"/><rect x="399" y="256" width="12" height="12" fill="#fff"/>
+      <line x1="405" y1="268" x2="405" y2="280"/><line x1="405" y1="280" x2="405" y2="296"/>
+      <line x1="500" y1="196" x2="500" y2="212"/><rect x="494" y="212" width="12" height="12" fill="#fff"/>
+      <line x1="500" y1="224" x2="500" y2="240"/><line x1="500" y1="240" x2="530" y2="240"/>
+      <line x1="500" y1="240" x2="500" y2="256"/><rect x="494" y="256" width="12" height="12" fill="#fff"/>
+      <line x1="500" y1="268" x2="500" y2="296"/>
+    </g>
+    <text x="453" y="238" font-size="6.4" fill="#6e7180" text-anchor="middle" stroke="none">middle breaker</text>
+    <text x="470" y="310" font-size="7" fill="#0d7f63" text-anchor="middle" stroke="none">two circuits share three breakers &middot; any breaker or bus out, nothing lost</text>
+    <text x="470" y="321" font-size="7" fill="#8a8e9b" text-anchor="middle" stroke="none">transmission standard &middot; most expensive &middot; most protection complexity</text>
+  </g>
+
+  <!-- sweeping "breaker out of service" marker -->
+  <circle r="7" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0.8">
+    <animateMotion dur="8s" repeatCount="indefinite"
+      path="M45,80 L80,80 L228,80 L440,72 L132,206 L405,218 L500,262 L45,80"/>
+  </circle>
+</svg></div>
+<p class="figcap">Reliability rises left to right and top to bottom; so does the number of breakers, the number of CT sets, and the amount of protection logic. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Arrangement</th><th>Breakers per circuit</th><th>Losing one breaker costs</th><th>Protection notes</th></tr>
+  <tr><td>Single bus</td><td>1</td><td>that circuit; a bus fault costs everything</td><td>Simple. Bus protection often just the transformer's overcurrent backup</td></tr>
+  <tr><td>Sectionalized</td><td>1 (+ tie)</td><td>that circuit; a bus fault costs half the station</td><td>Bus differential per section; tie breaker logic and auto-transfer schemes</td></tr>
+  <tr><td>Main &amp; transfer</td><td>1 (+ bus tie)</td><td>nothing, if you transfer &mdash; but protection must be transferred too</td><td>The transfer breaker's relay has to be re-set for whichever circuit it is carrying; a documented source of misoperations</td></tr>
+  <tr><td>Ring bus</td><td>1 (shared)</td><td>nothing</td><td>Each circuit's current is the sum of two breakers' CTs; breaker failure must trip both adjacent breakers</td></tr>
+  <tr><td>Breaker-and-a-half</td><td>1.5</td><td>nothing</td><td>Same summed-CT arrangement; middle breaker belongs to two zones; the most demanding breaker-failure logic</td></tr>
+  <tr><td>Double bus, double breaker</td><td>2</td><td>nothing</td><td>Simplest protection of the high-reliability schemes, highest cost</td></tr>
+</table>
+<div class="callout warn">
+<strong>Ring and breaker-and-a-half change how you get line current.</strong> The line relay must add the currents from two breakers' CT sets, which means both sets must have the same ratio and correct polarity, and a breaker-failure or an open breaker changes what the sum means. It also means <em>each breaker</em> needs its own breaker-failure scheme &mdash; see <a href="atlas:protection/breaker-failure.html">Breaker Failure</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Protection zones and overlap</h2>
+<p>A protection zone is bounded by the CTs that feed the relay protecting it. Every piece of primary equipment must be inside at least one zone, and adjacent zones must overlap &mdash; usually by placing CTs on both sides of a breaker &mdash; so that nothing falls in a gap.</p>
+
+<div class="fig"><svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Zones overlap at the breaker &mdash; a fault between the CTs is inside both zones, and both operate</text>
+
+  <!-- primary -->
+  <line x1="40" y1="120" x2="660" y2="120" stroke="#1a1a22" stroke-width="2.4"/>
+  <g stroke="#1a1a22" stroke-width="1.5" fill="#fff">
+    <rect x="252" y="110" width="20" height="20"/>
+    <rect x="452" y="110" width="20" height="20"/>
+  </g>
+  <g font-size="7.4" fill="#6e7180">
+    <text x="262" y="146" text-anchor="middle">52-1</text>
+    <text x="462" y="146" text-anchor="middle">52-2</text>
+    <text x="120" y="106" text-anchor="middle">line</text>
+    <text x="362" y="106" text-anchor="middle">bus</text>
+    <text x="580" y="106" text-anchor="middle">transformer</text>
+  </g>
+  <!-- CTs -->
+  <g stroke="#5468c4" stroke-width="1.4" fill="none">
+    <circle cx="238" cy="130" r="7"/><circle cx="286" cy="130" r="7"/>
+    <circle cx="438" cy="130" r="7"/><circle cx="486" cy="130" r="7"/>
+  </g>
+  <g font-size="6.6" fill="#5468c4" text-anchor="middle">
+    <text x="238" y="152">CT</text><text x="286" y="152">CT</text><text x="438" y="152">CT</text><text x="486" y="152">CT</text>
+  </g>
+
+  <!-- zones -->
+  <rect x="46" y="60" width="240" height="40" rx="18" fill="none" stroke="#10a37f" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="166" y="52" font-size="7.6" fill="#0d7f63" text-anchor="middle">line zone (21 / 67)</text>
+
+  <rect x="238" y="60" width="248" height="40" rx="18" fill="none" stroke="#d7930a" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="362" y="52" font-size="7.6" fill="#9c6d06" text-anchor="middle">bus zone (87B)</text>
+
+  <rect x="438" y="60" width="216" height="40" rx="18" fill="none" stroke="#d63a3a" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="560" y="52" font-size="7.6" fill="#d63a3a" text-anchor="middle">transformer zone (87T)</text>
+
+  <!-- overlap highlight -->
+  <rect x="238" y="60" width="48" height="40" rx="10" fill="#10a37f" opacity="0.16">
+    <animate attributeName="opacity" values="0.05;0.3;0.05" dur="2.4s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="438" y="60" width="48" height="40" rx="10" fill="#d63a3a" opacity="0.16">
+    <animate attributeName="opacity" values="0.05;0.3;0.05" dur="2.4s" begin="0.8s" repeatCount="indefinite"/>
+  </rect>
+  <text x="262" y="176" font-size="7" fill="#8a8e9b" text-anchor="middle">overlap</text>
+  <text x="462" y="176" font-size="7" fill="#8a8e9b" text-anchor="middle">overlap</text>
+
+  <rect x="8" y="190" width="684" height="36" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="206" font-size="7.8" fill="#454956"><tspan font-weight="600">The trade:</tspan> overlap guarantees no blind spot, at the cost of tripping two zones for a fault in the overlap region. That is accepted &mdash; a fault between the CTs and the breaker</text>
+  <text x="20" y="219" font-size="7.8" fill="#454956">cannot be cleared by that breaker anyway, so both adjacent zones must clear it.</text>
+</svg></div>
+<p class="figcap">On ring and breaker-and-a-half arrangements this overlap is the norm rather than the exception, which is one reason those schemes carry more relays. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>The control house</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #5468c4">
+    <b>Relay and control panels</b>
+    <span>Protective relays, control switches, annunciators, test switches, and terminal blocks. Increasingly one relay per bay replacing a wall of discrete devices.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>DC system</b>
+    <span>Station battery, chargers, and the DC distribution panel. The heart of the station &mdash; see <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Automation cabinet</b>
+    <span>RTAC, network switches, security gateway, GNSS clock, media converters, and the patch panel where the yard's fiber lands.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Communications</b>
+    <span>WAN circuit termination, radio equipment, fiber to the far end of the line for pilot protection, and the demarcation to whoever owns the transport.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Station service AC</b>
+    <span>Panelboard fed from the station service transformer, sometimes with an alternate source and a transfer switch. Powers chargers, HVAC, lighting, and receptacles.</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>Cable entry and trench</b>
+    <span>Where every yard cable arrives. Cable routing, separation of AC and DC and signal circuits, and shield grounding all get decided here &mdash; see <a href="atlas:fundamentals/control-wiring.html">Control Wiring</a>.</span>
+  </div>
+</div>
+<div class="callout">
+<strong>Where the automation engineer actually stands.</strong> Your working area is the automation cabinet and the relay panel's terminal blocks. Everything you build reaches the yard through those terminal blocks, and everything you report reaches the world through that WAN circuit. Know both ends cold.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Ground grid, GPR, and why it matters to you</h2>
+<p>A buried mesh of conductor ties every structure, fence, equipment frame, and cable shield to a common reference. During a ground fault, current flowing into that grid raises the whole station's potential above remote earth &mdash; <strong>ground potential rise</strong> &mdash; which can be thousands of volts.</p>
+<ul>
+<li><strong>Step and touch potential</strong> are the differences a person can bridge, and grid design targets keeping them survivable. This is why the grid is a safety system first.</li>
+<li><strong>GPR attacks your communications.</strong> A copper pair leaving the station toward remote earth sees the full GPR across it. This is the reason substation communications go out on <em>fiber</em>, and why any copper that must leave gets isolation transformers or protectors. See <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>.</li>
+<li><strong>Single-point shield grounding</strong> inside the station keeps power-frequency current out of signal shields; the practice and its exceptions are in <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>.</li>
+<li><strong>Never assume two &ldquo;grounds&rdquo; are the same potential</strong> during a fault. They are bonded, which is not the same as equal.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Distribution versus transmission stations</h2>
+<table>
+  <tr><th></th><th>Distribution substation</th><th>Transmission substation</th></tr>
+  <tr><td>Voltage</td><td>Typically 34.5&ndash;115 kV in, 4&ndash;35 kV out</td><td>69 kV and above throughout</td></tr>
+  <tr><td>Bus arrangement</td><td>Single or sectionalized</td><td>Ring, breaker-and-a-half, or double bus</td></tr>
+  <tr><td>Protection</td><td>Overcurrent, reclosing, transformer differential</td><td>Distance and line differential with pilot channels, bus differential, breaker failure everywhere</td></tr>
+  <tr><td>Reclosing</td><td>Standard, multiple shots</td><td>Single-shot high-speed if used at all, often with sync check</td></tr>
+  <tr><td>Automation emphasis</td><td>Feeder automation, volt/VAr, FLISR, DER</td><td>Synchrophasors, teleprotection channels, complex interlocking, NERC obligations</td></tr>
+  <tr><td>Typical device count</td><td>a handful of relays, one RTAC</td><td>dozens of IEDs, redundant RTACs, managed network</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>The as-drawn bus arrangement may have been extended.</strong> Stations grow. A &ldquo;single bus&rdquo; station with a bus tie added in 1998 behaves like a sectionalized one, and its protection may or may not have been revisited.</li>
+<li><strong>Disconnect switches are not load-break devices.</strong> Operating one under load produces a spectacular and dangerous arc. Interlocking that prevents it is protection-grade logic, not a convenience.</li>
+<li><strong>CT location relative to the breaker decides the zone.</strong> Bushing CTs on the line side versus the bus side of the same breaker move the zone boundary &mdash; check the three-line, not the one-line.</li>
+<li><strong>Station service failure is slow-motion trouble.</strong> The battery carries the station for hours, then everything stops. Alarm loss of AC and loss of charger separately.</li>
+<li><strong>Yard fiber is fragile at the ends.</strong> Most &ldquo;intermittent comms&rdquo; in a yard is a dirty or stressed connector at a splice enclosure, not a broken cable.</li>
+<li><strong>Anything in the yard may be energized from a source you did not consider</strong> &mdash; backfeed from a DER, from a station service transformer, or from an adjacent circuit through a closed tie. Confirm before touching.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>
+  <a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>
+  <a href="atlas:protection/bus-protection-87b.html">Bus Protection (87B)</a>
+  <a href="atlas:protection/breaker-failure.html">Breaker Failure</a>
+  <a href="atlas:fundamentals/transformers.html">Power Transformers</a>
+</div>
+<p class="footnote">Fundamentals page. Bus arrangements, zone overlap, and ground-grid safety concepts follow standard utility and IEEE practice (IEEE 80 for grounding, C37 series for switchgear). Protection consequences of summed CT arrangements and breaker-failure requirements follow SEL application practice as documented in SEL AG2004-06 and AG2001-14 and in the SEL-487B and SEL-451 instruction manuals. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

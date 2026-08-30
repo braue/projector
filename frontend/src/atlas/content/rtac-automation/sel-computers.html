@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Substation Computers &amp; Blueframe</title>
+<meta name="atlas-order" content="80">
+<meta name="atlas-tags" content="SEL-3350,SEL-3355,SEL-3360,Blueframe,container,automation platform,shared data,local HMI,jump host,device management">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Substation Computers &amp; Blueframe (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Substation Computers &amp; Blueframe</h1>
+  <p>The SEL-3350 / SEL-3355 automation platforms, what Blueframe actually is, how it differs from an RTAC, and when a substation computer is the right answer</p>
+  <div class="chips"><span>SEL-3350</span><span>SEL-3355</span><span>SEL-3360</span><span>Blueframe</span><span>containers</span><span>shared data</span><span>DMA</span><span>local HMI</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Substation computing</h3>
+<ul style="margin-bottom:2px">
+<li><strong>A substation computer is a computer built for the environment,</strong> not a rack PC in a nicer case: no fans, no rotating drives, no vent holes, wide temperature range, and dual power supplies.</li>
+<li><strong>The SEL-3350 is one platform with several personalities.</strong> It can run as an RTAC, as a Blueframe application platform, or as a Windows or Linux machine.</li>
+<li><strong>Blueframe is a container-based application platform on a hardened Linux base,</strong> accessed through a secure web environment &mdash; not an operating system you administer directly.</li>
+<li><strong>Blueframe's central idea is shared data:</strong> IEDs, connections, and users are entered once, and each application subscribes to what it needs.</li>
+<li><strong>Use a computer where you need applications;</strong> use an RTAC where you need deterministic control. They are different tools that happen to share hardware.</li>
+<li><strong>A general-purpose OS in a substation brings general-purpose obligations</strong> &mdash; patching, antivirus, account management, backups.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The hardware</h2>
+<table>
+  <tr><th></th><th>SEL-3350</th><th>SEL-3355-2</th></tr>
+  <tr><td>Positioning</td><td>Automation controller and computing platform &mdash; flexible, dense on communications</td><td>High-performance rugged automation controller for demanding computing applications</td></tr>
+  <tr><td>Processor</td><td>Intel Atom quad-core</td><td>Intel Xeon E3 class x86-64, with multiple processor options</td></tr>
+  <tr><td>Can run</td><td>SEL RTAC, SEL Blueframe, Windows, or Linux</td><td>Modern operating systems including Windows and Linux; Blueframe supported</td></tr>
+  <tr><td>Serial ports</td><td>Sixteen to forty-eight</td><td>Fewer &mdash; oriented to compute rather than port density</td></tr>
+  <tr><td>Ethernet</td><td>Five ports, copper and fiber configurations</td><td>Multiple, configuration dependent</td></tr>
+  <tr><td>I/O</td><td>Configurable interfaces for alarms, control, or measurements</td><td>Configuration dependent</td></tr>
+  <tr><td>Storage</td><td>Internal 2.5&Prime; SATA SSDs</td><td>High-quality solid-state drives</td></tr>
+  <tr><td>Local interface</td><td>DisplayPort and USB for high-resolution displays, touchscreens, and other human interface devices</td><td>Same class of local interfaces</td></tr>
+  <tr><td>Environment</td><td>&minus;40 to +85&nbsp;&deg;C operating range</td><td>Built for extreme, harsh environments</td></tr>
+  <tr><td>Reliability design</td><td>Industrial construction</td><td>No moving parts &mdash; no rotating drives, no fans; error-correcting memory; no vent holes to admit dust; dual modular hot-swappable AC/DC power supplies. SEL quotes an MTBF at least ten times that of typical industrial computers</td></tr>
+  <tr><td>Warranty</td><td colspan="2">SEL's ten-year worldwide product warranty</td></tr>
+</table>
+<div class="callout">
+<strong>The port density point is worth noticing.</strong> A platform with sixteen to forty-eight serial ports exists because substations are still full of serial devices. Where an RTAC would need expansion or a separate terminal server, one SEL-3350 can terminate the lot &mdash; and SEL positions it as delivering higher performance than a comparably equipped SEL-3530 RTAC at a similar price.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>What Blueframe is</h2>
+<p>Blueframe is an <strong>embedded, modular, container-based application platform designed to operate in a secured environment</strong>. You choose which solution applications to install; management tools for common system configuration come included.</p>
+
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The Blueframe stack, and the shared-data idea that holds it together</text>
+
+  <!-- stack -->
+  <g font-size="7.6">
+    <rect x="30" y="180" width="300" height="34" rx="5" fill="#f2f3f5" stroke="#a9adb8" stroke-width="1.2"/>
+    <text x="180" y="201" text-anchor="middle" font-weight="600" fill="#454956">SEL Automation Platform hardware &mdash; or a virtual machine</text>
+
+    <rect x="30" y="140" width="300" height="34" rx="5" fill="#eef0f9" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="180" y="161" text-anchor="middle" font-weight="600" fill="#5468c4">Blueframe OS &mdash; hardened Linux, allowlisting</text>
+
+    <rect x="30" y="100" width="300" height="34" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.2"/>
+    <text x="180" y="121" text-anchor="middle" font-weight="600" fill="#0d7f63">Blueframe Application Platform</text>
+
+    <rect x="30" y="52" width="146" height="42" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.2"/>
+    <text x="103" y="70" text-anchor="middle" font-weight="600" fill="#0d7f63">Management Tools</text>
+    <text x="103" y="84" text-anchor="middle" font-size="7" fill="#6e7180">included</text>
+
+    <rect x="184" y="52" width="146" height="42" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.2"/>
+    <text x="257" y="70" text-anchor="middle" font-weight="600" fill="#9c6d06">Solution applications</text>
+    <text x="257" y="84" text-anchor="middle" font-size="7" fill="#6e7180">optional, singly or in suites</text>
+  </g>
+  <text x="180" y="234" font-size="7.4" fill="#8a8e9b" text-anchor="middle">everything reached through a secure web-based environment</text>
+
+  <!-- shared data -->
+  <circle cx="510" cy="130" r="42" fill="#fff" stroke="#10a37f" stroke-width="1.6"/>
+  <text x="510" y="126" text-anchor="middle" font-size="8.2" font-weight="600" fill="#0d7f63">Shared data</text>
+  <text x="510" y="140" text-anchor="middle" font-size="7" fill="#6e7180">IEDs &middot; connections &middot; users</text>
+
+  <g font-size="7.2" fill="#6e7180">
+    <rect x="592" y="46" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="640" y="63" text-anchor="middle">App A</text>
+    <rect x="592" y="82" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="640" y="99" text-anchor="middle">App B</text>
+    <rect x="592" y="118" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="640" y="135" text-anchor="middle">App C</text>
+    <rect x="592" y="154" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="640" y="171" text-anchor="middle">App D</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.1" fill="none" opacity="0.7">
+    <path d="M552,120 C572,100 578,72 590,60"/>
+    <path d="M552,126 C572,116 578,102 590,96"/>
+    <path d="M552,134 C572,134 578,132 590,131"/>
+    <path d="M552,142 C572,152 578,162 590,167"/>
+  </g>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.6s" repeatCount="indefinite" path="M552,120 C572,100 578,72 590,60"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.6s" begin="0.4s" repeatCount="indefinite" path="M552,126 C572,116 578,102 590,96"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.6s" begin="0.8s" repeatCount="indefinite" path="M552,134 C572,134 578,132 590,131"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.6s" begin="1.2s" repeatCount="indefinite" path="M552,142 C572,152 578,162 590,167"/></circle>
+
+  <text x="510" y="196" font-size="7.4" fill="#0d7f63" text-anchor="middle">enter an IED once</text>
+  <text x="510" y="208" font-size="7.4" fill="#8a8e9b" text-anchor="middle">every application subscribes to what it needs</text>
+  <text x="510" y="222" font-size="7.4" fill="#8a8e9b" text-anchor="middle">no manual copying between tools, no copy errors</text>
+
+  <rect x="8" y="242" width="684" height="16" rx="3" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="254" font-size="7.6" fill="#454956">Supported hardware: the Automation Platforms product line &mdash; SEL-3350, SEL-3355, SEL-3360E and SEL-3360S &mdash; plus virtual deployment under a subscription contract.</text>
+</svg></div>
+<p class="figcap">The security posture is part of the design: a hardened Linux base with measures such as allowlisting, application containerization above it, and web-based access rather than a desktop. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>What the layers mean in practice</h3>
+<ul>
+<li><strong>Containerized applications</strong> mean each app is packaged with its dependencies and isolated from the others. Installing or removing one does not disturb the rest.</li>
+<li><strong>Modular selection</strong> means you install only what you need &mdash; a single application, or a suite designed around a particular industrial problem.</li>
+<li><strong>Shared data</strong> is the operational payoff. Devices, connections, and user accounts are configured once at the platform level rather than repeated in every tool.</li>
+<li><strong>Web-based access</strong> means no client software to distribute and one place to enforce authentication.</li>
+<li><strong>Pre-installed OS.</strong> Blueframe hardware ships with the Blueframe operating system already installed; initialization is a setup workflow, not an OS build.</li>
+<li><strong>Virtual deployment</strong> is available for enterprise implementations, with resource requirements depending entirely on the applications being run, under a subscription contract with SEL.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>Computer or RTAC?</h2>
+<table>
+  <tr><th>Need</th><th>Reach for</th><th>Why</th></tr>
+  <tr><td>Deterministic scan-based logic driving controls</td><td><strong>RTAC</strong></td><td>Real-time task scheduling and watchdogs; a general-purpose OS makes no timing guarantees. See <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a></td></tr>
+  <tr><td>Protocol gateway and data concentration</td><td><strong>RTAC</strong></td><td>Purpose-built protocol stacks, tag database, and IO mapping</td></tr>
+  <tr><td>Operator HMI on a local screen</td><td>Either</td><td>The RTAC serves a web HMI; a computer with DisplayPort and a touchscreen can host a richer local interface</td></tr>
+  <tr><td>Running vendor applications &mdash; engineering tools, historians, analysis</td><td><strong>Computer</strong></td><td>Applications need an operating system and a filesystem</td></tr>
+  <tr><td>Device management, settings and firmware distribution across a fleet</td><td><strong>Blueframe platform</strong></td><td>Device Management and Automation applications are built for it, on top of shared device data</td></tr>
+  <tr><td>Long-term local storage of event and operational data</td><td><strong>Computer</strong></td><td>Internal SSDs and a real filesystem; an RTAC's storage is sized for its own records</td></tr>
+  <tr><td>Both, in one box</td><td><strong>SEL-3350</strong></td><td>It can be configured as an RTAC <em>or</em> as a Blueframe platform &mdash; one hardware platform, chosen personality</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Do not put control logic on a general-purpose operating system.</strong> A Windows update, an antivirus scan, or a background process can stall a task for seconds. That is entirely acceptable for an application and entirely unacceptable for anything operating a breaker. If the function must happen on a schedule, it belongs in the RTAC or in the relay &mdash; see the timescale discussion in <a href="atlas:start-here/the-job.html">Substation Automation, End to End</a>.
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One question decides it: does this function have to happen on a schedule?</text>
+  <rect x="200" y="30" width="300" height="34" rx="6" fill="#fafbfc" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="350" y="51" text-anchor="middle" font-size="8.2" font-weight="600" fill="#1a1a22">Must it act on a deadline?</text>
+  <g stroke="#a9adb8" stroke-width="1.2" fill="none">
+    <path d="M280,64 V84 H150 V104"/><path d="M420,64 V84 H550 V104"/>
+  </g>
+  <text x="212" y="80" font-size="7" fill="#0d7f63">yes</text>
+  <text x="470" y="80" font-size="7" fill="#5468c4">no</text>
+
+  <rect x="40" y="106" width="220" height="70" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="150" y="126" text-anchor="middle" font-size="8.4" font-weight="600" fill="#0d7f63">RTAC (or the relay)</text>
+  <text x="150" y="142" text-anchor="middle" font-size="7.4" fill="#454956">Deterministic task scheduling,</text>
+  <text x="150" y="154" text-anchor="middle" font-size="7.4" fill="#454956">watchdogs, protocol stacks,</text>
+  <text x="150" y="166" text-anchor="middle" font-size="7.4" fill="#454956">tag database, IO mapping</text>
+
+  <rect x="440" y="106" width="220" height="70" rx="6" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="550" y="126" text-anchor="middle" font-size="8.4" font-weight="600" fill="#5468c4">Computer / Blueframe</text>
+  <text x="550" y="142" text-anchor="middle" font-size="7.4" fill="#454956">Applications, a filesystem,</text>
+  <text x="550" y="154" text-anchor="middle" font-size="7.4" fill="#454956">long-term storage, device</text>
+  <text x="550" y="166" text-anchor="middle" font-size="7.4" fill="#454956">management, local HMI</text>
+
+  <rect x="284" y="112" width="132" height="58" rx="6" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+  <text x="350" y="132" text-anchor="middle" font-size="7.8" font-weight="600" fill="#9c6d06">SEL-3350</text>
+  <text x="350" y="146" text-anchor="middle" font-size="7.2" fill="#6e7180">can be either &mdash;</text>
+  <text x="350" y="158" text-anchor="middle" font-size="7.2" fill="#6e7180">decide during design</text>
+  <circle r="4" fill="#d7930a">
+    <animateMotion dur="5s" repeatCount="indefinite" path="M350,100 L150,106 L350,100 L550,106 L350,100"/>
+  </circle>
+  <text x="350" y="192" font-size="7.6" fill="#9c3838" text-anchor="middle">A Windows update, an antivirus scan, or a background process can stall a task for seconds &mdash; fine for an application, unacceptable for anything operating a breaker.</text>
+</svg></div>
+<p class="figcap">Whether an SEL-3350 will be an RTAC or a Blueframe platform affects licensing, configuration, and the skills needed to support it. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">4</span>What lives on a substation computer</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f">
+    <b>Device management</b>
+    <span>Inventory, settings distribution, firmware management, and configuration backup across the station's IEDs &mdash; built on the shared device data.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Data collection and viewing</b>
+    <span>Automatic retrieval of event reports, SER, and load profile from relays, with a viewer for what has been collected.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Local HMI</b>
+    <span>Station one-line displays on a local touchscreen for operators working in the control house.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Engineering jump host</b>
+    <span>A controlled place from which to reach relays, so engineering laptops need not attach directly to the substation LAN &mdash; see <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Historian and analytics</b>
+    <span>Local storage and trending of everything the RTAC collects, at a resolution SCADA would never carry.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Distribution management applications</b>
+    <span>Blueframe suites addressing distribution-side problems, drawing on the same shared device and connection data.</span>
+  </div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Operational obligations</h2>
+<p>A computer in a substation carries responsibilities an embedded controller does not. Plan for them at design time, because they will be audited.</p>
+<ul>
+<li><strong>Patching.</strong> Windows and Linux need a documented patch process with an outage window. Blueframe's hardened, containerized base narrows the surface but does not remove the obligation.</li>
+<li><strong>Accounts and authentication.</strong> Integrate with the central directory where policy allows, and eliminate shared local accounts &mdash; the same principles as <a href="atlas:rtac-automation/rtac-security.html">RTAC Users &amp; Security</a>.</li>
+<li><strong>Backups.</strong> Configuration, applications, and collected data. Prove the restore, not just the backup.</li>
+<li><strong>Logging.</strong> Ship security and application logs to the central collector rather than leaving them on the box.</li>
+<li><strong>Time.</strong> Discipline the clock from the station source; collected records with a wrong timestamp are worth very little.</li>
+<li><strong>Change control.</strong> Installed applications and their versions are part of the station's configuration record.</li>
+<li><strong>Physical and network placement.</strong> Decide which network segment it belongs to and what it is allowed to reach, in both directions.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Gotchas</h2>
+<ul>
+<li><strong>Treating it as &ldquo;just a PC.&rdquo;</strong> It sits inside the electronic security perimeter and inherits every obligation that implies.</li>
+<li><strong>Sizing from today's application list.</strong> Storage and memory needs grow as more applications are added; for virtual deployments the requirements depend entirely on what is running.</li>
+<li><strong>Choosing the personality late.</strong> Whether an SEL-3350 will be an RTAC or a Blueframe platform affects licensing, configuration, and the skills needed to support it. Decide during design.</li>
+<li><strong>Local HMI without local authentication.</strong> A touchscreen in the control house with control capability and no login is an open control point.</li>
+<li><strong>Automatic event collection filling the disk.</strong> Retention and archiving policy, set on day one.</li>
+<li><strong>No plan for the box's own failure.</strong> Ask what stops working when it does &mdash; and confirm that protection and SCADA are not on that list.</li>
+<li><strong>Duplicating device data by hand</strong> in applications that could have subscribed to the shared data. That is precisely the copy-error problem the platform was designed to remove.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:rtac-automation/rtac-security.html">RTAC Users &amp; Security</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:rtac-automation/rtac-hmi.html">RTAC Web HMI</a>
+  <a href="atlas:reference/sel-software-map.md">SEL Software Map</a>
+</div>
+<p class="footnote">Sources: SEL-3350-1 Automation Controller Data Sheet (20260324) &mdash; configurable as an RTAC, a Blueframe application platform, or a Windows/Linux solution; Intel Atom quad-core processor; sixteen to forty-eight serial ports; five Ethernet ports in copper and fiber configurations; configurable I/O for alarms, control, or measurements; internal 2.5&Prime; SATA SSDs; DisplayPort and USB for displays and touchscreens; &minus;40 to +85&nbsp;&deg;C operating range; and the stated performance comparison against a comparably equipped SEL-3530 RTAC. SEL-3355-2 Automation Controller Data Sheet (20260324) &mdash; x86-64 Intel Xeon E3 architecture, elimination of moving parts and vent holes, error-correcting memory, dual modular hot-swappable AC/DC power supplies, and the stated MTBF of at least ten times typical industrial computers. SEL Blueframe Software Instruction Manual, Device Management and Automation (date code 20260224) &mdash; Blueframe as an embedded, modular, container-based application platform on a secured Linux-based operating system with allowlisting, accessed through a secure web environment; the shared-data scheme for IEDs, connections, and users; management tools included and solution applications optional singly or in suites; supported hardware (SEL-3350, SEL-3355, SEL-3360E, SEL-3360S) and virtual deployment under subscription. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

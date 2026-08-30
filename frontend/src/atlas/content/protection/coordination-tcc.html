@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overcurrent Coordination &amp; TCC Curves</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="TCC,coordination,CTI,fuse saving,curves,U1,C1,time dial">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Overcurrent Coordination & TCC Curves (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Overcurrent Coordination &amp; TCC Curves</h1>
+  <p>Stacking fuses, reclosers, and feeder relays on one time-current plot so the device closest to the fault always clears it first — margins, fuse curves, fuse-saving vs fuse-blowing, and the SEL settings that keep the stack in step</p>
+  <div class="chips"><span>TCC</span><span>CTI</span><span>fuse saving</span><span>min melt</span><span>79SEQ</span><span>SH0</span><span>time dial</span><span>51P1/51P2</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Coordination</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Selectivity is the whole game:</strong> for any fault, the protective device nearest it clears, and every device upstream has margin to spare. Miscoordination means a whole feeder goes dark for one lateral's fault.</li>
+<li>Traditional distribution coordination keeps a <strong>time-coordination interval of typically 0.2–0.5 s</strong> between devices at the fault current where their curves are closest — controlled by curve type, pickup, and time dial (SEL AG2023-23).</li>
+<li>Check margin at the <strong>maximum fault current</strong> at the downstream device — inverse curves pinch together there, not at low current.</li>
+<li><strong>Fuse-saving</strong>: trip fast and reclose before the lateral fuse is damaged — fewer blown fuses, more momentary blinks for everyone. <strong>Fuse-blowing</strong>: wait for the fuse — fewer blinks, extended outage on the faulted lateral (AG2019-01).</li>
+<li>Instantaneous elements and reclose sequences break curve-only coordination; that's what <code>SH0</code> supervision and <code>79SEQ</code> sequence coordination are for.</li>
+</ul>
+</div>
+<p>This page assumes the element basics — what 50/51 are, the U1–U5/C1–C5 curve equations, pickup variants, torque control. That's the <strong>Protection Elements Primer</strong> in atlas; this page is about making several of those devices work as a stack.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The coordination problem: a radial feeder</h2>
+<p>A distribution feeder is a chain of protective devices in series, each one backing up everything below it. A typical trunk runs from the substation with fused laterals hung off it and often a line recloser partway out (AG2019-01: "it is common practice to minimize exposure of the trunk to a fault by fusing each lateral").</p>
+<div class="flow">
+  <div class="stage"><b>Bus / main breaker</b><span>substation source-side protection — last resort, slowest</span></div>
+  <div class="arr">←</div>
+  <div class="stage"><b>Feeder relay</b><span>SEL-751/751A/351 on the feeder breaker — backs up everything on the feeder</span></div>
+  <div class="arr">←</div>
+  <div class="stage"><b>Line recloser</b><span>mid-feeder; fast + slow curve sequence, own shot counter</span></div>
+  <div class="arr">←</div>
+  <div class="stage"><b>Lateral fuse</b><span>cheapest, closest to most faults — melts, needs a truck roll to replace</span></div>
+  <div class="arr">←</div>
+  <div class="stage"><b>Fault</b><span>most overhead faults are temporary; underground faults are usually permanent</span></div>
+</div>
+<p>Every device between the source and the fault carries the <em>same</em> fault current. The only thing that decides who clears it is <strong>time</strong> — so coordination is arranging the devices' time-current characteristics (TCCs) so that, at every credible fault current, the clearing order matches the geographic order. Two complications make it interesting: fuses can't reclose or change their minds, and reclosers deliberately trip <em>faster</em> than the fuses below them on early shots, then slower on later ones.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Reading a TCC plot</h2>
+<p>A TCC plot is log-log: current across, operating time down the page as current rises. Everything about coordination is visible on it at a glance:</p>
+<ul>
+<li><strong>Relay curves are drawn in multiples of pickup (M).</strong> The pickup setting slides a curve left/right on the amps axis; the <strong>time dial slides it up/down without changing its shape</strong> (TD 0.50–15.00 for U-curves on both the 751 and 751A; C-curve TD is 0.05–1.00 on the 751A but 0.01–1.50 on the 751; 0.01 steps. The 751 also adds IEEE E1–E3 curves on the U.S. dial range). A whole time-dial family nests — parallel curves on log axes.</li>
+<li><strong>Curve family sets the slope.</strong> Moderately inverse (U1/C1) is flat; extremely inverse (U4/C3) collapses as ~1/(M²−1) — an I²t character. Pick the family whose steepness matches the device you must coordinate with.</li>
+<li><strong>Devices below you must plot below-and-left of you</strong> across the whole overlap of currents both can see, with the margin band (§3) between the curves.</li>
+<li><strong>Curves are bands, not lines.</strong> The SEL-751/751A published tolerance is ±1.5 cycles plus ±4% between 2 and 30 multiples of pickup; drawn margins must survive that plus breaker interrupting time.</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <defs><clipPath id="tccplot2"><rect x="70" y="20" width="580" height="240"/></clipPath></defs>
+  <g stroke="#e5e7eb" stroke-width="0.75">
+    <line x1="188" y1="20" x2="188" y2="260"/><line x1="257" y1="20" x2="257" y2="260"/>
+    <line x1="344" y1="20" x2="344" y2="260"/><line x1="463" y1="20" x2="463" y2="260"/>
+    <line x1="581" y1="20" x2="581" y2="260"/>
+    <line x1="70" y1="44" x2="650" y2="44"/><line x1="70" y1="86" x2="650" y2="86"/>
+    <line x1="70" y1="124" x2="650" y2="124"/><line x1="70" y1="166" x2="650" y2="166"/>
+    <line x1="70" y1="204" x2="650" y2="204"/><line x1="70" y1="228" x2="650" y2="228"/>
+  </g>
+  <rect x="70" y="20" width="580" height="240" fill="none" stroke="#a9adb8" stroke-width="1"/>
+  <text x="66" y="47" font-size="8" fill="#6e7180" text-anchor="end">10 s</text>
+  <text x="66" y="89" font-size="8" fill="#6e7180" text-anchor="end">3 s</text>
+  <text x="66" y="127" font-size="8" fill="#6e7180" text-anchor="end">1 s</text>
+  <text x="66" y="169" font-size="8" fill="#6e7180" text-anchor="end">0.3 s</text>
+  <text x="66" y="207" font-size="8" fill="#6e7180" text-anchor="end">0.1 s</text>
+  <text x="66" y="231" font-size="8" fill="#6e7180" text-anchor="end">0.05 s</text>
+  <text x="188" y="272" font-size="8" fill="#6e7180" text-anchor="middle">2</text>
+  <text x="257" y="272" font-size="8" fill="#6e7180" text-anchor="middle">3</text>
+  <text x="344" y="272" font-size="8" fill="#6e7180" text-anchor="middle">5</text>
+  <text x="463" y="272" font-size="8" fill="#6e7180" text-anchor="middle">10</text>
+  <text x="581" y="272" font-size="8" fill="#6e7180" text-anchor="middle">20</text>
+  <text x="360" y="288" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">current, multiples of the recloser pickup (log) — relay pickup is 2× the recloser's</text>
+  <text x="24" y="140" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle" transform="rotate(-90 24 140)">operating time, log scale</text>
+  <!-- margin band between curves along fault line -->
+  <rect x="536" y="149.9" width="14" height="50.3" fill="#d7930a" opacity="0.22"/>
+  <!-- downstream recloser slow curve U3 TD=1 -->
+  <path d="M139,84 C165,98 175,105 188,112.6 C215,127 235,136 257,143 C290,155 322,165 344,171 C380,180 405,185 424,188 C440,190 452,192 463,193.5 C500,197 545,200 581,202 C605,203 630,203.5 650,204" fill="none" stroke="#10a37f" stroke-width="2" clip-path="url(#tccplot2)"/>
+  <text x="150" y="76" font-size="8.5" font-weight="600" fill="#10a37f">recloser slow curve — U3, TD = 1</text>
+  <!-- upstream feeder relay U3 TD=3, pickup 2x -->
+  <path d="M257,45.4 C280,60 293,67 306,74.4 C333,90 355,98 375,104.7 C408,116 440,126 463,132.9 C495,141 522,147 543,149.9 C558,152 570,154 581,155.3 C605,158 630,160 650,161" fill="none" stroke="#5468c4" stroke-width="2" clip-path="url(#tccplot2)"/>
+  <text x="404" y="98" font-size="8.5" font-weight="600" fill="#5468c4">feeder relay — U3, TD = 3, higher pickup</text>
+  <!-- fault current line -->
+  <line x1="543" y1="26" x2="543" y2="252" stroke="#d63a3a" stroke-width="1.25" stroke-dasharray="5 3"/>
+  <text x="543" y="34" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">max fault current at recloser</text>
+  <!-- operating points -->
+  <circle cx="543" cy="200.2" r="3.5" fill="#10a37f"/>
+  <circle cx="543" cy="149.9" r="3.5" fill="#5468c4"/>
+  <text x="555" y="205" font-size="7.5" fill="#10a37f">recloser clears — 0.11 s</text>
+  <text x="555" y="146" font-size="7.5" fill="#5468c4">relay would need 0.47 s</text>
+  <text x="533" y="180" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="end">margin ≈ 0.36 s — inside the 0.2–0.5 s CTI band</text>
+  <g class="animlayer">
+    <!-- elapsed-time marker rising up the fault line to the downstream trip point -->
+    <circle cx="543" r="4.5" cy="252" fill="#d7930a">
+      <animate attributeName="cy" values="252;252;200.2;200.2;200.2" keyTimes="0;0.06;0.38;0.98;1" dur="10s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;1;1;0;0" keyTimes="0;0.38;0.55;0.60;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <text x="543" y="248" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.09;0.32;0.38;1" dur="10s" repeatCount="indefinite"/>
+      fault on — both devices timing
+    </text>
+    <circle cx="543" cy="200.2" r="5" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.38;0.41;0.94;1" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <text x="420" y="222" font-size="8" font-weight="600" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.40;0.43;0.94;1" dur="10s" repeatCount="indefinite"/>
+      downstream device finishes first
+    </text>
+    <rect x="536" y="149.9" width="14" height="50.3" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.5;0.2;0.5;0.2;0" keyTimes="0;0.48;0.56;0.66;0.76;0.90;1" dur="10s" repeatCount="indefinite"/>
+    </rect>
+    <text x="420" y="140" font-size="8" font-weight="600" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.55;0.58;0.94;1" dur="10s" repeatCount="indefinite"/>
+      upstream timer never finishes — margin held
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">Two nested TCCs (both SEL U3 very inverse, computed from the SEL curve equations — the 751 and 751A publish identical U/C-curve math) and a fault-current line. The rising dot is elapsed time on the log axis: the recloser's curve is crossed first, the fault is cleared, and the feeder relay's timer stops with the amber margin band unspent. Margin is checked here, at maximum fault current, because that's where inverse curves crowd together.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The coordination time interval</h2>
+<p>The margin between adjacent curves is not generosity — it's a budget that real hardware spends. SEL AG2023-23 gives the working number for distribution: <strong>"a time-coordination interval of typically 0.2–0.5 seconds between each recloser control,"</strong> set by manipulating curve type, pickup, and time dial. What the interval has to absorb:</p>
+<table>
+  <tr><th>Consumer</th><th>Why it eats margin</th></tr>
+  <tr><td><strong>Downstream clearing time</strong></td><td>The upstream curve must clear the downstream device's <em>total</em> clearing time (breaker/interrupter operate time included), not just its curve. AG2019-01's published recloser curves explicitly "include the mechanical operating time of the recloser and the element assertion time."</td></tr>
+  <tr><td><strong>Curve tolerance</strong></td><td>SEL-751/751A curve timing accuracy: ±1.5 cycles plus ±4% between 2 and 30 multiples of pickup. Both devices wobble; margins must cover both wobbles.</td></tr>
+  <tr><td><strong>Measurement differences</strong></td><td>AG2023-23 lists why nominally identical devices seeing identical fault current may not operate together: "CT error, relay error, section load, and processing interval differences."</td></tr>
+  <tr><td><strong>Disk state (EM relays)</strong></td><td>An electromechanical relay upstream may carry leftover disk travel from a previous shot — see §6.</td></tr>
+</table>
+<div class="callout"><strong>Where to check:</strong> compute margin at the <em>maximum</em> fault current available at the downstream device. Inverse curves converge as current rises, so if the margin holds there it holds everywhere the downstream device can see. Then confirm the upstream pickup still sees (with sensitivity margin) the <em>minimum</em> fault at the far end of the zone it must back up.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Fuse curves on the plot</h2>
+<p>A fuse brings <em>two</em> curves to the TCC, and coordination happens between them (general fuse practice; SEL guides refer to the same physics as fuse "damage"):</p>
+<div class="twocol">
+<div class="card pulse">
+<h3>Minimum melting</h3>
+<p style="font-size:9pt">The fastest the element can start to melt. To <strong>save</strong> a fuse, the recloser's fast trip — including its mechanical operate time — must complete <em>below</em> this curve, with margin, at every fault current the lateral can deliver. Partial melt is real damage: AG2019-01 warns a late fast trip "may attempt to save an already damaged fuse."</p>
+</div>
+<div class="card pair">
+<h3>Total clearing</h3>
+<p style="font-size:9pt">Melt plus arcing — when the circuit is actually broken. To let a fuse <strong>blow</strong> selectively, the upstream delay curve must sit <em>above</em> this curve with margin: AG2019-01's delay curve "is chosen to coordinate with both fuse types, allowing adequate time for either fuse to blow before operating."</p>
+</div>
+</div>
+<ul>
+<li><strong>Saveability is a fault-current question.</strong> In AG2019-01's worked feeder, the recloser fast curve can save 100T fuses only below 3000 A and 65T fuses only below 2000 A of available fault current — above that, the fuse melts faster than the fast trip can clear, and those laterals default to fuse-blowing.</li>
+<li><strong>Why extremely inverse mates with fuses:</strong> fuse melting is thermal, an I²t phenomenon, so fuse curves are very steep. The U4/C3 extremely inverse equations are t ∝ 1/(M²−1) — the same I²t character — so an extremely inverse relay curve runs roughly parallel to a fuse curve instead of crossing it. A flat (moderately inverse) curve above a fuse at low current will cut under it at high current — a hidden miscoordination.</li>
+<li><strong>Fuses don't reset.</strong> Every fault-current excursion, including ones a recloser interrupts, deposits permanent melt progress. Repeated shots against a marginal fuse walk it toward nuisance failure.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Fuse-saving vs fuse-blowing</h2>
+<p>Both schemes are legitimate; they trade different outages (definitions per AG2019-01):</p>
+<table>
+  <tr><th></th><th>Fuse-saving (trip-saving)</th><th>Fuse-blowing</th></tr>
+  <tr><td><strong>Mechanism</strong></td><td>Recloser/relay trips on a fast curve <em>below</em> the fuse minimum melt, then recloses. Temporary fault gone → fuse intact, service restored.</td><td>Recloser operation is delayed so the lateral fuse clears first; only the faulted lateral drops.</td></tr>
+  <tr><td><strong>Temporary fault</strong></td><td>Momentary blink for the whole feeder; nothing to replace.</td><td>Fuse blows anyway — extended outage for that lateral until a crew replaces it.</td></tr>
+  <tr><td><strong>Permanent fault</strong></td><td>Fast shots exhaust, scheme falls back to delayed trip / fuse blows on a later shot.</td><td>Fuse blows; rest of feeder never sees an interruption.</td></tr>
+  <tr><td><strong>Cost</strong></td><td>More momentary outages for the entire feeder — power-quality complaints.</td><td>More truck rolls and long outages on laterals with temporary faults.</td></tr>
+</table>
+<p>The classic fuse-saving implementation in an SEL feeder relay is one line of trip logic (SEL-351 manual, its own fuse-saving example): <code>TR = 51PT + 51GT + 50P1 * SH0</code>. The instantaneous 50P1 — set fast and sensitive enough to beat the fuse — is allowed to trip <strong>only at shot = 0</strong> (<code>SH0</code> asserted). After the first trip-and-reclose the shot counter advances, <code>SH0</code> drops out, and 50P1 is locked out of the trip equation: the reclose lands with only the delayed 51 curves active, giving the fuse time to clear a persistent fault.</p>
+
+<div class="fig"><svg viewBox="0 0 700 268" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="14" font-size="9" font-weight="600" fill="#454956">Fuse-saving sequence: temporary-fault logic meets a permanent fault</text>
+  <text x="104" y="48" font-size="8.5" fill="#454956" text-anchor="end" font-weight="600">|I|</text>
+  <text x="104" y="92" font-size="8.5" fill="#d7930a" text-anchor="end" font-weight="600">fuse melt</text>
+  <text x="104" y="128" font-size="8.5" fill="#5468c4" text-anchor="end" font-weight="600">SH0</text>
+  <text x="104" y="158" font-size="8.5" fill="#d63a3a" text-anchor="end" font-weight="600">50P1·SH0</text>
+  <text x="104" y="188" font-size="8.5" fill="#d63a3a" text-anchor="end" font-weight="600">TRIP</text>
+  <text x="104" y="218" font-size="8.5" fill="#454956" text-anchor="end" font-weight="600">52A</text>
+  <!-- current -->
+  <path d="M110,54 H180 V34 H215 V56 H360 V34 H470 V50 H660" fill="none" stroke="#1a1a22" stroke-width="1.75"/>
+  <text x="145" y="64" font-size="7" fill="#8a8e9b" text-anchor="middle">load</text>
+  <text x="197" y="28" font-size="7" fill="#8a8e9b" text-anchor="middle">fault</text>
+  <text x="287" y="66" font-size="7" fill="#8a8e9b" text-anchor="middle">open interval (79OI1)</text>
+  <text x="415" y="28" font-size="7" fill="#8a8e9b" text-anchor="middle">reclose → fault back</text>
+  <text x="560" y="60" font-size="7" fill="#8a8e9b" text-anchor="middle">load again — lateral gone</text>
+  <!-- fuse melt accumulation -->
+  <line x1="110" y1="78" x2="660" y2="78" stroke="#d7930a" stroke-width="0.75" stroke-dasharray="3 3" opacity="0.55"/>
+  <text x="658" y="75" font-size="7" fill="#9c6d06" text-anchor="end">minimum melt reached — fuse blows</text>
+  <path d="M110,100 H180 L215,94 H360 L470,78 V100 H660" fill="none" stroke="#d7930a" stroke-width="1.5"/>
+  <text x="300" y="105" font-size="7" fill="#8a8e9b" text-anchor="middle">partial melt held (no reset)</text>
+  <!-- SH0 -->
+  <path d="M110,122 H222 V134 H610 V122 H660" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="166" y="118" font-size="7" fill="#8a8e9b" text-anchor="middle">shot = 0</text>
+  <text x="420" y="146" font-size="7" fill="#8a8e9b" text-anchor="middle">shot = 1 → fast trip blocked</text>
+  <text x="640" y="118" font-size="7" fill="#8a8e9b" text-anchor="middle">reset</text>
+  <!-- 50P1*SH0 -->
+  <path d="M110,162 H180 V150 H222 V162 H660" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+  <text x="415" y="170" font-size="7" fill="#8a8e9b" text-anchor="middle">50P1 asserts again but SH0 = 0 — no fast trip; 51PT timing slowly</text>
+  <!-- TRIP -->
+  <path d="M110,192 H184 V180 H222 V192 H660" fill="none" stroke="#d63a3a" stroke-width="1.75"/>
+  <!-- 52A -->
+  <path d="M110,212 H215 V224 H360 V212 H660" fill="none" stroke="#454956" stroke-width="1.5"/>
+  <text x="160" y="209" font-size="7" fill="#8a8e9b" text-anchor="middle">closed</text>
+  <text x="287" y="235" font-size="7" fill="#8a8e9b" text-anchor="middle">open</text>
+  <text x="352" y="250" font-size="8" fill="#a9adb8" text-anchor="middle">① fast trip beats the fuse melt → ② reclose with fast trip disarmed → ③ fault persists → ④ fuse blows first, feeder stays in service</text>
+  <g class="animlayer">
+    <line x1="110" y1="26" x2="110" y2="238" stroke="#d7930a" stroke-width="1.25" opacity="0.85">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 0;550 0;550 0" keyTimes="0;0.02;0.90;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.14;0.16;0.92;1" dur="12s" repeatCount="indefinite"/>
+      <circle cx="184" cy="180" r="4" fill="none" stroke="#d63a3a" stroke-width="1.75"/>
+      <text x="184" y="174" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle">① fast trip — fuse saved</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.24;0.27;0.92;1" dur="12s" repeatCount="indefinite"/>
+      <circle cx="222" cy="128" r="4" fill="none" stroke="#5468c4" stroke-width="1.75"/>
+      <text x="252" y="118" font-size="7.5" font-weight="600" fill="#5468c4">② shot 0 → 1</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.42;0.45;0.92;1" dur="12s" repeatCount="indefinite"/>
+      <circle cx="360" cy="212" r="4" fill="none" stroke="#454956" stroke-width="1.75"/>
+      <text x="380" y="207" font-size="7.5" font-weight="600" fill="#454956">③ reclose into standing fault</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.62;0.65;0.92;1" dur="12s" repeatCount="indefinite"/>
+      <circle cx="470" cy="78" r="4" fill="none" stroke="#d7930a" stroke-width="1.75"/>
+      <text x="470" y="66" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle">④ fuse blows — lateral isolated</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">One permanent fault on a fused lateral under <code>TR = 51PT + 51GT + 50P1·SH0</code>. First shot: the instantaneous element wins the race against the fuse's minimum-melt curve. On reclose, SH0 = 0 has disarmed the fast trip, so the fuse and the slow 51 curve race instead — the fuse, closer to the fault and already part-melted, clears first. The feeder relay's breaker stays closed; only the lateral is lost.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<div class="callout warn"><strong>Choosing per-lateral, not per-feeder:</strong> AG2019-01's whole point is that the choice doesn't have to be global. With SEL-FT50 line-mounted fault transmitters reporting through an SEL-FR12 into MIRRORED BITS, a recloser control (SEL-651RA) can default to fuse-blowing and enable the fast curve only when the fault indication comes from a saveable lateral — <code>TR3X = 51P1T AND (SV11 OR …) AND NOT SV07T</code> — or default to fuse-saving and block it for unsaveable/underground laterals. Physics still rules the edges: the fault indication takes ~1–2 cycles to arrive, so "fast curves must be set to operate slower than two cycles" to be blockable, and <code>SV07T</code> blocks saving once the fast curve has already timed out against a now-damaged fuse. Underground laterals get reclosing blocked outright, since their faults are rarely temporary.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Electromechanical reset — coordinating with spinning disks</h2>
+<p>An EM induction-disk relay times by disk travel, and when current drops below pickup the disk doesn't snap home — it <em>spins back</em> slowly. A numerical relay's 51 element, by contrast, resets in <strong>1 cycle</strong> by default. Each SEL-751/751A 51 element carries an <code>EM RESET DELAY</code> setting (<code>51_RS := Y/N</code>): set Y and the element resets on the published electromechanical induction-disk emulation reset-time equation instead — e.g. U3: t<sub>r</sub> = TD · 3.88/(1−M²) for M &lt; 1, with each curve family having its own t<sub>r</sub>.</p>
+<p><strong>Why it matters for coordination:</strong> reclose sequences and downstream fuse/recloser operations subject every relay in the chain to repeated bursts of fault current with short gaps. If the upstream device is electromechanical, its disk accumulates travel across those bursts. A digital relay below it that resets fully between bursts restarts its timing from zero each shot while the EM relay above creeps toward trip — the margin you drew on the TCC quietly evaporates. Enabling EM reset emulation makes both devices "remember" the same way, so the coordination drawn for a single shot survives a multi-shot sequence. (Corollary from §10 of the Primer: a 51 that seems to time "too fast" under test may just be part-way travelled from a previous injection with <code>51_RS := Y</code>.)</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Sequence coordination — 79SEQ keeps the relay in step</h2>
+<p>A feeder relay coordinated with a downstream line recloser has a timing problem the TCC can't show: the recloser runs a <em>sequence</em> (typically fast curve twice, then slow curve twice), so what the relay must coordinate with <strong>changes shot by shot</strong>. The SEL-751/751A answer is the <code>79SEQ</code> SELOGIC setting (identical in both manuals):</p>
+<ul>
+<li><strong>Detection:</strong> if the relay is not tripping, the breaker is closed, and an overcurrent pickup named in <code>79SEQ</code> asserts for ≥1.25 cycles and then drops out, a downstream device just cleared a fault. The relay <strong>increments its own shot counter anyway</strong> (up to shot = 4, even past last shot) and reloads the reset timer with <code>79RSD</code>.</li>
+<li><strong>Effect:</strong> trip logic supervised by shot bits steps down in aggressiveness in lockstep with the recloser. Manual example — 51P1T coordinated with the recloser <em>fast</em> curve, 51A/B/C coordinated with its <em>slow</em> curve: <code>TR := 51P1T AND (SH0 OR SH1) OR 51AT OR 51BT OR 51CT</code>. After two recloser fast operations the shot counter sits at 2, SH0/SH1 are gone, and the faster-set 51P1T can no longer overreach for faults beyond the recloser now clearing on its slow curve.</li>
+<li><strong>Refinement:</strong> <code>79SEQ := 79RS AND 51P1P AND SH0</code> stops the counter at shot = 1, so a long recloser sequence downstream doesn't ratchet the relay to shot = 4 — where a coincident fault in the relay's own zone would trip it straight to Lockout instead of leaving it a reclose.</li>
+<li><strong>Timer discipline:</strong> <code>79RSD</code> (default 15 s) must outlast the recloser's whole sequence, or the shot counter resets mid-sequence and the fast element re-arms at exactly the wrong moment. Sequence coordination does not change the reclosing state — a relay in Reset stays in Reset. Factory default: <code>79SEQ := 0</code> (disabled).</li>
+</ul>
+<div class="callout keyfact"><strong>The instantaneous-element trap:</strong> a 50 element has no curve to coordinate on — set to reach past a downstream recloser or fuse, it will simply beat them every time and de-select the whole feeder. The two containment tools are both above: supervise it with shot bits (<code>50P1 * SH0</code>, §5) so it only fires on the first shot, and let <code>79SEQ</code> step it down when the downstream device is mid-sequence. High-set 50s that reach only to the next device's bus are the exception — they can't see past it, so they can't miscoordinate with it.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>When curves run out: high-density coordination</h2>
+<p>Every device pair in a chain costs one CTI (0.2–0.5 s). Stack enough reclosers in series and either the substation clearing time grows absurd or the margins compress into miscoordination — AG2023-23: "traditional time coordination using time-overcurrent curves becomes increasingly difficult to impossible." The HDC <strong>voltage-guided reclosing</strong> scheme (SEL-651R/-651RA) abandons per-device time grading inside a group:</p>
+<ul>
+<li><strong>Same settings everywhere:</strong> all reclosers in a coordination group share one delay curve, pickup, and time dial — so for an in-group fault, <em>several</em> of them trip together. That's deliberate, not miscoordination; only the groups are time-coordinated with each other.</li>
+<li><strong>Voltage restores order:</strong> after the trip, only the recloser with healthy source-side voltage recloses (dead-line threshold 20% of nominal, <code>27YPP1P</code>/<code>27ZPP1P</code>). Each device below it sees voltage return, waits ~3 s of confirmed-healthy stall (<code>79STL3P</code> + SV dropout 180 cycles), then recloses — restoration marches down the line one segment at a time.</li>
+<li><strong>Fast-on-close:</strong> at each close the control arms a fast curve for 3 s (<code>51PSW</code> switched by <code>SVzzT</code>), then reverts to the delay curve. The closing device is thus always on fast while everything above it is back on delay — coordination re-created dynamically with identical settings. Second-harmonic blocking (<code>EHBL2 = Y</code>, <code>HBL2P = 10</code>, per-phase bits) keeps the fast curve from tripping on energization inrush.</li>
+<li><strong>Endgame:</strong> the device just upstream of the faulted segment closes into the fault, clears on fast, runs its shot sequence, and locks out — selectivity achieved without a single drawn margin. A 5-minute no-voltage timer (<code>SVyyPU = 18000</code> cycles) drives stragglers to lockout for crew safety.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Practical gotchas</h2>
+<ul>
+<li><strong>Cold-load pickup breaks the load/fault boundary.</strong> After an extended outage, diversity is lost — reclosing picks up every stalled compressor at once, and inrush can momentarily assert time-overcurrent pickups. The 751/751A manuals' own example: closing from Lockout, "there could be cold load inrush current that momentarily picks up a time-overcurrent element" — harmless to reset timing there, but the same current will trip a marginal fast curve. Mitigations in the sources: harmonic blocking on fast curves (AG2023-23), <code>79BRS := (51P1P OR 51G1P) AND 79CY</code> to stop trip-reclose cycling, the SEL-751's dedicated cold-load pickup element (<code>ECLPU</code>: outage-duration logic asserts <code>CLPU1</code>/<code>CLPU2</code> bits to torque-control overcurrent elements to raised trip levels while inrush decays — the 751A has no equivalent), and — for schemes that assume identical pickups (HDC) — AG2023-23's warning that activating a cold-load scheme on one device means <em>manually activating it in all upstream devices</em>, or the shared-pickup assumption silently dies.</li>
+<li><strong>Settings groups are coordination in disguise.</strong> The SEL-751A holds three full settings groups (<code>SS1</code>–<code>SS3</code>), the SEL-751 four (<code>SS1</code>–<code>SS4</code>, active-group bits SG1–SG4) — selected by SELOGIC (priority over the <code>GROUP n</code> command) with qualifying delay <code>TGR</code> (default 3 s). An alternate-source or backfeed configuration usually needs a different curve set — that's what the groups are for. But mind the transition: the relay is <strong>disabled for &lt;1 s</strong> during a group change, elements and timers reset, and the reclosing shot counter is <strong>driven to last shot</strong> — a relay mid-open-interval goes straight to Lockout. Group changes during a live sequence are not free.</li>
+<li><strong>Negative-sequence elements coordinate as "equivalent phase" elements.</strong> SEL-351 appendix method for a radial system: derive the settings as if coordinating a phase element with the worst downstream phase device, then multiply the pickup by 3 (elements operate on 3I2); time dial and curve carry over unchanged, and load current can be ignored — the sensitivity win of 51Q without a separate coordination study.</li>
+<li><strong>A blown fuse you can't see from current:</strong> a blown <em>high-side</em> fuse on a delta-wye transformer produces no fault current at all — just a voltage signature: one low-side phase-to-phase voltage collapses to zero while the other two drop to 87% of nominal (a blown relay-VT fuse instead gives 58%). AG2011-19's SEL-651R detector: any 27YPP below 40% AND any 59YPP above 70%, through a 5 s SV timer (<code>SV42PU := 300</code> cycles) into the trip equation — tripping the feeder beats cooking three-phase motors on negative-sequence current. Same idea on the SEL-351 in AG97-11.</li>
+<li><strong>Margins are spent by things not on the plot:</strong> recloser mechanical time, ±1.5 cyc ± 4% curve tolerance, CT error, and processing-interval differences (§3). If the coordination study's margin is exactly 0.2 s on paper, it's negative in the field.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>
+  <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:reference/formulas.md">Formulas &amp; Quick Math</a>
+</div>
+<p class="footnote">Sources: SEL AG2023-23, <span class="mono">AG2023-23_20250603.pdf</span> — Implementing High-Density Coordination Voltage-Guided Reclosing (CTI 0.2–0.5 s, HDC scheme, harmonic blocking, cold-load caution, operate-together error sources); SEL AG2019-01, <span class="mono">AG2019-01_20190104.pdf</span> — Coordination Improvements Using Individual SEL-FT50 Status (fuse-saving/fuse-blowing definitions and tradeoffs, fuse saveability current limits, selective per-lateral schemes, SV07T, 2-cycle blocking limit, overhead/underground practice); SEL-751 Feeder Protection Relay IM, <span class="mono">751_IM_20260327.pdf</span>, and SEL-751A Feeder Protection Relay IM, <span class="mono">751A_IM_20250411.pdf</span> — curve equations and reset-time equations (identical U/C sets in both), TD ranges, curve accuracy, 51 settings (<span class="mono">51_RS/_CT/_MR</span>), 79SEQ sequence coordination, 79BRS/79RSD/79OI1, settings groups (TGR, group-change behavior), cold-load material; where the models differ (IEC time-dial range, IEEE E1–E3 curves, group count, CLPU element) the text names the model; SEL-351-5,-6,-7 IM, <span class="mono">351-567_IM_20230831.pdf</span> — fuse-saving trip equation <span class="mono">TR = 51PT + 51GT + 50P1*SH0</span>, negative-sequence coordination guidelines; SEL AG2011-19, <span class="mono">AG2011-19_20111227.pdf</span> and AG97-11, <span class="mono">AG_9711.pdf</span> — high-side blown-fuse voltage signatures and detection logic. Fuse minimum-melt/total-clear definitions and the I²t fuse-curve character are general practice, stated generically. Companion in atlas: Protection Elements Primer (element basics, curve equations, 79 states). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

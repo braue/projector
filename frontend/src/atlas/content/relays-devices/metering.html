@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Revenue &amp; Panel Metering</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="metering,SEL-735,SEL-734,revenue,demand,power quality,load profile">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Revenue & Panel Metering (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  svg .printonly { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    svg .printonly { display: block; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Revenue &amp; Panel Metering</h1>
+  <p>The SEL-734/735 revenue meters — accuracy class vs. relay metering, four-quadrant conventions, demand, TOU, load profile, PQ recording, and pulse testing</p>
+  <div class="chips"><span>ANSI C12.20</span><span>4-quadrant</span><span>EDEM/DMTC</span><span>TOU</span><span>KYZ</span><span>LDP / MV-90</span><span>VSSI</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Revenue metering</h3>
+<ul style="margin-bottom:2px">
+<li>A revenue meter is a <strong>certified accuracy class</strong> (SEL-735: ANSI C12.20-2015 Class 0.1; SEL-734: Class 0.2). Relay metering is a diagnostic — never bill from it.</li>
+<li>Everything lands in one of <strong>four P/Q quadrants</strong> — delivered/received × leading/lagging — and each quadrant has its own energy registers.</li>
+<li><strong>Energy</strong> accumulates forever, <strong>demand</strong> is an interval average (block or rolling), <strong>peak demand</strong> is a ratchet the billing reset clears.</li>
+<li>A reversed CT doesn't stop the meter — it quietly books that phase's energy into the <strong>wrong quadrant</strong>. The 4-quadrant display is your commissioning truth-teller.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>What class of instrument this is</h2>
+<p>The <strong>SEL-735</strong> is a power quality and revenue meter; the older <strong>SEL-734</strong> is a revenue meter. Both are billing-grade instruments: independently verified accuracy classes, sealed-register behavior (TEST mode, billing resets, self-reads), and load-profile output that meter-reading systems like Itron MV-90 ingest directly.</p>
+<table>
+  <tr><th></th><th>SEL-735</th><th>SEL-734</th></tr>
+  <tr><td><strong>Accuracy class</strong></td><td>ANSI C12.20-2015 <strong>Class 0.1</strong>; IEC 62053-22 Class 0.1&nbsp;S (active), 62053-24 Class 0.5&nbsp;S (reactive)</td><td>ANSI C12.20:2002 <strong>Class 0.2</strong>; IEC 62053-22/-23 Class 0.2&nbsp;S</td></tr>
+  <tr><td><strong>Energy accuracy</strong></td><td>±0.06% guaranteed (±0.02% typical) at unity PF, Forms 5/9</td><td>Class 0.2 registers; 1-s rms display ±0.15% V, ±2% power</td></tr>
+  <tr><td><strong>Current input</strong></td><td>One wide-range card covers CL2/10/20: revenue 0.010–22&nbsp;A, measures 1&nbsp;mA–22&nbsp;A (fault-recording option to 100&nbsp;A)</td><td>Ordered as CL2 (0.010–6&nbsp;A) or CL10/20 (0.15–20&nbsp;A)</td></tr>
+  <tr><td><strong>Sampling</strong></td><td>512 samples/cycle</td><td>16 s/c instantaneous, 8000 s/s rms &amp; harmonics</td></tr>
+  <tr><td><strong>Forms</strong></td><td>5, 9, 36 (switchable via <code>FOR x</code> at AL2)</td><td>5, 9</td></tr>
+  <tr><td><strong>Power quality</strong></td><td>IEC 61000-4-30:2015 Class A certified; harmonics to 63rd, interharmonics, flicker</td><td>Harmonics to 50th (734P), flicker (734P), VSSI</td></tr>
+</table>
+<div class="callout keyfact"><strong>Revenue class vs. relay metering — the honest contrast.</strong> The same SEL-735 box states two accuracies: energy registers <strong>±0.06%</strong>, but SELOGIC analog values <strong>±3%</strong>. A protective relay's MET display is that second kind of number — a percent-class diagnostic built from protection-grade CTs, good for sanity checks and SCADA trending, not for billing. When a relay reading and the revenue meter disagree by a percent, the meter is right. SEL guarantees the 735 holds its ANSI 0.1 / IEC 0.1&nbsp;S class for at least ten years.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Four-quadrant fundamentals</h2>
+<p>Both meters display power flow as <strong>delivered</strong> (utility → customer) or <strong>received</strong> (customer → utility), per the SEL-735's IEC VAR sign convention: +W right (delivered), +VAR up (delivered). Each quadrant pairs a watt direction with a VAR direction and a lead/lag character, and the meter keeps <strong>separate energy registers per quadrant</strong> (e.g. per-phase and 3-phase VARh delivered/received, leading/lagging). Four-quadrant quantities update every 10/12 cycles (10 cycles at 50&nbsp;Hz, 12 at 60&nbsp;Hz).</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <!-- axes -->
+  <line x1="30" y1="125" x2="430" y2="125" stroke="#454956" stroke-width="1.25"/>
+  <line x1="230" y1="15" x2="230" y2="235" stroke="#454956" stroke-width="1.25"/>
+  <text x="424" y="118" font-size="9" font-weight="600" fill="#454956" text-anchor="end">+W delivered</text>
+  <text x="36" y="118" font-size="9" font-weight="600" fill="#454956">−W received</text>
+  <text x="236" y="24" font-size="9" font-weight="600" fill="#454956">+VAR delivered</text>
+  <text x="236" y="232" font-size="9" font-weight="600" fill="#454956">−VAR received</text>
+  <!-- quadrant labels -->
+  <text x="330" y="58" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">Q1 · lagging</text>
+  <text x="330" y="70" font-size="8" fill="#6e7180" text-anchor="middle">import, inductive load</text>
+  <text x="130" y="58" font-size="9.5" font-weight="600" fill="#5468c4" text-anchor="middle">Q2 · leading</text>
+  <text x="130" y="70" font-size="8" fill="#6e7180" text-anchor="middle">export, VARs delivered</text>
+  <text x="130" y="188" font-size="9.5" font-weight="600" fill="#5468c4" text-anchor="middle">Q3 · lagging</text>
+  <text x="130" y="200" font-size="8" fill="#6e7180" text-anchor="middle">export, VARs received</text>
+  <text x="330" y="188" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">Q4 · leading</text>
+  <text x="330" y="200" font-size="8" fill="#6e7180" text-anchor="middle">import, capacitive</text>
+  <!-- register bars -->
+  <text x="470" y="52" font-size="8.5" font-weight="600" fill="#1a1a22">Energy registers</text>
+  <text x="470" y="72" font-size="8" fill="#10a37f">Wh delivered</text>
+  <rect x="470" y="77" width="200" height="9" rx="2" fill="#f2f3f5" stroke="#e5e7eb"/>
+  <text x="470" y="106" font-size="8" fill="#5468c4">Wh received</text>
+  <rect x="470" y="111" width="200" height="9" rx="2" fill="#f2f3f5" stroke="#e5e7eb"/>
+  <text x="470" y="140" font-size="8" fill="#9c6d06">VARh delivered</text>
+  <rect x="470" y="145" width="200" height="9" rx="2" fill="#f2f3f5" stroke="#e5e7eb"/>
+  <text x="470" y="174" font-size="8" fill="#9c6d06">VARh received</text>
+  <rect x="470" y="179" width="200" height="9" rx="2" fill="#f2f3f5" stroke="#e5e7eb"/>
+  <g class="animlayer">
+    <!-- operating point: wanders Q1 then drifts to Q4 (visible 0-60%) -->
+    <circle r="6" fill="#10a37f" opacity="1">
+      <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.60;0.61;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M320,75 C340,85 335,100 320,95 C305,90 315,70 330,80 C345,92 330,110 320,105 C320,140 330,170 325,175 C315,185 305,168 315,160 C325,140 328,105 320,90"
+        keyPoints="0;1;1" keyTimes="0;0.60;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <!-- reversed-CT: point snaps to the mirrored quadrant Q3 (visible 62-95%) -->
+    <circle r="6" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.61;0.62;0.94;0.95;1" dur="14s" repeatCount="indefinite"/>
+      <animateMotion path="M140,160 C125,165 120,150 133,146 C145,142 147,158 135,160 C127,163 123,153 132,150" dur="4.5s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="320" y1="90" x2="146" y2="156" stroke="#d63a3a" stroke-width="1" stroke-dasharray="4 3" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.7;0.7;0;0" keyTimes="0;0.61;0.63;0.80;0.83;1" dur="14s" repeatCount="indefinite"/>
+    </line>
+    <!-- register fills -->
+    <rect x="470" y="77" height="9" rx="2" fill="#10a37f" width="0">
+      <animate attributeName="width" values="0;110;150;150;150;0" keyTimes="0;0.38;0.58;0.62;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="470" y="111" height="9" rx="2" fill="#d63a3a" width="0">
+      <animate attributeName="width" values="0;0;0;0;140;140;0" keyTimes="0;0.38;0.58;0.62;0.95;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="470" y="145" height="9" rx="2" fill="#d7930a" width="0">
+      <animate attributeName="width" values="0;95;95;95;95;0" keyTimes="0;0.38;0.58;0.62;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="470" y="179" height="9" rx="2" fill="#d7930a" width="0">
+      <animate attributeName="width" values="0;0;0;55;55;150;150;0" keyTimes="0;0.38;0.4;0.58;0.62;0.95;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </rect>
+    <!-- phase captions -->
+    <text x="470" y="215" font-size="8.5" font-weight="600" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.36;0.38;1" dur="14s" repeatCount="indefinite"/>
+      Normal import, lagging → Q1: Wh_DEL + VARh_DEL count
+    </text>
+    <text x="470" y="215" font-size="8.5" font-weight="600" fill="#9c6d06" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.40;0.56;0.58;1" dur="14s" repeatCount="indefinite"/>
+      Cap bank on → Q4: still importing, VARh_REC counts
+    </text>
+    <text x="470" y="215" font-size="8.5" font-weight="600" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.93;0.95;1" dur="14s" repeatCount="indefinite"/>
+      CT reversed → point mirrors to Q3: Wh_REC counts, bill is wrong
+    </text>
+    <text x="230" y="246" font-size="7.5" fill="#a9adb8" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.93;0.95;1" dur="14s" repeatCount="indefinite"/>
+      a reversed CT rotates that phase's current 180° — S mirrors through the origin
+    </text>
+  </g>
+  <text x="230" y="246" font-size="7.5" fill="#a9adb8" text-anchor="middle" class="printonly">Q1 import/lag · Q2 export/lead · Q3 export/lag · Q4 import/lead — each quadrant feeds its own registers</text>
+</svg></div>
+<p class="figcap">The operating point wanders the P/Q plane and each quadrant feeds its own registers. A reversed CT mirrors the point through the origin — energy books as received while the customer imports.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Lead/lag per the 735's table:</strong> Q1 lag (IEC PF+), Q2 lead (PF−), Q3 lag (PF−), Q4 lead (PF+). The manual notes other vocabularies exist (import/export/produce per IEC 61557-12) — the SEL display always says delivered/received.</li>
+  <li><strong>Quadrant Device Word bits</strong> <code>EQx1</code>–<code>EQx4</code> (x = A, B, C, 3P) assert while the VAR measurement sits in that quadrant — useful with unsigned VARs and for SER/SELOGIC alarms.</li>
+  <li><strong>Three-phase VARh direction is the per-phase sum:</strong> at any instant 3-phase VARh reports only delivered <em>or</em> received (e.g. A del 1 + B del 1 + C rec 4 → <code>QH3_REC</code> = 2, <code>QH3_DEL</code> = 0), even while individual phases differ.</li>
+  <li><strong>Demand vs. energy vs. instantaneous:</strong> instantaneous quantities are the live 10/12-cycle values; energy is power integrated every 10/12 cycles into non-rollover billing registers; demand is the interval-averaged quantity of §4.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The measurement chain</h2>
+<div class="flow">
+  <div class="stage"><b>CT/PT inputs</b><span>735: 28–300 V L-N revenue range, wide-range 1&nbsp;mA–22&nbsp;A current, CTR/PTR 1–10000</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>ITC correction</b><span>per-phase ratio + phase-angle compensation of the sampled values</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>TLLC</b><span>add/subtract line &amp; transformer losses between meter point and billing point</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Registers</b><span>4-quadrant energy, demand, TOU, LDP — primary values via CTR/PTR</span></div>
+</div>
+<ul>
+  <li><strong>Wiring forms:</strong> Form 5 (2-element, 3-wire delta), Form 9 (3-element, 4-wire wye), Form 36 (2½-element, 4-wire wye). Forms 5 and 9 are <strong>Blondel-compliant</strong>; Form 36 computes VBN = −(VAN+VCN) and is only accurate on balanced voltage — its B-phase PQ, harmonic, and flicker quantities are calculated, not measured. These are transformer-rated meters (external CTs/PTs); CT/PT theory and burden live in <em>CTs &amp; PTs</em> in atlas.</li>
+  <li><strong>Instrument Transformer Compensation (ITC):</strong> up to <strong>6 calibration points</strong> per phase (<code>EITCI</code>), each with a ratio correction factor (<code>IRCFx_n</code>) and phase-angle-minutes correction (<code>IPAMx_n</code>); the meter linearly interpolates between points and clamps outside them. Test the CT first, then program what you measured — e.g. 0.925&nbsp;A measured where 1.000&nbsp;A is ideal → RCF 1.081; 1° lead → 60 minutes. Form 5 has no B-phase CT compensation; Forms 5/36 no B-phase PT compensation.</li>
+  <li><strong>Transformer/line-loss compensation (TLLC):</strong> when the billing point isn't the metering point, <code>ETLLC</code> uses nameplate transformer constants and line parameters (positions <code>MPOS</code>/<code>BPOS</code> 1–4) to add or subtract losses from power, energy, and demand. Compensated quantities get uncompensated twins ending in <code>_UC</code>; voltages and currents are never compensated.</li>
+  <li><strong>Watch the near-zero-PF trap:</strong> the <code>ANGCUT</code> setting (1–10°) zeroes watts within that angle of 90° (and VARs near 0°/180°) so phase-angle jitter during testing can't smear tiny watt values into both delivered and received. <code>CALCQ</code> picks VECTOR (full-spectrum, harmonics included) or FUND (fundamental-only) VAR calculation.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Demand metering</h2>
+<p>Demand type is one global choice, <code>EDEM</code> = <strong>THM</strong> (thermal), <strong>ROL</strong> (rolling), or <strong>BLOK</strong> (block), with interval <code>DMTC</code> ∈ {1, 5, 10, 15, 30, 60} minutes. Demand and peak demand run for currents, per-phase and 3-phase W, VAR (4-quadrant), and VA.</p>
+<table>
+  <tr><th>Type</th><th>Algorithm</th><th>Response to a 1.0 pu step (DMTC = 15 min)</th></tr>
+  <tr><td><strong>THM</strong></td><td>RC-analog exponential (series RC circuit model), updated ~every second</td><td>reaches 0.9 pu at t = DMTC</td></tr>
+  <tr><td><strong>ROL</strong></td><td>sliding-window average of <code>DMSI</code>-minute subintervals (DMTC 15 → DMSI 15/5/3/1)</td><td>0.33 → 0.67 → 1.0 pu as subintervals fill</td></tr>
+  <tr><td><strong>BLOK</strong></td><td>integrates over the whole DMTC block, result posts at end of block</td><td>0 until the block ends, then 1.0 pu</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <!-- load curve area -->
+  <line x1="35" y1="150" x2="680" y2="150" stroke="#d0d3da" stroke-width="1"/>
+  <text x="35" y="18" font-size="8.5" font-weight="600" fill="#454956">kW load</text>
+  <path d="M35,120 C80,115 110,95 150,90 C190,85 210,60 260,55 C300,52 330,70 370,85 C410,100 440,120 490,118 C530,116 560,95 610,90 C650,86 665,88 680,90" fill="none" stroke="#454956" stroke-width="1.75"/>
+  <!-- interval ticks every 15 min = 129px -->
+  <g stroke="#e5e7eb" stroke-width="1"><line x1="164" y1="25" x2="164" y2="150"/><line x1="293" y1="25" x2="293" y2="150"/><line x1="422" y1="25" x2="422" y2="150"/><line x1="551" y1="25" x2="551" y2="150"/></g>
+  <text x="99" y="162" font-size="7.5" fill="#a9adb8" text-anchor="middle">block 1</text>
+  <text x="228" y="162" font-size="7.5" fill="#a9adb8" text-anchor="middle">block 2</text>
+  <text x="357" y="162" font-size="7.5" fill="#a9adb8" text-anchor="middle">block 3</text>
+  <text x="486" y="162" font-size="7.5" fill="#a9adb8" text-anchor="middle">block 4</text>
+  <text x="616" y="162" font-size="7.5" fill="#d63a3a" text-anchor="middle" font-weight="600">billing reset ↓</text>
+  <!-- peak register track -->
+  <text x="35" y="185" font-size="8.5" font-weight="600" fill="#9c6d06">peak demand register (ratchet)</text>
+  <line x1="35" y1="196" x2="680" y2="196" stroke="#f2f3f5" stroke-width="8"/>
+  <g class="animlayer">
+    <!-- block window: fills one block, posts, jumps -->
+    <rect y="25" width="129" height="125" fill="#5468c4" opacity="0.10">
+      <animate attributeName="x" values="35;35;164;164;293;293;422;422;551;551" keyTimes="0;0.2;0.2;0.4;0.4;0.6;0.6;0.8;0.8;1" dur="16s" repeatCount="indefinite"/>
+    </rect>
+    <!-- rolling window: slides continuously -->
+    <rect y="25" width="129" height="125" fill="#10a37f" opacity="0.12">
+      <animate attributeName="x" values="35;551" dur="16s" repeatCount="indefinite"/>
+    </rect>
+    <line y1="25" y2="150" stroke="#10a37f" stroke-width="1.5">
+      <animate attributeName="x1" values="164;680" dur="16s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="164;680" dur="16s" repeatCount="indefinite"/>
+    </line>
+    <text x="360" y="36" font-size="8" font-weight="600" fill="#10a37f">rolling window slides</text>
+    <text x="360" y="47" font-size="8" font-weight="600" fill="#5468c4">block window jumps at each DMTC</text>
+    <!-- peak ratchet bar: steps up at block posts, holds, resets at 80% -->
+    <rect x="35" y="192" height="8" rx="2" fill="#d7930a" width="0">
+      <animate attributeName="width" values="0;0;180;180;310;310;310;310;310;0;60" keyTimes="0;0.2;0.21;0.4;0.41;0.6;0.61;0.8;0.86;0.87;1" dur="16s" repeatCount="indefinite"/>
+    </rect>
+    <text x="500" y="188" font-size="8" font-weight="600" fill="#9c6d06" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.55;0.58;0.82;0.85;1" dur="16s" repeatCount="indefinite"/>
+      holds the largest interval — later, smaller blocks can't lower it
+    </text>
+    <text x="620" y="188" font-size="8" font-weight="600" fill="#d63a3a" opacity="0" text-anchor="end">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.86;0.88;0.98;1" dur="16s" repeatCount="indefinite"/>
+      reset → time/date recorded, ratchet restarts
+    </text>
+  </g>
+  <text x="680" y="209" font-size="7.5" fill="#a9adb8" text-anchor="end">rolling = sliding average of DMSI subintervals · block = whole-interval integral · peak survives power loss (nonvolatile)</text>
+</svg></div>
+<p class="figcap">Block vs. rolling windows sweeping the same load curve, while the peak-demand register ratchets up, holds, and is cleared only by a billing reset.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Peak demand is a nonvolatile ratchet:</strong> the meter stores the maximum with its date/time, overwriting only if the new value is larger, and restores it after a control-power loss. Peak recording is momentarily suspended while the <code>FAULT</code> bit asserts (so a fault doesn't set your billing peak), and <code>FLTBLK</code> blocks peak capture for a set number of minutes after power-up.</li>
+  <li><strong>Reset behavior:</strong> resets via QuickSet HMI, the front panel (password-protected access levels), or remotely — global settings <code>RSTDEM</code>/<code>RSTPKDM</code>/<code>RSTENGY</code> take a remote bit (optionally guarded by a remote-analog password, e.g. <code>RB01 AND RA00=12345</code>) so a DNP master can perform the billing reset. The meter records the reset time/date, keeps the <em>previous</em> peak, and counts peak-demand resets.</li>
+  <li><strong>End-of-interval pulse:</strong> <code>EOIP</code> asserts at each interval end (<code>EOIPT</code> 1–5&nbsp;s or OFF); with ROL it fires each subinterval.</li>
+  <li><strong>Predictive demand</strong> (ROL/BLOK): projects the present interval's final value each processing cycle; <code>PREDAL</code> asserts after ~3&nbsp;s above the alarm level — use it to shed load before the peak sets.</li>
+  <li><strong>Reading lag:</strong> rolling demand values in the HMI can take up to 2 × DMTC to update — don't call it broken at minute five.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Energy registers &amp; time-of-use</h2>
+<p>Energy = power integrated every 10/12 cycles into separate bidirectional and four-quadrant registers (per-phase and 3-phase Wh, VARh, VAh, plus Vh/Ah). Billing energy does not roll over; energy quantities placed in PQ load-profile recorders with end-of-interval function roll at nine dials (999,999,999.99). <strong>Energy preload</strong> (0–999,999,999,999.999) lets a replacement meter start from the old meter's register values — QuickSet auto-populates the preloads when you read settings from the meter being swapped.</p>
+<ul>
+  <li><strong>TOU programming</strong> (QuickSet): a TOU program = <strong>Calendar + Season Schedule + Rate Schedules</strong>. Rate schedules assign rates <strong>A–F</strong> across a 24-hour day; you drag them onto day types per season. Calendar actions — season changes, alternate days (holidays), self-reads, demand resets, DST — execute at <strong>00:00.001</strong> on their day.</li>
+  <li><strong>Register structure:</strong> a <em>Present Season</em> block (since last season change), a <em>Previous Season</em> block, and <strong>15 pairs of self-read blocks</strong> (each pair: season-to-self-read data + the prior season's data). Present-season registers reset on season change or on self-read per the setup option; previous-season registers reset only at season change.</li>
+  <li><strong>Self-reads</strong> can also fire on manual peak-demand reset (or a set number of days after one) — the frozen snapshot is what the billing system trusts, and self-reads occur before demand resets when both land together.</li>
+  <li><strong>Total Calculation</strong> picks how "Total" registers combine flows: delivered only, received only, del + rec, or del − rec.</li>
+  <li><strong>Getting billing data out:</strong> TOU registers are exportable to Excel from QuickSet and readable on any comms port (Modbus map in App. E of the 735 IM); they also serve as front-panel display points.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Power quality recording (SEL-735)</h2>
+<p>The 735 is certified to <strong>IEC 61000-4-30 Ed. 3 Class A</strong> (tested per IEC 62586-1/-2), aggregating measurements over 10/12 cycles, 3&nbsp;s, 10&nbsp;min, and 2&nbsp;h synchronized to real time. Two settings matter for strict Class A: <code>VRMSWIN = ONE</code> (one-cycle rms for sag detection instead of the default half-cycle) and <code>HARMCAL = SUBGROUP</code> (15&nbsp;Hz harmonic bins instead of 5&nbsp;Hz components).</p>
+<table>
+  <tr><th>Function</th><th>What the 735 documents</th></tr>
+  <tr><td><strong>Sag/swell/interruption (VSSI)</strong></td><td>Thresholds as % of <code>VBASE</code>: <code>VSAG</code>/<code>VINT</code> 5–99%, <code>VSWELL</code> 101–180%, each with 0–10% hysteresis; optional dynamic VBASE (<code>AVG_TIME</code> 1–10&nbsp;min sliding reference). Adaptive-rate recorder stores ≥270 disturbances / ≥60,000 detail rows; summary gives type, duration, min/max magnitude, and the CBEMA/ITIC region (Prohibited / No-damage / Safe). Reported via SER, ASCII, QuickSet, and DNP3.</td></tr>
+  <tr><td><strong>Harmonics / THD</strong></td><td>V, I, and power harmonic magnitudes; % of fundamental; SELOGIC threshold alarms for orders 2–15; to the 63rd order, angles, and interharmonics as model options. Components/groups/subgroups per IEC 61000-4-7. Form 36 B-phase harmonic values are computed, not real.</td></tr>
+  <tr><td><strong>Flicker</strong></td><td>PST (1 &amp; 10&nbsp;min) and PLT (2&nbsp;h) per IEC 61000-4-15 Ed. 2; <code>FLICREF</code> = VBASE/120&nbsp;V/230&nbsp;V reference (VBASE &lt; 176&nbsp;V → 120&nbsp;V flickermeter curve, else 230&nbsp;V).</td></tr>
+  <tr><td><strong>Waveform capture</strong></td><td><code>SRATE</code> 16/128/512 samples/cycle, <code>LER</code> 15–600 cycles, <code>PRE</code> up to 595 pre-trigger cycles; triggers from SELOGIC <code>ER1–ER3</code> (factory <code>ER1 := SSI_EVE OR FAULT</code>), the HMI, or the front-panel button. Output: unfiltered <strong>COMTRADE</strong> plus filtered 16-s/c CEV. Formats and retrieval → <em>Oscillography</em> in atlas.</td></tr>
+</table>
+<p style="font-size:8.6pt">Model options gate depth: Basic (128&nbsp;MB, 15th harmonic, 16&nbsp;s/c events, 1 LDP recorder) → Intermediate (256&nbsp;MB, 63rd, 12 recorders) → Advanced (1&nbsp;GB, interharmonics/angles/power harmonics, 512&nbsp;s/c, 32 recorders). The SEL-734 offers a slimmer set: VSSI, harmonics to the 50th and flicker on the 734P only.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Load profile recording</h2>
+<ul>
+  <li><strong>Structure (735):</strong> up to <strong>32 recorders × 16 channels</strong>. Recorder 1 is the <strong>billing recorder</strong>: energy always logged as change-over-interval (COI), scaling fixed to primary/kilo (current primary/unity) so <strong>Itron MV-90</strong> and similar AMR tools read it without interpretation. Recorders 2–32 are PQ recorders using the global scale settings (<code>PRI_SCA</code>, <code>VOLT_SCA</code>, <code>POWR_SCA</code>, <code>ENRG_SCA</code>).</li>
+  <li><strong>Per-recorder settings:</strong> <code>LDFUNC</code> ∈ {EOI, COI, AVG, MAX, MIN}, <code>LDLIST</code> (≤16 quantities), <code>LDAR</code> acquisition rate 3–59&nbsp;s or 1–120&nbsp;min (sub-minute rates need Intermediate/Advanced), <code>LMDUR</code> 0.05–7300 days before overwrite. Presets fill recorders for common jobs (IEEE 519, EN 50160, harmonics sets); default recorders 2–6 log the 3&nbsp;s/10&nbsp;min/2&nbsp;h aggregated PQ data.</li>
+  <li><strong>Retrieval:</strong> QuickSet HMI (update/chart/export CSV, BIN, TXT, or MV-90 <strong>HHF</strong>), automatic collection via ACSELERATOR TEAM, or direct MV-90 interrogation. CSV rows carry status bits — DST, power-fail-in-interval, clock set forward/back, skipped interval, TEST-mode data, overwrite.</li>
+  <li><strong>The classic gotcha:</strong> <strong>changing any LDP recorder setting erases that recorder's data and every recorder after it</strong> — add a channel to LDLIST2 and recorders 2–32 clear. Retrieve before you reconfigure. All logs are nonvolatile through power loss.</li>
+  <li>The 734 scales down: 16 channels/1 recorder standard, 192 channels/12 recorders on the 734P; MV-90 always reads its Recorder 1.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Verification &amp; testing</h2>
+<p>SEL's documented test philosophy: acceptance (new model), commissioning (verify wiring, rotation, polarity, aux equipment), maintenance (only what hasn't proven itself since last interval). The meter is factory-calibrated; SEL states gain adjustment supplements — never replaces — calibration.</p>
+<ul>
+  <li><strong>TEST mode</strong> (touchscreen, pushbutton, or QuickSet): <strong>freezes billing data</strong> (energy and demand), stops LDP storage, disables normal KYZ outputs and Device Word updates, and accumulates into separate TEST registers displayed in secondary/unity. Test one quantity at a time (Wh/VARh/VAh del/rec, net, lead/lag, Vh, Ah).</li>
+  <li><strong>Pulse outputs for accuracy testing:</strong> in TEST mode the <code>KYZDT</code> test pulse drives the front <strong>optical port (850&nbsp;nm)</strong> and <strong>TEST LED (875&nbsp;nm)</strong> at the watthour constant <code>KET</code> (secondary Wh/pulse) — your test standard's optical pickup counts these against the source. SEL recommends ≥5 pulses at full load, ≥2 at light load, and 5&nbsp;s of settling before starting.</li>
+  <li><strong>Normal KYZ outputs:</strong> four solid-state channels, each with energy quantity <code>KYZDn</code> (default <code>WH3_DEL</code>), constant <code>KEn</code> (0.0001–9999, unit/kilo/mega, primary or secondary), minimum pulse width <code>KYZPWn</code> 25/50/75/100&nbsp;ms, mapped to OUT401–404. Collect on rising edges or both edges; any fractional-pulse remainder is lost on power loss.</li>
+  <li><strong>Zeroing to a standard:</strong> run a Wh test, compute % error (e.g. meter 18.0000 vs. standard 18.0108 → −0.06%), set <code>WGAIN</code>/<code>VARGAIN</code> (±10%) to compensate, then re-verify at a high and a low current point.</li>
+  <li><strong>Self-tests</strong> run continuously and assert <code>HALARM</code> (pulsed or latched to a contact) plus status reports — lean on them instead of routine bench trips.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>SCADA &amp; comms integration</h2>
+<table>
+  <tr><th>Protocol</th><th>SEL-735</th><th>SEL-734</th><th>Where</th></tr>
+  <tr><td>DNP3 (serial + LAN/WAN)</td><td>✓ (5 LAN/WAN sessions on Ethernet)</td><td>✓</td><td rowspan="4" style="font-size:8.2pt">The 735's Modbus map → <em>Modbus on SEL Relays</em> in atlas; DNP behavior and maps → the <em>DNP3</em> pages. Remote billing resets ride DNP remote bits (§4).</td></tr>
+  <tr><td>Modbus RTU / TCP</td><td>✓ / ✓</td><td>✓ RTU</td></tr>
+  <tr><td>MV-90 billing read</td><td>✓ (serial + Ethernet)</td><td>✓ (<code>PROTO = SEL</code>)</td></tr>
+  <tr><td>IEC 61850 · SNTP · FTP · Telnet · C37.118 synchrophasors · <span class="mono">MIRRORED BITS</span> · SEL Fast Meter/Operate</td><td>✓ (61850/FTP/Telnet/SNTP/C37.118 on Ethernet)</td><td>Fast Meter, <span class="mono">MB</span>, C37.118; no 61850</td></tr>
+</table>
+<p style="font-size:8.6pt">The 735 Ethernet port runs six simultaneous sessions. Both meters take IRIG-B for the high-accuracy time that TOU boundaries, LDP timestamps, and synchrophasors depend on — time-source health shows in <code>IRIGOK</code>/<code>TSOK</code>.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">10</span>Field practice &amp; gotchas</h2>
+<ul>
+  <li><strong>Rotation and cross-phase checks come free:</strong> the meter is its own diagnostic. Commissioning per the manual = verify current/voltage magnitudes, phase rotation (ABC/ACB is a setting — confirm it matches the bus), and contact/input operation from the QuickSet HMI; <code>MET PM</code> (with IRIG) is explicitly called out as a test tool for connections, rotation, and scaling.</li>
+  <li><strong>CT polarity signatures:</strong> on a known-import site, every phase should show watts <em>delivered</em> and the expected quadrant bit (<code>EQx1</code>/<code>EQx4</code>). One phase reading watts received while its neighbors deliver — or a 3-phase PF far below the feeder's — is the classic single-reversed-CT signature (§2's mirrored point). Crossed phasing (VA against IB) shows as a ~120° phase error in the instantaneous phasor display.</li>
+  <li><strong>Form 36 fine print:</strong> B-phase voltage is synthesized — no B-phase sag/swell/interrupt bits ever assert, and B-phase PQ numbers don't reflect the real system. Single-phase test sets need the 2½-element setup with IB polarity reversed.</li>
+  <li><strong>Frequency reporting can lie when dead:</strong> below ~11&nbsp;V fundamental or &gt;0.9&nbsp;Hz/s slew the 735 reports <em>nominal</em> frequency, and clamps to the 40–70&nbsp;Hz limits — a healthy-looking 60.00 on a dead bus is the giveaway.</li>
+  <li><strong>Interval data hygiene:</strong> LDP setting changes erase data (§7); TEST-mode intervals are flagged in the export; clock jumps beyond <code>TIME_CHG</code> reset the 10-min/2-h aggregations.</li>
+  <li><strong>Don't "calibrate" in the field:</strong> WGAIN/VARGAIN zero the meter to <em>your</em> standard; if you suspect real calibration drift the manual's answer is SEL support, not bigger gains.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a>
+  <a href="atlas:relays-devices/relay-anatomy.html">Inside a Protective Relay</a>
+  <a href="atlas:data-protocols/modbus/on-sel-relays.html">Modbus on SEL Relays</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+</div>
+<p class="footnote">Sources: SEL-735 Power Quality and Revenue Meter IM, 735_IM_20250711.pdf — §1 (specs, forms, PQ options, compliance), §5 (metering, 4-quadrant, ITC, demand, TOU, energy, harmonics, flicker, TLLC), §6 (LDP, waveform capture, VSSI), §7 (KYZ), §8 (protocols), §10 (TEST mode, accuracy testing, gain, self-tests). SEL-734 Revenue Metering System IM, 734_IM_20210310.pdf — §1 (specs, accuracy class, model options), §4 (metering), §12 (gain adjustment). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Optional Features</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC,options,interconnect,redundancy,pseudo breaker,spare breaker,loops,DG,UFLS,permissive,simulation">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Optional Features (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>DAC &mdash; Optional Features</h1>
+  <p>The catalog worth knowing exists — interconnects, redundancy, pseudo breakers, loops, DG, UFLS, spares, and the commissioning simulator</p>
+  <div class="chips"><span>interconnect</span><span>redundancy</span><span>pseudo-breaker</span><span>loops</span><span>DG</span><span>UFLS</span><span>simulation</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Options</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Interconnects extend the scheme past one controller</strong> &mdash; but local sources are always preferred over remote, and several capabilities stop at the boundary.</li>
+<li><strong>Redundancy is hot-backup pairs running identical projects,</strong> both polling. Give each controller its own DNP server session on every device.</li>
+<li><strong>Pseudo breakers and spare breakers patch gaps in the model</strong> where a real device cannot be polled or is swapped in and out.</li>
+<li><strong>Loops and DG are supported but bounded.</strong> Several ordinary capabilities are unavailable on looped sections, and the DAC's DG handling is not anti-islanding protection.</li>
+<li><strong>A device operating without a fault indication is a manual operation</strong> &mdash; no event. That is what makes UFLS invisible to the scheme, deliberately.</li>
+<li><strong>Simulation mode decouples a modeled device from the field</strong> so a scheme can be exercised without anything physical moving.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Scaling past one controller: interconnects</h2>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Interconnect pairs share data between control areas &mdash; and hot-backup pairs duplicate one</text>
+
+  <!-- area A -->
+  <rect x="24" y="40" width="200" height="110" rx="8" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="124" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#0d7f63">Control area A</text>
+  <rect x="60" y="70" width="128" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="124" y="89" text-anchor="middle" font-size="7.6" fill="#1a1a22">DAC A</text>
+  <line x1="60" y1="120" x2="188" y2="120" stroke="#1a1a22" stroke-width="1.6"/>
+  <text x="124" y="136" text-anchor="middle" font-size="7" fill="#6e7180">its feeders</text>
+
+  <!-- area B -->
+  <rect x="376" y="40" width="200" height="110" rx="8" fill="#eef0f9" stroke="#5468c4" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="476" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Control area B</text>
+  <rect x="412" y="70" width="128" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="476" y="89" text-anchor="middle" font-size="7.6" fill="#1a1a22">DAC B</text>
+  <line x1="412" y1="120" x2="540" y2="120" stroke="#1a1a22" stroke-width="1.6"/>
+  <text x="476" y="136" text-anchor="middle" font-size="7" fill="#6e7180">its feeders</text>
+
+  <!-- interconnect -->
+  <line x1="224" y1="85" x2="376" y2="85" stroke="#d7930a" stroke-width="2.4"/>
+  <text x="300" y="76" font-size="7.4" font-weight="600" fill="#9c6d06" text-anchor="middle">interconnect pair</text>
+  <text x="300" y="100" font-size="7" fill="#8a8e9b" text-anchor="middle">capacity &middot; availability &middot; FI &middot; live/dead</text>
+  <circle r="3.5" fill="#d7930a"><animateMotion dur="2.4s" repeatCount="indefinite" path="M224,85 H376"/></circle>
+  <circle r="3.5" fill="#d7930a"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite" path="M376,85 H224"/></circle>
+
+  <!-- normal open -->
+  <line x1="188" y1="120" x2="230" y2="120" stroke="#1a1a22" stroke-width="1.6"/>
+  <line x1="230" y1="120" x2="248" y2="110" stroke="#6e7180" stroke-width="2"/>
+  <line x1="370" y1="120" x2="412" y2="120" stroke="#1a1a22" stroke-width="1.6"/>
+  <text x="300" y="132" font-size="7" fill="#6e7180" text-anchor="middle">normal open at the feeder end</text>
+
+  <!-- redundancy pair -->
+  <rect x="604" y="52" width="72" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="640" y="71" text-anchor="middle" font-size="7.4" fill="#1a1a22">DAC B'</text>
+  <line x1="540" y1="85" x2="602" y2="70" stroke="#5468c4" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="640" y="96" font-size="7" fill="#5468c4" text-anchor="middle">hot backup</text>
+  <text x="640" y="107" font-size="7" fill="#8a8e9b" text-anchor="middle">identical project</text>
+  <text x="640" y="118" font-size="7" fill="#8a8e9b" text-anchor="middle">both polling</text>
+
+  <rect x="24" y="168" width="652" height="72" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="38" y="186" font-size="8" font-weight="600" fill="#1a1a22">Interconnect rules that decide where you place them</text>
+  <text x="38" y="202" font-size="7.8" fill="#454956">Maximum 15 interconnect pairs per DAC &middot; identical library versions required at both ends &middot; local sources preferred over remote</text>
+  <text x="38" y="216" font-size="7.8" fill="#454956">Transfer depth resets at the boundary &middot; no overload mitigation across it</text>
+  <text x="38" y="232" font-size="7.8" fill="#0d7f63">Placement: at feeder ends next to a normal-open point, one per feeder &mdash; never at a three-way zone.</text>
+</svg></div>
+<p class="figcap">The interconnect shares capacity, availability, fault-indication, and live/dead data between control areas so a solution can reach across the boundary. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Redundancy</h3>
+<ul>
+<li><strong>Hot-backup pairs, up to four,</strong> run identical projects with both controllers polling.</li>
+<li><strong>Give each controller its own DNP server session on every device</strong> &mdash; two controllers sharing one session is not the arrangement.</li>
+<li><strong>Active selection</strong> is by RTU voting or a SCADA watchdog.</li>
+<li><strong>Operator setpoints synchronize automatically</strong> between the pair, so a change made on the active controller is not lost at a switchover.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">2</span>Patching gaps in the model</h2>
+<table>
+  <tr><th>Feature</th><th>What it does</th><th>Fine print</th></tr>
+  <tr><td><strong>Pseudo breakers</strong> (<code>DA_PSEUDO_BKR</code>)</td><td>Predicts the state of an uncommunicative station breaker from the first downstream device's fault indication plus dead-source voltage, so overreach into the station still triggers miscoordination logic</td><td>Be careful where shot-counting sectionalizers are involved</td></tr>
+  <tr><td><strong>Spare breakers</strong></td><td>Operator-swapped into the topology model for transfer-bus schemes; feeder targets follow the spare</td><td>Spares still count against feeder licensing</td></tr>
+  <tr><td><strong>Single-phase operate devices</strong></td><td>The model is flipped to prefer-open so a one-phase lockout reads as open and automatic restoration runs</td><td>Commands are always three-phase; RTN first gang-closes partial-phase devices before switching normally</td></tr>
+</table>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">What travels across an interconnect boundary &mdash; and what stops at it</text>
+  <line x1="350" y1="32" x2="350" y2="150" stroke="#1a1a22" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="350" y="166" font-size="7.4" fill="#6e7180" text-anchor="middle">interconnect boundary</text>
+  <g font-size="7.4">
+    <rect x="24" y="34" width="300" height="26" rx="4" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="38" y="51" fill="#0d7f63">Capacity &middot; availability &middot; fault indication &middot; live/dead data</text>
+    <rect x="24" y="66" width="300" height="26" rx="4" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="38" y="83" fill="#0d7f63">Restoration solutions that need the neighbour's feeder</text>
+    <rect x="24" y="98" width="300" height="26" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="38" y="115" fill="#9c3838">Transfer depth &mdash; resets at the boundary</text>
+    <rect x="24" y="130" width="300" height="26" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="38" y="147" fill="#9c3838">Overload mitigation &mdash; does not cross at all</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.4" fill="none">
+    <path d="M326,47 H420" marker-end="url(#dof)"/>
+    <path d="M326,79 H420" marker-end="url(#dof)"/>
+  </g>
+  <defs><marker id="dof" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <g stroke="#d63a3a" stroke-width="1.4" fill="none">
+    <path d="M326,111 H344"/><path d="M336,105 L346,117 M346,105 L336,117"/>
+    <path d="M326,143 H344"/><path d="M336,137 L346,149 M346,137 L336,149"/>
+  </g>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="2.4s" repeatCount="indefinite" path="M326,47 H420"/></circle>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="2.4s" begin="0.8s" repeatCount="indefinite" path="M326,79 H420"/></circle>
+  <g font-size="7.4" fill="#6e7180">
+    <text x="432" y="51">shared with the other control area</text>
+    <text x="432" y="83">a solution can reach across</text>
+  </g>
+  <rect x="24" y="172" width="646" height="22" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="38" y="187" font-size="7.8" fill="#9c6d06">And local sources are always preferred over remote &mdash; which is why interconnects belong at feeder ends next to a normal-open point, one per feeder, never at a three-way zone.</text>
+</svg></div>
+<p class="figcap">Knowing what does not cross is what makes an interconnect placement decision rather than a wiring decision. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">3</span>Loops and distributed generation</h2>
+<div class="twocol">
+<div>
+<h3>Loops</h3>
+<ul>
+<li>Up to <strong>three feeders</strong> can be explicitly loop-configured.</li>
+<li><strong>Directional fault indicators are required everywhere in the loop.</strong></li>
+<li>Fault isolation and restoration work on looped sections.</li>
+<li><strong>Not available on looped sections:</strong> open-phase detection, loss-of-source handling, overload mitigation, and RTN.</li>
+</ul>
+</div>
+<div>
+<h3>Distributed generation</h3>
+<ul>
+<li>DG is <strong>modeled as an interconnection recloser</strong>.</li>
+<li>The DAC <strong>assumes DG stays disconnected</strong> in its solutions, and can close-block the point of interconnection.</li>
+<li><strong>It is not anti-islanding protection.</strong> That responsibility belongs to the interconnection protection itself &mdash; see <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Coordinating with other systems</h2>
+<table>
+  <tr><th>Feature</th><th>Behavior</th></tr>
+  <tr><td><strong>UFLS</strong></td><td>A feeder breaker opened without a fault indication is a manual operation &mdash; no event is generated. Unmonitored UFLS devices get a discrete underfrequency input that briefly blinds event triggers. See <a href="atlas:protection/frequency-load-shedding.html">Frequency &amp; Load Shedding</a></td></tr>
+  <tr><td><strong>AFS recloser / ATS</strong></td><td>Capacity-aware supervision of external transfer schemes</td></tr>
+  <tr><td><strong>Permissive</strong></td><td><code>RequestPermissive</code> / <code>Permissive</code> interlocks volt/VAr systems before reconfiguration, so two automatic systems do not act on the feeder at once</td></tr>
+  <tr><td><strong>Block Close pulses</strong></td><td>Protect closes across two live sources</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>Commissioning simulation</h2>
+<p>The commissioning HMI's <strong>simulation mode decouples a modeled device from the field</strong>: statuses latch, toggles come from the HMI, automatic restoration &ldquo;operates&rdquo; the simulated device, and nothing physical moves. This is how a scheme's decision logic gets exercised end to end &mdash; every fault location, every abnormal condition, every capacity edge case &mdash; without an outage.</p>
+<div class="callout">
+<strong>Simulation is the FAT for a restoration scheme.</strong> Walking every fault position through the model, and every abnormal condition through each feeder, is work that can only be done cheaply here. Doing it in the field means real switching. See FAT &amp; SAT.
+</div>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC &mdash; How It Decides</a>
+  <a href="atlas:distribution-automation/dac/operating-it.html">DAC &mdash; Operating It</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>
+  <a href="atlas:distribution-equipment/fault-indicators.html">Fault Indicators &amp; Sensors</a>
+  
+</div>
+<p class="footnote">Source: SEL ES Distribution Automation Controller Operation Manual, date code 20250626, Sections 5&ndash;6 (automatic restoration optional features; additional features). SEL ES proprietary &mdash; internal use. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

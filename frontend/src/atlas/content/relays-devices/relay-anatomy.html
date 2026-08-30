@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Inside a Protective Relay</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="relay,anatomy,signal chain,Relay Word,model option table,part number,FID,targets,LED,self-test,processing interval,SEL-751A">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Inside a Protective Relay (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Inside a Protective Relay</h1>
+  <p>The signal chain from CT terminal to output contact, the slot-and-card hardware you actually order, the front panel, processing intervals, and how self-tests tell you the box is healthy</p>
+  <div class="chips"><span>signal chain</span><span>Relay Word</span><span>slots &amp; cards</span><span>model option table</span><span>targets</span><span>processing interval</span><span>self-test</span><span>SEL-751A</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">The box</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Everything the relay knows becomes a Relay Word bit.</strong> Elements, inputs, outputs, timers, communications, self-tests &mdash; all of it is a named boolean you can use in logic, log in the SER, and map to a protocol.</li>
+<li><strong>What the relay <em>can</em> do is fixed at ordering time.</strong> Voltage inputs, arc-flash channels, extra I/O, protocols, and Ethernet options are model-option choices, not settings. Get the part number right or live with the consequences.</li>
+<li><strong>Processing happens on an interval, not continuously.</strong> Logic evaluates on a fixed cycle &mdash; typically quarter-cycle, with a faster path available for the outputs that need it.</li>
+<li><strong>The front panel is a protection element in its own right.</strong> Targets tell a person what happened without a laptop, and getting the LED assignments right is real work, not decoration.</li>
+<li><strong>Self-tests run constantly.</strong> A relay that fails a self-test drops its alarm contact and, depending on the failure, may stop protecting. Wire that contact and map it.</li>
+<li><strong>Settings are organized into classes and groups,</strong> and the same setting name can exist in six groups with six different values.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The signal chain</h2>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ra" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">From the CT terminal to the trip coil &mdash; every stage, and roughly what it costs in time</text>
+
+  <g font-size="7.4">
+    <rect x="8" y="36" width="96" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="56" y="54" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">Analog input</text>
+    <text x="56" y="67" text-anchor="middle" fill="#6e7180">isolation transformer,</text>
+    <text x="56" y="78" text-anchor="middle" fill="#6e7180">anti-alias filter</text>
+
+    <rect x="122" y="36" width="96" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="170" y="54" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">A/D sampling</text>
+    <text x="170" y="67" text-anchor="middle" fill="#6e7180">fixed samples per</text>
+    <text x="170" y="78" text-anchor="middle" fill="#6e7180">cycle, frequency-tracked</text>
+
+    <rect x="236" y="36" width="96" height="52" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="284" y="54" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Digital filter</text>
+    <text x="284" y="67" text-anchor="middle" fill="#6e7180">one-cycle Fourier &rarr;</text>
+    <text x="284" y="78" text-anchor="middle" fill="#6e7180">fundamental phasors</text>
+
+    <rect x="350" y="36" width="96" height="52" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="398" y="54" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Elements</text>
+    <text x="398" y="67" text-anchor="middle" fill="#6e7180">50, 51, 67, 27, 59, 81,</text>
+    <text x="398" y="78" text-anchor="middle" fill="#6e7180">sequence quantities</text>
+
+    <rect x="464" y="36" width="96" height="52" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="512" y="54" text-anchor="middle" font-size="8.2" font-weight="600" fill="#10a37f">Relay Word bits</text>
+    <text x="512" y="67" text-anchor="middle" fill="#6e7180">+ SELogic equations,</text>
+    <text x="512" y="78" text-anchor="middle" fill="#6e7180">timers, latches</text>
+
+    <rect x="578" y="36" width="114" height="52" rx="5" fill="#fff" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="635" y="54" text-anchor="middle" font-size="8.2" font-weight="600" fill="#d63a3a">Output contact</text>
+    <text x="635" y="67" text-anchor="middle" fill="#6e7180">standard or fast</text>
+    <text x="635" y="78" text-anchor="middle" fill="#6e7180">high-current interrupting</text>
+  </g>
+
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#ra)">
+    <path d="M104,62 H119"/><path d="M218,62 H233"/><path d="M332,62 H347"/><path d="M446,62 H461"/><path d="M560,62 H575"/>
+  </g>
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="5s" repeatCount="indefinite" path="M56,62 H170 H284 H398 H512 H635"/>
+  </circle>
+
+  <!-- side branches -->
+  <text x="8" y="112" font-size="9" font-weight="600" fill="#454956">&hellip;and everything that taps off the same chain</text>
+  <g font-size="7.2" fill="#6e7180">
+    <rect x="236" y="122" width="96" height="34" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="284" y="136" text-anchor="middle" fill="#454956">Metering</text>
+    <text x="284" y="148" text-anchor="middle">MET, MET PM, demand</text>
+
+    <rect x="350" y="122" width="96" height="34" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="398" y="136" text-anchor="middle" fill="#454956">Oscillography</text>
+    <text x="398" y="148" text-anchor="middle">raw + filtered capture</text>
+
+    <rect x="464" y="122" width="96" height="34" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="512" y="136" text-anchor="middle" fill="#454956">SER</text>
+    <text x="512" y="148" text-anchor="middle">bit-change log</text>
+
+    <rect x="578" y="122" width="114" height="34" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="635" y="136" text-anchor="middle" fill="#454956">Protocols</text>
+    <text x="635" y="148" text-anchor="middle">DNP3, Modbus, 61850, MB</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1" stroke-dasharray="3 3" fill="none">
+    <path d="M284,88 V122"/><path d="M398,88 V122"/><path d="M512,88 V122"/><path d="M600,88 V122"/>
+  </g>
+
+  <!-- timing bar -->
+  <text x="8" y="186" font-size="9" font-weight="600" fill="#454956">Where the milliseconds go on a typical instantaneous trip</text>
+  <line x1="60" y1="238" x2="660" y2="238" stroke="#a9adb8"/>
+  <g font-size="7">
+    <rect x="60" y="198" width="60" height="20" rx="3" fill="#d7930a" opacity="0.7"/>
+    <text x="90" y="212" text-anchor="middle" fill="#fff">sample</text>
+    <rect x="120" y="198" width="150" height="20" rx="3" fill="#5468c4" opacity="0.7"/>
+    <text x="195" y="212" text-anchor="middle" fill="#fff">filter &amp; element decision</text>
+    <rect x="270" y="198" width="70" height="20" rx="3" fill="#10a37f" opacity="0.7"/>
+    <text x="305" y="212" text-anchor="middle" fill="#fff">logic scan</text>
+    <rect x="340" y="198" width="60" height="20" rx="3" fill="#d63a3a" opacity="0.7"/>
+    <text x="370" y="212" text-anchor="middle" fill="#fff">contact</text>
+    <rect x="400" y="198" width="230" height="20" rx="3" fill="#6e7180" opacity="0.45"/>
+    <text x="515" y="212" text-anchor="middle" fill="#fff">breaker travel + arc interruption</text>
+  </g>
+  <g font-size="7" fill="#8a8e9b">
+    <text x="60" y="252">0</text>
+    <text x="200" y="252" text-anchor="middle">~10 ms</text>
+    <text x="370" y="252" text-anchor="middle">~20 ms</text>
+    <text x="630" y="252" text-anchor="end">~60 ms &mdash; breaker open</text>
+  </g>
+  <line y1="194" y2="242" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.4">
+    <animate attributeName="x1" values="60;660" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="60;660" dur="4s" repeatCount="indefinite"/>
+  </line>
+  <rect x="8" y="266" width="684" height="28" rx="4" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="20" y="284" font-size="7.8" fill="#0d7f63">The relay is rarely the slow part. Most of the clearing time belongs to the breaker &mdash; which is why the arc-flash path shaves the relay's own logic interval, and why breaker maintenance matters as much as settings.</text>
+</svg></div>
+<p class="figcap">Metering, oscillography, SER, and protocols all branch off the same measured quantities &mdash; which is why a scaling error shows up everywhere at once. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout">
+<strong>Filtered versus raw is a real distinction.</strong> Protection elements act on the filtered fundamental phasor; oscillography can capture both filtered and raw samples. When an event report's raw trace and its phasor values seem to disagree, they are both correct and they are measuring different things. See <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The hardware you order</h2>
+<p>A modern feeder relay is a chassis with slots. What goes in the slots is set by the model option table (MOT) when the relay is ordered, and it determines what the relay is physically capable of &mdash; no settings change will add a voltage input that was never installed.</p>
+<table>
+  <tr><th>Element</th><th>Choices you make at ordering</th><th>Consequence of getting it wrong</th></tr>
+  <tr><td><strong>Current inputs</strong></td><td>1&nbsp;A or 5&nbsp;A nominal; three-phase plus a measured neutral input; on some models Rogowski or low-power CT inputs</td><td>Wrong nominal means every current setting is off by 5&times;. A missing neutral CT input means no sensitive ground element</td></tr>
+  <tr><td><strong>Voltage inputs</strong></td><td>None, or a voltage card. On the SEL-751A the voltage option unlocks over/underfrequency, rate-of-change of frequency, over/undervoltage, synchronism check, DC station battery monitor, power elements, and demand metering</td><td>Ordering a relay with no voltage card and later needing sync check or 27/59 means a new relay</td></tr>
+  <tr><td><strong>Voltage connection</strong></td><td>Wye-connected, open-delta, or single voltage input</td><td>Open delta gives no 3V<sub>0</sub> &mdash; no ground directional. See <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a></td></tr>
+  <tr><td><strong>Digital I/O</strong></td><td>Base inputs and outputs, plus expansion cards. Input voltage threshold family (24/48/125/250&nbsp;V) is a card property</td><td>A 125&nbsp;V input will not reliably operate on 48&nbsp;V wetting</td></tr>
+  <tr><td><strong>Output contact type</strong></td><td>Standard, or fast high-current interrupting</td><td>Fast contacts are needed for arc-flash speed &mdash; and only help in non-failsafe mode</td></tr>
+  <tr><td><strong>Arc-flash inputs</strong></td><td>Optional four-channel fiber-optic arc-flash detector inputs on the SEL-751A</td><td>Cannot be retrofitted by settings. See <a href="atlas:protection/arc-flash-detection.html">Arc-Flash Detection</a></td></tr>
+  <tr><td><strong>RTD inputs</strong></td><td>Internal RTD card, or external RTDs via an SEL-2600 module (the SEL-751A supports 12 external RTDs; 10 internal is an option)</td><td>Thermal protection with no temperature input is an estimate, not a measurement</td></tr>
+  <tr><td><strong>Communications ports</strong></td><td>Additional EIA-232 or EIA-485 ports, a fiber-optic serial port, and single or dual copper or fiber Ethernet</td><td>One Ethernet port means engineering access and SCADA compete for it</td></tr>
+  <tr><td><strong>Protocols</strong></td><td>Modbus RTU, Mirrored Bits, IRIG-B, and C37.118 synchrophasors are standard on the SEL-751A; IEC 61850, DNP3 serial and LAN/WAN, Modbus TCP/IP, and SNTP are options</td><td>A protocol that was not ordered is not enabled by a setting</td></tr>
+  <tr><td><strong>Power supply</strong></td><td>Voltage range family</td><td>Must match station DC. See <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a></td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Read the part number, not the model name.</strong> Two relays both labeled &ldquo;SEL-751A&rdquo; can differ in current nominal, voltage card, I/O count, contact type, protocols, and Ethernet media. The full part number encodes all of it, and it is the first thing to record on any site visit &mdash; along with the firmware FID string, which decides which settings exist.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>The front panel</h2>
+<div class="twocol">
+<div>
+<h3>Targets and LEDs</h3>
+<ul>
+<li>The SEL-751A carries <strong>16 status and trip target LEDs</strong>. From the factory they are predefined and fixed in settings; you can reprogram them for the application, with relabeling where needed.</li>
+<li>Targets are the answer to &ldquo;what happened?&rdquo; for someone standing in front of the panel with no laptop. Assign them to the conditions a person needs at 3&nbsp;a.m., not to whatever was convenient.</li>
+<li>Target reset is a deliberate action, and it is logged. Do not reset targets before you have recorded them.</li>
+</ul>
+<h3>Pushbuttons and operator controls</h3>
+<ul>
+<li>Programmable front-panel pushbuttons with their own LEDs give local trip, close, and scheme control. On the SEL-751A, four programmable operator pushbuttons handle tripping and closing, and the reclosing state is tracked by the <code>RECL RESET</code> and <code>RECL LOCKOUT</code> LEDs.</li>
+<li><strong>Local bits</strong> (set from the front panel) and <strong>remote bits</strong> (set over a protocol) are the two ways a human intention enters relay logic. Keeping them distinct is what lets you build a proper local/remote control scheme.</li>
+</ul>
+</div>
+<div>
+<h3>The display and the commands behind it</h3>
+<table>
+  <tr><th>Command</th><th>Shows</th></tr>
+  <tr><td><code>MET</code></td><td>Live metering: currents, voltages, power, frequency</td></tr>
+  <tr><td><code>MET PM</code></td><td>Synchrophasor values, where the option exists</td></tr>
+  <tr><td><code>MET L</code></td><td>Arc-flash sensor light intensity in percent</td></tr>
+  <tr><td><code>TAR</code></td><td>Relay Word bit states &mdash; the raw truth</td></tr>
+  <tr><td><code>STA</code></td><td>Self-test status, temperatures, power supply</td></tr>
+  <tr><td><code>ID</code></td><td>Part number, firmware FID, serial number</td></tr>
+  <tr><td><code>HIS</code></td><td>Event summary history</td></tr>
+  <tr><td><code>SER</code></td><td>The sequential events log</td></tr>
+  <tr><td><code>EVE</code> / <code>CEV</code></td><td>Event report; COMTRADE-format event</td></tr>
+  <tr><td><code>SHO</code></td><td>Settings, by class</td></tr>
+</table>
+<p style="font-size:8pt;color:#6e7180">The same commands work over the serial port, over Telnet, and behind the QuickSet interface &mdash; learning them once pays off on every device.</p>
+</div>
+</div>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The front panel is the interface for someone with no laptop &mdash; design it that way</text>
+  <rect x="40" y="32" width="300" height="160" rx="8" fill="#fafbfc" stroke="#1a1a22" stroke-width="1.5"/>
+  <!-- LED column -->
+  <g>
+    <text x="62" y="48" font-size="7" fill="#8a8e9b">TARGETS</text>
+    <g font-size="6.6" fill="#454956">
+      <circle cx="62" cy="60" r="4" fill="#10a37f"/><text x="72" y="63">ENABLED</text>
+      <circle cx="62" cy="76" r="4" fill="#d63a3a"><animate attributeName="opacity" values="1;0.25;1" dur="1.2s" repeatCount="indefinite"/></circle><text x="72" y="79">TRIP</text>
+      <circle cx="62" cy="92" r="4" fill="#d7930a"/><text x="72" y="95">51G</text>
+      <circle cx="62" cy="108" r="4" fill="#e5e7eb"/><text x="72" y="111">50P</text>
+      <circle cx="62" cy="124" r="4" fill="#e5e7eb"/><text x="72" y="127">79 LOCKOUT</text>
+      <circle cx="62" cy="140" r="4" fill="#5468c4"/><text x="72" y="143">79 RESET</text>
+      <circle cx="62" cy="156" r="4" fill="#e5e7eb"/><text x="72" y="159">COMM FAIL</text>
+      <circle cx="62" cy="172" r="4" fill="#e5e7eb"/><text x="72" y="175">SEF</text>
+    </g>
+  </g>
+  <!-- display -->
+  <rect x="168" y="52" width="150" height="52" rx="4" fill="#fff" stroke="#a9adb8"/>
+  <text x="243" y="72" font-size="7.6" text-anchor="middle" font-family="Consolas, monospace" fill="#1a1a22">IA 604 IB 598 IC 611</text>
+  <text x="243" y="88" font-size="7.6" text-anchor="middle" font-family="Consolas, monospace" fill="#1a1a22">3I0 17 &nbsp; 12.42 kV</text>
+  <!-- pushbuttons -->
+  <g font-size="6.6" fill="#454956">
+    <rect x="168" y="118" width="66" height="22" rx="4" fill="#fff" stroke="#1a1a22"/><text x="201" y="132" text-anchor="middle">TRIP</text>
+    <rect x="252" y="118" width="66" height="22" rx="4" fill="#fff" stroke="#1a1a22"/><text x="285" y="132" text-anchor="middle">CLOSE</text>
+    <rect x="168" y="150" width="66" height="22" rx="4" fill="#fff" stroke="#1a1a22"/><text x="201" y="164" text-anchor="middle">TARGET RST</text>
+    <rect x="252" y="150" width="66" height="22" rx="4" fill="#fff" stroke="#1a1a22"/><text x="285" y="164" text-anchor="middle">LOCAL/REM</text>
+  </g>
+  <!-- serial port -->
+  <rect x="150" y="180" width="40" height="8" rx="2" fill="#e5e7eb" stroke="#a9adb8"/>
+  <text x="200" y="187" font-size="6.6" fill="#8a8e9b">front serial port &mdash; the door that always works</text>
+
+  <g font-size="7.4">
+    <rect x="364" y="32" width="322" height="74" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="378" y="50" font-weight="600" fill="#0d7f63">Assign targets to what a person needs at 3 a.m.</text>
+    <text x="378" y="66" fill="#454956">Which element operated &middot; whether reclosing is in lockout</text>
+    <text x="378" y="78" fill="#454956">Whether the relay itself is healthy &middot; whether comms are up</text>
+    <text x="378" y="94" fill="#8a8e9b">Not whatever the factory defaults happened to be.</text>
+
+    <rect x="364" y="116" width="322" height="76" rx="6" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="378" y="134" font-weight="600" fill="#9c6d06">And record targets before resetting them</text>
+    <text x="378" y="150" fill="#454956">The SER still holds the record, but the person standing at</text>
+    <text x="378" y="162" fill="#454956">the panel may not know how to read it &mdash; and the photograph</text>
+    <text x="378" y="174" fill="#454956">they take of the lit LEDs is often the first evidence anyone has.</text>
+    <text x="378" y="188" fill="#8a8e9b">Reset is itself logged.</text>
+  </g>
+</svg></div>
+<p class="figcap">Sixteen target LEDs on an SEL-751A, factory-fixed but reprogrammable. Choosing them well is cheap; leaving them at defaults is expensive exactly once. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">4</span>Settings structure</h2>
+<table>
+  <tr><th>Class</th><th>Contains</th><th>Notes</th></tr>
+  <tr><td><strong>Global</strong></td><td>Nominal frequency, phase rotation, date format, time source, breaker monitor configuration</td><td>Applies regardless of settings group. <code>PHROT</code> lives here and it matters &mdash; see <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a></td></tr>
+  <tr><td><strong>Group 1&hellip;n</strong></td><td>Element pickups, curves, timers, and the SELogic equations that go with them</td><td>Multiple groups let one relay carry maintenance settings, seasonal settings, or alternate configurations. Group selection is itself logic</td></tr>
+  <tr><td><strong>Logic</strong></td><td>SELogic control equations, timers, latches, math variables</td><td>Grouped with the settings group on most models &mdash; changing groups changes the logic too</td></tr>
+  <tr><td><strong>Port</strong></td><td>Per-port protocol, baud, addresses, timeouts</td><td>Independent of settings groups</td></tr>
+  <tr><td><strong>Report</strong></td><td>SER trigger lists, event report length and triggering, load profile</td><td>Configure the SER triggers deliberately; the default list is rarely what you want</td></tr>
+  <tr><td><strong>Protocol maps</strong></td><td>DNP3 point maps, Modbus user map, IEC 61850 dataset configuration</td><td>The seam with the automation world &mdash; see <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a></td></tr>
+  <tr><td><strong>Front panel</strong></td><td>Target LED assignments, display screens, pushbutton labels</td><td>Cheap to get right, expensive to leave at defaults</td></tr>
+</table>
+<div class="callout warn">
+<strong>Settings-group changes are not free.</strong> Switching groups momentarily disables protection on many relays while the new settings take effect, and the change is logged. Use group switching for planned states (maintenance mode, alternate source) and never as a substitute for logic that could ride inside one group.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>The Relay Word</h2>
+<p>The Relay Word is the relay's complete boolean state, published as named bits organized into rows. It is simultaneously:</p>
+<ul>
+<li><strong>The vocabulary of SELogic.</strong> Equations are written in terms of these bit names &mdash; see <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>.</li>
+<li><strong>What the SER logs.</strong> SER entries are Relay Word bit transitions with true timestamps.</li>
+<li><strong>What Fast SER and Mirrored Bits transmit.</strong> The relay-to-relay and unsolicited-event channels carry these same bits.</li>
+<li><strong>What protocol maps expose.</strong> A DNP3 binary input is, underneath, a Relay Word bit.</li>
+<li><strong>What <code>TAR</code> displays.</strong> When something is not behaving, reading the actual bits is faster than theorizing about it.</li>
+</ul>
+<p>Bit names are model-specific and firmware-specific. The relay's instruction manual carries the authoritative table, and the QuickSet driver for that FID knows which bits exist &mdash; which is exactly why the FID string matters when moving settings between relays.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Self-tests and health</h2>
+<table>
+  <tr><th>What is checked</th><th>Typical response</th></tr>
+  <tr><td>Power supply voltages, internal temperature</td><td>Warning, then failure with the alarm contact dropping out</td></tr>
+  <tr><td>RAM, ROM, settings checksum</td><td>A settings checksum failure is serious &mdash; the relay may stop protecting</td></tr>
+  <tr><td>A/D converter reference and offsets</td><td>Drifting offsets show up as small standing currents or voltages with nothing connected</td></tr>
+  <tr><td>Master offset and clock</td><td>Affects timestamps and, on synchrophasor-capable relays, phasor accuracy</td></tr>
+  <tr><td>Communications card status</td><td>Port alarms, including &ldquo;SFP not compliant&rdquo; on Ethernet cards</td></tr>
+  <tr><td>Battery (memory backup) on some models</td><td>Affects retention of records and clock through a power loss</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Wire the alarm contact, and map it.</strong> The relay's self-test alarm contact is typically <em>closed</em> when healthy so that loss of power raises the alarm. A station full of relays whose alarm contacts go nowhere is a station where a failed relay is discovered during a fault. Map it as a status point per device, not as one shared string &mdash; see <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Assuming a feature exists because the model number matches.</strong> Options are per-unit. Read the part number and confirm with <code>ID</code>/<code>STA</code>.</li>
+<li><strong>1&nbsp;A versus 5&nbsp;A nominal.</strong> A settings file from a 5&nbsp;A relay dropped into a 1&nbsp;A relay produces elements that are wrong by a factor of five &mdash; and nothing about the file looks unusual.</li>
+<li><strong>Firmware mismatch when copying settings.</strong> Different FIDs have different settings and different Relay Word bits. QuickSet will tell you; do not override it casually.</li>
+<li><strong>Front-panel targets left at factory defaults</strong> in an application where the defaults mean nothing. The person reading them is not you.</li>
+<li><strong>Input thresholds and long cable capacitance.</strong> A long run to a field contact can hold an input asserted after the contact opens. Use the input debounce settings.</li>
+<li><strong>Output contacts assumed interchangeable.</strong> Check the interrupting rating and the failsafe mode before wiring one into a trip circuit &mdash; see <a href="atlas:fundamentals/control-wiring.html">Control Wiring</a>.</li>
+<li><strong>Reading metering and forgetting it is the fundamental.</strong> On a harmonic-rich feeder the relay and a true-RMS clamp meter will legitimately disagree.</li>
+<li><strong>Resetting targets before recording them.</strong> The SER still has the record, but the person who reset them may not know how to read it.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+  <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>
+  <a href="atlas:rtac-automation/quickset.html">Engineering Access &amp; QuickSet</a>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a>
+</div>
+<p class="footnote">Sources: SEL-751A Feeder Protection Relay Data Sheet (20250411) &mdash; standard protection features, the optional voltage input options and the elements they unlock (over/underfrequency, rate-of-change of frequency and fast rate-of-change for Aurora mitigation, measured residual current input CT, over/undervoltage, synchronism check, DC station battery monitor, arc-flash, power elements, demand metering), wye/open-delta/single voltage input connections, four programmable front-panel pushbuttons with reclosing-state LEDs, 16 status and trip target LEDs that are factory-fixed and user-reprogrammable, standard Modbus RTU / Mirrored Bits / IRIG-B / C37.118 support and the optional IEC 61850, DNP3 serial and LAN/WAN, Modbus TCP/IP, SNTP, internal and external RTD (SEL-2600, 12 external), expanded I/O, arc-flash fiber-optic inputs, additional serial ports, and single or dual copper or fiber Ethernet options. Command vocabulary and settings-class structure follow the SEL-751/751A and SEL-451 instruction manuals. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

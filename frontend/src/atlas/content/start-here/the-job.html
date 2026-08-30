@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Substation Automation, End to End</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="orientation,signal path,timescales,lifecycle,architecture,overview,map,who does what">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Substation Automation, End to End (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Substation Automation, End to End</h1>
+  <p>The map of the whole job — from primary amperes to an operator's screen, who owns each hand-off, and where every other page in this atlas plugs in</p>
+  <div class="chips"><span>orientation</span><span>signal path</span><span>timescales</span><span>project lifecycle</span><span>what good looks like</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">What this job is</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Everything in the substation is a translation.</strong> Primary amperes become secondary amperes, become samples, become phasors, become Relay Word bits, become protocol points, become tags, become a number on a screen. Almost every field problem is a bad translation at one of those seams.</li>
+<li><strong>Protection and automation run on different clocks.</strong> Protection decides in <strong>1&ndash;3 cycles</strong> (16&ndash;50&nbsp;ms) and must never wait for a network. Automation decides in <strong>hundreds of milliseconds to seconds</strong>. SCADA and humans work in <strong>seconds to minutes</strong>. Never put a slow layer inside a fast layer's decision path.</li>
+<li><strong>The relay is the system of record.</strong> Its SER and event reports carry time-stamped truth at quarter-cycle resolution. SCADA carries a scanned approximation. When the two disagree, the relay is right &mdash; see <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>.</li>
+<li><strong>Nothing is real until it is proven end to end.</strong> A point that was never toggled from the field and watched on the master screen is not commissioned; it is a hopeful spreadsheet row.</li>
+<li><strong>Two documents outlive you:</strong> the settings file and the points list. Version both, and make the as-built match reality &mdash; see <a href="atlas:relays-devices/settings-management.html">Settings Management</a>.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The signal path &mdash; the one picture to hold in your head</h2>
+<p>A feeder carries 600&nbsp;A. An operator forty miles away sees &ldquo;600.&rdquo; Between those two facts sit seven boxes, each of which can be wrong in its own characteristic way. Learning this path &mdash; and which page of this atlas owns each link &mdash; is most of what &ldquo;knowing the job&rdquo; means.</p>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 z" fill="#10a37f"/>
+    </marker>
+    <marker id="arR" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 z" fill="#d63a3a"/>
+    </marker>
+  </defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One measurement, seven translations &mdash; follow the dot</text>
+
+  <g font-size="8">
+    <rect x="8"   y="40" width="86" height="46" rx="5" fill="#fff" stroke="#d63a3a" stroke-width="1.25"/>
+    <text x="51" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#d63a3a">Primary</text>
+    <text x="51" y="70" text-anchor="middle" fill="#6e7180">600 A on the</text>
+    <text x="51" y="80" text-anchor="middle" fill="#6e7180">feeder conductor</text>
+
+    <rect x="107" y="40" width="86" height="46" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+    <text x="150" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9c6d06">CT / PT</text>
+    <text x="150" y="70" text-anchor="middle" fill="#6e7180">600:5 gives</text>
+    <text x="150" y="80" text-anchor="middle" fill="#6e7180">5.00 A secondary</text>
+
+    <rect x="206" y="40" width="86" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="249" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#5468c4">Relay front end</text>
+    <text x="249" y="70" text-anchor="middle" fill="#6e7180">sampled, filtered,</text>
+    <text x="249" y="80" text-anchor="middle" fill="#6e7180">CTR-scaled</text>
+
+    <rect x="305" y="40" width="86" height="46" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="348" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#5468c4">Relay logic</text>
+    <text x="348" y="70" text-anchor="middle" fill="#6e7180">phasors, elements,</text>
+    <text x="348" y="80" text-anchor="middle" fill="#6e7180">Relay Word bits</text>
+
+    <rect x="404" y="40" width="86" height="46" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="447" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#10a37f">Protocol</text>
+    <text x="447" y="70" text-anchor="middle" fill="#6e7180">DNP3 AI #7,</text>
+    <text x="447" y="80" text-anchor="middle" fill="#6e7180">scaled integer</text>
+
+    <rect x="503" y="40" width="86" height="46" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="546" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#10a37f">RTAC tag</text>
+    <text x="546" y="70" text-anchor="middle" fill="#6e7180">FDR1_IA.instMag</text>
+    <text x="546" y="80" text-anchor="middle" fill="#6e7180">plus quality, time</text>
+
+    <rect x="602" y="40" width="90" height="46" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+    <text x="647" y="57" text-anchor="middle" font-size="8.5" font-weight="600" fill="#1a1a22">SCADA</text>
+    <text x="647" y="70" text-anchor="middle" fill="#6e7180">&ldquo;FDR 1  IA</text>
+    <text x="647" y="80" text-anchor="middle" fill="#6e7180">600 A&rdquo;</text>
+  </g>
+
+  <g stroke="#10a37f" stroke-width="1.2" marker-end="url(#ar)" fill="none">
+    <path d="M94,63 H103"/><path d="M193,63 H202"/><path d="M292,63 H301"/>
+    <path d="M391,63 H400"/><path d="M490,63 H499"/><path d="M589,63 H598"/>
+  </g>
+
+  <circle r="4.5" fill="#10a37f">
+    <animateMotion dur="7s" repeatCount="indefinite"
+      path="M51,63 H150 H249 H348 H447 H546 H647"
+      keyPoints="0;0.167;0.167;0.334;0.334;0.5;0.5;0.667;0.667;0.834;0.834;1;1"
+      keyTimes="0;0.11;0.16;0.27;0.32;0.43;0.48;0.59;0.64;0.75;0.8;0.94;1" calcMode="linear"/>
+  </circle>
+
+  <text x="8" y="112" font-size="9" font-weight="600" fill="#454956">&hellip;and the characteristic lie told at each seam</text>
+  <g font-size="7.4" fill="#8a8e9b">
+    <rect x="8"   y="120" width="86" height="42" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="51" y="134" text-anchor="middle" fill="#9c3838">wrong assumption</text>
+    <text x="51" y="145" text-anchor="middle">about real load</text>
+    <text x="51" y="155" text-anchor="middle">or fault duty</text>
+
+    <rect x="107" y="120" width="86" height="42" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="150" y="134" text-anchor="middle" fill="#9c6d06">polarity reversed,</text>
+    <text x="150" y="145" text-anchor="middle">CT saturated,</text>
+    <text x="150" y="155" text-anchor="middle">shorting screw in</text>
+
+    <rect x="206" y="120" width="86" height="42" rx="4" fill="#eef0f9" stroke="#dde1f2"/>
+    <text x="249" y="134" text-anchor="middle" fill="#5468c4">CTR / PTR set</text>
+    <text x="249" y="145" text-anchor="middle">wrong &mdash; every</text>
+    <text x="249" y="155" text-anchor="middle">number is off</text>
+
+    <rect x="305" y="120" width="86" height="42" rx="4" fill="#eef0f9" stroke="#dde1f2"/>
+    <text x="348" y="134" text-anchor="middle" fill="#5468c4">element disabled,</text>
+    <text x="348" y="145" text-anchor="middle">wrong group, or</text>
+    <text x="348" y="155" text-anchor="middle">torque-controlled</text>
+
+    <rect x="404" y="120" width="86" height="42" rx="4" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="447" y="134" text-anchor="middle" fill="#0d7f63">index off by one,</text>
+    <text x="447" y="145" text-anchor="middle">deadband too big,</text>
+    <text x="447" y="155" text-anchor="middle">class None</text>
+
+    <rect x="503" y="120" width="86" height="42" rx="4" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="546" y="134" text-anchor="middle" fill="#0d7f63">scale applied</text>
+    <text x="546" y="145" text-anchor="middle">twice, or stale</text>
+    <text x="546" y="155" text-anchor="middle">value marked good</text>
+
+    <rect x="602" y="120" width="90" height="42" rx="4" fill="#f2f3f5" stroke="#e5e7eb"/>
+    <text x="647" y="134" text-anchor="middle" fill="#454956">point landed on</text>
+    <text x="647" y="145" text-anchor="middle">the wrong tag at</text>
+    <text x="647" y="155" text-anchor="middle">the master</text>
+  </g>
+
+  <text x="8" y="188" font-size="9" font-weight="600" fill="#454956">Which atlas page owns each link</text>
+  <g font-size="7.4">
+    <rect x="8" y="196" width="185" height="26" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="100" y="212" text-anchor="middle" fill="#10a37f">CT &amp; PT Fundamentals</text>
+    <rect x="197" y="196" width="194" height="26" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="294" y="212" text-anchor="middle" fill="#10a37f">Relay Anatomy &middot; Protection Elements</text>
+    <rect x="395" y="196" width="95" height="26" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="442" y="212" text-anchor="middle" fill="#10a37f">DNP3 / Modbus</text>
+    <rect x="494" y="196" width="95" height="26" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="541" y="212" text-anchor="middle" fill="#10a37f">RTAC Tags</text>
+    <rect x="593" y="196" width="99" height="26" rx="4" fill="#fff" stroke="#e5e7eb"/>
+    <text x="642" y="212" text-anchor="middle" fill="#10a37f">SCADA Integration</text>
+  </g>
+
+  <text x="8" y="248" font-size="9" font-weight="600" fill="#454956">The control path runs the other way &mdash; and carries all the risk</text>
+  <g stroke="#d63a3a" stroke-width="1.2" fill="none" marker-end="url(#arR)">
+    <path d="M647,262 H60"/>
+  </g>
+  <g font-size="7.4" fill="#8a8e9b">
+    <text x="645" y="278" text-anchor="end">operator clicks OPEN &rarr; CROB select+operate &rarr; RTAC operPulse &rarr; relay OC bit &rarr; output contact &rarr; trip coil &rarr; breaker</text>
+  </g>
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="3.2s" repeatCount="indefinite" path="M647,262 H60"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="3.2s" repeatCount="indefinite"/>
+  </circle>
+</svg></div>
+<p class="figcap">The data path (left to right) and the control path (right to left). Nearly all integration troubleshooting is deciding which box first told a lie &mdash; so test seam by seam, never end to end first. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout">
+<strong>The single most useful habit:</strong> when a number is wrong, do not debate it &mdash; walk the path with a meter. Read primary amps with a clamp, read secondary at the test switch, read the relay's <code>MET</code> display, read the protocol point in the RTAC tag viewer, read the master screen. The first place the numbers stop agreeing is the bug; everything downstream of it is a symptom.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Three clocks, and why they must not be mixed</h2>
+<p>The substation runs three timescales at once. Almost every architectural rule in this atlas &mdash; why GOOSE exists, why protection never depends on the RTAC, why SCADA timestamps are useless for fault analysis &mdash; falls out of this one picture.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="13" font-size="9" font-weight="600" fill="#454956">A fault at t = 0 &mdash; what happens, and when</text>
+
+  <line x1="60" y1="200" x2="680" y2="200" stroke="#a9adb8" stroke-width="1"/>
+  <g font-size="7.4" fill="#8a8e9b" text-anchor="middle">
+    <line x1="60"  y1="196" x2="60"  y2="204" stroke="#a9adb8"/><text x="60"  y="216">0</text>
+    <line x1="164" y1="196" x2="164" y2="204" stroke="#a9adb8"/><text x="164" y="216">1 ms</text>
+    <line x1="268" y1="196" x2="268" y2="204" stroke="#a9adb8"/><text x="268" y="216">10 ms</text>
+    <line x1="372" y1="196" x2="372" y2="204" stroke="#a9adb8"/><text x="372" y="216">100 ms</text>
+    <line x1="476" y1="196" x2="476" y2="204" stroke="#a9adb8"/><text x="476" y="216">1 s</text>
+    <line x1="580" y1="196" x2="580" y2="204" stroke="#a9adb8"/><text x="580" y="216">10 s</text>
+    <line x1="672" y1="196" x2="672" y2="204" stroke="#a9adb8"/><text x="672" y="216">minutes</text>
+  </g>
+  <text x="370" y="232" font-size="7.6" fill="#8a8e9b" text-anchor="middle">logarithmic time after fault inception</text>
+
+  <g font-size="7.8">
+    <rect x="60" y="28" width="620" height="34" rx="4" fill="#fbeeee" opacity="0.55"/>
+    <text x="8" y="42" font-size="8" font-weight="600" fill="#d63a3a">PROTECTION</text>
+    <text x="8" y="53" font-size="7.2" fill="#8a8e9b">hard real time</text>
+
+    <rect x="60" y="72" width="620" height="34" rx="4" fill="#eef0f9" opacity="0.55"/>
+    <text x="8" y="86" font-size="8" font-weight="600" fill="#5468c4">AUTOMATION</text>
+    <text x="8" y="97" font-size="7.2" fill="#8a8e9b">RTAC schemes</text>
+
+    <rect x="60" y="116" width="620" height="34" rx="4" fill="#e7f6f1" opacity="0.55"/>
+    <text x="8" y="130" font-size="8" font-weight="600" fill="#0d7f63">SCADA</text>
+    <text x="8" y="141" font-size="7.2" fill="#8a8e9b">scan and report</text>
+
+    <rect x="60" y="160" width="620" height="30" rx="4" fill="#f2f3f5" opacity="0.7"/>
+    <text x="8" y="175" font-size="8" font-weight="600" fill="#454956">HUMAN</text>
+  </g>
+
+  <g font-size="7.2" fill="#454956">
+    <circle cx="60"  cy="45" r="3.5" fill="#d63a3a"/><text x="66" y="38">fault inception</text>
+    <circle cx="215" cy="45" r="3.5" fill="#d63a3a"/><text x="221" y="38">element picks up (&frac14;&ndash;1 cycle)</text>
+    <circle cx="300" cy="45" r="3.5" fill="#d63a3a"/><text x="306" y="56">trip asserted; GOOSE / MB sent</text>
+    <circle cx="352" cy="45" r="3.5" fill="#d63a3a"/><text x="358" y="38">breaker open (2&ndash;3 cycles)</text>
+  </g>
+  <g font-size="7.2" fill="#454956">
+    <circle cx="330" cy="89" r="3.5" fill="#5468c4"/><text x="336" y="82">RTAC scan sees the bit</text>
+    <circle cx="470" cy="89" r="3.5" fill="#5468c4"/><text x="476" y="82">scheme logic decides</text>
+    <circle cx="560" cy="89" r="3.5" fill="#5468c4"/><text x="566" y="100">switching sequence issued</text>
+  </g>
+  <g font-size="7.2" fill="#454956">
+    <circle cx="400" cy="133" r="3.5" fill="#10a37f"/><text x="406" y="126">unsolicited event, or next poll</text>
+    <circle cx="510" cy="133" r="3.5" fill="#10a37f"/><text x="516" y="126">alarm on the wall</text>
+    <circle cx="620" cy="133" r="3.5" fill="#10a37f"/><text x="626" y="144">integrity poll refresh</text>
+  </g>
+  <g font-size="7.2" fill="#454956">
+    <circle cx="600" cy="175" r="3.5" fill="#6e7180"/><text x="606" y="169">operator reads it</text>
+  </g>
+
+  <line y1="24" y2="196" stroke="#1a1a22" stroke-width="1" stroke-dasharray="3 3" opacity="0.55">
+    <animate attributeName="x1" values="60;680" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="60;680" dur="6s" repeatCount="indefinite"/>
+  </line>
+</svg></div>
+<p class="figcap">The breaker is already open before SCADA has heard about the fault. That is not a defect &mdash; it is the design. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Layer</th><th>Budget</th><th>Carried by</th><th>What it must never depend on</th></tr>
+  <tr><td><strong>Protection</strong></td><td>4&ndash;50 ms</td><td>hardwired contacts, <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a>, <a href="atlas:data-protocols/iec61850-goose.html">GOOSE</a></td><td>any polled protocol, any PC, any router</td></tr>
+  <tr><td><strong>Automation</strong></td><td>50 ms &ndash; 5 s</td><td>RTAC logic over DNP3 / 61850 / MB</td><td>the SCADA master being reachable</td></tr>
+  <tr><td><strong>SCADA</strong></td><td>1 s &ndash; 1 min</td><td>DNP3, Modbus, or MMS over a WAN</td><td>sub-second determinism</td></tr>
+  <tr><td><strong>Human</strong></td><td>minutes</td><td>HMI screens, alarms, phone calls</td><td>reading raw protocol</td></tr>
+</table>
+
+<div class="callout warn">
+<strong>The classic beginner mistake:</strong> implementing a protection or interlock function in RTAC logic because it was easier to write there. If the function must act in under roughly 100&nbsp;ms, or must keep acting while the RTAC is restarting for a settings change, it belongs in the relay &mdash; as SELogic, as a hardwired contact, or as GOOSE. RTAC logic is for <em>schemes</em>: restoration, transfer, sequencing, data conditioning.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>The device zoo</h2>
+<p>Every substation is assembled from the same short list of roles. Vendors and model numbers change; the roles do not.</p>
+
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a">
+    <b>Protective relay</b>
+    <span>Measures, decides, trips. SEL-751/751A and 451 on feeders and buses; 311C/411L/421 on lines; 387/487E on transformers; 487B on buses; 700G/400G on generators; 710/849 on motors. Owns the fastest decisions and the best records.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Feeder device controls</b>
+    <span>Pole-top intelligence: SEL-351R/651R recloser controls, SEL-2431 voltage regulator control, capacitor bank controls. Same relay DNA, packaged for the feeder.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>RTAC</b>
+    <span>SEL-3505/3530/3532/3555/3560. Protocol gateway, logic engine, HMI server, data concentrator, access-control point. The hub every integration project revolves around.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>I/O and remote I/O</b>
+    <span>Axion (SEL-2240 family) over EtherCAT, plus relay contact I/O. Where digital intent becomes a dry contact, and back.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Network</b>
+    <span>SEL-2730M managed switch, SEL-2740S SDN switch, media converters, SFPs, SEL-2800 fiber serial. Plus radios and cellular for feeder devices.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Clock</b>
+    <span>SEL-2488 (or 2407) GNSS clock feeding demodulated IRIG-B, NTP, and PTP. Without it, no two records can be compared.</span>
+  </div>
+  <div style="border-left:4px solid #1a1a22">
+    <b>Security gateway</b>
+    <span>SEL-3620/3622. Terminates engineering access, proxies serial and Ethernet, enforces accounts and logging at the substation boundary.</span>
+  </div>
+  <div style="border-left:4px solid #1a1a22">
+    <b>Meter</b>
+    <span>SEL-734/735 revenue and power-quality meters. Different accuracy class, different obligations, and a different audience than a relay's metering.</span>
+  </div>
+  <div style="border-left:4px solid #6e7180">
+    <b>Computer / HMI</b>
+    <span>SEL-3350/3355 substation computers running Blueframe apps, local HMI, historians, engineering-access jump hosts.</span>
+  </div>
+</div>
+<p>Which part number to reach for is in <a href="atlas:reference/sel-product-map.md">the SEL Product Family Map</a>; the software you drive them with is in <a href="atlas:reference/sel-software-map.md">the SEL Software Map</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>The project lifecycle</h2>
+<p>Automation work has a shape, and the shape is the same on a two-relay retrofit and a greenfield transmission station. What changes is how many people stand between you and each artifact.</p>
+
+<div class="fig"><svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ar2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="13" font-size="9" font-weight="600" fill="#454956">Six phases, and the artifact each one must produce</text>
+  <g font-size="8">
+    <rect x="6" y="26" width="108" height="52" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="60" y="44" text-anchor="middle" font-weight="600" fill="#5468c4">1 &middot; Design</text>
+    <text x="60" y="57" text-anchor="middle" font-size="7.4" fill="#6e7180">one-lines, panel</text>
+    <text x="60" y="67" text-anchor="middle" font-size="7.4" fill="#6e7180">layouts, architecture</text>
+
+    <rect x="122" y="26" width="108" height="52" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="176" y="44" text-anchor="middle" font-weight="600" fill="#5468c4">2 &middot; Engineer</text>
+    <text x="176" y="57" text-anchor="middle" font-size="7.4" fill="#6e7180">settings, RTAC</text>
+    <text x="176" y="67" text-anchor="middle" font-size="7.4" fill="#6e7180">project, points list</text>
+
+    <rect x="238" y="26" width="108" height="52" rx="6" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+    <text x="292" y="44" text-anchor="middle" font-weight="600" fill="#9c6d06">3 &middot; FAT</text>
+    <text x="292" y="57" text-anchor="middle" font-size="7.4" fill="#6e7180">bench-prove logic</text>
+    <text x="292" y="67" text-anchor="middle" font-size="7.4" fill="#6e7180">and every point</text>
+
+    <rect x="354" y="26" width="108" height="52" rx="6" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+    <text x="408" y="44" text-anchor="middle" font-weight="600" fill="#9c6d06">4 &middot; Install</text>
+    <text x="408" y="57" text-anchor="middle" font-size="7.4" fill="#6e7180">mount, wire,</text>
+    <text x="408" y="67" text-anchor="middle" font-size="7.4" fill="#6e7180">terminate, label</text>
+
+    <rect x="470" y="26" width="108" height="52" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.25"/>
+    <text x="524" y="44" text-anchor="middle" font-weight="600" fill="#d63a3a">5 &middot; Commission</text>
+    <text x="524" y="57" text-anchor="middle" font-size="7.4" fill="#6e7180">inject, prove I/O,</text>
+    <text x="524" y="67" text-anchor="middle" font-size="7.4" fill="#6e7180">point-to-point, load</text>
+
+    <rect x="586" y="26" width="108" height="52" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="640" y="44" text-anchor="middle" font-weight="600" fill="#10a37f">6 &middot; Turn over</text>
+    <text x="640" y="57" text-anchor="middle" font-size="7.4" fill="#6e7180">as-builts, as-lefts,</text>
+    <text x="640" y="67" text-anchor="middle" font-size="7.4" fill="#6e7180">archive, training</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1.1" fill="none" marker-end="url(#ar2)">
+    <path d="M114,52 H119"/><path d="M230,52 H235"/><path d="M346,52 H351"/><path d="M462,52 H467"/><path d="M578,52 H583"/>
+  </g>
+
+  <text x="8" y="102" font-size="9" font-weight="600" fill="#454956">Cost of finding a mistake in each phase</text>
+  <line x1="60" y1="110" x2="60" y2="172" stroke="#e5e7eb"/>
+  <line x1="60" y1="172" x2="690" y2="172" stroke="#e5e7eb"/>
+  <path d="M60,168 C200,166 330,150 420,126 C500,104 600,88 686,116" fill="none" stroke="#d63a3a" stroke-width="1.6"/>
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="64" y="184">cheap</text>
+    <text x="290" y="184">getting expensive</text>
+    <text x="470" y="184">outage window, crew on site</text>
+    <text x="688" y="184" text-anchor="end">after energization: a misoperation</text>
+  </g>
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="8s" repeatCount="indefinite"
+      path="M60,168 C200,166 330,150 420,126 C500,104 600,88 686,116"/>
+  </circle>
+</svg></div>
+<p class="figcap">Every hour spent in phases 2 and 3 buys back several in phase 5. The FAT exists precisely because this curve is so steep. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Phase</th><th>You produce</th><th>You must receive</th><th>Atlas page</th></tr>
+  <tr><td>Design</td><td>architecture drawing, device list, network plan</td><td>one-lines, protection philosophy, SCADA standard</td><td><a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a></td></tr>
+  <tr><td>Engineer</td><td>relay settings, RTAC project, points list, HMI screens</td><td>fault study, CT/PT ratios, master point-naming rules</td><td><a href="atlas:relays-devices/settings-management.html">Settings Management</a> &middot; <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a></td></tr>
+  <tr><td>FAT</td><td>signed test record, punch list</td><td>a bench with the real devices, or a credible simulation</td><td>FAT &amp; SAT</td></tr>
+  <tr><td>Install</td><td>terminations, labels, red-lines</td><td>approved wiring drawings, panel schedules</td><td><a href="atlas:fundamentals/control-wiring.html">Control Wiring &amp; Terminations</a></td></tr>
+  <tr><td>Commission</td><td>as-left settings, test sheets, point-to-point record</td><td>an outage window and a cooperative master station</td><td>Relay Checkout</td></tr>
+  <tr><td>Turn over</td><td>as-builts, archives, operator briefing</td><td>acceptance</td><td>FAT &amp; SAT</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>What good looks like</h2>
+<div class="twocol">
+<div>
+<h3>Signs the work is sound</h3>
+<ul>
+<li>Every SCADA point was toggled from the primary end and observed on the master screen &mdash; not assumed from the map.</li>
+<li>Every clock is disciplined from the same source, and you checked that <code>TSOK</code>/<code>IRIGOK</code> is asserted, not just that a cable is plugged in.</li>
+<li>The archived as-left settings file matches what is in the relay, and you can prove it with a read-back.</li>
+<li>Someone who has never seen the project can find, from the points list alone, which physical wire a given SCADA point comes from.</li>
+<li>Failure modes were tested, not just success: pull the fiber, kill the primary NIC, restart the RTAC, and watch what SCADA reports.</li>
+</ul>
+</div>
+<div>
+<h3>Signs of trouble</h3>
+<ul>
+<li>&ldquo;It worked in the office.&rdquo; The office has no induced noise, no ground potential rise, and no master station with its own opinions.</li>
+<li>Protection logic living in the RTAC because the relay was &ldquo;already set.&rdquo;</li>
+<li>A points list maintained in three places, each slightly different.</li>
+<li>Analogs that look plausible but were never checked against a clamp meter &mdash; a factor-of-ten scaling error reads perfectly reasonable at light load.</li>
+<li>Passwords left at defaults &ldquo;until we come back.&rdquo; Nobody comes back. See <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>.</li>
+<li>Quality flags ignored: a stale value with a healthy-looking magnitude is the most dangerous number in the system.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>How this atlas is organized</h2>
+<table>
+  <tr><th>Section</th><th>Answers</th></tr>
+  <tr><td><strong>Power System Fundamentals</strong></td><td>What are the volts, amps, and iron actually doing? Read this before settings can ever make sense.</td></tr>
+  <tr><td><strong>Protection</strong></td><td>How the relay decides to trip &mdash; element by element, then scheme by scheme, then by protected equipment.</td></tr>
+  <tr><td><strong>Relays &amp; Devices</strong></td><td>Living with the box: SELogic, records, metering, settings files, firmware.</td></tr>
+  <tr><td><strong>Communications</strong></td><td>Getting bits from A to B reliably &mdash; copper, fiber, Ethernet, time, and security.</td></tr>
+  <tr><td><strong>Data Protocols</strong></td><td>What those bits mean &mdash; DNP3, Modbus, IEC 61850, Mirrored Bits, SEL protocols, synchrophasors.</td></tr>
+  <tr><td><strong>RTAC &amp; Automation</strong></td><td>The hub: tags, logic, HMI, security, and the SCADA hand-off.</td></tr>
+  <tr><td><strong>Distribution Automation</strong></td><td>Everything out on the feeder: restoration, regulation, capacitors, DER, fault indicators.</td></tr>
+  <tr><td><strong>Commissioning &amp; Field Work</strong></td><td>Proving it, testing it, fixing it, and doing it safely.</td></tr>
+  <tr><td><strong>Reference</strong></td><td>Look-ups: acronyms, ANSI numbers, product and software maps, formulas, standards.</td></tr>
+</table>
+
+<div class="seealso">
+  <b>Start with</b>
+  <a href="atlas:start-here/field-kit.html">The Field Kit &amp; Daily Workflows</a>
+  <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a>
+  <a href="atlas:fundamentals/one-line-diagrams.html">One-Lines &amp; Schematics</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:reference/acronyms.md">Acronym Glossary</a>
+</div>
+<p class="footnote">Orientation page. The specifics behind every claim here live on the linked pages, each of which cites its SEL sources. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

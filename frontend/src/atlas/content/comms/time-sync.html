@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Time Synchronization</title>
+<meta name="atlas-order" content="90">
+<meta name="atlas-tags" content="IRIG-B,time sync,SNTP,PTP,1588,SEL-2488,GNSS,holdover,TSOK">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Time Synchronization (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Time Synchronization</h1>
+  <p>From GNSS clock to relay — IRIG-B on the wire, distribution rules, holdover, and where NTP ends and PTP begins</p>
+  <div class="chips"><span>IRIG-B004</span><span>C37.118</span><span>SEL-2488</span><span>TSOK</span><span>SNTP</span><span>IEEE 1588</span><span>holdover</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Substation time</h3>
+<ul style="margin-bottom:2px">
+<li><strong>IRIG-B is the workhorse.</strong> A GNSS clock decodes satellite time and distributes a 1-second, 100-bit pulse-train frame. SEL relays accept <strong>demodulated</strong> IRIG-B only — modulated (1&nbsp;kHz sine) needs a demodulator first.</li>
+<li><strong>One IRIG input at a time.</strong> On the SEL-751/751A: terminals B01/B02, PORT 3 (EIA-232), or fiber PORT 2 — pick one, then set <code>TIME_SRC</code> to match (IRIG1 for the first two, IRIG2 for PORT 2).</li>
+<li><strong>Accuracy is a ladder:</strong> demodulated IRIG-B / PTP ±100&nbsp;ns · modulated IRIG-B ±1&nbsp;µs · NTP/SNTP ~milliseconds. Synchrophasors need a source good to <strong>±10&nbsp;µs or better</strong> — SNTP can never carry them.</li>
+<li>The IEEE C37.118 <strong>control-bit extensions</strong> (bits 50–78) carry year, leap second, DST, local offset, and time quality. Set relay <code>IRIGC := C37.118</code> to use them.</li>
+<li>Coax distribution is a <strong>50&nbsp;Ω daisy chain, ≤152&nbsp;m (500&nbsp;ft)</strong>, terminated at the far end. Beyond that: fiber (SEL-3405, ≤4&nbsp;km, &lt;200&nbsp;ns added).</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Why the substation needs one clock</h2>
+<p>Every relay keeps its own time-of-day clock; unsynchronized, a typical relay drifts about <strong>2 minutes per year</strong> (SEL-751 and 751A specs alike). That is fine for a front-panel display and useless for anything comparative: lining up SER records and event reports across relays after a fault, feeding a communications processor a coherent sequence of events, or measuring synchrophasors, where the phase angle is taken against an absolute time reference and every microsecond of clock error is electrical degrees of lie. The fix is one accurate source, distributed to everything.</p>
+<table>
+  <tr><th>Task</th><th>Accuracy needed / achieved (SEL-751/751A)</th><th>Source that gets you there</th></tr>
+  <tr><td>Front-panel time, logs on one relay</td><td>±5 ms (internal clock on SNTP)</td><td>SNTP from any NTP server</td></tr>
+  <tr><td>SER / event alignment across relays</td><td>±5 ms (all non-synchrophasor reports)</td><td>IRIG-B (or careful SNTP)</td></tr>
+  <tr><td>Internal clock with IRIG-B connected</td><td>±1 µs</td><td>demodulated IRIG-B</td></tr>
+  <tr><td>Synchrophasors (PMU, <code>MET PM</code>)</td><td>±10 µs — <strong>source must be ±10 µs or better</strong></td><td>demodulated IRIG-B from a GNSS clock, or PTP</td></tr>
+</table>
+<p>The SEL-751A ranks its sources: while IRIG-B is present and valid (Relay Word bit <strong>IRIGOK</strong> or <strong>TSOK</strong> asserted), the relay follows IRIG-B even if SNTP is configured and a server is answering. Only when both deassert does it fall back to the NTP server. SNTP is a backup, never a peer. The SEL-751 — which, unlike the 751A, also speaks <strong>IEEE 1588 PTP</strong> on Port 1 — extends the ladder: hardware-assisted PTP → IRIG-B → firmware PTP → SNTP → everything else (DNP, IEC 103, Modbus, TIME/DATE commands).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>IRIG-B on the wire</h2>
+<p>IRIG-B is a serial time code: a <strong>1-second frame of 100 bit slots, 10&nbsp;ms each</strong>. Every slot carries a positive pulse whose <em>width</em> is the data: <strong>2&nbsp;ms = binary 0, 5&nbsp;ms = binary 1, 8&nbsp;ms = position identifier</strong> (P<sub>0</sub>…P<sub>9</sub>, one every ten bits). Two 8&nbsp;ms markers back to back mean the frame is starting — the rising edge of the reference bit P<sub>r</sub> coincides exactly with the seconds change. Between markers, the frame spells out seconds, minutes, hours, and day-of-year in BCD, least-significant bit first.</p>
+
+<div class="fig"><svg viewBox="0 0 700 268" xmlns="http://www.w3.org/2000/svg">
+  <text x="30" y="14" font-size="9" font-weight="600" fill="#454956">One 1-second frame — first 20 of 100 bit slots (10 ms each), encoding 14:25:47</text>
+  <!-- slot grid -->
+  <path stroke="#e5e7eb" stroke-width="0.75" fill="none" d="M30,46V96M62,46V96M94,46V96M126,46V96M158,46V96M190,46V96M222,46V96M254,46V96M286,46V96M318,46V96M350,46V96M382,46V96M414,46V96M446,46V96M478,46V96M510,46V96M542,46V96M574,46V96M606,46V96M638,46V96M670,46V96"/>
+  <line x1="30" y1="90" x2="670" y2="90" stroke="#a9adb8" stroke-width="1"/>
+  <!-- pulses: marker 25.6w #5468c4, one 16w #10a37f, zero 6.4w #6e7180 -->
+  <g>
+    <rect x="30" y="54" width="25.6" height="36" fill="#5468c4"/>
+    <rect x="62" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="94" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="126" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="158" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="190" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="222" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="254" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="286" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="318" y="54" width="25.6" height="36" fill="#5468c4"/>
+    <rect x="350" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="382" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="414" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="446" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="478" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="510" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="542" y="54" width="16" height="36" fill="#10a37f"/>
+    <rect x="574" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="606" y="54" width="6.4" height="36" fill="#6e7180"/>
+    <rect x="638" y="54" width="25.6" height="36" fill="#5468c4"/>
+  </g>
+  <!-- marker labels -->
+  <text x="42" y="50" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">Pr</text>
+  <text x="330" y="50" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">P1</text>
+  <text x="650" y="50" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">P2</text>
+  <text x="42" y="30" font-size="8.5" fill="#454956">rising edge of Pr = top of second</text>
+  <path d="M40,33 L36,50" fill="none" stroke="#454956" stroke-width="0.75"/>
+  <!-- bit weight labels -->
+  <g font-size="8.5" fill="#8a8e9b" text-anchor="middle">
+    <text x="78" y="103">1</text><text x="110" y="103">2</text><text x="142" y="103">4</text><text x="174" y="103">8</text>
+    <text x="206" y="103">idx</text>
+    <text x="238" y="103">10</text><text x="270" y="103">20</text><text x="302" y="103">40</text>
+    <text x="366" y="103">1</text><text x="398" y="103">2</text><text x="430" y="103">4</text><text x="462" y="103">8</text>
+    <text x="494" y="103">idx</text>
+    <text x="526" y="103">10</text><text x="558" y="103">20</text><text x="590" y="103">40</text><text x="622" y="103">idx</text>
+  </g>
+  <!-- group brackets -->
+  <g stroke="#10a37f" stroke-width="1" fill="none">
+    <path d="M63,110 v4 h238 v-4"/>
+    <path d="M351,110 v4 h238 v-4"/>
+  </g>
+  <text x="182" y="124" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">seconds, BCD (units then tens) = 47</text>
+  <text x="470" y="124" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">minutes, BCD = 25</text>
+  <!-- legend -->
+  <g font-size="8.5" fill="#6e7180">
+    <rect x="30" y="136" width="12" height="8" fill="#5468c4"/><text x="46" y="143">8 ms = position marker</text>
+    <rect x="180" y="136" width="12" height="8" fill="#10a37f"/><text x="196" y="143">5 ms = binary 1</text>
+    <rect x="300" y="136" width="12" height="8" fill="#6e7180"/><text x="316" y="143">2 ms = binary 0</text>
+    <text x="670" y="143" text-anchor="end">100 pulses per second · frame repeats every second</text>
+  </g>
+  <!-- full frame map -->
+  <text x="30" y="172" font-size="9" font-weight="600" fill="#454956">The whole 100-bit frame (6.4 px per bit):</text>
+  <g>
+    <rect x="30" y="180" width="6.4" height="22" fill="#5468c4"/>
+    <rect x="36.4" y="180" width="51.2" height="22" fill="#10a37f" opacity="0.75"/>
+    <rect x="94" y="180" width="57.6" height="22" fill="#10a37f" opacity="0.55"/>
+    <rect x="158" y="180" width="57.6" height="22" fill="#10a37f" opacity="0.75"/>
+    <rect x="222" y="180" width="76.8" height="22" fill="#10a37f" opacity="0.55"/>
+    <rect x="298.8" y="180" width="51.2" height="22" fill="#f2f3f5"/>
+    <rect x="350" y="180" width="57.6" height="22" fill="#d7930a" opacity="0.8"/>
+    <rect x="414" y="180" width="96" height="22" fill="#d7930a" opacity="0.55"/>
+    <rect x="516.4" y="180" width="19.2" height="22" fill="#d7930a" opacity="0.8"/>
+    <rect x="542" y="180" width="121.6" height="22" fill="#454956" opacity="0.6"/>
+    <!-- P markers every 10 bits -->
+    <g fill="#5468c4"><rect x="87.6" y="180" width="3" height="22"/><rect x="151.6" y="180" width="3" height="22"/><rect x="215.6" y="180" width="3" height="22"/><rect x="279.6" y="180" width="3" height="22"/><rect x="343.6" y="180" width="3" height="22"/><rect x="407.6" y="180" width="3" height="22"/><rect x="471.6" y="180" width="3" height="22"/><rect x="535.6" y="180" width="3" height="22"/><rect x="599.6" y="180" width="3" height="22"/><rect x="663.6" y="180" width="3" height="22"/></g>
+  </g>
+  <g font-size="8.5" fill="#454956" text-anchor="middle">
+    <text x="62" y="215">sec</text><text x="122" y="215">min</text><text x="186" y="215">hours</text><text x="260" y="215">day of year</text><text x="324" y="215" fill="#a9adb8">idle</text><text x="378" y="215">year</text><text x="462" y="215">leap·DST·offset·TQ</text><text x="526" y="230">CTQ</text><text x="602" y="215">SBS (17-bit sec)</text>
+  </g>
+  <path d="M526,219 L526,206" fill="none" stroke="#8a8e9b" stroke-width="0.75"/>
+  <text x="350" y="248" font-size="8.5" fill="#8a8e9b" text-anchor="middle">amber = IEEE C37.118 control-bit extensions (bits 50–78): year, leap second, DST, local offset, time quality, CTQ · blue ticks = P markers every 10 bits</text>
+  <g class="animlayer">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 640 0" dur="10s" repeatCount="indefinite"/>
+      <line x1="30" y1="40" x2="30" y2="128" stroke="#d63a3a" stroke-width="1.25"/>
+      <circle cx="30" cy="90" r="3" fill="#d63a3a"/>
+      <text x="30" y="38" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">now</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.45;0.47;0.97;1" dur="10s" repeatCount="indefinite"/>
+      <rect x="596" y="12" width="74" height="15" rx="3" fill="#10a37f"/>
+      <text x="633" y="23" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">ss = 47 ✓</text>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.90;0.92;0.97;1" dur="10s" repeatCount="indefinite"/>
+      <rect x="516" y="12" width="74" height="15" rx="3" fill="#10a37f"/>
+      <text x="553" y="23" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">mm = 25 ✓</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">The relay decodes each field as the pulse train arrives; BCD digits accumulate between position markers and the decoded time latches at the markers. The frame continues through hours, day, and the C37.118 extensions.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>Demodulated vs. modulated, and the format codes</h3>
+<ul>
+  <li><strong>Demodulated (unmodulated) IRIG-B00X</strong> — the pulse train as a DC level-shift TTL signal (5&nbsp;V nominal). The precise one: <strong>±40&nbsp;ns average / ±100&nbsp;ns peak</strong> to UTC from the SEL-2488, and the only kind SEL relays accept directly.</li>
+  <li><strong>Modulated IRIG-B12X</strong> — the same frame amplitude-modulated onto a <strong>1&nbsp;kHz sine carrier</strong> (mark 1–6&nbsp;Vpp, mark-to-space ≈3:1; SEL-2488 output 6.2&nbsp;Vpp nominal). Long-haul-tolerant but only <strong>±1&nbsp;µs peak</strong> — and a relay can't read it. The SEL-IDM converts modulated → demodulated (11 TTL outputs; the IDM&nbsp;000-1 variant buffers already-demodulated code).</li>
+  <li><strong>Last digit = coded expressions.</strong> B002/B122: bare time frame — no year, no control bits. B004/B124: extended frame with <strong>IEEE C37.118.1-2011 control bits</strong>, backward compatible with B000/B120 and the 2005 edition. SEL-2488 default output is IRIG-B004; even/odd parity is one global setting for all extended-format ports. If a legacy device chokes on BXX4, drop that port to BXX2.</li>
+</ul>
+
+<div class="twocol keep">
+<div>
+<table>
+  <tr><th>TQ (bits 71–74)</th><th>Worst-case error</th></tr>
+  <tr><td class="mono">0</td><td>clock locked</td></tr>
+  <tr><td class="mono">1 / 2 / 3</td><td>within 1 / 10 / 100 ns</td></tr>
+  <tr><td class="mono">4 / 5 / 6</td><td>within 1 / 10 / 100 µs</td></tr>
+  <tr><td class="mono">7 / 8 / 9</td><td>within 1 / 10 / 100 ms</td></tr>
+  <tr><td class="mono">A / B</td><td>within 1 s / 10 s</td></tr>
+  <tr><td class="mono">F</td><td>not traceable to UTC</td></tr>
+</table>
+</div>
+<div>
+<table>
+  <tr><th>CTQ (bits 76–78)</th><th>Max inaccuracy</th></tr>
+  <tr><td class="mono">1 / 2 / 3</td><td>&lt; 100 ns / 1 µs / 10 µs</td></tr>
+  <tr><td class="mono">4 / 5 / 6</td><td>&lt; 100 µs / 1 ms / 10 ms</td></tr>
+  <tr><td class="mono">7</td><td>≥ 10 ms or unknown</td></tr>
+  <tr><td class="mono">0</td><td>unused (BXX0/BXX2)</td></tr>
+</table>
+<p style="font-size:8.6pt;color:#6e7180">Other extension bits: year in BCD (50–58), leap-second pending/type (60–61), DST pending/active (62–63), local-time offset sign + hours + ½-hour (64–68, 70), parity (75). SBS = 17-bit straight binary seconds-of-day (80–97).</p>
+</div>
+</div>
+<div class="callout keyfact"><strong>Time quality is not decoration.</strong> A clock in holdover keeps sending IRIG-B — it degrades the TQ/CTQ bits as its oscillator drifts. A relay set <code>IRIGC := C37.118</code> reads them and drops TSOK when the source is no longer synchrophasor-grade; a relay set <code>IRIGC := NONE</code> ignores them and trusts a drifting signal.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Distributing the signal</h2>
+<p>Demodulated IRIG-B is distributed on <strong>50&nbsp;Ω coax</strong> as a daisy chain: out of the clock, into each device, on to the next, with a <strong>50&nbsp;Ω terminator at the far end</strong> of the chain. RG-58 runs up to <strong>152&nbsp;m (500&nbsp;ft)</strong> from output to last device; lower-loss cable (RG-8X) stretches that. Each SEL-2488 BNC output drives <strong>250&nbsp;mA at 5&nbsp;V</strong> — typically <strong>10 low-impedance or 20 high-impedance devices per output</strong> (700-series relays like the 751A are high-impedance; 300/500-series and SEL-2030/2032 are low). Don't mix impedance classes on one chain, and skip the external terminator when five or more low-impedance devices already load the line.</p>
+
+<div class="fig"><svg viewBox="0 0 700 252" xmlns="http://www.w3.org/2000/svg">
+  <!-- antenna -->
+  <path d="M52,14 l10,14 h-20 z" fill="none" stroke="#454956" stroke-width="1.25"/>
+  <line x1="52" y1="28" x2="52" y2="44" stroke="#454956" stroke-width="1.25"/>
+  <path d="M38,12 a16,16 0 0 1 28,0 M43,18 a10,10 0 0 1 18,0" fill="none" stroke="#a9adb8" stroke-width="1"/>
+  <text x="70" y="22" font-size="8.5" fill="#6e7180">GNSS antenna (GPS L1 · GLONASS L1)</text>
+  <!-- clock -->
+  <rect x="24" y="44" width="130" height="46" rx="6" fill="#1a1a22"/>
+  <text x="89" y="63" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">SEL-2488</text>
+  <text x="89" y="76" font-size="8.5" fill="#a9adb8" text-anchor="middle">8× BNC + DB-9 + 4× ETH</text>
+  <!-- coax chain -->
+  <line x1="154" y1="58" x2="240" y2="58" stroke="#454956" stroke-width="2"/>
+  <rect x="240" y="42" width="92" height="32" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="286" y="56" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay 1</text>
+  <text x="286" y="68" font-size="8.5" fill="#8a8e9b" text-anchor="middle">B01 + / B02 −</text>
+  <line x1="332" y1="58" x2="400" y2="58" stroke="#454956" stroke-width="2"/>
+  <rect x="400" y="42" width="92" height="32" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="446" y="56" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay 2</text>
+  <text x="446" y="68" font-size="8.5" fill="#8a8e9b" text-anchor="middle">B01 + / B02 −</text>
+  <line x1="492" y1="58" x2="560" y2="58" stroke="#454956" stroke-width="2"/>
+  <rect x="560" y="42" width="92" height="32" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="606" y="56" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay 3</text>
+  <text x="606" y="68" font-size="8.5" fill="#8a8e9b" text-anchor="middle">last on chain</text>
+  <rect x="660" y="50" width="26" height="16" rx="3" fill="#f2f3f5" stroke="#d63a3a" stroke-width="1.25"/>
+  <text x="673" y="61" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">50Ω</text>
+  <line x1="652" y1="58" x2="660" y2="58" stroke="#454956" stroke-width="2"/>
+  <text x="404" y="32" font-size="8.5" fill="#6e7180" text-anchor="middle">TO1: demodulated IRIG-B004 · RG-58 coax ≤ 152 m · daisy chain, terminate far end</text>
+  <!-- fiber branch -->
+  <line x1="60" y1="90" x2="60" y2="140" stroke="#454956" stroke-width="1.5"/>
+  <rect x="30" y="140" width="86" height="30" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="73" y="153" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">SEL-3405T</text>
+  <text x="73" y="164" font-size="8.5" fill="#8a8e9b" text-anchor="middle">from DB-9</text>
+  <path d="M116,155 C150,148 180,162 214,155" fill="none" stroke="#5468c4" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <path d="M116,159 C150,166 180,152 214,159" fill="none" stroke="#5468c4" stroke-width="1" stroke-dasharray="6 3" opacity="0.55"/>
+  <text x="165" y="143" font-size="8.5" fill="#5468c4" text-anchor="middle">2 fibers ≤ 4 km</text>
+  <rect x="214" y="140" width="86" height="30" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="257" y="153" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">SEL-3405R</text>
+  <text x="257" y="164" font-size="8.5" fill="#8a8e9b" text-anchor="middle">auto delay comp</text>
+  <line x1="300" y1="155" x2="336" y2="155" stroke="#454956" stroke-width="1.5"/>
+  <rect x="336" y="140" width="96" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="384" y="153" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">Remote relay</text>
+  <text x="384" y="164" font-size="8.5" fill="#8a8e9b" text-anchor="middle">&lt; 200 ns added</text>
+  <!-- ethernet branch -->
+  <line x1="120" y1="90" x2="120" y2="200" stroke="#454956" stroke-width="1.5"/>
+  <line x1="120" y1="200" x2="470" y2="200" stroke="#454956" stroke-width="1.5"/>
+  <rect x="470" y="184" width="120" height="32" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+  <text x="530" y="198" font-size="9" font-weight="600" fill="#9c6d06" text-anchor="middle">PTP transparent</text>
+  <text x="530" y="209" font-size="8.5" fill="#9c6d06" text-anchor="middle">clock / switch</text>
+  <line x1="590" y1="200" x2="626" y2="200" stroke="#454956" stroke-width="1.5"/>
+  <rect x="626" y="184" width="62" height="32" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="657" y="198" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">IEDs</text>
+  <text x="657" y="209" font-size="8.5" fill="#8a8e9b" text-anchor="middle">NTP · PTP</text>
+  <text x="292" y="194" font-size="8.5" fill="#6e7180" text-anchor="middle">ETH 1–4: PTP (±100 ns, hardware stamps) · NTP (0.5–2 ms clients)</text>
+  <text x="350" y="242" font-size="8.5" fill="#a9adb8" text-anchor="middle">every second, one on-time mark fans out — coax edges land within cable delay, fiber is compensated, PTP corrects in-switch residence time</text>
+  <g class="animlayer">
+    <!-- coax pulses -->
+    <circle r="3.5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="6s" repeatCount="indefinite"/>
+      <animateMotion path="M154,58 L660,58" keyPoints="0;0;1;1" keyTimes="0;0.01;0.24;1" calcMode="linear" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <!-- fiber pulse -->
+    <circle r="3.5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.30;0.33;1" dur="6s" repeatCount="indefinite"/>
+      <animateMotion path="M60,95 L60,140 L116,157 C150,150 180,164 214,157 L300,155 L336,155" keyPoints="0;0;1;1" keyTimes="0;0.01;0.31;1" calcMode="linear" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <!-- ethernet PTP packet -->
+    <rect x="-8" y="-4" width="16" height="8" rx="2" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.38;0.41;1" dur="6s" repeatCount="indefinite"/>
+      <animateMotion path="M120,95 L120,200 L470,200 M470,200 L626,200" keyPoints="0;0;0.7;1" keyTimes="0;0.01;0.28;0.39" calcMode="linear" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="530" y="228" font-size="8.5" font-weight="600" fill="#9c6d06" text-anchor="middle" opacity="0">+ residence time
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.30;0.38;0.41;1" dur="6s" repeatCount="indefinite"/>
+    </text>
+    <!-- arrival flashes -->
+    <g stroke="#10a37f" stroke-width="2" fill="none">
+      <rect x="238" y="40" width="96" height="36" rx="6" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.10;0.13;0.20;1" dur="6s" repeatCount="indefinite"/></rect>
+      <rect x="398" y="40" width="96" height="36" rx="6" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.15;0.18;0.25;1" dur="6s" repeatCount="indefinite"/></rect>
+      <rect x="558" y="40" width="96" height="36" rx="6" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.21;0.24;0.31;1" dur="6s" repeatCount="indefinite"/></rect>
+      <rect x="334" y="138" width="100" height="34" rx="6" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.29;0.32;0.39;1" dur="6s" repeatCount="indefinite"/></rect>
+      <rect x="624" y="182" width="66" height="36" rx="6" opacity="0"><animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.37;0.40;0.47;1" dur="6s" repeatCount="indefinite"/></rect>
+    </g>
+    <circle cx="89" cy="67" r="10" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0.9;0;0;0.9" keyTimes="0;0.10;0.97;1" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="8;20" keyTimes="0;0.10" dur="6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">One clock, three transports. The sync ripple: the top-of-second edge leaves the SEL-2488 on every output simultaneously; each path adds a known, compensated delay.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Cable delay compensation, per port:</strong> 0–2500&nbsp;ns of output-cable compensation per SEL-2488 port (default 10&nbsp;ns) — RG-58 is 5&nbsp;ns/m, RG-8X 3.87, LMR-240 4.17 — plus antenna-cable compensation on the GNSS input. Group IEDs by location per port; compensate for the average run.</li>
+  <li><strong>Fiber for distance and isolation:</strong> the SEL-3405 T/R pair carries demodulated B000/B004 over multimode fiber up to <strong>4&nbsp;km</strong> with <strong>&lt;200&nbsp;ns</strong> added — but only with <em>both</em> fibers connected (the return link measures propagation delay for auto-compensation; one fiber = uncompensated pass-through). No settings; DB-9 powered (15&nbsp;mA). Cap unused ST connectors — reflected light reads as data.</li>
+  <li><strong>The DB-9 output is not a coax output:</strong> SEL-2488 COM1 IRIG pins drive 5&nbsp;mA over ≤3&nbsp;m — it feeds a 3405T or one nearby device, not a chain.</li>
+  <li><strong>Redundancy:</strong> an SEL-3400 distribution module takes two IRIG-B inputs (e.g., local SEL-2488 + ICON ring), compares them continuously, and forwards the better time quality.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>The clock itself: SEL-2488</h2>
+<p>The SEL-2488 tracks <strong>GPS L1 C/A (1575.42&nbsp;MHz) and GLONASS L1 (1602&nbsp;MHz)</strong>, up to 16 satellites each. It will not lock — and will not enable any output — until it qualifies the signal: at least <strong>4 satellites Used at ≥30&nbsp;dB-Hz</strong> per active constellation. Warm start ≈240&nbsp;s; cold start adds up to 12.5&nbsp;min of UTC compensation download, and output enable after a restart can take up to 15&nbsp;min. Gating is deliberate: no time out until the time is known good.</p>
+<div class="twocol">
+<div>
+<h3>Holdover — losing the sky</h3>
+<p>On GNSS loss the clock enters <strong>holdover</strong>: outputs keep running from the internal oscillator, and the IRIG TQ/CTQ bits, PTP clock class, and NTP fields all degrade honestly as drift accumulates. Typical error after 24&nbsp;h of holdover (unit warm ≥24&nbsp;h first):</p>
+<table>
+  <tr><th>Oscillator</th><th>24 h holdover error</th></tr>
+  <tr><td>TCXO (standard)</td><td>36 µs constant temp · 315 µs at ±1 °C</td></tr>
+  <tr><td>OCXO</td><td>5 µs</td></tr>
+  <tr><td>DOCXO</td><td>2.5 µs</td></tr>
+</table>
+<p style="font-size:8.6pt">Holdover requires prior sync with no power interruption since. Enable Holdover Alert (default on, 0–120&nbsp;min pickup delay) to raise a major event when it happens.</p>
+</div>
+<div>
+<h3>Spoofing &amp; diagnostics</h3>
+<ul>
+  <li><strong>Satellite Signal Verification (SSV):</strong> with the dual-constellation antenna (SEL-9524B), the clock cross-checks GPS against GLONASS. Failure action is settable: notify-and-continue (default) or notify-and-stop — the latter drops straight into holdover on anomaly.</li>
+  <li><strong>Antenna monitoring:</strong> the +5&nbsp;V antenna feed is supervised — <em>Antenna Short</em> (excess current: shorted cable, too many splitters) and <em>Antenna Open/Absent</em> (no draw: cut or disconnected cable) events.</li>
+  <li><strong>Front panel:</strong> ANTENNA STATUS (red = missing/shorted), SATELLITE LOCK (amber = enabled, not locked), TIME QUALITY (green &lt;1&nbsp;µs, flashing green &lt;1&nbsp;ms, red ≥1&nbsp;ms).</li>
+  <li>Antenna cable delay compensation: 0–2500 ns (LMR-400 ≈ 3.92 ns/m).</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Network time: NTP/SNTP vs. PTP</h2>
+<p>Both ride Ethernet; they are not the same class of thing. NTP measures round-trip delay in software and gets you milliseconds. PTP (IEEE 1588-2008, V2 only — V1 is incompatible) timestamps packets <strong>in hardware</strong> at the PHY and corrects for switch residence time, getting you the same ±100&nbsp;ns class as demodulated IRIG-B — if every device and switch in the path plays along.</p>
+<table>
+  <tr><th></th><th>IRIG-B (demod)</th><th>NTP / SNTP</th><th>PTP (IEEE 1588-2008)</th></tr>
+  <tr><td><strong>Accuracy (SEL-2488)</strong></td><td>±100 ns peak to UTC</td><td>&lt;100 µs server stamp; clients typ. 0.5–2 ms on a LAN</td><td>±100 ns peak to UTC</td></tr>
+  <tr><td><strong>Medium</strong></td><td>dedicated coax / fiber</td><td>routable IP (L3) — needs IP, gateway</td><td>Ethernet; power profiles are Layer 2 (802.3), Default profile also UDP L3</td></tr>
+  <tr><td><strong>Infrastructure</strong></td><td>point-to-multipoint chains, terminators</td><td>any network; fewer switches = better</td><td>every switch should be a transparent or boundary clock; hardware time-stamping end to end</td></tr>
+  <tr><td><strong>SEL-2488 role</strong></td><td>8 BNC + DB-9 outputs</td><td>Stratum 1 server (NTPv4/RFC 5905): client-server, broadcast (interval 16–131072 s), multicast — per interface, ETH 1–4</td><td>Master/grandmaster (ordering option); never a slave; BMCA elects grandmaster</td></tr>
+  <tr><td><strong>Profiles / modes</strong></td><td>B002/B004 per port; modulated B122/B124 on TO1–TO4</td><td>SNTP on relays: UNICAST / MANYCAST / BROADCAST</td><td>Default (UDP / 802.3), IEEE C37.238-2011/2017 power profile, IEC/IEEE 61850-9-3:2016 utility profile — power profiles lock P2P path delay, 1 s announce/sync, optional VLAN tag (802.1Q priority default 4)</td></tr>
+  <tr><td><strong>Health signal</strong></td><td>TQ + CTQ bits in BXX4</td><td>stratum (&gt;15 = invalid source)</td><td>Clock Class in Announce: 6 = locked to primary ref, 7 = holdover, 52/187 = degraded holdover (2017/9-3 profiles)</td></tr>
+  <tr><td><strong>Good for</strong></td><td>relays, SER, oscillography, PMUs</td><td>servers, HMIs, workstations, relay backup time</td><td>process-bus / PMU-grade time over Ethernet, PRP networks</td></tr>
+</table>
+<div class="callout warn"><strong>SNTP is a "set the clock" protocol, not a measurement one.</strong> The SEL-751A's spec with SNTP is ±5&nbsp;ms (typically better than ±1&nbsp;ms with a single switch between relay and server, UNICAST/MANYCAST); the SEL-751's 2026 spec states ±1&nbsp;ms in an ideal network. Fine for logs; orders of magnitude short of synchrophasors. PTP needs the whole path engineered — one dumb switch in the middle quietly eats the accuracy budget.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Configuring the relay side (SEL-751/751A)</h2>
+<p>The relay accepts demodulated IRIG-B on exactly <strong>one</strong> of three physical inputs — they are mutually exclusive:</p>
+<div class="flow">
+  <div class="stage"><b>B01 / B02 terminals</b><span>screw terminals, +/− polarity; clock BNC via SEL C962 cable. Not on fiber-Ethernet or dual-copper-Ethernet models. <code>TIME_SRC := IRIG1</code></span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>PORT 3 (EIA-232)</b><span>IRIG rides serial pins: from a comms processor (C273A) or a clock BNC tee'd onto the port (C953 + C292A). <code>TIME_SRC := IRIG1</code></span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>PORT 2 (fiber serial)</b><span>via SEL-2812MT transceiver from a clock or 2030/2032. <code>TIME_SRC := IRIG2</code></span></div>
+</div>
+<table>
+  <tr><th>Setting</th><th>Range / default</th><th>What it does</th></tr>
+  <tr><td class="mono">TIME_SRC</td><td>IRIG1, IRIG2 · default IRIG1</td><td>Which input carries IRIG: IRIG1 = B01/B02 or PORT 3; IRIG2 = fiber PORT 2.</td></tr>
+  <tr><td class="mono">IRIGC</td><td>NONE, C37.118 · default NONE</td><td>NONE ignores the control-bit extensions; C37.118 extracts year, leap second, DST, offset, and time quality and corrects the synchrophasor timestamp. With C37.118 the relay drives its DST bit from the signal, overriding local DST settings.</td></tr>
+  <tr><td class="mono">UTC_OFF</td><td>−24.00 to 24.00 h, 0.25 steps</td><td>Local-time offset — <strong>applied only when SNTP is the active source</strong>. IRIG-B and other sources are treated as already-local time. (751 on PTP: also used when the grandmaster's Announce omits a local-time offset.)</td></tr>
+  <tr><td class="mono">ESNTP</td><td>OFF, UNICAST, MANYCAST, BROADCAST</td><td>Enables the PORT 1 (Ethernet) SNTP client.</td></tr>
+  <tr><td class="mono">SNTPPSIP / SNTPBSIP</td><td>IP addresses</td><td>Primary / backup NTP server (or broadcast address in MANYCAST/BROADCAST).</td></tr>
+  <tr><td class="mono">SNTPRATE / SNTPTO</td><td>15–3600 s / 5–20 s</td><td>Poll rate and server-response timeout (timeout swings to the backup server).</td></tr>
+  <tr><td class="mono">EPTP</td><td>Y, N · default N — <strong>SEL-751 only</strong></td><td>IEEE 1588 PTP client on Port 1 (Default UDP/Layer-2, C37.238-2011/2017, or 61850-9-3 profile; PRP/HSR aware, not in SWITCHED mode). Hardware-assisted PTP is spec'd ±250 ns and outranks IRIG-B; firmware-based is ±1 ms and does not assert TSOK. Syncs only to TAI-timescale grandmasters.</td></tr>
+</table>
+<h3>Relay Word bits that tell you the truth</h3>
+<ul>
+  <li><code>IRIGOK</code> — IRIG-B input data is valid; relay time is following IRIG-B.</li>
+  <li><code>TSOK</code> — time is based on an IRIG-B source <strong>of sufficient accuracy for synchrophasors</strong> (751: IRIG-B <em>or hardware-based PTP</em>). <code>MET PM</code> refuses to run with TSOK = 0; the front-panel/report header flips between <em>Time Source: Internal</em> and <em>External</em>.</li>
+  <li><code>TSNTPP</code> / <code>TSNTPB</code> — synchronized to the primary / backup NTP server. <code>PMDOK</code> — relay enabled and synchrophasors enabled (<code>EPMU := Y</code>). <code>DST</code> — daylight-saving active. 751 adds <code>PTP_OK</code>/<code>PTPSYNC</code>/<code>PTP_TIM</code> (valid PTP source · within local-offset tolerance · actively syncing) and <code>PTPA</code>/<code>PTPB</code> for PRP/HSR port health.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>How it fails — checklist</h2>
+<table>
+  <tr><th>Symptom</th><th>Likely cause / fix</th></tr>
+  <tr><td>Relay never syncs, clock is fine</td><td>Polarity swapped on B01(+)/B02(−); two IRIG inputs wired at once (only one allowed); <code>TIME_SRC</code> pointing at the wrong input; or the source is <strong>modulated</strong> IRIG-B — insert an SEL-IDM or set the clock port to B004. Scope check: TTL pulses 2/5/8 ms wide.</td></tr>
+  <tr><td>End of a coax chain flaky</td><td>Missing 50 Ω terminator, wrong-impedance cable, chain &gt;152 m, or low- and high-impedance devices mixed on one output. Over five low-impedance devices: remove the terminator — they terminate the line themselves.</td></tr>
+  <tr><td>Clock powered, no output at all</td><td>Startup gating: outputs stay dead until satellite lock and time qualification — up to 15 min after a cold start. Check SATELLITE LOCK LED (amber = still acquiring).</td></tr>
+  <tr><td>Time off by whole hours</td><td>Clock port set to Local vs. UTC (per-port on the SEL-2488 for demodulated; global for modulated); or relying on <code>UTC_OFF</code> while on IRIG (it only applies to SNTP); or DST settings fighting the C37.118 DST bit.</td></tr>
+  <tr><td>Synchrophasors dead, everything else fine</td><td>TSOK = 0: with <code>IRIGC := C37.118</code>, a source below the bar — clock in deep holdover (TQ bits report &gt;1 µs error; check the clock TIME QUALITY LED). The 751 IM spells out the tests: sane time fields, consecutive seconds, correct parity, edge jitter under 500 ns. On the 751, firmware-based PTP never asserts TSOK — only hardware-assisted PTP does.</td></tr>
+  <tr><td>Clock alarms: antenna</td><td><em>Open/Absent</em> = cut/disconnected cable; <em>Short</em> = crushed cable or too many splitters on the +5 V feed. Snow/damage on the antenna → holdover; two clocks + SEL-3400 comparing TQ is the redundancy pattern.</td></tr>
+  <tr><td>Legacy IED garbles time from a B004 port</td><td>Old decoder tripping on the C37.118 extension bits — set that port to IRIG-B002 (no year, no control bits). Check the global BXX4 parity setting (even/odd) too.</td></tr>
+  <tr><td>PTP LED amber on the SEL-2488</td><td>PTP enabled on a disabled interface, or Default (UDP) profile on a port with no IP address. Syslog: "PTP Settings Misconfigured".</td></tr>
+</table>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+  <a href="atlas:data-protocols/synchrophasors.html">Synchrophasors</a>
+  <a href="atlas:protection/line-differential-87l.html">Line Current Differential</a>
+  
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+</div>
+<p class="footnote">Sources: SEL-2488 Satellite-Synchronized Network Clock IM, 2488_IM_20250228 (specs, GNSS/holdover/SSV §1–3, time-code outputs §6, PTP §7, NTP §8, Appendix E IRIG-B frame/TQ/CTQ). SEL-751A Relay IM, 751A_IM_20250411 (IRIG inputs §2/§7, TIME_SRC/IRIGC/DST §4, SNTP §7, synchrophasors App. H, accuracy specs §1). SEL-751 Relay IM, 751_IM_20260327 (Figures 7.4–7.8 IRIG inputs, Global time settings §4, SNTP Table 7.6, PTP §4/§7 + Table 7.8, time-source priority, App. K TSOK/PTP bits, specs §1) — setting names and IRIG/SNTP behavior verified identical to the 751A; the 751 additionally brings PTP as noted. SEL-IDM IRIG-B Time-Code Demodulator IM, IDM_IM_20071214 (modulated signal levels, 2/5/8 ms pulses, buffer mode). SEL-3405 High-Accuracy IRIG-B Fiber-Optic Transceiver DS, 3405_DS_20240823 (4 km, &lt;200 ns, dual-fiber delay compensation). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

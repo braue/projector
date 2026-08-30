@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Choosing a Protocol</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="protocol,comparison,DNP3,Modbus,IEC 61850,GOOSE,Mirrored Bits,C37.118,60870,southbound,northbound,selection">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Choosing a Protocol (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Choosing a Protocol</h1>
+  <p>Which protocol for which job — the dimensions that actually decide it, side-by-side comparison, the southbound/northbound split, and the questions to ask about any third-party device</p>
+  <div class="chips"><span>DNP3</span><span>Modbus</span><span>IEC 61850</span><span>Mirrored Bits</span><span>SEL protocols</span><span>C37.118</span><span>southbound / northbound</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Picking a protocol</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Speed decides first.</strong> Under about 100&nbsp;ms it is GOOSE, Mirrored Bits, or a wire. Above that, everything else is available.</li>
+<li><strong>The master usually decides northbound.</strong> What the control centre speaks is a given; your job is to translate to it, not to argue with it.</li>
+<li><strong>Timestamps at the source are worth a great deal.</strong> DNP3 and IEC 61850 carry event time; Modbus does not, so the RTAC has to invent one at scan time.</li>
+<li><strong>Modbus is universal and minimal.</strong> Registers and coils, no data model, no events, no quality, no time. Every device speaks it, and that is its whole argument.</li>
+<li><strong>IEC 61850 buys self-description and speed;</strong> it costs tooling, engineering discipline, and a managed network.</li>
+<li><strong>The RTAC is the translator.</strong> A device that speaks only one protocol is fine if the RTAC can speak it &mdash; see <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags</a>.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The decision, as a flow</h2>
+
+<div class="fig"><svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="pc" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Four questions, in order &mdash; the first &ldquo;yes&rdquo; usually settles it</text>
+
+  <g font-size="7.6">
+    <!-- Q1 -->
+    <rect x="20" y="32" width="180" height="40" rx="6" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="110" y="49" text-anchor="middle" font-weight="600" fill="#d63a3a">Must it act in under ~100 ms?</text>
+    <text x="110" y="63" text-anchor="middle" fill="#6e7180">protection, interlocks, transfer trip</text>
+    <rect x="250" y="32" width="200" height="40" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.2"/>
+    <text x="350" y="49" text-anchor="middle" font-weight="600" fill="#d63a3a">GOOSE, Mirrored Bits, or copper</text>
+    <text x="350" y="63" text-anchor="middle" fill="#6e7180">never a polled protocol</text>
+    <path d="M200,52 H248" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#pc)"/>
+    <text x="224" y="46" text-anchor="middle" font-size="6.8" fill="#0d7f63">yes</text>
+
+    <!-- Q2 -->
+    <rect x="20" y="98" width="180" height="40" rx="6" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="110" y="115" text-anchor="middle" font-weight="600" fill="#9c6d06">Is it an SEL device to an RTAC?</text>
+    <text x="110" y="129" text-anchor="middle" fill="#6e7180">southbound, inside the substation</text>
+    <rect x="250" y="98" width="200" height="40" rx="6" fill="#fff" stroke="#d7930a" stroke-width="1.2"/>
+    <text x="350" y="115" text-anchor="middle" font-weight="600" fill="#9c6d06">SEL protocol, DNP3, or 61850</text>
+    <text x="350" y="129" text-anchor="middle" fill="#6e7180">SEL protocol auto-configures the tag set</text>
+    <path d="M200,118 H248" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#pc)"/>
+    <text x="224" y="112" text-anchor="middle" font-size="6.8" fill="#0d7f63">yes</text>
+
+    <!-- Q3 -->
+    <rect x="20" y="164" width="180" height="40" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="110" y="181" text-anchor="middle" font-weight="600" fill="#0d7f63">Does the master dictate it?</text>
+    <text x="110" y="195" text-anchor="middle" fill="#6e7180">northbound, to the control centre</text>
+    <rect x="250" y="164" width="200" height="40" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.2"/>
+    <text x="350" y="181" text-anchor="middle" font-weight="600" fill="#0d7f63">Whatever they say</text>
+    <text x="350" y="195" text-anchor="middle" fill="#6e7180">usually DNP3; sometimes 61850 or 60870</text>
+    <path d="M200,184 H248" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#pc)"/>
+    <text x="224" y="178" text-anchor="middle" font-size="6.8" fill="#0d7f63">yes</text>
+
+    <!-- Q4 -->
+    <rect x="20" y="230" width="180" height="40" rx="6" fill="#eef0f9" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="110" y="247" text-anchor="middle" font-weight="600" fill="#5468c4">Third-party device?</text>
+    <text x="110" y="261" text-anchor="middle" fill="#6e7180">meter, RTU, PLC, DER inverter</text>
+    <rect x="250" y="230" width="200" height="40" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="350" y="247" text-anchor="middle" font-weight="600" fill="#5468c4">Whatever it actually supports</text>
+    <text x="350" y="261" text-anchor="middle" fill="#6e7180">usually Modbus; DNP3 if you are lucky</text>
+    <path d="M200,250 H248" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#pc)"/>
+    <text x="224" y="244" text-anchor="middle" font-size="6.8" fill="#0d7f63">yes</text>
+  </g>
+
+  <!-- no path -->
+  <path d="M110,72 V96 M110,138 V162 M110,204 V228" stroke="#a9adb8" stroke-width="1.1" marker-end="url(#pc)"/>
+  <text x="118" y="88" font-size="6.8" fill="#8a8e9b">no</text>
+  <text x="118" y="154" font-size="6.8" fill="#8a8e9b">no</text>
+  <text x="118" y="220" font-size="6.8" fill="#8a8e9b">no</text>
+
+  <!-- sweeping highlight -->
+  <rect x="16" y="28" width="440" height="48" rx="8" fill="#1a1a22" opacity="0.05">
+    <animate attributeName="y" values="28;94;160;226;28" dur="10s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- right column: special cases -->
+  <rect x="482" y="32" width="210" height="238" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="496" y="50" font-size="8.2" font-weight="600" fill="#1a1a22">Special cases</text>
+  <g font-size="7.4" fill="#454956">
+    <text x="496" y="70" font-weight="600">Synchrophasors</text>
+    <text x="496" y="82" fill="#6e7180">IEEE C37.118, always. Nothing else</text>
+    <text x="496" y="93" fill="#6e7180">carries time-aligned phasors.</text>
+
+    <text x="496" y="114" font-weight="600">Sampled Values</text>
+    <text x="496" y="126" fill="#6e7180">IEC 61850-9-2 / SV, or a vendor</text>
+    <text x="496" y="137" fill="#6e7180">digital-secondary scheme such as TiDL.</text>
+
+    <text x="496" y="158" font-weight="600">Engineering access</text>
+    <text x="496" y="170" fill="#6e7180">SEL ASCII over serial or Telnet,</text>
+    <text x="496" y="181" fill="#6e7180">through the security gateway.</text>
+
+    <text x="496" y="202" font-weight="600">Files and records</text>
+    <text x="496" y="214" fill="#6e7180">FTP or the device web server &mdash;</text>
+    <text x="496" y="225" fill="#6e7180">not the SCADA protocol.</text>
+
+    <text x="496" y="246" font-weight="600">Legacy RTU replacement</text>
+    <text x="496" y="258" fill="#6e7180">IEC 60870-5-101/104 outside</text>
+    <text x="496" y="269" fill="#6e7180">North America; DNP3 within it.</text>
+  </g>
+
+  <rect x="8" y="286" width="684" height="28" rx="4" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="20" y="304" font-size="7.8" fill="#0d7f63">The answer is often &ldquo;more than one&rdquo;: SEL protocol southbound to the relays, GOOSE for the fast bits, DNP3 northbound to SCADA, Modbus to the odd third-party box &mdash; with the RTAC translating between all of them.</text>
+</svg></div>
+<p class="figcap">Work down the list. Most integration arguments come from answering question three before question one. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>The dimensions that actually decide it</h2>
+<table>
+  <tr><th>Dimension</th><th>Why it matters</th></tr>
+  <tr><td><strong>Latency</strong></td><td>The hard constraint. Polled protocols cannot make protection-speed decisions no matter how fast the network is</td></tr>
+  <tr><td><strong>Event reporting</strong></td><td>Does the device tell you when something changed, with a timestamp, or must you poll and infer? This is the single largest practical difference between DNP3 and Modbus</td></tr>
+  <tr><td><strong>Data model</strong></td><td>Self-describing (IEC 61850), semi-structured with object types (DNP3), or raw registers you must map by hand (Modbus)</td></tr>
+  <tr><td><strong>Quality</strong></td><td>Can the protocol say &ldquo;this value is stale / invalid / substituted&rdquo;? A value with no quality is a value you must trust blindly</td></tr>
+  <tr><td><strong>Controls</strong></td><td>Select-before-operate, direct operate, pulse and latch semantics &mdash; and whether the device reports the outcome</td></tr>
+  <tr><td><strong>Time</strong></td><td>Whether timestamps come from the device's own synchronized clock or from the concentrator's scan</td></tr>
+  <tr><td><strong>Discovery</strong></td><td>Can the tool read the device's capabilities, or do you type a map from a PDF?</td></tr>
+  <tr><td><strong>Security</strong></td><td>Native authentication, or reliance on the network around it</td></tr>
+  <tr><td><strong>Ubiquity</strong></td><td>How likely an arbitrary third-party device supports it at all</td></tr>
+</table>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Where each protocol sits: how fast it can act, against how much it tells you</text>
+  <line x1="70" y1="200" x2="670" y2="200" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="200" stroke="#a9adb8"/>
+  <text x="370" y="222" font-size="7.6" fill="#8a8e9b" text-anchor="middle">slower to act &rarr;</text>
+  <text x="48" y="118" font-size="7.6" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 48 118)">richer data &rarr;</text>
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="140" y="214" text-anchor="middle">ms</text>
+    <text x="300" y="214" text-anchor="middle">100 ms</text>
+    <text x="460" y="214" text-anchor="middle">1 s</text>
+    <text x="620" y="214" text-anchor="middle">10 s</text>
+  </g>
+  <g font-size="7.4">
+    <circle cx="130" cy="70" r="8" fill="#d63a3a" opacity="0.85"/>
+    <text x="144" y="66" fill="#d63a3a" font-weight="600">GOOSE</text>
+    <text x="144" y="77" fill="#8a8e9b">fast and self-describing</text>
+
+    <circle cx="150" cy="160" r="8" fill="#d7930a" opacity="0.85"/>
+    <text x="164" y="156" fill="#9c6d06" font-weight="600">Mirrored Bits</text>
+    <text x="164" y="167" fill="#8a8e9b">fast, eight bits, that is all</text>
+
+    <circle cx="330" cy="60" r="8" fill="#5468c4" opacity="0.85"/>
+    <text x="344" y="56" fill="#5468c4" font-weight="600">IEC 61850 MMS</text>
+    <text x="344" y="67" fill="#8a8e9b">fully self-describing model</text>
+
+    <circle cx="300" cy="96" r="8" fill="#10a37f" opacity="0.85"/>
+    <text x="314" y="92" fill="#0d7f63" font-weight="600">C37.118</text>
+    <text x="314" y="103" fill="#8a8e9b">streaming, time-aligned phasors</text>
+
+    <circle cx="470" cy="110" r="8" fill="#10a37f" opacity="0.85"/>
+    <text x="484" y="106" fill="#0d7f63" font-weight="600">DNP3</text>
+    <text x="484" y="117" fill="#8a8e9b">events, timestamps, quality</text>
+
+    <circle cx="450" cy="146" r="8" fill="#6e7180" opacity="0.85"/>
+    <text x="464" y="142" fill="#454956" font-weight="600">SEL protocols</text>
+    <text x="464" y="153" fill="#8a8e9b">auto-configured, SEL devices</text>
+
+    <circle cx="520" cy="182" r="8" fill="#8a8e9b" opacity="0.85"/>
+    <text x="534" y="178" fill="#454956" font-weight="600">Modbus</text>
+    <text x="534" y="189" fill="#8a8e9b">registers only &mdash; no events, quality, or time</text>
+  </g>
+  <rect x="86" y="40" width="120" height="140" rx="10" fill="#d63a3a" opacity="0.06"/>
+  <text x="146" y="34" font-size="7.2" fill="#d63a3a" text-anchor="middle">protection timescale</text>
+  <circle r="5" fill="none" stroke="#1a1a22" stroke-width="1.4" opacity="0.55">
+    <animateMotion dur="12s" repeatCount="indefinite"
+      path="M130,70 L150,160 L330,60 L300,96 L470,110 L450,146 L520,182 L130,70"/>
+  </circle>
+</svg></div>
+<p class="figcap">Nothing sits in the bottom-left corner, and nothing needs to: fast decisions do not need rich data, and rich data does not need to be fast. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">3</span>Side by side</h2>
+<table>
+  <tr>
+    <th>Protocol</th><th>Speed class</th><th>Events &amp; time</th><th>Quality</th><th>Model</th><th>Pick it when</th>
+  </tr>
+  <tr>
+    <td><strong><a href="atlas:data-protocols/iec61850-goose.html">GOOSE</a></strong></td>
+    <td>milliseconds, multicast, repeated</td>
+    <td>state change driven</td>
+    <td>yes</td>
+    <td>IEC 61850 objects</td>
+    <td>Fast station-bus signalling between IEDs, replacing copper interlocks and trip permissives</td>
+  </tr>
+  <tr>
+    <td><strong><a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a></strong></td>
+    <td>milliseconds, serial point to point</td>
+    <td>state change driven</td>
+    <td>channel status</td>
+    <td>8 bits each way</td>
+    <td>Relay-to-relay signalling over serial or radio; teleprotection where 61850 is not present</td>
+  </tr>
+  <tr>
+    <td><strong><a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3</a></strong></td>
+    <td>hundreds of ms to seconds</td>
+    <td>yes &mdash; classed events with source timestamps</td>
+    <td>flags per point</td>
+    <td>typed objects, indexed points</td>
+    <td>The default for SCADA in North America, and a good southbound choice to non-SEL IEDs</td>
+  </tr>
+  <tr>
+    <td><strong><a href="atlas:data-protocols/modbus/fundamentals.html">Modbus</a></strong></td>
+    <td>hundreds of ms to seconds</td>
+    <td>no &mdash; poll and compare</td>
+    <td>none</td>
+    <td>raw registers and coils</td>
+    <td>The device only speaks Modbus. Simple, universal, and entirely dependent on a hand-built map</td>
+  </tr>
+  <tr>
+    <td><strong>IEC 61850 MMS</strong></td>
+    <td>hundreds of ms</td>
+    <td>reports with timestamps</td>
+    <td>yes</td>
+    <td>fully self-describing</td>
+    <td>Station bus integration where the whole fleet supports it and the engineering tooling is in place</td>
+  </tr>
+  <tr>
+    <td><strong><a href="atlas:data-protocols/sel-protocols.html">SEL protocols</a></strong></td>
+    <td>fast polled; Fast SER is event driven</td>
+    <td>Fast SER carries events</td>
+    <td>implicit</td>
+    <td>known per relay model</td>
+    <td>SEL device to RTAC &mdash; auto-configuration means the tag set arrives without a hand-built map</td>
+  </tr>
+  <tr>
+    <td><strong><a href="atlas:data-protocols/synchrophasors.html">IEEE C37.118</a></strong></td>
+    <td>streaming, 30&ndash;60 frames/s</td>
+    <td>every frame timestamped</td>
+    <td>status word</td>
+    <td>phasor frames</td>
+    <td>Synchrophasors. There is no alternative</td>
+  </tr>
+  <tr>
+    <td><strong>IEC 60870-5-101/104</strong></td>
+    <td>seconds</td>
+    <td>yes</td>
+    <td>quality descriptors</td>
+    <td>typed information objects</td>
+    <td>The master requires it &mdash; common outside North America</td>
+  </tr>
+</table>
+<div class="callout">
+<strong>The Modbus tax is real and it is paid at commissioning.</strong> No events means the RTAC polls and compares, so timestamps come from the scan rather than the device, and fast transitions between polls are simply lost. No quality means a device that has stopped answering may look identical to one reporting zeros, unless you build the offline logic yourself. None of this makes Modbus a bad choice &mdash; it makes it a choice with known homework. See <a href="atlas:data-protocols/modbus/on-the-rtac.html">Modbus on the RTAC</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Southbound and northbound</h2>
+<p>The RTAC sits between two worlds and the two directions have different constraints. Keeping them mentally separate prevents most architecture arguments.</p>
+<table>
+  <tr><th></th><th>Southbound (RTAC &rarr; field devices)</th><th>Northbound (RTAC &rarr; SCADA master)</th></tr>
+  <tr><td>Who chooses</td><td>You do, within what the device supports</td><td>The master's owner, usually before you arrive</td></tr>
+  <tr><td>Typical choice</td><td>SEL protocol to SEL relays; DNP3 or Modbus to third-party devices; GOOSE for fast bits</td><td>DNP3, or IEC 61850 / 60870 where mandated</td></tr>
+  <tr><td>Optimize for</td><td>Rich data, source timestamps, easy configuration</td><td>A stable, documented point list that will not churn</td></tr>
+  <tr><td>Change frequency</td><td>Changes when devices change</td><td>Changes require coordination with the control centre &mdash; treat the northbound map as a published interface</td></tr>
+  <tr><td>Failure visibility</td><td>Device offline status becomes a tag</td><td>The master must be able to tell &ldquo;RTAC lost the relay&rdquo; from &ldquo;the value is really zero&rdquo;</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Do not let the northbound map dictate the southbound design.</strong> If the master only wants twenty points, you should still bring in everything useful from the relay and expose twenty. Data you did not collect cannot be added retroactively to a historian, and the marginal cost of collecting it southbound is close to zero.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Intake questions for any third-party device</h2>
+<ol>
+<li><strong>Which protocols, and over which physical layers?</strong> &ldquo;Modbus&rdquo; alone is ambiguous &mdash; RTU or TCP, and on which port?</li>
+<li><strong>Is there a published register or point map,</strong> and does it match the firmware actually shipped?</li>
+<li><strong>What is the addressing convention?</strong> Zero-based or one-based registers is the single most common integration error &mdash; see <a href="atlas:data-protocols/modbus/fundamentals.html">Modbus Fundamentals</a>.</li>
+<li><strong>Data types and word order.</strong> 32-bit values split across two registers can be big- or little-endian, and vendors disagree.</li>
+<li><strong>Scaling.</strong> Is the value already engineering units, or does it need a multiplier the manual mentions in a footnote?</li>
+<li><strong>How many simultaneous sessions</strong> does it support? Some devices allow exactly one, which means SCADA and your laptop cannot both be connected.</li>
+<li><strong>What does it do when it loses the master?</strong> Hold last value, go to zero, or fail safe?</li>
+<li><strong>Controls:</strong> supported? Select-before-operate? Does it confirm the outcome, or just accept the command?</li>
+<li><strong>Time:</strong> can it be synchronized, and does it timestamp anything?</li>
+<li><strong>Security:</strong> can credentials be changed, and are the defaults documented publicly?</li>
+</ol>
+<p>Answer these before the device arrives, not during the outage window. The RTAC-side workflow for a device like this is in <a href="atlas:data-protocols/modbus/on-the-rtac.html">Modbus on the RTAC</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Gotchas</h2>
+<ul>
+<li><strong>Choosing by familiarity rather than by requirement.</strong> Modbus because you know it, on a device that speaks DNP3, throws away timestamps and events for nothing.</li>
+<li><strong>Assuming one protocol per device.</strong> Most modern IEDs speak several simultaneously &mdash; a relay can serve DNP3 to the RTAC, GOOSE to its neighbours, and SEL ASCII to your laptop at once.</li>
+<li><strong>Running a protection function over a SCADA protocol</strong> because it worked on the bench. It will work most of the time, which is the worst possible failure mode.</li>
+<li><strong>Two masters, one outstation, no plan.</strong> Multiple sessions to one device need address, session, and event-buffer planning &mdash; each DNP3 server keeps its own event queue.</li>
+<li><strong>Point maps that drift.</strong> The map in the relay, the map in the RTAC, the map in the master, and the map in the spreadsheet must be one thing. See <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>.</li>
+<li><strong>Ignoring quality.</strong> A protocol that carries quality is only useful if the receiving side acts on it. Map it through and use it.</li>
+<li><strong>Forgetting the engineering-access path</strong> when planning ports and sessions. It is a real requirement, not an afterthought.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3 Fundamentals</a>
+  <a href="atlas:data-protocols/modbus/fundamentals.html">Modbus Fundamentals</a>
+  <a href="atlas:data-protocols/iec61850-goose.html">IEC 61850 &amp; GOOSE</a>
+  <a href="atlas:data-protocols/sel-protocols.html">SEL Protocols</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+</div>
+<p class="footnote">Orientation page. Protocol characteristics summarized here are developed in detail, with their SEL sources, on the individual protocol pages in this section. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

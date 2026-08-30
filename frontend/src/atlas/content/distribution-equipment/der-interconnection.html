@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DER Interconnection</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DER,distributed generation,islanding,anti-islanding,ride-through,ROCOF,vector shift,transfer trip,inverter,reverse flow,SEL-700GT">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DER Interconnection (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>DER Interconnection</h1>
+  <p>What changes on a feeder when generation appears behind it — bidirectional flow, islanding detection, ride-through versus trip, inverter fault behavior, and the protection assumptions that quietly stop being true</p>
+  <div class="chips"><span>DER</span><span>anti-islanding</span><span>ride-through</span><span>ROCOF</span><span>vector shift</span><span>transfer trip</span><span>inverter fault current</span><span>reverse flow</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Distributed generation</h3>
+<ul style="margin-bottom:2px">
+<li><strong>A radial feeder stops being radial.</strong> Power can flow either way, fault current can arrive from downstream, and every protection assumption built on &ldquo;one source at the substation&rdquo; needs re-examining.</li>
+<li><strong>Islanding is the safety problem.</strong> A DER that keeps energizing a disconnected section endangers line crews, defeats reclosing, and can reconnect out of synchronism.</li>
+<li><strong>Inverters are not synchronous machines.</strong> They are current-limited &mdash; commonly barely above rated current &mdash; and their fault-current angle is whatever the control chooses. Classical directional and negative-sequence assumptions weaken.</li>
+<li><strong>Ride-through and anti-islanding pull in opposite directions.</strong> Modern interconnection rules require DER to stay connected through disturbances that older rules required them to trip for. Know which requirement applies.</li>
+<li><strong>Grounding at the point of interconnection is not a detail.</strong> The transformer connection decides whether an islanded section stays effectively grounded &mdash; which decides whether arresters survive.</li>
+<li><strong>Transfer trip is the dependable answer</strong> where a channel exists, because it does not rely on detecting a subtle system change.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What changes on the feeder</h2>
+
+<div class="fig"><svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dm" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#d63a3a"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The same feeder, before and after a DER is connected mid-line</text>
+
+  <!-- BEFORE -->
+  <text x="60" y="40" font-size="8.2" font-weight="600" fill="#10a37f">Before</text>
+  <line x1="60" y1="72" x2="660" y2="72" stroke="#1a1a22" stroke-width="2"/>
+  <rect x="86" y="62" width="16" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="94" y="96" font-size="7" fill="#6e7180" text-anchor="middle">52-1</text>
+  <rect x="330" y="62" width="16" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="338" y="96" font-size="7" fill="#6e7180" text-anchor="middle">R-14</text>
+  <g font-size="7" fill="#6e7180">
+    <text x="500" y="62" text-anchor="middle">load</text>
+    <text x="620" y="62" text-anchor="middle">load</text>
+  </g>
+  <line x1="500" y1="72" x2="500" y2="86" stroke="#1a1a22"/><path d="M494,86 h12 l-6,10 z" fill="#6e7180"/>
+  <line x1="620" y1="72" x2="620" y2="86" stroke="#1a1a22"/><path d="M614,86 h12 l-6,10 z" fill="#6e7180"/>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="3s" repeatCount="indefinite" path="M60,72 H660"/></circle>
+  <text x="360" y="52" font-size="7.2" fill="#0d7f63" text-anchor="middle">power and fault current always flow left to right</text>
+
+  <!-- AFTER -->
+  <text x="60" y="150" font-size="8.2" font-weight="600" fill="#d63a3a">After</text>
+  <line x1="60" y1="182" x2="660" y2="182" stroke="#1a1a22" stroke-width="2"/>
+  <rect x="86" y="172" width="16" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="94" y="206" font-size="7" fill="#6e7180" text-anchor="middle">52-1</text>
+  <rect x="330" y="172" width="16" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="338" y="206" font-size="7" fill="#6e7180" text-anchor="middle">R-14</text>
+  <g font-size="7" fill="#6e7180">
+    <text x="620" y="172" text-anchor="middle">load</text>
+  </g>
+  <line x1="620" y1="182" x2="620" y2="196" stroke="#1a1a22"/><path d="M614,196 h12 l-6,10 z" fill="#6e7180"/>
+
+  <!-- DER -->
+  <line x1="470" y1="182" x2="470" y2="214" stroke="#1a1a22" stroke-width="1.6"/>
+  <circle cx="470" cy="228" r="14" fill="#fff" stroke="#5468c4" stroke-width="1.6"/>
+  <text x="470" y="232" text-anchor="middle" font-size="8" font-weight="600" fill="#5468c4">DER</text>
+  <text x="470" y="254" text-anchor="middle" font-size="7" fill="#6e7180">PV / battery / genset</text>
+
+  <!-- fault -->
+  <g>
+    <circle cx="200" cy="182" r="9" fill="none" stroke="#d63a3a" stroke-width="1.8">
+      <animate attributeName="r" values="7;12;7" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <text x="200" y="164" font-size="7.2" fill="#d63a3a" text-anchor="middle">fault</text>
+
+  <!-- currents from both ends -->
+  <path d="M110,176 H188" stroke="#d63a3a" stroke-width="2" marker-end="url(#dm)"/>
+  <path d="M460,176 H212" stroke="#d63a3a" stroke-width="1.2" marker-end="url(#dm)"/>
+  <circle r="3.5" fill="#d63a3a"><animateMotion dur="2s" repeatCount="indefinite" path="M110,176 H188"/></circle>
+  <circle r="2.6" fill="#d63a3a"><animateMotion dur="2s" repeatCount="indefinite" path="M460,176 H212"/></circle>
+
+  <!-- consequences -->
+  <rect x="8" y="262" width="684" height="24" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="20" y="278" font-size="7.8" fill="#9c3838">Consequences: R-14 may under-reach because DER infeed reduces the current it sees &middot; the fault is fed after 52-1 opens &middot; reclosing may close onto a live island &middot; a downstream fuse may see reverse current</text>
+</svg></div>
+<p class="figcap">The infeed effect is the subtle one: a device between the substation and the fault sees <em>less</em> current than the study predicted, because part of the fault current now comes from the other direction. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Assumption that breaks</th><th>Consequence</th></tr>
+  <tr><td>Fault current only flows away from the substation</td><td>Non-directional overcurrent devices may operate for faults behind them, or fail to operate for faults ahead</td></tr>
+  <tr><td>Downstream devices always see less current than upstream ones</td><td>Infeed between the substation and the fault reduces the current at intermediate devices &mdash; coordination margins shrink or invert</td></tr>
+  <tr><td>De-energizing at the substation de-energizes the feeder</td><td>An island can persist, energized from the DER</td></tr>
+  <tr><td>The arc de-ionizes during the reclose open interval</td><td>A DER keeping the fault energized prevents de-ionization, so the reclose finds the fault still there</td></tr>
+  <tr><td>Reclosing into a dead line is safe</td><td>Closing into a live, unsynchronized island is a severe out-of-phase close &mdash; hence sync-check supervision, see <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a></td></tr>
+  <tr><td>Voltage falls monotonically along the feeder</td><td>DER can raise voltage locally, pushing the far end above limits and confusing regulator line-drop compensation</td></tr>
+  <tr><td>The section stays effectively grounded</td><td>An island fed through an ungrounded transformer connection loses its ground reference &mdash; see <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a></td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>Inverter fault behavior</h2>
+<p>A synchronous generator is a voltage source behind an impedance, and its fault contribution is set by physics. An inverter is a controlled current source, and its fault contribution is set by firmware.</p>
+<table>
+  <tr><th></th><th>Synchronous machine</th><th>Inverter-based resource</th></tr>
+  <tr><td>Fault current magnitude</td><td>Several times rated, decaying over cycles to seconds</td><td>Current-limited by control, commonly only slightly above rated</td></tr>
+  <tr><td>Fault current angle</td><td>Set by machine and network impedance &mdash; strongly inductive</td><td>Chosen by the control algorithm; may be near unity, or deliberately reactive to support voltage</td></tr>
+  <tr><td>Negative-sequence contribution</td><td>Substantial and predictable</td><td>Depends entirely on control strategy &mdash; some inverters suppress it deliberately</td></tr>
+  <tr><td>Inertia</td><td>Real rotating mass</td><td>None inherently; synthetic inertia only if implemented</td></tr>
+  <tr><td>Behavior during a deep sag</td><td>Continues, governed by physics</td><td>Governed by the ride-through requirement it was certified to</td></tr>
+</table>
+<div class="callout warn">
+<strong>Do not size protection from a textbook assumption about DER contribution.</strong> Read the interconnection study and the manufacturer's fault-current characteristic. An element that relies on negative-sequence current or on a conventional fault angle may simply not see an inverter-fed fault &mdash; and the study is the only place that fact is documented.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Islanding, and how it is detected</h2>
+<p>An island forms when a section separates from the utility while local generation happens to roughly match local load. If generation and load matched perfectly, nothing about voltage or frequency would change &mdash; which is why detection methods look for the mismatch, and why a &ldquo;non-detection zone&rdquo; exists in principle for every passive method.</p>
+<table>
+  <tr><th>Method</th><th>How it works</th><th>Strengths and limits</th></tr>
+  <tr><td><strong>Under/overvoltage and under/overfrequency (27/59, 81U/81O)</strong></td><td>The island's voltage or frequency drifts outside the window</td><td>Universal, simple, and required. Blind when generation and load are closely matched &mdash; and increasingly constrained by ride-through requirements</td></tr>
+  <tr><td><strong>Rate of change of frequency (81R / ROCOF)</strong></td><td>The instant of separation produces a frequency slope proportional to the mismatch</td><td>Fast. Can be fooled by system events, faults, and motor starting; less reliable as system inertia falls</td></tr>
+  <tr><td><strong>Vector shift</strong></td><td>The sudden change in load causes a step in voltage phase angle</td><td>Fast and sensitive; also susceptible to nearby faults and switching</td></tr>
+  <tr><td><strong>Active methods (inverter-resident)</strong></td><td>The inverter injects a small perturbation and watches whether the grid absorbs it</td><td>Very effective for a single inverter; multiple inverters can interfere with each other's methods</td></tr>
+  <tr><td><strong>Direct transfer trip</strong></td><td>The utility device that opened tells the DER to disconnect over a communications channel</td><td><strong>The dependable method.</strong> No non-detection zone. Costs a channel and its maintenance &mdash; see <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a> and <a href="atlas:comms/radio-and-wan.html">Radio &amp; Wide-Area Links</a></td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Anti-islanding is a crew-safety requirement first.</strong> A line worker's protection is grounding and verification, not a relay setting &mdash; but the relay setting is what keeps the situation from arising. Treat anti-islanding function tests as safety-critical, and prove them, not just the settings.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Ride-through versus trip</h2>
+<p>Early interconnection requirements told DER to disconnect quickly for any disturbance. That was fine when DER was a rounding error. As penetration grew, a voltage sag that tripped every inverter in a region became a bigger problem than the original disturbance &mdash; so requirements shifted to <strong>ride-through</strong>: stay connected, and support the grid, through defined voltage and frequency excursions.</p>
+<ul>
+<li><strong>The two requirements genuinely conflict.</strong> Ride-through says stay connected through a sag; anti-islanding says trip promptly when the grid is gone. Reconciling them is why modern requirements are detailed curves rather than single thresholds.</li>
+<li><strong>Which requirement applies depends on when and where.</strong> Interconnection standards have been revised repeatedly, and jurisdictions adopt them on their own schedules. An existing DER may be operating to a superseded requirement entirely legitimately.</li>
+<li><strong>Voltage and frequency ride-through curves</strong> define regions of mandatory operation, permissive operation, and mandatory trip, as a function of magnitude and duration.</li>
+<li><strong>Grid-support functions</strong> &mdash; volt/VAr, volt/watt, frequency-watt &mdash; are increasingly required, which means a DER is now participating in voltage regulation on the same feeder as your regulators and capacitor banks. Coordinate them.</li>
+<li><strong>Get the settings from the interconnection agreement,</strong> not from a default profile. They are contractual, and they are auditable.</li>
+</ul>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Ride-through and anti-islanding pull in opposite directions on the same voltage curve</text>
+  <line x1="70" y1="180" x2="660" y2="180" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="180" stroke="#a9adb8"/>
+  <text x="365" y="202" font-size="7.4" fill="#8a8e9b" text-anchor="middle">duration of the disturbance &rarr;</text>
+  <text x="50" y="106" font-size="7.4" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 50 106)">voltage</text>
+  <g font-size="7" fill="#8a8e9b">
+    <line x1="66" y1="52" x2="70" y2="52" stroke="#a9adb8"/><text x="62" y="55" text-anchor="end">1.1 pu</text>
+    <line x1="66" y1="86" x2="70" y2="86" stroke="#a9adb8"/><text x="62" y="89" text-anchor="end">1.0</text>
+    <line x1="66" y1="140" x2="70" y2="140" stroke="#a9adb8"/><text x="62" y="143" text-anchor="end">0.5</text>
+    <line x1="66" y1="172" x2="70" y2="172" stroke="#a9adb8"/><text x="62" y="175" text-anchor="end">0</text>
+  </g>
+
+  <path d="M70,120 H200 V96 H400 V88 H660 V60 H70 Z" fill="#10a37f" opacity="0.10"/>
+  <path d="M70,120 H200 V96 H400 V88 H660" fill="none" stroke="#10a37f" stroke-width="1.6"/>
+  <text x="300" y="80" font-size="7.6" font-weight="600" fill="#0d7f63">must stay connected &mdash; ride-through region</text>
+
+  <path d="M70,180 H200 V120 H400 V96 H660 V180 Z" fill="#d63a3a" opacity="0.10"/>
+  <text x="330" y="160" font-size="7.6" font-weight="600" fill="#9c3838">must disconnect &mdash; and quickly</text>
+
+  <line x1="200" y1="34" x2="200" y2="180" stroke="#8a8e9b" stroke-dasharray="3 3"/>
+  <text x="204" y="46" font-size="7" fill="#8a8e9b">a nearby fault clears here</text>
+  <line x1="400" y1="34" x2="400" y2="180" stroke="#8a8e9b" stroke-dasharray="3 3"/>
+  <text x="404" y="46" font-size="7" fill="#8a8e9b">by here it is not a fault, it is an island</text>
+
+  <circle r="4.5" fill="#5468c4">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M80,88 L180,132 L210,90 L390,90 L420,150 L640,150"/>
+  </circle>
+  <rect x="70" y="210" width="590" height="18" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="82" y="223" font-size="7.6" fill="#454956">The exact boundaries come from the applicable interconnection standard and the agreement for that installation &mdash; they have been revised repeatedly. Never work from memory.</text>
+</svg></div>
+<p class="figcap">Shape is illustrative, not a settings source. The point is that a single voltage threshold cannot satisfy both requirements, which is why the modern requirement is a curve. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">5</span>Protection at the point of interconnection</h2>
+<table>
+  <tr><th>Function</th><th>Purpose</th></tr>
+  <tr><td><strong>27 / 59</strong></td><td>Voltage window, shaped by the applicable ride-through requirement</td></tr>
+  <tr><td><strong>81U / 81O, 81R</strong></td><td>Frequency window and rate of change &mdash; see <a href="atlas:protection/frequency-load-shedding.html">Frequency &amp; Load Shedding</a></td></tr>
+  <tr><td><strong>Vector shift</strong></td><td>Fast islanding detection where permitted</td></tr>
+  <tr><td><strong>32 &mdash; directional power</strong></td><td>Enforces export or import limits at the point of interconnection</td></tr>
+  <tr><td><strong>50 / 51, 67</strong></td><td>Fault protection for the interconnection transformer and the DER-side conductors, directional where flow is bidirectional</td></tr>
+  <tr><td><strong>59N / 3V<sub>0</sub></strong></td><td>Detects a ground fault on the utility side that the DER's own transformer connection would otherwise hide</td></tr>
+  <tr><td><strong>25 &mdash; synchronism check</strong></td><td>Supervises reconnection after any separation. Mandatory, not optional</td></tr>
+  <tr><td><strong>Transfer trip receive</strong></td><td>The utility's command to disconnect</td></tr>
+  <tr><td><strong>Reconnect timer</strong></td><td>A delay after grid voltage and frequency return to normal before reconnecting, so a series of DER do not all reconnect into a still-unstable system at once</td></tr>
+</table>
+<p>The SEL-700GT is the intertie member of the SEL-700G family and carries this function set directly; the SEL-700GW targets wind generation. Element detail is on <a href="atlas:protection/generator-protection.html">Generator Protection</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>What the utility side has to change</h2>
+<ul>
+<li><strong>Re-run the coordination study</strong> with the DER modeled, in every credible switching configuration and at both maximum and minimum DER output.</li>
+<li><strong>Add directionality where flow can reverse</strong> &mdash; a non-directional 51 on a bidirectional circuit is a coordination hazard.</li>
+<li><strong>Review reclosing.</strong> Options include supervising the reclose with sync check, adding a voltage check for a dead line, lengthening the open interval so the DER's anti-islanding has time to act, or transfer-tripping the DER before reclosing.</li>
+<li><strong>Review fusing.</strong> Fuse-saving schemes assume the fuse sees a specific current; DER infeed changes it.</li>
+<li><strong>Check the voltage profile.</strong> DER can raise voltage at its point of connection above limits, and can confuse regulator line-drop compensation, which assumes load flows away from the regulator &mdash; see <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>.</li>
+<li><strong>Check the grounding of the interconnection transformer.</strong> This is the decision that determines whether an unintentional island remains effectively grounded, and it drives arrester ratings on the utility side.</li>
+<li><strong>Tell the restoration scheme about it.</strong> A FLISR scheme that reconfigures the feeder must know where DER is and what it will do &mdash; see <a href="atlas:distribution-automation/dac/how-it-decides.html">how the DAC decides</a>.</li>
+<li><strong>Get visibility.</strong> DER output, status, and connection state as SCADA points, so operators are not reasoning about a feeder whose generation they cannot see.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Settings taken from a manufacturer default profile</strong> rather than from the interconnection agreement. The agreement is the requirement.</li>
+<li><strong>Anti-islanding tested only as a settings check.</strong> Prove the function by actually separating the source during commissioning, under controlled conditions.</li>
+<li><strong>Transfer trip channel unmonitored.</strong> A dependable method that has silently failed is not dependable. Alarm the channel &mdash; and know what the DER does when it is lost.</li>
+<li><strong>Reclosing unchanged after DER is added.</strong> The most consequential omission on this page.</li>
+<li><strong>Assuming inverters contribute meaningful fault current.</strong> Sensitivity calculations that count on it will be wrong.</li>
+<li><strong>Ignoring aggregate effect.</strong> One rooftop system is negligible; four hundred on one feeder is a generator. Track cumulative penetration, not individual applications.</li>
+<li><strong>DER invisible to operations.</strong> A feeder that will not stay de-energized, with no indication why, is an incident waiting to happen.</li>
+<li><strong>Grounding decided by the customer's transformer vendor.</strong> Specify it, in writing, as an interconnection requirement.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/generator-protection.html">Generator Protection</a>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a>
+  <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>
+  <a href="atlas:distribution-equipment/voltage-regulation.html">Voltage Regulator Control</a>
+  <a href="atlas:protection/frequency-load-shedding.html">Frequency &amp; Load Shedding</a>
+</div>
+<p class="footnote">Application page. The interconnection-protection function set, islanding-detection methods (under/overvoltage and frequency, rate of change of frequency, vector shift, and transfer trip), and the intertie relay capabilities described follow SEL practice as documented in the SEL-700G family data sheet (20250501), which lists rate-of-change-of-frequency and vector-shift elements for islanding detection, directional power, synchronism-check, and the SEL-700GT / SEL-700GW intertie and wind variants. Ride-through and reconnection requirements are set by the applicable interconnection standard and agreement for each installation, and are deliberately not quoted as fixed numbers here. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

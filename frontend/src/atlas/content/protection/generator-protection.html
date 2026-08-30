@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Generator Protection</title>
+<meta name="atlas-order" content="100">
+<meta name="atlas-tags" content="generator,87,64G,stator ground,40,loss of field,64F,field ground,32,reverse power,24,volts per hertz,51V,25,synchronizing,SEL-700G,SEL-400G">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Generator Protection (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Generator Protection</h1>
+  <p>Stator, rotor, prime mover, and intertie — the element set on the SEL-700G and SEL-400G families, why generator backup overcurrent needs voltage supervision, and how tripping schemes differ from everything else</p>
+  <div class="chips"><span>87</span><span>64G 100% stator</span><span>40 loss of field</span><span>64F field ground</span><span>32 reverse power</span><span>24 V/Hz</span><span>51V</span><span>25 autosynch</span><span>SEL-700G</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Generators</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Opening the breaker does not de-energize a generator.</strong> The machine keeps spinning with field applied and keeps feeding an internal fault. Tripping a generator means the breaker <em>and</em> the field <em>and</em> the prime mover.</li>
+<li><strong>Most generator elements protect the machine from the system,</strong> not the system from the machine: reverse power, off-frequency, overexcitation, unbalance, and loss of field are all abnormal-operating-condition protection.</li>
+<li><strong>Fault current decays below rated current.</strong> A plain overcurrent element can pick up and drop out before timing. Backup overcurrent on a generator is <strong>voltage-controlled or voltage-restrained (51V)</strong>, or a compensator distance element.</li>
+<li><strong>The rotor is fragile in ways the stator is not.</strong> Negative-sequence current, loss of field, and field grounds all attack it, and none of them look like a fault.</li>
+<li><strong>Ground current is deliberately tiny.</strong> Generators are usually high-impedance grounded, so stator ground protection is voltage-based, and covering the last few percent near the neutral needs a dedicated 100% stator ground scheme.</li>
+<li><strong>Synchronizing is protection.</strong> Closing out of phase can wreck a machine instantly &mdash; sync check is a hard interlock, not a convenience.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The four zones</h2>
+
+<div class="fig"><svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One machine, four distinct things to protect &mdash; and the elements that watch each</text>
+
+  <!-- prime mover -->
+  <rect x="16" y="120" width="86" height="60" rx="6" fill="#fff" stroke="#6e7180" stroke-width="1.4"/>
+  <text x="59" y="146" text-anchor="middle" font-size="8.2" font-weight="600" fill="#454956">Prime mover</text>
+  <text x="59" y="160" text-anchor="middle" font-size="7" fill="#6e7180">turbine / engine</text>
+
+  <!-- generator -->
+  <circle cx="200" cy="150" r="40" fill="#fff" stroke="#1a1a22" stroke-width="1.8"/>
+  <text x="200" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a22">G</text>
+  <text x="200" y="162" text-anchor="middle" font-size="7" fill="#6e7180">stator + rotor</text>
+  <line x1="102" y1="150" x2="160" y2="150" stroke="#1a1a22" stroke-width="2"/>
+
+  <!-- neutral grounding -->
+  <line x1="200" y1="190" x2="200" y2="212" stroke="#5468c4" stroke-width="1.6"/>
+  <rect x="190" y="212" width="20" height="24" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="222" y="228" font-size="7" fill="#5468c4">HRG: only a few amperes</text>
+  <line x1="200" y1="236" x2="200" y2="248" stroke="#5468c4" stroke-width="1.6"/>
+  <path d="M188,248 H212 M192,253 H208 M196,258 H204" stroke="#1a1a22" stroke-width="1.4"/>
+
+  <!-- field -->
+  <rect x="150" y="58" width="100" height="34" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.4"/>
+  <text x="200" y="80" text-anchor="middle" font-size="8" font-weight="600" fill="#9c6d06">Exciter / field</text>
+  <line x1="200" y1="92" x2="200" y2="110" stroke="#d7930a" stroke-width="1.6"/>
+
+  <!-- GSU and breaker -->
+  <line x1="240" y1="150" x2="300" y2="150" stroke="#1a1a22" stroke-width="2"/>
+  <rect x="300" y="140" width="20" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="310" y="176" text-anchor="middle" font-size="7" fill="#6e7180">52-G</text>
+  <line x1="320" y1="150" x2="380" y2="150" stroke="#1a1a22" stroke-width="2"/>
+  <circle cx="400" cy="142" r="12" fill="none" stroke="#1a1a22" stroke-width="1.5"/>
+  <circle cx="400" cy="158" r="12" fill="none" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="400" y="186" text-anchor="middle" font-size="7" fill="#6e7180">GSU</text>
+  <line x1="420" y1="150" x2="500" y2="150" stroke="#1a1a22" stroke-width="2"/>
+  <line x1="500" y1="120" x2="500" y2="180" stroke="#1a1a22" stroke-width="2.4"/>
+  <text x="500" y="112" text-anchor="middle" font-size="7" fill="#6e7180">system</text>
+
+  <!-- zone boxes -->
+  <rect x="8" y="108" width="104" height="84" rx="10" fill="none" stroke="#6e7180" stroke-dasharray="5 4"/>
+  <text x="60" y="204" text-anchor="middle" font-size="7.6" font-weight="600" fill="#454956">Prime mover</text>
+
+  <rect x="140" y="104" width="120" height="92" rx="10" fill="none" stroke="#10a37f" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="200" y="208" text-anchor="middle" font-size="7.6" font-weight="600" fill="#0d7f63">Stator zone (87)</text>
+
+  <rect x="142" y="50" width="116" height="50" rx="10" fill="none" stroke="#d7930a" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="200" y="44" text-anchor="middle" font-size="7.6" font-weight="600" fill="#9c6d06">Field / rotor</text>
+
+  <rect x="290" y="104" width="220" height="92" rx="10" fill="none" stroke="#5468c4" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="400" y="208" text-anchor="middle" font-size="7.6" font-weight="600" fill="#5468c4">Interface with the system</text>
+
+  <!-- element callouts -->
+  <g font-size="7">
+    <rect x="16" y="226" width="150" height="82" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="28" y="242" font-weight="600" fill="#454956">Prime mover</text>
+    <text x="28" y="256" fill="#6e7180">32 &mdash; reverse power (motoring)</text>
+    <text x="28" y="268" fill="#6e7180">81 &mdash; off-frequency, with</text>
+    <text x="28" y="278" fill="#6e7180">accumulators for turbine blades</text>
+    <text x="28" y="292" fill="#6e7180">49 / RTD &mdash; thermal</text>
+
+    <rect x="176" y="226" width="150" height="82" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="188" y="242" font-weight="600" fill="#0d7f63">Stator</text>
+    <text x="188" y="256" fill="#6e7180">87 &mdash; phase differential</text>
+    <text x="188" y="268" fill="#6e7180">87N / REF &mdash; ground differential</text>
+    <text x="188" y="280" fill="#6e7180">64G &mdash; 100% stator ground</text>
+    <text x="188" y="292" fill="#6e7180">46 &mdash; negative-sequence</text>
+
+    <rect x="336" y="226" width="150" height="82" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="348" y="242" font-weight="600" fill="#9c6d06">Field / rotor</text>
+    <text x="348" y="256" fill="#6e7180">40 &mdash; loss of field</text>
+    <text x="348" y="268" fill="#6e7180">64F &mdash; field ground</text>
+    <text x="348" y="280" fill="#6e7180">(SEL-2664 field ground module)</text>
+    <text x="348" y="292" fill="#6e7180">78 &mdash; out of step</text>
+
+    <rect x="496" y="226" width="188" height="82" rx="5" fill="#eef0f9" stroke="#dde1f2"/>
+    <text x="508" y="242" font-weight="600" fill="#5468c4">System interface</text>
+    <text x="508" y="256" fill="#6e7180">51V &mdash; voltage-controlled/restrained backup</text>
+    <text x="508" y="268" fill="#6e7180">21 &mdash; compensator distance backup</text>
+    <text x="508" y="280" fill="#6e7180">24 &mdash; volts/hertz &middot; 27/59 &middot; 25 sync check</text>
+    <text x="508" y="292" fill="#6e7180">50/62BF &mdash; breaker failure &middot; inadvertent energization</text>
+  </g>
+
+  <!-- rotating field marker -->
+  <circle cx="200" cy="118" r="3" fill="#d7930a">
+    <animateTransform attributeName="transform" type="rotate" from="0 200 150" to="360 200 150" dur="3s" repeatCount="indefinite"/>
+  </circle>
+</svg></div>
+<p class="figcap">Zones map onto the SEL-700G element list directly; the SEL-400G covers the same ground on the 400-series platform with more channels and more elements. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Stator protection</h2>
+<table>
+  <tr><th>Element</th><th>Protects against</th><th>Notes</th></tr>
+  <tr><td><strong>87 &mdash; phase differential</strong></td><td>Phase faults in the stator winding and its leads</td><td>Dual-slope percentage restraint with harmonic blocking on the SEL-700G optional package, and a high-security mode that adds security against CT saturation during external events. Needs CTs at both the neutral and terminal ends of each phase</td></tr>
+  <tr><td><strong>87N / restricted earth fault</strong></td><td>Ground faults within the winding</td><td>Far more sensitive than phase differential to ground faults, because it compares residual current with the measured neutral current. The SEL-700G0 includes ground differential and sensitive restricted earth fault as basic features</td></tr>
+  <tr><td><strong>64G &mdash; 100% stator ground</strong></td><td>Ground faults near the neutral, where fundamental-frequency 3V<sub>0</sub> approaches zero</td><td>Conventional 59N covers roughly the upper 90&ndash;95% of the winding. The remaining portion needs third-harmonic or injection-based methods &mdash; available as an optional feature on the SEL-700G family</td></tr>
+  <tr><td><strong>46 &mdash; current unbalance</strong></td><td>Rotor heating from negative-sequence current</td><td>Set from the machine's I<sub>2</sub>&sup2;t capability. Continuous and short-time negative-sequence limits are machine data</td></tr>
+  <tr><td><strong>49 / RTD</strong></td><td>Thermal overload; measured winding and bearing temperature</td><td>Requires the internal RTD option or an external SEL-2600 RTD module</td></tr>
+</table>
+<div class="callout">
+<strong>Why stator ground protection is voltage-based.</strong> Generators are almost always high-impedance grounded &mdash; commonly through a distribution transformer with a secondary resistor &mdash; so a solid stator ground draws only a few amperes. That protects the iron from burning, but it means current-based ground elements have nothing to measure. 59N on the neutral (or a broken-delta 3V<sub>0</sub>) is the primary detector. See <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Why generator backup overcurrent needs voltage</h2>
+<p>A synchronous generator's contribution to a sustained fault decays from the subtransient value, through the transient value, down to the synchronous value &mdash; which for many machines is <em>below</em> rated current. A conventional 51 element set above rated current will pick up on the first cycles and then drop out before it times out.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Generator fault current decrement versus a plain 51 pickup, and what 51V does about it</text>
+
+  <line x1="60" y1="180" x2="440" y2="180" stroke="#a9adb8"/>
+  <line x1="60" y1="34" x2="60" y2="180" stroke="#a9adb8"/>
+  <g font-size="7" fill="#8a8e9b">
+    <text x="54" y="183" text-anchor="end">0</text>
+    <line x1="56" y1="140" x2="60" y2="140" stroke="#a9adb8"/><text x="54" y="143" text-anchor="end">1&times; rated</text>
+    <line x1="56" y1="100" x2="60" y2="100" stroke="#a9adb8"/><text x="54" y="103" text-anchor="end">3&times;</text>
+    <line x1="56" y1="52" x2="60" y2="52" stroke="#a9adb8"/><text x="54" y="55" text-anchor="end">6&times;</text>
+    <text x="250" y="200" text-anchor="middle">seconds after fault</text>
+  </g>
+
+  <!-- decrement curve -->
+  <path d="M60,48 C90,52 110,74 140,96 C180,120 230,138 290,148 C340,155 390,156 438,156"
+        fill="none" stroke="#d63a3a" stroke-width="1.8"/>
+  <text x="120" y="70" font-size="7" fill="#d63a3a">subtransient X&Prime;d</text>
+  <text x="215" y="128" font-size="7" fill="#d63a3a">transient X&prime;d</text>
+  <text x="360" y="148" font-size="7" fill="#d63a3a">synchronous Xd</text>
+
+  <!-- plain 51 pickup -->
+  <line x1="60" y1="128" x2="438" y2="128" stroke="#5468c4" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="438" y="124" font-size="7" fill="#5468c4" text-anchor="end">plain 51 pickup (above rated)</text>
+  <circle cx="176" cy="128" r="4" fill="#5468c4"/>
+  <text x="176" y="118" font-size="6.8" fill="#5468c4" text-anchor="middle">drops out here</text>
+
+  <!-- moving marker -->
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="6s" repeatCount="indefinite"
+      path="M60,48 C90,52 110,74 140,96 C180,120 230,138 290,148 C340,155 390,156 438,156"/>
+  </circle>
+
+  <!-- the fix -->
+  <rect x="470" y="40" width="216" height="150" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="484" y="58" font-size="8.2" font-weight="600" fill="#1a1a22">Two ways to fix it</text>
+  <text x="484" y="78" font-size="7.6" font-weight="600" fill="#0d7f63">51VC &mdash; voltage-controlled</text>
+  <text x="484" y="90" font-size="7.4" fill="#454956">The 51 is blocked entirely unless voltage</text>
+  <text x="484" y="101" font-size="7.4" fill="#454956">is depressed. Below that threshold, a low</text>
+  <text x="484" y="112" font-size="7.4" fill="#454956">pickup is safe because it cannot see load.</text>
+  <text x="484" y="132" font-size="7.6" font-weight="600" fill="#9c6d06">51VR &mdash; voltage-restrained</text>
+  <text x="484" y="144" font-size="7.4" fill="#454956">The pickup slides down in proportion to</text>
+  <text x="484" y="155" font-size="7.4" fill="#454956">voltage, so a deep fault lowers the pickup</text>
+  <text x="484" y="166" font-size="7.4" fill="#454956">continuously rather than as a step.</text>
+  <text x="484" y="182" font-size="7.2" fill="#8a8e9b">Both are standard on the SEL-700G family.</text>
+
+  <rect x="8" y="208" width="684" height="26" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="20" y="225" font-size="7.8" fill="#9c6d06">A compensator distance element (21) is the other common answer &mdash; impedance does not decay with the machine, so it stays valid throughout.</text>
+</svg></div>
+<p class="figcap">This is the single most distinctive thing about generator protection, and the reason a feeder relay cannot simply be repurposed onto a machine. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Abnormal operating conditions</h2>
+<table>
+  <tr><th>Element</th><th>Condition</th><th>Why it matters</th></tr>
+  <tr><td><strong>32 &mdash; directional power (reverse power)</strong></td><td>Prime mover has lost power and the generator is motoring, driven by the system</td><td>Damages steam turbine blading and some engines quickly. Also the basis of the standard <em>sequential trip</em> scheme below</td></tr>
+  <tr><td><strong>40 &mdash; loss of field</strong></td><td>Excitation lost; the machine absorbs large reactive power from the system and may slip poles</td><td>Heats the rotor and stator ends, and depresses system voltage. Usually implemented as offset mho impedance zones</td></tr>
+  <tr><td><strong>64F &mdash; field ground</strong></td><td>A ground on the field winding</td><td>One ground is tolerable; the second shorts turns, unbalances the flux, and can bend the shaft. Detected with an SEL-2664 Field Ground Module on the SEL-700G family</td></tr>
+  <tr><td><strong>24 &mdash; volts/hertz (overexcitation)</strong></td><td>V/Hz above the machine's or the GSU's limit &mdash; typically at low speed with excitation on, or during load rejection</td><td>Saturates the core and overheats laminations and the GSU. Inverse-time characteristic matched to the equipment's capability curve</td></tr>
+  <tr><td><strong>81 &mdash; over/underfrequency plus off-frequency accumulators</strong></td><td>Operation at abnormal speed</td><td>Turbine blades have resonant frequencies with cumulative fatigue limits, so the relay accumulates time in defined frequency bands rather than simply tripping</td></tr>
+  <tr><td><strong>78 &mdash; out of step / pole slip</strong></td><td>The machine has lost synchronism with the system</td><td>Each slip cycle applies large torque to the shaft. Available on the SEL-700G optional package</td></tr>
+  <tr><td><strong>Inadvertent energization</strong></td><td>The generator breaker closes while the machine is at standstill or on turning gear</td><td>Applies full system voltage to an unexcited machine &mdash; effectively an induction motor start with catastrophically high current. Armed by low frequency or low voltage, this is dedicated logic, not a repurposed overcurrent element</td></tr>
+  <tr><td><strong>60 LOP &mdash; loss of potential</strong></td><td>A blown VT fuse</td><td>Blocks the elements that depend on voltage (51V, 40, 32, 21) so a fuse failure does not cause a trip &mdash; or, worse, silently disable protection without anyone knowing</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>Synchronizing</h2>
+<p>Paralleling a machine to a live system requires voltage magnitude, frequency, and phase angle to match within tight limits. Closing out of step subjects the shaft to torque that can exceed a three-phase fault.</p>
+<ul>
+<li><strong>25 &mdash; synchronism check</strong> is a permissive: it allows a close only when slip, angle, and voltage difference are all within limits. On the SEL-700G family there are separate <em>generator</em> sync-check and <em>tie</em> sync-check elements, plus sync-check under- and overvoltage elements.</li>
+<li><strong>Autosynchronism</strong> goes further: the relay actively issues raise/lower commands to the governor and exciter to bring the machine into alignment, then closes at the correct advance angle to account for breaker closing time.</li>
+<li><strong>Synchroscope</strong> gives the operator the classic visual. The SEL-700G family exposes synchroscope and auto-synchronizer applications on the touchscreen display.</li>
+<li><strong>Breaker close time must be compensated.</strong> Issuing the close at the moment of zero angle means the breaker actually closes late, at a real angle difference. The advance-angle setting handles this, and it is a per-breaker measured value &mdash; not a guess.</li>
+</ul>
+<div class="callout warn">
+<strong>Test the sync-check element for what it <em>blocks</em>, not just what it permits.</strong> A sync element that is wired backwards, or whose voltage inputs are swapped, will happily permit closes that should be blocked, and nothing about normal operation will reveal it. Prove the block with a deliberate angle and voltage mismatch during commissioning. See <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Intertie protection and islanding</h2>
+<p>When a generator is embedded in a distribution or industrial system, a second problem appears: the machine must not continue to energize a section that has been separated from the utility. The SEL-700GT is the intertie member of the family, and the SEL-700GW targets wind generation.</p>
+<ul>
+<li><strong>Vector shift</strong> and <strong>rate of change of frequency (81R)</strong> are the standard islanding detectors, both available on the SEL-700G family. Both react to the sudden change in the balance between generation and load at the instant of separation.</li>
+<li><strong>Directional power (32)</strong> enforces export or import limits at the point of interconnection.</li>
+<li><strong>27/59 and 81 O/U</strong> ride-through settings come from the interconnection agreement and the applicable standard, not from machine data &mdash; and they have changed substantially as ride-through requirements have tightened. See <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>.</li>
+<li><strong>Transfer trip</strong> remains the most dependable anti-islanding method where a channel exists, because it does not depend on detecting a subtle system change.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Tripping schemes</h2>
+<p>Generator tripping is not one action. The scheme names describe which combination of breaker, field, and prime mover is commanded, and picking the wrong one for a given fault causes secondary damage.</p>
+<table>
+  <tr><th>Scheme</th><th>Actions</th><th>Used for</th></tr>
+  <tr><td><strong>Simultaneous (unit) trip</strong></td><td>Generator breaker, field breaker, and prime mover all at once</td><td>Internal faults &mdash; anything where continued rotation with excitation makes the damage worse (87, 64G, field ground with a second ground)</td></tr>
+  <tr><td><strong>Generator trip</strong></td><td>Breaker and field, prime mover left running (or ramped)</td><td>Electrical abnormal conditions where the machine itself is intact</td></tr>
+  <tr><td><strong>Sequential trip</strong></td><td>Close the prime mover valves first, wait for reverse power to confirm the machine is unloaded, <em>then</em> open the breaker and field</td><td>Normal shutdowns and non-urgent trips on steam units &mdash; avoids overspeed by ensuring the machine is not still driven when the load is removed</td></tr>
+  <tr><td><strong>System (breaker only) trip</strong></td><td>Generator breaker only</td><td>System-side conditions where the machine can survive on house load</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>The lockout relay is doing more here than anywhere else.</strong> A generator 86 typically drives the breaker, the field breaker, the turbine trip solenoid, and the auxiliaries. When you map generator trip points into SCADA, map the <em>lockout</em> and the individual initiating elements separately &mdash; &ldquo;86G operated&rdquo; is the operational fact, and &ldquo;which element caused it&rdquo; is the engineering fact. Both are needed.
+</div>
+</section>
+
+<section>
+<h2><span class="num">8</span>Gotchas</h2>
+<ul>
+<li><strong>Applying a feeder relay to a generator.</strong> Without 51V or 21 backup, the machine has no working backup overcurrent protection at all &mdash; and nothing about normal operation reveals it.</li>
+<li><strong>Loss of potential silently disabling protection.</strong> A blown VT fuse blocks 51V, 40, 32, and 21 by design. That block must raise an alarm, and the alarm must be treated as an urgent protection outage.</li>
+<li><strong>Differential CTs with mismatched ratios or saturation characteristics.</strong> Neutral-end and terminal-end CTs are often different physical types. Confirm both against the differential relay's requirements, and use the high-security mode where external-event saturation is credible.</li>
+<li><strong>Field ground module wiring.</strong> The SEL-2664 connects to the field circuit; getting its connection or its blocking logic wrong produces either constant alarms or no detection. Prove it with a deliberate test ground during commissioning.</li>
+<li><strong>Off-frequency accumulators are cumulative across the machine's life</strong> in some schemes. Understand whether the relay's accumulator is meant to be reset, and by whom.</li>
+<li><strong>Inadvertent energization logic must be armed and disarmed correctly.</strong> Armed when it should not be, it can trip a healthy start; disarmed when it should be armed, it protects nothing.</li>
+<li><strong>Synchronizing across the wrong pair of PTs.</strong> Running-side and incoming-side voltage inputs are easy to reverse, and normal parallel operation will not reveal it. Verify with a real angle difference.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a>
+  <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>
+  <a href="atlas:protection/frequency-load-shedding.html">Frequency &amp; Load Shedding</a>
+  <a href="atlas:protection/motor-protection.html">Motor Protection</a>
+</div>
+<p class="footnote">Sources: SEL-700G Family of Generator and Intertie Protection Relays Data Sheet (20250501) &mdash; family split (700G0/700G1/700GT/700GW), basic and optional feature lists including ground differential and sensitive restricted earth fault, thermal overload, voltage-controlled and voltage-restrained time-overcurrent backup, loss-of-field, volts/hertz, off-frequency accumulators, rate-of-change-of-frequency and vector shift for islanding, inadvertent energization, RTD protection via internal option or SEL-2600, field ground via the SEL-2664 Field Ground Module, 100% stator ground, dual-slope differential with harmonic blocking and a high-security mode, generator and tie synchronism-check elements, autosynchronism and synchroscope. Element tables cross-checked against the same data sheet's ANSI function matrix. Generator tripping-scheme practice follows standard IEEE C37.102 guidance. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

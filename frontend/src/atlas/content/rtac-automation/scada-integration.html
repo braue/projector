@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SCADA Integration</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="points list,IO map,naming,deadband,scaling,quality,offline,SBO,controls,alarm design,point-to-point,change control">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "SCADA Integration (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>SCADA Integration</h1>
+  <p>The points list as a contract — naming, what to map, scaling and deadbands, quality and offline handling, control design, alarm hygiene, and proving every point end to end</p>
+  <div class="chips"><span>points list</span><span>naming</span><span>IO map</span><span>deadbands</span><span>quality</span><span>SBO</span><span>alarm design</span><span>point-to-point</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Integration</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The points list is a contract between three parties</strong> &mdash; the device, the RTAC, and the master. All three copies must be one document, or the seams will drift.</li>
+<li><strong>Name by what it is, not by where it happens to be wired.</strong> A name that survives a relay replacement is a good name.</li>
+<li><strong>Collect generously, publish deliberately.</strong> Bring everything useful into the RTAC; expose to the master what the master needs. Data not collected is gone forever.</li>
+<li><strong>Quality must survive the trip.</strong> A stale value that looks healthy is the most dangerous thing on an operator's screen.</li>
+<li><strong>A control is not commissioned until it has operated the real device</strong> and the status came back. Both halves.</li>
+<li><strong>Alarms are a scarce resource.</strong> Every point promoted to an alarm makes every other alarm slightly less credible.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>One physical thing, five names</h2>
+
+<div class="fig"><svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="si" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The same breaker position, as it appears at each layer &mdash; and where the points list must record it</text>
+
+  <g font-size="7.4">
+    <rect x="8" y="34" width="120" height="52" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+    <text x="68" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#1a1a22">Physical</text>
+    <text x="68" y="65" text-anchor="middle" fill="#6e7180">52a aux contact on</text>
+    <text x="68" y="76" text-anchor="middle" fill="#6e7180">breaker 52-1</text>
+
+    <rect x="146" y="34" width="120" height="52" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="206" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Relay</text>
+    <text x="206" y="65" text-anchor="middle" fill="#6e7180">input IN101 &rarr;</text>
+    <text x="206" y="76" text-anchor="middle" fill="#6e7180">Relay Word bit 52A</text>
+
+    <rect x="284" y="34" width="120" height="52" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="344" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#10a37f">Protocol</text>
+    <text x="344" y="65" text-anchor="middle" fill="#6e7180">DNP3 BI index 4</text>
+    <text x="344" y="76" text-anchor="middle" fill="#6e7180">Class 1</text>
+
+    <rect x="422" y="34" width="130" height="52" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="487" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#10a37f">RTAC tag</text>
+    <text x="487" y="65" text-anchor="middle" fill="#6e7180">FDR1_52_Pos</text>
+    <text x="487" y="76" text-anchor="middle" fill="#6e7180">.stVal + q + t</text>
+
+    <rect x="570" y="34" width="122" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="631" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">Master</text>
+    <text x="631" y="65" text-anchor="middle" fill="#6e7180">&ldquo;NORTHFIELD FDR 1</text>
+    <text x="631" y="76" text-anchor="middle" fill="#6e7180">BREAKER&rdquo;</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#si)">
+    <path d="M128,60 H143"/><path d="M266,60 H281"/><path d="M404,60 H419"/><path d="M552,60 H567"/>
+  </g>
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="5s" repeatCount="indefinite" path="M68,60 H206 H344 H487 H631"/>
+  </circle>
+
+  <!-- the points list row -->
+  <rect x="8" y="106" width="684" height="72" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="22" y="124" font-size="8.2" font-weight="600" fill="#1a1a22">One row of the points list carries all five, plus the wiring reference</text>
+  <line x1="22" y1="132" x2="678" y2="132" stroke="#10a37f" stroke-width="1.2"/>
+  <g font-size="6.8" fill="#6e7180">
+    <text x="22" y="144">DEVICE</text><text x="120" y="144">SIGNAL</text><text x="222" y="144">SOURCE</text><text x="322" y="144">INDEX</text>
+    <text x="392" y="144">RTAC TAG</text><text x="500" y="144">MASTER POINT</text><text x="610" y="144">WIRE / TB</text>
+  </g>
+  <g font-size="7.2" fill="#454956" font-family="Consolas, monospace">
+    <text x="22" y="160">FDR1_751</text><text x="120" y="160">Breaker closed</text><text x="222" y="160">RW bit 52A</text><text x="322" y="160">BI 4</text>
+    <text x="392" y="160">FDR1_52_Pos</text><text x="500" y="160">NF_FDR1_BKR</text><text x="610" y="160">C12 / TB4-7</text>
+  </g>
+  <text x="22" y="173" font-size="7" fill="#8a8e9b">&hellip;and, for analogs, the scaling, units, deadband, and range as well.</text>
+
+  <rect x="8" y="190" width="684" height="62" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="22" y="208" font-size="8.2" font-weight="600" fill="#9c3838">The three copies problem</text>
+  <text x="22" y="224" font-size="7.8" fill="#454956">The relay's map, the RTAC project, and the master's database each contain a version of this row. They are edited by different people, at different times, for different reasons.</text>
+  <text x="22" y="238" font-size="7.8" fill="#454956">Nominate one authoritative document, generate or verify the others against it, and make every change go through it. Without that discipline, the drift is guaranteed &mdash;</text>
+  <text x="22" y="248" font-size="7.8" fill="#454956">and the day it matters is the day an operator opens the wrong breaker.</text>
+</svg></div>
+<p class="figcap">Every column in that row is a place a mistake can live. The point-to-point test is what proves all of them at once. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Naming</h2>
+<p>A naming convention is worth having even if it is imperfect, because consistency beats cleverness. Common structure:</p>
+<pre style="background:#f2f3f5;border-radius:6px;padding:8px 12px;font-family:Consolas,monospace;font-size:8.5pt;line-height:1.6;margin:6px 0">&lt;station&gt;_&lt;equipment&gt;_&lt;quantity&gt;[_&lt;qualifier&gt;]
+
+NFLD_FDR1_52_Pos          breaker position
+NFLD_FDR1_IA              phase A current
+NFLD_FDR1_51P_Trip        time overcurrent trip
+NFLD_XFMR1_TopOil_Temp    transformer top oil temperature
+NFLD_XFMR1_LTC_TapPos     LTC tap position</pre>
+<ul>
+<li><strong>Name the function, not the wiring.</strong> <code>FDR1_52_Pos</code> survives a relay replacement; <code>RTAC_DI_17</code> does not.</li>
+<li><strong>Be consistent about abbreviations</strong> and write them down. <code>Pos</code>, <code>Posn</code>, and <code>Position</code> in one project is a search problem forever.</li>
+<li><strong>Do not encode the index in the name.</strong> Indices change; names should not.</li>
+<li><strong>The master's naming rules usually win</strong> at the northbound boundary. Get them in writing before you build the map, and record the mapping between your name and theirs.</li>
+<li><strong>Reserve a suffix scheme for control tags</strong> so a control and its status feedback are obviously related.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>What to map</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f">
+    <b>Always</b>
+    <span>Breaker and switch positions &middot; trip and lockout status &middot; per-phase currents and voltages &middot; MW / MVAr &middot; device self-test alarm &middot; device communications status &middot; control points for anything operable</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Usually worth it</b>
+    <span>Individual element operations (51P, 51G, 50P&hellip;) &middot; reclose state and shot counter &middot; ground current &middot; frequency &middot; power factor &middot; demand values &middot; active settings group &middot; time-sync status</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Collect but rarely publish</b>
+    <span>Breaker wear and operation counters &middot; through-fault accumulation &middot; internal diagnostics &middot; load profile &middot; harmonics. These belong in a historian, not on an operator's screen</span>
+  </div>
+  <div style="border-left:4px solid #d63a3a">
+    <b>Do not map</b>
+    <span>Anything that changes constantly with no operational meaning &middot; duplicate representations of one fact &middot; points nobody can name a use for. Every one of them costs bandwidth and attention</span>
+  </div>
+</div>
+<div class="callout">
+<strong>Collect southbound generously.</strong> The marginal cost of bringing an extra relay quantity into the RTAC is nearly zero, and it can be trended locally or published later without a site visit. The cost of <em>not</em> having collected it after a misoperation is a return trip and a gap in the record. Publish northbound deliberately &mdash; that side has real cost and real attention consequences.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Analogs: scaling, units, deadbands</h2>
+<table>
+  <tr><th>Decision</th><th>Practice</th></tr>
+  <tr><td><strong>Units</strong></td><td>Agree primary units at the boundary and state them in the points list. Amperes primary, not secondary; kV not V; MW not W &mdash; unless the master's standard says otherwise</td></tr>
+  <tr><td><strong>Where scaling happens</strong></td><td>Pick one place and document it. Scaling in the relay <em>and</em> in the RTAC <em>and</em> at the master is how a value ends up a thousand times too large. See <a href="atlas:data-protocols/dnp3/on-sel-relays.html">DNP3 on SEL Relays</a></td></tr>
+  <tr><td><strong>Integer versus float</strong></td><td>Where the protocol offers both, float removes a whole class of scaling errors. Where it does not, record the divisor explicitly</td></tr>
+  <tr><td><strong>Deadbands</strong></td><td>Large enough that normal noise does not generate events, small enough that real change is reported promptly. Set per point type, not globally &mdash; a bus voltage and a feeder current deserve different deadbands</td></tr>
+  <tr><td><strong>Range and rollover</strong></td><td>Know the maximum the point can reach during a fault, not just during load. A 16-bit scaled analog that wraps at fault current is worse than useless</td></tr>
+  <tr><td><strong>Counters</strong></td><td>Decide whether the master reads running totals or frozen counters, and whether rollover is handled at the RTAC or the master</td></tr>
+</table>
+<div class="callout warn">
+<strong>Deadbands are the most common cause of &ldquo;the SCADA is slow.&rdquo;</strong> Too tight, and a handful of noisy analogs saturate the event queue so genuinely important events queue behind them. Too loose, and an operator watches a stale number. Set them from the actual measured noise on the live circuit, not from a default.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Quality and the offline problem</h2>
+<p>The hardest integration question is not &ldquo;what is the value?&rdquo; but &ldquo;should the operator believe it?&rdquo;</p>
+<ul>
+<li><strong>Quality flags exist for this</strong>, and they must be carried all the way through: the device sets them, the RTAC tag carries them, and the northbound protocol reports them. A design that drops quality at any hop has broken the chain &mdash; see <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>.</li>
+<li><strong>Device offline is a first-class point.</strong> Every southbound device gets an explicit communications-status point published northbound. Without it, the master cannot distinguish a dead relay from a healthy relay reading zero.</li>
+<li><strong>Decide the offline behavior deliberately:</strong> hold last value with bad quality, or force to a defined state. Hold-last-value with <em>good</em> quality is the option that gets people hurt.</li>
+<li><strong>Group the status.</strong> One summary &ldquo;station data invalid&rdquo; point alongside the per-device detail gives the operator a fast answer and the engineer a precise one.</li>
+<li><strong>Test it.</strong> Pull a relay's Ethernet cable during commissioning and confirm the master shows the right thing within the expected time.</li>
+</ul>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="si2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">When a device goes offline, three designs produce three very different operator experiences</text>
+  <rect x="20" y="34" width="120" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="80" y="48" text-anchor="middle" font-size="7.6" fill="#1a1a22">Relay</text>
+  <text x="80" y="61" text-anchor="middle" font-size="7" fill="#d63a3a">comms lost</text>
+  <path d="M140,51 H186" stroke="#a9adb8" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#si2)"/>
+  <rect x="190" y="34" width="120" height="34" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+  <text x="250" y="55" text-anchor="middle" font-size="7.6" fill="#0d7f63">RTAC tag</text>
+
+  <g font-size="7.4">
+    <rect x="20" y="86" width="646" height="38" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="34" y="102" font-weight="600" fill="#9c3838">Hold last value, quality still good</text>
+    <text x="34" y="116" fill="#454956">The operator sees 604 A on a dead feeder, with no indication anything is wrong. This is the design that gets people hurt.</text>
+
+    <rect x="20" y="130" width="646" height="38" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="34" y="146" font-weight="600" fill="#9c6d06">Force to zero</text>
+    <text x="34" y="160" fill="#454956">Honest about the value, silent about the reason &mdash; and a zero on a current point looks exactly like an open breaker.</text>
+
+    <rect x="20" y="174" width="646" height="40" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="34" y="190" font-weight="600" fill="#0d7f63">Hold last value, quality marked bad, plus an explicit device-offline point</text>
+    <text x="34" y="204" fill="#454956">The screen can grey the value, the alarm says which device, and nobody has to guess. This is the only one worth building.</text>
+  </g>
+  <circle cx="330" cy="51" r="6" fill="#d63a3a">
+    <animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/>
+  </circle>
+  <text x="344" y="54" font-size="7.4" fill="#d63a3a">which one did you build?</text>
+</svg></div>
+<p class="figcap">Test it by pulling the cable during commissioning and watching the master &mdash; not by reading the configuration. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">6</span>Controls</h2>
+<table>
+  <tr><th>Aspect</th><th>Design decision</th></tr>
+  <tr><td><strong>Select-before-operate or direct</strong></td><td>SBO for anything consequential &mdash; it gives the master a chance to confirm and the outstation a chance to reject. Direct operate for benign functions. See <a href="atlas:data-protocols/dnp3/controls.html">DNP3 Control Models</a></td></tr>
+  <tr><td><strong>Trip and close on one index or two</strong></td><td>DNP3's trip/close control code lets one index carry both. Two indices is clearer for operators and for testing; follow the master's convention</td></tr>
+  <tr><td><strong>Who owns the pulse</strong></td><td>On SEL relays the relay's own logic determines contact behavior, not the CROB on-time. Do not assume the protocol timing reaches the coil</td></tr>
+  <tr><td><strong>Feedback</strong></td><td>Every control has a paired status point, and the operator's screen should reflect the <em>status</em>, never the fact that a command was sent</td></tr>
+  <tr><td><strong>Local / remote</strong></td><td>A hard local/remote switch that blocks remote control, reported as a status point. Remote control that silently fails because the switch is in Local is a recurring support call</td></tr>
+  <tr><td><strong>Interlocks</strong></td><td>Enforce in the relay or in RTAC logic, never only in the master's screen. The master is not the only way a command can arrive</td></tr>
+  <tr><td><strong>Failure reporting</strong></td><td>A rejected or failed control should be visible. Silent failures train operators to click twice</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Test controls on an isolated breaker first.</strong> Prove the whole path &mdash; master click, protocol frame, RTAC tag, relay bit, output contact &mdash; on something that cannot cause an outage, then repeat on the real device during the outage window. The DNP3 comms checkout list covers the sequence.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Alarm design</h2>
+<ul>
+<li><strong>Not every status is an alarm.</strong> Separate <em>indications</em> (state the operator may want to see) from <em>alarms</em> (things requiring a response).</li>
+<li><strong>Prioritize honestly.</strong> If everything is high priority, nothing is. Three levels used consistently beats five used arbitrarily.</li>
+<li><strong>Summarize, then detail.</strong> One &ldquo;transformer trouble&rdquo; alarm with the individual causes available on demand beats forty individual alarms of equal weight &mdash; see <a href="atlas:fundamentals/transformers.html">Power Transformers</a>.</li>
+<li><strong>Suppress the predictable flood.</strong> A device restart or a comms outage produces a burst of state changes; the design should collapse them rather than deliver hundreds of alarms.</li>
+<li><strong>Chattering points must be fixed, not tolerated.</strong> A contact that bounces produces thousands of events; use the relay's input debounce rather than filtering downstream.</li>
+<li><strong>Every alarm needs an action.</strong> If nobody can say what an operator should do about it, it is an indication, not an alarm.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">8</span>Point-to-point testing</h2>
+<p>This is the acceptance test for the whole integration, and there is no shortcut. For each point:</p>
+<ol>
+<li><strong>Force the condition at the primary end</strong> &mdash; operate the contact, inject the current, move the switch. Not by forcing a bit in the RTAC.</li>
+<li><strong>Observe it at each layer</strong> where practical: relay <code>TAR</code>, RTAC tag viewer, master screen.</li>
+<li><strong>Confirm the value, the units, and the sign</strong> on analogs. A polarity error shows up here or during load checks, and nowhere else.</li>
+<li><strong>Confirm the timestamp</strong> is sensible and carries true time on points that should have it.</li>
+<li><strong>Record it,</strong> point by point, signed. &ldquo;All points tested&rdquo; without a per-point record is not a test result.</li>
+<li><strong>Then test the failure cases:</strong> device offline, RTAC restart, redundant path failure.</li>
+</ol>
+<div class="callout">
+<strong>Budget realistically.</strong> Point-to-point testing takes longer than anyone plans, especially when it needs a second person at the other end of a radio. Two hundred points at two minutes each is most of a day &mdash; and the two minutes assumes nothing is wrong.
+</div>
+</section>
+
+<section>
+<h2><span class="num">9</span>Change control</h2>
+<ul>
+<li><strong>The points list is a published interface.</strong> Adding a point at the end is usually safe; renumbering existing indices breaks the master.</li>
+<li><strong>Never reuse an index for a different signal.</strong> If a point is retired, leave the index unused &mdash; the operator's historical trend still refers to it.</li>
+<li><strong>Coordinate with the control centre before northbound changes,</strong> and give them the updated list in whatever form they consume.</li>
+<li><strong>Version the points list</strong> alongside the RTAC project and the relay settings, so &ldquo;what was live in March?&rdquo; is answerable.</li>
+<li><strong>Re-test what you touched,</strong> and enough around it to be confident the map did not shift.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">10</span>Gotchas</h2>
+<ul>
+<li><strong>Off-by-one indices.</strong> Zero-based versus one-based conventions differ between documents and tools. Verify by toggling a known point, not by reading.</li>
+<li><strong>Scaling applied twice.</strong> A value exactly 100 or 1000 times wrong is almost always this.</li>
+<li><strong>Class None points.</strong> A DNP3 point with no event class never reports spontaneously &mdash; it only appears on an integrity poll, so it looks like it works during testing and lags in service.</li>
+<li><strong>Duplicate server indices.</strong> Mapping the same index twice suppresses events on it.</li>
+<li><strong>A control that reports success and does nothing.</strong> Always confirm with the status point, and check the relay's own logic for what it does with the command.</li>
+<li><strong>Timestamps from the scan, not the source.</strong> Expected on Modbus, a mistake on DNP3 &mdash; check whether the events are actually carrying device time.</li>
+<li><strong>Points list maintained in three places.</strong> Nominate the authority and generate the rest.</li>
+<li><strong>No communications-status point for a device.</strong> The master cannot tell offline from zero, and eventually will not need to, because nobody will believe the screen anyway.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:data-protocols/dnp3/on-the-rtac.html">DNP3 on the RTAC</a>
+  <a href="atlas:data-protocols/dnp3/controls.html">DNP3 Control Models</a>
+  
+  <a href="atlas:rtac-automation/rtac-hmi.html">RTAC Web HMI</a>
+  
+</div>
+<p class="footnote">Practice page. Protocol-specific behavior referenced here &mdash; DNP3 event classes and control models, per-server event queues, SEL relay scaling settings, RTAC tag quality and timestamps, and Modbus's lack of events, quality, and time &mdash; is developed with its SEL sources on the linked protocol and RTAC pages. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

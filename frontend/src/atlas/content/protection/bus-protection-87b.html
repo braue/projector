@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bus Protection (87B)</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="87B,bus differential,high impedance,low impedance,CT saturation,check zone,zone selection,89a,89b,end zone,SEL-487B">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Bus Protection (87B) (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Bus Protection (87B)</h1>
+  <p>The fastest, highest-consequence zone in the station — low- and high-impedance differential, CT saturation security, dynamic zone selection from disconnect status, and end-zone faults</p>
+  <div class="chips"><span>87B</span><span>low-impedance</span><span>high-impedance</span><span>CT saturation</span><span>check zone</span><span>89a / 89b</span><span>end zone</span><span>SEL-487B</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Bus differential</h3>
+<ul style="margin-bottom:2px">
+<li><strong>A bus fault is the worst fault in the station.</strong> Every source feeds it, nothing limits it, and clearing it means opening every breaker on the bus. So it must be fast &mdash; the SEL-487B operates in under one cycle &mdash; and it must never operate for anything else.</li>
+<li><strong>The principle is Kirchhoff.</strong> Sum every current entering the bus. Zero means healthy; non-zero means a fault inside the zone.</li>
+<li><strong>CT saturation is the whole engineering problem.</strong> A heavy external fault saturates the CT carrying the outflow, its output collapses, and the sum stops being zero. Everything else in a modern bus relay exists to survive that.</li>
+<li><strong>The zone must follow the switching.</strong> On a bus with disconnects, which terminal belongs to which zone changes when a switch moves. The relay reads 89a/89b contacts and reassigns currents dynamically.</li>
+<li><strong>A check zone is a second opinion.</strong> An independent differential across all sources and feeders, unaffected by zone selection, supervising the zone elements.</li>
+<li><strong>Faults between the breaker and the CT are outside the bus zone.</strong> They need dedicated end-zone logic and usually a transfer trip.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The principle, and the problem</h2>
+<p>Sum the currents at every terminal of the bus. In a healthy bus, or for a fault anywhere outside the zone, the sum is zero: everything that comes in goes out. For a fault on the bus, the sum equals the fault current. That is the whole idea, and it gives bus differential its two great virtues &mdash; absolute selectivity and no need for coordination delay.</p>
+<p>The difficulty is that a bus differential zone can have a dozen or more terminals, with wildly different current magnitudes, and during an external fault one CT carries the entire fault current while the others share it. That one CT is the one most likely to saturate.</p>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">External fault with CT saturation &mdash; how a healthy bus produces a large false differential</text>
+
+  <!-- bus -->
+  <line x1="120" y1="76" x2="560" y2="76" stroke="#1a1a22" stroke-width="3"/>
+  <text x="340" y="66" font-size="7.6" fill="#6e7180" text-anchor="middle">bus (healthy)</text>
+
+  <!-- sources -->
+  <g stroke="#1a1a22" stroke-width="1.5" fill="none">
+    <line x1="170" y1="40" x2="170" y2="76"/><circle cx="179" cy="58" r="6" stroke="#5468c4"/>
+    <line x1="250" y1="40" x2="250" y2="76"/><circle cx="259" cy="58" r="6" stroke="#5468c4"/>
+    <line x1="330" y1="40" x2="330" y2="76"/><circle cx="339" cy="58" r="6" stroke="#5468c4"/>
+    <line x1="480" y1="76" x2="480" y2="130"/><circle cx="489" cy="100" r="6" stroke="#d63a3a"/>
+  </g>
+  <g font-size="7" fill="#6e7180" text-anchor="middle">
+    <text x="170" y="34">3000 A in</text><text x="250" y="34">2500 A in</text><text x="330" y="34">2500 A in</text>
+  </g>
+  <text x="524" y="104" font-size="7" fill="#d63a3a">8000 A out</text>
+
+  <!-- fault outside -->
+  <line x1="480" y1="130" x2="480" y2="168" stroke="#1a1a22" stroke-width="1.5"/>
+  <g>
+    <circle cx="480" cy="178" r="9" fill="none" stroke="#d63a3a" stroke-width="1.8">
+      <animate attributeName="r" values="7;12;7" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.4s" repeatCount="indefinite"/>
+    </circle>
+    <text x="502" y="182" font-size="7.4" fill="#d63a3a">external fault</text>
+  </g>
+
+  <!-- CT waveforms -->
+  <text x="60" y="212" font-size="8" font-weight="600" fill="#454956">What each CT delivers to the relay</text>
+  <g font-size="7" fill="#8a8e9b">
+    <text x="60" y="234">sources (unsaturated)</text>
+    <text x="60" y="272">outflow CT (saturating)</text>
+  </g>
+  <line x1="190" y1="234" x2="420" y2="234" stroke="#e5e7eb"/>
+  <path d="M190,234 q10,-16 20,0 q10,16 20,0 q10,-16 20,0 q10,16 20,0 q10,-16 20,0 q10,16 20,0 q10,-16 20,0 q10,16 20,0 q10,-16 20,0 q10,16 20,0 q10,-16 20,0 q10,16 10,0"
+        fill="none" stroke="#5468c4" stroke-width="1.4"/>
+  <line x1="190" y1="272" x2="420" y2="272" stroke="#e5e7eb"/>
+  <path d="M190,272 q8,-16 16,-6 q6,4 14,6 q10,14 20,0 q8,-12 16,-4 q6,3 14,4 q10,12 20,0 q8,-9 16,-3 q6,2 14,3 q10,10 20,0 q8,-7 16,-2 q6,1 14,2 q10,8 20,0 q8,-5 16,-1 q6,1 14,1 q10,6 20,0"
+        fill="none" stroke="#d63a3a" stroke-width="1.4"/>
+  <text x="430" y="276" font-size="7" fill="#d63a3a">collapsing &mdash; the CT can no longer reproduce it</text>
+
+  <rect x="470" y="204" width="222" height="86" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="482" y="222" font-size="8" font-weight="600" fill="#9c3838">Result</text>
+  <text x="482" y="238" font-size="7.4" fill="#454956">The sum of the three source CTs no longer</text>
+  <text x="482" y="250" font-size="7.4" fill="#454956">cancels against the saturated outflow CT.</text>
+  <text x="482" y="262" font-size="7.4" fill="#454956">The relay computes a large operate current</text>
+  <text x="482" y="274" font-size="7.4" fill="#454956">for a fault that is nowhere near the bus &mdash;</text>
+  <text x="482" y="286" font-size="7.4" fill="#9c3838">and would trip the entire station.</text>
+</svg></div>
+<p class="figcap">Every security feature in a bus relay is a defense against this one picture. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>How a low-impedance relay stays secure</h2>
+<table>
+  <tr><th>Defense</th><th>How it works</th><th>SEL-487B implementation</th></tr>
+  <tr><td><strong>Percentage restraint</strong></td><td>Require the operate current to exceed a percentage of the restraint (through) current, so a small error at high through-current is tolerated</td><td>Dual slope &mdash; Slope 1 for normal conditions, Slope 2 for high current</td></tr>
+  <tr><td><strong>External fault detection</strong></td><td>Recognize that a fault is external <em>before</em> the CT has time to saturate, then raise security for the duration</td><td>Compares the rate of change of restraint and operating currents; detects an external fault in <strong>less than 2&nbsp;ms</strong>, then enters a high-security mode that dynamically selects the higher slope</td></tr>
+  <tr><td><strong>High sampling rate</strong></td><td>Makes the early, pre-saturation window usable</td><td>The relay samples fast enough to make the sub-2&nbsp;ms decision meaningful</td></tr>
+  <tr><td><strong>Check zone supervision</strong></td><td>An independent differential covering all sources and feeders; asserts for internal faults, stays deasserted for external ones</td><td><strong>Three fully independent check zones</strong>, each with its own adaptive differential element, usable in the zone trip equations</td></tr>
+  <tr><td><strong>CT supervision</strong></td><td>An open or shorted CT produces equal and opposite changes in restraint and operate current &mdash; a recognizable signature distinct from a fault</td><td>Advanced CT supervision monitors zone restraint and operate current for exactly that signature, for alarming and/or blocking; the logic is available in zone trip equations</td></tr>
+  <tr><td><strong>Ratio mismatch tolerance</strong></td><td>Removes the need for auxiliary CTs, which add their own errors</td><td>Handles as much as <strong>35:1 CT ratio mismatch</strong> without auxiliary CTs</td></tr>
+  <tr><td><strong>Voltage supervision</strong></td><td>A real bus fault depresses voltage; a spurious differential does not</td><td>Negative- and zero-sequence, over- and undervoltage elements can supervise the differential element</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>The security-versus-speed trade is resolved in time, not in setting.</strong> Rather than desensitizing the differential permanently, the relay makes an early judgment about where the fault is and adapts. This is why the external-fault detection window matters so much: it must complete before saturation begins, which is why the specification is quoted in milliseconds rather than cycles.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Dynamic zone selection</h2>
+<p>On a bus with sectionalizing disconnects, the boundary of a differential zone is not fixed &mdash; it depends on which switches are closed. Older schemes handled this with banks of auxiliary relays switching CT circuits, an arrangement that was both a maintenance burden and a source of open-CT hazards.</p>
+<p>The SEL-487B takes the disconnect auxiliary contacts directly as digital inputs and reassigns currents to differential elements in software. SELogic control equations and zone selection logic assign each terminal to the correct zone, and the arrangement is inspectable at any time with the <code>ZONE</code> command, which prints the terminals and bus zones currently assigned to each protection zone.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Closing a sectionalizing disconnect merges two zones into one &mdash; in software, with no CT switching</text>
+
+  <!-- before -->
+  <text x="170" y="38" font-size="8.2" font-weight="600" fill="#10a37f" text-anchor="middle">DS open &mdash; two zones</text>
+  <line x1="50" y1="80" x2="160" y2="80" stroke="#1a1a22" stroke-width="2.6"/>
+  <line x1="200" y1="80" x2="310" y2="80" stroke="#1a1a22" stroke-width="2.6"/>
+  <line x1="160" y1="80" x2="180" y2="66" stroke="#6e7180" stroke-width="2"/>
+  <circle cx="160" cy="80" r="2.5" fill="#6e7180"/><circle cx="200" cy="80" r="2.5" fill="#6e7180"/>
+  <text x="180" y="58" font-size="7" fill="#6e7180" text-anchor="middle">DS2</text>
+  <rect x="42" y="66" width="126" height="30" rx="10" fill="none" stroke="#10a37f" stroke-dasharray="5 4"/>
+  <text x="105" y="110" font-size="7.4" fill="#0d7f63" text-anchor="middle">Zone 1 (North)</text>
+  <rect x="192" y="66" width="126" height="30" rx="10" fill="none" stroke="#5468c4" stroke-dasharray="5 4"/>
+  <text x="255" y="110" font-size="7.4" fill="#5468c4" text-anchor="middle">Zone 2 (East)</text>
+  <g stroke="#1a1a22" stroke-width="1.3">
+    <line x1="75" y1="80" x2="75" y2="130"/><line x1="130" y1="80" x2="130" y2="130"/>
+    <line x1="225" y1="80" x2="225" y2="130"/><line x1="285" y1="80" x2="285" y2="130"/>
+  </g>
+
+  <text x="350" y="86" font-size="16" fill="#a9adb8" text-anchor="middle">&rarr;</text>
+  <text x="350" y="102" font-size="7" fill="#8a8e9b" text-anchor="middle">close DS2</text>
+
+  <!-- after -->
+  <text x="530" y="38" font-size="8.2" font-weight="600" fill="#d7930a" text-anchor="middle">DS closed &mdash; one merged zone</text>
+  <line x1="400" y1="80" x2="660" y2="80" stroke="#1a1a22" stroke-width="2.6"/>
+  <circle cx="510" cy="80" r="2.5" fill="#6e7180"/><circle cx="550" cy="80" r="2.5" fill="#6e7180"/>
+  <line x1="510" y1="80" x2="550" y2="80" stroke="#d7930a" stroke-width="2.6"/>
+  <text x="530" y="58" font-size="7" fill="#9c6d06" text-anchor="middle">DS2 closed</text>
+  <rect x="392" y="66" width="276" height="30" rx="10" fill="none" stroke="#d7930a" stroke-dasharray="5 4">
+    <animate attributeName="opacity" values="0.25;1;0.25" dur="2.6s" repeatCount="indefinite"/>
+  </rect>
+  <text x="530" y="110" font-size="7.4" fill="#9c6d06" text-anchor="middle">Zone 1 now includes North and East</text>
+  <g stroke="#1a1a22" stroke-width="1.3">
+    <line x1="425" y1="80" x2="425" y2="130"/><line x1="480" y1="80" x2="480" y2="130"/>
+    <line x1="575" y1="80" x2="575" y2="130"/><line x1="635" y1="80" x2="635" y2="130"/>
+  </g>
+
+  <!-- disconnect contact truth table -->
+  <rect x="8" y="146" width="330" height="86" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="22" y="163" font-size="8" font-weight="600" fill="#1a1a22">How the relay reads 89a / 89b</text>
+  <g font-size="7.4" fill="#454956">
+    <text x="22" y="180">89a = 0, 89b = 0 &rarr; interpreted <tspan font-weight="600">Closed</tspan></text>
+    <text x="22" y="193">89a = 0, 89b = 1 &rarr; interpreted <tspan font-weight="600">Open</tspan></text>
+    <text x="22" y="206">89a = 1, 89b = 0 &rarr; interpreted <tspan font-weight="600">Closed</tspan></text>
+    <text x="22" y="219">89a = 1, 89b = 1 &rarr; interpreted <tspan font-weight="600">Closed</tspan></text>
+  </g>
+
+  <rect x="350" y="146" width="342" height="86" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="364" y="163" font-size="8" font-weight="600" fill="#9c6d06">Why the bias is toward &ldquo;closed&rdquo;</text>
+  <text x="364" y="180" font-size="7.4" fill="#454956">Assuming a disconnect is closed keeps its terminal inside the zone.</text>
+  <text x="364" y="193" font-size="7.4" fill="#454956">That is the safe error: an extra terminal in the zone costs sensitivity,</text>
+  <text x="364" y="206" font-size="7.4" fill="#454956">while wrongly excluding one leaves current unaccounted for and can</text>
+  <text x="364" y="219" font-size="7.4" fill="#454956">cause a false differential.</text>
+</svg></div>
+<p class="figcap">The auxiliary contact timing matters: during the open-to-close transition the 89b must open before main-contact arcing starts, and 89a must close within that transition window. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>End-zone (dead-zone) faults</h2>
+<p>The CT defines the zone boundary, but the breaker is what interrupts. A fault in the short stretch <em>between</em> them belongs to whichever zone contains it &mdash; and opening that zone's breaker does not clear it, because the source is on the other side.</p>
+<ul>
+<li><strong>The mechanism:</strong> a fault on the line side of the CT but the bus side of the breaker is outside the bus differential zone. The line protection sees it and opens the remote end, but the local breaker opening does not remove the bus's contribution.</li>
+<li><strong>The remedy:</strong> use the breaker's 52a contact in a SELogic control equation so that when the breaker is open, that terminal's current is removed from the differential calculation. The bus differential then sees the fault as internal and clears the bus, while a <strong>transfer trip</strong> to the remote end clears the other source.</li>
+<li><strong>The cost:</strong> for this class of fault, the bus is tripped. That is accepted &mdash; there is no way to clear it otherwise.</li>
+</ul>
+<div class="callout">
+<strong>This is why breaker-failure and bus differential usually live in the same relay.</strong> Both need the same currents, the same breaker status, and the same transfer-trip outputs. The SEL-487B provides breaker-failure protection for all supported breakers, including retrip logic and transfer-trip initiation &mdash; see <a href="atlas:protection/breaker-failure.html">Breaker Failure</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>High-impedance differential &mdash; the other approach</h2>
+<p>Before microprocessor relays, and still in use, the high-impedance scheme takes a different route to CT-saturation security.</p>
+<table>
+  <tr><th></th><th>Low impedance (SEL-487B)</th><th>High impedance</th></tr>
+  <tr><td>How it works</td><td>Digitally sums CT currents; restraint and adaptive logic provide security</td><td>All CT secondaries paralleled across a high-impedance voltage element; a saturated CT becomes a low-impedance shunt, and the developed voltage stays low for external faults</td></tr>
+  <tr><td>CT requirements</td><td>Tolerates large ratio mismatch and modest CT performance</td><td><strong>All CTs must have the same ratio</strong> and dedicated windings with no other burden</td></tr>
+  <tr><td>Flexibility</td><td>Multiple zones, dynamic zone selection, backup overcurrent, breaker failure, metering, communications</td><td>One fixed zone; changing the bus configuration means switching CT circuits</td></tr>
+  <tr><td>Wiring</td><td>Each CT to its own relay input</td><td>Paralleled CT circuits plus a varistor to limit voltage during internal faults</td></tr>
+  <tr><td>Diagnostics</td><td>CT supervision, event reports, oscillography, SER</td><td>Minimal &mdash; typically just a voltage element and an alarm</td></tr>
+  <tr><td>Where you still meet it</td><td>New installations, retrofits, complex buses</td><td>Existing simple buses where CTs already match and the scheme has worked for decades</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">6</span>Beyond differential: what else a bus relay carries</h2>
+<ul>
+<li><strong>Backup overcurrent per terminal.</strong> Instantaneous and inverse-time elements provide backup for each terminal.</li>
+<li><strong>Breaker failure for every breaker on the bus,</strong> with retrip and transfer-trip initiation built in.</li>
+<li><strong>Six independent settings groups,</strong> selectable by control input, command, or programmable condition &mdash; the practical mechanism for maintenance modes, seasonal configurations, and contingency settings.</li>
+<li><strong>Automation capacity:</strong> local and remote control bits, protection and automation latches, and up to 1000 lines of automation logic &mdash; enough to build the bus's interlocking scheme inside the protection relay rather than beside it.</li>
+<li><strong>Battery monitoring</strong> with an alarm contact that catches a battery that is only weak during trip or close operations &mdash; a genuinely useful diagnostic for the failure mode described in <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>.</li>
+<li><strong>Digital secondary systems.</strong> The SEL-487B-2 can be ordered as an IEC 61850 Sampled Values subscriber (up to 24 SV merging units with the five-port Ethernet card) or as a TiDL relay receiving current and voltage from up to eight SEL-TMU merging units over point-to-point fiber. The TiDL variant synchronizes data collection itself, removing the dependence on an external clock for protection.</li>
+<li><strong>Selective protection disabling.</strong> On digital-secondary variants, losing communications with a merging unit means losing analog data; the relay selectively disables the affected protection functions using hard-coded logic or torque-control equations, rather than misoperating on missing data.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Commissioning notes</h2>
+<ol>
+<li><strong>Prove every CT's ratio and polarity individually</strong> before energizing. On a twelve-terminal bus, one reversed CT produces a standing differential equal to twice that terminal's load current.</li>
+<li><strong>Verify the zone configuration with the <code>ZONE</code> command</strong> in each credible switching state, not just the normal one. Operate the disconnects and watch the assignment change.</li>
+<li><strong>Check the 89a/89b contact timing</strong> against the transition-zone requirement. A disconnect whose auxiliary contacts change late leaves the relay with a wrong zone map during the switching operation.</li>
+<li><strong>Test the check zone independently.</strong> It should assert for a simulated internal fault and stay deasserted for a simulated external one.</li>
+<li><strong>Exercise CT supervision</strong> by opening a shorted CT circuit on the test set and confirming the relay alarms rather than trips.</li>
+<li><strong>Measure the standing differential under load</strong> once the bus is energized. It should be a small fraction of a percent. Anything larger is a wiring or ratio error, and it will not get better under fault conditions.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">8</span>Gotchas</h2>
+<ul>
+<li><strong>A terminal left out of the zone configuration</strong> produces a differential equal to that terminal's current. It will read as a slowly growing problem as load rises, and it can trip the bus on a cold morning.</li>
+<li><strong>Disconnect auxiliary contacts that lie.</strong> Misadjusted or corroded 89a/89b contacts are common on older switches, and the relay's zone map is only as good as they are. Alarm on the disagreeing combination.</li>
+<li><strong>Auxiliary CTs added &ldquo;to match ratios&rdquo;</strong> when the relay does not need them. They add burden, saturate earlier than the main CTs, and undermine the very security you were trying to build.</li>
+<li><strong>Bus differential disabled for maintenance and not re-enabled.</strong> Use a settings group with a clear indication and a SCADA point, never an out-of-service jumper someone has to remember.</li>
+<li><strong>Trip outputs going to the wrong lockout.</strong> A bus trip must open every breaker in the zone; verify each one, not a sample.</li>
+<li><strong>Forgetting that the check zone has its own CT set assumptions.</strong> If a terminal is excluded from the check zone by mistake, the supervision that was supposed to be independent will simply agree with the error.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/breaker-failure.html">Breaker Failure</a>
+  <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+  <a href="atlas:data-protocols/iec61850-goose.html">IEC 61850 &amp; GOOSE</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+</div>
+<p class="footnote">Sources: SEL-487B-2 Bus Differential and Breaker Failure Relay Data Sheet (20250731) &mdash; sub-cycle differential operation, six differential zones with flexible zone selection, three independent check zones with adaptive differential elements, external fault detection in under 2 ms followed by high-security mode with dynamically selected higher slope, CT supervision for open and shorted CTs usable in trip equations, 35:1 CT ratio mismatch tolerance without auxiliary CTs, negative- and zero-sequence voltage supervision, breaker failure with retrip and transfer-trip initiation, six settings groups, 1000 lines of automation logic, battery monitoring, PRP, and the SV (24 merging units) and TiDL (8 SEL-TMUs) digital-secondary options with selective protection disabling. SEL AG2004-06 &ldquo;Applying the SEL-487B to Single Busbars&rdquo; (20240912) &mdash; zone configuration workflow, terminal-to-bus-zone settings, the <code>ZONE</code> command output, end-zone fault handling with a 52a contact in a SELogic equation plus transfer trip, and the 89a/89b disconnect status interpretation table. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

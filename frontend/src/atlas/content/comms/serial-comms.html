@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Serial Communications</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="EIA-232,RS-232,EIA-485,RS-485,baud,pinout,cable,SEL-2800,fiber serial">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Serial Communications (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Serial Communications</h1>
+  <p>RS-232 point-to-point and RS-485 multidrop the SEL way — the 9-pin pinout, IRIG on pins 4/6, port settings that must match, cables, and fiber serial links</p>
+  <div class="chips"><span>EIA-232</span><span>EIA-485</span><span>9600 8N1</span><span>DB-9</span><span>RTS/CTS</span><span>SEL-C234A</span><span>SEL-2810</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>EIA-232 is point-to-point</strong>, single-ended, short: SEL rates it to 15 m (49 ft) in low noise. <strong>EIA-485 is differential multidrop</strong>: to 1200 m — <em>with proper termination at the receiver</em>.</li>
+<li>SEL serial defaults are <strong>9600, 8 data bits, no parity, 1 stop</strong>. Speed, bits, parity, stop, <em>and the protocol chosen for that port</em> must match at both ends, or you get silence or garbage.</li>
+<li>The SEL DB-9 is not a PC pinout: <strong>Pin 1 can carry +5 Vdc, Pins 4/6 carry IRIG-B</strong>. Use SEL cables (C234A to a PC) — never a generic null-modem cable.</li>
+<li>Past ~100 ft, or wherever ground potential rise is a worry, SEL's answer is <strong>fiber serial transceivers</strong> (SEL-2800 family) — isolation plus IRIG-B on the same fibers.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Why serial still matters</h2>
+<p>Every SEL relay ships with serial ports, and decades of installed gear speak nothing else. The SEL-751 and SEL-751A each carry a front EIA-232 port (PORT F) as standard equipment plus optional rear serial ports; the SEL-451 has four EIA-232 interfaces (PORT F front, PORT 1–3 rear); the SEL-3530-4 RTAC has four serial ports that any of its serial protocols can be assigned to. Serial is the engineering-access path of last resort (terminal + <code>SET P</code>, even SELBOOT firmware loading), the transport for MIRRORED BITS, DNP3, Modbus RTU, and synchrophasors, and — via pins 4/6 — a way to deliver IRIG-B time on the same cable. It has no switches, no IP stack, no negotiation: one wire, one owner, deterministic byte timing. When Ethernet is down, the serial port still answers.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>EIA-232: one wire pair, two devices, eleven bit-times per byte</h2>
+<p>EIA-232 is a single-ended, point-to-point link: each signal is one wire measured against a shared signal ground, which is why distance and noise tolerance are limited (SEL: 15 m / 49 ft in low-noise environments; the SEL-2810 data sheet cites the "specified 50-foot limitation"). Three pins do the actual work — <strong>TXD, RXD, GND</strong>. Each byte travels as an asynchronous character frame: the line idles at mark, a <strong>start bit</strong> drops it, the <strong>data bits follow LSB-first</strong>, an optional <strong>parity bit</strong>, then a <strong>stop bit</strong> returns the line to idle. That framing is what the port settings describe: BITS (7 or 8), PARITY (O, E, N), STOP (1 or 2).</p>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="120" height="26" rx="4" fill="#1a1a22"/>
+  <text x="70" y="27" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">Relay TXD (pin 3)</text>
+  <rect x="570" y="10" width="120" height="26" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="630" y="27" font-size="10" font-weight="600" fill="#1a1a22" text-anchor="middle">RTAC RXD (pin 2)</text>
+  <line x1="130" y1="23" x2="570" y2="23" stroke="#d0d3da" stroke-width="1.5"/>
+  <text x="350" y="18" font-size="8" fill="#8a8e9b" text-anchor="middle">one byte: 0x4B 'K' at 9600 8E1 — each cell is one bit-time (~104 µs)</text>
+
+  <!-- bit cells: x=64, 11 cells of 48px wide, plus idle before/after (32px) -->
+  <!-- levels: high y=88, low y=128 -->
+  <!-- sequence: idle 1 | start 0 | d0 1 d1 1 d2 0 d3 1 d4 0 d5 0 d6 1 d7 0 | P 0 | stop 1 | idle 1 -->
+  <g stroke="#e5e7eb" stroke-width="0.75">
+    <line x1="96" y1="80" x2="96" y2="150"/><line x1="144" y1="80" x2="144" y2="150"/><line x1="192" y1="80" x2="192" y2="150"/>
+    <line x1="240" y1="80" x2="240" y2="150"/><line x1="288" y1="80" x2="288" y2="150"/><line x1="336" y1="80" x2="336" y2="150"/>
+    <line x1="384" y1="80" x2="384" y2="150"/><line x1="432" y1="80" x2="432" y2="150"/><line x1="480" y1="80" x2="480" y2="150"/>
+    <line x1="528" y1="80" x2="528" y2="150"/><line x1="576" y1="80" x2="576" y2="150"/><line x1="624" y1="80" x2="624" y2="150"/>
+  </g>
+  <path d="M64,88 H96 V128 H144 V88 H240 V128 H288 V88 H336 V128 H432 V88 H480 V128 H576 V88 H668"
+        fill="none" stroke="#5468c4" stroke-width="2.25" stroke-linejoin="round"/>
+  <text x="80"  y="164" font-size="8" fill="#8a8e9b" text-anchor="middle">idle</text>
+  <text x="120" y="164" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">start</text>
+  <text x="168" y="164" font-size="8" fill="#454956" text-anchor="middle">d0=1</text>
+  <text x="216" y="164" font-size="8" fill="#454956" text-anchor="middle">d1=1</text>
+  <text x="264" y="164" font-size="8" fill="#454956" text-anchor="middle">d2=0</text>
+  <text x="312" y="164" font-size="8" fill="#454956" text-anchor="middle">d3=1</text>
+  <text x="360" y="164" font-size="8" fill="#454956" text-anchor="middle">d4=0</text>
+  <text x="408" y="164" font-size="8" fill="#454956" text-anchor="middle">d5=0</text>
+  <text x="456" y="164" font-size="8" fill="#454956" text-anchor="middle">d6=1</text>
+  <text x="504" y="164" font-size="8" fill="#454956" text-anchor="middle">d7=0</text>
+  <text x="552" y="164" font-size="8" font-weight="600" fill="#d7930a" text-anchor="middle">P=0</text>
+  <text x="600" y="164" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">stop</text>
+  <text x="648" y="164" font-size="8" fill="#8a8e9b" text-anchor="middle">idle</text>
+  <text x="64" y="86" font-size="7.5" fill="#a9adb8">mark (1)</text>
+  <text x="64" y="140" font-size="7.5" fill="#a9adb8">space (0)</text>
+  <text x="350" y="182" font-size="8" fill="#a9adb8" text-anchor="middle">data LSB-first: 1101 0010 on the wire = 0100 1011 = 0x4B · even parity: four 1s → P=0</text>
+
+  <g class="animlayer">
+    <!-- moving now-cursor, pass 1 (good) and pass 2 (corrupted) -->
+    <line x1="0" y1="74" x2="0" y2="152" stroke="#1a1a22" stroke-width="1.25" opacity="0">
+      <animate attributeName="opacity" values="0;0.6;0.6;0;0;0.6;0.6;0;0" keyTimes="0;0.02;0.32;0.34;0.48;0.50;0.80;0.82;1" dur="14s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="64 0;64 0;624 0;624 0;64 0;624 0;624 0" keyTimes="0;0.02;0.33;0.48;0.50;0.81;1" calcMode="linear" dur="14s" repeatCount="indefinite"/>
+    </line>
+    <!-- pass 1 verdict -->
+    <text x="350" y="208" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.33;0.35;0.45;0.48;1" dur="14s" repeatCount="indefinite"/>
+      RX samples mid-bit → 0x4B · four 1s, P=0 agrees → byte accepted ✓
+    </text>
+    <!-- pass 2: noise flips d4 (cell x=336..384, low→high) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.95;0.98;1" dur="14s" repeatCount="indefinite"/>
+      <path d="M336,128 V88 H384 V128" fill="none" stroke="#d63a3a" stroke-width="2.25"/>
+      <path d="M352,60 l6,10 -8,-2 5,12" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+      <text x="360" y="54" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">noise flips d4</text>
+    </g>
+    <text x="350" y="208" font-size="9.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.81;0.83;0.97;1" dur="14s" repeatCount="indefinite"/>
+      RX counts five 1s but P=0 says even → parity error, byte discarded ✗
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">Async framing, two passes: a clean byte lands and passes the parity check; the same byte with one bit flipped by noise fails it and is dropped. Parity catches single-bit hits — protocols layer CRCs on top for the rest.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>RTS/CTS — when SEL gear actually uses it</h3>
+<p>All SEL-751/751A EIA-232 ports support RTS/CTS hardware handshaking, but it defaults <strong>off</strong> (<code>RTSCTS := N</code>, which permanently asserts RTS). With <code>RTSCTS := Y</code>: the relay <em>deasserts RTS</em> when it can't receive more characters, and <em>won't transmit until CTS is asserted</em>. The ports also support XON/XOFF software flow control regardless. Where the handshake genuinely matters: half-duplex media (radios, EIA-232↔485 transceivers) keyed by RTS — DNP3 serial sessions expose <code>PREDLY</code>/<code>POSTDLY</code> to delay data around RTS assertion (an EIA-485 transceiver typically needs 10–20 ms to turn from receive to transmit) — and MIRRORED BITS over a Pulsar MBT9600 modem, where the modem deasserts CTS to signal a bad channel.</p>
+
+<h3>The two odd pins: +5 V and IRIG-B</h3>
+<ul>
+  <li><strong>Pin 1 = +5 Vdc</strong> on SEL rear-port pinouts — it powers port-powered accessories (SEL-2800-series fiber transceivers draw &lt;15 mA; SEL-2885/2886 EIA-485 transceivers run off it). Budget: 0.25 A total across all pins on the 751/751A; 500 mA cumulative across the RTAC's four ports (per-port <em>Enable Port Auxiliary Power</em> setting). On the SEL-451 it's jumper-enabled (JMP1–JMP3, one per rear port; default off). Front ports don't provide it.</li>
+  <li><strong>Pins 4/6 = IRIG-B (+/−)</strong> — the SEL convention for demodulated time-code on the serial connector. 751/751A: PORT 3 (EIA-232 option) accepts IRIG on 4/6, e.g. from a communications processor over one C273A cable, or from an SEL-2401/2407/2488 clock via C292A + BNC tee; only one IRIG input (B01/B02 terminals, PORT 3, or fiber PORT 2) may be used at a time, selected with <code>TIME_SRC := IRIG1/IRIG2</code>. SEL-451: IRIG on pins 4/6 of PORT 1 only. RTAC: pins 4/6 of every serial port carry IRIG-B <em>out</em> to the connected IED.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>EIA-485/422: one differential pair, many drops</h2>
+<p>EIA-485 sends each signal as a <strong>differential pair</strong> (+/−); the receiver reads the difference, so common-mode noise cancels and the same data rate survives 1200 m (3937 ft) — SEL's stated maximum (751 and 751A manuals alike), conditioned on <em>proper line termination at the receiver</em>. Multiple devices share the pair: the EIA-485 standard allows <strong>32 unit loads on one line</strong> (RTAC manual, citing clause 3 of the standard). Two topologies:</p>
+<div class="flow">
+  <div class="stage"><b>Two-wire (half-duplex)</b><span>one shared pair; everyone transmits and receives on it, one at a time. RTAC 485 mode: tie −TXD to −RXD and +TXD to +RXD at each device onto the single +DATA/−DATA pair.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Four-wire (EIA-422-style)</b><span>separate TX and RX pairs — client's TX pair feeds every IED's RX and vice versa. Full-duplex wiring, but no carrier detection: contention is still possible with unsolicited traffic.</span></div>
+</div>
+<p>The 751/751A DNP3 appendix (same text in both) is blunt about contention: unsolicited reporting on a serial network needs a half-duplex medium or carrier detection to avoid collisions — "EIA-485 two-wire networks are half-duplex; EIA-485 four-wire networks do not provide carrier detection." The relay inserts a random <code>MINDLY</code>–<code>MAXDLY</code> back-off after sensing carrier (RX data or CTS) before transmitting, and repeats unconfirmed messages until acknowledged.</p>
+
+<div class="fig"><svg viewBox="0 0 700 218" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="66" width="100" height="48" rx="5" fill="#1a1a22"/>
+  <text x="60" y="86" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">RTAC client</text>
+  <text x="60" y="99" font-size="7.5" fill="#a9adb8" text-anchor="middle">2-wire EIA-485</text>
+  <!-- differential pair -->
+  <line x1="110" y1="84" x2="612" y2="84" stroke="#454956" stroke-width="2"/>
+  <line x1="110" y1="96" x2="612" y2="96" stroke="#454956" stroke-width="2"/>
+  <text x="126" y="78" font-size="7.5" fill="#6e7180">+DATA</text>
+  <text x="126" y="108" font-size="7.5" fill="#6e7180">−DATA</text>
+  <!-- termination at far end -->
+  <rect x="606" y="84" width="12" height="12" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="648" y="86" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">term. at</text>
+  <text x="648" y="96" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">far receiver</text>
+  <!-- drops -->
+  <g>
+    <line x1="220" y1="96" x2="220" y2="130" stroke="#454956" stroke-width="1.5"/>
+    <rect x="180" y="130" width="80" height="30" rx="4" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+    <text x="220" y="149" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">IED addr 1</text>
+    <line x1="390" y1="96" x2="390" y2="130" stroke="#454956" stroke-width="1.5"/>
+    <rect x="350" y="130" width="80" height="30" rx="4" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+    <text x="390" y="149" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">IED addr 2</text>
+    <line x1="560" y1="96" x2="560" y2="130" stroke="#454956" stroke-width="1.5"/>
+    <rect x="520" y="130" width="80" height="30" rx="4" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+    <text x="560" y="149" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">IED addr 3</text>
+  </g>
+  <text x="350" y="40" font-size="8.5" fill="#8a8e9b" text-anchor="middle">every drop hears every frame — the address field decides who answers · unterminated line = reflections off the open end</text>
+  <text x="350" y="205" font-size="8" fill="#a9adb8" text-anchor="middle">half-duplex: one talker at a time · termination at the receiver is what buys the 1200 m rating (SEL-751/751A)</text>
+  <g class="animlayer">
+    <!-- phase label -->
+    <text x="350" y="60" font-size="9.5" font-weight="600" text-anchor="middle" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;0.30;0.33;0.62;0.66;1" dur="15s" repeatCount="indefinite"/>
+      terminated: poll addr 2 → clean reply from IED 2 only
+    </text>
+    <text x="350" y="60" font-size="9.5" font-weight="600" text-anchor="middle" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.32;0.35;0.60;0.64;1" dur="15s" repeatCount="indefinite"/>
+      termination removed: poll reflects off the open end — garbage at every receiver
+    </text>
+    <!-- good poll: master -> right -->
+    <rect x="-10" y="-4" width="20" height="8" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.10;0.12;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M120,90 L600,90" keyPoints="0;0;1;1" keyTimes="0;0.01;0.11;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <!-- IED2 highlight + reply -->
+    <rect x="350" y="130" width="80" height="30" rx="4" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.08;0.10;0.22;0.25;1" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-10" y="-4" width="20" height="8" rx="2" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.13;0.14;0.26;0.28;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M390,90 L120,90" keyPoints="0;0;1;1" keyTimes="0;0.13;0.27;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <!-- phase 2: termination X -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.32;0.34;0.60;0.63;1" dur="15s" repeatCount="indefinite"/>
+      <line x1="602" y1="80" x2="622" y2="100" stroke="#d63a3a" stroke-width="2.5"/>
+      <line x1="622" y1="80" x2="602" y2="100" stroke="#d63a3a" stroke-width="2.5"/>
+    </g>
+    <!-- poll out -->
+    <rect x="-10" y="-4" width="20" height="8" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.35;0.36;0.44;0.45;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M120,90 L600,90" keyPoints="0;0;1;1" keyTimes="0;0.35;0.44;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <!-- reflection back -->
+    <rect x="-10" y="-4" width="20" height="8" rx="2" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.44;0.45;0.55;0.56;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M600,90 L120,90" keyPoints="0;0;1;1" keyTimes="0;0.44;0.55;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <!-- garble at receivers -->
+    <g opacity="0" stroke="#d63a3a" stroke-width="1.5" fill="none">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.47;0.49;0.59;0.62;1" dur="15s" repeatCount="indefinite"/>
+      <path d="M196,122 l6,-8 5,10 6,-11 5,9 6,-9"/>
+      <path d="M366,122 l6,-8 5,10 6,-11 5,9 6,-9"/>
+      <path d="M536,122 l6,-8 5,10 6,-11 5,9 6,-9"/>
+      <text x="350" y="176" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle" stroke="none">outgoing + reflected wave overlap → framing/CRC errors on all drops</text>
+    </g>
+    <!-- phase 3: fixed -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.64;0.67;0.97;1" dur="15s" repeatCount="indefinite"/>
+      <path d="M602,104 l6,7 12,-14" fill="none" stroke="#10a37f" stroke-width="2.5"/>
+    </g>
+    <rect x="-10" y="-4" width="20" height="8" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.71;0.81;0.82;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M120,90 L600,90" keyPoints="0;0;1;1" keyTimes="0;0.70;0.81;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="350" y="130" width="80" height="30" rx="4" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.78;0.80;0.90;0.93;1" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-10" y="-4" width="20" height="8" rx="2" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.83;0.84;0.95;0.96;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M390,90 L120,90" keyPoints="0;0;1;1" keyTimes="0;0.83;0.96;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">One client polling three drops on a shared pair. Middle phase: with the far-end termination gone, the wavefront reflects off the open end and corrupts frames at every receiver — the classic "works at 1200 bps, garbage at 19200" failure. Termination restored, clean again.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<p><strong>Wiring detail lives with Modbus:</strong> the multidrop polling mechanics, address discipline, and the 751A's 485 terminal-by-terminal wiring are covered in <em>Modbus on SEL Relays</em> (§EIA-485 physical layer) and <em>Modbus on the RTAC</em> in atlas — this page owns the electrical story.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>SEL port conventions: the 9-pin table you keep coming back to</h2>
+<p>SEL-751 and SEL-751A serial complements are identical: <strong>PORT F</strong> (front EIA-232, standard), <strong>PORT 2</strong> (optional rear multimode fiber serial, ST), <strong>PORT 3</strong> (optional rear EIA-232 <em>or</em> EIA-485 — fixed by ordering option), <strong>PORT 4</strong> (optional comms card with both an EIA-485 port "4A" and an EIA-232 port "4C" — only one active, chosen with <code>COMMINF := 232/485</code>). The EIA-485 connector is a 5-pin plug-in (Euro) terminal block accepting AWG 26–14, stripped 8 mm — not a DB-9.</p>
+<table>
+  <tr><th>Pin</th><th>751/751A Port 3 (232)</th><th>751/751A Port 3/4A (485)ᵃ</th><th>751/751A Port F</th><th>RTAC COM (232)</th><th>RTAC COM (485/422)</th></tr>
+  <tr><td class="mono">1</td><td>+5 Vdc</td><td>+TX</td><td>N/C</td><td>N/C or +5 Vdc</td><td>N/C or +5 Vdc</td></tr>
+  <tr><td class="mono">2</td><td>RXD</td><td>−TX</td><td>RXD</td><td>RXD</td><td>−RXD</td></tr>
+  <tr><td class="mono">3</td><td>TXD</td><td>+RX</td><td>TXD</td><td>TXD</td><td>−TXD</td></tr>
+  <tr><td class="mono">4</td><td>IRIG+</td><td>−RX</td><td>N/C</td><td>+IRIG-B out</td><td>+IRIG-B out</td></tr>
+  <tr><td class="mono">5</td><td>GND</td><td>Shield</td><td>GND</td><td>GND</td><td>GND</td></tr>
+  <tr><td class="mono">6</td><td>IRIG−</td><td>—</td><td>N/C</td><td>−IRIG-B out</td><td>−IRIG-B out</td></tr>
+  <tr><td class="mono">7</td><td>RTS</td><td>—</td><td>RTS</td><td>RTS</td><td>+TXD</td></tr>
+  <tr><td class="mono">8</td><td>CTS</td><td>—</td><td>CTS</td><td>CTS</td><td>+RXD</td></tr>
+  <tr><td class="mono">9</td><td>GND</td><td>—</td><td>GND</td><td>GND</td><td>GND</td></tr>
+</table>
+<p class="figcap">ᵃ 751/751A EIA-485 "pins" are terminals _01–_05 on the 5-position connector. RTAC table is the SEL-3530-4's four nonisolated female DB-9s (COM 1 adds DCD/DTR/DSR jumper options on pins 1/4/6).</p>
+<ul>
+  <li><strong>Cross-check, SEL-400 series:</strong> the SEL-451's DB-9 matches — 1 = +5 Vdc (jumpered), 2 RXD, 3 TXD, 4/6 IRIG (PORT 1 only), 5 GND (also chassis), 7 RTS, 8 CTS (doubles as TX/RX clock for <code>SPEED := SYNC</code> MIRRORED BITS), 9 chassis GND. The 451 has <em>no integral EIA-485</em>: SEL's answer is a port-powered SEL-2885/2886 transceiver on a rear port, running off pin 1's +5 V, with transformer isolation; the SEL-2885 adds the LMD distributed port switch protocol for addressing multiple devices on one 485 network.</li>
+  <li><strong>RTAC:</strong> all four SEL-3530-4 ports are software-selectable EIA-232 or EIA-485/EIA-422 — no ordering option — and any RTAC serial protocol can be mapped to any port, 300–115200 bps. Beyond direct ports, the RTAC does <em>Client–Multidrop Serial</em> (one client entry per IED, all pointed at the same COM port, unique server addresses), <em>Ethernet-tunneled serial</em> through a serial port server, and virtual port-server modes mapping serial ports to IP ports.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Port settings: five things that must match end-to-end</h2>
+<p>Both ends must agree on <strong>speed, data bits, parity, stop bits</strong> — and each SEL port additionally has a <strong>protocol selection</strong> that decides what the port even listens for. The 751 and 751A manuals' instruction (verbatim in both) is the whole discipline: "set the speed, data bits, parity, and stop bits settings to match the serial port configuration of the equipment that is communicating with the serial port."</p>
+<table>
+  <tr><th>751/751A setting (SET P)</th><th>Range</th><th>Default</th><th>Note</th></tr>
+  <tr><td><code>EPORT</code></td><td>Y, N</td><td class="mono">Y</td><td>enable the port</td></tr>
+  <tr><td><code>PROTO</code></td><td>SEL, MOD, DNP, EVMSG, PMU, MBA/MBB/MB8A/MB8B/MBTA/MBTB, DNET; 751 adds 103 (IEC 60870-5-103)</td><td class="mono">SEL</td><td>one protocol per port; DNP/MB options rear ports only</td></tr>
+  <tr><td><code>MAXACC</code></td><td>1, 2, C</td><td class="mono">2</td><td>per-port access-level cap — SEL-751 only; the 751A has no MAXACC</td></tr>
+  <tr><td><code>COMMINF</code></td><td>232, 485</td><td class="mono">232</td><td>Port 4 interface select</td></tr>
+  <tr><td><code>SPEED</code></td><td>300–38400 bps</td><td class="mono">9600</td><td>EIA-485 hardware tops out at 19200 (751 and 751A specs)</td></tr>
+  <tr><td><code>BITS</code> / <code>PARITY</code> / <code>STOP</code></td><td>7, 8 · O, E, N · 1, 2</td><td class="mono">8 / N / 1</td><td>the character framing of §2</td></tr>
+  <tr><td><code>T_OUT</code></td><td>0–30 min</td><td class="mono">5</td><td>drops an idle Access Level 2 session back to Level 0</td></tr>
+  <tr><td><code>RTSCTS</code> / <code>AUTO</code> / <code>FASTOP</code></td><td>Y, N each</td><td class="mono">N / N / N</td><td>hardware handshake · auto-messages · binary Fast Operate</td></tr>
+</table>
+<ul>
+  <li><strong>Speed ceilings differ by product:</strong> 751/751A EIA-232 to 38400 (485: 19200) · SEL-451 to 57600 (plus SYNC) · RTAC to 115200. A chain is only as fast as its slowest port.</li>
+  <li><strong>RTAC side:</strong> each serial client/server connection carries the mirror-image settings — Serial Port (Com_0x), Serial Type (EIA-232/485), Baud Rate, Data Bits, Parity, Stop Bit, plus half/full duplex and pin-1 auxiliary power — and the web interface's <em>Connected IEDs</em> report shows them live per device with a green/red status icon.</li>
+  <li><strong>Protocol mismatch is silent:</strong> a port with <code>PROTO := SEL</code> ignores Modbus polls entirely; DNP settings only exist once <code>PROTO := DNP</code>. Check the protocol before blaming the wire.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Cabling practice</h2>
+<ul>
+  <li><strong>Use SEL cables by part number</strong> — the SEL-5801 Cable Selector picks one by application. The regulars: <code>C234A</code> relay↔PC DB-9 (crosses TXD/RXD, ties the PC's handshake pins; keep ≤15 m — the 751 manual prefers the double-shielded <code>C234R</code>, and calls for the R variant on MIRRORED BITS links), <code>C227A</code>/<code>C222</code> DB-25 DTE/modem variants, <code>C272A</code> relay↔comms-processor, <code>C273A</code> same but carrying IRIG-B on 4/6, <code>C387</code> relay↔SEL-3010. RTAC lists C234A, C273A, C387 as its popular serial picks.</li>
+  <li><strong>Never use a standard null-modem cable</strong> — the SEL-451 manual makes it a caution. Generic null-modems loop DTR/DSR/DCD (pins 4/6/1) for handshaking; on an SEL port those same pins are IRIG-B and +5 V. The C234A already does the TXD/RXD cross correctly with nothing dangerous strapped.</li>
+  <li><strong>Twisted, shielded pairs for 485:</strong> the RTAC manual strongly recommends twisted-pair cables (SEL-C698/C697) for EIA-485 installs to cut noise susceptibility; the 751/751A's 485 connector has a dedicated Shield terminal (_05).</li>
+  <li><strong>Distance vs. speed:</strong> 232 to 15 m in low noise; 485 to 1200 m terminated; over ~100 ft, or where metallic cable is "not appropriate" (noise, ground potential), the 751/751A manuals point to fiber transceivers instead.</li>
+  <li><strong>Grounding reality:</strong> pin 5 is signal ground (on the 451 it's also chassis ground; pins 5/9 are <em>not</em> a chassis-grounding conductor). The 451 caution spells out why copper serial between buildings hurts: switching interference plus ground-potential differences during faults can corrupt comms and damage equipment.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Fiber serial links: the SEL-2800 family</h2>
+<p>An SEL-2810 transceiver plugs straight onto a DB-9, draws its power from the port (5–10 Vdc, &lt;15 mA — pin 1, 3, or 7), and turns the EIA-232 link into a duplex fiber pair: full-duplex serial to 20 kbps <em>plus simplex IRIG-B riding the same fibers</em>. The <strong>MT</strong> unit transmits serial + IRIG toward the <strong>MR</strong>, which outputs IRIG on pins 4/6 or a 2-pin Molex (adapter cables C651 to BNC, C652 to DB-9) — so a clock at the RTAC end time-syncs the far relay over the data link. That's the standard pattern: RTAC + SEL-2407/2488 clock in the control house, 2810MT on each RTAC port, 2810MR on each relay in the yard.</p>
+<ul>
+  <li><strong>Why fiber:</strong> isolation from ground potential rise, immunity to induced noise from control cables, no signal ground loops — the 2810 data sheet's opening claims, and the reason SEL suggests fiber past 100 ft.</li>
+  <li><strong>Distance math:</strong> 200 µm multimode fiber (SEL-C805, to 500 m per patch), 650 nm LED, 9 dB optical budget. Max length = budget ÷ fiber loss — at a typical 12 dB/km that's ~0.6 km after splice losses. Link delay is negligible for SCADA: 50 µs + 5 µs/km (serial), 80 µs + 5 µs/km (IRIG).</li>
+  <li><strong>On-relay fiber:</strong> the 751/751A's optional PORT 2 is a built-in fiber serial port (ST) good to 1 km and SEL-2812-compatible; an SEL-2812 on copper PORT 3 reaches 4 km. PORT 2 doubles as the IRIG path (<code>TIME_SRC := IRIG2</code>) and as the SEL-2600 RTD module link.</li>
+  <li><strong>LEDs are the first test point:</strong> the 2810's Power LED lights when the port supplies enough voltage; TX/RX LEDs flash with traffic. Dark LEDs → host powered off, wiring error, or a port that isn't DTE-compliant — the data sheet's entire troubleshooting table.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Troubleshooting &amp; fine print</h2>
+<div class="callout warn"><strong>No response, dead silence?</strong> Work the 751/751A's own list in order: cable connected → cable <em>pinout</em> correct for this pairing → speed/bits/parity/stop match → then the SEL-specific one: the port may have received an <strong>XOFF</strong> and halted — type <code>Ctrl+Q</code> to send XON and restart. After that, suspect <code>PROTO</code> (wrong protocol on the port) and, on Port 4, <code>COMMINF</code> pointing at the interface you didn't wire.</div>
+<ul>
+  <li><strong>Garbage characters at higher speeds only</strong> → framing mismatch (speed/parity/stop) or an unterminated/reflecting 485 line (§3). On Modbus, watch the relay's BADCRC/UARTERR counters climb — details in <em>Modbus on SEL Relays</em>.</li>
+  <li><strong>Half-duplex contention symptoms</strong> — replies that collide with polls, intermittent CRC errors when unsolicited reporting is on: two talkers on a 2-wire line. Fix with the documented knobs: random back-off (<code>MINDLY</code>/<code>MAXDLY</code>), RTS turnaround delays (<code>PREDLY</code>/<code>POSTDLY</code> — allow 10–20 ms for a 485 transceiver to turn around), or move to a medium with carrier detection. The RTAC logs a <code>SERIAL_BREAK_EVENT</code> when its UART reports capture-data loss on 485 lines.</li>
+  <li><strong>Ground loops / GPR:</strong> comms that die during faults or switching are the 451 caution in action — ground-potential difference across a copper run. The cure is isolation: fiber transceivers (§7), or the transformer-isolated SEL-2885/2886 for 485.</li>
+  <li><strong>On the RTAC, capture before you speculate:</strong> the web interface's Connected IEDs page starts a per-device <em>serial</em> pcap capture (and on SEL-3555/3560/3350, R151+, an online packet dissector for SEL, DNP, Modbus RTU and friends) — see the actual bytes instead of guessing.</li>
+  <li><strong>One IRIG input at a time</strong> (751/751A): B01/B02 terminals, PORT 3 pins 4/6, and fiber PORT 2 are mutually exclusive; <code>TIME_SRC</code> must name the one in use.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>
+  <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a>
+  <a href="atlas:data-protocols/sel-protocols.html">SEL Protocols</a>
+  <a href="atlas:comms/radio-and-wan.html">Radio &amp; Wide-Area Links</a>
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring</a>
+</div>
+<p class="footnote">Sources: SEL-751 Instruction Manual, 751_IM_20260327.pdf (Table 7.1 interfaces, Table 7.4 pinouts, §2 serial/IRIG connections, Tables 4.102–4.107 port settings incl. MAXACC and PROTO 103, App. D collision avoidance, specs) — the 751 confirms every shared claim; SEL-751A Instruction Manual, 751A_IM_20250411.pdf (§2 connections, §7 interfaces/pinouts/cables/IRIG, Table 4.61 port settings, §10 troubleshooting, App. D collision avoidance, specs) · SEL-451 Reference/User Manuals, 451_IM_20190325.pdf (Table 4.2 pin assignments, serial port jumpers, cable cautions, SEL-2885/2886) · SEL-3530-4 RTAC IM with ACSELERATOR RTAC SEL-5033 IM, 3530-4_IM_20241217_20260313.pdf (Table 2.2/2.3 pinouts and cables, 485 two/four-wire figures, specs, client connection types, Connected IEDs/captures) · SEL-2810 Fiber-Optic Transceivers Data Sheet, 2810_DS_20240823.pdf. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

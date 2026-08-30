@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Radio &amp; Wide-Area Links</title>
+<meta name="atlas-order" content="80">
+<meta name="atlas-tags" content="radio,900 MHz,FHSS,SEL-3031,point to multipoint,Fresnel,link budget,cellular,LTE,WAN,MPLS,latency,antenna">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Radio &amp; Wide-Area Links (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Radio &amp; Wide-Area Links</h1>
+  <p>Getting data off the feeder and back to the control centre — spread-spectrum radio, path budgets and Fresnel zones, cellular, leased circuits, and what an imperfect link does to your protocol settings</p>
+  <div class="chips"><span>900 MHz FHSS</span><span>P2P / P2MP</span><span>SEL-3031</span><span>path budget</span><span>Fresnel zone</span><span>latency</span><span>cellular</span><span>WAN</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Links you do not own end to end</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Bandwidth is rarely the constraint; latency and reliability are.</strong> SCADA polling needs very little data and a great deal of predictability.</li>
+<li><strong>Point-to-point is for speed; point-to-multipoint is for reach.</strong> One radio family often does both &mdash; the SEL-3031 supports point-to-point for teleprotection and economical backup protection, and point-to-multipoint for SCADA data gathering from many remotes.</li>
+<li><strong>Line of sight is not enough &mdash; the Fresnel zone must be clear too.</strong> A path that looks visually clear can still lose most of its signal to an obstruction near the middle.</li>
+<li><strong>Every link has a budget:</strong> transmit power, antenna gains, cable losses, and path loss must leave enough margin above receiver sensitivity to survive rain, foliage growth, and equipment ageing.</li>
+<li><strong>The protocol must be told the truth about the channel.</strong> Timeouts, retries, and inter-character gaps tuned for a fiber link will misbehave over a radio with tens of milliseconds of latency.</li>
+<li><strong>If it leaves your property, encrypt it and account for it.</strong> Unlicensed spectrum and public carriers are shared media by definition.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Choosing a medium</h2>
+<table>
+  <tr><th>Medium</th><th>Typical latency</th><th>Good for</th><th>Watch out for</th></tr>
+  <tr><td><strong>Owned fiber</strong></td><td>microseconds per km</td><td>Everything, including line differential</td><td>Cost and civil works. See <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a></td></tr>
+  <tr><td><strong>Licensed point-to-point microwave</strong></td><td>~1 ms per hop</td><td>Backbone links between substations; protection where fiber is impossible</td><td>Licensing time, path engineering, rain fade at higher frequencies</td></tr>
+  <tr><td><strong>Unlicensed spread-spectrum (900&nbsp;MHz ISM)</strong></td><td>a few milliseconds</td><td>Distribution automation, recloser and regulator SCADA, backup protection channels</td><td>Shared band &mdash; interference is legal and your problem</td></tr>
+  <tr><td><strong>Cellular (LTE / 5G)</strong></td><td>tens to hundreds of ms, variable</td><td>Widely dispersed feeder devices, DER sites, temporary installations</td><td>Carrier-dependent latency, NAT and addressing, coverage gaps, recurring cost</td></tr>
+  <tr><td><strong>Leased circuit / MPLS</strong></td><td>a few to tens of ms</td><td>Control-centre backhaul; the SCADA WAN</td><td>You do not control the routing; a reroute changes latency and symmetry</td></tr>
+  <tr><td><strong>Satellite</strong></td><td>hundreds of ms (GEO)</td><td>Genuinely remote sites, last resort</td><td>Latency breaks most default protocol timeouts</td></tr>
+</table>
+<div class="callout">
+<strong>Match the medium to the timescale.</strong> Protection-speed signalling needs a deterministic channel &mdash; fiber, licensed microwave, or a purpose-built radio in point-to-point mode. SCADA polling tolerates far more. Mixing the two on one shared, variable-latency link is how a working system becomes an intermittent one. See <a href="atlas:start-here/the-job.html">the timescale picture</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Spread-spectrum radio in practice</h2>
+<p>Frequency-hopping spread spectrum in the license-free 900&nbsp;MHz ISM band is the workhorse of distribution automation in North America: no licensing delay, adequate range, and enough resistance to narrowband interference to be usable in a shared band.</p>
+<div class="twocol">
+<div>
+<h3>Point to point</h3>
+<ul>
+<li>Two radios, one path, all the airtime. Lowest and most predictable latency.</li>
+<li>Fast enough for relay-to-relay signalling: the SEL-3031 quotes a typical <strong>4.8&nbsp;ms</strong> latency for control commands carried over Mirrored Bits.</li>
+<li>Used for teleprotection, distributed generation interties, and economical backup protection channels where fiber is not available.</li>
+</ul>
+</div>
+<div>
+<h3>Point to multipoint</h3>
+<ul>
+<li>One master radio serving many remotes, sharing airtime. Higher and more variable latency by nature.</li>
+<li>The standard arrangement for SCADA polling of reclosers, regulators, capacitor controls, and sensors across a service territory.</li>
+<li>Scaling is about airtime, not bandwidth: doubling the number of remotes roughly doubles the time to poll them all.</li>
+</ul>
+</div>
+</div>
+<h3>Features that matter in the field</h3>
+<ul>
+<li><strong>Multiple independent ports in one radio.</strong> The SEL-3031 communicates on up to three independent ports and protocols simultaneously &mdash; so one radio can carry SCADA DNP3, a Mirrored Bits channel, and engineering access without three separate links.</li>
+<li><strong>Protocol transparency.</strong> Byte-oriented protocols pass through: DNP3, Modbus, Mirrored Bits, IEEE C37.118 synchrophasors, SEL Fast Messaging, and SEL ASCII.</li>
+<li><strong>Encryption.</strong> An optional encryption card provides session authentication and 256-bit AES. On unlicensed spectrum this is not optional in any meaningful sense &mdash; anyone with a compatible radio can listen.</li>
+<li><strong>Serial port flexibility.</strong> EIA-232, EIA-485, or optical fiber for the connection to the device, matching whatever the recloser control or relay presents.</li>
+<li><strong>A separate management port.</strong> A USB management port allows settings changes and performance verification without disturbing the data channels &mdash; which matters when the data channels are carrying SCADA for a live feeder.</li>
+<li><strong>Settings in the usual tool.</strong> Radio configuration through ACSELERATOR QuickSet keeps it in the same workflow as the relays.</li>
+</ul>
+</section>
+
+<section>
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Airtime, not bandwidth, is what scales &mdash; point-to-point versus point-to-multipoint</text>
+  <text x="130" y="36" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Point to point</text>
+  <rect x="40" y="52" width="60" height="26" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+  <text x="70" y="69" text-anchor="middle" font-size="7.2" fill="#0d7f63">radio A</text>
+  <rect x="200" y="52" width="60" height="26" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+  <text x="230" y="69" text-anchor="middle" font-size="7.2" fill="#0d7f63">radio B</text>
+  <line x1="100" y1="65" x2="200" y2="65" stroke="#10a37f" stroke-width="1.6"/>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="1s" repeatCount="indefinite" path="M100,65 H200"/></circle>
+  <text x="150" y="94" font-size="7.2" fill="#8a8e9b" text-anchor="middle">all the airtime, one path</text>
+  <text x="150" y="106" font-size="7.2" fill="#0d7f63" text-anchor="middle">low, predictable latency &mdash; usable for signalling</text>
+
+  <text x="470" y="36" font-size="8.4" font-weight="600" fill="#d7930a" text-anchor="middle">Point to multipoint</text>
+  <rect x="330" y="52" width="60" height="26" rx="4" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+  <text x="360" y="69" text-anchor="middle" font-size="7.2" fill="#9c6d06">master</text>
+  <g font-size="7" fill="#6e7180">
+    <rect x="560" y="30" width="66" height="20" rx="3" fill="#fff" stroke="#d7930a"/><text x="593" y="44" text-anchor="middle">remote 1</text>
+    <rect x="560" y="56" width="66" height="20" rx="3" fill="#fff" stroke="#d7930a"/><text x="593" y="70" text-anchor="middle">remote 2</text>
+    <rect x="560" y="82" width="66" height="20" rx="3" fill="#fff" stroke="#d7930a"/><text x="593" y="96" text-anchor="middle">remote 3</text>
+    <rect x="560" y="108" width="66" height="20" rx="3" fill="#fff" stroke="#d7930a"/><text x="593" y="122" text-anchor="middle">remote n</text>
+  </g>
+  <g stroke="#d7930a" stroke-width="1.2" fill="none" opacity="0.8">
+    <path d="M390,60 C470,50 500,42 558,40"/><path d="M390,65 H558"/>
+    <path d="M390,70 C470,80 500,88 558,92"/><path d="M390,74 C470,96 500,110 558,118"/>
+  </g>
+  <circle r="3" fill="#d7930a"><animateMotion dur="4s" repeatCount="indefinite" path="M390,60 C470,50 500,42 558,40"/></circle>
+  <circle r="3" fill="#d7930a"><animateMotion dur="4s" begin="1s" repeatCount="indefinite" path="M390,65 H558"/></circle>
+  <circle r="3" fill="#d7930a"><animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M390,70 C470,80 500,88 558,92"/></circle>
+  <circle r="3" fill="#d7930a"><animateMotion dur="4s" begin="3s" repeatCount="indefinite" path="M390,74 C470,96 500,110 558,118"/></circle>
+  <text x="470" y="142" font-size="7.2" fill="#8a8e9b" text-anchor="middle">one at a time &mdash; the master polls each remote in turn</text>
+
+  <rect x="40" y="158" width="620" height="44" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="54" y="176" font-size="8" font-weight="600" fill="#1a1a22">What that means when you add devices</text>
+  <text x="54" y="192" font-size="7.8" fill="#454956">Doubling the number of remotes roughly doubles the time to poll them all. The fix is a slower poll and unsolicited reporting &mdash; not a faster radio.</text>
+</svg></div>
+<p class="figcap">This is why teleprotection uses a dedicated point-to-point link even on a site that already has a SCADA radio. <span class="print-note">(Animated in the browser.)</span></p>
+<h2><span class="num">3</span>Path engineering</h2>
+
+<div class="fig"><svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Line of sight is necessary but not sufficient &mdash; the first Fresnel zone must be clear too</text>
+
+  <!-- ground -->
+  <path d="M40,200 L200,200 L260,196 L330,188 L400,196 L520,200 L660,200" fill="none" stroke="#8a8e9b" stroke-width="1.4"/>
+  <rect x="40" y="200" width="620" height="26" fill="#f2f3f5"/>
+
+  <!-- towers -->
+  <line x1="90" y1="200" x2="90" y2="98" stroke="#1a1a22" stroke-width="2"/>
+  <path d="M84,98 h12 M90,98 v-8" stroke="#1a1a22" stroke-width="1.6"/>
+  <text x="90" y="216" font-size="7.2" fill="#6e7180" text-anchor="middle">substation</text>
+  <line x1="610" y1="200" x2="610" y2="118" stroke="#1a1a22" stroke-width="2"/>
+  <path d="M604,118 h12 M610,118 v-8" stroke="#1a1a22" stroke-width="1.6"/>
+  <text x="610" y="216" font-size="7.2" fill="#6e7180" text-anchor="middle">pole-top recloser</text>
+
+  <!-- LOS -->
+  <line x1="90" y1="92" x2="610" y2="112" stroke="#5468c4" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text x="330" y="94" font-size="7.2" fill="#5468c4" text-anchor="middle">optical line of sight</text>
+
+  <!-- fresnel ellipse -->
+  <ellipse cx="350" cy="102" rx="266" ry="34" fill="#10a37f" opacity="0.12" stroke="#10a37f" stroke-width="1.1" transform="rotate(2.2 350 102)"/>
+  <text x="350" y="146" font-size="7.2" fill="#0d7f63" text-anchor="middle">first Fresnel zone &mdash; widest at midpath</text>
+
+  <!-- obstruction -->
+  <path d="M320,188 q14,-42 28,0 z" fill="#6e7180" opacity="0.5"/>
+  <path d="M334,188 v-40" stroke="#6e7180" stroke-width="1"/>
+  <text x="334" y="176" font-size="7" fill="#454956" text-anchor="middle">tree line</text>
+  <text x="334" y="164" font-size="7" fill="#d63a3a" text-anchor="middle">intrudes &mdash; loss even with clear LOS</text>
+
+  <!-- signal animation -->
+  <circle r="3.5" fill="#10a37f">
+    <animateMotion dur="2.4s" repeatCount="indefinite" path="M90,92 L610,112"/>
+    <animate attributeName="opacity" values="1;1;0.35;0.35" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- budget -->
+  <rect x="40" y="236" width="620" height="40" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="54" y="252" font-size="8" font-weight="600" fill="#1a1a22">The link budget, in one line</text>
+  <text x="54" y="268" font-size="7.8" font-family="Consolas, monospace" fill="#454956">received power = TX power + TX antenna gain &minus; TX cable loss &minus; path loss &minus; RX cable loss + RX antenna gain &nbsp;&nbsp;&rarr;&nbsp;&nbsp; must exceed RX sensitivity by the fade margin</text>
+</svg></div>
+<p class="figcap">Fresnel-zone radius grows with distance and falls with frequency; at 900&nbsp;MHz over a few miles it is tens of feet at midpath. Vendor documentation tabulates it &mdash; use the table rather than intuition. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Budget item</th><th>Notes</th></tr>
+  <tr><td><strong>Transmit power</strong></td><td>Regulated in unlicensed bands. More power is not always legal, and is rarely the best answer</td></tr>
+  <tr><td><strong>Antenna gain and pattern</strong></td><td>Directional (yagi/panel) for point-to-point; omnidirectional at a point-to-multipoint master. Gain is bought with narrower beamwidth, which means aiming matters. Use antennas the radio's documentation permits &mdash; approved-antenna lists exist for regulatory reasons</td></tr>
+  <tr><td><strong>Coaxial cable loss</strong></td><td>Significant at 900&nbsp;MHz and proportional to length. Vendor manuals tabulate length versus loss; keep runs short and use the right cable, not whatever is on the truck</td></tr>
+  <tr><td><strong>Path loss</strong></td><td>Grows with distance and frequency; terrain, foliage, and buildings add more</td></tr>
+  <tr><td><strong>Fade margin</strong></td><td>The headroom above sensitivity. Rain, seasonal foliage, and multipath all eat into it. A link commissioned with no margin will fail in July</td></tr>
+  <tr><td><strong>Lightning protection and grounding</strong></td><td>An antenna on a mast is a lightning target with a cable running into your control house. Surge protectors, proper bonding, and grounding practice are mandatory, not optional &mdash; SEL publishes specific application guidance on radio system lightning protection</td></tr>
+</table>
+<div class="callout warn">
+<strong>Survey the path, do not assume it.</strong> A desk study using terrain data gets you a candidate; a field test with the actual radios and antennas at the actual mounting heights gets you a link. Record the received signal level at commissioning so you have a baseline to compare against when it degrades three years later.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Cellular and public carriers</h2>
+<ul>
+<li><strong>Addressing is the first problem.</strong> Carrier networks usually place devices behind NAT with dynamic addresses. Options are a private APN with static addressing, a VPN back to the utility network, or an outbound-only architecture where the device initiates the connection.</li>
+<li><strong>Latency is variable and not yours to control.</strong> Set protocol timeouts generously and expect occasional multi-second excursions. Unsolicited reporting suits cellular better than aggressive polling.</li>
+<li><strong>Data volume costs money.</strong> A chatty integrity poll every few seconds across a thousand devices adds up. Tune deadbands and use event-driven reporting &mdash; see <a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3 Fundamentals</a>.</li>
+<li><strong>Coverage is not uniform</strong> and can change when a carrier re-farms spectrum or retires a technology. Track end-of-life announcements for the radio modules in your fleet.</li>
+<li><strong>Security is entirely on you.</strong> The carrier network is not a trusted network. Encrypt end to end, authenticate, and terminate into a controlled boundary &mdash; see <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>Tuning the protocol to the channel</h2>
+<table>
+  <tr><th>Setting</th><th>On fiber / LAN</th><th>On radio or cellular</th></tr>
+  <tr><td>Response timeout</td><td>Short &mdash; a lost response means a real problem</td><td>Long enough to cover worst-case latency plus a retransmission, or the master declares the outstation dead during normal operation</td></tr>
+  <tr><td>Retries</td><td>Few</td><td>More &mdash; occasional loss is normal, not a fault</td></tr>
+  <tr><td>Poll interval</td><td>Aggressive is fine</td><td>Slower, and lean on unsolicited reporting. Polling faster than the channel can answer just builds a backlog</td></tr>
+  <tr><td>Integrity poll interval</td><td>Frequent</td><td>Infrequent &mdash; it is the largest message the outstation sends</td></tr>
+  <tr><td>Analog deadbands</td><td>Tight</td><td>Wider, so a noisy analog does not consume the channel &mdash; see <a href="atlas:data-protocols/dnp3/on-sel-relays.html">DNP3 on SEL Relays</a></td></tr>
+  <tr><td>Inter-character timeout</td><td>Default</td><td>Matters on serial over radio, where a frame can be delivered in bursts</td></tr>
+  <tr><td>Collision handling</td><td>Not applicable</td><td>On point-to-multipoint, two remotes answering at once is a real failure mode. Stagger polls</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Diagnose the layer, not the symptom.</strong> &ldquo;DNP3 keeps going offline&rdquo; on a radio link is almost never a DNP3 problem. Check received signal level and error counters at the radio first, then frame-level statistics, then the protocol. Fixing a timeout to paper over a marginal path buys a few months.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Monitoring the link</h2>
+<ul>
+<li><strong>Received signal level</strong> as an analog point, trended. Seasonal variation is normal; a downward trend is a failing connector or growing vegetation.</li>
+<li><strong>Error and retry counters</strong> from the radio and from the protocol master. Rising retries precede outright failure by months.</li>
+<li><strong>Link up/down status</strong> per remote, distinct from the protocol session state &mdash; they fail for different reasons.</li>
+<li><strong>Latency,</strong> where the equipment reports it. A step change means a path change.</li>
+<li><strong>Baseline everything at commissioning</strong> and record it in the project file, so &ldquo;is this normal?&rdquo; has an answer.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>Commissioning on a clear winter day.</strong> Foliage in summer can cost several dB on a treed path. Build the margin in.</li>
+<li><strong>Antenna aimed by eye.</strong> A high-gain directional antenna has a narrow beam; a few degrees off costs real signal. Aim it, then verify with the radio's own signal reading.</li>
+<li><strong>Long or wrong coax.</strong> Cable loss at 900&nbsp;MHz is substantial. Every extra metre is signal you paid for and threw away.</li>
+<li><strong>Unlicensed band interference appearing later.</strong> Somebody else's new system is entirely legal. Frequency hopping helps; margin helps more.</li>
+<li><strong>No lightning protection.</strong> The antenna, the mast, the coax, and the bonding are one system. Get it wrong and you replace radios after every storm &mdash; and possibly the equipment they connect to.</li>
+<li><strong>Protection over a shared, variable-latency link.</strong> Backup protection over radio is a legitimate application when the radio is engineered for it; opportunistic use of the SCADA link is not.</li>
+<li><strong>Encryption not enabled</strong> because it was &ldquo;a pilot.&rdquo; Pilots become permanent.</li>
+<li><strong>One radio carrying everything with no fallback.</strong> When it fails you lose SCADA, engineering access, and any protection signalling at once. Decide deliberately whether that is acceptable.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/serial-comms.html">Serial Comms Fundamentals</a>
+  <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:distribution-equipment/fault-indicators.html">Fault Indicators &amp; Sensors</a>
+  <a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3 Fundamentals</a>
+  <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>
+</div>
+<p class="footnote">Sources: SEL-3031 Serial Radio Transceiver Data Sheet (20230124) &mdash; 900 MHz frequency-hopping spread-spectrum operation in the license-free ISM band, dual point-to-point and point-to-multipoint modes with their stated applications, three simultaneous independent ports and protocols, typical 4.8 ms latency for control commands over Mirrored Bits, optional encryption card with session authentication and 256-bit AES, EIA-232 / EIA-485 / fiber serial port options, USB management port that does not disturb the data channels, settings via ACSELERATOR QuickSet, and the supported protocol list (DNP3, Modbus, Mirrored Bits, IEEE C37.118, SEL Fast Messaging, SEL ASCII). SEL-3060 Ethernet Radio Instruction Manual (20210715) for Fresnel-zone radius, permitted-antenna, channel-frequency, and coaxial length-versus-loss tables at 900 MHz. SEL AG2014-36 for radio system lightning protection practice. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

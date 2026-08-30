@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DNP3 on SEL Relays</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DNP3,relay,DNPADR,REPADR,scaling,DECPL,map,SEL-751">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DNP3 on SEL Relays (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DNP3 on SEL Relays</h1>
+  <p>The relay end in one place — sessions and maps, scaling and deadbands, unsolicited reporting, and what each control code does</p>
+  <div class="chips"><span>DNPADR</span><span>RB / OC / CC</span><span>DECPL</span><span>ANADB</span><span>UNSOL</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Controls</h3>
+<ul style="margin-bottom:8px">
+<li>The relay <strong>ignores</strong> the CROB's on-time, off-time, and count.</li>
+<li>A pulse asserts the bit for <strong>one processing interval</strong> (~2–4 ms). Nothing is held.</li>
+<li>SELOGIC is what catches the pulse. Contact time comes from relay logic (TRIP equation, <code>TDUR3D</code>, seal-in) — never from the DNP message.</li>
+<li>Remote bits clear on power loss. Latch bits survive. Latch anything that must persist.</li>
+<li>400-series/751 reject a wrong verb with <code>NOT_SUPPORTED</code>. A 351S does not — a bare pulse to its paired breaker point <strong>closes the breaker</strong>.</li>
+<li>One control per point at a time. Status feedback lags a second or two — that's the input scan, not a failure.</li>
+</ul>
+<h3>Data &amp; events</h3>
+<ul style="margin-bottom:2px">
+<li>The default map is a <strong>reference map</strong>. Remap by label — not index hunting — to build what SCADA actually needs.</li>
+<li>Analogs go out as integers: scale with <code>DECPL</code>, deadband applies <em>after</em> scaling (<code>ANADB</code>).</li>
+<li>Binary inputs are scanned for DNP events at ~1–2 scans per second. SER-registered points carry true timestamps; everything else carries scan time.</li>
+<li>DNP time sync is a <strong>backup</strong>, not a source. IRIG-B first; the default (<code>TIMERQ = I</code>) accepts and ignores time writes.</li>
+<li>Unsolicited reports fire on event count (<code>NUMEVE</code>) or oldest-event age (<code>AGEEVE</code>), whichever comes first.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Controls: what the relay does with each code</h2>
+<p>Relay DNP binary output maps expose <strong>remote bits</strong> (<code>RB01–RBnn</code>), <strong>breaker bits</strong> (<code>OC</code>/<code>CC</code> per breaker), disconnect bits (<code>89OC01–89CC20</code> on a 451), and control-only points (target/energy/demand resets). What each code does on the 400-series/751 (fixed, not settable):</p>
+<table>
+  <tr><th>Point</th><th>CLOSE (0x4x)</th><th>TRIP (0x8x)</th><th>NUL/LATCH_ON</th><th>NUL/LATCH_OFF</th><th>NUL/PULSE_ON</th></tr>
+  <tr><td><code>RBxx</code> (single)</td><td>Pulse RB</td><td>Pulse RB</td><td>Set RB</td><td>Clear RB</td><td>Pulse RB</td></tr>
+  <tr><td><code>RBxx:RByy</code> (paired)</td><td>Pulse RByy</td><td>Pulse RBxx</td><td colspan="3" style="color:#a9adb8">varies by family — see note</td></tr>
+  <tr><td><code>OCx:CCx</code> (paired)</td><td>Pulse CCx → close breaker</td><td>Pulse OCx → open breaker</td><td colspan="3" style="color:#a9adb8">varies by family — see note</td></tr>
+  <tr><td>Resets (<code>RSTTRGT</code>…)</td><td>Operate</td><td>Operate</td><td>Operate</td><td>No action</td><td>Operate</td></tr>
+</table>
+<p style="font-size:8.6pt"><strong>Paired points and non-TCC codes:</strong> the 3xx series (351S) honors them as the interoperability fallback — LATCH_ON / PULSE_ON pulse the close side, LATCH_OFF pulses the trip side. The 400-series/751 manuals state paired points support <em>only</em> TRIP or CLOSE and reject the rest. Send proper trip/close codes and the question never comes up. On a 451, single OC/CC points also accept latch/pulse codes (each still just pulses the breaker logic bit). Cancel an operation in progress with a NUL/NUL CROB.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">How a ~2 ms Relay Word pulse becomes a real coil operation</text>
+
+  <line x1="140" y1="212" x2="670" y2="212" stroke="#a9adb8"/>
+  <g font-size="7" fill="#8a8e9b">
+    <text x="140" y="226">0</text><text x="255" y="226" text-anchor="middle">50 ms</text>
+    <text x="390" y="226" text-anchor="middle">100 ms</text><text x="530" y="226" text-anchor="middle">150 ms</text>
+    <text x="665" y="226" text-anchor="end">200 ms</text>
+  </g>
+
+  <!-- lane 1: CROB arrives -->
+  <text x="132" y="46" font-size="7.4" fill="#454956" text-anchor="end">CROB received</text>
+  <line x1="140" y1="42" x2="670" y2="42" stroke="#f2f3f5"/>
+  <rect x="140" y="34" width="4" height="16" rx="1" fill="#5468c4"/>
+  <text x="150" y="32" font-size="6.8" fill="#5468c4">master's on-time and count are ignored</text>
+
+  <!-- lane 2: relay word bit -->
+  <text x="132" y="82" font-size="7.4" fill="#454956" text-anchor="end">OC / RB bit</text>
+  <line x1="140" y1="78" x2="670" y2="78" stroke="#f2f3f5"/>
+  <rect x="142" y="70" width="7" height="16" rx="1" fill="#d63a3a">
+    <animate attributeName="opacity" values="0.25;1;0.25" dur="2.4s" repeatCount="indefinite"/>
+  </rect>
+  <text x="156" y="68" font-size="6.8" fill="#d63a3a">one processing interval, ~2&ndash;4 ms &mdash; nothing is held</text>
+
+  <!-- lane 3: SELogic -->
+  <text x="132" y="120" font-size="7.4" fill="#454956" text-anchor="end">SELogic catches it</text>
+  <line x1="140" y1="116" x2="670" y2="116" stroke="#f2f3f5"/>
+  <rect x="149" y="108" width="230" height="16" rx="2" fill="#5468c4" opacity="0.75"/>
+  <text x="264" y="120" font-size="6.8" fill="#fff" text-anchor="middle">TRIP equation asserted, seal-in holds</text>
+
+  <!-- lane 4: TDUR -->
+  <text x="132" y="158" font-size="7.4" fill="#454956" text-anchor="end">Output contact</text>
+  <line x1="140" y1="154" x2="670" y2="154" stroke="#f2f3f5"/>
+  <rect x="152" y="146" width="240" height="16" rx="2" fill="#10a37f" opacity="0.85"/>
+  <text x="272" y="158" font-size="6.8" fill="#fff" text-anchor="middle">held at least TDUR3D &mdash; a real coil operation</text>
+
+  <!-- lane 5: feedback -->
+  <text x="132" y="196" font-size="7.4" fill="#454956" text-anchor="end">52a status back to SCADA</text>
+  <line x1="140" y1="192" x2="670" y2="192" stroke="#f2f3f5"/>
+  <rect x="470" y="184" width="7" height="16" rx="1" fill="#d7930a"/>
+  <text x="484" y="182" font-size="6.8" fill="#9c6d06">arrives on the next BI scan &mdash; 1&ndash;2 scans per second, not a failure</text>
+
+  <line y1="28" y2="206" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.35">
+    <animate attributeName="x1" values="140;670" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="140;670" dur="5s" repeatCount="indefinite"/>
+  </line>
+</svg></div>
+<p class="figcap">The protocol's timing fields never reach the coil. Contact behavior belongs entirely to the relay's own logic &mdash; which is why <code>TDUR3D</code> and the trip equation are where you go when a control &ldquo;succeeds&rdquo; and nothing moves. <span class="print-note">(Animated in the browser.)</span></p>
+<h3>How a 2-ms pulse becomes a real operation</h3>
+<ul>
+  <li><strong>OC/CC feed the TRIP and CLOSE equations.</strong> Program <code>OC</code> into trip logic and <code>CC</code> into close logic; the equations drive the contacts, and <code>TDUR3D</code> plus close-logic supervision (52A, seal-in) stretch the momentary bit into a real coil operation.</li>
+  <li><strong>Remote bits feed SELOGIC.</strong> The standard pattern is rising-edge into a latch: <code>SET1 = /RB1 * !LT1</code>, <code>RST1 = /RB1 * LT1</code> — one pulsed RB toggles LT1. Remote bits are <strong>volatile</strong> (cleared on power loss); latch bits persist. Latch anything that must survive a restart.</li>
+</ul>
+
+<h3>Family differences and limits</h3>
+<ul>
+  <li><strong>3xx series is configurable:</strong> Global DNP settings <code>BOOPTCC</code> (response to TRIP/CLOSE codes) and <code>BOOPPUL</code> (response to PULSE codes) each select SET or PULSE behavior. With <code>BOOPTCC = SET</code>, a pulse-style trip on OC does <em>nothing</em> — a classic "control succeeds but nothing happens" cause. Check these two settings first when a 3xx ignores controls.</li>
+  <li><strong>400 series / 751 are fixed</strong> per the table — no BOOPTCC equivalent; pulse = one processing interval, always. <strong>451 breaker bits require the BREAKER jumper ON.</strong></li>
+  <li><strong>Max 10 points per Object 12 request</strong> (extras return <code>TOO_MANY_OBJS</code>); multiple pulses in one message can collide and return <code>ALREADY_ACTIVE</code> — send controls one at a time, and wait out a point still executing before re-commanding.</li>
+  <li><strong>Feedback is slower than the control.</strong> Relays scan binary inputs for DNP events at ~1–2 scans per second (SER-registered points get true timestamps). The 52A confirmation lagging SUCCESS by a couple of seconds is the scan, not a failure.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Data: sessions, maps, scaling, events</h2>
+<ul>
+  <li><strong>Sessions and maps:</strong> a 751A runs up to 3 DNP sessions (<code>EDNP</code>), each pairing its own map, master address (<code>REPADR</code>), and relay address (<code>DNPADR</code>); Ethernet sessions add the master IP (<code>DNPIP</code>) and transport (TCP/UDP). A 451 offers three maps for three unique masters. Each session buffers events independently.</li>
+  <li><strong>Remapping is by label, not index.</strong> The default map is a reference map of everything (the whole Relay Word is available on 400-series); build a custom map with just the points SCADA needs, in the order SCADA wants.</li>
+  <li><strong>Analog scaling and deadbands:</strong> Objects 30/32 default to 16-bit integers, so decimals need scaling: <code>DECPLA/V/M</code> set decimal places (10.14 A at <code>DECPLA=2</code> transmits as 1014 — keep the scaled value under 32,767 or poll 32-bit/float variations). Deadbands (<code>ANADBA/V/M</code>) apply <em>after</em> scaling. Object 34 lets the master change deadbands at runtime, but they're <strong>volatile</strong> — lost on settings change, <code>STA C</code>, or power cycle.</li>
+  <li><strong>Default variations</strong> are settable per session (<code>DVARAI</code> and friends) so a master that can't request variations still gets the format it expects.</li>
+  <li><strong>Unsolicited:</strong> <code>UNSOL</code> enables it, <code>PUNSOL</code> at power-up; reports fire at <code>NUMEVE</code> accumulated events or <code>AGEEVE</code> oldest-event age, with retry counts and an offline timeout. Serial sessions can even dial a modem out to deliver events.</li>
+</ul>
+<div class="fig"><svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dr2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Scaling happens first, then the deadband &mdash; which is why changing one silently changes the other</text>
+
+  <g font-size="7.4">
+    <rect x="14" y="40" width="132" height="52" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="80" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">Measured</text>
+    <text x="80" y="72" text-anchor="middle" fill="#6e7180">10.14 A</text>
+    <text x="80" y="84" text-anchor="middle" fill="#8a8e9b">two decimal places</text>
+
+    <rect x="186" y="40" width="132" height="52" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="252" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">Scaled by DECPLA</text>
+    <text x="252" y="72" text-anchor="middle" fill="#6e7180">DECPLA = 2 &rarr; 1014</text>
+    <text x="252" y="84" text-anchor="middle" fill="#8a8e9b">a 16-bit integer on the wire</text>
+
+    <rect x="358" y="40" width="132" height="52" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="424" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#10a37f">Deadband ANADBA</text>
+    <text x="424" y="72" text-anchor="middle" fill="#6e7180">compared in scaled units</text>
+    <text x="424" y="84" text-anchor="middle" fill="#8a8e9b">ANADBA = 10 means 0.10 A</text>
+
+    <rect x="530" y="40" width="156" height="52" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+    <text x="608" y="58" text-anchor="middle" font-size="8.2" font-weight="600" fill="#1a1a22">Event generated</text>
+    <text x="608" y="72" text-anchor="middle" fill="#6e7180">only when the change</text>
+    <text x="608" y="84" text-anchor="middle" fill="#6e7180">exceeds the deadband</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#dr2)">
+    <path d="M146,66 H184"/><path d="M318,66 H356"/><path d="M490,66 H528"/>
+  </g>
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M80,66 H252 H424 H608"/>
+  </circle>
+
+  <rect x="14" y="112" width="672" height="46" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="28" y="130" font-size="8" font-weight="600" fill="#9c6d06">The trap</text>
+  <text x="28" y="146" font-size="7.8" fill="#454956">Change <tspan font-family="Consolas, monospace">DECPLA</tspan> from 2 to 1 and the same <tspan font-family="Consolas, monospace">ANADBA</tspan> value now represents ten times the current. The point that reported nicely yesterday either floods the event queue or goes quiet &mdash; with no setting having been changed on the deadband itself.</text>
+
+  <rect x="14" y="170" width="672" height="46" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="28" y="188" font-size="8" font-weight="600" fill="#0d7f63">Two more limits worth remembering</text>
+  <text x="28" y="204" font-size="7.8" fill="#454956">Keep the scaled value under 32,767 or poll a 32-bit or floating-point variation instead &middot; deadbands written by the master with Object 34 are volatile &mdash; lost on a settings change, on <tspan font-family="Consolas, monospace">STA C</tspan>, or on a power cycle.</text>
+</svg></div>
+<p class="figcap">Whenever you touch scaling, re-check the deadband. They are two settings that behave like one. <span class="print-note">(Animated in the browser.)</span></p>
+
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>Events not arriving:</strong> point assigned Class None, deadband too wide, or the event buffer is undersized. Check the class assignment first.</li>
+<li><strong>Analog dead or twitchy:</strong> deadband applies after scaling — changing <code>DECPL</code> silently rescales the effective deadband too. Recheck <code>ANADB</code> whenever scaling changes.</li>
+<li><strong>Timestamps a second late</strong> are the relay's BI scan, not a comms problem. Register the point in SER if the time matters.</li>
+<li><strong>Object 34 deadband writes don't survive</strong> a relay settings change or power cycle. Re-issue them, or set real deadbands in settings.</li>
+<li><strong>A plain pulse to a 351S breaker point CLOSES the breaker.</strong> On the 3xx paired OC:CC point (with the usual <code>BOOPTCC</code>/<code>BOOPPUL</code> = PULSE), <em>every</em> close-ish code — CLOSE, LATCH_ON, and bare PULSE_ON — pulses the CC side. It doesn't fizzle with a status error like it would on a 400-series/751; it issues a close command. Treat a mis-verbed control to a 3xx breaker point as a switching event, not a typo — and bench-test any device before trusting how it handles an off-model code.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/dnp3/fundamentals.html">DNP3 Fundamentals</a>
+  <a href="atlas:data-protocols/dnp3/controls.html">DNP3 Control Models</a>
+  <a href="atlas:data-protocols/dnp3/on-the-rtac.html">DNP3 on the RTAC</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  
+</div>
+<p class="footnote">Sources: SEL-751A IM App. D (session settings, scaling/deadbands, NUMEVE/AGEEVE, TIMERQ, Object 34 volatility); SEL-400 Series Relays IM §16 &amp; SEL-451-6 IM §10 (Table 10.12, reference map, BI scan rates); SEL AG2018-21 (BOOPTCC/BOOPPUL). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

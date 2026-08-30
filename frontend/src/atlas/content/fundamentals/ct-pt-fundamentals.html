@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CT &amp; PT Fundamentals</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="CT,PT,VT,ratio,burden,saturation,C400,polarity,LOP,instrument transformer">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "CT & PT Fundamentals (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>CT &amp; PT Fundamentals</h1>
+  <p>Instrument transformers for protection — ratios and polarity, burden, C-class ratings, saturation, and the settings that turn secondary amps back into primary truth</p>
+  <div class="chips"><span>CTR / PTR</span><span>C400</span><span>1 A / 5 A</span><span>burden</span><span>X/R</span><span>knee point</span><span>open-delta</span><span>LOP</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>A relay <strong>never sees primary quantities</strong> — only CT/PT secondaries. The <code>CTR</code>/<code>PTR</code> settings are the only bridge back; get them wrong and every metered value, pickup, and event report is wrong by the same factor.</li>
+<li><strong>Never open an energized CT secondary. Short it first.</strong> SEL-751/751A warning (identical text in both manuals): "Before working on a CT circuit, first apply a short to the secondary winding of the CT."</li>
+<li>A <strong>C-rating is a voltage</strong>: C400 delivers 400 V at 20 × rated secondary current into a standard burden with ≤10 % ratio error. On a reduced tap, the rating de-rates proportionally.</li>
+<li><strong>Saturation is driven by dc offset (X/R), remanence, and burden</strong> — not just fault magnitude. A fully offset fault can saturate a CT that handles the same symmetrical current fine.</li>
+<li><strong>LOP is not a fault</strong>: voltage drops with no change in current → block voltage-dependent elements, don't trip.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Why the relay never sees the primary</h2>
+<p>Current transformers (CTs) and voltage/potential transformers (VTs/PTs) scale kiloamps and kilovolts down to bench-safe secondary quantities — nominally <strong>5 A or 1 A</strong> per phase and roughly <strong>67 V L-N / 120 V L-L</strong> class voltages — and isolate the relay from the primary system. Everything the relay measures, meters, and trips on is a secondary quantity; the ratio settings tell it how to report primary units:</p>
+<table>
+  <tr><th>Setting (SEL-751A)</th><th>Range</th><th>Default</th><th>What it scales</th></tr>
+  <tr><td class="mono">CTR</td><td>1–5000</td><td class="mono">120</td><td>Phase CT ratio — primary rating ÷ secondary rating</td></tr>
+  <tr><td class="mono">CTRN</td><td>1–5000</td><td class="mono">120</td><td>Neutral (IN) CT — typically a core-balance/window CT</td></tr>
+  <tr><td class="mono">CTRG</td><td>1–5000</td><td class="mono">120</td><td>Residual IG input (with <code>IG_SRC := MEAS</code>)</td></tr>
+  <tr><td class="mono">PTR / PTRS</td><td>1.00–10000.00</td><td class="mono">180</td><td>Phase / synchronism-check VT ratio</td></tr>
+  <tr><td class="mono">DELTA_Y</td><td>WYE, DELTA</td><td class="mono">DELTA</td><td>WYE = phase-to-neutral potentials connected; DELTA = phase-to-phase</td></tr>
+  <tr><td class="mono">VNOM</td><td>20–250 V (DELTA) / 20–440 V (WYE)</td><td class="mono">120</td><td>Nominal line voltage — <strong>always entered line-to-line</strong>, even for wye</td></tr>
+</table>
+<p class="figcap">SEL-751 (2026 IM) deltas from this 751A table: phase <code>CTR</code> ranges 1–6000; there is no <code>CTRG</code>/<code>IG_SRC</code> measured-residual input; <code>VNOM</code> may also be OFF and the wye range extends to 480 V; a single VT can sit on any input via <code>SING_VIN</code> (VA/VB/VC or VAB/VBC/VCA, default VAB) rather than A-phase only. Defaults and everything else match.</p>
+<p>Worked examples straight from the manual: a 100:5 phase CT → <code>CTR := 100/5 := 20</code>. A 13.8 kV feeder with 14400:120 VTs in open delta → <code>PTR := 14400/120 := 120</code>, <code>DELTA_Y := DELTA</code>. The METER command then reads in <strong>primary units</strong> — applied secondary × ratio. If metering is off by a suspicious round factor, the manual's own troubleshooting table says it first: verify CTR, CTRN, PTR and the transformer connections.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>CT basics: ratio, polarity, 1 A vs 5 A</h2>
+<ul>
+  <li><strong>Ratio.</strong> Nameplate primary : secondary — a 600/5 CT has a turns ratio of 120. Multi-ratio CTs are tapped; use the ratio of the tap actually wired (and remember the C-rating de-rates with it, §3).</li>
+  <li><strong>Polarity.</strong> Instrument transformers carry polarity marks (the dot / H1-X1 convention): current into the marked primary terminal flows out of the marked secondary terminal. On SEL rear panels the convention is explicit — on the SEL-451 the <strong>odd-numbered terminals (Z01, Z03 … / Z13, Z15 …) are the polarity terminals</strong> for CT and PT inputs. Directional, power, and differential measurements are only as correct as these connections; commissioning checks (§8) verify angle as well as magnitude.</li>
+  <li><strong>1 A vs 5 A nominal.</strong> Ordered per model (<code>INOM</code>); same relay algorithms, different input scaling. The SEL-751A also offers 50 mA and 2.5 mA high-sensitivity inputs for core-balance CTs; the SEL-751's sensitive-ground equivalent is a 200 mA-INOM neutral channel (ungrounded, high-impedance, and Petersen-coil-grounded systems), plus optional LEA Rogowski-coil/LPCT low-energy inputs.</li>
+</ul>
+<table>
+  <tr><th>Rating</th><th>SEL-751A (5 A / 1 A)</th><th>SEL-451 (5 A / 1 A)</th></tr>
+  <tr><td>Continuous</td><td>3 × I<sub>NOM</sub> @ 85°C, linear to 100 A / 20 A sym.</td><td>15 A cont., linear to 100 A sym. / 3 A cont., linear to 20 A sym.</td></tr>
+  <tr><td>1-second thermal</td><td>500 A / 100 A</td><td>500 A / 100 A (1250 A / 250 A for 1 cycle)</td></tr>
+  <tr><td>A/D measurement limit</td><td>217 A pk (154 A rms) / 43 A pk (31 A rms)</td><td>—</td></tr>
+  <tr><td>Burden per phase</td><td>&lt;0.2 VA @ 5 A / &lt;0.1 VA @ 1 A</td><td>0.27 VA @ 5 A (2.51 VA @ 15 A) / 0.13 VA @ 1 A</td></tr>
+</table>
+<div class="callout keyfact">
+<p style="margin-bottom:2px"><strong>The safety rule: a live CT secondary must always see a closed loop.</strong> Both manuals repeat it — short the secondary winding before working on any CT circuit, and make sure secondaries are shorted <em>before</em> they are disconnected from the relay. The reason falls out of the CT model (§5): whatever current the secondary loop doesn't carry becomes magnetizing current. Open the loop and the <em>entire</em> ratio current is forced into the magnetizing branch, driving the core far past saturation — the winding then develops dangerous peak voltages at the open terminals. SEL Connectorized relays build the rule into hardware: the CT connector internally shorts each CT as you unplug it.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Accuracy class: what C400 actually promises</h2>
+<p>ANSI/IEEE <strong>Class C</strong> CTs (the common protection class in North America, negligible leakage flux) are rated by a <strong>secondary terminal voltage</strong>: the CT will deliver that voltage into a standard burden at <strong>20 × rated secondary current</strong> without exceeding <strong>10 % ratio error</strong>. For a 5 A CT, C400 therefore means 400 V at 100 A secondary — which is a burden statement in disguise: 400 V ÷ 100 A = 4 Ω of total burden at the rating limit.</p>
+<ul>
+  <li><strong>Tap de-rating:</strong> a C400, 2000/5 MR CT wired on its 1200/5 tap is only good for (1200/2000) × 400 = <strong>240 V</strong>.</li>
+  <li><strong>The excitation curve is the real datasheet.</strong> Secondary excitation voltage vs. excitation (magnetizing) current, log-log. The <strong>knee</strong> is where maximum core permeability occurs (typically μ<sub>R</sub> ≈ 5000–15000); past it, permeability collapses toward 1 and a small rise in voltage demands a huge rise in magnetizing current. In SEL's worked example (C400, 2000/5, R<sub>CT</sub> = 0.7 Ω), the excitation voltage at 10 A of excitation current — the 10 %-error point at 100 A — is 496 V: the manufacturer curve buys you margin over the conservative "use the C number" assumption.</li>
+  <li><strong>Every volt is generated across the magnetizing branch.</strong> The CT must magnetize its core to push secondary current through the total burden; the voltage it needs is I<sub>sec</sub> × (R<sub>CT</sub> + R<sub>leads</sub> + Z<sub>relay</sub>). Keep that below the knee and ratio error stays negligible.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Burden: the load decides whether the CT tells the truth</h2>
+<p><strong>Burden</strong> is everything the secondary current must be pushed through: the CT's own winding resistance, the lead run to the panel, and the relay input. Numeric relays changed this game — an SEL-451 presents ~0.27 VA at 5 A (≈ 0.01 Ω) where electromechanical relays presented ohms — so on modern installations <strong>lead resistance usually dominates</strong>. Two field rules from the SEL CT model documentation:</p>
+<ul>
+  <li>For <strong>single-line-to-ground faults with wye-connected CTs, double the lead resistance</strong> — the current returns through the neutral lead, so the voltage drop is out-and-back.</li>
+  <li>Enter burden as the complex sum of lead resistance and relay (restraint) burden when simulating; for digital relays the operate-circuit impedance is effectively 0.</li>
+</ul>
+<div class="fig"><svg viewBox="0 0 700 285" xmlns="http://www.w3.org/2000/svg">
+  <line x1="60" y1="252" x2="648" y2="252" stroke="#454956" stroke-width="1.25"/>
+  <line x1="60" y1="252" x2="60" y2="34" stroke="#454956" stroke-width="1.25"/>
+  <text x="354" y="270" font-size="9" fill="#6e7180" text-anchor="middle">secondary excitation current I&#8337; (A, log scale)</text>
+  <text x="22" y="140" font-size="9" fill="#6e7180" text-anchor="middle" transform="rotate(-90 22 140)">excitation voltage V&#8337; (V, log)</text>
+  <g font-size="8" fill="#8a8e9b" text-anchor="middle">
+    <text x="60" y="262">0.001</text><text x="190" y="262">0.01</text><text x="320" y="262">0.1</text><text x="450" y="262">1</text><text x="580" y="262">10</text>
+  </g>
+  <g font-size="8" fill="#8a8e9b" text-anchor="end">
+    <text x="55" y="189">10</text><text x="55" y="107">100</text>
+  </g>
+  <path d="M60,229L99,196L122,178L138,165L190,122L229,89L242,79L252,73L268,68L281,65L307,59L320,57L359,54L450,50L528,49L551,49L580,47" fill="none" stroke="#5468c4" stroke-width="2"/>
+  <circle cx="320" cy="57" r="4" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="316" y="44" font-size="9" font-weight="600" fill="#10a37f" text-anchor="end">knee — max permeability</text>
+  <circle cx="580" cy="47" r="4.5" fill="#d63a3a"/>
+  <text x="586" y="36" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="end">I&#8337; = 10 A → 10% error @ 100 A</text>
+  <text x="586" y="62" font-size="8" fill="#d63a3a" text-anchor="end">V here sets VRAT (496 V in SEL example)</text>
+  <text x="66" y="52" font-size="8.5" fill="#6e7180">C400 · 2000/5 excitation curve (AG2019-20 Fig. 14 data)</text>
+  <text x="66" y="64" font-size="8.5" fill="#6e7180">operating voltage = Isec &#215; (Rct + Rleads + Zrelay)</text>
+  <g class="animlayer">
+    <circle r="6" fill="#d7930a" opacity="0.9">
+      <animateMotion path="M60,229L99,196L122,178L138,165L190,122L229,89L242,79L252,73L268,68L281,65L307,59L320,57L359,54L450,50L528,49L551,49L580,47" dur="11s" repeatCount="indefinite" calcMode="linear"/>
+    </circle>
+    <text x="66" y="215" font-size="8.5" font-weight="600" fill="#9c6d06">burden × fault current pushes the operating point up the curve →</text>
+    <rect x="470" y="200" width="170" height="46" rx="5" fill="#fff" stroke="#e5e7eb"/>
+    <text x="478" y="214" font-size="8" fill="#6e7180">ratio error ≈ Ie / Isec</text>
+    <rect x="478" y="221" height="8" width="4" fill="#d63a3a" rx="2">
+      <animate attributeName="width" values="3;3;6;10;22;60;150" keyTimes="0;0.3;0.5;0.65;0.8;0.9;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <text x="478" y="242" font-size="8" fill="#8a8e9b">tiny below the knee — explodes past it</text>
+  </g>
+</svg></div>
+<p class="figcap">The excitation curve as a burden meter: raising total burden (or fault current) raises the voltage the CT must generate. Below the knee the magnetizing current — the error — is milliamps; past the knee it takes off, and current that should reach the relay magnetizes the core instead.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Saturation: flux walks up until the CT quits</h2>
+<p>A fault's dc offset is what usually kills the CT, not its symmetrical magnitude. The offset is set by the system <strong>X/R ratio</strong> and the <strong>fault incidence angle</strong>: current is I<sub>PS</sub>[sin(ωt + θ − φ) − sin(θ − φ)e<sup>−t/τ</sup>] with time constant τ = X/(2πfR). θ = 0 gives full offset; θ = atan(2πfL/R) gives none. The dc component is one-signed, so the core flux — the integral of the voltage the CT must generate — <strong>ratchets upward every cycle</strong> instead of averaging out. When flux reaches the saturation level, magnetizing inductance collapses (μ<sub>R</sub> → 1), the low-impedance magnetizing branch swallows the current, and the secondary output drops out.</p>
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <g font-size="9" font-weight="600">
+    <text x="20" y="20" fill="#10a37f">primary current ÷ N — what an ideal CT would deliver</text>
+    <text x="20" y="100" fill="#5468c4">core flux — ratchets up with the dc offset</text>
+    <text x="20" y="196" fill="#d63a3a">actual secondary current — collapses once the core saturates</text>
+  </g>
+  <line x1="20" y1="58" x2="668" y2="58" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="20" y1="168" x2="668" y2="168" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="20" y1="238" x2="668" y2="238" stroke="#e5e7eb" stroke-width="1"/>
+  <path d="M20,28L70,31.5L170,36.2L270,38.9L370,40.6L470,41.6L570,42.2L668,42.9" fill="none" stroke="#d7930a" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="666" y="35" font-size="8" fill="#9c6d06" text-anchor="end">dc offset decays with τ = X/(2πfR) — here X/R = 12, fully offset</text>
+  <path d="M20,58.0L24,57.8L28,56.8L32,54.8L36,52.2L40,49.1L44,45.7L48,42.2L52,38.9L56,36.0L60,33.7L64,32.1L68,31.5L71,31.7L75,32.9L79,34.9L83,37.7L87,41.1L91,44.9L95,48.9L99,52.8L103,56.4L107,59.5L111,61.9L115,63.5L119,64.1L123,63.8L127,62.6L131,60.6L135,57.9L139,54.6L143,51.1L147,47.5L151,44.1L155,41.1L159,38.7L163,37.0L167,36.2L171,36.4L175,37.4L179,39.4L183,42.1L187,45.4L191,49.1L195,53.0L199,56.8L203,60.3L207,63.3L211,65.7L215,67.2L219,67.7L223,67.4L227,66.1L231,64.0L235,61.2L239,57.9L243,54.3L247,50.6L251,47.2L255,44.1L259,41.6L263,39.9L267,39.0L272,39.1L276,40.1L280,42.0L284,44.7L288,47.9L292,51.6L296,55.4L300,59.2L304,62.6L308,65.6L312,67.9L316,69.3L320,69.9L324,69.5L328,68.2L332,66.0L336,63.2L340,59.8L344,56.2L348,52.5L352,49.0L356,45.9L360,43.3L364,41.6L368,40.7L372,40.7L376,41.7L380,43.6L384,46.2L388,49.4L392,53.1L396,56.8L400,60.6L404,64.0L408,67.0L412,69.2L416,70.6L420,71.2L424,70.7L428,69.4L432,67.2L436,64.3L440,61.0L444,57.3L448,53.6L452,50.1L456,46.9L460,44.4L464,42.6L468,41.7L472,41.7L476,42.7L480,44.5L484,47.1L488,50.3L492,53.9L496,57.7L500,61.4L504,64.8L508,67.8L511,70.0L515,71.4L519,71.9L523,71.5L527,70.1L531,67.9L535,65.0L539,61.6L543,58.0L547,54.2L551,50.7L555,47.5L559,45.0L563,43.2L567,42.3L571,42.3L575,43.2L579,45.1L583,47.7L587,50.8L591,54.4L595,58.2L599,61.9L603,65.3L607,68.2L611,70.5L615,71.9L619,72.4L623,71.9L627,70.5L631,68.3L635,65.4L639,62.1L643,58.4L647,54.6L651,51.1L655,47.9L659,45.3L663,43.5L667,42.6" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <line x1="20" y1="118.5" x2="668" y2="118.5" stroke="#d63a3a" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="666" y="113" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="end">saturation flux (remanence starts you closer to this line)</text>
+  <path d="M20,168.0L24,168.0L28,167.9L32,167.7L36,167.1L40,166.3L44,165.0L48,163.3L52,161.2L56,158.8L60,156.0L64,153.0L68,149.8L71,146.7L75,143.6L79,140.7L83,138.1L87,135.9L91,134.1L95,132.8L99,132.0L103,131.6L107,131.7L111,132.0L115,132.6L119,133.4L123,134.1L127,134.8L131,135.2L135,135.4L139,135.2L143,134.6L147,133.6L151,132.2L155,130.3L159,128.2L163,125.8L167,123.3L171,120.7L175,118.3L179,118.3L183,118.3L187,118.4L191,118.4L195,118.5L199,118.5L203,118.6L207,119.1L211,120.0L215,121.0L219,122.2L223,123.4L227,124.5L231,125.4L235,126.0L239,126.2L243,126.0L247,125.3L251,124.3L255,122.8L259,121.0L263,119.0L267,118.3L272,118.3L276,118.3L280,118.3L284,118.4L288,118.4L292,118.4L296,118.5L300,118.5L304,118.9L308,119.7L312,120.8L316,122.1L320,123.6L324,125.0L328,126.4L332,127.5L336,128.3L340,128.8L344,128.8L348,128.4L352,127.5L356,126.3L360,124.7L364,122.9L368,120.9L372,118.8L376,118.3L380,118.4L384,118.4L388,118.4L392,118.5L396,118.5L400,118.6L404,119.2L408,120.1L412,121.4L416,122.9L420,124.5L424,126.1L428,127.6L432,128.8L436,129.8L440,130.4L444,130.6L448,130.3L452,129.6L456,128.4L460,127.0L464,125.3L468,123.4L472,121.5L476,119.6L480,118.4L484,118.4L488,118.4L492,118.5L496,118.5L500,118.7L504,119.4L508,120.4L511,121.8L515,123.4L519,125.0L523,126.7L527,128.3L531,129.7L535,130.7L539,131.4L543,131.6L547,131.4L551,130.8L555,129.7L559,128.4L563,126.7L567,124.9L571,123.0L575,121.2L579,119.6L583,118.4L587,118.4L591,118.5L595,118.5L599,118.8L603,119.5L607,120.6L611,122.0L615,123.7L619,125.4L623,127.1L627,128.8L631,130.2L635,131.3L639,132.0L643,132.3L647,132.1L651,131.5L655,130.5L659,129.2L663,127.6L667,125.8" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <line x1="175" y1="104" x2="175" y2="292" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 2" opacity="0.7"/>
+  <text x="180" y="290" font-size="8.5" font-weight="600" fill="#d63a3a">time to saturate ≈ 1.6 cycles</text>
+  <path d="M20,238.0L24,237.8L28,236.8L32,234.9L36,232.2L40,229.1L44,225.7L48,222.3L52,219.0L56,216.1L60,213.8L64,212.2L68,211.6L71,211.8L75,213.0L79,215.1L83,217.9L87,221.3L91,225.1L95,229.1L99,233.0L103,236.6L107,239.7L111,242.1L115,243.7L119,244.3L123,244.1L127,242.8L131,240.8L135,238.1L139,234.9L143,231.3L147,227.7L151,224.3L155,221.3L159,218.9L163,217.3L167,216.5L171,216.7L175,233.9L179,238.2L183,238.2L187,238.3L191,238.3L195,238.3L199,238.3L203,240.6L207,243.7L211,246.0L215,247.5L219,248.0L223,247.7L227,246.4L231,244.3L235,241.5L239,238.2L243,234.6L247,230.9L251,227.5L255,224.4L259,221.9L263,220.2L267,238.0L272,238.0L276,238.1L280,238.2L284,238.2L288,238.3L292,238.3L296,238.3L300,239.5L304,243.0L308,245.9L312,248.2L316,249.7L320,250.2L324,249.8L328,248.4L332,246.3L336,243.4L340,240.1L344,236.5L348,232.8L352,229.2L356,226.1L360,223.6L364,221.9L368,221.0L372,221.1L376,238.1L380,238.2L384,238.2L388,238.3L392,238.3L396,238.3L400,240.9L404,244.4L408,247.3L412,249.5L416,250.9L420,251.4L424,251.0L428,249.6L432,247.5L436,244.6L440,241.2L444,237.6L448,233.8L452,230.3L456,227.2L460,224.6L464,222.9L468,222.0L472,222.0L476,223.0L480,238.1L484,238.2L488,238.3L492,238.3L496,238.3L500,241.7L504,245.2L508,248.1L511,250.3L515,251.7L519,252.2L523,251.7L527,250.4L531,248.2L535,245.3L539,241.9L543,238.2L547,234.5L551,230.9L555,227.8L559,225.2L563,223.5L567,222.6L571,222.6L575,223.5L579,225.4L583,237.4L587,238.3L591,238.3L595,238.5L599,242.2L603,245.7L607,248.6L611,250.8L615,252.2L619,252.6L623,252.2L627,250.8L631,248.6L635,245.7L639,242.3L643,238.6L647,234.9L651,231.3L655,228.2L659,225.6L663,223.8L667,222.9" fill="none" stroke="#454956" stroke-width="1.5"/>
+  <g class="animlayer">
+    <line x1="20" y1="14" x2="20" y2="292" stroke="#1a1a22" stroke-width="1" opacity="0.35">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="648 0" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <text x="100" y="136" font-size="8.5" font-weight="600" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.04;0.08;0.20;0.24;1" dur="12s" repeatCount="indefinite"/>
+      each cycle adds net flux — it can't come back down fast enough
+    </text>
+    <circle cx="175" cy="118.5" r="9" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0;0.9;0;0" keyTimes="0;0.22;0.24;0.28;0.30;0.32;0.36;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="330" y="222" font-size="8.5" font-weight="600" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.34;0.75;0.80;1" dur="12s" repeatCount="indefinite"/>
+      relay sees clipped slivers — the fundamental magnitude reads far low
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">Asymmetric fault into an undersized CT. Top: the current the relay should see. Middle: core flux integrating its way up to the saturation ceiling, then riding it. Bottom: the delivered secondary current — faithful for the first cycle and a half, then collapsing to spikes each time the core re-saturates, recovering slowly as the dc decays.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<ul>
+  <li><strong>Remanence</strong> — residual flux left in the core from a previous event — biases the CT toward saturation and shortens time-to-saturate; SEL's simulation tool treats up to 80 % remanence as the worst case and warns not to exceed it.</li>
+  <li><strong>Time-to-saturate</strong> is what your instantaneous elements are racing. In the SEL tool you read it directly off the secondary-current plot as the sharp drop in output; maximize offset (θ = 0) and add remanence for the worst case.</li>
+  <li><strong>Generator zones hurt most</strong> — X/R approaching 20 or more means a long-lived dc offset, and space limits often prevent choosing CTs big enough to avoid saturation entirely.</li>
+  <li><strong>The relay's A/D clips too</strong>, independent of the CT: SEL-700 series limits at 217 A peak (5 A ch) / 43 A pk (1 A ch); SEL-400 series 247.5 / 49.5 A pk; SEL-300 series 226 / 45 A pk.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>What saturation does to protection — and how relays fight back</h2>
+<ul>
+  <li><strong>Overcurrent elements underreach and slow down.</strong> The filtered fundamental of a saturated waveform reads far below the true current — SEL's classic example: a 40 kA fault on C50, 100:5 CTs where the fundamental magnitude <em>never reaches the trip threshold</em> and the relay does not operate. Elements become "slow or inoperative."</li>
+  <li><strong>Differential security is jeopardized on through faults.</strong> Unequal saturation of the two CTs manufactures false operate current. Low-impedance differentials answer with slope restraint (restraint = k·(|I<sub>L</sub>| + |I<sub>R</sub>|); k = 1 for SEL-400/700 series, 0.5 for SEL-300/500 series) — and the secure slope for heavy through faults is hard to calculate by hand, which is exactly what the AG2019-20 simulation tool is for. Saturation-generated 2nd/4th harmonic ratios feed harmonic blocking.</li>
+</ul>
+<div class="flow">
+  <div class="stage"><b>Cosine filter</b><span>excellent dc-offset and harmonic rejection — but reads low on distorted, saturated waveforms</span></div>
+  <div class="arr">+</div>
+  <div class="stage"><b>Peak detection</b><span>acquires true magnitude during heavy saturation — less responsive when the CT is healthy</span></div>
+  <div class="arr">=</div>
+  <div class="stage"><b>SEL adaptive filter</b><span>a distortion index (measured harmonics ÷ fundamental) switches between them dynamically — both run at all times</span></div>
+</div>
+<p>When the distortion index is high, the peak filter carries the instantaneous elements through the saturation; when it falls, the cosine filter takes back over. This patented scheme ships in the SEL-751/751A, SEL-351 family, SEL-587, SEL-700G, SEL-710, SEL-787 family, SEL-849 and others. For engineering studies, AG2019-20's free GNU Octave tool simulates two CTs (Frölich curve or manufacturer excitation points), models the relay's cosine filter at 16 samples/cycle, and emits COMTRADE files you can replay into the actual relay through a test set.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>The PT/VT side: connections, fusing, LOP</h2>
+<p>Voltage inputs are the easy half — no saturation race, just connection topology and supervision. The SEL-751A accepts (Figures 2.18/2.19; same menu on the SEL-751, Figures 2.22/2.23): <strong>direct connection</strong> on a grounded system, <strong>wye-wye VTs</strong> (four-wire, phase-to-neutral → <code>DELTA_Y := WYE</code>), <strong>open-delta VTs</strong> — two transformers measuring A-B and C-B, the standard two-VT economy connection (→ <code>DELTA_Y := DELTA</code>) — or a <strong>single VT</strong> (<code>SINGLEV := Y</code>; the relay then assumes balanced voltages for power and sequence quantities — 751A: A input only, A-N or A-B; 751: any input via <code>SING_VIN</code>). The SEL-451, by contrast, takes only three-phase four-wire <strong>wye</strong> potentials (67 V L-N nominal, 300 V continuous, 600 V for 10 s, burden 0.03 VA @ 67 V).</p>
+<ul>
+  <li><strong>VNOM is always line-to-line</strong>, even in wye. For VNOM above 250 V (L-L) use a solidly grounded wye system, or a line-to-ground fault raises the healthy-phase terminal voltages by 1.73×.</li>
+  <li><strong>Fuse the VT secondaries</strong> (F1–F3 in every connection diagram); SEL recommends current-limiting fuses in direct-connected voltage applications to limit arc-flash incident energy.</li>
+</ul>
+<div class="card latch">
+<h3>Loss-of-potential (60LOP) — the fuse-blown detector</h3>
+<p style="margin-bottom:2px">Blown VT fuses or a tripped molded-case breaker present the relay with a voltage collapse that looks like a fault — except the currents don't move. The SEL-751A declares <strong>LOP</strong> on a &gt;25 % drop in positive-sequence voltage V1 (the SEL-751 uses &gt;20 % — same logic, tighter threshold) with <em>no corresponding change</em> in I1, I2, or I0; after 1 second it latches the LOP Relay Word bit. Always active unless blocked via <code>LOPBLK</code> (default 0). Use LOP in SELOGIC to supervise everything that trusts voltage — undervoltage 27 and directional power elements especially — so a dropped wrench on the fuse holders doesn't become a trip. Full logic and element supervision: see <em>Protection Elements</em> in atlas.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Field practice: shorting, grounding, proving the wiring</h2>
+<ul>
+  <li><strong>Short before you touch.</strong> Apply a short to the CT secondary before working the circuit, and confirm secondaries are shorted before disconnecting them from the relay. Use the shorting hardware you have: SEL Connectorized terminals internally short each CT as the connector is withdrawn — pull it straight off the rear panel.</li>
+  <li><strong>Ground the secondary circuit at one point:</strong> the manuals' connection diagrams put it plainly — the CTs and the relay chassis should be grounded in the relay cabinet.</li>
+  <li><strong>Check the nameplate before energizing:</strong> relay misoperation can result from applying other than the specified secondary voltages and currents — verify nominal voltage and current on the rear-panel label against the instrument transformers.</li>
+</ul>
+<h3>Commissioning: prove ratio and polarity, not just continuity</h3>
+<div class="flow">
+  <div class="stage"><b>1 · Isolate</b><span>short and disconnect CT/VT secondaries from the relay before connecting the test set</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Inject</b><span>rated current (1 A or 5 A) and rated voltage, at the angle set your PHROT and DELTA_Y demand</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Meter</b><span>METER must read applied × CTR / PTR in primary units, at the injected angles</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>4 · Ground CT</b><span>single-phase into IN: expect (applied) × CTRN at 0° — no voltage applied</span></div>
+</div>
+<p>Angle conventions matter: for wye (<code>DELTA_Y := WYE</code>, ABC rotation) inject VA/IA at 0°, VB/IB at −120°, VC/IC at +120°; for open-delta inject VAB at 30° and VCB at 90° (ABC). If a device is reachable but meters wrong by a clean factor, it's the ratio settings; if angles are rotated or a power reading is negative, suspect rolled phases or a polarity-reversed CT lead.</p>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:commissioning/safety-practices.html">Safety Practices</a>
+  
+  <a href="atlas:fundamentals/control-wiring.html">Control Wiring</a>
+  <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>
+</div>
+<p class="footnote">Sources: SEL AG2019-20, <em>CT Saturation Tool for Estimating Relay Performance</em> (AG2019-20_20250825.pdf — CT model, C-class/VRAT, excitation curves, remanence, time-to-saturate, X/R and incidence angle, restraint factors, A/D limits); SEL AG2002-10, <em>CT Saturation and Adaptive Filtering</em> (AG2002-10_20150914.pdf — filter behavior, distortion index, product availability); SEL-751A Instruction Manual (751A_IM_20250411.pdf — specifications, CTR/PTR/DELTA_Y/VNOM settings, connection diagrams, CT-shorting warnings, LOP, commissioning tests); SEL-751 Instruction Manual (751_IM_20260327.pdf — confirms the shared claims; source for the noted 751 deltas: CTR 1–6000, no CTRG, VNOM OFF/480 V wye, SING_VIN, 200 mA neutral + LEA inputs, 20 % LOP); SEL-451 Instruction Manual (451_IM_20190325.pdf — input specs, polarity terminal convention, shorting connectors, wye PT inputs). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

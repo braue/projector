@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RTAC Users, Security &amp; LDAP</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="RTAC,users,roles,LDAP,RADIUS,syslog,hardening,permissions">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "RTAC Users, Security & LDAP (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>RTAC Users, Security &amp; LDAP</h1>
+  <p>Who can touch the RTAC and how you prove it — first-login accounts, roles and permissions, LDAP/AD central auth, syslog, and closing unused ports</p>
+  <div class="chips"><span>first login</span><span>roles</span><span>permissions</span><span>LDAP</span><span>syslog</span><span>port 443/5432</span><span>project password</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">RTAC security</h3>
+<ul style="margin-bottom:2px">
+<li>There are <strong>two separate account schemes</strong>: accounts in the ACSELERATOR RTAC software database on your PC, and accounts on the RTAC box itself. Securing one does nothing for the other.</li>
+<li>The box ships with <strong>no user accounts</strong> — the first web login creates the first administrator. Forget it and the only way back in is the factory-reset jumper.</li>
+<li>Since firmware R141, access is <strong>permission-based</strong>: default roles are bundles of permissions, and you can build custom roles. Project download, HMI controls, and web viewing are each gated by different permissions.</li>
+<li>LDAP checks happen only for users <strong>without a local account</strong> — local accounts always authenticate locally, which is your fallback if the directory dies.</li>
+<li>Every login/logout is logged by default; add a syslog destination and the box streams security events to your collector.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Two account schemes (don't confuse them)</h2>
+<p>The SEL-5033 manual is explicit: the RTAC system has two account schemes, plus stored passwords for protocol sessions. Mixing them up is the classic source of "but I changed the password" confusion.</p>
+<div class="filecards">
+  <div class="cfg"><b>ACSELERATOR software accounts</b><span>Live in the local project database on your PC. Gate who can open, create, and send projects. Ship with defaults <b style="display:inline">admin/TAIL</b> and <b style="display:inline">engineer/OTTER</b>.</span></div>
+  <div class="hdr"><b>RTAC box accounts</b><span>Created in the RTAC web interface. Gate the web UI, HMI, ODBC/database access, and transparent connections. None exist from the factory.</span></div>
+  <div class="dat"><b>Protocol passwords</b><span>Credentials the RTAC uses toward IEDs and masters. Encrypted in project versions R136+; shown as asterisks in the software.</span></div>
+</div>
+<ul>
+  <li><strong>Software side:</strong> both default roles can create/delete projects and send/read projects to/from RTACs; only <strong>Administrator</strong> can create/delete user accounts and unlock projects locked by an improper close. SEL says change the defaults immediately — the software nags with a "database is not secure" warning until you do. You can't delete or disable the account you're logged in with, so one administrator always survives.</li>
+  <li>Software passwords must be <strong>strong</strong>: minimum eight characters with at least one digit, one special character, one uppercase, and one lowercase. Project passwords follow the same rules.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>First login &amp; password rules on the box</h2>
+<p>Out of the factory the RTAC has <strong>no defined user accounts and no default service accounts</strong>. On the first HTTPS connection to the web interface, the landing page prompts for a username and a password (entered twice) — that pair becomes the <strong>first administrator</strong> on the box.</p>
+<ul>
+  <li>The first-login password must be <strong>complex: 8–72 characters</strong> with at least one number, one lowercase, one uppercase, and one special character.</li>
+  <li><strong>If you lose it, you're locked out.</strong> Recovery is internal jumpers per the Factory Reset section of the hardware manual — a site visit, not a phone call.</li>
+  <li>For accounts created later: usernames are 7-bit printable ASCII excluding <code>@ # $ % ^ &amp; + = { } [ ] : ; " ' , &lt; &gt; ? \</code> and spaces; passwords accept any 7-bit printable ASCII. Complex passwords follow the same 4-class rule; the name <code>diag</code> is reserved by an internal application. From R141, an account can no longer share a name with a role (an upgrading <code>Administrator</code> account becomes <code>Administrator_</code>).</li>
+  <li><strong>Password history</strong> (R149+): the <code>Password History Count</code> dashboard setting (0–24, default 0 = off) blocks reuse of that many previous passwords.</li>
+  <li>Accounts can be given an <strong>expiration date/time</strong> or disabled while still existing; SEL's guidance is to keep at least one Administrator account that does not expire.</li>
+  <li>A configurable <strong>usage policy banner</strong> is always displayed before credentials are entered, on both the local and web interfaces.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Roles and permissions</h2>
+<p>Box-side access comes in six default roles. Through firmware R140 they were fixed bundles (Table 8.6 of the manual); from <strong>R141</strong> the same roles exist but are defined as sets of ~30 named <strong>permissions</strong>, and you can build custom roles on the User Roles page (default roles can't be edited or deleted; write permissions inherit their read counterparts).</p>
+<table>
+  <tr><th>Role</th><th>What it's for</th><th>Key capabilities per the manual</th></tr>
+  <tr><td><strong>Administrator</strong></td><td>Everything</td><td>All of Engineer plus Account Write, Factory Settings, Device Password Read</td></tr>
+  <tr><td><strong>Engineer</strong></td><td>Engineering access</td><td>Database Login, Project Read/Write, Network Write, Force Data, Firmware Upgrade, HMI Local/Remote Write, Engineering Access — but no account management</td></tr>
+  <tr><td><strong>User Account Manager</strong></td><td>Account admin only</td><td>Account Write, Security Read/Write, Report Read — no project or engineering rights</td></tr>
+  <tr><td><strong>HMI Operator</strong></td><td>Operations</td><td>HMI Local Write + HMI Remote Write (issue HMI controls), Live Data, Report Read/Delete — no settings access</td></tr>
+  <tr><td><strong>Monitor</strong></td><td>View-only</td><td>Web Login, Live Data, File Read, Network Read, Report Read — cannot operate anything</td></tr>
+  <tr><td><strong>File Transfer</strong></td><td>Automated file pickup</td><td>SFTP Login, File Read/Write, Diagnostic Settings, Report Read — no web login</td></tr>
+</table>
+<p>Real tasks need <em>combinations</em> of permissions (manual Table 8.11):</p>
+<table>
+  <tr><th>Task</th><th>Permissions required</th></tr>
+  <tr><td>Send a project from ACSELERATOR RTAC</td><td class="mono">Database Login + Project Write</td></tr>
+  <tr><td>Send/activate a project via the web interface</td><td class="mono">Web Login + Project Write</td></tr>
+  <tr><td>Operate the HMI (controls + alarm acks)</td><td class="mono">Web Login + HMI Local Write + HMI Remote Write + Report Write</td></tr>
+  <tr><td>Configure LDAP</td><td class="mono">Account Write + Network Write + Security Write</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="18" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">Project download</text>
+  <text x="280" y="28" font-size="7" fill="#8a8e9b" text-anchor="middle">Database Login + Project Write</text>
+  <text x="460" y="18" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">HMI control</text>
+  <text x="460" y="28" font-size="7" fill="#8a8e9b" text-anchor="middle">HMI Local/Remote Write</text>
+  <text x="632" y="18" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">View live data</text>
+  <text x="632" y="28" font-size="7" fill="#8a8e9b" text-anchor="middle">Web Login + Live Data</text>
+  <g>
+    <rect x="12" y="48" width="118" height="30" rx="5" fill="#10a37f" opacity="0.14" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="71" y="61" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">Engineer</text>
+    <text x="71" y="72" font-size="7" fill="#10a37f" text-anchor="middle">engineering access</text>
+    <rect x="12" y="108" width="118" height="30" rx="5" fill="#d7930a" opacity="0.14" stroke="#d7930a" stroke-width="1.25"/>
+    <text x="71" y="121" font-size="9" font-weight="600" fill="#9c6d06" text-anchor="middle">HMI Operator</text>
+    <text x="71" y="132" font-size="7" fill="#9c6d06" text-anchor="middle">controls + acks</text>
+    <rect x="12" y="168" width="118" height="30" rx="5" fill="#5468c4" opacity="0.14" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="71" y="181" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">Monitor</text>
+    <text x="71" y="192" font-size="7" fill="#5468c4" text-anchor="middle">view only</text>
+  </g>
+  <!-- lanes -->
+  <g stroke="#e5e7eb" stroke-width="1">
+    <line x1="130" y1="63" x2="688" y2="63"/>
+    <line x1="130" y1="123" x2="688" y2="123"/>
+    <line x1="130" y1="183" x2="688" y2="183"/>
+  </g>
+  <!-- gates: allow = teal check, deny = red X -->
+  <g id="gates">
+    <!-- project download column x=280 -->
+    <circle cx="280" cy="63" r="10" fill="#fff" stroke="#10a37f" stroke-width="1.5"/><path d="M275,63 L279,67 L286,59" fill="none" stroke="#10a37f" stroke-width="2"/>
+    <circle cx="280" cy="123" r="10" fill="#fff" stroke="#d63a3a" stroke-width="1.5"/><path d="M276,119 L284,127 M284,119 L276,127" stroke="#d63a3a" stroke-width="2"/>
+    <circle cx="280" cy="183" r="10" fill="#fff" stroke="#d63a3a" stroke-width="1.5"/><path d="M276,179 L284,187 M284,179 L276,187" stroke="#d63a3a" stroke-width="2"/>
+    <!-- HMI control column x=460 -->
+    <circle cx="460" cy="63" r="10" fill="#fff" stroke="#10a37f" stroke-width="1.5"/><path d="M455,63 L459,67 L466,59" fill="none" stroke="#10a37f" stroke-width="2"/>
+    <circle cx="460" cy="123" r="10" fill="#fff" stroke="#10a37f" stroke-width="1.5"/><path d="M455,123 L459,127 L466,119" fill="none" stroke="#10a37f" stroke-width="2"/>
+    <circle cx="460" cy="183" r="10" fill="#fff" stroke="#d63a3a" stroke-width="1.5"/><path d="M456,179 L464,187 M464,179 L456,187" stroke="#d63a3a" stroke-width="2"/>
+    <!-- view column x=632 -->
+    <circle cx="632" cy="63" r="10" fill="#fff" stroke="#10a37f" stroke-width="1.5"/><path d="M627,63 L631,67 L638,59" fill="none" stroke="#10a37f" stroke-width="2"/>
+    <circle cx="632" cy="123" r="10" fill="#fff" stroke="#10a37f" stroke-width="1.5"/><path d="M627,123 L631,127 L638,119" fill="none" stroke="#10a37f" stroke-width="2"/>
+    <circle cx="632" cy="183" r="10" fill="#fff" stroke="#10a37f" stroke-width="1.5"/><path d="M627,183 L631,187 L638,179" fill="none" stroke="#10a37f" stroke-width="2"/>
+  </g>
+  <text x="350" y="222" font-size="8" fill="#a9adb8" text-anchor="middle">same request, three roles — the permission set on the role decides which gates open (per manual Tables 8.8 and 8.11)</text>
+  <g class="animlayer">
+    <!-- engineer pulse: passes all three -->
+    <circle r="4.5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.28;0.31;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M130,63 L668,63" keyPoints="0;0;1;1" keyTimes="0;0.01;0.30;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <!-- operator pulse: stops (bounces) at project gate; a second pulse passes HMI+view -->
+    <circle r="4.5" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.33;0.35;0.44;0.47;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M130,123 L268,123" keyPoints="0;0;1;1" keyTimes="0;0.33;0.45;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <text x="280" y="104" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.44;0.46;0.54;0.57;1" dur="9s" repeatCount="indefinite"/>
+      no Project Write — denied
+    </text>
+    <circle r="4.5" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.47;0.49;0.62;0.65;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M330,123 L668,123" keyPoints="0;0;1;1" keyTimes="0;0.47;0.63;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <!-- monitor pulse: bounces at project, bounces at HMI, passes view -->
+    <circle r="4.5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.68;0.76;0.79;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M130,183 L268,183" keyPoints="0;0;1;1" keyTimes="0;0.66;0.77;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <text x="370" y="164" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.76;0.78;0.86;0.89;1" dur="9s" repeatCount="indefinite"/>
+      view-only: both write gates denied
+    </text>
+    <circle r="4.5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.80;0.82;0.94;0.97;1" dur="9s" repeatCount="indefinite"/>
+      <animateMotion path="M472,183 L668,183" keyPoints="0;0;1;1" keyTimes="0;0.80;0.95;1" calcMode="linear" dur="9s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Permission gates: an Engineer clears all three, an HMI Operator is stopped at project download, a Monitor is stopped at everything but viewing.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<div class="callout warn"><strong>Sending a project also sends security settings.</strong> ACSELERATOR RTAC pushes User Accounts and LDAP settings with a project only if the logged-in box account holds <code>Account Write</code>; Ethernet/Hosts settings ride on <code>Network Write</code>; certificates and SSH keys ride on <code>Security Write</code>. A project send by an Engineer-role account silently skips the account payload.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Central authentication: LDAP (and RADIUS)</h2>
+<p>The RTAC authenticates role-based accounts against Active Directory using <strong>LDAP</strong>. The order matters: when a user <em>without a local account</em> requests access, the RTAC polls the central directory to verify authorization; local accounts never leave the box. LDAP binds use <strong>STARTTLS with X.509 certificates</strong> — the root CA of the LDAP server's chain must be installed on the RTAC (base64 <code>.cer</code> only; binary formats unsupported), or binds fail.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <rect x="14" y="10" width="96" height="24" rx="4" fill="#1a1a22"/>
+  <text x="62" y="26" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">User</text>
+  <rect x="192" y="10" width="96" height="24" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="240" y="26" font-size="10" font-weight="600" fill="#10a37f" text-anchor="middle">RTAC</text>
+  <rect x="400" y="10" width="120" height="24" rx="4" fill="#fff" stroke="#d63a3a" stroke-width="1.25"/>
+  <text x="460" y="26" font-size="9.5" font-weight="600" fill="#d63a3a" text-anchor="middle">LDAP priority 1</text>
+  <rect x="560" y="10" width="120" height="24" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="620" y="26" font-size="9.5" font-weight="600" fill="#5468c4" text-anchor="middle">LDAP priority 2</text>
+  <g stroke="#d0d3da" stroke-width="1.25">
+    <line x1="62" y1="34" x2="62" y2="240"/><line x1="240" y1="34" x2="240" y2="240"/>
+    <line x1="460" y1="34" x2="460" y2="240"/><line x1="620" y1="34" x2="620" y2="240"/>
+  </g>
+  <!-- static sequence -->
+  <path d="M62,56 H233 M227,51 L234,56 L227,61" fill="none" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="148" y="50" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">login (HTTPS)</text>
+  <rect x="200" y="70" width="80" height="16" rx="3" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+  <text x="240" y="81" font-size="7.5" fill="#454956" text-anchor="middle">local account? no</text>
+  <path d="M240,104 H453 M447,99 L454,104 L447,109" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+  <text x="348" y="98" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">STARTTLS bind → fails ✗</text>
+  <path d="M240,138 H613 M607,133 L614,138 L607,143" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="430" y="132" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">bind + search (Search Base, User ID attr)</text>
+  <path d="M620,166 H247 M253,161 L246,166 L253,171" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="430" y="160" font-size="8.5" fill="#5468c4" text-anchor="middle">user found + group memberships</text>
+  <rect x="180" y="180" width="120" height="16" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="0.75"/>
+  <text x="240" y="191" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">group → role mapping</text>
+  <path d="M240,216 H69 M75,211 L68,216 L75,221" fill="none" stroke="#10a37f" stroke-width="2"/>
+  <text x="148" y="210" font-size="8.5" font-weight="600" fill="#10a37f" text-anchor="middle">session granted as mapped role</text>
+  <text x="350" y="242" font-size="8" fill="#a9adb8" text-anchor="middle">servers queried in priority order until the user is identified or the list is exhausted · a successful bind is required on every logon, even with cached info</text>
+  <g class="animlayer">
+    <circle r="4" fill="#1a1a22" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.10;0.12;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M62,56 L240,56" keyPoints="0;0;1;1" keyTimes="0;0.01;0.11;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.18;0.28;0.30;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M240,104 L460,104" keyPoints="0;0;1;1" keyTimes="0;0.16;0.29;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.29;0.31;0.38;0.40;1" dur="12s" repeatCount="indefinite"/>
+      <line x1="452" y1="96" x2="468" y2="112" stroke="#d63a3a" stroke-width="2.5"/>
+      <line x1="468" y1="96" x2="452" y2="112" stroke="#d63a3a" stroke-width="2.5"/>
+    </g>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.44;0.56;0.58;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M240,138 L620,138" keyPoints="0;0;1;1" keyTimes="0;0.42;0.57;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.60;0.62;0.72;0.74;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M620,166 L240,166" keyPoints="0;0;1;1" keyTimes="0;0.60;0.73;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="180" y="180" width="120" height="16" rx="3" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.35;0;0" keyTimes="0;0.76;0.80;0.85;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.86;0.88;0.96;0.98;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M240,216 L62,216" keyPoints="0;0;1;1" keyTimes="0;0.86;0.97;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Central login with a failed-bind branch: no local account → server 1 bind fails → server 2 answers → LDAP group maps to an RTAC role → session granted.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>The settings you'll be asked for (manual Table 8.12)</h3>
+<table>
+  <tr><th>Field</th><th>Where</th><th>Notes from the manual</th></tr>
+  <tr><td><strong>Host name + IP address</strong></td><td>Hosts page</td><td>Static hostname→IP map for your LDAP servers; the RTAC supports up to 64 hosts. At least one required.</td></tr>
+  <tr><td><strong>LDAP server + port</strong></td><td>LDAP Settings</td><td>Port <code>389</code> unless your admin says otherwise. Two servers allowed for redundancy, queried in priority order.</td></tr>
+  <tr><td><strong>Search Base</strong></td><td>LDAP Settings</td><td>Root of the user search, most-specific first, e.g. <code>ou=global,dc=rdtest,dc=local</code>. Broader base = more users can get in, and slower searches.</td></tr>
+  <tr><td><strong>User ID attribute</strong></td><td>LDAP Settings</td><td>LDAP label identifying usernames. Wrong value = RTAC can't find users.</td></tr>
+  <tr><td><strong>Group Member attribute</strong></td><td>LDAP Settings</td><td>LDAP label identifying group membership — this feeds the role mapping.</td></tr>
+  <tr><td><strong>Bind DN + password</strong></td><td>LDAP Settings</td><td>Optional service account for authenticated binds; blank = anonymous binds.</td></tr>
+  <tr><td><strong>Sync interval</strong></td><td>LDAP Settings</td><td>0–24 h cache refresh of attributes/role mappings; 0 = sync at every logon.</td></tr>
+  <tr><td><strong>Attribute mappings</strong></td><td>LDAP Settings</td><td>Optional: first name, last name, email, telephone pulled into local records.</td></tr>
+  <tr><td><strong>Group mappings</strong></td><td>LDAP Settings</td><td>Map an LDAP group (or user) DN to each RTAC role: Administrator, Engineer, User Manager, Monitor.</td></tr>
+</table>
+<ul>
+  <li><strong>Service-account risk:</strong> if the bind service account is revoked or its password expires, the RTAC can't reach LDAP and <em>all centralized users are locked out</em>. Local accounts keep working — keep at least one local admin.</li>
+  <li><strong>Deleting an LDAP user in the accounts list does nothing.</strong> Users who logged in via LDAP appear in the local accounts list, but their access is managed on the LDAP server.</li>
+  <li>Configuring LDAP needs <code>Account Write + Network Write + Security Write</code> on the account doing the work.</li>
+  <li><strong>RADIUS</strong> is the alternative: primary/backup server, UDP port 1024–65534, shared secret, PAP / EAP-PEAPv0-MSCHAPv2 / EAP-TTLS-PAP; a downloadable SEL RADIUS dictionary defines the vendor-specific attributes that carry the role, and the settings page has a test-credentials button.</li>
+</ul>
+<p class="figcap">SEL reuses the blank-LDAP-form idea across products — the SEL-3373/SEL-5073 PDC forms ask for the same core fields (Search Base DN, Bind DN, User Filter, Group Attribute, group→role mappings).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Security logging &amp; syslog</h2>
+<p>The RTAC ships with <strong><code>User_Logged_On</code> and <code>User_Logged_Off</code> logging enabled by default</strong> in the Tag Processor, and exposes ten User Sessions system tags for user activity. Every log entry auto-generates a status bit you can map like any digital point — the manual's worked example pulses the alarm contact (OUT101) on every login. From R147, login SOE messages include the <strong>source IP address</strong>.</p>
+<ul>
+  <li>Security events are stored in <strong>nonvolatile memory</strong> — 30,000 to 500,000 events depending on hardware, oldest overwritten first. Deleting all SOE logs itself creates a time-stamped log naming the user who did it.</li>
+  <li><strong>Syslog</strong> (RFC 3164) forwarding: web interface → Network → Syslog → Add Syslog Destination → server IP + threshold. Multiple destinations are supported; the RTAC buffers up to 10,000 syslog messages.</li>
+  <li>Format: <code>PRI = Facility × 8 + Severity</code> with the RTAC facility fixed at <strong>23</strong>. Severity comes from the Tag Processor's case-sensitive Logging Priority string — Emergency 0, Alert 1, Critical 2, Error 3, Warning 4, Notice 5, Informational 6, Debug 7; anything that doesn't match exactly becomes 6. The threshold sends everything at or above the chosen priority.</li>
+  <li>Example from the manual: <code>&lt;190&gt;Mar 21 2015 12:10:08 SEL-3530-xxxxxx RTAC Logger: … Informational, Security, SystemTags.User_Logged_On, 'SEL logged on device via Web'</code>.</li>
+  <li>Timestamps ride the originating host's clock — keep the RTAC time-synced or your collector's event correlation is fiction.</li>
+</ul>
+<div class="callout"><strong>What gets a security log:</strong> logins/logouts (with IP), settings and project activity, SOE deletions, DoS-monitor messages (<em>Impending watchdog failure; adjusting system priorities</em>), plus anything you log yourself by enabling logging on a Tag Processor variable with a Security category.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Hardening the box</h2>
+<p>The RTAC runs a <strong>stateful, deny-by-default firewall</strong>: ports open only because configuration opens them. Hardening is mostly a matter of not enabling what you don't need.</p>
+<div class="twocol">
+<div>
+<table>
+  <tr><th>Open by default (TCP)</th><th>Close it by…</th></tr>
+  <tr><td class="mono">443 <span style="font-family:'Segoe UI'">HTTPS web/API</span></td><td>clearing <strong>Enable Web Access</strong> per Ethernet interface</td></tr>
+  <tr><td class="mono">5432 <span style="font-family:'Segoe UI'">project up/download</span></td><td>clearing <strong>Enable Database Access</strong> per interface</td></tr>
+  <tr><td class="mono">1217</td><td>auto: opens after a 5432 session, locked to that IP, closes on disconnect</td></tr>
+  <tr><td class="mono">5433 <span style="font-family:'Segoe UI'">firmware upgrade</span></td><td>temporary during upgrades</td></tr>
+  <tr><td class="mono">15453 <span style="font-family:'Segoe UI'">Comm Monitor</span></td><td>open only while capturing</td></tr>
+  <tr><td class="mono">123/udp <span style="font-family:'Segoe UI'">SNTP</span></td><td><code>Enable_NTP_Time_In := FALSE</code></td></tr>
+  <tr><td class="mono">319/320 udp <span style="font-family:'Segoe UI'">PTP</span></td><td>open only when PTP input enabled</td></tr>
+</table>
+</div>
+<div>
+<table>
+  <tr><th>Opens only if configured</th><th>Default port</th></tr>
+  <tr><td>Modbus TCP server</td><td class="mono">502</td></tr>
+  <tr><td>OPC UA server</td><td class="mono">4840</td></tr>
+  <tr><td>DNP3 server</td><td class="mono">20000</td></tr>
+</table>
+<p style="font-size:8.6pt">Factory defaults: web + database access enabled on mainboard Ethernet only (PCI-expansion ports deselected); ping response, DHCP, IPv6 all <strong>disabled</strong>; HTTP→HTTPS redirect <strong>disabled</strong>, so browsers must type <code>https://</code>.</p>
+</div>
+</div>
+<ul>
+  <li><strong>SEL's own short list</strong> (Appendix E): enable web and database access on only the interfaces that need them; don't remove the default SystemTags logging; keep firmware current. Also: don't set unused Ethernet ports to an active subnet.</li>
+  <li><strong>Sessions:</strong> Web Session Time-out 0–720 min of inactivity (0 = never — and then the HMI stays open for controls without re-authenticating; avoid). <strong>HMI Read-Only Mode</strong> drops an idle HMI to view-only and demands login for any control — the sane wall-display posture.</li>
+  <li><strong>Engineering access:</strong> tunneled serial/engineering channels support SSH or SSL/TLS; SSH drops the connection after <strong>three failed attempts</strong>, and key-based auth is managed on the web interface's SSH Keys page. Project download and ODBC ride TLS.</li>
+  <li><strong>Certificates:</strong> the factory X.509 is unsigned/self-signed — generate a real one (Common Name must exactly match the address you browse to, SAN populated) and have your CA sign it. CA certs installed on the box also serve LDAP and TLS tunnel validation.</li>
+  <li><strong>URL whitelist</strong> (R143+) restricts which external webservers the RTAC web UI can navigate to; <strong>restricted BIOS</strong> (R151+ on x86 models) and digitally signed firmware close the platform itself. No extra software can be installed on an RTAC.</li>
+</ul>
+<p style="font-size:8.6pt">Substation-wide architecture — gateways, DMZs, and where the RTAC sits in the larger security zones — is covered in the networking cybersecurity page in atlas.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Protecting the configuration itself</h2>
+<ul>
+  <li><strong>Project passwords</strong> (R136+): right-click a project → Set Password (or <code>Ctrl+L</code> in an open project). The project won't open without it; status shows <em>Password On</em>. Disabling requires the current password. Same strong-password rules as user accounts.</li>
+  <li><strong>Export encryption:</strong> every exported project is encrypted with a default hidden passphrase; enable <em>Prompt for passphrase to encrypt project export</em> to set your own. The passphrase is asked on import — after import, it's no longer needed to open the project.</li>
+  <li><strong>Protocol passwords:</strong> plain text before project version R136, encrypted from R136 on (shown as asterisks). Converting a project encrypts them. From firmware R150, a project download/activation offers a true/false choice: use the project's protocol passwords or keep the ones already on the RTAC.</li>
+  <li><strong>Password report</strong> (R141+): an Administrator (or an account with the password-report permission) can pull a CSV of every IED password in the active configuration from the web interface — it never includes RTAC user-account passwords. The <code>Device Password Read</code> permission gates the equivalent API access.</li>
+  <li><strong>Backups:</strong> the running project downloads from the dashboard as an encrypted <code>.exp</code>; a full database backup zips every project plus the connection directory and managed passwords.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Operational practice &amp; gotchas</h2>
+<ul>
+  <li><strong>Change the software defaults first.</strong> <code>admin/TAIL</code> and <code>engineer/OTTER</code> are printed in every manual and application guide on the planet. SEL: change default usernames and passwords immediately, before deploying.</li>
+  <li><strong>Per-user accounts, not shared ones.</strong> The cybersecurity appendix's rationale: user-based accounts increase logging granularity and give auditable, non-repudiable tracking of who did what. A shared login turns the SOE trail into "somebody."</li>
+  <li><strong>Lifecycle:</strong> use expiration dates for contractors, and <em>disable</em> rather than delete accounts you might need again (AG2015-23's recommendation) — but remember disabling an LDAP-listed user changes nothing until the directory says so.</li>
+  <li><strong>Don't let the last admin expire.</strong> Configure at least one Administrator account with no expiration; the software refuses to delete/disable the account you're logged in with for the same reason.</li>
+  <li><strong>Factory reset is the only password recovery.</strong> Jumpers wipe programming, accounts, and logs — treat the first-admin credentials like a protection settings sheet.</li>
+  <li><strong>Decommissioning:</strong> factory-reset from the Device Management page (or the jumper procedure) to purge configuration; a reset erases all certificates except the default unsigned one.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:rtac-automation/sel-computers.html">Substation Computers &amp; Blueframe</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:reference/standards-map.md">Standards Map</a>
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 Instruction Manual — Section 8: Security and Account Management, Section 5: Web Interface (Table 5.1), Appendix E: Cybersecurity Features (full text locally inside 3530-4_IM_20241217_20260313.pdf); SEL AG2015-23, Managing User Accounts in ACSELERATOR RTAC (AG2015-23_20150520.pdf); SEL-3373 / SEL-5073 LDAP Settings Forms (3373_LDAP Settings Form.pdf, 5073_LDAP Settings Form.pdf). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

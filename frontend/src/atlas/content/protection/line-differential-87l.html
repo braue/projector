@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Line Current Differential &amp; Teleprotection Channels</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="87L,line differential,alpha plane,87LP,87LQ,87LG,C37.94,channel asymmetry,charging current,teleprotection,SEL-411L,SEL-787L,SEL-311L">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Line Current Differential &amp; Teleprotection Channels (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Line Current Differential &amp; Teleprotection Channels</h1>
+  <p>87L on the alpha plane, how the two ends agree on time, why channel asymmetry is the central hazard, and what each channel medium costs you</p>
+  <div class="chips"><span>87L</span><span>alpha plane</span><span>87LP / 87LQ / 87LG</span><span>C37.94</span><span>channel asymmetry</span><span>charging current</span><span>external fault detection</span><span>SEL-411L</span><span>SEL-787L</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Line differential</h3>
+<ul style="margin-bottom:2px">
+<li><strong>87L has no reach setting.</strong> The zone is defined by the CTs at each end, so it protects 100% of the line at high speed and needs no coordination with the neighbors' impedance.</li>
+<li><strong>Both ends must agree on time.</strong> A one-degree error in alignment at 60&nbsp;Hz is 46&nbsp;&micro;s. Everything difficult about 87L follows from this.</li>
+<li><strong>Symmetrical channel: the relays synchronize on the channel itself.</strong> Asymmetrical channel (different delay each way, common on routed or Ethernet paths): you need an external time source at both ends instead.</li>
+<li><strong>The alpha plane is the characteristic.</strong> Plot the complex ratio of remote to local current: it sits at &minus;1 (1&ang;180&deg;) for load and external faults, and moves away for internal ones. Restraint is a region around &minus;1, adjustable in both angular extent and radial reach.</li>
+<li><strong>External fault detection keeps CT saturation from tripping the line.</strong> Through current rising without differential current rising means the fault is outside &mdash; raise security immediately.</li>
+<li><strong>Long lines and cables need charging current compensation,</strong> or the standing capacitive current eats your sensitivity.</li>
+<li><strong>The channel is part of the protection.</strong> Monitor it, alarm it, and know exactly what the relay does when it fails.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Why 87L instead of distance</h2>
+<table>
+  <tr><th></th><th>Distance (21) with a pilot scheme</th><th>Line current differential (87L)</th></tr>
+  <tr><td>Zone definition</td><td>Impedance reach settings, derived from line constants</td><td>The CTs. No reach calculation, no line-constant dependence</td></tr>
+  <tr><td>Coverage</td><td>Zone 1 underreaches; full coverage needs the pilot channel</td><td>100% of the line at full speed, at both ends</td></tr>
+  <tr><td>Channel dependence</td><td>Needed for full-speed coverage; without it you fall back to time-stepped zones</td><td>Absolute &mdash; without the channel there is no 87L at all</td></tr>
+  <tr><td>Short lines</td><td>Difficult: the impedance is small, so reach errors dominate</td><td>Ideal &mdash; short lines and cables are 87L's natural territory</td></tr>
+  <tr><td>Series compensation, mutual coupling, infeed</td><td>All complicate the reach calculation</td><td>Largely irrelevant &mdash; the relay compares currents, not impedance</td></tr>
+  <tr><td>Resistive faults</td><td>Limited by the resistive reach of the characteristic</td><td>Very good, especially with negative- and zero-sequence differential elements</td></tr>
+  <tr><td>In-line transformers</td><td>Not usually possible inside the zone</td><td>Possible &mdash; the SEL-411L compensates for vector group, ratio, and zero-sequence current, with harmonic blocking and restraint for inrush</td></tr>
+</table>
+<div class="callout">
+<strong>In practice you get both.</strong> A modern line relay runs 87L as primary and carries full distance protection as backup for the channel-failed case. On the SEL-411L that means as many as five zones of phase and ground distance alongside the 87L function &mdash; the schemes themselves are covered in <a href="atlas:protection/distance-21.html">Distance Protection (21)</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The alpha plane</h2>
+<p>Rather than computing an operate and a restraint quantity, SEL's line differential plots the complex ratio <strong>k = I<sub>remote</sub> / I<sub>local</sub></strong>. For load flow and for any fault outside the zone, current in equals current out, so the ratio is exactly &minus;1 &mdash; magnitude 1 at 180&deg;. Everything else moves away from that point in a characteristic direction.</p>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The alpha plane: where the ratio of remote to local current sits, and why</text>
+
+  <!-- axes -->
+  <line x1="60" y1="160" x2="440" y2="160" stroke="#a9adb8"/>
+  <line x1="250" y1="34" x2="250" y2="286" stroke="#a9adb8"/>
+  <text x="446" y="163" font-size="7.4" fill="#8a8e9b">Re(k)</text>
+  <text x="250" y="28" font-size="7.4" fill="#8a8e9b" text-anchor="middle">Im(k)</text>
+  <text x="256" y="174" font-size="7" fill="#8a8e9b">0</text>
+  <text x="330" y="174" font-size="7" fill="#8a8e9b">+1</text>
+  <line x1="330" y1="156" x2="330" y2="164" stroke="#a9adb8"/>
+  <text x="166" y="174" font-size="7" fill="#8a8e9b">&minus;1</text>
+  <line x1="170" y1="156" x2="170" y2="164" stroke="#a9adb8"/>
+
+  <!-- restraint region: arc segment around -1 -->
+  <path d="M118,160 A132,132 0 0,1 205,60 L196,88 A100,100 0 0,0 146,160 A100,100 0 0,0 196,232 L205,260 A132,132 0 0,1 118,160 Z"
+        fill="#10a37f" opacity="0.13" stroke="#10a37f" stroke-width="1.2"/>
+  <text x="120" y="112" font-size="7.4" font-weight="600" fill="#0d7f63">RESTRAIN</text>
+  <text x="120" y="123" font-size="6.8" fill="#0d7f63">load &amp; external faults</text>
+
+  <!-- ideal point -->
+  <circle cx="170" cy="160" r="4" fill="#0d7f63"/>
+  <text x="176" y="152" font-size="7" fill="#0d7f63">ideal: k = 1&ang;180&deg;</text>
+
+  <!-- operate region label -->
+  <text x="330" y="70" font-size="7.4" font-weight="600" fill="#d63a3a">OPERATE</text>
+  <text x="330" y="81" font-size="6.8" fill="#d63a3a">everything outside the restraint region</text>
+
+  <!-- moving marker: load -> external fault -> internal fault -->
+  <circle r="5" fill="#d63a3a">
+    <animateMotion dur="10s" repeatCount="indefinite"
+      path="M170,160 L166,150 L174,168 L170,160 L150,196 L170,160 L306,116 L306,116 L170,160"
+      keyPoints="0;0.08;0.16;0.24;0.4;0.52;0.72;0.88;1"
+      keyTimes="0;0.08;0.16;0.24;0.4;0.52;0.72;0.88;1" calcMode="linear"/>
+  </circle>
+
+  <!-- annotations of trajectories -->
+  <path d="M170,160 L150,196" stroke="#d7930a" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text x="98" y="212" font-size="7" fill="#9c6d06">CT saturation / channel</text>
+  <text x="98" y="222" font-size="7" fill="#9c6d06">asymmetry shift it &mdash; but</text>
+  <text x="98" y="232" font-size="7" fill="#9c6d06">still inside the restraint region</text>
+
+  <path d="M170,160 L306,116" stroke="#d63a3a" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text x="290" y="106" font-size="7" fill="#d63a3a">internal fault: both ends feed in,</text>
+  <text x="290" y="116" font-size="7" fill="#d63a3a">ratio swings toward +1</text>
+
+  <!-- element panel -->
+  <rect x="470" y="40" width="222" height="118" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="484" y="58" font-size="8.2" font-weight="600" fill="#1a1a22">Three differential elements</text>
+  <text x="484" y="76" font-size="7.6" fill="#454956"><tspan font-weight="600">87LP</tspan> &mdash; phase-segregated. The workhorse;</text>
+  <text x="484" y="87" font-size="7.6" fill="#454956">identifies the faulted phase directly.</text>
+  <text x="484" y="103" font-size="7.6" fill="#454956"><tspan font-weight="600">87LQ</tspan> &mdash; negative sequence. Very sensitive</text>
+  <text x="484" y="114" font-size="7.6" fill="#454956">to resistive unbalanced faults.</text>
+  <text x="484" y="130" font-size="7.6" fill="#454956"><tspan font-weight="600">87LG</tspan> &mdash; zero sequence. Sensitive to</text>
+  <text x="484" y="141" font-size="7.6" fill="#454956">high-resistance ground faults.</text>
+  <text x="484" y="154" font-size="7" fill="#8a8e9b">87LQ and 87LG cannot name the phase themselves.</text>
+
+  <rect x="470" y="168" width="222" height="118" rx="6" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="484" y="186" font-size="8.2" font-weight="600" fill="#9c6d06">Adaptive security</text>
+  <text x="484" y="204" font-size="7.6" fill="#454956">The SEL-411L increases 87L security when:</text>
+  <text x="484" y="220" font-size="7.6" fill="#454956">&bull; an external fault is detected</text>
+  <text x="484" y="234" font-size="7.6" fill="#454956">&bull; communications synchronization degrades</text>
+  <text x="484" y="248" font-size="7.6" fill="#454956">&bull; charging-current compensation is enabled but</text>
+  <text x="484" y="259" font-size="7.6" fill="#454956">&nbsp;&nbsp;momentarily impossible (e.g. loss of potential)</text>
+  <text x="484" y="277" font-size="7" fill="#8a8e9b">Security is dialled up exactly when the data is least trustworthy.</text>
+</svg></div>
+<p class="figcap">The restraint region's angular extent and radial reach are both adjustable, which is how you trade sensitivity for tolerance of channel and CT imperfection. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout keyfact">
+<strong>Since 87LQ and 87LG have no inherent faulted-phase identification,</strong> single-pole tripping from those sensitive elements requires separate logic. The SEL-411L includes its own faulted-phase selection using symmetrical components of the phase differential currents; when differential is unavailable it falls back to single-ended identification from angular relationships in the local current alone.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Making both ends agree on time</h2>
+<p>The relay must compare a local sample with the remote sample <em>taken at the same instant</em>. There are two ways to establish that, and choosing wrongly is the classic 87L design error.</p>
+
+<div class="fig"><svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Symmetrical channel: measure the round trip, halve it. Asymmetrical channel: that assumption breaks.</text>
+
+  <!-- symmetrical -->
+  <text x="175" y="36" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Symmetrical &mdash; channel-based sync works</text>
+  <rect x="40" y="52" width="70" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="75" y="73" font-size="7.6" text-anchor="middle" fill="#1a1a22">Relay A</text>
+  <rect x="240" y="52" width="70" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="275" y="73" font-size="7.6" text-anchor="middle" fill="#1a1a22">Relay B</text>
+  <path d="M110,62 H238" stroke="#10a37f" stroke-width="1.4" fill="none"/>
+  <path d="M238,78 H112" stroke="#10a37f" stroke-width="1.4" fill="none"/>
+  <text x="175" y="56" font-size="7" fill="#0d7f63" text-anchor="middle">2.0 ms</text>
+  <text x="175" y="92" font-size="7" fill="#0d7f63" text-anchor="middle">2.0 ms</text>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2s" repeatCount="indefinite" path="M110,62 H238"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M238,78 H112"/></circle>
+  <text x="175" y="112" font-size="7.4" fill="#454956" text-anchor="middle">round trip 4.0 ms &rarr; one-way = 2.0 ms</text>
+  <text x="175" y="124" font-size="7.4" fill="#0d7f63" text-anchor="middle">alignment correct, no external clock needed</text>
+
+  <!-- asymmetrical -->
+  <text x="520" y="36" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">Asymmetrical &mdash; channel-based sync lies</text>
+  <rect x="385" y="52" width="70" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="420" y="73" font-size="7.6" text-anchor="middle" fill="#1a1a22">Relay A</text>
+  <rect x="585" y="52" width="70" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.3"/>
+  <text x="620" y="73" font-size="7.6" text-anchor="middle" fill="#1a1a22">Relay B</text>
+  <path d="M455,62 H583" stroke="#d63a3a" stroke-width="1.4" fill="none"/>
+  <path d="M583,78 H457" stroke="#d63a3a" stroke-width="1.4" fill="none"/>
+  <text x="520" y="56" font-size="7" fill="#d63a3a" text-anchor="middle">1.2 ms (direct route)</text>
+  <text x="520" y="92" font-size="7" fill="#d63a3a" text-anchor="middle">2.8 ms (rerouted)</text>
+  <circle r="3" fill="#d63a3a"><animateMotion dur="1.2s" repeatCount="indefinite" path="M455,62 H583"/></circle>
+  <circle r="3" fill="#d63a3a"><animateMotion dur="2.8s" repeatCount="indefinite" path="M583,78 H457"/></circle>
+  <text x="520" y="112" font-size="7.4" fill="#454956" text-anchor="middle">round trip still 4.0 ms &rarr; relay assumes 2.0 ms each way</text>
+  <text x="520" y="124" font-size="7.4" fill="#d63a3a" text-anchor="middle">real error 0.8 ms = <tspan font-weight="600">17 electrical degrees</tspan> of false differential</text>
+
+  <!-- consequence on alpha plane -->
+  <rect x="40" y="144" width="300" height="122" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="54" y="162" font-size="8.2" font-weight="600" fill="#1a1a22">The arithmetic that makes this urgent</text>
+  <text x="54" y="180" font-size="7.6" fill="#454956">One cycle at 60 Hz = 16.67 ms = 360&deg;</text>
+  <text x="54" y="194" font-size="7.6" fill="#454956">1&deg; of alignment error = <tspan font-weight="600">46 &micro;s</tspan></text>
+  <text x="54" y="208" font-size="7.6" fill="#454956">0.8 ms of asymmetry = about 17&deg;</text>
+  <text x="54" y="226" font-size="7.6" fill="#9c3838">On the alpha plane, 17&deg; rotates the ratio point straight</text>
+  <text x="54" y="238" font-size="7.6" fill="#9c3838">out of the restraint region under heavy load &mdash;</text>
+  <text x="54" y="250" font-size="7.6" fill="#9c3838">a trip on a healthy line with full load flowing through it.</text>
+
+  <rect x="360" y="144" width="332" height="122" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="374" y="162" font-size="8.2" font-weight="600" fill="#0d7f63">What the relay offers</text>
+  <text x="374" y="180" font-size="7.6" fill="#454956">The SEL-411L selects the synchronization method <tspan font-weight="600">per channel</tspan>:</text>
+  <text x="374" y="196" font-size="7.6" fill="#454956">&bull; <tspan font-weight="600">Channel-based</tspan> &mdash; for symmetrical channels</text>
+  <text x="374" y="210" font-size="7.6" fill="#454956">&bull; <tspan font-weight="600">External time source</tspan> &mdash; for Ethernet or asymmetrical channels,</text>
+  <text x="374" y="221" font-size="7.6" fill="#454956">&nbsp;&nbsp;with built-in fallback logic if that source is lost or degraded</text>
+  <text x="374" y="240" font-size="7.6" fill="#0d7f63">Get this decision right at design time. It is a property of the</text>
+  <text x="374" y="252" font-size="7.6" fill="#0d7f63">transport network, and the transport owner may not volunteer it.</text>
+</svg></div>
+<p class="figcap">Ask the network owner one question in writing: is the path symmetrical, and does it stay symmetrical after a protection switch? A route that reroutes on failure is asymmetrical by definition. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Security features</h2>
+<table>
+  <tr><th>Feature</th><th>Detects</th><th>Response</th></tr>
+  <tr><td><strong>External fault detector</strong></td><td>An increase in through current of the zone <em>without</em> a matching increase in differential current &mdash; the signature of an external fault</td><td>Raises 87L security before CT saturation can produce a false differential</td></tr>
+  <tr><td><strong>Standing DC detection</strong></td><td>The DC component of any current exceeding a threshold relative to the AC component, without significant differential change &mdash; typical when energizing a line reactor or transformer</td><td>Handles the slower CT saturation that a large, slowly decaying DC offset produces on high-X/R circuits</td></tr>
+  <tr><td><strong>Disturbance detection</strong></td><td>Whether anything is actually happening</td><td>Supervises the differential elements so quiescent noise cannot accumulate into an operation</td></tr>
+  <tr><td><strong>Overcurrent supervision</strong></td><td>Minimum current for the element to be credible</td><td>Prevents operation on measurement noise at very light load</td></tr>
+  <tr><td><strong>Harmonic blocking / restraint</strong></td><td>Inrush (second harmonic) and overexcitation (fifth harmonic) when a transformer is inside the zone</td><td>Stabilizes 87L for in-line transformer applications</td></tr>
+  <tr><td><strong>Channel monitoring</strong></td><td>Bit errors, lost frames, latency change, loss of channel</td><td>Alarms, and on the SEL-787L the measured communication quality prevents misoperation due to channel failure</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>Charging current compensation</h2>
+<p>A long line or a cable draws capacitive charging current that enters at the terminals and never leaves &mdash; from the differential element's point of view, it looks exactly like a standing internal fault. On a long EHV line or a substantial cable this can be a meaningful fraction of the pickup you wanted.</p>
+<ul>
+<li><strong>The method:</strong> compute the charging current from the measured terminal voltages and subtract it from the measured phase current. Because it is derived from the actual voltages rather than assumed, the compensation stays accurate for both faulted and unfaulted conditions.</li>
+<li><strong>It requires voltage.</strong> That is why loss of potential matters here: with no voltage, the compensation cannot be computed. The SEL-411L includes fallback logic for the LOP case, and the adaptive security feature raises 87L security when compensation is enabled but momentarily impossible.</li>
+<li><strong>When you need it:</strong> long overhead EHV lines, and essentially any significant length of cable. On short lines it is unnecessary.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Multi-terminal, dual-breaker, and stub bus</h2>
+<ul>
+<li><strong>Terminal count.</strong> The SEL-411L supports as many as <strong>three terminals over serial</strong> communications and as many as <strong>four over Ethernet</strong>, in three-pole or single-pole tripping modes.</li>
+<li><strong>Dual-breaker terminals.</strong> Each terminal can be a dual-breaker arrangement &mdash; ring bus or breaker-and-a-half &mdash; with individual breaker currents provided to the differential element rather than a pre-summed value. Keeping the breakers separate is what preserves security when one CT saturates.</li>
+<li><strong>Stub bus protection.</strong> When the line disconnect is open but both breakers remain closed, the short section between them is a &ldquo;stub&rdquo; that the line differential no longer covers. Disconnect status inputs and voltage elements enable a true restrained differential over that stub &mdash; high-speed, and with the security a restrained function gives in dual-breaker applications.</li>
+<li><strong>Platform compatibility is not assumed.</strong> The SEL-311L and SEL-411L use the same generalized alpha plane principle but are entirely separate hardware and firmware platforms and <strong>cannot be paired</strong> in one differential scheme. Both ends of an 87L scheme must be the same family.</li>
+</ul>
+<div class="callout warn">
+<strong>Check platform and firmware compatibility before ordering.</strong> A line differential scheme is the one application where the far end's relay model is your problem. &ldquo;They already have an SEL line relay at the other end&rdquo; is not sufficient information.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>The channel</h2>
+<table>
+  <tr><th>Medium</th><th>Characteristics</th><th>Notes</th></tr>
+  <tr><td><strong>Direct point-to-point fiber</strong></td><td>Lowest latency, inherently symmetrical, no third party</td><td>The gold standard when you own the fiber. The SEL-787L offers 850&nbsp;nm multimode to 1&nbsp;km and 1310&nbsp;nm single-mode to 25&nbsp;km, both C37.94-compatible</td></tr>
+  <tr><td><strong>IEEE C37.94 multiplexed fiber</strong></td><td>A standardized protection interface into a multiplexer, N &times; 64&nbsp;kbps</td><td>The normal way to hand protection traffic to a telecom network without exposing the relay to the transport details</td></tr>
+  <tr><td><strong>EIA-422 / G.703</strong></td><td>Electrical interfaces into legacy multiplexers</td><td>Supported on the SEL-411L; increasingly replaced by C37.94</td></tr>
+  <tr><td><strong>Ethernet</strong></td><td>Flexible, shares infrastructure, and <em>usually asymmetrical</em></td><td>Available for 87L on the SEL-411L, and the case where an external time source at both ends is normally required</td></tr>
+  <tr><td><strong>Mirrored Bits over the same media</strong></td><td>Eight bits each way &mdash; the channel for pilot schemes, transfer trip, and status</td><td>Not a differential channel, but frequently rides alongside one. See <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a></td></tr>
+</table>
+<div class="callout">
+<strong>The channel budget you actually care about.</strong> Latency (how long the data takes), symmetry (whether both directions match), stability (whether latency changes when the network reconfigures), and availability. Multiplexed networks are engineered for the first and last of those; you must ask specifically about the middle two. A network that reroutes around a failure without telling you is the worst case, because the protection was working perfectly right up until the reroute.
+</div>
+</section>
+
+<section>
+<h2><span class="num">8</span>What happens when the channel fails</h2>
+<ol>
+<li><strong>87L is unavailable, immediately and completely.</strong> There is no degraded mode.</li>
+<li><strong>Backup takes over.</strong> On a relay with distance protection this means falling back to time-stepped zones &mdash; slower at the far end, but selective. This is why full distance protection alongside 87L is standard practice rather than optional.</li>
+<li><strong>The alarm must reach someone.</strong> A channel-failure alarm that goes only to a local LED is a protection outage nobody knows about. Map it, and treat it with the same urgency as a relay failure.</li>
+<li><strong>Watch for intermittent channels.</strong> Repeated brief failures suggest a marginal optical budget, a failing multiplexer card, or a network that is reconverging. Trend the channel-quality measurement rather than only counting alarms.</li>
+<li><strong>Know what a partial failure does.</strong> Degraded synchronization &mdash; not full loss &mdash; is the dangerous middle case, and it is exactly what the adaptive security feature is there for.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">9</span>Commissioning and gotchas</h2>
+<ul>
+<li><strong>Prove CT ratios and polarity at both ends</strong> before the channel is even connected. A reversed CT at the remote end produces a differential equal to twice the through current &mdash; it will trip on load the moment the scheme is put in service.</li>
+<li><strong>Read the standing differential under load.</strong> This is the acceptance test. On a compensated line, check it both with and without charging-current compensation enabled.</li>
+<li><strong>Measure the channel round-trip delay and record it,</strong> then re-measure after any transport work. A changed latency is the first symptom of a rerouted path.</li>
+<li><strong>Test the asymmetry case if the channel is routed.</strong> Ask the transport owner to fail the primary path deliberately during commissioning and watch what the relay reports.</li>
+<li><strong>Confirm the synchronization method matches the channel.</strong> Channel-based sync on an asymmetrical path is the single most consequential settings error in 87L.</li>
+<li><strong>Verify the fallback.</strong> Pull the fiber, confirm the alarm, confirm distance backup is enabled and correctly set, then restore and confirm 87L returns.</li>
+<li><strong>Do not mix platforms.</strong> Both ends must be the same relay family &mdash; verify part numbers and firmware, not just the label on the panel.</li>
+<li><strong>Remember the stub.</strong> If the line disconnect can be opened with breakers closed, stub bus protection is not optional; without it, that section is unprotected.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/distance-21.html">Distance Protection (21)</a>
+  <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a>
+  <a href="atlas:comms/fiber-sfps.html">Fiber &amp; SFPs</a>
+  <a href="atlas:comms/time-sync.html">Time Synchronization</a>
+  <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>
+  <a href="atlas:protection/breaker-failure.html">Breaker Failure</a>
+</div>
+<p class="footnote">Sources: SEL-411L Advanced Line Differential Protection, Automation, and Control System Data Sheet (20250731) &mdash; 87L over as many as three terminals on serial and four on Ethernet, three-pole and single-pole tripping, dual-breaker terminals, generalized alpha plane comparators for 87LP/87LQ/87LG, adaptive security on external fault detection / degraded synchronization / unavailable charging-current compensation, the external fault detector's two criteria and standing-DC algorithm, charging current compensation from measured terminal voltages with LOP fallback, in-line transformer support with vector-group, ratio, and zero-sequence compensation plus second- and fifth-harmonic security, stub bus restrained differential, per-channel synchronization selection (channel-based for symmetrical channels, external time source for Ethernet or asymmetrical channels) with fallback logic, 87L media support (direct point-to-point fiber, IEEE C37.94 multiplexed fiber, EIA-422, G.703, and Ethernet), faulted-phase selection logic for 87LQ/87LG, and the explicit note that the SEL-311L and SEL-411L are independent platforms that cannot be paired. SEL-787L Line Current Differential Relay Data Sheet (20250501) &mdash; two-terminal application, external fault detection and disturbance detection logic, C37.94-compatible interfaces at 850 nm multimode (1 km) and 1310 nm single-mode (25 km), and communication-quality measurement with channel monitoring. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

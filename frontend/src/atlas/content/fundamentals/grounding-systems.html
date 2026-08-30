@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>System Grounding</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="grounding,solidly grounded,NGR,resistance grounded,ungrounded,Petersen,resonant,3V0,59N,zig-zag,effectively grounded">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "System Grounding (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>System Grounding</h1>
+  <p>Solid, low-resistance, high-resistance, ungrounded, and resonant grounding — what each does to ground-fault current, to voltage on the healthy phases, and to the protection you can actually build</p>
+  <div class="chips"><span>solidly grounded</span><span>NGR</span><span>high-resistance</span><span>ungrounded</span><span>Petersen coil</span><span>3V0</span><span>zig-zag</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Grounding decides your ground protection</h3>
+<ul style="margin-bottom:2px">
+<li><strong>The grounding method sets Z<sub>0</sub>, and Z<sub>0</sub> sets ground-fault current.</strong> Nothing else about ground protection can be decided until you know how the source neutral is treated.</li>
+<li><strong>You are trading two things against each other:</strong> fault current magnitude (damage, arc-flash energy, and step/touch potential) against voltage rise on the unfaulted phases (insulation stress and equipment rating).</li>
+<li><strong>Solidly grounded</strong> gives large, easily detected ground current and holds unfaulted phases near normal. <strong>Ungrounded</strong> gives almost no current but drives the healthy phases to full line-to-line voltage.</li>
+<li><strong>Low current means voltage-based detection.</strong> Below roughly a few tens of amperes, current elements stop being reliable and 3V<sub>0</sub> (59N) becomes the primary indicator.</li>
+<li><strong>Ungrounded and high-resistance systems can run with one ground fault on</strong> &mdash; that is the point &mdash; but a second ground on another phase becomes a line-to-line fault through two long paths.</li>
+<li><strong>A delta source has no neutral.</strong> If you need one, you create it with a grounding transformer (zig-zag or wye&ndash;delta), and that transformer then becomes a zero-sequence source that your protection has to account for.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The five methods, side by side</h2>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Same system, five neutral treatments &mdash; the current that flows in a bolted line-to-ground fault</text>
+
+  <g font-size="7.6">
+    <!-- Solid -->
+    <text x="70" y="34" text-anchor="middle" font-size="8.4" font-weight="600" fill="#d63a3a">Solidly grounded</text>
+    <line x1="70" y1="42" x2="70" y2="74" stroke="#5468c4" stroke-width="2"/>
+    <path d="M58,74 H82 M62,79 H78 M66,84 H74" stroke="#1a1a22" stroke-width="1.6"/>
+    <text x="70" y="102" text-anchor="middle" fill="#6e7180">no impedance</text>
+    <rect x="20" y="112" width="100" height="14" rx="3" fill="#d63a3a"/>
+    <text x="70" y="139" text-anchor="middle" font-weight="600" fill="#d63a3a">5,000&ndash;20,000 A</text>
+    <text x="70" y="152" text-anchor="middle" font-size="7" fill="#8a8e9b">comparable to 3-phase</text>
+
+    <!-- LRG -->
+    <text x="205" y="34" text-anchor="middle" font-size="8.4" font-weight="600" fill="#d7930a">Low-resistance</text>
+    <line x1="205" y1="42" x2="205" y2="56" stroke="#5468c4" stroke-width="2"/>
+    <rect x="196" y="56" width="18" height="20" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.4"/>
+    <line x1="205" y1="76" x2="205" y2="82" stroke="#5468c4" stroke-width="2"/>
+    <path d="M193,82 H217 M197,87 H213 M201,92 H209" stroke="#1a1a22" stroke-width="1.6"/>
+    <text x="205" y="106" text-anchor="middle" fill="#6e7180">NGR, a few ohms</text>
+    <rect x="180" y="112" width="50" height="14" rx="3" fill="#d7930a"/>
+    <text x="205" y="139" text-anchor="middle" font-weight="600" fill="#9c6d06">200&ndash;1,000 A</text>
+    <text x="205" y="152" text-anchor="middle" font-size="7" fill="#8a8e9b">limited by design</text>
+
+    <!-- HRG -->
+    <text x="345" y="34" text-anchor="middle" font-size="8.4" font-weight="600" fill="#5468c4">High-resistance</text>
+    <line x1="345" y1="42" x2="345" y2="56" stroke="#5468c4" stroke-width="2"/>
+    <rect x="336" y="56" width="18" height="26" fill="#eef0f9" stroke="#5468c4" stroke-width="1.4"/>
+    <line x1="345" y1="82" x2="345" y2="88" stroke="#5468c4" stroke-width="2"/>
+    <path d="M333,88 H357 M337,93 H353 M341,98 H349" stroke="#1a1a22" stroke-width="1.6"/>
+    <text x="345" y="112" text-anchor="middle" fill="#6e7180">hundreds of ohms</text>
+    <rect x="338" y="112" width="14" height="14" rx="3" fill="#5468c4"/>
+    <text x="345" y="139" text-anchor="middle" font-weight="600" fill="#5468c4">5&ndash;10 A</text>
+    <text x="345" y="152" text-anchor="middle" font-size="7" fill="#8a8e9b">alarm, do not trip</text>
+
+    <!-- Ungrounded -->
+    <text x="480" y="34" text-anchor="middle" font-size="8.4" font-weight="600" fill="#6e7180">Ungrounded</text>
+    <line x1="480" y1="42" x2="480" y2="62" stroke="#5468c4" stroke-width="2"/>
+    <circle cx="480" cy="68" r="4" fill="none" stroke="#6e7180" stroke-width="1.4"/>
+    <text x="480" y="96" text-anchor="middle" fill="#6e7180">no connection</text>
+    <text x="480" y="107" text-anchor="middle" font-size="7" fill="#8a8e9b">only line capacitance</text>
+    <rect x="475" y="112" width="9" height="14" rx="3" fill="#6e7180"/>
+    <text x="480" y="139" text-anchor="middle" font-weight="600" fill="#454956">1&ndash;20 A</text>
+    <text x="480" y="152" text-anchor="middle" font-size="7" fill="#8a8e9b">charging current only</text>
+
+    <!-- Resonant -->
+    <text x="615" y="34" text-anchor="middle" font-size="8.4" font-weight="600" fill="#0d7f63">Resonant (Petersen)</text>
+    <line x1="615" y1="42" x2="615" y2="56" stroke="#5468c4" stroke-width="2"/>
+    <path d="M608,58 q7,-6 14,0 M608,66 q7,-6 14,0 M608,74 q7,-6 14,0" stroke="#10a37f" stroke-width="1.5" fill="none"/>
+    <line x1="615" y1="78" x2="615" y2="86" stroke="#5468c4" stroke-width="2"/>
+    <path d="M603,86 H627 M607,91 H623 M611,96 H619" stroke="#1a1a22" stroke-width="1.6"/>
+    <text x="615" y="112" text-anchor="middle" fill="#6e7180">coil tuned to C</text>
+    <rect x="612" y="112" width="6" height="14" rx="3" fill="#10a37f"/>
+    <text x="615" y="139" text-anchor="middle" font-weight="600" fill="#0d7f63">&lt; 5 A</text>
+    <text x="615" y="152" text-anchor="middle" font-size="7" fill="#8a8e9b">arc self-extinguishes</text>
+  </g>
+
+  <!-- healthy-phase voltage -->
+  <text x="8" y="182" font-size="9" font-weight="600" fill="#454956">&hellip;and what happens to the two healthy phases during that fault</text>
+  <g font-size="7.4">
+    <rect x="20" y="192" width="100" height="46" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="70" y="212" text-anchor="middle" fill="#0d7f63" font-weight="600">&asymp; 1.0&ndash;1.4 &times; V<tspan font-size="6" dy="2">LN</tspan></text>
+    <text x="70" y="228" text-anchor="middle" fill="#8a8e9b">insulation happy</text>
+
+    <rect x="155" y="192" width="100" height="46" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="205" y="212" text-anchor="middle" fill="#0d7f63" font-weight="600">&asymp; 1.3&ndash;1.5 &times; V<tspan font-size="6" dy="2">LN</tspan></text>
+    <text x="205" y="228" text-anchor="middle" fill="#8a8e9b">still moderate</text>
+
+    <rect x="295" y="192" width="100" height="46" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="345" y="212" text-anchor="middle" fill="#9c6d06" font-weight="600">1.73 &times; V<tspan font-size="6" dy="2">LN</tspan></text>
+    <text x="345" y="228" text-anchor="middle" fill="#8a8e9b">full line-to-line</text>
+
+    <rect x="430" y="192" width="100" height="46" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="480" y="212" text-anchor="middle" fill="#9c3838" font-weight="600">1.73 &times; V<tspan font-size="6" dy="2">LN</tspan></text>
+    <text x="480" y="228" text-anchor="middle" fill="#8a8e9b">and transient overvoltage</text>
+
+    <rect x="565" y="192" width="100" height="46" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="615" y="212" text-anchor="middle" fill="#9c6d06" font-weight="600">1.73 &times; V<tspan font-size="6" dy="2">LN</tspan></text>
+    <text x="615" y="228" text-anchor="middle" fill="#8a8e9b">sustained</text>
+  </g>
+
+  <rect x="8" y="250" width="684" height="42" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="266" font-size="8" font-weight="600" fill="#1a1a22">The trade, in one line:</text>
+  <text x="20" y="280" font-size="7.8" fill="#454956">moving left buys detectability and lower insulation stress; moving right buys continuity of service and lower fault damage. Nothing gives you both.</text>
+  <path d="M540,262 H660" stroke="#a9adb8" stroke-width="1.2" marker-end="url(#gm)"/>
+  <defs><marker id="gm" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <circle r="3" fill="#10a37f"><animateMotion dur="3s" repeatCount="indefinite" path="M540,262 H660"/></circle>
+</svg></div>
+<p class="figcap">Currents shown are representative of medium-voltage practice; the exact values come from your fault study. The healthy-phase voltage column is what limits how far right you can move. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Method</th><th>Ground-fault current</th><th>Typical use</th><th>Protection you build</th></tr>
+  <tr><td><strong>Solidly grounded</strong></td><td>comparable to three-phase</td><td>Utility distribution (four-wire multi-grounded), transmission, most wye transformer secondaries</td><td>50G/51G residual and 50N/51N neutral elements; straightforward coordination; trip immediately</td></tr>
+  <tr><td><strong>Low-resistance grounded</strong></td><td>limited by an NGR, commonly a few hundred amperes</td><td>Industrial medium-voltage, generator neutrals, some substation buses</td><td>Neutral CT with a sensitive 51N; residual elements may be too coarse. Trip &mdash; the resistor is short-time rated</td></tr>
+  <tr><td><strong>High-resistance grounded</strong></td><td>a few amperes, by design just above system charging current</td><td>Critical continuous processes; generator stator ground protection</td><td>59N / 64 voltage detection plus a pulsing scheme to locate the faulted feeder. <strong>Alarm, do not trip</strong></td></tr>
+  <tr><td><strong>Ungrounded</strong></td><td>system charging current only</td><td>Legacy industrial and some mining/marine systems</td><td>Broken-delta PT and 59N; sensitive directional ground (varmetric) to identify the feeder. Alarm and find it quickly</td></tr>
+  <tr><td><strong>Resonant grounded</strong></td><td>near zero &mdash; the coil cancels the capacitive current</td><td>Common in Europe; used where arcs must self-extinguish</td><td>Wattmetric / transient-based directional ground detection; conventional current elements do not work</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>The neutral shift &mdash; why ungrounded systems are detected by voltage</h2>
+<p>On an ungrounded system, a solid ground on phase A does not push much current anywhere &mdash; there is no low-impedance return. What it does is <em>move the reference</em>: phase A is now at ground potential, and B and C sit at full line-to-line voltage above ground. The voltage triangle keeps its shape and slides.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Ungrounded system: a ground on phase A shifts the neutral, not the triangle</text>
+
+  <!-- before -->
+  <text x="150" y="36" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Healthy</text>
+  <g stroke="#10a37f" stroke-width="2" fill="none">
+    <line x1="150" y1="140" x2="150" y2="76"/>
+    <line x1="150" y1="140" x2="95" y2="172"/>
+    <line x1="150" y1="140" x2="205" y2="172"/>
+  </g>
+  <circle cx="150" cy="140" r="4" fill="#1a1a22"/>
+  <g font-size="7.4" fill="#6e7180">
+    <text x="155" y="72">A</text><text x="84" y="184">B</text><text x="209" y="184">C</text>
+    <text x="158" y="152">N = G</text>
+  </g>
+  <text x="150" y="206" font-size="7.4" fill="#8a8e9b" text-anchor="middle">all three phases at V<tspan font-size="6" dy="2">LN</tspan><tspan dy="-2"> above ground</tspan></text>
+  <text x="150" y="219" font-size="7.4" fill="#8a8e9b" text-anchor="middle">3V<tspan font-size="6" dy="2">0</tspan><tspan dy="-2"> = 0</tspan></text>
+
+  <text x="350" y="140" font-size="16" fill="#a9adb8" text-anchor="middle">&rarr;</text>
+  <text x="350" y="158" font-size="7.4" fill="#8a8e9b" text-anchor="middle">A&ndash;G fault</text>
+
+  <!-- after -->
+  <text x="530" y="36" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">Phase A grounded</text>
+  <g stroke="#d63a3a" stroke-width="2" fill="none">
+    <line x1="530" y1="140" x2="530" y2="76"/>
+    <line x1="530" y1="140" x2="475" y2="172"/>
+    <line x1="530" y1="140" x2="585" y2="172"/>
+  </g>
+  <!-- ground reference moves to A -->
+  <circle cx="530" cy="76" r="5" fill="#1a1a22">
+    <animate attributeName="cy" values="140;76;76;140" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  <line x1="530" y1="76" x2="475" y2="172" stroke="#d7930a" stroke-width="2" stroke-dasharray="4 3"/>
+  <line x1="530" y1="76" x2="585" y2="172" stroke="#d7930a" stroke-width="2" stroke-dasharray="4 3"/>
+  <g font-size="7.4" fill="#6e7180">
+    <text x="537" y="70">A = G</text><text x="464" y="184">B</text><text x="589" y="184">C</text>
+  </g>
+  <text x="530" y="206" font-size="7.4" fill="#9c6d06" text-anchor="middle">B and C now at 1.73 &times; V<tspan font-size="6" dy="2">LN</tspan><tspan dy="-2"> above ground</tspan></text>
+  <text x="530" y="219" font-size="7.4" fill="#d63a3a" text-anchor="middle">3V<tspan font-size="6" dy="2">0</tspan><tspan dy="-2"> = full &mdash; this is what 59N sees</tspan></text>
+
+  <rect x="8" y="228" width="684" height="20" rx="4" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="20" y="242" font-size="7.8" fill="#9c3838">Line-to-line voltages are unchanged, so load keeps running normally &mdash; which is exactly why the fault can sit undetected until a second one appears on another phase.</text>
+</svg></div>
+<p class="figcap">The generator does not care; the insulation does. Sustained 1.73&times; stress on the healthy phases is what eventually finds the next weak spot. <span class="print-note">(Animated in the browser.)</span></p>
+
+<div class="callout warn">
+<strong>Restriking arcs and transient overvoltage.</strong> On an ungrounded system a low-current arcing ground can extinguish and restrike each half cycle, pumping charge onto the system capacitance. The resulting transient overvoltage can reach several times normal and puncture insulation far from the original fault. This is the strongest practical argument against leaving genuinely ungrounded systems in service, and the reason high-resistance grounding &mdash; which damps the oscillation &mdash; is usually preferred over pure ungrounded operation.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>&ldquo;Effectively grounded&rdquo; and why the ratio matters</h2>
+<p>The industry definition is a ratio test on the sequence impedances at the point in question: a system is <strong>effectively grounded</strong> when X<sub>0</sub>/X<sub>1</sub> &le; 3 and R<sub>0</sub>/X<sub>1</sub> &le; 1. Meeting it keeps the coefficient of grounding at or below about 80%, which means healthy-phase voltage during a ground fault stays under roughly 1.4&nbsp;&times;&nbsp;V<sub>LN</sub>.</p>
+<ul>
+<li><strong>Why you care:</strong> surge arrester ratings are chosen for the expected temporary overvoltage. Arresters selected for an effectively grounded system will fail on a system that is not.</li>
+<li><strong>It is a local property.</strong> Opening a source breaker can leave a section ungrounded even though the system is nominally effectively grounded &mdash; a real risk when a delta&ndash;wye transformer's wye is the only ground source for a feeder and the transformer trips.</li>
+<li><strong>DER makes this current.</strong> An inverter or a generator that can island a section must not leave that section ungrounded, which is why interconnection standards care so much about the transformer connection at the point of interconnection. See <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">4</span>Creating a neutral: grounding transformers</h2>
+<p>Delta sources have no neutral to ground. When a ground reference is required &mdash; to bound overvoltage, to give ground relays something to measure, or to satisfy an interconnection requirement &mdash; you add one.</p>
+<table>
+  <tr><th>Device</th><th>How it works</th><th>Notes</th></tr>
+  <tr><td><strong>Zig-zag (interconnected wye)</strong></td><td>Two half-windings per leg wound on different cores in opposition: high impedance to positive and negative sequence, low impedance to zero sequence</td><td>Compact and purpose-built. Presents essentially only a zero-sequence path, so it does not supply phase-fault current</td></tr>
+  <tr><td><strong>Wye&ndash;delta grounding bank</strong></td><td>Grounded wye on the system, closed delta providing the circulating path</td><td>The delta must be closed and rated; often the same unit serves station service</td></tr>
+  <tr><td><strong>Resistor or reactor in the created neutral</strong></td><td>Limits the current the grounding transformer will pass</td><td>Turns a solid ground reference into low- or high-resistance grounding</td></tr>
+</table>
+<div class="callout">
+<strong>A grounding transformer is a zero-sequence source, and protection must treat it as one.</strong> It contributes ground-fault current to faults anywhere on its side of the system, it needs its own protection (a neutral 51N is common, coordinated with its short-time thermal rating), and it changes the zero-sequence network your fault study is built on. SEL application guidance covers protecting zig-zag grounding banks specifically (AG2002-20).
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>What each method means for your settings</h2>
+<table>
+  <tr><th>If the system is&hellip;</th><th>Ground elements</th><th>Practical settings notes</th></tr>
+  <tr><td>Solidly grounded, four-wire multi-grounded distribution</td><td>51G / 50G on residual, or 51N on a neutral CT</td><td>Must sit above <em>standing</em> residual from unbalanced single-phase load &mdash; often 20&ndash;40% of feeder rating. Not as sensitive as people expect</td></tr>
+  <tr><td>Solidly grounded, three-wire</td><td>same, but far more sensitive</td><td>No load unbalance to accommodate; pickup can be a small fraction of rating. Watch for false residual from CT saturation on through-faults</td></tr>
+  <tr><td>Low-resistance grounded</td><td>51N on a dedicated neutral or window CT</td><td>Coordinate with the NGR's short-time rating &mdash; the resistor, not the cable, is often the limiting element. Residual (3I<sub>0</sub>) elements are usually too coarse</td></tr>
+  <tr><td>High-resistance grounded</td><td>59N / 64 voltage, plus sensitive directional current for feeder selection</td><td>Alarm only. Provide a means to locate the fault &mdash; pulsing the resistor and following the pulse with a clamp is standard practice</td></tr>
+  <tr><td>Ungrounded</td><td>59N from a broken-delta PT; varmetric or admittance directional ground for selection</td><td>Every feeder sees the same 3V<sub>0</sub>, so voltage alone cannot tell you <em>which</em> feeder. Directional current comparison is the only selective method</td></tr>
+  <tr><td>Resonant grounded</td><td>wattmetric / transient directional</td><td>Conventional magnitude-based elements will not operate. Specialist relays and settings</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Sensitive ground elements need a real neutral CT.</strong> Below roughly 5&ndash;10% of the phase CT rating, residual current computed from three phase CTs is dominated by CT error. If the design calls for sensitive ground detection, specify a window (flux-summing) CT that encircles all three conductors &mdash; it measures the true residual with one core and one error term. SEL application guidance on sensitive ground directional elements (AG99-02, AG2009-17) assumes this arrangement.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Gotchas</h2>
+<ul>
+<li><strong>Do not assume the grounding method &mdash; verify it.</strong> Look at the transformer nameplate connection, look for an NGR cubicle, and read the fault study's Z<sub>0</sub>. Sites are frequently mis-documented, and retrofits change grounding without updating drawings.</li>
+<li><strong>An NGR is short-time rated</strong> (10 s and 60 s ratings are common). Protection must clear well inside that rating, and a resistor that has been through several long faults may already be damaged &mdash; check continuity as part of commissioning.</li>
+<li><strong>High-resistance grounded systems that were set to trip</strong> defeat their own purpose, and the reverse is worse: a low-resistance system set only to alarm will burn the resistor.</li>
+<li><strong>Multiple ground sources on one bus split the ground current.</strong> Two grounded-wye transformers in parallel each supply part of it, so a neutral element on one may see only half of what the study's total suggests.</li>
+<li><strong>Ferroresonance</strong> is a genuine hazard on ungrounded and lightly loaded systems with wye-connected PTs &mdash; single-phase switching can excite a nonlinear resonance that destroys the PTs. Loading resistors on broken-delta windings are the usual mitigation.</li>
+<li><strong>Grounding changes when a breaker opens.</strong> Ask what the system looks like in every switching configuration, not just the normal one, and check that no configuration leaves an energized section ungrounded.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:fundamentals/transformers.html">Transformers</a>
+  <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+</div>
+<p class="footnote">Fundamentals page. Grounding categories, the effectively-grounded ratio test, and overvoltage consequences follow standard IEEE practice (C62.92 / C37.101 families). SEL-specific application detail on sensitive ground directional elements and on protecting a zig-zag grounding bank is drawn from SEL AG99-02, AG2009-17, and AG2002-20; element naming (50G/51G residual versus 50N/51N measured neutral) follows the SEL-751/751A and SEL-451 instruction manuals. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Modbus Fundamentals</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="Modbus,RTU,TCP,MBAP,registers,function codes,CRC,exception">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Modbus Fundamentals (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Modbus Fundamentals</h1>
+  <p>The protocol itself — RTU frames and CRC, the MBAP header on TCP, the four register spaces, function codes, encoding, and exceptions</p>
+  <div class="chips"><span>RTU</span><span>TCP 502</span><span>MBAP</span><span>FC 01–10h</span><span>4X / 0-based</span><span>CRC-16</span><span>exception 02h</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Modbus in general</h3>
+<ul style="margin-bottom:2px">
+<li>Modbus is <strong>pure polling</strong>: the client (master) asks, the server (slave) answers, and the server never speaks unprompted. No events, no timestamps, no quality flags — you get exactly what you poll, when you poll it.</li>
+<li>Everything is a <strong>16-bit register or a 1-bit coil</strong>. What a register <em>means</em> — sign, scaling, word order — lives in the device's map documentation, not in the protocol.</li>
+<li><strong>4X/3X addresses are documentation conventions.</strong> On the wire everything is 0-based: "40001" is holding register 0. Getting this wrong shifts every value by exactly one register.</li>
+<li>The <em>function code</em> — not the address — decides which of the four data spaces you're reading.</li>
+<li>A frame that fails its <strong>CRC is silently discarded</strong>. "No response" is Modbus's only error signal for a corrupted or misaddressed frame; the client just times out.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Where Modbus fits</h2>
+<p>Modbus is the industrial world's lowest-common-denominator protocol — the common tongue of PLCs, HMIs, DCSs, meters, and protective relays in automated industrial plants. It predates SCADA protocols like DNP3 by design philosophy as much as by age: it standardizes only <em>how to move register values</em>, and leaves everything else (meaning, scaling, events, time) to the devices at each end. The protocol spec itself is maintained by the Modbus user's group at <code>modbus.org</code>; every SEL manual points there for the full text. Two wire forms matter in practice: <strong>Modbus RTU</strong> (binary, over serial) and <strong>Modbus TCP</strong> (the same function codes and data maps carried over Ethernet, registered port 502). The RTAC also speaks RTU tunneled inside TCP; Modbus ASCII is legacy and unsupported on the RTAC.</p>
+<div class="card pair">
+<h3>Modbus vs. DNP3 — an honest comparison</h3>
+<table style="margin-bottom:2px">
+  <tr><th style="width:24%"></th><th>Modbus</th><th>DNP3</th></tr>
+  <tr><td><strong>Data flow</strong></td><td>poll–response only; server silent until asked</td><td>event buffers, class polls, unsolicited reporting</td></tr>
+  <tr><td><strong>Change detection</strong></td><td>none — client re-reads and compares</td><td>outstation queues timestamped change events</td></tr>
+  <tr><td><strong>Timestamps</strong></td><td>none on the wire</td><td>events carry time; masters can sync clocks</td></tr>
+  <tr><td><strong>Quality flags</strong></td><td>none — a stale or invalid value reads like a good one</td><td>online / restart / comm-lost flags ride with data</td></tr>
+  <tr><td><strong>Data typing</strong></td><td>raw 16-bit registers; meaning is out-of-band</td><td>object groups + variations define type on the wire</td></tr>
+  <tr><td><strong>Why it survives</strong></td><td>trivially simple, universally implemented, easy to debug</td><td>richer, but heavier to configure and verify</td></tr>
+</table>
+<p style="font-size:8.6pt;margin-bottom:0">The consequence: on Modbus, bandwidth scales with the size of the map, not the rate of change — a quiet plant costs as much to poll as a busy one. Anything event-driven (SOE, alarms with time) needs DNP3, or a device like the RTAC time-tagging Modbus data as it arrives. See <em>DNP3 Fundamentals</em> in atlas for the other side of this table.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Roles and topology</h2>
+<p>Modbus RTU permits communication between a <strong>single master</strong> (client) and <strong>multiple slave</strong> (server) devices, half duplex — only one device transmits at a time. The master transmits a query carrying the address of the slave it wants; <em>every</em> slave on the line receives the message, but only the one with the matching address responds. Addresses run <strong>1–247</strong> (SEL relays and the 735 meter set theirs with the <code>SLAVEID</code> port setting; the RTAC client's is <em>Server Modbus Address</em>); on traditional serial lines 248–255 are reserved. No two slaves on a network may share an address.</p>
+<ul>
+  <li><strong>Broadcast — address 0.</strong> An RTAC Modbus client assigned address 0 becomes a broadcast client: it issues <em>write</em> commands (coil / holding-register function codes) that every server on the multidrop network processes regardless of address. Servers do not respond to a broadcast, so there are no retries (Poll Timeout and Poll Retries are ignored) and the client's <em>Intermessage Transmit Delay</em> must space requests so the writes don't pile up on the shared line. No polls — broadcast is write-only.</li>
+  <li><strong>Multidrop serial:</strong> the classic deployment is several servers on one EIA-485 pair, one master polling them round-robin by address. The idle gap between messages is what separates one RTU frame from the next — RTU has no start/stop delimiter bytes, which is why spacing settings like the RTAC's Intermessage Transmit Delay exist at all.</li>
+  <li><strong>TCP:</strong> each client opens its own TCP connection to the server's IP and port. On Modbus TCP the <em>IP address</em> is the primary identifier (the SEL-751 and 751A both use the device IP as the Modbus identifier); the unit-ID byte in the header still follows RTU addressing rules and matters when a gateway sits in the path.</li>
+  <li><strong>Gateways / port servers:</strong> a port server doing Modbus TCP → Modbus RTU translation fronts a multidrop RS-485 chain with a single IP — the client picks the target device with the unit ID, and the gateway forwards the query onto the serial line. The RTAC can emulate exactly this (several TCP servers with unique addresses 1–247 sharing one port), and its address <strong>255</strong> is reserved to mean "answer any unit ID in the query."</li>
+  <li><strong>Session limits are per-device:</strong> the SEL-751 and 751A each support up to two concurrent Modbus TCP sessions; the SEL-735 supports five; an RTAC Modbus server instance accepts exactly one client connection at a time ("connect and stay connected").</li>
+</ul>
+<p style="font-size:8.6pt"><strong>Companions:</strong> relay-side port settings, user maps, and coil semantics → <em>Modbus on SEL Relays</em>; RTAC client/server configuration, polls, tags, and shared maps → <em>Modbus on the RTAC</em>.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Modbus RTU: the frame and the transaction</h2>
+<p>The master initiates every exchange by sending a query built from four fields. There is no length field and no frame delimiter — the function code implies the layout, the CRC closes the frame, and line silence separates one frame from the next.</p>
+<table>
+  <tr><th>RTU frame field</th><th>Size</th><th>Notes</th></tr>
+  <tr><td>Slave device address</td><td class="mono">1 byte</td><td>1–247 — which server should answer; 0 = broadcast (writes only); 248–255 reserved on serial</td></tr>
+  <tr><td>Function code</td><td class="mono">1 byte</td><td>what to do — which data space, read or write (§6)</td></tr>
+  <tr><td>Data region</td><td class="mono">0–251 bytes</td><td>addresses, counts, and values; each byte 0–255</td></tr>
+  <tr><td>CRC-16</td><td class="mono">2 bytes</td><td>computed over address + function code + data, appended at the end of every message</td></tr>
+</table>
+<p><strong>CRC behavior, exactly as the 751/751A manuals describe it (identical text in both):</strong> the relay calculates the 2-byte CRC from the device address, function code, and data region and appends it to every response. The master recomputes the CRC on receipt; if it matches, the data is used — if not, <strong>the message is ignored</strong>. The same process runs in the other direction for queries: a slave that detects a CRC error discards the packet. Nothing is sent back. A response is only ever formatted like the query — same slave address, same function code, data, CRC — or, if the query can't be executed, an exception response (§8) with the function code's most significant bit set.</p>
+
+<div class="fig"><svg viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg">
+  <rect x="14" y="10" width="96" height="22" rx="4" fill="#1a1a22"/>
+  <text x="62" y="25" font-size="10.5" font-weight="600" fill="#fff" text-anchor="middle">Master</text>
+  <rect x="590" y="10" width="96" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="638" y="25" font-size="10.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Slave · addr 01</text>
+  <line x1="62" y1="32" x2="62" y2="320" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="638" y1="32" x2="638" y2="320" stroke="#d0d3da" stroke-width="1.25"/>
+
+  <text x="130" y="52" font-size="9" font-weight="600" fill="#10a37f">query — FC 03: read 13 holding registers starting at 126</text>
+  <g font-family="Consolas, monospace" font-size="9.5" text-anchor="middle">
+    <rect x="130" y="58" width="64" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="162" y="73" fill="#1a1a22">01</text>
+    <rect x="194" y="58" width="64" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="226" y="73" fill="#1a1a22">03</text>
+    <rect x="258" y="58" width="90" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="303" y="73" fill="#1a1a22">00 7E</text>
+    <rect x="348" y="58" width="90" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="393" y="73" fill="#1a1a22">00 0D</text>
+    <rect x="438" y="58" width="76" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="476" y="73" fill="#1a1a22">CRC-16</text>
+  </g>
+  <g font-size="9" fill="#6e7180" text-anchor="middle">
+    <text x="162" y="93">slave addr</text><text x="226" y="93">function</text><text x="303" y="93">start = 126</text><text x="393" y="93">count = 13</text><text x="476" y="93">addr+FC+data</text>
+  </g>
+  <path d="M118,106 H630 M624,101 L631,106 L624,111" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="638" y="124" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">addr ✓ CRC ✓</text>
+
+  <text x="130" y="142" font-size="9" font-weight="600" fill="#5468c4">response — same shape: addr, FC echoed, 26 data bytes, fresh CRC</text>
+  <g font-family="Consolas, monospace" font-size="9.5" text-anchor="middle">
+    <rect x="130" y="148" width="64" height="22" rx="3" fill="#fff" stroke="#5468c4" stroke-width="1.1"/><text x="162" y="163" fill="#1a1a22">01</text>
+    <rect x="194" y="148" width="64" height="22" rx="3" fill="#fff" stroke="#5468c4" stroke-width="1.1"/><text x="226" y="163" fill="#1a1a22">03</text>
+    <rect x="258" y="148" width="64" height="22" rx="3" fill="#fff" stroke="#5468c4" stroke-width="1.1"/><text x="290" y="163" fill="#1a1a22">1A</text>
+    <rect x="322" y="148" width="116" height="22" rx="3" fill="#eef0f8" stroke="#5468c4" stroke-width="1.1"/><text x="380" y="163" fill="#1a1a22">data ×26</text>
+    <rect x="438" y="148" width="76" height="22" rx="3" fill="#fff" stroke="#5468c4" stroke-width="1.1"/><text x="476" y="163" fill="#1a1a22">CRC-16</text>
+  </g>
+  <g font-size="9" fill="#6e7180" text-anchor="middle">
+    <text x="290" y="183">byte count</text><text x="380" y="183">13 registers</text><text x="476" y="183">recomputed</text>
+  </g>
+  <path d="M630,196 H124 M130,191 L123,196 L130,201" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="62" y="214" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">CRC ✓ — use data</text>
+
+  <text x="130" y="238" font-size="9" font-weight="600" fill="#d63a3a">the failure branch — noise corrupts a byte in flight</text>
+  <g font-family="Consolas, monospace" font-size="9.5" text-anchor="middle">
+    <rect x="130" y="244" width="64" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="162" y="259" fill="#1a1a22">01</text>
+    <rect x="194" y="244" width="64" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="226" y="259" fill="#1a1a22">03</text>
+    <rect x="258" y="244" width="90" height="22" rx="3" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.4"/><text x="303" y="259" fill="#d63a3a">00 ✕E</text>
+    <rect x="348" y="244" width="90" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="393" y="259" fill="#1a1a22">00 0D</text>
+    <rect x="438" y="244" width="76" height="22" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="476" y="259" fill="#1a1a22">CRC-16</text>
+  </g>
+  <path d="M118,282 H630 M624,277 L631,282 L624,287" fill="none" stroke="#d63a3a" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="638" y="300" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">CRC ✗ — discarded</text>
+  <text x="484" y="300" font-size="9" fill="#8a8e9b" text-anchor="middle">no reply of any kind</text>
+  <text x="62" y="318" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle">timeout → retry</text>
+  <text x="350" y="318" font-size="8.5" fill="#a9adb8" text-anchor="middle">silence is the only error signal — the master's timeout and retry counters do the recovery</text>
+
+  <g class="animlayer">
+    <rect x="129" y="57" width="66" height="24" rx="3" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.015;0.045;0.06;1" dur="16s" repeatCount="indefinite"/></rect>
+    <rect x="193" y="57" width="66" height="24" rx="3" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.045;0.06;0.09;0.105;1" dur="16s" repeatCount="indefinite"/></rect>
+    <rect x="257" y="57" width="92" height="24" rx="3" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.09;0.105;0.135;0.15;1" dur="16s" repeatCount="indefinite"/></rect>
+    <rect x="347" y="57" width="92" height="24" rx="3" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.135;0.15;0.18;0.195;1" dur="16s" repeatCount="indefinite"/></rect>
+    <rect x="437" y="57" width="78" height="24" rx="3" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.195;0.23;0.245;1" dur="16s" repeatCount="indefinite"/></rect>
+    <circle r="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.245;0.255;0.33;0.345;1" dur="16s" repeatCount="indefinite"/>
+      <animateMotion path="M62,106 L638,106" keyPoints="0;0;1;1" keyTimes="0;0.245;0.335;1" calcMode="linear" dur="16s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="638" cy="106" r="10" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.34;0.37;0.41;1" dur="16s" repeatCount="indefinite"/></circle>
+    <rect x="321" y="147" width="118" height="24" rx="3" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.40;0.415;0.45;0.465;1" dur="16s" repeatCount="indefinite"/></rect>
+    <circle r="5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.465;0.475;0.55;0.565;1" dur="16s" repeatCount="indefinite"/>
+      <animateMotion path="M638,196 L62,196" keyPoints="0;0;1;1" keyTimes="0;0.465;0.555;1" calcMode="linear" dur="16s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="62" cy="196" r="10" fill="none" stroke="#5468c4" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.56;0.59;0.63;1" dur="16s" repeatCount="indefinite"/></circle>
+    <rect x="257" y="243" width="92" height="24" rx="3" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0;1;0;0" keyTimes="0;0.63;0.65;0.665;0.68;0.70;1" dur="16s" repeatCount="indefinite"/></rect>
+    <circle r="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.71;0.785;0.80;1" dur="16s" repeatCount="indefinite"/>
+      <animateMotion path="M62,282 L638,282" keyPoints="0;0;1;1" keyTimes="0;0.70;0.79;1" calcMode="linear" dur="16s" repeatCount="indefinite"/>
+    </circle>
+    <text x="638" y="270" font-size="9" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.80;0.815;0.87;0.885;1" dur="16s" repeatCount="indefinite"/>✕ dropped</text>
+    <circle cx="62" cy="314" r="10" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.90;0.92;0.965;0.985;1" dur="16s" repeatCount="indefinite"/></circle>
+  </g>
+</svg></div>
+<p class="figcap">One RTU transaction, then the failure branch: fields assemble in order, the CRC seals the frame, and a frame corrupted in flight is discarded without any reply — the master's timeout is the only notification.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Modbus TCP: the MBAP header</h2>
+<p>Modbus TCP wraps the same function-code + data payload in a 7-byte header (the MBAP header) instead of the RTU address + CRC. The SEL-735 manual documents the message format byte-for-byte:</p>
+<table>
+  <tr><th>Bytes</th><th>Field</th><th>Server action / notes (per SEL-735 Table E.22)</th></tr>
+  <tr><td class="mono">0–1</td><td>Transaction identifier</td><td>copied into the response — lets a client match replies to requests on one connection</td></tr>
+  <tr><td class="mono">2–3</td><td>Protocol identifier</td><td>copied into the response; zero for Modbus</td></tr>
+  <tr><td class="mono">4–5</td><td>Length</td><td>length of the data that follows, in bytes (upper byte zero while messages are under 256 bytes)</td></tr>
+  <tr><td class="mono">6</td><td>Unit identifier</td><td>follows Modbus RTU addressing rules — this is where a gateway reads the target slave address</td></tr>
+  <tr><td class="mono">7</td><td>Function code</td><td>copied into the response if no error; high bit set on an error condition</td></tr>
+  <tr><td class="mono">8…</td><td>Data</td><td>the request data, response data, or exception code</td></tr>
+</table>
+<ul>
+  <li><strong>No CRC field.</strong> The TCP message format ends at the data region — frame integrity is the transport's job, not the protocol's. The silent-discard behavior of §3 is an RTU phenomenon; on TCP a broken connection is what "no answer" looks like.</li>
+  <li><strong>Port 502</strong> is the registered Modbus TCP port (SEL-751, 751A, and SEL-735 all default to it; the 751 and 751A let you move each session's port with <code>MODNUM<i>n</i></code>).</li>
+  <li><strong>Multiple sessions:</strong> each client is a separate TCP connection. Device limits differ (§2) — 751A two sessions, 735 five, RTAC server one per server instance — so "the SCADA guy connected and now my test client can't" is expected behavior, not a fault.</li>
+  <li><strong>Same maps, same codes:</strong> the 751 and 751A manuals state it directly — Modbus TCP accesses the data in the relay using the same function codes and data maps as Modbus RTU. Everything in §5–§8 applies to both transports. (The SEL-751 adds one TCP-only guard: <code>MODIP1/2</code> can pin each session to a configured master IP.)</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 268" xmlns="http://www.w3.org/2000/svg">
+  <text x="170" y="16" font-size="10" font-weight="600" fill="#454956" text-anchor="middle">Modbus TCP — one client, one connection</text>
+  <rect x="20" y="26" width="76" height="22" rx="4" fill="#1a1a22"/>
+  <text x="58" y="41" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">Client</text>
+  <rect x="244" y="26" width="76" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="282" y="41" font-size="9.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Server :502</text>
+  <line x1="58" y1="48" x2="58" y2="240" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="282" y1="48" x2="282" y2="240" stroke="#d0d3da" stroke-width="1.25"/>
+
+  <g font-family="Consolas, monospace" font-size="9" text-anchor="middle">
+    <rect x="40" y="66" width="56" height="20" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.1"/><text x="68" y="80" fill="#1a1a22">TID 07</text>
+    <rect x="96" y="66" width="42" height="20" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.1"/><text x="117" y="80" fill="#1a1a22">PID 0</text>
+    <rect x="138" y="66" width="42" height="20" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.1"/><text x="159" y="80" fill="#1a1a22">LEN</text>
+    <rect x="180" y="66" width="42" height="20" rx="3" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.1"/><text x="201" y="80" fill="#1a1a22">UID 1</text>
+    <rect x="222" y="66" width="78" height="20" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="261" y="80" fill="#1a1a22">03 + data</text>
+  </g>
+  <text x="131" y="60" font-size="8.5" fill="#10a37f" font-weight="600">MBAP header</text>
+  <text x="261" y="102" font-size="8.5" fill="#6e7180" text-anchor="middle">same PDU as RTU</text>
+  <path d="M58,116 H274 M268,111 L275,116 L268,121" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <g font-family="Consolas, monospace" font-size="9" text-anchor="middle">
+    <rect x="40" y="132" width="56" height="20" rx="3" fill="#eef0f8" stroke="#5468c4" stroke-width="1.1"/><text x="68" y="146" fill="#1a1a22">TID 07</text>
+    <rect x="96" y="132" width="126" height="20" rx="3" fill="#eef0f8" stroke="#5468c4" stroke-width="1.1"/><text x="159" y="146" fill="#1a1a22">PID·LEN·UID</text>
+    <rect x="222" y="132" width="78" height="20" rx="3" fill="#fff" stroke="#5468c4" stroke-width="1.1"/><text x="261" y="146" fill="#1a1a22">03 + data</text>
+  </g>
+  <path d="M282,162 H66 M72,157 L65,162 L72,167" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="68" y="180" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">TID matches ✓</text>
+  <text x="170" y="204" font-size="8.5" fill="#a9adb8" text-anchor="middle">transaction ID echoed back —</text>
+  <text x="170" y="216" font-size="8.5" fill="#a9adb8" text-anchor="middle">no CRC field; TCP carries integrity</text>
+  <text x="170" y="236" font-size="8.5" fill="#a9adb8" text-anchor="middle">each client = its own connection</text>
+
+  <line x1="350" y1="10" x2="350" y2="258" stroke="#e5e7eb" stroke-width="1"/>
+
+  <text x="530" y="16" font-size="10" font-weight="600" fill="#454956" text-anchor="middle">Modbus RTU — shared multidrop line</text>
+  <rect x="380" y="26" width="76" height="22" rx="4" fill="#1a1a22"/>
+  <text x="418" y="41" font-size="9.5" font-weight="600" fill="#fff" text-anchor="middle">Master</text>
+  <line x1="418" y1="48" x2="418" y2="72" stroke="#454956" stroke-width="1.5"/>
+  <line x1="400" y1="72" x2="690" y2="72" stroke="#454956" stroke-width="2"/>
+  <text x="696" y="76" font-size="8.5" fill="#6e7180" text-anchor="end"> </text>
+  <g>
+    <line x1="470" y1="72" x2="470" y2="96" stroke="#454956" stroke-width="1.25"/>
+    <rect x="436" y="96" width="68" height="22" rx="4" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+    <text x="470" y="111" font-size="9.5" font-weight="600" fill="#454956" text-anchor="middle">addr 01</text>
+    <line x1="560" y1="72" x2="560" y2="96" stroke="#10a37f" stroke-width="1.25"/>
+    <rect x="526" y="96" width="68" height="22" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.5"/>
+    <text x="560" y="111" font-size="9.5" font-weight="600" fill="#10a37f" text-anchor="middle">addr 02</text>
+    <line x1="650" y1="72" x2="650" y2="96" stroke="#454956" stroke-width="1.25"/>
+    <rect x="616" y="96" width="68" height="22" rx="4" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+    <text x="650" y="111" font-size="9.5" font-weight="600" fill="#454956" text-anchor="middle">addr 03</text>
+  </g>
+  <g font-family="Consolas, monospace" font-size="9" text-anchor="middle">
+    <rect x="380" y="136" width="40" height="20" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="400" y="150" fill="#1a1a22">02</text>
+    <rect x="420" y="136" width="88" height="20" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="464" y="150" fill="#1a1a22">03 + data</text>
+    <rect x="508" y="136" width="52" height="20" rx="3" fill="#fff" stroke="#454956" stroke-width="1.1"/><text x="534" y="150" fill="#1a1a22">CRC</text>
+  </g>
+  <text x="470" y="130" font-size="8.5" fill="#6e7180">query for addr 02 — no MBAP, CRC instead</text>
+  <text x="470" y="176" font-size="8.5" fill="#6e7180" text-anchor="middle">01 hears it — stays silent</text>
+  <text x="650" y="176" font-size="8.5" fill="#6e7180" text-anchor="middle">03 hears it — stays silent</text>
+  <text x="560" y="192" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">only 02 answers</text>
+  <text x="530" y="216" font-size="8.5" fill="#a9adb8" text-anchor="middle">every device receives every frame; the address</text>
+  <text x="530" y="228" font-size="8.5" fill="#a9adb8" text-anchor="middle">byte + line silence between frames do the routing —</text>
+  <text x="530" y="240" font-size="8.5" fill="#a9adb8" text-anchor="middle">half duplex, one talker at a time</text>
+
+  <g class="animlayer">
+    <circle r="4.5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.13;0.15;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M58,116 L282,116" keyPoints="0;0;1;1" keyTimes="0;0.02;0.14;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4.5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.20;0.22;0.32;0.34;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M282,162 L58,162" keyPoints="0;0;1;1" keyTimes="0;0.21;0.33;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4.5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.44;0.60;0.62;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M418,72 L688,72" keyPoints="0;0;1;1" keyTimes="0;0.43;0.61;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="435" y="95" width="70" height="24" rx="4" fill="none" stroke="#8a8e9b" stroke-width="1.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.8;0;0" keyTimes="0;0.47;0.50;0.56;1" dur="12s" repeatCount="indefinite"/></rect>
+    <rect x="615" y="95" width="70" height="24" rx="4" fill="none" stroke="#8a8e9b" stroke-width="1.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.8;0;0" keyTimes="0;0.56;0.59;0.65;1" dur="12s" repeatCount="indefinite"/></rect>
+    <rect x="525" y="95" width="70" height="24" rx="4" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.74;0.76;1" dur="12s" repeatCount="indefinite"/></rect>
+    <circle r="4.5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.80;0.82;0.94;0.96;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M560,72 L418,72" keyPoints="0;0;1;1" keyTimes="0;0.81;0.95;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">Same PDU, two transports: on TCP the MBAP header (with its echoed transaction ID) replaces address + CRC and each client has a private connection; on RTU one shared pair carries every frame to every device and the address byte decides who answers.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>The register model and the off-by-one trap</h2>
+<p>A Modbus server exposes four data spaces. Each is addressed from 0 within its own space; which space you land in is decided by the <em>function code</em>, not the address.</p>
+<table>
+  <tr><th>Space</th><th>Legacy prefix</th><th>Width</th><th>Access</th><th>Function codes</th></tr>
+  <tr><td>Coils (discrete outputs)</td><td class="mono">0x</td><td>1 bit</td><td>read/write</td><td class="mono">01, 05, 0F</td></tr>
+  <tr><td>Discrete inputs</td><td class="mono">1x</td><td>1 bit</td><td>read-only</td><td class="mono">02</td></tr>
+  <tr><td>Input registers</td><td class="mono">3x</td><td>16 bit</td><td>read-only</td><td class="mono">04</td></tr>
+  <tr><td>Holding registers</td><td class="mono">4x</td><td>16 bit</td><td>read/write</td><td class="mono">03, 06, 10</td></tr>
+</table>
+<div class="callout keyfact"><strong>The off-by-one trap.</strong> Addresses like 30001/40001 are a legacy documentation convention that folds the register type into the number — the RTAC manual states they "are for documentation purposes only and are not actually used in the Modbus protocol." On the wire, addressing is 0-based. The SEL-751 and 751A manuals give the translation both ways: masters accustomed to 4X references with FC 03 should "add 40001 to the standard database address" for five-digit addressing (add 30001 for 3X/FC 04); for the write codes 06h/10h with <em>six-digit</em> addressing, add 400001. The RTAC is 0-based everywhere — a third-party device's "40001" is configured as holding register <strong>0</strong> in the RTAC project, and Coil 1 on the 751/751A lives at coil address 0. When every value sits exactly one register away from where you expect it, this is why.</div>
+<p>Note that a device is free to point two spaces at the same data: on SEL-700 series relays, FC 03 and FC 04 read the <em>same</em> register map (the 751A points both at its Table E.34, the 751 at its Table E.35), while FC 01 reads the coil/control list and FC 02 reads Relay Word bit status — two genuinely different bit spaces.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>The function-code catalog</h2>
+<table>
+  <tr><th>FC</th><th>Name</th><th>Limits / mechanics</th><th>Support (SEL world)</th></tr>
+  <tr><td class="mono">01h</td><td>Read Coil Status</td><td>up to 2000 bits per query; bits packed 8 per byte, starting coil in the LSB of the first data byte, zero-padded to a whole byte</td><td>SEL-700 series (700G, 701, 710, 734, 735, 751/A, 787) · RTAC</td></tr>
+  <tr><td class="mono">02h</td><td>Read Discrete Inputs</td><td>up to 2000 bits per query; same packing</td><td>same · RTAC</td></tr>
+  <tr><td class="mono">03h</td><td>Read Holding Registers</td><td>max 125 registers per read</td><td>above + 749M · RTAC</td></tr>
+  <tr><td class="mono">04h</td><td>Read Input Registers</td><td>max 125 registers per read</td><td>above + 749M · RTAC</td></tr>
+  <tr><td class="mono">05h</td><td>Write (Force) Single Coil</td><td>operation byte FFh = set, 00h = clear, then a 00h placeholder; response echoes the request</td><td>SEL-700 series · RTAC</td></tr>
+  <tr><td class="mono">06h</td><td>Write Single Holding Register</td><td>response identical to the query = success</td><td>above + 749M · RTAC</td></tr>
+  <tr><td class="mono">07h</td><td>Read Exception Status</td><td>—</td><td>SEL-701 only in the 700-series list</td></tr>
+  <tr><td class="mono">08h</td><td>Loopback Diagnostic</td><td>subfunction 0000h: server returns a replica of the received message — a pure channel test</td><td>SEL-700G, 701, 710, 734, 751(A), 787</td></tr>
+  <tr><td class="mono">0Fh</td><td>Write Multiple Coils</td><td>—</td><td><strong>RTAC</strong> — not in the SEL-700 series code list</td></tr>
+  <tr><td class="mono">10h</td><td>Write Multiple Holding Registers</td><td>751/751A: as many as 100 registers per operation; response returns start + count only</td><td>SEL-700 series + 749M · RTAC</td></tr>
+  <tr><td class="mono">11h</td><td>Report Client/Server ID</td><td>—</td><td>RTAC</td></tr>
+  <tr><td class="mono">60h/61h/62h</td><td>Read Parameter Info / Text / Enums</td><td>SEL extension codes — settings introspection, one parameter per query</td><td>SEL-700G, 710, 749M, 751(A), 787</td></tr>
+  <tr><td class="mono">7Dh/7Eh</td><td>Encapsulated packet + NOP</td><td>SEL extensions; 7Eh only valid inside 7Dh</td><td>SEL-700G, 710, 749M, 751(A), 787</td></tr>
+</table>
+<p style="font-size:8.6pt">Writes have device-specific semantics behind the generic verb — on the 751A, "writing a coil" pulses an output for 1 second or sets/clears/pulses a remote bit depending on the coil address. That, plus user maps and settings-write protection (<code>BLKMBSET</code>), lives in <em>Modbus on SEL Relays</em>.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Data encoding: 16 bits and everything built from them</h2>
+<p>Registers are 16 bits, full stop. Every richer type is a convention layered on top — and the server's manual, not the protocol, is what tells you which convention a given address uses. The client's configuration must match what the server sends, or the numbers will be plausible and wrong.</p>
+<table>
+  <tr><th>Register type</th><th>Range</th><th></th><th>Register type</th><th>Range</th></tr>
+  <tr><td>16-bit signed</td><td class="mono">−32 768 … 32 767</td><td></td><td>32-bit signed</td><td class="mono">−2 147 483 648 … 2 147 483 647</td></tr>
+  <tr><td>16-bit unsigned</td><td class="mono">0 … 65 535</td><td></td><td>32-bit unsigned</td><td class="mono">0 … 4 294 967 295</td></tr>
+  <tr><td>32-bit float</td><td class="mono" colspan="4">±1.175494e−38 … ±3.402823e+38 (two registers)</td></tr>
+</table>
+<ul>
+  <li><strong>You infer the type from the map's min/max.</strong> A register spanning 0–65 535 is 16-bit unsigned; −1800…1800 (an SEL-751 angle) is 16-bit signed; a HI/LO pair each spanning 0–65 535 is one 32-bit value. This is literally the method AG2022-04 teaches.</li>
+  <li><strong>32-bit values ride in two registers</strong> and the word order is a convention. On the SEL-751, MWH3PI HI at register 380 carries bits 31–16 and LO at 381 carries bits 15–0 — most significant register first. Clients name the choice: the RTAC's Variation column uses LSB/MSB for byte order within a register and <strong>LSR/MSR for register order</strong> across a 32-bit pair (e.g. SEL-751 energy tags = 32-bit unsigned MSR). The RTAC's default variation is 16-bit signed MSB — change it per tag to match the server.</li>
+  <li><strong>Values are scaled integers.</strong> Actual value = register value × the map's multiplier column: SEL-751 angles are ×0.1 (a read of 300 = 30.0°), phase-to-phase voltages ×0.01 kV, energies ×0.001 MWh, power factor ×0.01. The SEL-735 encodes the same idea in its data types — INT×10/100/1000 and LONG×10…10000 scale factors — plus BITMAP, ENUM, and null-terminated STRING types spread across as many registers as needed. Forget the multiplier and everything reads 10× or 100× off.</li>
+  <li><strong>Bits come packed.</strong> Read via FC 01/02, coil and input states pack 8 per byte, the starting address in the least significant bit, padded with zeros to fill the last byte. Read via FC 03, an SEL-751 Relay Word row is one register with its 8 bits in the low byte (value 0–255, high byte zero) — row 15 lives at 1760 + 15 = 1775. Read via FC 02 the same bits are individual discrete inputs at <code>row × 8 + bit</code>.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Exceptions, timeouts, and the protocol's temperament</h2>
+<p>When a query reaches the server intact but can't be executed, the server answers with the function code's <strong>most significant bit set</strong> (03h → 83h) and a one-byte exception code in the data field. That's the entire error vocabulary:</p>
+<table>
+  <tr><th>Code</th><th>Meaning</th><th>What it means in the field</th></tr>
+  <tr><td class="mono">01h</td><td>Illegal Function Code</td><td>FC undefined or unsupported on this device — e.g. FC 0Fh sent to a SEL-700 series relay</td></tr>
+  <tr><td class="mono">02h</td><td>Illegal Data Address</td><td>unsupported address in the data field: off the end of the map, a register for hardware that isn't installed, or writing a read-only/locked register</td></tr>
+  <tr><td class="mono">03h</td><td>Illegal Data Value</td><td>value or count out of range, or a malformed request — on SEL relays this is also the code for a bad bit-state or format error</td></tr>
+  <tr><td class="mono">04h</td><td>Device Error</td><td>the device is in the wrong state for the request (751/751A return it for coil writes while disabled — the 751 manual adds: or when the breaker jumper isn't installed)</td></tr>
+  <tr><td class="mono">06h</td><td>Busy</td><td>a resource is busy — retry later</td></tr>
+  <tr><td class="mono">08h</td><td>Memory Error</td><td>SEL-735: checksum error on stored data</td></tr>
+</table>
+<p><strong>The temperament:</strong> strict lockstep request/response. The line is half duplex and the master runs one transaction at a time — send, wait for the reply or the timeout, then send the next. Recovery is entirely the client's job: the RTAC client exposes it as <em>Poll Timeout</em> and <em>Poll Retries</em> (both suspended for broadcasts, which never get replies), with <em>Intermessage Transmit Delay</em> spacing consecutive requests on shared lines.</p>
+<h3>Symptom → cause, protocol edition</h3>
+<ul>
+  <li><strong>No response at all (RTU)</strong> → the silent-discard rule: CRC failure, wrong slave address, or wrong baud/parity/stop turning every frame to garbage. SEL relays keep receive-side counters that say <em>which</em> — the 751A exposes NUMRCV, NUMOTH (frames for other addresses), INVADR, BADCRC, and UARTERR at registers 1789–1793 (751: same counters at 1740–1744) — and FC 08h subfunction 0000h is a pure echo test of the channel.</li>
+  <li><strong>Exception 02h on a documented address</strong> → the map varies with installed hardware (the 751 and 751A only answer for cards that are present), or the address is right and the offset convention is wrong (§5).</li>
+  <li><strong>Values plausible but wrong</strong> → variation mismatch: signed read as unsigned, HI/LO register order flipped on a 32-bit pair, or the multiplier not applied.</li>
+  <li><strong>Everything shifted by one register</strong> → 0-based vs. 40001-convention (§5). The most common Modbus commissioning defect there is.</li>
+  <li><strong>TCP connects then dies, or won't connect</strong> → session limits (§2/§4) and idle timeouts are per-device policy, not protocol — check the server's session count and timeout settings before the network.</li>
+</ul>
+<p style="font-size:8.6pt"><strong>  </p>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/protocol-chooser.html">Choosing a Protocol</a>
+  <a href="atlas:data-protocols/modbus/on-sel-relays.html">Modbus on SEL Relays</a>
+  <a href="atlas:data-protocols/modbus/on-the-rtac.html">Modbus on the RTAC</a>
+  <a href="atlas:comms/serial-comms.html">Serial Comms</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Sources: SEL-751A Relay Instruction Manual (751A_IM_20250411.pdf) and SEL-751 Relay Instruction Manual (751_IM_20260327.pdf), each Appendix E: Modbus Communications — query fields, function codes 01h–7Eh with per-code command tables and limits, exception codes, CRC behavior, TCP sessions, coil/register addressing, communication counters (protocol mechanics verified identical across both manuals; register addresses differ per model and are scoped in the text). SEL-735 Power Quality and Revenue Meter Instruction Manual (735_IM_20250711.pdf), Appendix E — Modbus TCP message format (Tables E.21/E.22), data types and scale factors, exception code 08h, five-session limit. SEL Application Guide AG2022-04, "Modbus Configuration for SEL-700 Series Relays and RTAC Devices" (AG2022-04_20220228.pdf) — device/function-code support matrix, register type ranges, 32-bit register structure, multiplier examples, RTAC variations. ACSELERATOR RTAC SEL-5033 Instruction Manual (embedded in 3530-4_IM_20241217_20260313.pdf) — supported codes, 0-based addressing note, broadcast client behavior, address 255, port-server emulation, session policy. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

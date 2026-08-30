@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Synchronism Check &amp; Closing</title>
+<meta name="atlas-order" content="120">
+<meta name="atlas-tags" content="25,sync check,synchronism,slip,angle window,dead bus,dead line,advance angle,autosynchronizing,closed transition,paralleling">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Synchronism Check &amp; Closing (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Synchronism Check &amp; Closing</h1>
+  <p>What has to match before a breaker may close, the 25 element's windows, dead-bus and dead-line permissives, transformer angle compensation, and closing early to land on zero</p>
+  <div class="chips"><span>25</span><span>slip</span><span>angle window</span><span>hot / dead</span><span>advance angle</span><span>autosynchronizing</span><span>close supervision</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Closing a breaker between two live sources</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Three things must match:</strong> voltage magnitude, frequency (so the angle is not running away), and phase angle at the instant the contacts touch.</li>
+<li><strong>Close out of phase and the difference appears across the machine or the line.</strong> On a generator that can mean shaft torque exceeding a three-phase fault; on a system tie it means a large transient power swing.</li>
+<li><strong>The relay closes early on purpose.</strong> The breaker takes tens of milliseconds to close, so the command is issued at an <em>advance angle</em> chosen so the contacts touch at zero degrees.</li>
+<li><strong>Dead-line and dead-bus permissives are separate decisions,</strong> and enabling the wrong combination is the most common way a sync-check scheme quietly fails.</li>
+<li><strong>A transformer between the two voltage sources introduces a fixed angle</strong> that must be compensated in the relay, or the element will never permit at true zero.</li>
+<li><strong>Test what it blocks, not just what it permits.</strong> A scheme wired backwards permits everything, and normal operation never reveals it.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The three quantities</h2>
+
+<div class="fig"><svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Two sources slipping against each other &mdash; the close window opens once per slip cycle</text>
+
+  <!-- phasor circle -->
+  <circle cx="150" cy="150" r="88" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="62" y1="150" x2="238" y2="150" stroke="#f2f3f5"/>
+  <line x1="150" y1="62" x2="150" y2="238" stroke="#f2f3f5"/>
+
+  <!-- permitted sector around 0 deg -->
+  <path d="M150,150 L238,150 A88,88 0 0,0 226,105 Z" fill="#10a37f" opacity="0.16"/>
+  <path d="M150,150 L238,150 A88,88 0 0,1 226,195 Z" fill="#10a37f" opacity="0.16"/>
+  <text x="256" y="150" font-size="7.4" fill="#0d7f63">&plusmn;&theta;max</text>
+  <text x="256" y="161" font-size="7" fill="#8a8e9b">angle window</text>
+
+  <!-- running (reference) phasor -->
+  <line x1="150" y1="150" x2="238" y2="150" stroke="#5468c4" stroke-width="2.4"/>
+  <text x="196" y="143" font-size="7.2" fill="#5468c4">running (bus)</text>
+
+  <!-- incoming phasor slipping -->
+  <g>
+    <line x1="150" y1="150" x2="238" y2="150" stroke="#d7930a" stroke-width="2.4"/>
+    <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="-360 150 150" dur="6s" repeatCount="indefinite"/>
+  </g>
+  <text x="150" y="256" font-size="7.4" fill="#8a8e9b" text-anchor="middle">the incoming source rotates at the slip frequency</text>
+  <text x="150" y="268" font-size="7.4" fill="#8a8e9b" text-anchor="middle">one full turn per 1/slip seconds</text>
+
+  <!-- criteria panel -->
+  <g font-size="7.6">
+    <rect x="300" y="34" width="392" height="66" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="314" y="52" font-weight="600" fill="#0d7f63">1 &middot; Voltage magnitude</text>
+    <text x="314" y="68" fill="#454956">|V<tspan font-size="6" dy="2">running</tspan><tspan dy="-2"> &minus; V</tspan><tspan font-size="6" dy="2">incoming</tspan><tspan dy="-2">| below a set difference, and both within their own live-voltage windows.</tspan></text>
+    <text x="314" y="84" fill="#8a8e9b">Too large a difference means a reactive power surge at the instant of closing.</text>
+
+    <rect x="300" y="108" width="392" height="66" rx="6" fill="#eef0f9" stroke="#dde1f2"/>
+    <text x="314" y="126" font-weight="600" fill="#5468c4">2 &middot; Slip frequency</text>
+    <text x="314" y="142" fill="#454956">The rate the angle is changing, in Hz or in degrees per second.</text>
+    <text x="314" y="158" fill="#8a8e9b">High slip means the angle sweeps through the window too fast for the breaker to land on zero.</text>
+
+    <rect x="300" y="182" width="392" height="66" rx="6" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="314" y="200" font-weight="600" fill="#9c6d06">3 &middot; Phase angle</text>
+    <text x="314" y="216" fill="#454956">The instantaneous difference must be inside &plusmn;&theta;<tspan font-size="6" dy="2">max</tspan><tspan dy="-2"> when the contacts touch &mdash; not when the command is issued.</tspan></text>
+    <text x="314" y="232" fill="#8a8e9b">Hence the advance angle: issue the close early by (slip &times; breaker close time).</text>
+  </g>
+
+  <!-- window flash -->
+  <circle cx="238" cy="150" r="6" fill="#10a37f" opacity="0">
+    <animate attributeName="opacity" values="0;0;1;0;0" dur="6s" repeatCount="indefinite"/>
+  </circle>
+</svg></div>
+<p class="figcap">All three conditions must hold simultaneously. A scheme with a generous angle window and no slip limit will happily close a machine that is sweeping through zero at speed. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Live, dead, and the permissive matrix</h2>
+<p>A sync-check element does more than compare two live sources: it also decides whether closing is allowed when one or both sides are dead. Each combination is a separate enable, and the right set depends entirely on the application.</p>
+<table>
+  <tr><th>Running (bus)</th><th>Incoming (line)</th><th>Name</th><th>Typical use</th></tr>
+  <tr><td>Live</td><td>Live</td><td><strong>Sync check</strong></td><td>The real synchronism decision. Requires all three criteria above</td></tr>
+  <tr><td>Live</td><td>Dead</td><td><strong>Live bus / dead line</strong></td><td>Energizing a de-energized line from this station. Usually permitted at the designated &ldquo;source&rdquo; end only</td></tr>
+  <tr><td>Dead</td><td>Live</td><td><strong>Dead bus / live line</strong></td><td>Back-feeding a dead station from the line. Permitted only where that is the intended restoration path</td></tr>
+  <tr><td>Dead</td><td>Dead</td><td><strong>Dead bus / dead line</strong></td><td>Rarely enabled &mdash; both sides de-energized means nothing to synchronize, but also no confirmation of what is on the far end</td></tr>
+</table>
+<div class="callout warn">
+<strong>Enabling all four is the classic mistake.</strong> It looks harmless during commissioning &mdash; everything closes &mdash; and it removes the entire protection. If both ends of a line can close on live-bus/dead-line, an operator can energize the line from both ends independently, and the second close is out of synchronism with no supervision at all. Decide which end is the source, document it, and set the two relays differently.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>The angle a transformer adds</h2>
+<p>When the running and incoming voltages are measured on opposite sides of a delta&ndash;wye transformer, they differ by a fixed 30&deg; (or a multiple, depending on the vector group) even when the system is perfectly in synchronism. A sync-check element set to permit at 0&deg; will then never permit &mdash; or, if the window is wide enough, will permit at a genuine 30&deg; error.</p>
+<ul>
+<li><strong>The fix</strong> is a compensation setting: tell the relay the fixed angle between its two voltage inputs so it compares like with like.</li>
+<li><strong>PT connection also matters.</strong> One side wye-connected and the other open-delta introduces its own 30&deg; relationship, independent of any transformer.</li>
+<li><strong>Verify by measurement, not by calculation.</strong> With the breaker closed and the system solidly connected, the relay should show an angle difference of essentially zero after compensation. If it does not, the compensation is wrong &mdash; and you have just found it under the safest possible conditions.</li>
+</ul>
+<p>The vector-group arithmetic behind this is in <a href="atlas:fundamentals/transformers.html">Power Transformers</a>; the wye versus open-delta PT distinction is in <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Closing early: the advance angle</h2>
+
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Issue the close command early by exactly the breaker's closing time, expressed as an angle</text>
+
+  <!-- angle vs time -->
+  <line x1="60" y1="150" x2="660" y2="150" stroke="#a9adb8"/>
+  <line x1="60" y1="34" x2="60" y2="150" stroke="#a9adb8"/>
+  <text x="360" y="172" font-size="7.4" fill="#8a8e9b" text-anchor="middle">time</text>
+  <text x="40" y="94" font-size="7.4" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 40 94)">angle difference</text>
+
+  <!-- decreasing angle line -->
+  <path d="M80,44 L620,142" fill="none" stroke="#5468c4" stroke-width="1.8"/>
+  <line x1="60" y1="142" x2="660" y2="142" stroke="#10a37f" stroke-dasharray="4 3"/>
+  <text x="664" y="145" font-size="7" fill="#0d7f63" text-anchor="end">0&deg;</text>
+
+  <!-- command point -->
+  <circle cx="420" cy="106" r="5" fill="#d7930a"/>
+  <line x1="420" y1="106" x2="420" y2="160" stroke="#d7930a" stroke-dasharray="3 3"/>
+  <text x="420" y="98" font-size="7.4" fill="#9c6d06" text-anchor="middle">close command issued here</text>
+  <text x="420" y="184" font-size="7" fill="#9c6d06" text-anchor="middle">angle still &theta;<tspan font-size="6" dy="2">adv</tspan></text>
+
+  <!-- contact touch -->
+  <circle cx="620" cy="142" r="5" fill="#10a37f"/>
+  <line x1="620" y1="142" x2="620" y2="160" stroke="#10a37f" stroke-dasharray="3 3"/>
+  <text x="620" y="128" font-size="7.4" fill="#0d7f63" text-anchor="middle">contacts touch at 0&deg;</text>
+
+  <!-- travel bracket -->
+  <path d="M420,166 H620" stroke="#8a8e9b" stroke-width="1"/>
+  <path d="M420,162 V170 M620,162 V170" stroke="#8a8e9b" stroke-width="1"/>
+  <text x="520" y="184" font-size="7" fill="#8a8e9b" text-anchor="middle">breaker closing time</text>
+
+  <!-- travelling marker -->
+  <circle r="4" fill="#5468c4">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M80,44 L620,142"/>
+  </circle>
+
+  <rect x="8" y="192" width="684" height="16" rx="3" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="20" y="204" font-size="7.6" fill="#454956">&theta;<tspan font-size="6" dy="2">adv</tspan><tspan dy="-2"> = slip (deg/s) &times; breaker closing time (s). Measure the closing time on the actual breaker &mdash; a nameplate figure and a twenty-year-old mechanism are different numbers.</tspan></text>
+</svg></div>
+<p class="figcap">This is why the sync element needs to know both the slip and the breaker's closing time; with either wrong, the contacts land off zero. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Where sync check shows up</h2>
+<table>
+  <tr><th>Application</th><th>What it supervises</th><th>Notes</th></tr>
+  <tr><td><strong>Generator paralleling</strong></td><td>The generator breaker close</td><td>Tightest windows in the business. Often paired with an autosynchronizer that actively drives the governor and exciter into alignment. See <a href="atlas:protection/generator-protection.html">Generator Protection</a></td></tr>
+  <tr><td><strong>Reclosing supervision</strong></td><td>The 79 close command on a line that may be energized from the far end</td><td>Distribution reclosing is often unsupervised because the feeder is radial; the moment DER or a loop exists, supervision becomes mandatory. See <a href="atlas:protection/reclosing.html">Reclosing (79)</a></td></tr>
+  <tr><td><strong>Bus tie and transfer schemes</strong></td><td>Closing a tie between two energized buses</td><td>Closed transition requires real synchronism; open transition avoids it at the cost of a momentary outage</td></tr>
+  <tr><td><strong>Loop closing on distribution</strong></td><td>Tying two feeders together during switching or restoration</td><td>Feeders from the same substation bus are usually in step; feeders from different substations are frequently not. This is a common FLISR constraint &mdash; see <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC</a></td></tr>
+  <tr><td><strong>DER interconnection</strong></td><td>Reconnecting an island to the grid</td><td>Reconnection after an island must be synchronized, and the interconnection standard sets the limits. See <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a></td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Open transition versus closed transition is a policy decision, not a technical detail.</strong> Closed transition (make before break) means no customer interruption but requires synchronism and briefly parallels two sources &mdash; raising fault duty for that instant. Open transition (break before make) is simple and always safe but drops load. Know which one your scheme implements before you write the logic, because the two need entirely different supervision.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Commissioning</h2>
+<ol>
+<li><strong>Confirm which voltage input is which.</strong> Running versus incoming is a settings and wiring fact. Swapping them can invert the compensation and the dead-side logic.</li>
+<li><strong>Verify angle compensation with the breaker closed.</strong> With both sides solidly connected the compensated angle difference should read essentially zero. This is the cheapest, safest check available.</li>
+<li><strong>Prove each permissive individually.</strong> Live/live, live/dead, dead/live, dead/dead &mdash; apply each condition with a test set and confirm the element permits or blocks exactly as designed.</li>
+<li><strong>Prove the blocks.</strong> Apply an angle outside the window, a voltage difference outside the window, and a slip above the limit, and confirm the close is blocked in each case. This is the test that finds a reversed scheme.</li>
+<li><strong>Measure the breaker's actual closing time</strong> and confirm the advance angle setting derives from it.</li>
+<li><strong>Check the interaction with reclosing.</strong> Does the 79 wait for sync check, and what does it do when sync check never permits? A reclose that stalls indefinitely waiting for permission is a design decision that should be explicit.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">7</span>Gotchas</h2>
+<ul>
+<li><strong>All four permissives enabled.</strong> The scheme becomes decorative. Decide the source end and set the two ends differently.</li>
+<li><strong>Angle compensation omitted across a transformer.</strong> Either it never permits (and someone widens the window until it does &mdash; now permitting a genuine 30&deg; error), or it permits at 30&deg;.</li>
+<li><strong>Dead-voltage threshold set too high.</strong> A line with capacitive coupling from a parallel circuit can show appreciable voltage while genuinely de-energized. Set the dead threshold low enough that induced voltage does not read as &ldquo;live,&rdquo; and high enough that real voltage does.</li>
+<li><strong>Slip limit left at a default.</strong> A generous default that made bench testing easy will permit closes the machine cannot survive.</li>
+<li><strong>Advance angle from the nameplate.</strong> Breaker mechanisms slow with age and cold. Measure.</li>
+<li><strong>Sync-check voltage lost and nobody noticed.</strong> A blown VT fuse on the incoming side makes that side look dead, which may <em>enable</em> a live-bus/dead-line close into an energized line. Loss-of-potential supervision on sync-check inputs is not optional.</li>
+<li><strong>Assuming two feeders from the same station are in step.</strong> They usually are. &ldquo;Usually&rdquo; is not a protection basis when the alternative is a large out-of-step close.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:protection/generator-protection.html">Generator Protection</a>
+  <a href="atlas:fundamentals/transformers.html">Power Transformers</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+</div>
+<p class="footnote">Fundamentals of synchronism checking follow standard IEEE practice (C37.2 device 25, C37.102 for generator paralleling). Element behavior &mdash; separate live/dead permissives, angle and slip windows, voltage-difference limits, angle compensation between voltage inputs, and advance-angle closing &mdash; follows SEL relay practice as documented in the SEL-751/751A, SEL-451, and SEL-700G instruction manuals and data sheets; the SEL-700G family's separate generator and tie synchronism-check elements, synchroscope, and autosynchronism functions are described in its data sheet (20250501). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

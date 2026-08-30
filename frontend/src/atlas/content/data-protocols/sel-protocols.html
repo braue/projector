@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SEL Protocols</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="Fast Meter,Fast Operate,Fast SER,SEL ASCII,binary,SEL protocol">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "SEL Protocols (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>SEL Protocols</h1>
+  <p>The native SEL family — ASCII terminal commands plus binary Fast Meter, Fast Operate, and Fast SER sharing one port, and the RTAC client that configures itself</p>
+  <div class="chips"><span>ACC/2AC</span><span>A5C0</span><span>Fast Meter</span><span>Fast Operate</span><span>Fast SER</span><span>FASTOP</span><span>auto-config</span><span>DDF</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Every SEL relay ships speaking this: serial ports default to <code>PROTO := SEL</code>. Point an RTAC SEL client at it and it <strong>auto-configures</strong> — no point map to build.</li>
+<li><strong>Two data streams share one port.</strong> Short binary bursts (Fast Meter, Fast Operate, Fast SER) interrupt the human ASCII stream and let it resume — SCADA and a terminal session on the same wire.</li>
+<li>Access levels gate the ASCII side: <code>ACC</code> → Level 1 (view), <code>2AC</code> → Level 2 (change/control), passwords required. The binary side is gated by settings: <strong>Fast Operate is blocked until <code>FASTOP := Y</code></strong>.</li>
+<li>Fast Meter is polled; Fast SER is the unsolicited event stream. On the RTAC both work out of the box.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>One port, two data streams</h2>
+<p>SEL protocol is not one protocol but a family that shares a channel. The <strong>ASCII stream</strong> is the terminal interface — commands and human-readable (or comma-delimited Compressed ASCII) reports. The <strong>binary stream</strong> carries short, checksummed messages: <strong>Fast Meter</strong> (solicited metering/status snapshots), <strong>Fast Operate</strong> (control), and <strong>Fast SER</strong> (unsolicited sequential-events records). Binary bursts can interrupt an ASCII transfer mid-report — say, a long event report — and the ASCII stream continues afterward. That is how an SEL comms processor or RTAC collects SCADA data every second while an engineer is transparently connected through the very same port. XON/XOFF and CAN flow control act on the ASCII stream only.</p>
+
+<div class="fig"><svg viewBox="0 0 700 208" xmlns="http://www.w3.org/2000/svg">
+  <line x1="20" y1="96" x2="688" y2="96" stroke="#454956" stroke-width="1.5"/>
+  <text x="20" y="26" font-size="9" font-weight="600" fill="#454956">to relay ▼</text>
+  <text x="20" y="176" font-size="9" font-weight="600" fill="#454956">from relay ▲</text>
+  <text x="672" y="92" font-size="8" fill="#a9adb8" text-anchor="end">time →</text>
+  <!-- requests above the wire -->
+  <rect x="34" y="62" width="42" height="26" rx="3" fill="#fff" stroke="#454956" stroke-width="1.25"/>
+  <text x="55" y="78" font-size="8" font-weight="600" fill="#454956" text-anchor="middle">MET ⏎</text>
+  <text x="55" y="52" font-size="7.5" fill="#6e7180" text-anchor="middle">ASCII cmd</text>
+  <rect x="216" y="62" width="34" height="26" rx="3" fill="#10a37f"/>
+  <text x="233" y="78" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">A5D1</text>
+  <text x="233" y="52" font-size="7.5" fill="#10a37f" text-anchor="middle">FM poll</text>
+  <rect x="516" y="62" width="34" height="26" rx="3" fill="#10a37f"/>
+  <text x="533" y="78" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">A5D1</text>
+  <rect x="618" y="62" width="52" height="26" rx="3" fill="#d63a3a"/>
+  <text x="644" y="78" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">A5E0 op</text>
+  <text x="644" y="52" font-size="7.5" fill="#d63a3a" text-anchor="middle">Fast Operate</text>
+  <!-- responses below the wire -->
+  <rect x="82" y="104" width="128" height="26" rx="3" fill="#e6e8ec" stroke="#a9adb8" stroke-width="1"/>
+  <text x="146" y="120" font-size="8" fill="#454956" text-anchor="middle">ASCII meter report…</text>
+  <rect x="254" y="104" width="64" height="26" rx="3" fill="#10a37f" opacity="0.8"/>
+  <text x="286" y="120" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">FM data</text>
+  <rect x="322" y="104" width="104" height="26" rx="3" fill="#e6e8ec" stroke="#a9adb8" stroke-width="1"/>
+  <text x="374" y="120" font-size="8" fill="#454956" text-anchor="middle">…report resumes</text>
+  <rect x="436" y="104" width="72" height="26" rx="3" fill="#d7930a"/>
+  <text x="472" y="120" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">A546 SER</text>
+  <text x="472" y="146" font-size="7.5" fill="#9c6d06" text-anchor="middle">unsolicited burst</text>
+  <rect x="554" y="104" width="60" height="26" rx="3" fill="#10a37f" opacity="0.8"/>
+  <text x="584" y="120" font-size="8" font-weight="600" fill="#fff" text-anchor="middle">FM data</text>
+  <text x="266" y="146" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">binary interrupts the ASCII report</text>
+  <text x="354" y="196" font-size="8.5" fill="#a9adb8" text-anchor="middle">slate = ASCII stream (terminal) · teal = Fast Meter poll/response · amber = unsolicited Fast SER · red = Fast Operate control</text>
+  <g class="animlayer">
+    <line x1="20" y1="34" x2="20" y2="166" stroke="#1a1a22" stroke-width="1.25" opacity="0.45">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="668 0" dur="11s" repeatCount="indefinite"/>
+    </line>
+    <rect x="31" y="59" width="48" height="32" rx="4" fill="none" stroke="#454956" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0.9;0;0" keyTimes="0;0.03;0.09;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="213" y="59" width="40" height="32" rx="4" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.28;0.31;0.37;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="433" y="101" width="78" height="32" rx="4" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.61;0.65;0.72;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="615" y="59" width="58" height="32" rx="4" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.88;0.92;0.99;1" dur="11s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg></div>
+<p class="figcap">One serial port, four kinds of traffic. The relay's long ASCII meter report is paused by a one-second binary Fast Meter poll, resumes, then an unsolicited Fast SER burst and a Fast Operate control ride the same wire.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>SEL ASCII: the terminal protocol</h2>
+<p>Commands end with <code>&lt;CR&gt;</code> (or CRLF), can be truncated to <strong>three characters</strong> (<code>EVENT 1</code> → <code>EVE 1</code>), and are case-insensitive — <em>except passwords</em>. Every relay message is framed <code>&lt;STX&gt;…&lt;ETX&gt;</code> with CRLF-terminated lines. <strong>Compressed ASCII</strong> variants of selected reports are comma-delimited with a checksum field per line, made for machine parsing (CEV, CHI, CST, CSE…), plus the Level-0 configuration commands <code>ID</code>, <code>DNA</code>, <code>BNA</code>, <code>SNS</code>/<code>ENA</code> that hand a master the ASCII names behind Fast Meter bits and SER points.</p>
+
+<h3>Access levels (SEL-751/751A — identical in both manuals)</h3>
+<table>
+  <tr><th>Level</th><th>Prompt</th><th>Enter with</th><th>Default password</th><th>What lives here</th></tr>
+  <tr><td>0</td><td class="mono">=</td><td>(connect)</td><td>—</td><td><code>ACC</code>, <code>ID</code>, <code>QUI</code>, comms-processor support commands</td></tr>
+  <tr><td>1</td><td class="mono">=&gt;</td><td class="mono">ACC</td><td class="mono">OTTER</td><td>Reviewing: metering, targets, SER, events, settings display</td></tr>
+  <tr><td>2</td><td class="mono">=&gt;&gt;</td><td class="mono">2AC</td><td class="mono">TAIL</td><td>Changing settings, controls (<code>OPE</code>/<code>CLO</code>/<code>CON</code>/<code>PUL</code>), passwords</td></tr>
+  <tr><td>C</td><td>—</td><td class="mono">CAL</td><td class="mono">CLARKE</td><td>SEL factory/field service only</td></tr>
+</table>
+<p>Three wrong password entries → the relay pulses <strong>SALARM</strong> for one second and stays at Level 0. SALARM also pulses on any successful Level 2/C entry (or denial) — SCADA can see who is logging in. Passwords: up to 12 characters, case-sensitive. After <code>T_OUT</code> minutes idle (0–30, default 5, 0 = never) a serial port at Level 2 drops back to Level 0.</p>
+
+<h3>The commands you actually use (751/751A command summary)</h3>
+<table>
+  <tr><th>Command</th><th>Lvl</th><th>Does</th><th>Command</th><th>Lvl</th><th>Does</th></tr>
+  <tr><td class="mono">MET / MET DEM / MET E</td><td>1</td><td>Instantaneous / demand / energy metering</td><td class="mono">SHO n·G·P n·L·R</td><td>1</td><td>Display settings (group, global, port, logic, report)</td></tr>
+  <tr><td class="mono">TAR n / TAR R</td><td>1</td><td>Target (Relay Word) rows / reset latched targets</td><td class="mono">SET n·G·P n·L·R</td><td>2</td><td>Modify settings; <code>SET P 3</code> = port 3</td></tr>
+  <tr><td class="mono">SER / SER C</td><td>1</td><td>Sequential events report / clear (1024 rows)</td><td class="mono">TRI</td><td>1</td><td>Trigger an event-report capture</td></tr>
+  <tr><td class="mono">EVE n / CEV n</td><td>1</td><td>Event report / compressed event report</td><td class="mono">OPE / CLO</td><td>2</td><td>Open / close circuit breaker</td></tr>
+  <tr><td class="mono">HIS n</td><td>1</td><td>Event history summaries</td><td class="mono">CON RBnn S·C·P</td><td>2</td><td>Set/clear/pulse remote bit RB01–RB32 (751: to RB64)</td></tr>
+  <tr><td class="mono">STA</td><td>1</td><td>Relay self-test status</td><td class="mono">PUL n t</td><td>2</td><td>Pulse output contact for t seconds</td></tr>
+  <tr><td class="mono">DAT / TIM</td><td>1</td><td>View or set date / time</td><td class="mono">PAS 1·2</td><td>2</td><td>Change passwords</td></tr>
+</table>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Fast Meter: the binary data plane</h2>
+<p>All classic binary messages start <code>A5</code>, carry a length byte (total bytes in message), and end with a <strong>1-byte arithmetic-sum checksum</strong>. The design goal (AG95-10, 1994) was self-description: a master should never need per-product firmware knowledge. So the conversation starts with configuration messages the master uses to learn what the data messages will contain:</p>
+<div class="flow">
+  <div class="stage"><b>A5C0 · relay definition</b><span>which protocols and Fast Meter messages this relay supports; which command fetches each config block; which status bits demand action</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>A5C1/C2/C3 · FM config</b><span>regular / demand / peak-demand layout: channel names, types, scale factors, offsets of analogs, digitals, time stamp</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>A5D1/D2/D3 · FM data</b><span>the actual snapshot: status byte(s), analog samples, digital banks — parsed using the config block</span></div>
+</div>
+<table>
+  <tr><th>Hex</th><th>Message</th><th>Hex</th><th>Message</th></tr>
+  <tr><td class="mono">A5C0</td><td>Relay definition block</td><td class="mono">A5B2</td><td>Oldest unacknowledged event-report packet</td></tr>
+  <tr><td class="mono">A5C1/C2/C3</td><td>FM config: regular / demand / peak</td><td class="mono">A5B5</td><td>Acknowledge event report just sent</td></tr>
+  <tr><td class="mono">A5D1/D2/D3</td><td>FM data: regular / demand / peak</td><td class="mono">A5B9</td><td>Clear status bits (power-up, settings change) — per port</td></tr>
+  <tr><td class="mono">A5CE / A5CF</td><td>Fast Operate config / alternate config</td><td class="mono">A560–A59F</td><td>Specific event reports, newest to oldest</td></tr>
+  <tr><td class="mono">A5E0 / A5E3</td><td>Fast Operate: remote bit / breaker</td><td class="mono">A546</td><td>Fast Message (Fast SER lives here) — CRC-16, not checksum</td></tr>
+</table>
+<p><strong>The steady-state loop</strong> (AG95-10 recommended usage): on connect send <code>A5C0</code>; fetch each config block it names; fetch names via <code>ID</code>/<code>ENA</code>/<code>DNA</code>/<code>BNA</code>; then poll <code>A5D1</code> about once a second. Each response carries a <strong>status flag byte</strong> — bits for power-up, event trigger, self-test warning/failure, settings change. Event bit set? Fetch with <code>A5B2</code>, acknowledge with <code>A5B5</code>. Settings-change bit set? Re-fetch the config blocks — the layout may have changed. <strong>Scaling:</strong> single-sample channels are magnitude × scale factor; multi-sample channels average odd/even samples into imaginary/real parts, then the config block's calculation blocks define power, sequence, and delta quantities.</p>
+<div class="callout warn"><strong>Old relays differ.</strong> Pre-1994 SEL relays answer <code>A5DA</code>/<code>A5DC</code> (fixed-layout "old" Fast Meter) instead of A5C0 self-description — the RTAC's "Limited Fast Meter for SEL-100/200 series" support covers these.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Fast Operate: binary control</h2>
+<p>Control is deliberately awkward to fake. A Fast Operate command is 6 bytes total, and the operate code must be echoed in arithmetic:</p>
+<table>
+  <tr><th>Byte(s)</th><th>Content</th><th>SEL-421 example: open breaker W</th></tr>
+  <tr><td class="mono">2</td><td><code>A5E3</code> breaker · <code>A5E0</code> remote bit</td><td class="mono">A5 E3</td></tr>
+  <tr><td class="mono">1</td><td>Length (always 06)</td><td class="mono">06</td></tr>
+  <tr><td class="mono">1</td><td>Operate code — from the A5CE config block</td><td class="mono">31 (open BK W)</td></tr>
+  <tr><td class="mono">1</td><td>Operate validation = (4 × code) + 1</td><td class="mono">C5</td></tr>
+  <tr><td class="mono">1</td><td>Checksum</td><td class="mono">84</td></tr>
+</table>
+<p>The <code>A5CE</code> config block lists what is controllable: on the SEL-421, 2 breakers (open codes 31/32, close 11/12) and 32 remote bits (clear 00–1F, set 20–3F, pulse 40–5F). To succeed, <em>all</em> of: valid code, correct validation and checksum, <strong>Fast Operate enabled in settings</strong>, breaker jumper installed (for breaker ops), relay enabled. If the enable setting is off, the SEL-421 answers the A5CE config request but silently ignores A5E0/A5E3.</p>
+<ul>
+  <li><strong>751/751A enable:</strong> per-serial-port setting <code>FASTOP := Y</code> — <strong>factory default is N</strong> (on the 751 the Ethernet port's Telnet sessions have their own <code>FASTOP</code>, also N). On an SEL comms processor the paired setting is <code>SEND_OPER = Y</code>; the SEL-421 calls its setting <code>FAST_OP</code>.</li>
+  <li><strong>What controls map to (751A):</strong> remote bits RB01–RB32 mirror the master's remote bits directly (the SEL-751's Fast Operate reaches RB01–RB64). The breaker bit is different: setting BR1 pulses the relay's <strong>OC</strong> bit (trips via the TR SELogic equation) for one processing interval; clearing BR1 pulses <strong>CC</strong> (closes via CL).</li>
+  <li>Devices with many controls use the alternate block: <code>A5CF</code> config, commands <code>A5E5</code>–<code>A5E9</code> (open/close/set/clear/pulse) with 2-byte operate codes.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Fast SER: unsolicited events</h2>
+<p>Fast SER rides the generic <strong>Fast Message</strong> (<code>A546</code>) format — 5-byte routing, status byte, function code, sequence byte <code>C0</code> (single frame), response number 0–3, and a <strong>CRC-16</strong>. The master turns the stream on; the relay then pushes SER records as they happen instead of waiting to be polled:</p>
+<div class="flow">
+  <div class="stage"><b>Enable</b><span>function <code>01</code>, target function <code>18</code> (unsolicited SOE), plus max SOE records per message (01–20)</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Broadcast</b><span>relay sends function <code>18</code>: day-of-year, year, ms of day, then per element an index + µs offset, element states</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Acknowledge</b><span>master echoes the function code with the MSB set (<code>98</code>); relay retransmits until ACKed</span></div>
+</div>
+<ul>
+  <li>Function <code>02</code> disables the stream; function <code>05</code> (ping) pauses unsolicited transfer and the relay re-sends the interrupted message after its ping acknowledge.</li>
+  <li>If the relay loses records it says so — a dedicated <strong>SER Record Lost</strong> message (empty record with the end-of-record marker <code>FFFFFFFE</code>).</li>
+  <li>Fast Message also runs <em>inbound</em> on the SEL-751: a comms processor/RTAC pushes <strong>unsolicited writes</strong> into the relay's Remote Analogs (RA001–RA128) — the RTAC side is the Tx UW Messages tab plus "Transmit Fast Unsolicited Write Messaging on Startup".</li>
+  <li>Timestamps are the relay's SER-quality times (index + microsecond offset) — this is the mechanism that gives an RTAC true sequence-of-events time from a serial relay, unlike scan-time binaries.</li>
+  <li>On the SEL-421 all Fast Message / Fast Meter commands are available at <strong>Access Level 0</strong> — no login needed for the binary data plane; only Fast Operate has its own enable.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>On the RTAC: the SEL client and auto-configuration</h2>
+<p>Insert an SEL client (Insert ribbon or right-click <code>SEL_RTAC</code> → SEL → IED series → device → protocol) on any serial or Ethernet port. It is <strong>point-to-point</strong> — one relay per client connection, no multidrop. Each supported relay ships with a <strong>DDF</strong> (device definition file): a template containing a superset of every point the device can offer. All tags start <em>disabled</em>; you set <code>Enable = True</code> on just the ones you need (most live on the <strong>Meter</strong> tab). On download, the RTAC runs autoconfiguration against the live relay and compares — <strong>enabled tags the relay doesn't actually have are marked invalid quality</strong>.</p>
+
+<div class="fig"><svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg">
+  <rect x="40" y="8" width="110" height="22" rx="4" fill="#1a1a22"/>
+  <text x="95" y="23" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">RTAC client</text>
+  <rect x="550" y="8" width="110" height="22" rx="4" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="605" y="23" font-size="11" font-weight="600" fill="#1a1a22" text-anchor="middle">SEL relay</text>
+  <line x1="95" y1="30" x2="95" y2="224" stroke="#d0d3da" stroke-width="1.25"/>
+  <line x1="605" y1="30" x2="605" y2="224" stroke="#d0d3da" stroke-width="1.25"/>
+  <path d="M95,48 H598 M592,43 L599,48 L592,53" fill="none" stroke="#454956" stroke-width="1.5"/>
+  <text x="350" y="42" font-size="9" font-weight="600" fill="#454956" text-anchor="middle">connect (auto-bps) · ID / DNA / BNA — names &amp; FID string</text>
+  <path d="M95,78 H598 M592,73 L599,78 L592,83" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="350" y="72" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">A5C0 — what do you support?</text>
+  <path d="M605,100 H102 M108,95 L101,100 L108,105" fill="none" stroke="#5468c4" stroke-width="2"/>
+  <text x="350" y="94" font-size="9" fill="#5468c4" text-anchor="middle">definition block + A5C1/C2/C3/CE config blocks — layout, names, scaling</text>
+  <rect x="34" y="116" width="150" height="44" rx="4" fill="#10a37f" opacity="0.10" stroke="#10a37f" stroke-width="1"/>
+  <text x="42" y="128" font-size="8" font-weight="600" fill="#10a37f">tags materialize vs. DDF:</text>
+  <text x="42" y="139" font-size="7.5" fill="#454956" font-family="Consolas, monospace">Meter: IA, VAB, 52A…</text>
+  <text x="42" y="149" font-size="7.5" fill="#454956" font-family="Consolas, monospace">Targets · History · Demand</text>
+  <text x="42" y="158" font-size="7.5" fill="#d63a3a" font-family="Consolas, monospace">not found → invalid quality</text>
+  <path d="M95,178 H598 M592,173 L599,178 L592,183" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="350" y="172" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">polling begins — A5D1 per Message Settings poll period</text>
+  <path d="M605,200 H102 M108,195 L101,200 L108,205" fill="none" stroke="#d7930a" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="350" y="194" font-size="9" font-weight="600" fill="#9c6d06" text-anchor="middle">unsolicited Fast SER — enabled by default, mapped by SER label</text>
+  <text x="350" y="222" font-size="8.5" fill="#a9adb8" text-anchor="middle">re-run any time: Initiate_Auto_Configuration POU pin · watch Auto_Configuration_Pending / _Failure / DDF_Configuration_Mismatch</text>
+  <g class="animlayer">
+    <circle r="4" fill="#454956" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.11;0.13;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M95,48 L605,48" keyPoints="0;0;1;1" keyTimes="0;0.01;0.12;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.17;0.26;0.28;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M95,78 L605,78" keyPoints="0;0;1;1" keyTimes="0;0.16;0.27;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="6" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.32;0.44;0.46;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M605,100 L95,100" keyPoints="0;0;1;1" keyTimes="0;0.31;0.45;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="31" y="113" width="156" height="50" rx="5" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.50;0.53;0.62;0.65;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.71;0.80;0.82;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M95,178 L605,178" keyPoints="0;0;1;1" keyTimes="0;0.70;0.81;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.86;0.87;0.96;0.98;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M605,200 L95,200" keyPoints="0;0;1;1" keyTimes="0;0.86;0.97;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg></div>
+<p class="figcap">RTAC auto-configuration: identify, learn the layout from the relay's own config messages, reconcile against the DDF, then settle into polling — with Fast SER events pushed in between polls.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Message Settings tab</strong> — each row is one poll: Message Name, Message Type, Command, and a <strong>Poll Period in ms (0 disables the message)</strong>. When the same data exist in Compressed ASCII and binary, SEL says use binary: more efficient, more secure, and <em>uninterrupted by transparent engineering access</em> (which does interrupt CASCII polls).</li>
+  <li><strong>Unsolicited Fast SER</strong> — <code>Enable_Unsolicited_SER_RX</code> is on by default. Map records either into explicit tags on the Fast Message Unsolicited SER tab (by label, preferably — index order changes with relay SER settings) or let the RTAC match SER labels to enabled binary tags on the Meter tab, so <code>IN_201</code> gets true event time and state automatically.</li>
+  <li><strong>Controls</strong> — add Remote Bit / Breaker Bit tags and link them in the Tag Processor; the RTAC issues Fast Operate to the relay. Requires <code>FASTOP := Y</code> on the relay port.</li>
+  <li><strong>Passwords</strong> — Level 1/2 relay passwords live in the client Settings tab (POU pins can rotate them at runtime). <strong>Warning from the manual:</strong> pin-written passwords are overwritten by the next settings download — read the running project first or you lock yourself out of the relays.</li>
+  <li><strong>Extras riding the same client</strong> — Check IED Configuration (periodic CRC/SHA-256 of settings responses, mismatch pin on change), ASCII SER logging into the RTAC SOE log, CHI/CEV event collection (up to 576 CEV records) with optional COMTRADE conversion and collection, engineering access with Ymodem file-transfer detection.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>SEL protocol vs. DNP3 southbound</h2>
+<div class="twocol">
+<div class="card teal">
+<h3>Take SEL protocol when…</h3>
+<ul style="margin-bottom:2px">
+<li>The IED is an SEL relay — it speaks this on every serial port <strong>by factory default</strong> (<code>PROTO := SEL</code>); zero relay-side protocol engineering.</li>
+<li>You want <strong>auto-configuration</strong>: no point map to build or maintain; the relay describes itself, DDF tags just get enabled.</li>
+<li>You want the extras only this client gives: transparent engineering access through the RTAC, event report / COMTRADE collection, settings-change detection, password management, true SER timestamps by label.</li>
+</ul>
+</div>
+<div class="card latch">
+<h3>Take DNP3 when…</h3>
+<ul style="margin-bottom:2px">
+<li>The device isn't SEL, or you need <strong>multidrop addressing</strong> — the RTAC SEL client is strictly point-to-point, one relay per connection.</li>
+<li>You want standardized <strong>report-by-exception</strong> (event classes, deadbands, buffered timestamped events) rather than periodic Fast Meter snapshots plus Fast SER.</li>
+<li>The link goes to a non-SEL master or upstream SCADA — DNP3 is the interoperable choice, and it's what the RTAC serves northbound anyway. See <em>DNP3 Fundamentals</em> / <em>DNP3 on SEL Relays</em> in atlas.</li>
+</ul>
+</div>
+</div>
+<p style="font-size:8.6pt">Both can coexist on one relay: SEL protocol on one port for the RTAC, DNP3 on another for a direct master — the 751A runs SEL ASCII + Fast Meter/Operate/SER concurrently with DNP3 LAN/WAN and Telnet on its Ethernet port.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Troubleshooting &amp; fine print</h2>
+<ul>
+<li><strong>No response at all</strong> → port protocol: the relay port must be <code>PROTO := SEL</code> (it's the default — check whether someone repurposed the port for MOD/DNP/MB), speed/data/parity matched (RTAC client can auto-bps), and on the RTAC the language port setting must be English when behind a comms processor.</li>
+<li><strong>Data flows but controls don't</strong> → <code>FASTOP := N</code> (751/751A factory default) blocks Fast Operate silently; the config request still answers, so discovery "works." Breaker ops additionally need the breaker-control jumper.</li>
+<li><strong>Access-level lockout</strong> → three bad passwords pulse SALARM and leave you at <code>=</code>; passwords are case-sensitive (commands aren't). A port left at Level 2 self-reverts after <code>T_OUT</code> idle minutes; on Telnet, issue <code>QUI</code> before disconnecting or the session stays elevated until <code>TIDLE</code> expires.</li>
+<li><strong>RTAC tags stuck invalid quality</strong> → enabled in the DDF but not found during autoconfiguration — wrong device model picked (watch <code>DDF_Configuration_Mismatch</code>: FID string doesn't match the configured type), or the point genuinely doesn't exist in that relay's ordering/firmware.</li>
+<li><strong>A message never polls</strong> → its Poll Period is 0 (disabled) in Message Settings; flex parse messages also wait until autoconfiguration completes before they're sent.</li>
+<li><strong>Polling stalls during engineering access</strong> → expected: a direct transparent connection (or file transfer on the polling connection) blocks all SEL messaging until it closes; plain transparent access interrupts only CASCII polls, not binary. Autoconfiguration and transparent sessions also pause the Check IED Configuration monitor.</li>
+<li><strong>SER data loss</strong> → <code>Buffer_Overflow</code> pin pulses on lost unsolicited SER; ASCII-SER logging pulses <code>ASCII_SER_Logging_Sequence_Restart</code> when the last-known record scrolled out of the report window (chattering bit) — raise the command parameter or fix the chatter.</li>
+<li><strong>Health counters</strong> → per-client POU pins <code>Fast_Meter_Failure/_Count</code>, <code>Fast_Message_Failure_Count</code>, <code>CASCII_Failure_Count</code> and their success twins tell you which of the three streams is failing.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/protocol-chooser.html">Choosing a Protocol</a>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:comms/serial-comms.html">Serial Comms</a>
+  <a href="atlas:start-here/field-kit.html">The Field Kit</a>
+</div>
+<p class="footnote">Sources: SEL-751A Relay IM (751A_IM_20250411 — §7 SEL ASCII protocol, access levels &amp; command summary; §4 port settings/FASTOP; App. C SEL Communications Processors) · SEL-751 Relay IM (751_IM_20260327 — §7 and App. C verified: identical ASCII framing, truncation, access levels/prompts, OTTER/TAIL/CLARKE defaults, SALARM behavior, T_OUT; 751 deltas noted in text: RB01–RB64, Remote Analog unsolicited writes) · SEL AG95-10 "Configuration and Fast Meter Messages" (binary message map, A5C0/config blocks, Fast Operate format, scaling) · SEL AG2002-14 "SEL-421 Relay Fast Messages" (AG_200214 — worked message contents, status byte, Fast SER/A546 functions) · ACSELERATOR RTAC SEL-5033 IM (full text inside 3530-4_IM_20241217 — SEL Protocol client, autoconfiguration, POU pins, events). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

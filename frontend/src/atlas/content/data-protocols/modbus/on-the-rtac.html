@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Modbus on the RTAC</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="Modbus,RTAC,client,server,polls,word order,scaling,third-party">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Modbus on the RTAC (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Modbus on the RTAC</h1>
+  <p>Client and server in the SEL-5033 project — sessions, polls, HREG tags, the Variation column, shared server maps, and where the data actually stalls</p>
+  <div class="chips"><span>Client–Serial</span><span>Poll Period</span><span>HREG_xxx</span><span>Variation MSR</span><span>MDBC</span><span>shared map</span><span>0-based</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>RTAC Modbus is 0-based, always.</strong> A third-party map's "40001" is holding register <strong>0</strong> in the project; the legacy 3X/4X prefixes are documentation only and never configured. If the vendor's table is 1-based (many are), subtract 1.</li>
+<li><strong>One poll = one contiguous range.</strong> Every register in the range must exist on the device or the whole poll fails with an exception response — no partial data. Noncontiguous data means multiple polls.</li>
+<li><strong>The default Variation is 16-bit signed MSB.</strong> The RTAC does not know what the server sends; you must set size, sign, and byte/register order per tag to match the vendor map.</li>
+<li><strong>Nothing flows by itself.</strong> Client tags and server shared-map tags are separate databases; the Tag Processor (or Simple Tag Mapper) moves data between them — and scaling lives there too, because the Modbus columns have no multiplier field.</li>
+<li><strong>Each Modbus server instance accepts one client connection at a time</strong> — "connect and stay connected". More masters means more server instances (same shared map).</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Where the RTAC talks Modbus</h2>
+<p><strong>Southbound, as client:</strong> polling legacy meters, third-party IEDs, RTUs, and communications processors that only speak Modbus — the RTAC stores the polled values in its database for logic, logging, and re-serving in richer protocols. <strong>Northbound, as server:</strong> answering a SCADA master, third-party HMI, or comm processor that polls the RTAC itself. The RTAC supports <strong>Modbus RTU</strong> (serial), <strong>Modbus/TCP</strong>, and <strong>Modbus RTU tunneled over Ethernet</strong>; Modbus ASCII is not supported. Function codes 01h–06h, 0Fh, 10h, and 11h (Report Server ID) are implemented on both ends.</p>
+<table>
+  <tr><th>RTAC model</th><th>Modbus clients + servers (combined)</th></tr>
+  <tr><td>SEL-3530, SEL-3530-4, SEL-2241 · SEL-3505, SEL-3505-3 · SEL-1102, SEL-3332, SEL-3351, SEL-3354</td><td class="mono">120</td></tr>
+  <tr><td>SEL-3350, SEL-2241-2</td><td class="mono">200 (as of R152; 120 before)</td></tr>
+  <tr><td>SEL-3555, SEL-3560</td><td class="mono">256</td></tr>
+</table>
+
+<div class="fig"><svg viewBox="0 0 700 268" xmlns="http://www.w3.org/2000/svg">
+  <!-- RTAC center -->
+  <rect x="272" y="52" width="156" height="164" rx="8" fill="#fafbfc" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="350" y="70" font-size="11" font-weight="700" fill="#1a1a22" text-anchor="middle">RTAC</text>
+  <text x="308" y="86" font-size="7.5" fill="#6e7180" text-anchor="middle">client tags</text>
+  <rect x="284" y="92" width="52" height="18" rx="3" fill="#e7f6f1" stroke="#10a37f"/><text x="310" y="104" font-size="7" fill="#1a1a22" text-anchor="middle" font-family="Consolas, monospace">Meter_A</text>
+  <rect id="tagB" x="284" y="114" width="52" height="18" rx="3" fill="#e7f6f1" stroke="#10a37f"/><text x="310" y="126" font-size="7" fill="#1a1a22" text-anchor="middle" font-family="Consolas, monospace">Relay_B</text>
+  <text x="392" y="86" font-size="7.5" fill="#6e7180" text-anchor="middle">server map</text>
+  <rect x="366" y="92" width="52" height="40" rx="3" fill="#eef0f8" stroke="#5468c4"/>
+  <text x="392" y="106" font-size="7" fill="#1a1a22" text-anchor="middle" font-family="Consolas, monospace">HREG 0-99</text>
+  <text x="392" y="118" font-size="6.5" fill="#6e7180" text-anchor="middle">shared map</text>
+  <path d="M338,112 H364 M359,108 L365,112 L359,116" fill="none" stroke="#8a8e9b" stroke-width="1.1"/>
+  <text x="350" y="150" font-size="7" fill="#8a8e9b" text-anchor="middle">Tag Processor</text>
+  <text x="350" y="160" font-size="7" fill="#8a8e9b" text-anchor="middle">moves + scales</text>
+  <text x="350" y="196" font-size="7" fill="#a9adb8" text-anchor="middle">client polls southbound,</text>
+  <text x="350" y="206" font-size="7" fill="#a9adb8" text-anchor="middle">server answers northbound</text>
+
+  <!-- southbound devices -->
+  <rect x="14" y="58" width="110" height="34" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="69" y="72" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Meter A · addr 1</text>
+  <text x="69" y="85" font-size="7" fill="#6e7180" text-anchor="middle">healthy — answers polls</text>
+  <rect x="14" y="150" width="110" height="34" rx="5" fill="#fff" stroke="#d63a3a" stroke-width="1.4"/>
+  <text x="69" y="164" font-size="8.5" font-weight="600" fill="#1a1a22" text-anchor="middle">Relay B · addr 2</text>
+  <text x="69" y="177" font-size="7" fill="#d63a3a" text-anchor="middle">not answering</text>
+
+  <!-- northbound master -->
+  <rect x="576" y="100" width="110" height="34" rx="5" fill="#1a1a22"/>
+  <text x="631" y="114" font-size="8.5" font-weight="600" fill="#fff" text-anchor="middle">SCADA master</text>
+  <text x="631" y="127" font-size="7" fill="#a9adb8" text-anchor="middle">polls the RTAC server</text>
+
+  <!-- static wires -->
+  <line x1="124" y1="75" x2="272" y2="100" stroke="#d0d3da" stroke-width="1.1"/>
+  <line x1="124" y1="167" x2="272" y2="124" stroke="#d0d3da" stroke-width="1.1"/>
+  <line x1="428" y1="114" x2="576" y2="117" stroke="#d0d3da" stroke-width="1.1"/>
+
+  <text x="350" y="240" font-size="8" fill="#a9adb8" text-anchor="middle">Relay B never answers: after Poll Timeout × Poll Retries the client's Offline pin asserts and Relay_B data go invalid —</text>
+  <text x="350" y="253" font-size="8" fill="#a9adb8" text-anchor="middle">the Tag Processor carries that quality into the server map, so SCADA keeps getting answers, just flagged data.</text>
+
+  <g class="animlayer">
+    <!-- poll to A and response, twice per 12s cycle -->
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.07;0.09;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M272,100 L124,75" keyPoints="0;0;1;1" keyTimes="0;0.01;0.08;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.09;0.10;0.16;0.18;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M124,75 L272,100" keyPoints="0;0;1;1" keyTimes="0;0.09;0.17;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="198" y="70" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.17;0.19;0.26;0.28;1" dur="12s" repeatCount="indefinite"/>FC 03 ✓ data</text>
+
+    <!-- poll to B, no response, retry, fail -->
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.29;0.36;0.38;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M272,124 L124,167" keyPoints="0;0;1;1" keyTimes="0;0.28;0.37;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="198" y="158" font-size="7.5" font-weight="600" fill="#d7930a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.40;0.46;0.48;1" dur="12s" repeatCount="indefinite"/>…timeout</text>
+    <circle r="4" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.49;0.56;0.58;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M272,124 L124,167" keyPoints="0;0;1;1" keyTimes="0;0.48;0.57;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="198" y="158" font-size="7.5" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.58;0.60;0.68;0.70;1" dur="12s" repeatCount="indefinite"/>retry ✕ — Offline</text>
+    <!-- tag goes bad -->
+    <rect x="283" y="113" width="54" height="20" rx="3" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.68;0.70;0.97;0.99;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <text x="310" y="145" font-size="7" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.72;0.97;0.99;1" dur="12s" repeatCount="indefinite"/>q = invalid</text>
+    <!-- quality crosses to server map -->
+    <circle r="3" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.72;0.73;0.79;0.81;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M338,120 L366,120" keyPoints="0;0;1;1" keyTimes="0;0.72;0.80;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- SCADA polls RTAC throughout -->
+    <circle r="4" fill="#1a1a22" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.83;0.89;0.90;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M576,117 L428,114" keyPoints="0;0;1;1" keyTimes="0;0.82;0.89;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.90;0.91;0.97;0.98;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M428,114 L576,117" keyPoints="0;0;1;1" keyTimes="0;0.90;0.97;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="502" y="105" font-size="7.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.91;0.93;0.99;1" dur="12s" repeatCount="indefinite"/>served from map</text>
+  </g>
+</svg></div>
+<p class="figcap">The RTAC in the middle: its client polls Meter A (answers) and Relay B (times out — retries exhaust, Offline asserts, the tag quality goes invalid), while its Modbus server keeps answering SCADA from the shared map with whatever the Tag Processor last put there.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<p style="font-size:8.6pt"><strong>Companions:</strong> protocol mechanics (framing, function codes, the 4X off-by-one) are on <em>Modbus Fundamentals</em>; the relay/meter server end (SET M user map, SLAVEID, BLKMBSET) is on <em>Modbus on SEL Relays</em>. This page is the RTAC end only.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Client: the session and device settings</h2>
+<p>Insert ► <strong>Other ► Modbus</strong> (or right-click Devices ► Add Other Device ► Modbus Protocol). Give the device a unique name — it becomes the prefix of every tag — and pick the connection type:</p>
+<table>
+  <tr><th>Connection type</th><th>Use for</th></tr>
+  <tr><td>Client–Serial</td><td>point-to-point EIA-232/422/485 to one IED</td></tr>
+  <tr><td>Client–Multidrop Serial</td><td>several IEDs on one serial port — insert one client <em>per IED</em>, same port number, unique server address each</td></tr>
+  <tr><td>Client–Ethernet</td><td>Modbus TCP; each IED's IP + port combination must be unique</td></tr>
+  <tr><td>Client–Ethernet Tunneled (Multidrop) Serial</td><td>RTU frames in TCP through a serial port server; one client per IED, same SPS IP, per-IED port/address</td></tr>
+</table>
+<ul>
+  <li><strong>Server Modbus Address</strong> — the remote server's unit ID, 1–247 (248–255 reserved on serial). <strong>Address 0 makes this a broadcast client:</strong> write-only, no polls issued, responses not expected, so Poll Timeout / Poll Retries are ignored and the <strong>Intermessage Transmit Delay</strong> setting is what spaces requests on the multidrop line. The broadcast client's <code>Offline</code> pin generally stays False — don't use it for health.</li>
+  <li><strong>Serial parameters</strong> — set <strong>Baud Rate</strong> to the device, <strong>Serial Communications Port Type</strong> to EIA485/422 when on 485 (with <strong>Full Duplex</strong> := False for two-wire), and <strong>Serial Communications Port</strong> to the physical port (e.g. Port 17, the isolated terminal-strip 485 port on an SEL-3530).</li>
+  <li><strong>Timeout behavior</strong> — Poll Timeout and Poll Retries govern each request; the advanced <strong>Communications Offline Timer</strong> (default 10 s) drives the device's <code>Offline</code> POU pin when nothing is heard.</li>
+  <li><strong>Use Shared TCP Connection</strong> (advanced, R155+) — multiple Ethernet clients aimed at the same IP:port each open their own socket by default, which can exhaust a port server's listening ports; enable this on each client sharing the IP:port to round-robin them over one TCP connection.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Client: polls, then tags</h2>
+<div class="flow">
+  <div class="stage"><b>1 · Session</b><span>connection type, address, baud/IP, timeouts</span></div><div class="arr">→</div>
+  <div class="stage"><b>2 · Polls</b><span>per function code: start address + quantity + Poll Period</span></div><div class="arr">→</div>
+  <div class="stage"><b>3 · Tags</b><span>one per point: address, Tag Type, Variation, Bit Reference</span></div><div class="arr">→</div>
+  <div class="stage"><b>4 · Map it</b><span>Tag Processor to server maps, logic, logs</span></div>
+</div>
+<p>Polls and tags are configured separately and must agree. On the poll tabs — <strong>Read Coil Polls, Read Discrete Input Polls, Read Holding Register Polls, Read Input Register Polls</strong>, plus a <strong>Report Server ID Poll</strong> (FC 11h: server ID, run indicator, vendor data) — each row is Poll Number, <strong>Starting Address</strong> (0-based), <strong>Quantity</strong>, and <strong>Poll Period</strong> in ms. Slow-changing data can poll lazily (a meter's model number every 9000 ms) while measurements poll fast (2000 ms) — per-poll periods are how you spend serial bandwidth where it matters. Limits per query: 125 registers, 2000 bits.</p>
+<p>On the tag tabs (Coils, Discrete Inputs, Holding Registers, Input Registers; 30,000 tags per type, 5,000 on an SEL-3505) each tag gets an address plus type columns. Defaults are unhelpful on purpose: tags come named <code>HREG_xxx</code> / <code>DI_xxx</code> with contiguous addresses from 0 — <strong>rename every tag to what it means</strong> (<code>IA_MAG</code>, not <code>HREG_002</code>) and set the real addresses from the vendor map. Ctrl+C/Ctrl+V pastes whole columns of names from a spreadsheet. Create only the tags you need; every tag costs processing.</p>
+<ul>
+  <li><strong>Analog columns</strong> — <strong>Dead Band</strong>: when |instMag − mag| exceeds it, mag updates and the RTAC generates a timestamped event; <strong>dead band 0 = an event for every value received</strong>, same trap as DNP. Zero Dead Band forces small values to 0; HH/H/L/LL limits generate alarms; Min/Max clamp the point.</li>
+  <li><strong>Control Value</strong> (holding registers) — the default value the RTAC will write to the IED in a write-holding-register message, before logic overwrites it.</li>
+  <li><strong>Coils tab</strong> — the coil's bit address "you want to operate": client coils are write points (FC 05/0F), discrete inputs are the read side.</li>
+</ul>
+<div class="callout warn"><strong>The poll must cover the tags, and the device must cover the poll.</strong> Tags only fill from polls whose range includes their address — a tag outside every poll just sits at its default with no error. And if any register inside a poll's range doesn't exist on the device, the server rejects the <em>entire</em> poll with an exception response. When one value is missing, check both directions.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>The third-party-device workflow</h2>
+<p>SEL's worked example (AG2015-32, Eaton IQ 250/260 meter on two-wire EIA-485) is the template for integrating anything with a vendor register map:</p>
+<ul>
+  <li><strong>Read the vendor map first.</strong> Note which spaces exist at all — the IQ 250/260 serves only holding (4X) registers, so everything goes in the Holding Registers tab and FC 03 polls, whatever the data "is".</li>
+  <li><strong>Fix the addressing base.</strong> The Eaton map is 1-based: its registers 1000–1001 (Volts A-N) are RTAC addresses 999–1000. Subtract one from every documented address. (Some vendors document 0-based, some 40001-based — establish which before typing anything.)</li>
+  <li><strong>Match the format per point.</strong> The voltages are 32-bit floats: Tag Type <strong>APC</strong> (so the tag can carry float values), Variation <strong>32-bit Float MSR</strong> (most significant register first). Save, and Register Address Stop auto-fills to start+1 — 32-bit tags consume two consecutive registers, and the address auto-numbering skips accordingly. The meter-type register stays a plain 16-bit read.</li>
+  <li><strong>Split polls along the map's gaps.</strong> The map isn't contiguous, so: one poll at address 16, quantity 1, period 9000 ms (model number — never changes); one poll at 999, quantity 6, period 2000 ms (three floats × two registers).</li>
+  <li><strong>Verify online against the device's own display.</strong> Go online, watch the tags, and compare with the meter front panel (for an SEL relay: <code>MET</code> / <code>MET E</code> / <code>TARGET</code> responses). Values present-but-wrong at this step are almost always Variation (sign or word order) or an unapplied multiplier — §5.</li>
+</ul>
+<p style="font-size:8.6pt">Physical-layer footnote from the same guide: the RTAC's terminal-strip 485 port is four-wire full duplex — jumper +TX/+RX and −TX/−RX (or use an SEL-C691 cable, jumpers built in) for two-wire devices, and set Full Duplex := False. Signal ground goes to the Shield terminal; cable shield drain grounds at one end only.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Data types: Variation, word order, scaling</h2>
+<p>The <strong>Variation</strong> column is where Modbus's "everything is 16 bits" meets reality. It sets size, sign, and swap for each tag:</p>
+<table>
+  <tr><th>Variation family</th><th>Meaning</th></tr>
+  <tr><td class="mono">16-bit signed / unsigned, LSB / MSB</td><td>one register; LSB/MSB choose byte order within it. <strong>Default: 16-bit signed MSB</strong> — wrong for unsigned points like current magnitudes</td></tr>
+  <tr><td class="mono">32-bit signed / unsigned / float, LSR / MSR</td><td>two consecutive registers combined into one tag; LSR/MSR choose which register is least/most significant</td></tr>
+</table>
+<ul>
+  <li><strong>Tag Type carries the value; Variation decodes the wire.</strong> MV/INS-style analogs for plain reads, <strong>APC</strong> where floats or setpoint writes are needed, <strong>STR</strong> (with Number of Bytes) for strings, <strong>SPS</strong> with a <strong>Bit Reference</strong> to pull one bit out of a packed input register, <strong>MDBC</strong> to unlock Bit Reference on a holding register and dissect it bit by bit.</li>
+  <li><strong>Packed bits, three ways</strong> (AG2022-04, SEL-751 Relay Word): read FC 02 discrete inputs at address row×8+bit; or read the row register via FC 03 as an analog (PB05 asserted in row 15 → register 1775 reads 8); or read the same register with Tag Type MDBC + Bit Reference 3 and get a clean boolean tag. One 16-tag trick: sixteen SPS input-register tags, all at the same address, Bit Reference 0–15 — the RTAC dissects one register into sixteen status points.</li>
+  <li><strong>Scaling is yours to apply.</strong> SEL relays (and most vendors) send scaled integers — VBC 2163 means 21 634.6 V (kV × 0.01), MWH3PO 2 313 729 means 2 313.729 MWh (× 0.001). The Modbus tag columns have no multiplier field: apply it in the Tag Processor with a math expression or the <code>SCALE_MV</code> function block (<code>instMag × SCALE + OFFSET</code>, which also carries the source's time and quality through).</li>
+</ul>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="92" y="16" font-size="8.5" font-weight="600" fill="#454956" text-anchor="middle">wire: two 16-bit registers</text>
+  <g font-family="Consolas, monospace" font-size="9" text-anchor="middle">
+    <rect x="30" y="24" width="124" height="24" rx="3" fill="#fff" stroke="#454956" stroke-width="1.2"/><text x="92" y="40" fill="#1a1a22">reg 382 = 0023h</text>
+    <rect x="30" y="54" width="124" height="24" rx="3" fill="#fff" stroke="#454956" stroke-width="1.2"/><text x="92" y="70" fill="#1a1a22">reg 383 = 4E01h</text>
+  </g>
+  <text x="92" y="94" font-size="7" fill="#6e7180" text-anchor="middle">SEL-751 MWH3PO — high word first</text>
+
+  <!-- correct branch -->
+  <path d="M154,40 C210,40 220,58 268,58" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+  <path d="M154,66 C210,66 220,62 268,62" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+  <rect x="268" y="40" width="150" height="40" rx="4" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+  <text x="343" y="56" font-size="8" font-weight="600" fill="#0b7a5f" text-anchor="middle">Variation 32-bit uns MSR</text>
+  <text x="343" y="71" font-size="8.5" fill="#1a1a22" text-anchor="middle" font-family="Consolas, monospace">00234E01h = 2313729</text>
+  <path d="M418,60 H462 M456,55 L463,60 L456,65" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+  <rect x="464" y="40" width="96" height="40" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.3"/>
+  <text x="512" y="56" font-size="8" font-weight="600" fill="#0b7a5f" text-anchor="middle">× 0.001</text>
+  <text x="512" y="71" font-size="8.5" fill="#1a1a22" text-anchor="middle" font-family="Consolas, monospace">Tag Processor</text>
+  <path d="M560,60 H600 M594,55 L601,60 L594,65" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+  <rect x="602" y="40" width="88" height="40" rx="4" fill="#10a37f"/>
+  <text x="646" y="57" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">2313.729</text>
+  <text x="646" y="71" font-size="7.5" fill="#d9f2ea" text-anchor="middle">MWh ✓</text>
+
+  <!-- wrong branch -->
+  <path d="M154,44 C210,60 220,150 268,152" fill="none" stroke="#d63a3a" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <path d="M154,70 C210,80 220,146 268,148" fill="none" stroke="#d63a3a" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="268" y="130" width="150" height="40" rx="4" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+  <text x="343" y="146" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">Variation … LSR (wrong)</text>
+  <text x="343" y="161" font-size="8.5" fill="#1a1a22" text-anchor="middle" font-family="Consolas, monospace">4E010023h = 1308688419</text>
+  <path d="M418,150 H462 M456,145 L463,150 L456,155" fill="none" stroke="#d63a3a" stroke-width="1.4"/>
+  <rect x="464" y="130" width="96" height="40" rx="4" fill="#fff" stroke="#d63a3a" stroke-width="1.3"/>
+  <text x="512" y="146" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">× 0.001</text>
+  <text x="512" y="161" font-size="7.5" fill="#6e7180" text-anchor="middle">scale can't fix order</text>
+  <path d="M560,150 H600 M594,145 L601,150 L594,155" fill="none" stroke="#d63a3a" stroke-width="1.4"/>
+  <rect x="602" y="130" width="88" height="40" rx="4" fill="#d63a3a"/>
+  <text x="646" y="147" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">1308688.4</text>
+  <text x="646" y="161" font-size="7.5" fill="#fbdada" text-anchor="middle">garbage ✕</text>
+
+  <text x="350" y="196" font-size="8" fill="#a9adb8" text-anchor="middle">same two registers, same scale — only the register-order setting differs. Word-order errors look like huge or wildly jumping numbers,</text>
+  <text x="350" y="209" font-size="8" fill="#a9adb8" text-anchor="middle">not values a constant factor off; a constant 10×/1000× error is a missing multiplier instead.</text>
+  <text x="350" y="228" font-size="8" fill="#a9adb8" text-anchor="middle">Both registers must sit in one poll — split them across two polls and the tag updates in halves.</text>
+
+  <g class="animlayer">
+    <!-- register highlight then correct path pulse -->
+    <rect x="29" y="23" width="126" height="26" rx="3" fill="none" stroke="#454956" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.08;0.10;1" dur="10s" repeatCount="indefinite"/></rect>
+    <rect x="29" y="53" width="126" height="26" rx="3" fill="none" stroke="#454956" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.08;0.10;0.15;0.17;1" dur="10s" repeatCount="indefinite"/></rect>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.17;0.18;0.25;0.27;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M154,40 C210,40 220,58 268,58" keyPoints="0;0;1;1" keyTimes="0;0.17;0.26;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="267" y="39" width="152" height="42" rx="4" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.28;0.34;0.36;1" dur="10s" repeatCount="indefinite"/></rect>
+    <circle r="4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.37;0.42;0.44;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M418,60 L602,60" keyPoints="0;0;1;1" keyTimes="0;0.36;0.43;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="601" y="39" width="90" height="42" rx="4" fill="none" stroke="#1a1a22" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.43;0.45;0.52;0.54;1" dur="10s" repeatCount="indefinite"/></rect>
+    <!-- wrong path pulse -->
+    <circle r="4" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.56;0.57;0.65;0.67;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M154,44 C210,60 220,150 268,152" keyPoints="0;0;1;1" keyTimes="0;0.56;0.66;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="267" y="129" width="152" height="42" rx="4" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.68;0.74;0.76;1" dur="10s" repeatCount="indefinite"/></rect>
+    <circle r="4" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.76;0.77;0.83;0.85;1" dur="10s" repeatCount="indefinite"/>
+      <animateMotion path="M418,150 L602,150" keyPoints="0;0;1;1" keyTimes="0;0.76;0.84;1" calcMode="linear" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="601" y="129" width="90" height="42" rx="4" fill="none" stroke="#d63a3a" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.84;0.86;0.94;0.97;1" dur="10s" repeatCount="indefinite"/></rect>
+  </g>
+</svg></div>
+<p class="figcap">The same two raw registers through the right and wrong register-order settings. MSR joins high-then-low into 2 313 729, scaled to 2 313.729 MWh; LSR joins them backwards into 1.31 billion — no downstream scale can rescue a bad join.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Writes and controls from RTAC logic</h2>
+<p>Modbus has no SBO, no CROB, no verbs — the manual's phrase is that Modbus "lacks the complex control structure of DNP," so a control maps as <strong>one Tag Processor entry per point</strong>. The write machinery on the RTAC client:</p>
+<ul>
+  <li><strong>Coils → MDBC</strong> (Modbus Coil Control): a structure with <code>operSet</code> and <code>operClear</code>, each carrying <code>ctlVal</code> (BOOL) plus a <code>pulseConfig</code>, and a <code>status</code> SPS. Trigger the operate and the client issues the coil write (FC 05/0F). Because MDBC is a command-style type, the Tag Processor and Simple Tag Mapper auto-convert richer controls onto it: a DNP master's <em>close / latch-on</em> becomes <code>operSet</code>, <em>trip / latch-off</em> becomes <code>operClear</code>, and a DNP <em>pulse</em> maps to <code>operSet</code> (Auto mode) — so SCADA trip/close commands can land on a Modbus-only device with one mapped row.</li>
+  <li><strong>Holding registers → APC</strong> (Controllable Analog Set Point): a rising edge on <code>oper.trigger</code> sends <code>oper.setMag</code> to the device as a register write. The tag column <strong>Control Value</strong> supplies the default written value before logic touches it.</li>
+  <li><strong>Broadcast writes:</strong> a client at address 0 sends coil/holding-register writes that every listening server on the multidrop executes, with no responses and no retries — space them with Intermessage Transmit Delay (§2).</li>
+</ul>
+<p>On the <strong>server</strong> side, an incoming FC 05/06/0F/10 from the master lands on the shared-map coil or holding-register tag; your Tag Processor rows or logic carry it onward to the field device. The server device's <code>Disable_Controls</code> POU pin blocks all coil and holding-register writes — and because it acts on the shared map, it disables controls for <em>every</em> server instance sharing that map.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Server: shared maps and sessions</h2>
+<h3>Building the served map</h3>
+<p>Since firmware R153, tags live in a <strong>Modbus Server Shared Map</strong> (Insert ► Tag Lists, or Add Tag List ► Modbus Server Shared Map; up to 120 per project), not on the server device. The map has tabs for <strong>Discrete Inputs, Coils, Input Registers, Holding Registers</strong> — you assign each tag a 0-based address in its space, then set the server device's <strong>Map Name</strong> setting to the map. Multiple server instances can reference one map and present identical data. Columns mean the same as on the client side with two inversions: <strong>Bit Reference</strong> now selects which bit of the <em>served</em> register a value populates (build packed registers for the master out of individual booleans), and CMV tags gain served angle fields. The Tag Processor populates everything — an empty map serves defaults forever.</p>
+<div class="callout"><strong>Map layout discipline.</strong> The RTAC is the one device in the yard whose Modbus map <em>you</em> design — so design it: group everything the master needs into one contiguous block per register type, in a stable order, so the master reads it in one FC 03 of ≤125 registers. You are building for someone else exactly the convenience the SEL relay user map builds for you (see <em>Modbus on SEL Relays</em>). Leave spare addresses between logical groups for growth; never renumber a live map.</div>
+<h3>Sessions and addressing</h3>
+<ul>
+  <li>Connection types mirror the client list: Serial, Multidrop Serial (RTAC as one drop on a 485 loop, unique ID), Ethernet (Modbus TCP), Ethernet Tunneled (Multidrop) Serial (RTU in TCP). Ethernet servers take a comma-separated allowlist of up to <strong>20 client IPs</strong>, or allow anonymous connections.</li>
+  <li><strong>One client connection per server instance</strong>, designed for connect-and-stay-connected. A second master isn't queued — give it its own server instance.</li>
+  <li><strong>Server MODBUS Address</strong> is 1–247 or <strong>255 = answer any unit ID</strong> (fixed at 255 before R153). Two sanctioned ways to share one TCP port among anonymous servers: (a) unique addresses 1–247 — one client round-robins them by unit ID, emulating a port server in front of a multidrop RTU chain; (b) several address-255 servers all referencing the <em>same shared map</em> — incoming connections are handed to the next free server, so the collection looks like a single Modbus server that accepts simultaneous clients. Otherwise each anonymous server needs its own port.</li>
+  <li><strong>POU pins</strong> (Table 2.117): inputs <code>EN</code>, <code>Disable_Controls</code>, <code>Disable_Tag_Updates</code> (both act map-wide), <code>Reset_Statistics</code>, <code>Communications_Offline_Timer</code> (default T#10000MS); outputs <code>ENO</code>, <code>Offline</code>, <code>Illegal_Data_Address</code> / <code>Illegal_Data_Value</code> / <code>Illegal_Function_Code</code> (assert ≥1 processing interval when a client asks for something invalid), <code>Message_Failure(_Count)</code>, <code>Message_Success_Count</code>, <code>Messages_Received_Count</code>, <code>Messages_Sent_Count</code>, <code>Direct_Transparent_Connection</code>.</li>
+</ul>
+<div class="callout warn"><strong>Contrast with the DNP3 server:</strong> the Modbus server has no event queues, no classes, no SOE buffering, no timestamps, no unsolicited — the master gets whatever is in the map at the instant it polls, full stop. Anything event-shaped must be served over DNP3 instead (see <em>DNP3 on the RTAC</em>); the Modbus map is for masters that only do registers.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>The Tag Processor seam</h2>
+<p>Client tags and server maps never touch directly: every value crosses through the Tag Processor (or Simple Tag Mapper) as a Destination ← Source Expression row, and the destination inherits the source's <strong>value, quality, and time</strong>. That's how a southbound comm failure surfaces northbound — the offline device's now-invalid data carries its quality into the served tags. Controls run the seam backwards, and their <em>quality</em> flows server→client: an IED's control tag inherits invalid quality when the server connection is down even though the client link is fine. Source expressions take math (scaling, §5) and IEC 61131-3 fragments. Details on the RTAC platform pages — this seam behaves identically for every protocol pair.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Troubleshooting from the RTAC side</h2>
+<h3>Symptom → cause</h3>
+<ul>
+  <li><strong>Device Offline, tags invalid</strong> → serial: wrong Server Modbus Address, baud/parity, port type not set to 485, two-wire loop without Full Duplex := False, TX/RX jumpers missing. RTU failures are silent — a wrong address or bad CRC produces no reply at all, just Poll Timeout → retries → <code>Offline</code>. TCP: wrong IP/port, or the far end already has its one allowed connection. Note <code>Offline = False</code> does not prove data flows — a settings mismatch can hold the link "up" with nothing usable exchanged.</li>
+  <li><strong>Whole poll returns nothing, device online</strong> → one nonexistent register inside the poll range; the server answers with an exception and the RTAC gets no data for any tag in that poll. Shrink the poll until it works, or split per the vendor map. (Debug trick from AG2022-04: temporarily use one poll per tag so each failure names its register.)</li>
+  <li><strong>Tag never updates, no errors anywhere</strong> → its address isn't covered by any poll, or the tag/poll is on the wrong function-code tab (holding vs. input registers).</li>
+  <li><strong>Values present but wrong</strong> → Variation: sign (default is <em>signed</em> MSB), byte order, or LSR/MSR register order on 32-bit tags (§5); or the vendor multiplier was never applied in the Tag Processor; or a 1-based vendor map entered without the −1, putting every tag one register off.</li>
+  <li><strong>Server ignores a master</strong> → master's IP not in the allowlist, another client holds the single connection, unit ID mismatch against a 1–247 server (use 255 to answer regardless), or two anonymous servers colliding on one port outside the two sanctioned patterns (§7). Watch <code>Illegal_Data_Address</code>/<code>Illegal_Function_Code</code> pins: they assert per offending query and finger the master's map or FC assumptions.</li>
+  <li><strong>Polling mysteriously stopped</strong> → a <strong>direct transparent</strong> access-point session (third-party software configuring the IED through the RTAC) suspends Modbus polling on that port for the duration; polling resumes when the session ends. The server-side pin <code>Direct_Transparent_Connection</code> shows it live.</li>
+</ul>
+<h3>Instruments</h3>
+<ul>
+  <li><strong>Statistics pins</strong> — every Modbus device exposes counters (<code>Messages_Received_Count</code>, <code>Messages_Sent_Count</code>, <code>Message_Failure_Count</code>, <code>Message_Success_Count</code>) plus <code>Offline</code>; read them in logic or the web interface, clear with <code>Reset_Statistics</code>. Failures incrementing while successes climb = intermittent line, not configuration.</li>
+  <li><strong>Online Packet Dissector</strong> (R151+, SEL-3555/3560/3350) — Web interface ► Connected IEDs ► select the device ► Actions ► Inspect Packets. Live decode of serial <em>and</em> TCP Modbus with Wireshark display-filter syntax: <code>modbus</code> shows all Modbus traffic, <code>modbus.func_code == 3</code> isolates holding-register reads — exception responses and their codes appear decoded in the tree. On other models, capture a pcap from the same page and open it in Wireshark.</li>
+  <li><strong>Live Data / Tags view</strong> — watch the client tag against the device's own display (meter front panel, relay <code>MET</code>/<code>TARGET</code>); the manual's own diagnostic pattern for value-shape problems.</li>
+</ul>
+<p style="font-size:8.6pt"><strong>  </p>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:data-protocols/modbus/fundamentals.html">Modbus Fundamentals</a>
+  <a href="atlas:rtac-automation/rtac-tags.html">RTAC Tags &amp; Quality</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+  
+</div>
+<p class="footnote">Sources: ACSELERATOR RTAC SEL-5033 Software Instruction Manual (embedded in SEL-3530/3530-4 IM, 3530-4_IM_20241217_20260313.pdf) — Modbus section (client/server configuration, Tables 2.111–2.117, shared maps, addressing note, broadcast client, Shared TCP Connection, POU pins), Client/Server Connection Types, Communication Protocol Device Count Support, Tag Processor Data Entry (quality/control flow, math, SCALE_MV), Simple Tag Mapper control mapping (MDBC verb table), Data Types appendix (MDBC, APC), Access Points (direct transparent), Web Interface (packet dissector); SEL AG2022-04, "Modbus Configuration for SEL-700 Series Relays and RTAC Devices" (AG2022-04_20220228.pdf) — client walkthrough, Variation defaults, MDBC bit dissection, multiplier behavior; SEL AG2015-32, "Connecting the Eaton IQ 250/260 to an RTAC Via Serial EIA-485 Modbus RTU" (AG2015-32_20151012.pdf) — third-party workflow, 1-based correction, APC/Float MSR, per-poll periods, 485 wiring. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

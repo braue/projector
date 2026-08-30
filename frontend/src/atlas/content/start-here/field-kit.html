@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Field Kit &amp; Daily Workflows</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="field kit,tools,engineering access,data pull,as-found,as-left,site visit,workflow">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "The Field Kit &amp; Daily Workflows (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>The Field Kit &amp; Daily Workflows</h1>
+  <p>What to carry, how to get onto any device, the ten-minute data pull, and what must be true before you leave site</p>
+  <div class="chips"><span>field kit</span><span>engineering access</span><span>data pull</span><span>file hygiene</span><span>site discipline</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Working in the field</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Pull before you push.</strong> The first thing you do on any device is read and save its present state &mdash; settings, firmware ID, event history. If the visit goes wrong, that file is your way back.</li>
+<li><strong>One change at a time, and know how to undo it.</strong> Two simultaneous changes turn a five-minute diagnosis into an afternoon.</li>
+<li><strong>Never trust a cable you did not prove.</strong> Serial adapters, null-modems, and mystery patch cords cause more &ldquo;dead device&rdquo; calls than dead devices do.</li>
+<li><strong>Assume the panel is live.</strong> CT secondaries, trip circuits, and station DC are all present on terminals that look identical to the ones that are not &mdash; see <a href="atlas:commissioning/safety-practices.html">Safety Practices</a>.</li>
+<li><strong>Write it down while you are standing there.</strong> Terminal numbers, as-found switch positions, and odd noises never survive the drive home.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What lives in the bag</h2>
+<div class="twocol">
+<div>
+<h3>Connectivity</h3>
+<ul>
+<li><strong>SEL-C662</strong> (USB&ndash;to&ndash;DB9 serial cable for SEL front ports) plus a spare; a plain USB&ndash;serial adapter and a <strong>DB9 null-modem</strong> and <strong>gender changer</strong> for everything else.</li>
+<li><strong>Ethernet patch cords</strong>, short and long, plus a small unmanaged switch (invaluable for sniffing and for talking to two devices at once).</li>
+<li><strong>SFP</strong> spares matching the site's optics, and <strong>LC/ST/SC fiber jumpers</strong> plus a fiber cleaning pen.</li>
+<li>USB stick (for RTAC/relay file transfer where permitted by policy) and a USB&ndash;C hub &mdash; modern laptops have no serial and often one port.</li>
+</ul>
+<h3>Measurement</h3>
+<ul>
+<li><strong>True-RMS DMM</strong> with good leads; <strong>clamp meter</strong> that reads AC amps down to a few amps (for proving CT secondaries and load).</li>
+<li><strong>Phase rotation meter</strong> (or a relay that reports it) for proving PT wiring.</li>
+<li>Insulated screwdrivers sized for the terminal blocks you will actually meet, and a <strong>shorting jumper set</strong> for CT circuits.</li>
+</ul>
+</div>
+<div>
+<h3>Paper and light</h3>
+<ul>
+<li>Printed one-line, three-line, AC/DC elementaries, panel schedule, and the <strong>points list</strong>. Paper works when the laptop battery does not, and you can red-line it.</li>
+<li>Headlamp. Substations at 4&nbsp;p.m. in December are dark places, and both hands will be busy.</li>
+<li>Labels and a label printer. An unlabeled temporary jumper is a future outage.</li>
+</ul>
+<h3>Safety</h3>
+<ul>
+<li>Arc-rated clothing appropriate to the panel's incident-energy label, safety glasses, and voltage-rated gloves if the task calls for them.</li>
+<li>Lockout/tagout kit, and your own set of locks.</li>
+</ul>
+<div class="callout warn" style="margin-top:8px">
+<strong>The two items people forget:</strong> a spare serial cable, and a way to charge the laptop. Both stop a site visit dead.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The laptop</h2>
+<table>
+  <tr><th>Software</th><th>What you use it for</th></tr>
+  <tr><td><strong>ACSELERATOR QuickSet (SEL-5030)</strong></td><td>Relay settings read/write, HMI, event retrieval, phasor display. See <a href="atlas:rtac-automation/quickset.html">Engineering Access &amp; QuickSet</a>.</td></tr>
+  <tr><td><strong>ACSELERATOR RTAC (SEL-5033)</strong></td><td>RTAC projects, tag database, logic, IO maps, HMI diagrams.</td></tr>
+  <tr><td><strong>synchroWAVe Event (SEL-5601-2)</strong></td><td>Opening event reports and COMTRADE files properly &mdash; see Event Analysis.</td></tr>
+  <tr><td><strong>A terminal program</strong></td><td>Raw serial and Telnet sessions when the GUI is in the way. Anything that logs to a file.</td></tr>
+  <tr><td><strong>Wireshark</strong></td><td>The final authority on what is actually on the wire. Learn the DNP3 and GOOSE dissectors.</td></tr>
+  <tr><td><strong>A protocol test master</strong></td><td>A DNP3/Modbus client to prove a map without waiting for the real SCADA master.</td></tr>
+</table>
+
+<div class="callout">
+<strong>Network setup is a recurring tax.</strong> Keep a saved set of static IP profiles for your NIC (one per site subnet) plus a DHCP profile, and know how to switch between them in two clicks. Turn <em>off</em> the Wi-Fi adapter when you are on a substation LAN &mdash; a second default route is the most common cause of &ldquo;I can ping it but the software cannot connect.&rdquo; Details in <a href="atlas:comms/ethernet-ip.html">Ethernet &amp; IP Addressing</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Four doors into a device</h2>
+<p>Every SEL device offers several ways in, with different privileges and different risk. Knowing which door to knock on &mdash; and which one your site's security policy permits &mdash; saves an hour per visit.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="fk" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 z" fill="#6e7180"/>
+    </marker>
+  </defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The same relay, four ways in &mdash; each with its own privileges and its own hazards</text>
+
+  <!-- the relay -->
+  <rect x="470" y="70" width="150" height="110" rx="8" fill="#fafbfc" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="545" y="92" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1a1a22">SEL relay</text>
+  <text x="545" y="106" text-anchor="middle" font-size="7.6" fill="#6e7180">access levels: 1 &rarr; 1B &rarr; 2</text>
+  <rect x="486" y="118" width="118" height="16" rx="3" fill="#fff" stroke="#e5e7eb"/>
+  <text x="545" y="129" text-anchor="middle" font-size="7.2" fill="#6e7180">Level 1 &mdash; read: MET, EVE, STA</text>
+  <rect x="486" y="138" width="118" height="16" rx="3" fill="#fff" stroke="#e5e7eb"/>
+  <text x="545" y="149" text-anchor="middle" font-size="7.2" fill="#6e7180">Level 1B &mdash; control: OPE, CLO</text>
+  <rect x="486" y="158" width="118" height="16" rx="3" fill="#fff" stroke="#e5e7eb"/>
+  <text x="545" y="169" text-anchor="middle" font-size="7.2" fill="#d63a3a">Level 2 &mdash; write: SET, settings</text>
+
+  <!-- doors -->
+  <g font-size="7.6">
+    <rect x="8" y="34" width="150" height="40" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="83" y="49" text-anchor="middle" font-size="8.5" font-weight="600" fill="#10a37f">Front panel</text>
+    <text x="83" y="63" text-anchor="middle" fill="#6e7180">buttons + LCD, no laptop</text>
+
+    <rect x="8" y="82" width="150" height="40" rx="6" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+    <text x="83" y="97" text-anchor="middle" font-size="8.5" font-weight="600" fill="#5468c4">Front serial port</text>
+    <text x="83" y="111" text-anchor="middle" fill="#6e7180">EIA-232, 2400&ndash;38400 bd</text>
+
+    <rect x="8" y="130" width="150" height="40" rx="6" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+    <text x="83" y="145" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9c6d06">Rear Ethernet</text>
+    <text x="83" y="159" text-anchor="middle" fill="#6e7180">Telnet / FTP / HTTPS</text>
+
+    <rect x="8" y="178" width="150" height="40" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.25"/>
+    <text x="83" y="193" text-anchor="middle" font-size="8.5" font-weight="600" fill="#d63a3a">Through the gateway</text>
+    <text x="83" y="207" text-anchor="middle" fill="#6e7180">SEL-3620/3622 or RTAC</text>
+  </g>
+
+  <!-- middle notes -->
+  <g font-size="7.2" fill="#8a8e9b">
+    <text x="240" y="49">on site only &middot; no records off the box</text>
+    <text x="240" y="97">always works &middot; slow for events</text>
+    <text x="240" y="145">fast &middot; needs an IP plan &middot; may be disabled</text>
+    <text x="240" y="193">audited, remote &middot; the sanctioned path</text>
+  </g>
+
+  <g stroke="#6e7180" stroke-width="1.1" fill="none" marker-end="url(#fk)" opacity="0.6">
+    <path d="M158,54  C 380,54  400,110 468,116"/>
+    <path d="M158,102 C 380,102 410,116 468,122"/>
+    <path d="M158,150 C 380,150 410,138 468,130"/>
+    <path d="M158,198 C 380,198 410,160 468,138"/>
+  </g>
+
+  <circle r="3.5" fill="#10a37f">
+    <animateMotion dur="5s" repeatCount="indefinite" path="M158,54 C 380,54 400,110 468,116"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="3.5" fill="#5468c4">
+    <animateMotion dur="5s" begin="1.2s" repeatCount="indefinite" path="M158,102 C 380,102 410,116 468,122"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="5s" begin="1.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="3.5" fill="#d7930a">
+    <animateMotion dur="5s" begin="2.4s" repeatCount="indefinite" path="M158,150 C 380,150 410,138 468,130"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="5s" begin="2.4s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="3.5" fill="#d63a3a">
+    <animateMotion dur="5s" begin="3.6s" repeatCount="indefinite" path="M158,198 C 380,198 410,160 468,138"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="5s" begin="3.6s" repeatCount="indefinite"/>
+  </circle>
+
+  <text x="8" y="240" font-size="7.6" fill="#8a8e9b">Whichever door you use, the relay applies the same access-level ladder &mdash; the door changes who can reach it and what gets logged, not what Level 2 can do.</text>
+</svg></div>
+<p class="figcap">Access level is a property of the session, not of the port. Level 2 over a serial cable in the panel and Level 2 through the gateway can do identical damage. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Door</th><th>Use it when</th><th>Watch out for</th></tr>
+  <tr><td>Front panel</td><td>Reading targets, checking metering, resetting a lockout, verifying an IP without a laptop</td><td>Some settings are hidden or read-only from the panel; panel access may be password-protected separately</td></tr>
+  <tr><td>Front serial port</td><td>Anything, always. The port that works when the network does not</td><td>Baud/parity mismatch, an adapter that lies about its COM port, and slow event downloads</td></tr>
+  <tr><td>Rear Ethernet</td><td>Fast settings and event transfers; multiple sessions</td><td>Telnet/FTP may be disabled by policy; session limits; an accidental collision with the SCADA session</td></tr>
+  <tr><td>Through the gateway</td><td>Remote work, and any site with a real security program</td><td>Your account, not a shared one; every keystroke may be logged &mdash; which is the point</td></tr>
+</table>
+<p>Access levels, password rules, and gateway behavior are covered in <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>; the QuickSet side of the session is in <a href="atlas:rtac-automation/quickset.html">Engineering Access &amp; QuickSet</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>The ten-minute data pull</h2>
+<p>Arriving at an unfamiliar device, this is the sequence that gets you oriented and gives you a rollback point. Do it <em>before</em> you touch anything.</p>
+
+<div class="fig"><svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="fk2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Arrive &rarr; orient &rarr; capture &rarr; only then change</text>
+  <g font-size="7.6">
+    <rect x="6"   y="30" width="126" height="56" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="69" y="46" text-anchor="middle" font-size="8.4" font-weight="600" fill="#10a37f">1 &middot; Identify</text>
+    <text x="69" y="59" text-anchor="middle" fill="#6e7180"><tspan x="69">STA / ID: part number,</tspan><tspan x="69" dy="10">FID firmware, serial</tspan></text>
+    <text x="69" y="81" text-anchor="middle" fill="#8a8e9b">match it to the drawing</text>
+
+    <rect x="146" y="30" width="126" height="56" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="209" y="46" text-anchor="middle" font-size="8.4" font-weight="600" fill="#10a37f">2 &middot; Health</text>
+    <text x="209" y="59" text-anchor="middle" fill="#6e7180"><tspan x="209">STATUS: self-test,</tspan><tspan x="209" dy="10">clock source, alarms</tspan></text>
+    <text x="209" y="81" text-anchor="middle" fill="#8a8e9b">is it even happy?</text>
+
+    <rect x="286" y="30" width="126" height="56" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="349" y="46" text-anchor="middle" font-size="8.4" font-weight="600" fill="#10a37f">3 &middot; Settings</text>
+    <text x="349" y="59" text-anchor="middle" fill="#6e7180"><tspan x="349">read all groups to a</tspan><tspan x="349" dy="10">file &mdash; the as-found</tspan></text>
+    <text x="349" y="81" text-anchor="middle" fill="#8a8e9b">your rollback point</text>
+
+    <rect x="426" y="30" width="126" height="56" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+    <text x="489" y="46" text-anchor="middle" font-size="8.4" font-weight="600" fill="#10a37f">4 &middot; History</text>
+    <text x="489" y="59" text-anchor="middle" fill="#6e7180"><tspan x="489">HIS / SER, then any</tspan><tspan x="489" dy="10">events of interest</tspan></text>
+    <text x="489" y="81" text-anchor="middle" fill="#8a8e9b">what has it seen?</text>
+
+    <rect x="566" y="30" width="126" height="56" rx="6" fill="#fff" stroke="#d63a3a" stroke-width="1.25"/>
+    <text x="629" y="46" text-anchor="middle" font-size="8.4" font-weight="600" fill="#d63a3a">5 &middot; Live values</text>
+    <text x="629" y="59" text-anchor="middle" fill="#6e7180"><tspan x="629">MET, phasors, input</tspan><tspan x="629" dy="10">and output states</tspan></text>
+    <text x="629" y="81" text-anchor="middle" fill="#8a8e9b">does reality agree?</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#fk2)">
+    <path d="M132,58 H143"/><path d="M272,58 H283"/><path d="M412,58 H423"/><path d="M552,58 H563"/>
+  </g>
+  <rect x="6" y="100" width="686" height="34" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="20" y="115" font-size="8.2" font-weight="600" fill="#9c3838">Only now do you change anything</text>
+  <text x="20" y="128" font-size="7.6" fill="#8a8e9b">and when you do: one change, verify, save an as-left, note it on the paper copy.</text>
+  <circle r="4" fill="#10a37f">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M69,58 H209 H349 H489 H629"
+      keyPoints="0;0.25;0.25;0.5;0.5;0.75;0.75;1;1" keyTimes="0;0.18;0.25;0.43;0.5;0.68;0.75;0.93;1" calcMode="linear"/>
+  </circle>
+</svg></div>
+<p class="figcap">The sequence is the same on a relay, a recloser control, an RTAC, or a meter &mdash; only the command names change. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Step</th><th>SEL relay (ASCII)</th><th>RTAC</th><th>Why it matters</th></tr>
+  <tr><td>Identify</td><td><code>ID</code>, <code>STA</code> &mdash; part number and FID string</td><td>web UI &rarr; About; firmware and license</td><td>Settings are firmware-specific; the FID decides which QuickSet driver applies</td></tr>
+  <tr><td>Health</td><td><code>STA</code> self-test, <code>TIME</code>, <code>IRIGOK</code>/<code>TSOK</code></td><td>Diagnostics page, RTAC system tags</td><td>A failed self-test or an undisciplined clock invalidates everything you are about to read</td></tr>
+  <tr><td>Settings</td><td><code>SHO</code> all classes; or QuickSet full read to <code>.rdb</code></td><td>Retrieve the project from the device</td><td>Your as-found and your rollback</td></tr>
+  <tr><td>History</td><td><code>HIS</code>, <code>SER</code>, <code>EVE n</code>, or <code>CEV</code> for COMTRADE</td><td>SOE viewer, log export</td><td>Tells you whether this device already knows about the problem</td></tr>
+  <tr><td>Live</td><td><code>MET</code>, <code>MET PM</code>, <code>TAR</code> (inputs/outputs)</td><td>Tag viewer with quality and timestamps</td><td>Reality check against the clamp meter and the drawing</td></tr>
+</table>
+
+<div class="callout">
+<strong>Retrieve events before you change settings.</strong> Some settings changes clear event and SER buffers, and a settings change is itself recorded &mdash; but the fault record you needed will be gone. Details in <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>File hygiene</h2>
+<p>A year from now, the only thing standing between you and a bad afternoon is whether these files can be found and trusted.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f">
+    <b>Name by fact, not by mood</b>
+    <span><code>SITE_DEVICE_YYYYMMDD_asfound.rdb</code> beats <code>settings_final_v2_REAL.rdb</code>. Site, device tag, ISO date, and the words <em>asfound</em> or <em>asleft</em>.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Always keep the pair</b>
+    <span>Every visit produces an as-found and an as-left, even when they are identical. &ldquo;Nothing changed&rdquo; is a finding worth proving.</span>
+  </div>
+  <div style="border-left:4px solid #10a37f">
+    <b>Archive off the laptop</b>
+    <span>Before you leave the parking lot, copy the day's files to wherever your organization keeps the record of truth. Laptops get stolen, dropped, and reimaged.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Note the why</b>
+    <span>A one-line change note (&ldquo;raised 51P TD from 2.0 to 2.5 for coordination with new recloser R-14&rdquo;) is worth more than the diff itself.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Keep the event files</b>
+    <span>COMTRADE records of anything interesting, named the same way. They are the only evidence that survives a firmware upgrade.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Red-line the paper</b>
+    <span>Photograph your marked-up drawings at the end of the day. Red-lines that never become as-builts are how sites drift out of documentation.</span>
+  </div>
+</div>
+<p>The longer-term discipline &mdash; templates, version control, and settings review &mdash; is in <a href="atlas:relays-devices/settings-management.html">Settings Management</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Before you leave site</h2>
+<div class="twocol">
+<div>
+<h3>The walk-back list</h3>
+<ul>
+<li>Every temporary jumper, shorting screw, and test lead <strong>removed</strong> &mdash; verified by touch, against the list you wrote when you installed them.</li>
+<li>Every test switch and control switch back to its as-found position; photograph the switch bank.</li>
+<li>Relay targets reset, self-test healthy, no standing alarms that were not there when you arrived.</li>
+<li>Trip circuits restored and, where practical, proven (trip-coil monitoring bit asserted).</li>
+<li>SCADA confirms the device is online and reporting sane values &mdash; call the operator and ask, do not assume.</li>
+</ul>
+</div>
+<div>
+<h3>The record</h3>
+<ul>
+<li>As-left settings read back <em>from the device</em> and saved &mdash; not the file you intended to send.</li>
+<li>Test sheets signed; punch list of anything left undone, with owners.</li>
+<li>Red-lines photographed; changes reported to whoever maintains the drawings.</li>
+<li>Passwords changed off defaults and recorded in the sanctioned place, never on a sticky note.</li>
+<li>Panel doors closed and secured; cabinet keys returned.</li>
+</ul>
+<div class="callout keyfact" style="margin-top:6px">
+<strong>The one that bites hardest:</strong> a CT shorting screw left in. The relay reads zero current, coordinates with nothing, and nobody finds out until the next fault. Count them out loud, and have a second person verify.
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Habits that separate good from lucky</h2>
+<ul>
+<li><strong>Narrate your assumptions out loud.</strong> &ldquo;I am assuming this terminal block is the trip circuit&rdquo; is the sentence that gets corrected before it becomes an incident.</li>
+<li><strong>Prove direction, not just presence.</strong> A voltage reading proves a wire is energized; it does not prove which wire.</li>
+<li><strong>When something surprises you, stop and understand it.</strong> Surprises are the system telling you your model is wrong. Continuing with a wrong model is how misoperations are built.</li>
+<li><strong>Take the extra event capture.</strong> Storage is free; a second trip to site is not.</li>
+<li><strong>Ask the operator what they see.</strong> They live with these screens; they will tell you in ten seconds which point has always looked wrong.</li>
+<li><strong>Leave the site better labeled than you found it.</strong> The next person may be you.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:commissioning/safety-practices.html">Safety Practices</a>
+  
+  
+  <a href="atlas:rtac-automation/quickset.html">Engineering Access &amp; QuickSet</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  
+</div>
+<p class="footnote">Practice page. Command names and access-level behavior follow the SEL-751/751A and SEL-451 instruction manuals; the port and cable conventions follow the SEL cable ordering documentation (SEL-C662 and the C-series pinout tables). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

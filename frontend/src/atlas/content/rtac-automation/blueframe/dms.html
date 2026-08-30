@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blueframe DMS &amp; FLISR</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DMS,FLISR,MDI,PSM,Model Data Import,Power System Model,GeoJSON,CIM,pipeline,Return to Normal,simulator,voltage event,data mapping">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Blueframe DMS &amp; FLISR (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Blueframe DMS &amp; FLISR</h1>
+  <p>Distribution Management System — importing your GIS or CIM model, building the power system model, and configuring, simulating, commissioning, and operating FLISR feeder by feeder</p>
+  <div class="chips"><span>FLISR</span><span>MDI</span><span>PSM</span><span>GeoJSON</span><span>CIM</span><span>pipelines</span><span>Return to Normal</span><span>simulator</span><span>data mapping</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">DMS</h3>
+<ul style="margin-bottom:2px">
+<li><strong>DMS is modular by feeder, deliberately.</strong> Functionality is configured, tested, and commissioned one feeder at a time, so the first feeder and the hundredth are equally simple. Each configured feeder communicates with its electrically adjacent feeders to locate faults and calculate restoration.</li>
+<li><strong>Three applications, in order:</strong> MDI consumes your GIS or CIM files, PSM holds the SEL DMS model, and FLISR runs on it. PSM must be installed alongside FLISR.</li>
+<li><strong>FLISR locates faults from Boolean fault indications, not from measurements.</strong> Voltage is used optionally to confirm a zone is dead; current is used to avoid overloading feeders and to size the load in each segment.</li>
+<li><strong>Measurement Name is the link to reality.</strong> A node whose Measurement Name is unset is assumed to have no Protocol Services connection &mdash; and it <em>will not appear in the DMS application at all</em>.</li>
+<li><strong>Field time synchronization is not optional.</strong> Look-backs and measurement validity are based on accurate timestamps.</li>
+<li><strong>Simulate before you commission.</strong> The simulator is built in, runs on a copy of the live feeder, and does not affect the commissioned one.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What DMS is</h2>
+<p>The SEL Distribution Management System suite provides wide-area system monitoring, control, and management, emphasizing simplicity, scalability, and security. Its current functionality is <strong>Fault Location, Isolation, and Service Restoration</strong>: using field data to identify and automatically isolate faults while restoring load from adjacent sources, maximizing system margin and minimizing switching.</p>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ds1" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#a9adb8"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The FLISR operational workflow, end to end</text>
+
+  <g font-size="7.2">
+    <rect x="8" y="34" width="90" height="44" rx="5" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="53" y="52" text-anchor="middle" font-weight="600" fill="#d63a3a">Trigger</text>
+    <text x="53" y="65" text-anchor="middle" fill="#6e7180">lockout + fault</text>
+
+    <rect x="110" y="34" width="90" height="44" rx="5" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="155" y="52" text-anchor="middle" font-weight="600" fill="#9c6d06">Event</text>
+    <text x="155" y="65" text-anchor="middle" fill="#6e7180">temporization</text>
+
+    <rect x="212" y="34" width="90" height="44" rx="5" fill="#eef0f9" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="257" y="52" text-anchor="middle" font-weight="600" fill="#5468c4">Isolate</text>
+    <text x="257" y="65" text-anchor="middle" fill="#6e7180">faulted zone(s)</text>
+
+    <rect x="314" y="34" width="90" height="44" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="359" y="52" text-anchor="middle" font-weight="600" fill="#0d7f63">Restore</text>
+    <text x="359" y="65" text-anchor="middle" fill="#6e7180">de-energized load</text>
+
+    <rect x="416" y="34" width="90" height="44" rx="5" fill="#f2f3f5" stroke="#6e7180" stroke-width="1.3"/>
+    <text x="461" y="52" text-anchor="middle" font-weight="600" fill="#454956">Customer</text>
+    <text x="461" y="65" text-anchor="middle" fill="#6e7180">resolves fault</text>
+
+    <rect x="518" y="34" width="90" height="44" rx="5" fill="#f2f3f5" stroke="#6e7180" stroke-width="1.3"/>
+    <text x="563" y="52" text-anchor="middle" font-weight="600" fill="#454956">RTN issued</text>
+    <text x="563" y="65" text-anchor="middle" fill="#6e7180">by the operator</text>
+
+    <rect x="620" y="34" width="72" height="44" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="656" y="52" text-anchor="middle" font-weight="600" fill="#0d7f63">Return to</text>
+    <text x="656" y="65" text-anchor="middle" fill="#0d7f63">Normal runs</text>
+  </g>
+  <g stroke="#a9adb8" stroke-width="1.1" fill="none" marker-end="url(#ds1)">
+    <path d="M98,56 H108"/><path d="M200,56 H210"/><path d="M302,56 H312"/><path d="M404,56 H414"/><path d="M506,56 H516"/><path d="M608,56 H618"/>
+  </g>
+  <path d="M656,78 V96 H53 V80" stroke="#10a37f" stroke-width="1.2" stroke-dasharray="4 3" fill="none" marker-end="url(#ds1)"/>
+  <text x="350" y="110" font-size="7.4" fill="#0d7f63" text-anchor="middle">ready for the next event</text>
+  <circle r="4" fill="#d63a3a">
+    <animateMotion dur="9s" repeatCount="indefinite" path="M53,56 H155 H257 H359 H461 H563 H656 V96 H53 V56"/>
+  </circle>
+
+  <!-- modular architecture -->
+  <text x="8" y="140" font-size="9" font-weight="600" fill="#454956">And the modular architecture underneath &mdash; one FLISR instance per feeder, talking to its neighbours</text>
+  <g font-size="7.2">
+    <rect x="60" y="156" width="96" height="34" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="108" y="177" text-anchor="middle" fill="#5468c4">FLISR Feeder 1</text>
+    <rect x="290" y="156" width="96" height="34" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="338" y="177" text-anchor="middle" fill="#5468c4">FLISR Feeder 2</text>
+    <rect x="520" y="156" width="96" height="34" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="568" y="177" text-anchor="middle" fill="#5468c4">FLISR Feeder n</text>
+    <rect x="60" y="210" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="108" y="227" text-anchor="middle" fill="#6e7180">Feeder 1 IED</text>
+    <rect x="290" y="210" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="338" y="227" text-anchor="middle" fill="#6e7180">Feeder 2 IED</text>
+    <rect x="520" y="210" width="96" height="26" rx="4" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="568" y="227" text-anchor="middle" fill="#6e7180">Feeder n IED</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.3" fill="none">
+    <path d="M156,173 H288"/><path d="M386,173 H518"/>
+  </g>
+  <text x="222" y="168" font-size="6.8" fill="#0d7f63" text-anchor="middle">communicate</text>
+  <text x="452" y="168" font-size="6.8" fill="#0d7f63" text-anchor="middle">communicate</text>
+  <g stroke="#5468c4" stroke-width="1.1" fill="none" stroke-dasharray="3 3">
+    <path d="M108,190 V208"/><path d="M338,190 V208"/><path d="M568,190 V208"/>
+  </g>
+  <text x="122" y="203" font-size="6.6" fill="#5468c4">DNP3</text>
+  <text x="352" y="203" font-size="6.6" fill="#5468c4">DNP3</text>
+  <text x="582" y="203" font-size="6.6" fill="#5468c4">DNP3</text>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.4s" repeatCount="indefinite" path="M156,173 H288"/></circle>
+  <circle r="3" fill="#10a37f"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite" path="M518,173 H388"/></circle>
+</svg></div>
+<p class="figcap">This is the argument against monolithic control systems, where settings live in one interconnected place: those are hard to scale and hard to know how much of to retest after a change. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>The applications</h3>
+<table>
+  <tr><th>Application</th><th>Role</th></tr>
+  <tr><td><strong>MDI</strong> &mdash; Model Data Import</td><td>The pipeline configurator. Translates a customer's GIS (GeoJSON) or equipment (CIM) model into the SEL DMS model</td></tr>
+  <tr><td><strong>PSM</strong> &mdash; Power System Model</td><td>Manages the SEL DMS model &mdash; imported through MDI, drawn manually, or both</td></tr>
+  <tr><td><strong>FLISR</strong></td><td>All the runtime code, plus an integrated simulator for on-demand feeder-level testing</td></tr>
+  <tr><td colspan="2">Supported by core Blueframe applications: <strong>Protocol Services</strong> (DNP maps and the data broker for everything on a protocol connection) and <strong>Resource Management</strong> (a profile per unique IED type, then one instance per physical device) &mdash; see <a href="atlas:rtac-automation/blueframe/platform.html">Blueframe Platform</a></td></tr>
+</table>
+
+<h3>Sizing</h3>
+<table>
+  <tr><th>Platform</th><th>Feeders</th><th>CPUs</th><th>RAM</th><th>Disk</th></tr>
+  <tr><td>SEL-3350</td><td>20</td><td>&mdash;</td><td>8 GB</td><td>120 GB</td></tr>
+  <tr><td>SEL-3355</td><td>20</td><td>&mdash;</td><td>8 GB</td><td>200 GB</td></tr>
+  <tr><td>Virtual machine</td><td>1&ndash;74</td><td>&mdash;</td><td>32 GB</td><td>200 GB</td></tr>
+  <tr><td>Virtual machine</td><td>75&ndash;150</td><td>16</td><td>32 GB</td><td>250 GB</td></tr>
+  <tr><td>Virtual machine</td><td>more</td><td colspan="3">Contact an SEL representative</td></tr>
+</table>
+<div class="callout warn">
+<strong>Upgrading FLISR disarms every commissioned feeder.</strong> That is a deliberate safety precaution against misoperation during the upgrade. After it completes, re-arm feeders only after inspecting incoming data for accuracy. <strong>Downgrading is equivalent to uninstalling and reinstalling</strong> &mdash; decommission any commissioned feeders first, downgrade, then re-commission.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Model Data Import</h2>
+<p>MDI is feeder-centric by design: it calculates distribution and substation connectivity from geographic information and divides it into feeders, which PSM then organizes into substations and regions. It accepts <strong>partial models</strong> &mdash; a single feeder, a substation, a region, an area of responsibility, or any arbitrary bounded area &mdash; which is what makes integration into an existing utility system practical.</p>
+
+<h3>Input requirements</h3>
+<div class="twocol">
+<div>
+<h4>GIS / GeoJSON</h4>
+<ul>
+<li>Coordinates formatted as <strong>WGS-84</strong>.</li>
+<li>Data in <strong>GeoJSON format</strong> (RFC 7946 &sect;3.1).</li>
+<li><strong>Minimum assets:</strong> Busbar, Circuit Breaker, Disconnect, Elbow, Fuse, Line, Open Point, Recloser, Sectionalizer, Source, Switch.</li>
+<li>MDI inspects <strong>all layers</strong> in the file, and inspects <strong>each feature</strong> &mdash; some features become model assets, others exist only to determine connectivity. Which is which is decided by the pipeline.</li>
+</ul>
+</div>
+<div>
+<h4>CIM</h4>
+<ul>
+<li>Data must be <strong>IEC 61970-301 compliant</strong>. Most CIM data imports without modification.</li>
+<li><strong>Minimum assets:</strong> a substation or transmission line, and a node within it.</li>
+<li>CIM describes equipment as nodes with attributes and connections; MDI traverses the CIM tree by those connections to construct the PSM model.</li>
+<li>Supported CIM asset types span Region, Substation, Transmission, Busbar, Capacitor Bank, Circuit Breaker, Current Transformer, Disconnect, Elbow, and Egress Point among others.</li>
+</ul>
+</div>
+</div>
+
+<h3>Asset types and what they do</h3>
+<table>
+  <tr><th>Asset</th><th>Role in the model</th></tr>
+  <tr><td><strong>Source</strong></td><td>Identifies the root of a distribution feeder &mdash; often the substation circuit breaker</td></tr>
+  <tr><td><strong>Circuit Breaker</strong></td><td>A distribution substation feeder breaker. <strong>Controllable</strong>, placed in the model</td></tr>
+  <tr><td><strong>Recloser</strong></td><td>A three-phase distribution recloser. <strong>Controllable</strong>, placed in the model</td></tr>
+  <tr><td><strong>Line, Busbar, Fuse, Elbow, Open Point, Switch, Disconnect</strong></td><td>Determine model connectivity, and carry functionality depending on the DMS application. Busbar is also used to model or expand the busbar in a substation</td></tr>
+</table>
+<div class="callout warn">
+<strong>Duplicate assets across a substation model and a distribution model must be removed from one of them.</strong> If a duplicate is not proactively removed, MDI alarms on the duplication &mdash; and if you are updating automatically without exporting in a way that avoids duplication, MDI alarms on <em>every</em> delta model update.
+</div>
+
+<h3>The three-step process</h3>
+<ol>
+<li><strong>File import.</strong> Use the Import dialog on the MDI Import Inbox page; select or drop one or more CIM or GeoJSON files. They upload and are inspected for all feature types, property keys, and property values &mdash; which is what populates the pipeline configuration controls. Each file in the Inbox <strong>must be assigned a pipeline</strong> to be used.</li>
+<li><strong>Pipeline execution.</strong> A pipeline contains the rules for detecting the asset types PSM supports and for determining connectivity. Create one from the dropdown under the Pipeline column, or import a prebuilt pipeline file. For GIS, <strong>each feature must belong to one or two feeders</strong> &mdash; features belonging to two are generally open points connecting different feeders on each side &mdash; so provide the correct key values for <strong>Feeder1 ID</strong> and <strong>Feeder2 ID</strong>. The optional <em>Asset Designation</em> field prepopulates assets in the left panel to speed mapping. Select files, <strong>Assign Pipeline</strong>, then <strong>Run Pipeline</strong> to validate that all pipeline properties match.</li>
+<li><strong>Model build.</strong> <strong>Build Draft</strong> populates the feeders so they are viewable in PSM. Draft models are then reviewed and published in PSM.</li>
+</ol>
+
+<h3>The Pipeline Manager, panel by panel</h3>
+<table>
+  <tr><th>Panel</th><th>What it does</th></tr>
+  <tr><td>Pipeline Selector</td><td>Switch between pipelines</td></tr>
+  <tr><td>GIS Selector</td><td>Select a GIS feeder within the file</td></tr>
+  <tr><td>Customer GIS File Assets</td><td>Select and define every asset that will be mapped into the SEL DMS model</td></tr>
+  <tr><td>Digital Canvas</td><td>The visual mapping aid</td></tr>
+  <tr><td>SEL Model Asset</td><td>Defines which SEL DMS asset each customer asset becomes</td></tr>
+  <tr><td>Selectors</td><td>Further refinement of asset properties during migration</td></tr>
+  <tr><td>Properties</td><td>A per-asset table defining whether each property comes from a mapped source or a user-defined value. <strong>The table can be copied and pasted between assets</strong> &mdash; the single biggest time-saver in MDI</td></tr>
+  <tr><td>File Validation</td><td>The viewing window for validation errors and warnings</td></tr>
+</table>
+<p>The whole process is also available through the <strong>Model Data Importer API</strong> for teams that want to automate model refreshes.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Power System Model</h2>
+<p>PSM breaks everything into feeders, because considering one region at a time drastically reduces the complexity of a power system. A feeder contains breakers, reclosers, and switches, and connects electrically to one or more adjacent feeders &mdash; all configured graphically on the <strong>feeder canvas</strong>.</p>
+
+<h3>The canvas</h3>
+<ul>
+<li>An <strong>auto-directed layout</strong>: each connection point offers a menu of node types to add. The schematic defines layout, connectivity, and settings, all used by DMS applications for operation and display.</li>
+<li><strong>Link mode</strong> connects nodes across canvases &mdash; select the target endpoint whether it is on this canvas or another. Once a Link node exists, it becomes a clickable node for quick navigation between the linked feeders.</li>
+<li><strong>Every feeder needs a device connected to the feeder source</strong> (the small transformer in a circle). Select the <code>+</code> on the source and choose the first device type; the expanded menu then adds Junction and Link nodes as well.</li>
+<li><strong>Every feeder needs a source, a switching device, and a way to mark its end or tie</strong> &mdash; an End-of-Line, Link, or Placeholder node completes a feeder or branch.</li>
+<li>Some settings render on the canvas for at-a-glance verification; the <strong>Property Grid</strong> shows all of them. Model settings are edited by selecting whitespace; node settings by selecting a node.</li>
+<li><strong>Hot keys</strong> cover the whole workflow &mdash; <code>Esc</code> exits Link mode, <code>0</code> fits the diagram, <code>Ctrl+B</code> toggles keyboard mode, <code>P</code> pan, <code>Space</code> temporary pan, <code>V</code> select, <code>=</code>/<code>-</code> zoom, <code>Shift+1…4</code> add to the west/north/east/south port, <code>Del</code> delete, <code>Shift+E</code> edit name, <code>Shift+D</code> toggle normal position, <code>Shift+S</code>/<code>Shift+F</code> set left/right PT, <code>Shift+R</code> show or hide junction ports, <code>Ctrl+A</code> select all, <code>A</code> select all of type.</li>
+</ul>
+
+<h3>Building hierarchy manually</h3>
+<p>PSM supports manual model building alongside MDI import: <strong>New Region</strong> (a regional hierarchy based on customer zones), <strong>New Subregion</strong> (one tier below a region), <strong>New Transmission</strong> (a transmission line for substations to attach to), <strong>New Substation</strong> (for feeders to attach to), and <strong>New Feeder</strong> (a canvas to draw on), plus a search feature. Any element offers Checkout, Rename, Discard, and Delete on right-click.</p>
+
+<h3>Node settings that matter to FLISR</h3>
+<table>
+  <tr><th>Setting</th><th>Meaning</th></tr>
+  <tr><td><strong>Measurement Name</strong></td><td>A unique value across all feeders, mapped for every device with remote communications. <strong>Must match the corresponding name in Protocol Services.</strong> Default is blank, which is taken to mean no Protocol Services connection exists</td></tr>
+  <tr><td><strong>Left PT / Right PT</strong></td><td>Which three-phase voltage set is oriented to the left or right of the node as drawn. Options Set1, Set2, None; default None</td></tr>
+  <tr><td><strong>Current Rating</strong></td><td>Capacity in amperes for the node</td></tr>
+  <tr><td><strong>DMS Capacity</strong></td><td>Percent of Current Rating that FLISR may use as the maximum permissible value when evaluating restoration solutions. <strong>Default 80%</strong></td></tr>
+  <tr><td><strong>A/B/C-Phase Normally Open</strong></td><td>The normal state used by DMS applications; default False. (Gang Operated is read-only and always True &mdash; PSM supports three-phase normal status only)</td></tr>
+  <tr><td><strong>Current Scalar / Voltage Scalar</strong></td><td>The value FLISR multiplies incoming data by to reach amperes and volts &mdash; e.g. 1000 if the device reports kiloamperes or kilovolts</td></tr>
+  <tr><td><strong>Can Load Make / Can Load Break</strong></td><td>Whether the device may be closed into load (default True) or opened under load (default False)</td></tr>
+  <tr><td><strong>Nominal Voltage</strong></td><td>System voltage of the feeder, default 12470. Used to determine good or bad voltage</td></tr>
+  <tr><td><strong>In Service · Enabled · Underground · Phasing</strong></td><td>Standard asset attributes; Phasing sets the number of phases and their orientation</td></tr>
+  <tr><td><strong>Is Manual · Has Status · Has Fault Indication · Has Currents</strong></td><td><strong>Switch nodes only.</strong> FLISR overrides these for Breaker and Recloser nodes &mdash; forcing the three "Has" settings True and Is Manual False</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>An unmapped Measurement Name makes the node invisible.</strong> The manual is explicit: this setting must be configured for automation applications to run on SCADA data, the value must match Protocol Services, and <strong>if it is not mapped, that node will not appear in the DMS application</strong>. When a device you drew is simply absent from FLISR, check this first.
+</div>
+
+<h3>Validation, publishing, and checkout</h3>
+<ul>
+<li><strong>PSM continuously saves and validates</strong> as you work, with descriptive feedback for the project, each canvas, and each node in real time. Messages can be filtered by canvas and severity.</li>
+<li><strong>New feeders, substations, transmission lines, and regions are drafts</strong> and appear in the Draft Panel. They are invisible to other Blueframe applications and users until published. <strong>Draft changes must be published as a batch</strong>; discarding can be done as a batch or item by item.</li>
+<li><strong>A published canvas cannot be changed without checking it out.</strong> Checkout creates an editable draft, removes the canvas from the published branch in the corresponding automation application, and can be held by <strong>only one user at a time</strong> per canvas (though one user may check out several canvases).</li>
+<li><strong>A model exported while unpublished is locked to that user</strong> &mdash; it must be published to be exported and shared with other Blueframe users or systems.</li>
+<li><strong>The Placeholder node</strong> defines a future Link so you can publish and even run simulations before the link exists; it disappears once the additional feeders and links are added.</li>
+</ul>
+<div class="callout warn">
+<strong>Changing a commissioned canvas decommissions it.</strong> You must then follow the DMS application's commissioning process again before it is considered operational. Plan model edits as commissioning work, not as drawing work.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>How FLISR actually works</h2>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A miscoordination event: locate from the longest serial path, isolate the boundary devices, restore in parallel sequences</text>
+
+  <!-- feeder -->
+  <line x1="40" y1="70" x2="660" y2="70" stroke="#1a1a22" stroke-width="2"/>
+  <text x="26" y="73" font-size="7.4" fill="#6e7180" text-anchor="end">src</text>
+  <g stroke="#1a1a22" stroke-width="1.3" fill="#fff">
+    <rect x="90" y="60" width="16" height="20"/><rect x="200" y="60" width="16" height="20"/>
+    <rect x="310" y="60" width="16" height="20"/><rect x="420" y="60" width="16" height="20"/>
+    <rect x="530" y="60" width="16" height="20"/>
+  </g>
+  <g font-size="7" fill="#6e7180" text-anchor="middle">
+    <text x="98" y="94">B1</text><text x="208" y="94">R1</text><text x="318" y="94">R2</text>
+    <text x="428" y="94">R4</text><text x="538" y="94">R6</text>
+  </g>
+  <text x="620" y="64" font-size="7" fill="#6e7180">NO tie</text>
+  <line x1="546" y1="70" x2="600" y2="70" stroke="#1a1a22" stroke-width="2"/>
+  <line x1="600" y1="70" x2="618" y2="60" stroke="#6e7180" stroke-width="2"/>
+
+  <!-- fault -->
+  <g>
+    <circle cx="480" cy="70" r="10" fill="none" stroke="#d63a3a" stroke-width="2">
+      <animate attributeName="r" values="8;14;8" dur="1.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <text x="480" y="46" font-size="7.4" font-weight="600" fill="#d63a3a" text-anchor="middle">permanent fault</text>
+
+  <!-- fault indications -->
+  <g font-size="6.6" fill="#9c3838" text-anchor="middle">
+    <text x="98" y="110">fault ✓</text>
+    <text x="208" y="110">fault ✓</text>
+    <text x="318" y="110" fill="#8a8e9b">fault ✗</text>
+    <text x="428" y="110">fault ✓</text>
+    <text x="538" y="110" fill="#8a8e9b">&mdash;</text>
+  </g>
+  <text x="318" y="122" font-size="6.6" fill="#8a8e9b" text-anchor="middle">(miscoordination: B1 locked out, R2 has no latch)</text>
+
+  <!-- located zone -->
+  <rect x="436" y="54" width="98" height="32" rx="6" fill="#d63a3a" opacity="0.14"/>
+  <text x="485" y="140" font-size="7.4" font-weight="600" fill="#d63a3a" text-anchor="middle">located: down-line of R4 &mdash; the longest serial path with a fault indication</text>
+  <text x="485" y="152" font-size="7" fill="#8a8e9b" text-anchor="middle">boundary devices are R4 and R6; both get an open command simultaneously</text>
+
+  <!-- sequences -->
+  <text x="8" y="180" font-size="9" font-weight="600" fill="#454956">Six controls, three sequences &mdash; sequential within each, parallel between them</text>
+  <g font-size="7.4">
+    <rect x="40" y="192" width="196" height="30" rx="5" fill="#eef0f9" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="56" y="211" fill="#5468c4" font-weight="600">Seq 1</text>
+    <text x="100" y="211" fill="#454956">OPEN R1 &rarr; CLOSE B1</text>
+    <rect x="252" y="192" width="196" height="30" rx="5" fill="#eef0f9" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="268" y="211" fill="#5468c4" font-weight="600">Seq 2</text>
+    <text x="312" y="211" fill="#454956">OPEN R2 &rarr; CLOSE R3</text>
+    <rect x="464" y="192" width="196" height="30" rx="5" fill="#eef0f9" stroke="#5468c4" stroke-width="1.2"/>
+    <text x="480" y="211" fill="#5468c4" font-weight="600">Seq 3</text>
+    <text x="524" y="211" fill="#454956">OPEN R4 &rarr; CLOSE B5</text>
+  </g>
+  <g>
+    <circle r="3.5" fill="#5468c4"><animateMotion dur="3s" repeatCount="indefinite" path="M100,207 H230"/></circle>
+    <circle r="3.5" fill="#5468c4"><animateMotion dur="3s" repeatCount="indefinite" path="M312,207 H442"/></circle>
+    <circle r="3.5" fill="#5468c4"><animateMotion dur="3s" repeatCount="indefinite" path="M524,207 H654"/></circle>
+  </g>
+  <text x="350" y="238" font-size="7.4" fill="#8a8e9b" text-anchor="middle">up-line and down-line switching are electrically separated by the outage, so they need not wait for each other &mdash; and a failure to isolate up-line does not stop down-line restoration</text>
+
+  <rect x="40" y="250" width="620" height="44" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="54" y="268" font-size="8" font-weight="600" fill="#0d7f63">How the switching plan is chosen &mdash; in this order</text>
+  <text x="54" y="284" font-size="7.8" fill="#454956">1. Maximize load restored &nbsp;·&nbsp; 2. Maximize the number of energized segments &nbsp;·&nbsp; 3. Minimize switching operations &nbsp;·&nbsp; 4. Maximize post-restoration feeder margin on adjacent feeders</text>
+</svg></div>
+<p class="figcap">FLISR queries each available neighbour during planning to learn how much capacity it can supply through each connection, based on that neighbour's current switch configuration and loading. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Fault location</h3>
+<ul>
+<li><strong>Detection is driven by a device reporting a Lockout.</strong> FLISR then looks for a true Fault Latch/Indication, waiting <strong>Event Detection Delay</strong> seconds after the lockout to allow enough time for it. After a true fault latch, it validates all other conditions &mdash; open/close (<code>52A3P</code>), voltage, current.</li>
+<li><strong>Location uses Boolean fault indications only</strong>, from each breaker, recloser, and switch, regardless of which protective device ended up locking out. FLISR traverses the feeder from the source outward and <strong>locates the fault at the longest serial path found</strong>, whether or not intermediate devices set their fault latches.</li>
+<li><strong>FLISR does not use voltage or current for location.</strong> Voltage is used optionally to confirm the zone is de-energized; current is used to avoid overloading and to size segment load.</li>
+<li><strong>The fault binary point</strong> (<code>&lt;device&gt;.fault</code>, mapped in Protocol Services) should assert on overcurrent pickup. <strong>If relay logic latches it, the latch must be cleared shortly after &mdash; about one second</strong> &mdash; short enough that it does not remain asserted and affect later events. FLISR latches the pickup into its internal <code>OvercurrentReported</code>, cleared after event completion or two minutes, whichever comes first.</li>
+<li><strong>Total reclosing time for all field devices must be less than 5 minutes.</strong></li>
+<li><strong>FLISR will not operate for an outage with no fault latch</strong> &mdash; a manual or non-fault operation is not an event.</li>
+<li><strong>Cold load pickup and inrush can falsely trigger phase overcurrent elements.</strong> SEL recommends implementing cold-load-pickup or inrush detection schemes so re-energization does not generate false fault indications.</li>
+</ul>
+
+<h3>Isolation and restoration</h3>
+<ul>
+<li><strong>Isolation:</strong> FLISR identifies the <strong>boundary devices</strong> &mdash; the breakers, reclosers, or switches electrically nearest the fault in both the up-line and down-line directions &mdash; and issues an open command <strong>simultaneously</strong> to each that is not already open.</li>
+<li><strong>Restoration</strong> places switching operations into parallel paths according to their electrical dependencies. Isolation always precedes re-energizing a segment, but up-line and down-line switching run in parallel because they are electrically separated by the outage. This also makes FLISR resilient to device failure.</li>
+<li><strong>Neighbour participation:</strong> if a neighbour feeder has FLISR mode and/or Voltage Event mode set to Automatic, FLISR may operate switching devices on that neighbour as part of the plan.</li>
+<li><strong>Voltage is not used to qualify or prioritize restoration sources</strong> &mdash; only, optionally, to confirm the fault zone is dead first.</li>
+</ul>
+
+<h3>Return to Normal</h3>
+<ul>
+<li>A single control &mdash; over DNP3 or from the Return to Normal menu item &mdash; makes FLISR issue a sequence returning the feeder to the normal configuration defined by the normal status settings in PSM.</li>
+<li><strong>Closed transition:</strong> no outages, and <strong>never more than two feeders connected at a time</strong>. Feeders are tied only for the interval between closing one open point and opening another &mdash; a duration governed primarily by communications polling intervals.</li>
+<li>If an unexpected control failure leaves two feeders electrically connected, <strong>FLISR re-opens the open point before starting Return to Normal switching</strong>, to leave the system electrically safe.</li>
+<li><strong>Return to Normal will use a neighbour that does not itself have RTN enabled</strong> &mdash; but a Return to Normal command issued <em>on</em> that neighbour is dismissed.</li>
+<li><strong>FLISR does not validate phasing between two feeders during Return to Normal.</strong> Local devices must validate phasing.</li>
+<li><strong>RTN fails</strong> on an unexpected switch change or an unresponsive device, and is disabled entirely if a feeder's phasing is set to NONE (a loop could be designed), or if a neighbour is de-energized, blocked, disarmed, actively reconfiguring, not enabled, or not found.</li>
+</ul>
+
+<h3>Voltage events</h3>
+<table>
+  <tr><th>Event</th><th>Trigger</th><th>FLISR response</th></tr>
+  <tr><td><strong>Open Phase</strong></td><td>One or more phases open between two measurement devices, typically PTs</td><td>Initiates reconfiguration if enabled. Isolates with the closest upstream device that is operable and has accurate voltage measurements</td></tr>
+  <tr><td><strong>Loss of Source</strong></td><td>Voltage issues on all voltage measurements fed by the local source</td><td>Acts if enabled. <em>Loss-of-Source Mode</em> selects <strong>Any-Phase</strong> (react to single-, two-, or three-phase, the default) or <strong>Three-Phase</strong> (react only to three-phase; single- or two-phase asserts the <code>LossOfSource</code> SCADA point but does not reconfigure or report)</td></tr>
+  <tr><td><strong>Instrumentation Error</strong></td><td>One or more voltage measuring devices in an error state</td><td><strong>No reconfiguration</strong>, but a report is created</td></tr>
+</table>
+<p><strong>All of these can occur without any protection device sensing a lockout and fault.</strong> During restoration, FLISR checks whether the reconfiguration violates the Allowed Low or High Voltage Deviation (when the corresponding checks are enabled) and excludes any connection in violation.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>FLISR feeder settings</h2>
+<table>
+  <tr><th>Group</th><th>Setting</th><th>What it does</th></tr>
+  <tr><td rowspan="4"><strong>General</strong></td><td>Status Supervisor</td><td>When provided, the feeder subscribes to status supervision signals in a DNP client connection of the same name</td></tr>
+  <tr><td>Event Detection Delay</td><td>Delay after an event trigger before evaluating data and executing a solution &mdash; also how long before a loop flag is removed. <strong>0 to 60 seconds</strong></td></tr>
+  <tr><td>Return to Normal</td><td><em>Disabled</em>, <em>Closed Transition</em>, or <em>Closed Transition Advisory</em> (report only, no action)</td></tr>
+  <tr><td>Load Estimation Lookback</td><td>Maximum time FLISR reviews data for load-estimation calculations validating fault calculations. Adjust only for networks with large communication delays; SEL recommends <strong>5 to 6 times the protocol integrity poll</strong>. <strong>Default 5 minutes.</strong> With fewer than five measurements available, FLISR uses the most recent ones and raises a warning in the report diagnostics</td></tr>
+  <tr><td rowspan="6"><strong>Fault</strong></td><td>FLISR Mode</td><td><em>Disabled</em> (no event detection), <em>Automatic</em> (isolate and restore), <em>Isolation Only</em>, or <em>Advisory</em> (report only)</td></tr>
+  <tr><td>Enable Miscoordination Detection</td><td>Whether the feeder detects and corrects miscoordinations. Requires FLISR Mode = Automatic. <strong>Default True</strong></td></tr>
+  <tr><td>Enable Voltage Integrity Check</td><td>Whether feeder voltages validate a fault event &mdash; all voltage measurements in the de-energized zone must be below the low voltage threshold for FLISR to operate. <strong>Default True</strong></td></tr>
+  <tr><td>Enable Low / High Voltage Check</td><td>Whether voltage deviation determines if this feeder can supply a neighbour</td></tr>
+  <tr><td>Allowed Low Voltage Deviation</td><td>Percent below nominal at the open point below which the feeder will not restore a neighbour. <strong>1&ndash;15%, default 5%</strong></td></tr>
+  <tr><td>Allowed High Voltage Deviation</td><td>Percent above nominal at the open point above which the feeder will not restore a neighbour. <strong>1&ndash;15%, default 5%</strong></td></tr>
+  <tr><td rowspan="3"><strong>Voltage Event</strong></td><td>Voltage Event Mode</td><td><em>Disabled</em>, <em>Automatic</em>, <em>Advisory</em>, or <em>Isolation-Only</em></td></tr>
+  <tr><td>Voltage Event Detection Timeout</td><td>How long a voltage must remain low for the event to be detected and assessment to begin. <strong>0 to 60 seconds</strong></td></tr>
+  <tr><td>Loss-of-Source Mode</td><td><em>Any-Phase</em> (default) or <em>Three-Phase</em>, as described above</td></tr>
+  <tr><td><strong>Per node</strong></td><td>Concentrator</td><td>Subscribes to concentrator signals in a DNP client connection when a data concentrator sits between the field device and FLISR. Available for breakers, reclosers, and switches</td></tr>
+</table>
+<div class="callout warn">
+<strong>Two traps in this table.</strong> With <em>Enable Miscoordination Detection</em> disabled, FLISR still analyzes the feeder for miscoordination but does not react &mdash; and if the miscoordinated section is considered available, <strong>FLISR will not close in the corresponding devices and could re-energize the line</strong>. And if the high- and low-voltage checks are enabled but the PTs are not mapped, the device is out of service, or a communications error occurs, <strong>FLISR treats it as a failed voltage check and skips the device</strong>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Operating FLISR</h2>
+<h3>The interface</h3>
+<table>
+  <tr><th>Panel</th><th>Contents</th></tr>
+  <tr><td><strong>Commissioning Panel</strong></td><td>Every feeder on the instance, each with a state icon: <strong>green circle</strong> armed and ready, <strong>red lightning bolt</strong> permanent fault detected, <strong>yellow caution</strong> blocking because of a field device problem such as hot-line tag, remote control disabled, or communications failure</td></tr>
+  <tr><td><strong>FLISR Status Display</strong></td><td>Colour-coded chips: Armed, Disarmed, Blocked, Loop, Fault, Event, Miscoordination, the FLISR Mode and Voltage Mode in force, Reconfiguring, Reconfiguration Complete, Reconfiguration Failed</td></tr>
+  <tr><td><strong>FLISR Controls</strong></td><td>Fullscreen · <strong>Simulate</strong> · Arm/Disarm Feeder · <strong>Return to Normal</strong> · Target Reset</td></tr>
+  <tr><td><strong>Feeder Canvas</strong></td><td>The one-line with device state; select a switching device to see its data in the Device Details pane</td></tr>
+  <tr><td><strong>Settings panels</strong></td><td>General, Fault, Restoration, and Voltage Event settings</td></tr>
+  <tr><td><strong>Data Points</strong></td><td>Quick reference for verifying that data points are mapped to the FLISR system</td></tr>
+  <tr><td><strong>Help Legend</strong></td><td>Descriptions of the indicators and symbols used by FLISR and the simulator</td></tr>
+</table>
+<p><strong>Adding a feeder:</strong> use the horizontal ellipsis in the commissioning panel. FLISR leverages all imported and manually created models in PSM, scanning for the most-upstream protective device &mdash; which may bring in multiple substation assets.</p>
+
+<h3>Modes</h3>
+<table>
+  <tr><th>Mode</th><th>Behaviour</th></tr>
+  <tr><td><strong>Automatic</strong></td><td>Isolation and reconfiguration using available feeders when an event is detected</td></tr>
+  <tr><td><strong>Isolation Only</strong></td><td>Isolation only, plus a supplemental advisory report with a recommended switching sequence and adjacent-circuit availability</td></tr>
+  <tr><td><strong>Advisory</strong></td><td>No automatic action; generates an advisory report with recommended isolation and reconfiguration sequences and adjacent-circuit availability</td></tr>
+  <tr><td><strong>Disabled</strong></td><td>No automatic action, and <strong>events are not captured for future analysis</strong></td></tr>
+</table>
+<div class="callout">
+<strong>A feeder in Isolation Only or Advisory mode cannot participate in restoring a neighbour</strong> &mdash; with one exception: if such a feeder is feeding an adjacent feeder in Automatic mode such that the open point is a member of the adjacent feeder, that open point may still be operated as part of the neighbour's restoration sequence. The same applies to Return to Normal. Note also that <strong>a device closed during a FLISR reconfiguration is reverted during Return to Normal</strong>, and shows as an open step in the activity report.
+</div>
+
+<h3>Arming, disarming, and blocking</h3>
+<ul>
+<li>Arm and disarm per feeder, from the interface or over DNP3. <strong>The only way to arm a disarmed circuit is to issue an arm command &mdash; FLISR never arms itself.</strong></li>
+<li><strong>FLISR blocks itself per feeder</strong> in reaction to device and feeder-level data. Qualifying indications: <strong>hot-line tag, remote control disabled, loss of communication, feeder-level FLISR block indications, and device-level FLISR block indications</strong>. Operations stay blocked until the indication clears on all feeder switching devices.</li>
+<li><strong>A disarmed or blocked feeder does neither isolation nor restoration switching, and is unavailable to other feeders needing restoration support.</strong></li>
+<li><strong>Loops are not supported.</strong> When the normally open point is closed and two feeders are tied, FLISR is automatically disabled; opening a device to break the loop exits the condition. If a device opens while in the looped condition, FLISR waits the Event Detection Delay and checks the Fault Latch &mdash; if true, it stays in the looped condition because it assumes the device is actively reclosing, and exits only once a lockout is detected.</li>
+</ul>
+
+<h3>Device-level overrides</h3>
+<table>
+  <tr><th>State</th><th>FLISR behaviour</th></tr>
+  <tr><td><strong>Control Inhibit</strong></td><td>Uses all data received from the device, but will not operate it in isolation or restoration</td></tr>
+  <tr><td><strong>Out of Service Open</strong></td><td>Ignores all data from the device, treats it as an electrical open point, and does not operate it</td></tr>
+  <tr><td><strong>Out of Service Closed</strong></td><td>Ignores all data, treats it as an electrical closed point, and does not operate it</td></tr>
+  <tr><td><strong>Switch with <em>Has Status</em> = False</strong></td><td>Treated as <strong>Inhibited</strong>, because FLISR cannot verify a device operated without a status update</td></tr>
+  <tr><td><strong>Switch with <em>Is Manual</em> = True</strong></td><td>Status is recognized as open or closed, but the switch is excluded from every control decision because it cannot be remotely operated</td></tr>
+  <tr><td><strong>Switch with <em>Has Fault Indication</em> or <em>Has Currents</em> = False</strong></td><td>FLISR does not look for that data in the device map and analyzes without it</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Return to Normal and out-of-service states interact in a way worth reading twice.</strong> RTN operates on feeders with devices in Out of Service Open, Out of Service Closed, or Control Inhibit <em>as long as those devices are in their as-built PSM state</em>. If an out-of-service state does not match the device's as-built open/closed state, <strong>RTN will not operate</strong> &mdash; and if RTN would need to operate a Control-Inhibited device, <strong>it will not operate either</strong>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Simulation</h2>
+<p>Simulation is tightly integrated: use it to validate settings, build familiarity, and answer "what if" questions. Select <strong>Simulate</strong> from any open feeder canvas and a dedicated simulation opens in a <strong>new browser tab</strong>, using a copy of the feeder. <strong>Doing this from a commissioned feeder does not affect it</strong> &mdash; it remains operational and unaffected.</p>
+<h3>Simulator controls</h3>
+<p>Arm/Disarm · <strong>Reset</strong> (returns loads, device status, and fault conditions to initial values) · Fullscreen · <strong>Clear Fault Latches</strong> · Return to Normal · Target Reset · <strong>Populate Load History</strong> (makes the active current readings the historical values for the next simulated event).</p>
+<h3>Simulating a permanent fault</h3>
+<ol>
+<li>Arm FLISR if you want it to operate.</li>
+<li>Configure line loading and adjacent feeder margin in Device Details. <strong>Line segments default to 10&nbsp;A; adjacent feeder connections default to 200&nbsp;A of availability</strong> &mdash; adjust either by selecting it and changing the value.</li>
+<li>Select the line segment where the fault will be and set <strong>Event Trigger</strong>. The options are <strong>Fault</strong> (a fault without lockout), <strong>Lockout</strong> (full lockout &mdash; a FLISR event, applying fault indications to every up-line device and driving the nearest breaker or recloser to lockout), and <strong>Open Phase</strong> (a voltage FLISR event).</li>
+<li>Review the status chips and the canvas &mdash; the one-line shows the fault location plus icons with tooltips indicating which devices received open and close controls.</li>
+</ol>
+<h3>Simulating a miscoordination</h3>
+<p>Set the line segment's Event Trigger to <strong>Fault</strong> (fault indications on every up-line device, no protection action simulated), then select the miscoordinating device or devices and choose <strong>Lockout</strong> in the Device Details pane. Review the result as above.</p>
+<h3>Testing Return to Normal</h3>
+<p>Clear the fault conditions with <strong>Clear Event</strong> on each affected line segment &mdash; or leave them and watch FLISR cancel its Return to Normal switching when it encounters a permanent fault &mdash; then select <strong>Return to Normal</strong> from the simulation controls. Note that <strong>Reset clears the canvas and all simulator settings are lost</strong>.</p>
+<div class="callout warn">
+<strong>Let the Event chip clear before running the next test.</strong> When FLISR begins processing an event it enables the Event chip; the chip disappearing indicates analysis is complete. Whether you are using the built-in simulator or another system such as a DAC to mimic field data in a QA/QC environment, wait for the chip to deassert before resetting and running the next event.
+</div>
+</section>
+
+<section>
+<h2><span class="num">8</span>Reports</h2>
+<p>FLISR generates a report for <strong>every</strong> event, reachable from the View menu. Reports are produced for <strong>permanent faults, Return to Normal, and commissioning</strong>.</p>
+<table>
+  <tr><th>Section</th><th>Contents</th></tr>
+  <tr><td><strong>Response report</strong></td><td>Event summary, a feeder diagram with the fault location indicated, load recovery information, and the isolation and restoration switching plan &mdash; with before and after diagrams mirroring the interface</td></tr>
+  <tr><td><strong>Fault Summary</strong></td><td>Fault-specific information: customer metadata, event type, and event result. Generated for Fault, Voltage Event (Loss-of-Source, Open Phase, Instrumentation Error), Return to Normal, and Feeder Commissioned events, with an Event Result of Successful, Partial Restoration, or Failure</td></tr>
+  <tr><td><strong>Device Status Table</strong></td><td>Pre-event loading and status, post-event status, and service restoration performance</td></tr>
+  <tr><td><strong>Voltage Summary</strong></td><td>Voltage events by subtype &mdash; Loss-of-Source, Open Phase, Instrumentation Error. A single report may contain several subtypes</td></tr>
+  <tr><td><strong>Control Sequence Plan</strong></td><td>The control actions FLISR took to isolate the fault and restore service</td></tr>
+</table>
+<p><strong>What the plan contains depends on the mode:</strong> in Automatic, a success or failure indication for each step; in Isolation Only, that information for the isolation steps plus a suggested restoration plan for manual execution; in Advisory, recommended isolation and restoration plans for manual execution.</p>
+<h3>Report API</h3>
+<ul>
+<li><code>GET /flisr/api/v1/reports</code> &mdash; list of reports with full content. Requires FLISR <strong>Can Launch</strong>.</li>
+<li><code>GET /flisr/api/v1/reports/metadata</code> &mdash; report metadata. Requires <strong>Can Launch</strong>.</li>
+<li><code>DELETE /flisr/api/v1/reports</code> &mdash; deletes all reports matching the parameters. Requires <strong>Can Launch</strong> and <strong>Can Operate</strong>. <strong>Deletion cannot be undone.</strong></li>
+</ul>
+<p>Every endpoint requires an authentication token per interaction, obtained by <code>POST</code> to <code>/login-page/v1/login</code>; the token nests inside a token object and is valid for <strong>five minutes</strong>. Full schemas and examples are in the integrated documentation under <em>View &rarr; API Documentation</em>.</p>
+</section>
+
+<section>
+<h2><span class="num">9</span>Data mapping</h2>
+<p>Field data comes from assets over the network via <strong>client connections in Protocol Services</strong>; SCADA data goes out via a <strong>DNP3 server connection</strong> that exposes collected field data and FLISR statuses and receives feeder-by-feeder commands.</p>
+
+<h3>Field data &mdash; breaker and recloser</h3>
+<table>
+  <tr><th>Point</th><th>Type</th><th>Required</th></tr>
+  <tr><td><code>IA</code>, <code>IB</code>, <code>IC</code></td><td>Analog Input</td><td><strong>Yes</strong></td></tr>
+  <tr><td><code>52A3P</code> &mdash; three-phase breaker position</td><td>Binary Input</td><td><strong>Yes</strong></td></tr>
+  <tr><td><code>79LO3P</code> &mdash; three-phase lockout</td><td>Binary Input</td><td><strong>Yes</strong></td></tr>
+  <tr><td><code>Fault</code> &mdash; fault indication</td><td>Binary Input</td><td><strong>Yes</strong></td></tr>
+  <tr><td><code>OpenCommand</code>, <code>CloseCommand</code></td><td>Binary Output</td><td><strong>Yes</strong></td></tr>
+  <tr><td><code>Online</code> &mdash; device communication is good</td><td>Binary Input</td><td><strong>Yes, if data concentration is used</strong></td></tr>
+  <tr><td><code>VASet1/VBSet1/VCSet1</code>, <code>VASet2/VBSet2/VCSet2</code></td><td>Analog Input</td><td>No &mdash; but required for any voltage functionality</td></tr>
+  <tr><td><code>RemoteDisabled</code>, <code>RemoteEnabled</code>, <code>HotLineTag</code></td><td>Binary Input</td><td>No &mdash; but these are what produce a FLISR block</td></tr>
+  <tr><td><code>FlisrBlock1</code> … <code>FlisrBlock5</code></td><td>Binary Input</td><td>No. Customizable block points; the associated feeder automatically blocks FLISR when one asserts</td></tr>
+</table>
+
+<h3>SCADA data &mdash; per device</h3>
+<p>Binary inputs published to SCADA include <code>OvercurrentReported</code> (the fault latch bit FLISR generates internally), <code>CommAlarm</code>, <code>FlisrAlarm</code> (FLISR has detected a problem with this device), <code>Inhibited</code>, <code>OOSOpen</code>, <code>OOSClosed</code>, <code>CommandFail</code>, and <code>Set1InstrumentationError</code> / <code>Set2InstrumentationError</code>. Binary outputs accepted from SCADA are <code>InServiceCommand</code>, <code>InhibitControlCommand</code>, <code>OOSOpenCommand</code>, and <code>OOSClosedCommand</code>.</p>
+
+<h3>SCADA data &mdash; per feeder</h3>
+<p>Inputs: <code>Armed</code>, <code>FieldConditionBlockAlarm</code>, <code>LoopAlarm</code>, <code>EventDetected</code>, <code>PermanentFaultDetected</code>, <code>MiscoordinationDetected</code>, <code>Reconfiguring</code>, <code>ReconfigComplete</code>, <code>ReconfigFail</code>, <code>VoltageEventDetected</code>, and the three subtypes <code>OpenPhaseDetected</code>, <code>InstrumentationError</code>, and <code>LossOfSourceDetected</code> (published <em>in addition to</em> <code>VoltageEventDetected</code>). Outputs: <code>RTN</code>, <code>Arm</code>, <code>Disarm</code>, and <code>FlisrTargetReset</code>. Feeder-level block points appear as <code>&lt;Feedername&gt;.FlisrBlock1</code> through <code>5</code> in the Status Supervisor data.</p>
+<div class="callout keyfact">
+<strong>Two mapping rules that will bite you.</strong> All SCADA binary outputs <strong>must use the <code>operPulse</code> control model</strong>. And <code>ReconfigComplete</code> and <code>ReconfigFail</code>, once asserted, <strong>keep their asserted value until a Target Reset is sent or a new FLISR event occurs</strong> &mdash; so an operator screen that treats them as momentary will look permanently stuck.
+</div>
+</section>
+
+<section>
+<h2><span class="num">10</span>Gotchas</h2>
+<ul>
+<li><strong>A device you drew does not appear in FLISR</strong> &rarr; its <em>Measurement Name</em> is blank or does not match Protocol Services.</li>
+<li><strong>The fault binary point stays latched</strong> &rarr; later events are affected. Clear it in relay logic roughly a second after assertion.</li>
+<li><strong>Cold load pickup generates false fault indications</strong> on re-energization unless a cold-load or inrush detection scheme is implemented in the relay.</li>
+<li><strong>Reclosing that takes longer than five minutes</strong> puts you outside FLISR's stated requirement.</li>
+<li><strong>Miscoordination detection disabled</strong> does not mean miscoordination is ignored &mdash; FLISR still analyzes it, and could re-energize the line if the miscoordinated section is considered available.</li>
+<li><strong>Unmapped PTs with voltage checks enabled</strong> are treated as a failed voltage check, and the device is skipped.</li>
+<li><strong>Editing a commissioned canvas decommissions it.</strong> Budget for re-commissioning whenever the model changes.</li>
+<li><strong>An unpublished model export is locked to you.</strong> Publish before sharing.</li>
+<li><strong>Upgrading FLISR disarms every commissioned feeder</strong>, and downgrading requires decommissioning first.</li>
+<li><strong>Return to Normal does not check phasing.</strong> Local devices must.</li>
+<li><strong>Out-of-service states that disagree with the as-built PSM state block Return to Normal entirely.</strong></li>
+<li><strong>Duplicate assets between a substation and a distribution model</strong> make MDI alarm on every delta update until one copy is removed.</li>
+<li><strong>Time synchronization is a prerequisite, not a nicety</strong> &mdash; look-backs and measurement validity depend on accurate timestamps. See <a href="atlas:comms/time-sync.html">Time Synchronization</a>.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/blueframe/platform.html">Blueframe Platform</a>
+  <a href="atlas:rtac-automation/blueframe/dma.html">Blueframe DMA</a>
+  <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC &mdash; How It Decides</a>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:rtac-automation/scada-integration.html">SCADA Integration</a>
+</div>
+<p class="footnote">Sources: SEL Blueframe Software &mdash; Distribution Management System, Suite of Applications, Instruction Manual, date code 20260305 (bundled behind the Blueframe Application Platform manual in <code>Blueframe_DMS_IM</code>, intact copy in <code>C:\SEL\Instruction Manuals</code>) &mdash; Section 1 DMS Overview (the FLISR operational workflow, modular per-feeder architecture and its rationale against monolithic control systems, the field-device and Blueframe time-synchronization requirement, the MDI/PSM/FLISR package split and the supporting Protocol Services and Resource Management roles, hardware and sizing table, and the upgrade/downgrade behaviour for commissioned feeders); Section 2 Model Data Import (feeder-centric design and partial-model support, GIS requirements including WGS-84 and RFC 7946 and the minimum asset list, MDI file management and Pipeline Manager panel descriptions, GeoJSON layer and feature inspection, the MDI GIS asset type table and the duplicate-asset alarm behaviour, CIM format requirements including IEC 61970-301 compliance and minimum assets, the CIM asset type table, and the three-step file import / pipeline execution / model build process with Feeder1 and Feeder2 ID keys and Asset Designation); Section 3 Power System Model (canvas concept and auto-directed layout, Link mode, hot key reference, manual hierarchy creation, source and completion-node requirements, canvas and node property grids including Measurement Name and its visibility consequence, Left/Right PT, Current Rating, DMS Capacity default 80 percent, phase-normally-open settings, Gang Operated, Can Load Make and Break, Nominal Voltage default 12470, Current and Voltage Scalars, the switch-only Is Manual / Has Status / Has Fault Indication / Has Currents settings, Placeholder node, continuous settings validation, and model publishing, batch drafts, checkout single-user rule, unpublished export lock, and the commissioned-canvas decommissioning warning); Section 4 FLISR (fundamentals covering the fault binary point and its one-second latch guidance, the internal OvercurrentReported latch and two-minute clear, event detection driven by lockout plus Event Detection Delay, the sub-five-minute reclosing requirement, cold-load-pickup guidance, longest-serial-path fault location, boundary-device isolation, parallel restoration sequences and the four-criterion optimization order, neighbour capacity querying, Return to Normal closed transition and its failure and disable conditions and the phasing caveat, the three voltage event categories; operations covering the user interface panels and status chips, adding a feeder, the full feeder settings table, node Concentrator setting, switch operation and loop handling, operational impacts of switch configurations, voltage operation, FLISR and Return to Normal modes, arming/disarming/blocking and its qualifying indications, device-level Control Inhibit and Out of Service states and their RTN interaction, and the on-demand simulator including controls, the permanent-fault, miscoordination, and Return to Normal procedures, default 10 A segment loads and 200 A neighbour availability, and the Event chip caution); Section 5 Reports (response reports, fault summary and its event types and results, device status table, voltage summary subtypes, control sequence plan, mode-dependent plan content, and the Report API endpoints, permissions, and five-minute token); Appendix B FLISR Data Mapping Tables (breaker, recloser, and feeder field and SCADA point tables with required/not-required designations, the operPulse requirement for all SCADA binary outputs, and the ReconfigComplete/ReconfigFail latching note). Rev. 2026-08-23.</p>
+</section>
+
+</body>
+</html>

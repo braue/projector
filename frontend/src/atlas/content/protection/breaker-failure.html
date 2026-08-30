@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Breaker Failure &amp; Monitoring</title>
+<meta name="atlas-order" content="110">
+<meta name="atlas-tags" content="50BF,breaker failure,retrip,BFI,52a,breaker monitor,SEL-352">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Breaker Failure & Monitoring (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Breaker Failure &amp; Breaker Monitoring</h1>
+  <p>When the breaker doesn't open — BFI, the fast-dropout 50BF, the BF timer race to 86 lockout and transfer trip — plus contact wear, operate-time, and duty-curve monitoring</p>
+  <div class="chips"><span>50BF</span><span>BFI</span><span>BFPU</span><span>86BF</span><span>retrip</span><span>52a</span><span>kA duty curve</span><span>SEL-352</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Breaker failure protection is <strong>local backup</strong>: if the tripped breaker doesn't interrupt, trip everything electrically adjacent — the bus lockout locally, the remote line ends by transfer trip.</li>
+<li>The scheme is three parts: <strong>initiate (BFI)</strong> on every trip, <strong>supervise with a fast-dropout current detector (50BF)</strong>, and run a <strong>timer (BFPU)</strong>. Current still flowing when the timer expires = failed breaker.</li>
+<li>The timer setting is anatomy, not folklore: <strong>breaker interrupt time + 50 dropout time + safety margin</strong> — and everything after it (86 relay, channel, remote breakers) must still fit inside the system's maximum clearing time.</li>
+<li>A false BF trip clears a whole bus. Bias the scheme toward <strong>security</strong>: current supervision beats a 52a contact, which reports the linkage — not the arc.</li>
+<li>Breaker <strong>monitoring</strong> is the slow twin: accumulate interrupted current against the manufacturer's duty curve, count operations, and trend operate times so the breaker gets maintained before it becomes the failure.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The problem: a breaker that fails to interrupt</h2>
+<p>Zones of protection assume the breaker does its job. When primary protection trips and the breaker fails to interrupt — welded contacts, a broken linkage, a dead trip coil, lost interrupting medium — the fault persists and <em>somebody else</em> has to clear it. The SEL-451 manual frames the choice: <strong>remote backup</strong> (time-coordinated zones at remote stations) eventually clears it but removes far more equipment; <strong>local backup</strong> — breaker failure relaying — clears just the electrically adjacent breakers, faster. That usually means tripping the <strong>bus lockout (86BF)</strong> so every breaker feeding the same bus opens, and <strong>transfer-tripping the remote line ends</strong> that keep feeding the fault over the line.</p>
+<p>The deadline is physical: the <strong>absolute maximum fault clearing time</strong> set by transient stability and equipment thermal withstand. If a breaker fails, the total time to trip all adjacent breakers must beat that number — which is why every cycle in the BF timer budget is argued over.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The classic scheme</h2>
+<p>AG2001-14 builds the whole function from three blocks (there in SELogic on an SEL-311L; native settings on the SEL-451 — both named below):</p>
+<div class="flow">
+  <div class="stage"><b>1 · Initiate — BFI</b><span>Every trip of the protected breaker starts BF timing. Internal trip logic, plus optionally an external BFI input paralleled with the trip coil to catch other devices' trips.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Supervise — 50BF</b><span>An instantaneous overcurrent element proves current is still flowing. Set above max load, below minimum fault. Must drop out <em>fast</em> when current stops.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Time — BFPU</b><span>If the 50 element is still picked up when the timer expires, declare breaker failure and drive the BF trip output.</span></div>
+</div>
+<ul>
+  <li><strong>SEL-451 names:</strong> <code>BFI3P1</code> (initiate SELogic, e.g. <code>:= 3PT</code>), <code>50FP1</code> (phase fault current pickup, 0.50–50 A sec on 5 A models), <code>BFPU1</code> (BF time delay, 0–6000 cyc in 0.125-cyc steps). Timer expiry with <code>50F1</code> asserted sets <code>FBF1</code>; the trip equation <code>BFTR1 := FBF1 OR NBF1</code> drives <code>BFTRIP1</code>, which you wire to the 86 lockout. <code>BFULTR1</code> (e.g. an external input) unlatches the sealed BF trip after the fault clears.</li>
+  <li><strong>AG2001-14 (311L SELogic) names:</strong> <code>IN102</code> = BFI, <code>IN101</code> = 52a, detectors <code>50P3</code>/<code>50G3</code>, BF timer <code>SV5PU</code>, retrip timer <code>SV6PU</code>, dropout timers <code>SV5DO/SV6DO := 9 cyc</code> as minimum-duration so the 86 finishes operating before the output opens. Option bits: <code>SV1</code> 52a supervision, <code>SV2</code> BFI seal-in, <code>SV3/SV4</code> retrip enabled / unsupervised.</li>
+  <li><strong>Why the 50 must reset fast:</strong> after the breaker opens, energy trapped in the CT magnetizing branch keeps a decaying <strong>subsidence current</strong> flowing in the secondary. A slow-resetting 50 would look like a failed breaker. The SEL-451's open-pole detection logic resets <code>50F1</code> in <strong>less than one cycle</strong> even during subsidence; spec is 1.5-cyc max pickup, 1-cyc max reset. The SEL-352 likewise advertises 50FT elements with fast reset in the presence of subsidence current.</li>
+  <li><strong>Setting 50FP:</strong> two philosophies in the 451 manual — set between max load and minimum fault (<em>I</em><sub>load</sub> &lt; 50FP &lt; <em>I</em><sub>min fault</sub>, more secure; the example uses 120% × I<sub>load</sub>), or match the line protection's sensitivity (more dependable). Faults involving ground can be covered separately by a residual detector (<code>50RP1</code>) with its own longer timer (<code>NPU1</code>) — a high-resistance ground fault threatens stability less because synchronizing power still flows on the healthy phases.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The timing race, with real numbers</h2>
+<p>The 451 manual's Example 1 (25 kV system, 3-cycle breaker) makes the margin anatomy concrete. Work backward from the total clearing time to find the margin, then forward to set the timer:</p>
+<table>
+  <tr><th>Symbol</th><th>What it is</th><th>Example</th></tr>
+  <tr><td class="mono">t<sub>t</sub></td><td>Absolute maximum fault clearing time (stability/thermal)</td><td>17 cyc</td></tr>
+  <tr><td class="mono">t<sub>lr</sub></td><td>Line protection max operate time (consumed before BFI)</td><td>2 cyc</td></tr>
+  <tr><td class="mono">t<sub>l-bk</sub></td><td>Local breaker max operating time</td><td>3 cyc</td></tr>
+  <tr><td class="mono">t<sub>50r</sub></td><td>50BF element max dropout/reset time</td><td>1 cyc</td></tr>
+  <tr><td class="mono">t<sub>86</sub></td><td>Auxiliary (86) lockout relay operate time</td><td>1 cyc</td></tr>
+  <tr><td class="mono">t<sub>ch</sub></td><td>Transfer-trip communications channel time</td><td>1 cyc</td></tr>
+  <tr><td class="mono">t<sub>r-bk</sub></td><td>Remote/adjacent breaker operating time</td><td>3 cyc</td></tr>
+</table>
+<p>Safety margin <code>ts = tt − tlr + tl-bk + t50r + t86 + tch + tr-bk</code>… rearranged in the manual to <strong>t<sub>s</sub> = 17 − (2 + 3 + 1 + 1 + 1 + 3) = 6 cycles</strong>. Then the timer: <strong><code>BFPU1 = t<sub>l-bk</sub> + t<sub>50r</sub> + t<sub>s</sub> = 3 + 1 + 6 = 10 cycles</code></strong>, with <code>RTPU1 := 4 cyc</code> for the retrip attempt on trip coil 2 along the way.</p>
+
+<div class="fig"><svg viewBox="0 0 700 292" xmlns="http://www.w3.org/2000/svg">
+  <!-- static: axis + lane labels -->
+  <text x="10" y="16" font-size="10" font-weight="600" fill="#1a1a22">Trip issued (BFI) → the 50BF / BFPU race</text>
+  <!-- cycle ruler -->
+  <line x1="60" y1="252" x2="380" y2="252" stroke="#d0d3da" stroke-width="1"/>
+  <g font-size="8" fill="#8a8e9b" text-anchor="middle">
+    <text x="60" y="264">0</text><text x="129" y="264">3</text><text x="152" y="264">4</text><text x="290" y="264">10</text><text x="380" y="264">14 cyc</text>
+  </g>
+  <line x1="290" y1="30" x2="290" y2="252" stroke="#d63a3a" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>
+  <text x="290" y="27" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">BFPU expires (10 cyc)</text>
+
+  <!-- HEALTHY lane -->
+  <text x="10" y="52" font-size="9" font-weight="600" fill="#10a37f">HEALTHY</text>
+  <text x="10" y="63" font-size="8" fill="#6e7180">breaker opens</text>
+  <!-- current: sine to 3 cyc then subsidence decay -->
+  <path d="M60,78 Q66,58 72,78 Q78,98 84,78 Q90,58 95,78 Q101,98 107,78 Q113,60 118,78 Q124,96 129,78 Q136,70 143,76 L152,78 L380,78" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="90" y="52" font-size="8" fill="#5468c4">fault current</text>
+  <!-- 50BF bar -->
+  <rect x="60" y="92" width="92" height="8" rx="2" fill="#5468c4" opacity="0.8"/>
+  <rect x="152" y="92" width="228" height="8" rx="2" fill="#f2f3f5" stroke="#e5e7eb" stroke-width="0.75"/>
+  <text x="63" y="99" font-size="7.5" fill="#fff">50BF picked up</text>
+  <text x="157" y="99" font-size="7.5" fill="#8a8e9b">dropped out (&lt;1 cyc after interruption)</text>
+  <!-- BFPU bar -->
+  <rect x="60" y="106" width="230" height="8" rx="2" fill="#e7f6f1" stroke="#10a37f" stroke-width="0.75"/>
+  <text x="63" y="113" font-size="7.5" fill="#0d7a60">BFPU timing… expiry finds 50BF reset</text>
+  <text x="300" y="113" font-size="8.5" font-weight="600" fill="#10a37f">✓ no BF trip</text>
+
+  <!-- FAILED lane -->
+  <text x="10" y="152" font-size="9" font-weight="600" fill="#d63a3a">FAILED</text>
+  <text x="10" y="163" font-size="8" fill="#6e7180">contacts never part</text>
+  <path d="M60,178 Q66,158 72,178 Q78,198 84,178 Q90,158 95,178 Q101,198 107,178 Q113,158 118,178 Q124,198 129,178 Q135,158 141,178 Q147,198 152,178 Q158,158 164,178 Q170,198 176,178 Q182,158 187,178 Q193,198 199,178 Q205,158 210,178 Q216,198 222,178 Q228,158 233,178 Q239,198 245,178 Q251,158 256,178 Q262,198 268,178 Q274,158 279,178 Q285,198 290,178 Q296,158 302,178 Q308,198 314,178 Q320,158 325,178 Q331,198 337,178 Q343,158 348,178 Q354,198 360,178 Q366,158 371,178 Q376,192 380,178" fill="none" stroke="#d63a3a" stroke-width="1.5"/>
+  <!-- retrip mark -->
+  <line x1="152" y1="168" x2="152" y2="192" stroke="#d7930a" stroke-width="1.5"/>
+  <text x="152" y="204" font-size="7.5" font-weight="600" fill="#9c6d06" text-anchor="middle">retrip RTPU 4 cyc</text>
+  <!-- 50BF bar stays up -->
+  <rect x="60" y="212" width="320" height="8" rx="2" fill="#d63a3a" opacity="0.75"/>
+  <text x="63" y="219" font-size="7.5" fill="#fff">50BF still picked up at expiry</text>
+  <!-- BFPU bar -->
+  <rect x="60" y="226" width="230" height="8" rx="2" fill="#fbeeee" stroke="#d63a3a" stroke-width="0.75"/>
+  <text x="63" y="233" font-size="7.5" fill="#a32d2d">BFPU timing…</text>
+  <text x="303" y="233" font-size="8.5" font-weight="600" fill="#d63a3a">FBF → BFTRIP</text>
+
+  <!-- one-line, right side -->
+  <text x="415" y="52" font-size="9" font-weight="600" fill="#454956">On failure: 86BF fans out</text>
+  <line x1="420" y1="88" x2="688" y2="88" stroke="#1a1a22" stroke-width="2.5"/>
+  <text x="424" y="80" font-size="8" fill="#6e7180">bus</text>
+  <!-- adjacent breakers on bus -->
+  <line x1="455" y1="88" x2="455" y2="120" stroke="#454956" stroke-width="1.5"/>
+  <rect x="448" y="98" width="14" height="14" rx="2" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+  <line x1="530" y1="88" x2="530" y2="120" stroke="#454956" stroke-width="1.5"/>
+  <rect x="523" y="98" width="14" height="14" rx="2" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="494" y="132" font-size="7.5" fill="#10a37f" text-anchor="middle">adjacent bkrs tripped by 86BF</text>
+  <!-- failed breaker + line -->
+  <line x1="620" y1="88" x2="620" y2="150" stroke="#454956" stroke-width="1.5"/>
+  <rect x="613" y="102" width="14" height="14" rx="2" fill="#d63a3a"/>
+  <line x1="616" y1="105" x2="624" y2="113" stroke="#fff" stroke-width="1.5"/><line x1="624" y1="105" x2="616" y2="113" stroke="#fff" stroke-width="1.5"/>
+  <text x="638" y="112" font-size="7.5" fill="#d63a3a">failed bkr</text>
+  <line x1="620" y1="150" x2="620" y2="196" stroke="#454956" stroke-width="1.5"/>
+  <circle cx="620" cy="168" r="4" fill="#d7930a"/>
+  <text x="612" y="171" font-size="7.5" fill="#9c6d06" text-anchor="end">fault fed from remote end</text>
+  <rect x="606" y="200" width="28" height="16" rx="3" fill="#fff" stroke="#5468c4" stroke-width="1.25"/>
+  <text x="620" y="211" font-size="7.5" fill="#5468c4" text-anchor="middle">R end</text>
+  <path d="M470,160 C520,170 570,190 600,204 M594,196 L602,205 L590,208" fill="none" stroke="#5468c4" stroke-width="1.25" stroke-dasharray="4 3"/>
+  <text x="470" y="152" font-size="7.5" font-weight="600" fill="#5468c4">DTT over Mirrored Bits / 87L bit</text>
+  <text x="415" y="240" font-size="7.5" fill="#a9adb8">86BF trips every bus breaker + blocks close; DTT clears the remote infeed</text>
+
+  <g class="animlayer">
+    <!-- now cursor sweeps 0..55% of 12s -->
+    <line x1="60" y1="34" x2="60" y2="252" stroke="#1a1a22" stroke-width="1" opacity="0.45">
+      <animateTransform attributeName="transform" type="translate" values="0 0;320 0;320 0" keyTimes="0;0.55;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <!-- healthy: interruption flash at 3cyc -->
+    <circle cx="140" cy="78" r="8" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.118;0.14;0.20;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- healthy verdict -->
+    <circle cx="290" cy="110" r="9" fill="none" stroke="#10a37f" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.40;0.42;0.60;0.65;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- failed: retrip pulse -->
+    <circle cx="152" cy="180" r="8" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.157;0.18;0.24;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- failed verdict ring -->
+    <circle cx="290" cy="230" r="9" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.40;0.42;0.60;0.65;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- 86BF expanding ring over the bus -->
+    <circle cx="620" cy="109" r="6" fill="none" stroke="#d63a3a" stroke-width="2" opacity="0">
+      <animate attributeName="r" values="6;6;70;70" keyTimes="0;0.45;0.62;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0;0.8;0;0" keyTimes="0;0.45;0.55;0.66;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- adjacent breakers flash on trip -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.60;0.63;0.90;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="448" y="98" width="14" height="14" rx="2" fill="#10a37f"/>
+      <rect x="523" y="98" width="14" height="14" rx="2" fill="#10a37f"/>
+      <text x="494" y="94" font-size="7.5" font-weight="600" fill="#10a37f" text-anchor="middle">open</text>
+    </g>
+    <!-- DTT dot travels -->
+    <circle r="4" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.48;0.50;0.62;0.64;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M470,160 C520,170 570,190 605,205" keyPoints="0;0;1;1" keyTimes="0;0.48;0.63;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- remote end trips -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.64;0.67;0.90;0.95;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="606" y="200" width="28" height="16" rx="3" fill="#5468c4"/>
+      <text x="620" y="211" font-size="7.5" fill="#fff" text-anchor="middle">trips</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">Both lanes start the same way: trip issued, current flowing, BFPU timing. Healthy: the breaker interrupts at ~3 cycles, 50BF drops within a cycle, and the timer expiry finds nothing — no BF trip. Failed: current is still there at 10 cycles → FBF → 86BF fans out across the bus and DTT clears the remote end.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<div class="callout keyfact"><strong>The margin is squeezed from both sides.</strong> Set BFPU too short and a slow-but-healthy breaker plus 50 dropout eats the margin — a false BF trip that clears a whole bus. Set it too long and the total (BFPU + 86 + channel + adjacent breakers) blows through the stability limit. The 451 manual's warning: the operating times of the line relays and the adjacent breakers bound how much margin you can buy.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>On timeout: lockout, retrip, transfer trip</h2>
+<ul>
+  <li><strong>Retrip first (if equipped).</strong> With two trip coils, attempt a retrip on the second coil before declaring failure — <code>RTPU1 := 4 cyc</code> in the 451 example (<code>RT1</code> output), <code>SV6PU</code>/<code>SV6T</code> in AG2001-14, instantaneous or time-delayed retrip on the SEL-352. Catches the "trip coil 1 open" failure mode without disturbing anyone else. Put <code>RT1</code> on a high-current-interrupting output: it has no minimum-duration timer and can open while trip-coil current still flows.</li>
+  <li><strong>86BF lockout.</strong> <code>BFTRIP1</code> drives the 86, whose contacts trip every breaker on the bus and block reclosing/closing until manually reset. The BF trip output seals in (451: until <code>BFTR1</code> deasserts, <code>TDUR3D</code> times out, and the <code>BFULTR1</code> unlatch condition — typically an external input proving the fault cleared — is met). AG2001-14 uses 9-cycle dropout timers for the same reason: hold the output until the 86 has definitely operated.</li>
+  <li><strong>DTT to the remote ends.</strong> The remote terminals keep feeding the fault through the failed breaker; they can't see it as their own fault fast enough. AG2001-14 sends the BF status over the existing channel: an 87L transmit bit (<code>T1X := SV5T</code>) or a Mirrored Bits channel (<code>TMB1A := SV5T</code>), with the remote relay including the received bit in its unconditional trip: <code>TR := … + RMB1A</code>. Both channels at once gives redundant transfer trip. Channel mechanics live in <em>Mirrored Bits</em> in atlas.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Current-supervised vs 52a-supervised</h2>
+<div class="twocol">
+<div>
+<h3 style="color:#10a37f">Current supervision (default)</h3>
+<ul>
+  <li>The 50BF element is the truth: it measures whether the <em>arc</em> was actually interrupted.</li>
+  <li>Immune to 52a lies — a broken linkage can drive the auxiliary contact while the mains stay closed. The SEL-352 makes this point for its close-failure logic: because it operates on pole current, it "is not subject to misoperation due to mechanical failure" of the breaker or aux contacts.</li>
+  <li>Fast, secure, and self-resetting via subsidence-proof dropout.</li>
+</ul>
+</div>
+<div>
+<h3 style="color:#9c6d06">52a / low-current supervision</h3>
+<ul>
+  <li>Needed when the breaker must trip with <strong>little or no current flowing</strong> — a weak source behind the breaker, a high-resistance ground fault, or a mechanical/pressure-type device tripping at currents below any safe 50 pickup. No current = 50BF can't see the failure.</li>
+  <li>SEL-451: the <strong>no-current/residual scheme</strong> (<code>ENCBF1</code>). <code>50RP1</code> covers resistive ground faults on its own timer <code>NPU1</code> (12 cyc in the example, deliberately longer than BFPU1); for true no-current initiations set <code>BFIN1 := 52AA1</code> so the 52a contact judges success.</li>
+  <li>SEL-352 load-current scheme 2: same as its current-based scheme 1, but adds 52a monitoring for currents below the <code>50LD</code> element's minimum.</li>
+  <li>AG2001-14: 52a supervision is a settable option (<code>SV1</code>) OR'd with the current detectors.</li>
+</ul>
+</div>
+</div>
+<div class="callout warn"><strong>Rule of thumb from the sources:</strong> use current where current exists — it's the only witness to interruption. Use 52a only to cover the cases current can't see, and give those paths their own (usually longer) timer.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Dedicated BF relays: what the SEL-352 adds</h2>
+<p>Line and bus relays carry BF logic as a feature; the SEL-352 is a <em>breaker</em> relay — one device per breaker, watching every failure mode the breaker has, not just "failure to interrupt a fault":</p>
+<table>
+  <tr><th>Failure mode</th><th>How the 352 covers it</th></tr>
+  <tr><td>Failure to clear a fault</td><td><strong>Five schemes</strong> differing in when the timer starts and what latches. Scheme 2/3/5: timer runs only while trip input + 50FT agree (predictable timing in single-breaker buses). Scheme 1/4: timer starts on the trip input alone — required for <strong>ring-bus / breaker-and-a-half</strong>, where current split between two breakers makes 50FT assertion timing uncertain until the companion breaker opens. One independent BF relay per breaker in those arrangements.</td></tr>
+  <tr><td>Failure while tripping load</td><td>Two schemes; scheme 2 adds 52a for current below the sensitive 50LD element.</td></tr>
+  <tr><td>Failure to close</td><td><strong>Pole disagreement detection</strong> — one or two poles didn't make. Operates on pole currents, not auxiliary contacts.</td></tr>
+  <tr><td>Failure while open</td><td><strong>Flashover protection</strong> (50FO): two schemes — voltage across the breaker + current through it, or single-side voltage + current + the breaker-monitor input. Voltage-nulling logic removes the steady-state voltage difference so only transients register. (The SEL-451 also offers a flashover BF option, <code>EFOBF1</code>.)</td></tr>
+  <tr><td>Resistors left inserted</td><td>Thermal (I²t) models of trip/close insertion resistors with settable cooling time constants; trips before a cooking resistor fails, and won't reset until the model cools.</td></tr>
+  <tr><td>Loss of dielectric</td><td>Gas-pressure switch inputs — two interrupter thresholds for alarm / trip / BF trip, plus a CT-dielectric input.</td></tr>
+</table>
+<p>Around the protection: retrip logic, <strong>86BF trip-and-reset logic</strong> including automatic breaker isolation — trip the motor-operated disconnect (MOD) once current drops below a threshold, or indicate "safe to disconnect" — point-on-wave controlled close/open, synchronism check, and a recorder: 8 s events at 64 samples/cycle, 512 SER entries, and <strong>512 breaker operation records</strong> (type, max current, electrical and mechanical operate times, interrupted energy, per pole).</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Breaker monitoring: catching the failure before it happens</h2>
+<h3>Contact wear against the duty curve</h3>
+<p>Manufacturers publish maintenance data as <em>permissible close/open operations vs. current interrupted per operation</em> — a log-log curve. Both the SEL-751A and SEL-451 reproduce it from <strong>three set points</strong> and integrate every interruption against it, per phase (each pole interrupts a different current depending on fault type):</p>
+<table>
+  <tr><th>Setting (751A / 451)</th><th>Meaning</th><th>Example (SF6, 25 kV class)</th></tr>
+  <tr><td class="mono">COSP1·KASP1 / B1COSP1·B1KASP1</td><td>Max operations at low current — the <em>mechanical service life</em>; curve is flat left of here</td><td>10 000 ops at ≤1.2 kA</td></tr>
+  <tr><td class="mono">COSP2·KASP2 / B1COSP2·B1KASP2</td><td>Midpoint — curve-fit, or set near expected SLG fault current (most interruptions)</td><td>150 ops at 8 kA</td></tr>
+  <tr><td class="mono">COSP3·KASP3 / B1COSP3·B1KASP3</td><td>Max interrupting rating; curve falls vertically here</td><td>12 ops at 20 kA</td></tr>
+</table>
+<p>Constraints: ops 0–65000; kA 0.10–999 (751A) / 1.0–999 (451); <strong>KASP3 must be 5–100× KASP1</strong>. Above KASP3 the 751A accumulates the excess as KASP3; the 451 jumps that pole's wear straight to 105%. No published curve? The 451 shows how to derive the three points from an I²t rating: <code>COSPn = I²t / (KASPn² · t_arc)</code> — e.g. 750 kA²·s at 1-cycle arcing → 11 250 / 450 / 28 ops at 2 / 10 / 40 kA.</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- duty curve axes -->
+  <text x="10" y="16" font-size="10" font-weight="600" fill="#1a1a22">Wear accumulating against the duty curve</text>
+  <line x1="70" y1="30" x2="70" y2="192" stroke="#d0d3da" stroke-width="1"/>
+  <line x1="70" y1="192" x2="360" y2="192" stroke="#d0d3da" stroke-width="1"/>
+  <text x="24" y="34" font-size="8" fill="#8a8e9b">10 000</text>
+  <text x="36" y="124" font-size="8" fill="#8a8e9b">150</text>
+  <text x="44" y="180" font-size="8" fill="#8a8e9b">12</text>
+  <text x="210" y="218" font-size="8" fill="#8a8e9b" text-anchor="middle">kA interrupted per operation (log)</text>
+  <text x="83" y="204" font-size="8" fill="#8a8e9b" text-anchor="middle">1.2</text>
+  <text x="264" y="204" font-size="8" fill="#8a8e9b" text-anchor="middle">8</text>
+  <text x="350" y="204" font-size="8" fill="#8a8e9b" text-anchor="middle">20</text>
+  <text x="16" y="110" font-size="8" fill="#8a8e9b" transform="rotate(-90 16 110)" text-anchor="middle">close/open ops (log)</text>
+  <!-- 100% duty curve -->
+  <path d="M70,30 L87,30 L264,121 L350,176 L350,192" fill="none" stroke="#454956" stroke-width="2"/>
+  <text x="150" y="46" font-size="8" font-weight="600" fill="#454956">100% duty curve</text>
+  <circle cx="87" cy="30" r="3.5" fill="#10a37f"/><circle cx="264" cy="121" r="3.5" fill="#10a37f"/><circle cx="350" cy="176" r="3.5" fill="#10a37f"/>
+  <text x="95" y="26" font-size="7.5" fill="#10a37f">KASP1,COSP1</text>
+  <text x="272" y="118" font-size="7.5" fill="#10a37f">KASP2,COSP2</text>
+  <text x="262" y="172" font-size="7.5" fill="#10a37f">KASP3,COSP3</text>
+  <!-- interruption events (static: all visible) -->
+  <g font-size="7.5" font-weight="600">
+    <circle cx="252" cy="115" r="4" fill="#d7930a"/><text x="252" y="104" fill="#9c6d06" text-anchor="middle">7 kA ×20</text>
+    <circle cx="156" cy="66" r="4" fill="#d7930a"/><text x="156" y="56" fill="#9c6d06" text-anchor="middle">2.5 kA ×290</text>
+    <circle cx="302" cy="148" r="4" fill="#d7930a"/><text x="302" y="138" fill="#9c6d06" text-anchor="middle">12 kA ×11</text>
+    <circle cx="108" cy="41" r="4" fill="#d7930a"/><text x="112" y="60" fill="#9c6d06">1.5 kA ×3000</text>
+  </g>
+  <!-- accumulator bar -->
+  <text x="560" y="30" font-size="9" font-weight="600" fill="#454956">wear</text>
+  <rect x="560" y="40" width="56" height="160" rx="4" fill="#f2f3f5" stroke="#d0d3da" stroke-width="1"/>
+  <rect x="560" y="40" width="56" height="160" rx="4" fill="#10a37f" opacity="0.12"/>
+  <g stroke="#a9adb8" stroke-width="0.75" stroke-dasharray="3 2">
+    <line x1="560" y1="184" x2="616" y2="184"/><line x1="560" y1="160" x2="616" y2="160"/><line x1="560" y1="120" x2="616" y2="120"/>
+  </g>
+  <g font-size="7.5" fill="#8a8e9b">
+    <text x="622" y="187">10%</text><text x="622" y="163">25%</text><text x="622" y="123">50%</text><text x="622" y="46">100%</text>
+  </g>
+  <text x="588" y="216" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">100% → BCWA asserts</text>
+  <text x="588" y="228" font-size="7.5" fill="#8a8e9b" text-anchor="middle">alarm · block reclose · schedule maint.</text>
+  <!-- arrows events → bar -->
+  <path d="M370,100 C440,90 500,100 552,120 M545,113 L554,121 L542,124" fill="none" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <g class="animlayer">
+    <!-- animated fill -->
+    <rect x="560" y="200" width="56" height="0" fill="#10a37f" opacity="0.75">
+      <animate attributeName="y" values="200;200;184;184;160;160;120;120;40;40" keyTimes="0;0.06;0.14;0.26;0.36;0.48;0.58;0.68;0.80;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="height" values="0;0;16;16;40;40;80;80;160;160" keyTimes="0;0.06;0.14;0.26;0.36;0.48;0.58;0.68;0.80;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- event highlights in order: 7kA, 2.5kA, 12kA, 1.5kA -->
+    <circle cx="252" cy="115" r="9" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0.9;0.9;0;0" keyTimes="0;0.07;0.13;0.16;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="156" cy="66" r="9" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.27;0.30;0.35;0.38;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="302" cy="148" r="9" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.49;0.52;0.57;0.60;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="108" cy="41" r="9" fill="none" stroke="#d7930a" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.70;0.73;0.78;0.81;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- BCW alarm flash -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0.3;1;0.3;1;0;0" keyTimes="0;0.81;0.83;0.86;0.89;0.92;0.95;0.98;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="560" y="40" width="56" height="14" rx="3" fill="#d63a3a"/>
+      <text x="588" y="50" font-size="7.5" font-weight="600" fill="#fff" text-anchor="middle">BCW = 1</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">The 751A manual's worked sequence, one phase: 20 interruptions at 7 kA → 10% wear · 290 at 2.5 kA → 25% · 11 at 12 kA → 50% · 3000 at 1.5 kA → 100%, and <code>BCWA</code> asserts. Big currents cost thousands of times more life per operation than small ones — the log curve does the bookkeeping.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>Initiation:</strong> a SELogic equation (<code>BKMON := TRIP</code> on the 751A, <code>BM1TRPA := T3P1</code> on the 451) triggers the accumulator on its rising edge. The 751A reads the currents <strong>1.5 cycles after</strong> the edge, so an instantaneous trip's still-climbing fault current has leveled off before it's recorded. To count trips from <em>other</em> devices too, monitor the trip bus with a spare input (watch trip-lamp pull-up when the breaker is open — set the input pickup ~80% of battery voltage) and OR it in.</li>
+  <li><strong>Counters:</strong> the 751A splits accumulated trips and interrupted current into <strong>relay-initiated vs. externally initiated</strong>, decided by whether the <code>TRIP</code> bit was asserted when BKMON fired. <code>BRE</code> shows it all; <code>BRE W</code>/<code>BRE n P</code> preloads existing wear on an in-service breaker; <code>BRE R</code> resets after maintenance. Data survive power loss and even disabling the monitor.</li>
+  <li><strong>At 100%:</strong> 751A asserts <code>BCWA/BCWB/BCWC</code> (and the OR, <code>BCW</code>) — alarm it (<code>OUTxxx = BCW</code>) or drive to lockout on the next trip (<code>79DTL = TRIP AND BCW</code>). The 451 alarms at a settable threshold instead (<code>B1BCWAT</code> → <code>B1BCWAL</code>) and reports wear up to a 150% clip.</li>
+</ul>
+
+<h3>Operate-time trends: electrical vs mechanical</h3>
+<p>The SEL-451 times every operation two ways, and the <em>difference</em> is diagnostic:</p>
+<table>
+  <tr><th></th><th>Measured from → to</th><th>Alarm settings (example)</th><th>What a slow reading means</th></tr>
+  <tr><td><strong>Mechanical</strong></td><td>trip/close initiation → 52a status change</td><td><code>B1MSTRT := 30 ms</code> trip, <code>B1MSCLT := 70 ms</code> close → <code>B1MSOAL</code> (5 s)</td><td>Linkage, mechanism, or 52a contact trouble</td></tr>
+  <tr><td><strong>Electrical</strong></td><td>trip/close initiation → open-pole detected / current restored</td><td><code>B1ESTRT := 25 ms</code>, <code>B1ESCLT := 65 ms</code> → <code>B1ESOAL</code></td><td>Arcing-chamber problems — slow arc extinction</td></tr>
+</table>
+<p>Each also has a built-in <strong>time-out check</strong>: no state change within the threshold + ~100 ms flags a breaker that never moved at all. The 451 keeps a <strong>128-operation history</strong> (<code>BRE n H</code>) of mechanical/electrical times and interrupted current — the trend line matters more than any single reading. The SEL-352's breaker records do the same per pole (average + last operate times, interrupted energy), and its <code>BALRM</code> alarm list names the field symptoms directly: <em>slow trip, slow close, 52A contradicts voltage, current while open, trip while open, volts across closed CB</em>.</p>
+
+<h3>The rest of the health picture</h3>
+<ul>
+  <li><strong>kA per interruption:</strong> 451 records each interruption as a percentage of the breaker's max interrupting rating (<code>B1MKAI</code>); exceeding <code>B1KAIAT</code> asserts <code>B1KAIAL</code> — "that one was near the rating, go look at it."</li>
+  <li><strong>Inactivity:</strong> <code>B1ITAT</code> (days, e.g. 365) → <code>B1BITAL</code>. A breaker that never operates is a breaker you know nothing about.</li>
+  <li><strong>Mechanism motor run time:</strong> <code>B1MRTIN</code> input from the motor contact, alarm <code>B1MRTAT</code> set at measured recharge time + 20% — a spring-charge or air-compressor motor running long is early mechanism trouble.</li>
+  <li><strong>Station DC battery:</strong> the tripping energy source. 451: two channels (Vdc1/Vdc2), four thresholds giving five zones (low fail → high fail), <strong>AC ripple</strong> measurement for charger health, dc ground-fault detection, and the breaker report logs the <em>minimum battery voltage during each operation</em> — a free load test every trip. 751A: under/over-voltage alarms and the dip view during trip/close (needs the enhanced-voltage 5AVI card). SEL-352-3: battery monitoring with four setpoints.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Gotchas &amp; fine print</h2>
+<ul>
+<li><strong>751A's built-in BF is minimal by design:</strong> <code>BFI := R_TRIG TRIP</code> starts <code>BFD</code> (0.00–2.00 s, default 0.50) supervised by a fixed |I1|+|I2| &gt; 0.02·I<sub>NOM</sub> threshold; <code>BFT</code> trips the upstream breaker. <code>52ABF := Y</code> adds aux-contact failure detection. Fine for feeder/backup coordination — not a transmission BF scheme.</li>
+<li><strong>Ring bus / breaker-and-a-half:</strong> current division between companion breakers makes 50 element timing unpredictable — pick a scheme that starts timing on the trip input (352 scheme 1 or 4) and give <em>each</em> breaker its own BF relay.</li>
+<li><strong>BFI dropout/seal-in:</strong> the 451 example zeroes <code>BFIDO1</code>/<code>BFISP1</code> for a single-breaker line (the internal 3PT already has minimum duration via TDUR3D); dual-breaker schemes and external BFI contacts are where those timers earn their keep.</li>
+<li><strong>Don't let the retrip mask the test:</strong> retrip proves coil 2 works, not that BF works. Commission the whole chain — BFI through 86BF through DTT received at the far end.</li>
+<li><strong>Wear data is per pole.</strong> A pole-mounted recloser or breaker clearing mostly SLG faults wears one contact set far faster than the metering-level "operations count" suggests. That's the whole reason the accumulator is per phase.</li>
+<li><strong>Preload on brownfield installs.</strong> A monitor commissioned at 0% on a 30-year breaker is fiction — preload wear (451 accepts up to 100% per pole) before trusting the alarm.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/bus-protection-87b.html">Bus Protection (87B)</a>
+  <a href="atlas:fundamentals/dc-systems.html">Station DC Systems</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:fundamentals/substation-anatomy.html">Substation Anatomy</a>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+</div>
+<p class="footnote">Sources: SEL AG2001-14, <em>Implementing Breaker Failure Protection and Transfer Tripping With the SEL-311L Relay</em> (AG_200114.pdf) — scheme logic, retrip, 87L/Mirrored Bits DTT · SEL-451 Instruction Manual (451_IM_20190325.pdf) — BF application examples, timing/margin equations, breaker monitor &amp; DC battery monitor · SEL-751A Instruction Manual (751A_IM_20250411.pdf) — breaker wear curve, counters, BF setting · SEL-352 Data Sheet (352_DS_20231205.pdf) — dedicated BF relay features. Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

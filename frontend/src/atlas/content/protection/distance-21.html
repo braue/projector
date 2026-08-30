@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Distance Protection (21)</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="21,distance,mho,quadrilateral,zones,R-X,impedance,line protection">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Distance Protection (21) (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Distance Protection (21)</h1>
+  <p>V/I becomes ohms, ohms become distance — mho and quad zones, stepped timers, pilot schemes, and everything that keeps a 21 honest on SEL-311C-class relays</p>
+  <div class="chips"><span>21</span><span>mho / quad</span><span>Z1P–Z4P</span><span>k0</span><span>POTT · DCB · DCUB</span><span>LOP</span><span>R-X plane</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>A distance (21) element divides measured voltage by measured current and compares the result — an <strong>apparent impedance</strong> — against a reach set in <strong>Ω secondary</strong>. Because line impedance is proportional to length, ohms are distance.</li>
+<li><strong>Zone 1 underreaches</strong> (typ. 80–90% of the line) and trips with no intentional delay. <strong>Zone 2 overreaches</strong> (typ. 125%) and waits out its timer. Zone 3 usually looks <strong>backward</strong> to feed pilot and current-reversal logic.</li>
+<li>The element is only as good as its inputs: <strong>LOP</strong> blocks it when PTs die, <strong>load encroachment</strong> keeps heavy load from looking like a three-phase fault, and <strong>k0</strong> is what makes ground zones read line ohms at all.</li>
+<li>A pilot channel (POTT / DCB / DCUB) turns end-zone Zone-2-time clearing into <strong>channel-time</strong> clearing at both ends.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>Ohms as distance</h2>
+<p>The relay measures the voltage drop between its PTs and the fault, and the current through its CTs, and computes the impedance between itself and the fault. For a bolted fault at 60% of the line, the phase elements see roughly 0.6 × Z<sub>line</sub>. Every reach is therefore just a fraction of the line impedance, entered in secondary ohms:</p>
+<div class="callout"><p style="margin:0"><strong>Ω primary × (CTR / PTR) = Ω secondary.</strong> On the SEL-311C the line is described by <code>Z1MAG</code>/<code>Z1ANG</code> (positive-sequence) and <code>Z0MAG</code>/<code>Z0ANG</code> (zero-sequence), all in Ω secondary, plus a unitless line length <code>LL</code> — these feed the distance elements, the fault locator, and (with <code>E32 = AUTO</code>) the automatic directional-element settings.</p></div>
+<p>The catch driving the rest of this page: the relay measures only at <em>its own</em> terminal. Anything that distorts V/I — infeed from another terminal, fault resistance, load flow, a dying PT fuse, a CCVT transient — moves the measured point on the R-X plane without moving the fault.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>Zones, reaches, and timers (SEL-311C)</h2>
+<p>The SEL-311C provides <strong>four independent zones</strong> each of mho phase (<code>E21P</code>, reaches <code>Z1P</code>–<code>Z4P</code>), mho ground (<code>E21MG</code>, <code>Z1MG</code>–<code>Z4MG</code>), and quadrilateral ground (<code>E21XG</code>, reactance <code>XG1</code>–<code>XG4</code> with resistance blinders <code>RG1</code>–<code>RG4</code>). Zones 1 and 2 are <strong>fixed forward</strong>; Zones 3 and 4 are settable forward or reverse (<code>DIR3</code>/<code>DIR4</code>). Reach range: 0.05–64 Ω sec in 0.01 Ω steps (5 A nominal). Each zone is supervised by fault-detector overcurrent pickups (<code>50PP1–4</code> phase, <code>50L1–4</code>/<code>50GZ1–4</code> ground).</p>
+<table>
+  <tr><th>Zone</th><th>Classic role</th><th>311C convention</th><th>Timing</th></tr>
+  <tr><td><strong>Z1</strong></td><td>Underreach, instantaneous</td><td>80–90% of Z<sub>1line</sub> to the nearest terminal (AG2000-12); trip bits <code>M1P</code>/<code>Z1G</code> straight into <code>TR</code></td><td>No intentional delay; element itself ~1–2 cycles depending on SIR and fault position</td></tr>
+  <tr><td><strong>Z2</strong></td><td>Overreach, timed; pilot trip element</td><td>Typ. 125% of the line (more with infeed); <code>M2P + Z2G</code> is the standard <code>TRCOMM</code> pilot equation</td><td><code>Z2D</code> (common) or <code>Z2PD</code>/<code>Z2GD</code> (independent phase/ground) — coordinate past remote Zone 1 + breaker time</td></tr>
+  <tr><td><strong>Z3</strong></td><td>Reverse-looking for pilot logic</td><td><code>DIR3 = R</code> required by the comms-assisted schemes (blocking / current-reversal / weak-infeed supervision)</td><td><code>Z3D</code>/<code>Z3PD</code>/<code>Z3GD</code> if also used for backup</td></tr>
+  <tr><td><strong>Z4</strong></td><td>Spare backup, either direction</td><td><code>DIR4</code> = F or R as needed</td><td><code>Z4D</code>/<code>Z4PD</code>/<code>Z4GD</code></td></tr>
+</table>
+<ul>
+  <li><strong>Two timing philosophies:</strong> common (<code>Z1D</code>–<code>Z4D</code> → bits <code>Z1T</code>–<code>Z4T</code>, phase and ground share one timer) or independent (<code>Z1PD</code>–<code>Z4PD</code> → <code>MnPT</code>, <code>Z1GD</code>–<code>Z4GD</code> → <code>ZnGT</code>). Range OFF / 0–16,000 cycles in 0.25-cycle steps. Pick one style in the trip equation: <code>TR = M1P + Z1G + M2PT + Z2GT + 51GT + 51QT</code>.</li>
+  <li><strong>Evolving faults don't reset the clock:</strong> if a common zone timer's input drops out while timing, the count is suspended for one cycle rather than reset — a fault evolving Φ-Φ → 3Φ keeps its head start.</li>
+  <li><strong>Zone 1 extension</strong> (<code>EZ1EXT</code>): multiplies all Zone 1 reaches by <code>Z1EXTM</code> once the breaker has been closed <code>Z1EXTD</code>; the relay enforces extended reach &lt; 90% of Zone 2. Reaches retreat to normal when the breaker opens (3PO).</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>The characteristics on the R-X plane</h2>
+<p>A <strong>mho</strong> characteristic is a circle passing through the origin with its diameter along the line angle, out to the reach setting. The relay implements it as an angle test between a line-drop-compensated voltage (Z·I − V) and a polarizing reference: the balance point is <span class="mono">0 = Re[(Z·I − V) · Vmem*]</span>. Inside the circle the test operates; outside it restrains. Everything in one picture:</p>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- axes -->
+  <line x1="60" y1="250" x2="480" y2="250" stroke="#d0d3da" stroke-width="1"/>
+  <line x1="170" y1="292" x2="170" y2="34" stroke="#d0d3da" stroke-width="1"/>
+  <text x="472" y="264" font-size="9" fill="#8a8e9b">R</text>
+  <text x="158" y="42" font-size="9" fill="#8a8e9b">X</text>
+  <!-- Z2 and Z1 mho circles -->
+  <circle cx="198" cy="145.7" r="104.3" fill="#5468c4" opacity="0.07"/>
+  <circle cx="198" cy="145.7" r="104.3" fill="none" stroke="#5468c4" stroke-width="1.5"/>
+  <circle cx="188.7" cy="180.5" r="72" fill="#10a37f" opacity="0.10"/>
+  <circle cx="188.7" cy="180.5" r="72" fill="none" stroke="#10a37f" stroke-width="1.5"/>
+  <!-- line impedance -->
+  <line x1="170" y1="250" x2="217" y2="76" stroke="#1a1a22" stroke-width="2"/>
+  <circle cx="217" cy="76" r="3.5" fill="#fff" stroke="#1a1a22" stroke-width="1.5"/>
+  <text x="228" y="74" font-size="9" font-weight="600" fill="#1a1a22">remote bus (100%)</text>
+  <circle cx="207" cy="111" r="2.5" fill="#10a37f"/>
+  <text x="218" y="108" font-size="9" fill="#10a37f">Z1P reach (80%)</text>
+  <circle cx="226" cy="41" r="2.5" fill="#5468c4"/>
+  <text x="236" y="44" font-size="9" fill="#5468c4">Z2P reach (120%)</text>
+  <text x="120" y="196" font-size="9.5" font-weight="600" fill="#10a37f">Z1</text>
+  <text x="96" y="120" font-size="9.5" font-weight="600" fill="#5468c4">Z2</text>
+  <!-- load region -->
+  <path d="M280,250 L455,214 L455,250 Z" fill="#d7930a" opacity="0.12"/>
+  <circle cx="330" cy="228" r="4" fill="#d7930a"/>
+  <text x="342" y="231" font-size="9" fill="#9c6d06">load (prefault Z)</text>
+  <text x="368" y="262" font-size="8.5" fill="#9c6d06">load-encroachment region (ZLOUT)</text>
+  <!-- right panel: timer race -->
+  <text x="500" y="66" font-size="10" font-weight="600" fill="#1a1a22">Zone-timer race</text>
+  <text x="500" y="92" font-size="9" fill="#10a37f" font-weight="600">Z1 · M1P — no intentional delay</text>
+  <rect x="500" y="98" width="170" height="9" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+  <text x="500" y="130" font-size="9" fill="#5468c4" font-weight="600">Z2 · M2P → Z2PD timer → M2PT</text>
+  <rect x="500" y="136" width="170" height="9" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+  <text x="500" y="166" font-size="8.5" fill="#8a8e9b">fault inside Z1 → trip now;</text>
+  <text x="500" y="178" font-size="8.5" fill="#8a8e9b">fault past Z1P but inside Z2 →</text>
+  <text x="500" y="190" font-size="8.5" fill="#8a8e9b">wait out Z2PD before tripping</text>
+  <g class="animlayer">
+    <!-- apparent impedance point: load → 50% fault → load → 95% fault → load -->
+    <circle r="5" fill="#d63a3a">
+      <animate attributeName="cx" values="330;330;193;193;330;330;214;214;330" keyTimes="0;0.06;0.062;0.30;0.302;0.40;0.402;0.94;0.945" calcMode="discrete" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="228;228;163;163;228;228;85;85;228" keyTimes="0;0.06;0.062;0.30;0.302;0.40;0.402;0.94;0.945" calcMode="discrete" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Z1 glow during phase A -->
+    <circle cx="188.7" cy="180.5" r="72" fill="none" stroke="#10a37f" stroke-width="3.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.07;0.09;0.27;0.30;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="60" y="290" font-size="9.5" font-weight="700" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.09;0.11;0.27;0.30;1" dur="12s" repeatCount="indefinite"/>
+      fault at 50% — inside Z1 → TRIP, no delay
+    </text>
+    <rect x="500" y="98" width="170" height="9" rx="2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.09;0.10;0.27;0.30;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Z2 glow + timer during phase B -->
+    <circle cx="198" cy="145.7" r="104.3" fill="none" stroke="#5468c4" stroke-width="3.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.41;0.43;0.92;0.945;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="60" y="290" font-size="9.5" font-weight="700" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.42;0.44;0.92;0.945;1" dur="12s" repeatCount="indefinite"/>
+      fault at 95% — past Z1P, inside Z2 → Z2PD runs…
+    </text>
+    <rect x="500" y="136" height="9" rx="2" fill="#5468c4" width="0">
+      <animate attributeName="width" values="0;0;170;170;0" keyTimes="0;0.43;0.78;0.94;1" dur="12s" repeatCount="indefinite"/>
+    </rect>
+    <text x="675" y="144" font-size="9.5" font-weight="700" fill="#d63a3a" text-anchor="end" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.78;0.80;0.92;1" dur="12s" repeatCount="indefinite"/>
+      TRIP (M2PT)
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">R-X plane: the measured impedance sits in the load region until a fault snaps it onto the line. Inside Z1 → instantaneous; between the Z1 and Z2 reaches → the Z2 timer must run out first.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<h3>Polarization and memory — why the circle is bigger than it looks</h3>
+<p>The 311C polarizes both mho phase and mho ground elements with <strong>memorized positive-sequence voltage</strong> (V1mem). Memory keeps a reference alive through close-in faults where the measured voltage collapses to zero, and it <strong>expands the mho characteristic</strong> back toward the source impedance — improving resistive coverage for forward faults while staying secure. Relay Word bit <code>VPOLV</code> supervises every distance element and asserts only while the memorized polarizing voltage exceeds 1 V; the DCB logic even latches its block-send for a zero-voltage three-phase fault that outlives the memory. Faulted-phase selection (FIDS) compares the angle between I0 and I2 and enables only the right loops — an A-G fault asserts <code>FSA</code>, enabling AG and CB elements and blocking BG, CG, AB, CA.</p>
+
+<h3>Quadrilateral ground and k0</h3>
+<ul>
+  <li><strong>Quadrilateral ground zones</strong> are a box instead of a circle: a reactance line (reach <code>XGn</code>) capped by resistance blinders (±<code>RGn</code>, 0.05–50 Ω sec) — deliberately wide resistive coverage for high-resistance ground faults on short lines. The reactance line is polarized by negative-sequence current (or zero-sequence, advanced setting <code>XGPOL</code>), and tilted by <code>TANG</code> (−40° to +40°, −3° when advanced settings are off) to fight over/underreach on non-homogeneous systems.</li>
+  <li><strong>Zero-sequence compensation:</strong> a ground loop measures V<sub>Φ</sub>/(I<sub>Φ</sub> + k0·I<sub>R</sub>) with <code>k0 = (Z0 − Z1)/(3·Z1)</code>, entered as magnitude <code>k0M1</code> (0–6) and angle <code>k0A1</code> (±180°) from the line's Z1/Z0 data. Zones 2–4 get their own k0 only with <code>EADVS = Y</code>; otherwise they inherit Zone 1's. Wrong k0 = every ground zone reaches the wrong distance.</li>
+  <li><strong>Compensator distance</strong> (a "C" suffix on <code>E21P</code>, e.g. <code>3C</code>) swaps the phase elements for a compensator principle that reaches correctly through delta-wye transformer banks; it cannot run at the same time as positive-sequence-polarized phase distance.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Time-stepped zones — and their built-in flaw</h2>
+<p>Stepped zones exist so a stand-alone relay never overtrips for the next line: Zone 1 stops short of the remote bus because reach accuracy (±5% at line angle for 30 ≤ SIR ≤ 60, ±3% below) plus CT/PT error could otherwise carry it past; Zone 2 covers the rest of the line but must wait long enough for the <em>remote</em> Zone 1 and breaker to clear an external fault first. The price: a fault in the last ~20% of the line is cleared at one end in a cycle and at the other only after the full Zone 2 delay — slow clearing, longer arc time, and reclosing that can't be trusted until both ends are open. A pilot channel fixes exactly this:</p>
+
+<div class="fig"><svg viewBox="0 0 700 312" xmlns="http://www.w3.org/2000/svg">
+  <!-- one-line -->
+  <rect x="88" y="18" width="6" height="28" fill="#1a1a22"/>
+  <rect x="606" y="18" width="6" height="28" fill="#1a1a22"/>
+  <text x="80" y="14" font-size="9.5" font-weight="600" fill="#1a1a22">Bus S</text>
+  <text x="586" y="14" font-size="9.5" font-weight="600" fill="#1a1a22">Bus R</text>
+  <line x1="94" y1="32" x2="606" y2="32" stroke="#454956" stroke-width="2"/>
+  <rect x="104" y="26" width="12" height="12" fill="#fff" stroke="#454956" stroke-width="1.5"/>
+  <rect x="584" y="26" width="12" height="12" fill="#fff" stroke="#454956" stroke-width="1.5"/>
+  <rect x="82" y="56" width="66" height="20" rx="4" fill="#fff" stroke="#10a37f" stroke-width="1.5"/>
+  <text x="115" y="70" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">21 relay S</text>
+  <rect x="552" y="56" width="66" height="20" rx="4" fill="#fff" stroke="#5468c4" stroke-width="1.5"/>
+  <text x="585" y="70" font-size="9" font-weight="600" fill="#5468c4" text-anchor="middle">21 relay R</text>
+  <line x1="148" y1="66" x2="552" y2="66" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="350" y="61" font-size="8.5" fill="#8a8e9b" text-anchor="middle">pilot channel (Mirrored Bits / contact keying)</text>
+  <!-- static fault marker at end zone -->
+  <path d="M560,32 l-5,12 h7 l-6,14" fill="none" stroke="#d63a3a" stroke-width="2"/>
+  <text x="568" y="50" font-size="9" font-weight="600" fill="#d63a3a">F (end zone)</text>
+  <!-- time-distance staircase -->
+  <line x1="88" y1="272" x2="652" y2="272" stroke="#d0d3da" stroke-width="1"/>
+  <line x1="88" y1="284" x2="88" y2="120" stroke="#d0d3da" stroke-width="1"/>
+  <text x="74" y="130" font-size="8.5" fill="#8a8e9b" transform="rotate(-90 74 130)">time →</text>
+  <text x="646" y="284" font-size="8.5" fill="#8a8e9b" text-anchor="end">position along line →</text>
+  <!-- relay S steps (teal) -->
+  <line x1="100" y1="254" x2="500" y2="254" stroke="#10a37f" stroke-width="2.25"/>
+  <line x1="500" y1="254" x2="500" y2="200" stroke="#10a37f" stroke-width="1.25" stroke-dasharray="3 2"/>
+  <line x1="500" y1="200" x2="640" y2="200" stroke="#10a37f" stroke-width="2.25"/>
+  <path d="M640,200 l-7,-4 v8 z" fill="#10a37f"/>
+  <text x="180" y="248" font-size="9" font-weight="600" fill="#10a37f">S Zone 1 (Z1P, ~1 cyc)</text>
+  <text x="504" y="194" font-size="9" font-weight="600" fill="#10a37f">S Zone 2 after Z2PD</text>
+  <!-- relay R steps (blue, dashed) -->
+  <line x1="600" y1="242" x2="200" y2="242" stroke="#5468c4" stroke-width="2.25" stroke-dasharray="6 3"/>
+  <line x1="200" y1="242" x2="200" y2="186" stroke="#5468c4" stroke-width="1.25" stroke-dasharray="3 2"/>
+  <line x1="200" y1="186" x2="72" y2="186" stroke="#5468c4" stroke-width="2.25" stroke-dasharray="6 3"/>
+  <path d="M72,186 l7,-4 v8 z" fill="#5468c4"/>
+  <text x="380" y="238" font-size="9" font-weight="600" fill="#5468c4">R Zone 1 (~1 cyc)</text>
+  <text x="86" y="180" font-size="9" font-weight="600" fill="#5468c4">R Zone 2</text>
+  <!-- static note -->
+  <text x="88" y="304" font-size="8.5" fill="#a9adb8">fault F sits past S's Zone 1 reach: R clears in ~1 cycle, S alone must wait out Z2PD — unless a pilot scheme (POTT) lets R's permissive key accelerate S</text>
+  <g class="animlayer">
+    <!-- scenario labels -->
+    <text x="350" y="106" font-size="10" font-weight="700" fill="#1a1a22" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.28;0.31;1" dur="15s" repeatCount="indefinite"/>
+      1 · mid-line fault: both ends in Zone 1 → both trip with no delay
+    </text>
+    <text x="350" y="106" font-size="10" font-weight="700" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.34;0.61;0.64;1" dur="15s" repeatCount="indefinite"/>
+      2 · end-zone fault: R trips Zone 1, S sits on the Z2 timer
+    </text>
+    <text x="350" y="106" font-size="10" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.64;0.67;0.97;1" dur="15s" repeatCount="indefinite"/>
+      3 · same fault, POTT on: R keys PT → S trips M2P·PTRX at channel speed
+    </text>
+    <!-- scenario 1: mid-line fault -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.28;0.31;1" dur="15s" repeatCount="indefinite"/>
+      <path d="M350,32 l-5,12 h7 l-6,14" fill="none" stroke="#d63a3a" stroke-width="2.5"/>
+      <line x1="350" y1="60" x2="350" y2="266" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>
+      <circle cx="350" cy="254" r="5" fill="#10a37f" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.05;0.07;0.28;0.31;1" dur="15s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="350" cy="242" r="5" fill="#5468c4" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.05;0.07;0.28;0.31;1" dur="15s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <!-- scenario 2: end-zone fault, S waits -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.34;0.61;0.64;1" dur="15s" repeatCount="indefinite"/>
+      <line x1="560" y1="60" x2="560" y2="266" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>
+      <circle cx="560" cy="242" r="5" fill="#5468c4"/>
+      <text x="560" y="230" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">R: Z1 trip</text>
+    </g>
+    <!-- S timer creep then trip -->
+    <circle cx="560" cy="254" r="5" fill="none" stroke="#10a37f" stroke-width="1.5" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.34;0.36;0.52;0.54;1" dur="15s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="254;254;254;200;200" keyTimes="0;0.36;0.38;0.52;1" dur="15s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="560" cy="200" r="5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.54;0.61;0.64;1" dur="15s" repeatCount="indefinite"/>
+    </circle>
+    <text x="574" y="214" font-size="8.5" font-weight="600" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.54;0.61;0.64;1" dur="15s" repeatCount="indefinite"/>
+      S: Z2 trip (late)
+    </text>
+    <!-- scenario 3: POTT -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.64;0.67;0.97;1" dur="15s" repeatCount="indefinite"/>
+      <line x1="560" y1="60" x2="560" y2="266" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>
+      <circle cx="560" cy="242" r="5" fill="#5468c4"/>
+      <text x="560" y="230" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle">R: Z1 + KEY</text>
+    </g>
+    <rect x="-11" y="-5" width="22" height="10" rx="2" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.68;0.69;0.795;0.80;1" dur="15s" repeatCount="indefinite"/>
+      <animateMotion path="M552,66 L148,66" keyPoints="0;0;1;1" keyTimes="0;0.68;0.80;1" calcMode="linear" dur="15s" repeatCount="indefinite"/>
+    </rect>
+    <text x="350" y="84" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.69;0.71;0.79;0.81;1" dur="15s" repeatCount="indefinite"/>
+      permissive trip (PT) →
+    </text>
+    <circle cx="560" cy="248" r="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.81;0.83;0.94;1" dur="15s" repeatCount="indefinite"/>
+    </circle>
+    <text x="440" y="130" font-size="9.5" font-weight="700" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.82;0.84;0.96;1" dur="15s" repeatCount="indefinite"/>
+      S trips ~channel time after R — no Z2 wait
+    </text>
+  </g>
+</svg></div>
+<p class="figcap">Time-stepped zones as a time-vs-position staircase. Mid-line faults are fast at both ends; end-zone faults leave one end waiting on Z2PD — the gap the pilot schemes close.<span class="print-note"> ▶ Animated in the HTML edition: mid-line fault, end-zone fault, then the same fault with POTT.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Communications-assisted (pilot) schemes</h2>
+<p>The 311C builds six schemes in, no external coordination devices: DTT and DUTT (via the <code>DTT</code> trip equation), and four enabled by <code>ECOMM</code> = <code>POTT</code> (covers POTT and PUTT), <code>DCUB1</code>/<code>DCUB2</code>, or <code>DCB</code>. All work on two- or three-terminal lines. The pilot trip elements go in <code>TRCOMM</code> — typically <code>M2P + Z2G</code> — and all schemes want Zone 3 set reverse (<code>DIR3 = R</code>). SEL's guidance: run the scheme over <strong>Mirrored Bits</strong> (see the Mirrored Bits page in atlas for the channel itself) — POTT on a reliable, noise-free channel like dedicated fiber; DCUB when the channel is less than perfect but failures won't coincide with external faults.</p>
+<table>
+  <tr><th>Scheme</th><th>Channel logic</th><th>Key 311C pieces</th></tr>
+  <tr><td><strong>POTT</strong></td><td>Each end keys <em>permissive</em> when its overreaching elements see forward; trip = local Z2 element AND received permission</td><td><code>KEY</code> out (e.g. <code>OUT105 = KEY</code>), <code>PT1 = IN104</code> in; echo logic (<code>ETDPU</code> ~2 cyc, <code>EDURD</code> ~4 cyc, <code>EBLKD</code> ~10 cyc) repeats the received PT when the local breaker is open; current-reversal guard <code>Z3RBD</code> ~5 cyc</td></tr>
+  <tr><td><strong>PUTT</strong></td><td>Same receive path, but keying comes from underreaching Zone 1 elements</td><td><code>OUT105 = M1P + Z1G + 67G1 + 67Q1</code> instead of <code>KEY</code></td></tr>
+  <tr><td><strong>DCUB</strong></td><td>POTT over a frequency-shift channel with guard: loss-of-guard opens a short trip window instead of blocking forever</td><td><code>LOG1</code>/<code>LOG2</code> loss-of-guard inputs; on loss-of-channel, <code>PTRX</code> is allowed for <code>UBDURD</code> (~9 cyc / 150 ms), then <code>UBB</code> blocks tripping; guard must be back <code>GARD1D</code> (~10 cyc) to re-arm</td></tr>
+  <tr><td><strong>DCB</strong></td><td>Reverse elements key a <em>blocking</em> signal; forward overreaching elements trip after a short carrier-coordination delay unless block arrives</td><td>Short-delay bits <code>Z2PGS</code>/<code>67QG2S</code> in <code>TRCOMM</code>; <code>BT = IN104</code> received block, extended <code>BTXD</code>; reversal guard <code>Z3XPU</code> ~2 cyc / <code>Z3XD</code> ~5 cyc; block-send latches through polarizing-memory expiry on close-in 3Φ faults</td></tr>
+</table>
+<ul>
+  <li><strong>Weak infeed</strong> (<code>EWFC = Y</code>, POTT/DCUB): a terminal too weak to assert its own elements still echoes permission and can trip itself when a PT is received for <code>ETDPU</code>, a phase undervoltage (<code>27PPW</code>, typ. 70–80% of lowest operating voltage) or residual overvoltage (<code>59NW</code>, typ. 2× standing 3V0) picks up, no reverse element sees the fault, and the breaker is closed → <code>ECTT</code> trips.</li>
+  <li><strong>Trip equations stay layered:</strong> <code>TR</code> keeps unsupervised Zone 1 (<code>M1P + Z1G</code>…) so the scheme accelerates Zone 2 without ever slowing Zone 1; <code>TRSOTF</code> covers switch-onto-fault with nondirectional elements.</li>
+  <li><strong>On the SEL-411L</strong> the same vocabulary appears as POTT, POTT2 (two-channel), POTT3 (phase-segregated), DCUB, and DCB — there they back up an 87L line-current-differential relay, with the same DIR3-reverse requirement.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>Three-terminal lines: the infeed problem (AG2000-12)</h2>
+<p>Add a tapped third terminal and the relay's ohms stop being distance. For a fault beyond the tap, the tap's current contribution raises the voltage drop on the far segment without flowing through the local CTs, so the local relay sees <strong>more</strong> ohms than the wire: in the guide's example (1 Ω per leg, equal infeed) the actual impedance to the fault is 2 Ω but the apparent impedance is <strong>3 Ω</strong>. With <em>outfeed</em> at the tap the same fault measures only 1.5 Ω — and worse, the outfeed terminal can see the internal fault as external and key blocking.</p>
+<ul>
+  <li><strong>Zone 1: set on actual impedance, never apparent.</strong> 80–90% of the true line impedance to the <em>nearest</em> terminal — if you set it on the inflated apparent value, opening the infeed breaker makes Zone 1 overreach the remote bus. If outfeed is possible, the reach may need to shrink further.</li>
+  <li><strong>Zone 2: at least 125% of the apparent impedance</strong> for a remote-end fault with infeed in — otherwise the permissive element can't see the far end and the pilot scheme never keys. Adding a ground directional overcurrent element to <code>TRCOMM</code> buys sensitivity.</li>
+  <li><strong>A transformer tap</strong> with a grounded-wye line-side winding contributes no positive/negative-sequence current but plenty of zero-sequence — phase elements are unaffected, ground elements still see infeed.</li>
+  <li><strong>Directional elements:</strong> <code>E32 = AUTO</code> is for two-terminal lines; on three terminals set <code>E32 = Y</code> and enter thresholds manually (guide values: Z2F = −0.30, Z2R = 0.30, Z0F = −0.30, Z0R = 0.30 Ω, 5 A).</li>
+  <li><strong>POTT needs both permissions</strong> (<code>PT1 = IN104 * IN106</code>), so the stock echo logic fails when <em>two</em> terminals are weak — only custom SELOGIC echo (or accepting sequential Zone-2-time clearing) covers that case. DCB and POTT-with-echo clear sequentially instead: the strong terminal trips, its infeed disappears, and the remaining terminals then see the fault — slower than simultaneous, but with no intentional delay.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Supervision that keeps a 21 honest</h2>
+<div class="card pair">
+<h3>Loss of potential — LOP</h3>
+<p style="margin-bottom:2px">A blown PT fuse looks like a close-in fault. The 311C declares <code>LOP</code> on a <strong>10% drop in V1 with no corresponding change in I1 or I0</strong>; after 15 cycles it latches, resetting only when all phase voltages exceed 40 V, V0 &lt; 5 V, and V2 &lt; 15% of V1. With <code>ELOP = Y</code> or <code>Y1</code>, <code>ILOP</code> <strong>disables all distance elements</strong> and every voltage-polarized directional; <code>Y</code> additionally lets forward-set overcurrent elements go nondirectional as fallback protection, and <code>Y1</code> also blocks POTT keying and echo. The logic needs a closed breaker (3PO deasserted); for PT-transfer / breaker-and-a-half throw-over schemes use <code>EBBPT = Y</code> so busbar-protection logic can assert LOP with the breaker open.</p>
+</div>
+<div class="card pulse">
+<h3>Load encroachment</h3>
+<p style="margin-bottom:2px">Heavy balanced load is a low, resistive positive-sequence impedance that can wander into a long Zone 3/4. <code>ELOAD = Y</code> carves load regions out of the R-X plane: <code>ZLF</code>/<code>ZLR</code> minimum load impedances with angle limits <code>PLAF</code>/<code>NLAF</code>/<code>PLAR</code>/<code>NLAR</code>, active once I1 &gt; 0.1 × I<sub>NOM</sub>. Inside them <code>ZLOAD</code> asserts and blocks the positive-sequence directional element, so phase distance <code>M1P</code>–<code>M4P</code> cannot operate on load; put <code>!ZLOAD</code> in phase-overcurrent torque control too. Ground elements don't need it — balanced load makes no residual.</p>
+</div>
+<div class="card latch">
+<h3>CCVT transients &amp; short lines (SIR)</h3>
+<p style="margin-bottom:2px">On a short line behind a weak source (SIR = Z<sub>source</sub>/Z<sub>line</sub> high), the fault voltage is tiny and a CCVT's transient can fake a Zone 1 overreach. With <code>ECCVT = Y</code> the relay detects high SIR during a Zone 1 fault and holds the trip up to 1.5 cycles until the distance calculation is smooth — no user tuning. SEL recommends it for SIR &gt; 5 or CCVTs with active ferroresonance suppression. Reach accuracy itself degrades with SIR: ±3% below SIR 30, ±5% for SIR 30–60; operating time also stretches at high SIR (see the 311C speed curves).</p>
+</div>
+<div class="card teal">
+<h3>Out-of-step blocking</h3>
+<p style="margin-bottom:2px">A power swing walks the apparent impedance slowly into the zones. The 311C's OOS logic (<code>EOOS = Y</code>) times the trajectory between two concentric polygons (Zones 6 → 5, reaches <code>X1T5/6</code>, <code>R1R5/6</code>): slower than <code>OSBD</code> = swing → <code>OSB1</code>–<code>OSB4</code> block whichever zones you select (<code>OOSB1–4</code>). Out-of-step <em>tripping</em> is separate (<code>EOOST</code> = I/O, delay <code>OSTD</code>). Not usable when Z1ANG &lt; 45°.</p>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>Gotchas &amp; fine print</h2>
+<ul>
+<li><strong>k0 wrong → every ground reach wrong.</strong> It comes straight from Z1/Z0 line data; a stale zero-sequence model (mutual coupling, reconductoring) shifts real reach without touching the setting sheet.</li>
+<li><strong>Ω secondary, always.</strong> A CTR or PTR entered wrong scales every zone by the same silent factor — the classic "relay reached one bus too far" root cause. Check: Ω primary × CTR/PTR.</li>
+<li><strong>Zone 1 margin is not pessimism.</strong> ±5% element accuracy at high SIR, plus transient overreach &lt;5%, plus instrument-transformer error is exactly why 80–90% — and why infeed-inflated "apparent" ohms must never be used to set it (Section 6).</li>
+<li><strong>Fault resistance is invisible ohms.</strong> A resistive ground fault adds R the mho circle may not cover — that's what quadrilateral ground zones and their <code>RGn</code> blinders are for.</li>
+<li><strong>Pilot timers are a matched set.</strong> Current-reversal guards (<code>Z3RBD</code>, <code>Z3XPU</code>/<code>Z3XD</code>) exist because parallel-line faults reverse current mid-event; DCB's short delay (<code>Z2PGS</code>) waits for the block. Shorten them and you trade security for milliseconds.</li>
+<li><strong>An open remote breaker starves POTT.</strong> No elements assert at an open terminal → no permission. The 311C's echo logic covers it without 52b keying; know which your scheme relies on.</li>
+<li><strong>Companion pages:</strong> see the links below for where 21 sits among the other elements, the pilot channel it rides on, and how to prove what the zones actually did.</li>
+</ul>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/line-differential-87l.html">Line Current Differential</a>
+  <a href="atlas:data-protocols/mirrored-bits.html">Mirrored Bits</a>
+  <a href="atlas:fundamentals/symmetrical-components.html">Symmetrical Components</a>
+  <a href="atlas:protection/protection-elements.html">Protection Elements Primer</a>
+  <a href="atlas:relays-devices/selogic.html">SELogic Control Equations</a>
+  <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>
+</div>
+<p class="footnote">Sources: SEL-311C Instruction Manual, 311C_IM_20230915.pdf &mdash; &sect;3 (distance elements, zone timers, out-of-step), &sect;4 (LOP, CCVT, load encroachment), &sect;5 (trip logic, POTT/DCUB/DCB, weak infeed), &sect;9 (line settings) &middot; SEL Application Guide AG2000-12, <em>Applying the SEL-311C Relay on Three-Terminal Lines</em>, AG2000-12_20170214.pdf (apparent impedance/infeed, Zone 1/2 reach rules, E32, echo limits) &middot; SEL-411L + 400-Series Instruction Manual (combined ed.), 411L_400-Series_IM_20250919_20250731.pdf, 411L vol. &sect;5 (pilot scheme variants on an 87L relay). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

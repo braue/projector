@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blueframe DMA</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DMA,Device Management and Automation,Disturbance Monitoring,Configuration Monitoring,Credential Management,Custom Monitoring,Meter Monitoring,plans,listening,publishing,password rotation,checkout">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Blueframe DMA (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Blueframe DMA</h1>
+  <p>Device Management &amp; Automation — automated collection of events, SOE, settings, properties, files, and meter data, plus password rotation, set up feature by feature</p>
+  <div class="chips"><span>Disturbance Monitoring</span><span>Configuration Monitoring</span><span>Credential Management</span><span>Custom Monitoring</span><span>Meter Monitoring</span><span>plans</span><span>listening</span><span>publishing</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">DMA</h3>
+<ul style="margin-bottom:2px">
+<li><strong>DMA automates what people used to do by hand:</strong> pulling oscillography, SOE, settings, properties, load profile, and power-quality data off devices, and rotating their passwords.</li>
+<li><strong>Everything starts in Resource Management.</strong> Define the resource and its connection first, then build the plan &mdash; a plan cannot use a resource that has no matching connection.</li>
+<li><strong>Schedule &rarr; plan &rarr; plan execution.</strong> The plan is the configuration; each scheduled run against each resource is an execution, and every execution is logged in DMA Diagnostics.</li>
+<li><strong>Listening beats polling</strong> where an RTAC is available: the RTAC notifies DMA on port 5000 that new data exists, and DMA pulls it over an encrypted database connection in one optimized transfer instead of iterating.</li>
+<li><strong>Storage is finite and self-grooming.</strong> DMA defaults to no more than 40&nbsp;GB total and overwrites the oldest data as each data type approaches its limit &mdash; publish or use the API for anything that must be kept.</li>
+<li><strong>Credential rotation deserves its own discipline.</strong> Back up before every rotation, test communications first with a cheaper plan type, and keep plans under 250 devices.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What DMA collects, and how the pieces fit</h2>
+<p>Device Management and Automation is a suite of Blueframe applications for <strong>automated data collection, management, normalization, and availability</strong> from critical infrastructure devices. It automates and accelerates collection of:</p>
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a"><b>Oscillography &amp; SOE</b><span>Event reports and sequence-of-events records &mdash; the Disturbance Monitoring package.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Settings &amp; properties</b><span>Device settings, firmware versions, and property versions &mdash; the Configuration Monitoring package.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Credentials</b><span>Automated password rotation and proxy-report collection &mdash; the Credential Management package.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>Files &amp; command results</b><span>Arbitrary files from a device file system, or the text output of an ASCII command &mdash; Custom Monitoring.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>LDP &amp; VSSI</b><span>Load data profile and voltage sag, swell, and interruption records &mdash; Meter Monitoring.</span></div>
+  <div style="border-left:4px solid #6e7180"><b>And then moves it</b><span>To another Blueframe instance, an HTTPS or FTP endpoint, an email recipient group, or out through the REST API.</span></div>
+</div>
+<p>Every package pairs a <strong>configuration application</strong> (where you build plans) with an <strong>Archive application</strong> (where you view collected data and generate reports). Reports can be modified, refreshed, and exported to <code>.csv</code> for compliance or auditing.</p>
+
+<h3>The package map</h3>
+<table>
+  <tr><th>Package</th><th>Contains</th><th>Notes</th></tr>
+  <tr><td><strong>Disturbance Monitoring</strong></td><td>Disturbance Monitoring + Disturbance Monitoring Archive</td><td>Optional. Event and SOE collection and assessment</td></tr>
+  <tr><td><strong>Configuration Monitoring</strong></td><td>Configuration Monitoring + Archive</td><td>Optional. Settings and device-property collection and audit reports</td></tr>
+  <tr><td><strong>Credential Management</strong></td><td>Credential Management + Archive</td><td>Optional. Rotation, checkout, verification, and credential reporting</td></tr>
+  <tr><td><strong>Custom Monitoring</strong></td><td>Custom Monitoring + Archive</td><td>Optional. File and command-result collection</td></tr>
+  <tr><td><strong>Meter Monitoring</strong></td><td>Meter Monitoring + Archive</td><td>Optional. LDP and VSSI collection</td></tr>
+  <tr><td><strong>DMA Tools</strong></td><td>DMA Diagnostics, DMA Settings, DMA REST API</td><td><strong>Included with any DMA package purchase</strong></td></tr>
+  <tr><td><strong>Connection Services</strong></td><td>Resource Management</td><td><strong>Required</strong> with any DMA package</td></tr>
+  <tr><td><strong>Resource Communication Services</strong></td><td>Communication services and automation execution logic</td><td>Fulfils plan configuration; also the communication layer for Direct Resource Access</td></tr>
+</table>
+<div class="callout">
+<strong>Licensing is by feature and by resource count.</strong> Each plan-configuration application reports licence usage under its View menu. If no valid licence is detected, or the number of unique resources across configuration plans exceeds the licensed quantity, a banner appears showing both numbers until a valid licence is uploaded through System Settings. <strong>Licences are tied to the hardware serial number or a virtual-machine customer agreement and are non-transferrable.</strong> Applications ordered on Blueframe arrive pre-installed and licensed &mdash; no further licensing steps.
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The core loop: resource, plan, execution</h2>
+
+<div class="fig"><svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dm1" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">A schedule becomes a plan; a plan becomes one execution per resource per interval</text>
+
+  <g font-size="7.4">
+    <rect x="16" y="34" width="130" height="60" rx="6" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="81" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#0d7f63">1 &middot; Resource</text>
+    <text x="81" y="67" text-anchor="middle" fill="#6e7180">defined in Resource</text>
+    <text x="81" y="78" text-anchor="middle" fill="#6e7180">Management with the</text>
+    <text x="81" y="89" text-anchor="middle" fill="#6e7180">DMA attribute preset</text>
+
+    <rect x="170" y="34" width="130" height="60" rx="6" fill="#eef0f9" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="235" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#5468c4">2 &middot; Connection</text>
+    <text x="235" y="67" text-anchor="middle" fill="#6e7180">the right protocol for</text>
+    <text x="235" y="78" text-anchor="middle" fill="#6e7180">the data type &mdash; several</text>
+    <text x="235" y="89" text-anchor="middle" fill="#6e7180">per resource is normal</text>
+
+    <rect x="324" y="34" width="130" height="60" rx="6" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="389" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#9c6d06">3 &middot; Plan</text>
+    <text x="389" y="67" text-anchor="middle" fill="#6e7180">name, type, initial</text>
+    <text x="389" y="78" text-anchor="middle" fill="#6e7180">execution, schedule,</text>
+    <text x="389" y="89" text-anchor="middle" fill="#6e7180">and its resources</text>
+
+    <rect x="478" y="34" width="200" height="60" rx="6" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="578" y="52" text-anchor="middle" font-size="8.2" font-weight="600" fill="#d63a3a">4 &middot; Plan executions</text>
+    <text x="578" y="67" text-anchor="middle" fill="#6e7180">one per resource per interval &mdash;</text>
+    <text x="578" y="78" text-anchor="middle" fill="#6e7180">start and end of communications,</text>
+    <text x="578" y="89" text-anchor="middle" fill="#6e7180">result, originating app and plan</text>
+  </g>
+  <g stroke="#10a37f" stroke-width="1.2" fill="none" marker-end="url(#dm1)">
+    <path d="M146,64 H168"/><path d="M300,64 H322"/><path d="M454,64 H476"/>
+  </g>
+  <circle r="4" fill="#10a37f"><animateMotion dur="5s" repeatCount="indefinite" path="M81,64 H235 H389 H578"/></circle>
+
+  <!-- execution ladder -->
+  <g font-size="7" font-family="Consolas, monospace" fill="#6e7180">
+    <text x="500" y="116">12:00 AM &nbsp; 3620_SEL-787 &nbsp; success</text>
+    <text x="500" y="130">01:00 AM &nbsp; 3620_SEL-787 &nbsp; success</text>
+    <text x="500" y="144">02:00 AM &nbsp; 3620_SEL-787 &nbsp; <tspan fill="#d63a3a">failed</tspan></text>
+    <text x="500" y="158">02:15 AM &nbsp; 3620_SEL-787 &nbsp; <tspan fill="#d7930a">retry</tspan></text>
+    <text x="500" y="172">02:30 AM &nbsp; 3620_SEL-787 &nbsp; <tspan fill="#0d7f63">retry ok</tspan></text>
+  </g>
+  <rect x="490" y="102" width="196" height="80" rx="5" fill="none" stroke="#e5e7eb"/>
+
+  <!-- retry rules -->
+  <rect x="16" y="106" width="460" height="76" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="30" y="124" font-size="8" font-weight="600" fill="#1a1a22">Retry behaviour</text>
+  <text x="30" y="140" font-size="7.8" fill="#454956">A failed execution retries <tspan font-weight="600">every 15 minutes</tspan> until it succeeds or hits the retry maximum.</text>
+  <text x="30" y="154" font-size="7.8" fill="#454956">If a retry schedule and a new execution schedule overlap, <tspan font-style="italic">both</tspan> continue &mdash; visible in Diagnostics as timestamps on each schedule.</text>
+  <text x="30" y="168" font-size="7.8" fill="#454956">Exhaust the retries and DMA waits for the next scheduled execution or a Run Now.</text>
+  <text x="30" y="178" font-size="7.6" fill="#8a8e9b">Run Plan Now ignores the retry schedule entirely, runs once, then reverts to the configured schedule &mdash; or back to paused if it was paused.</text>
+
+  <rect x="16" y="196" width="662" height="44" rx="6" fill="#e7f6f1" stroke="#cfe9e1"/>
+  <text x="30" y="214" font-size="8" font-weight="600" fill="#0d7f63">The first collection from a device is the slow one</text>
+  <text x="30" y="230" font-size="7.8" fill="#454956">To balance the initial load, DMA gathers the <tspan font-weight="600">20 most recent reports</tspan> from every device, then works through the remainder on each subsequent scheduled connection until everything available has been collected.</text>
+
+  <rect x="16" y="252" width="662" height="30" rx="6" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="30" y="271" font-size="7.8" fill="#9c6d06">DMA also <tspan font-weight="600">batches different data-type plans for one resource</tspan> when their schedules overlap, to reduce the number of connections made to an individual device. Batched executions show together in Diagnostics.</text>
+</svg></div>
+<p class="figcap">Both <em>Initial Plan Execution</em> options matter: <em>On Save</em> runs immediately on creation, <em>Custom</em> lets you set the first run time &mdash; useful for staggering a large rollout. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Building any plan &mdash; the common sequence</h3>
+<ol>
+<li><strong>Define the resource</strong> in Resource Management. Use the <strong>DMA Attributes Preset</strong>, which adds the specific parameters required for correct DMA operation and data storage.</li>
+<li><strong>Add the connection(s)</strong> the data type requires. Multiple connection paths to one resource are normal, because some data is only reachable over a particular protocol.</li>
+<li><strong>Launch the DMA configuration application</strong> and select <strong>New Plan</strong>.</li>
+<li><strong>Define Name, Type, Initial Plan Execution, and Schedule.</strong></li>
+<li><strong>Select Resources</strong> &mdash; <code>Ctrl+Click</code> for non-consecutive, <code>Shift+Click</code> for consecutive, click again to deselect, and the search field to find by name. Move them to the right pane and confirm.</li>
+<li><strong>Check the Connection column.</strong> If it reads <em>No connections available</em>, the resource has no connection matching the plan type &mdash; go back to Resource Management and add one.</li>
+<li><strong>Create.</strong> DMA begins acting on the schedule.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">3</span>Polling versus listening</h2>
+
+<div class="fig"><svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="dm2" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#d7930a"/></marker>
+    <marker id="dm3" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#10a37f"/></marker>
+  </defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Polling asks on a schedule; listening is told the moment there is something to fetch</text>
+
+  <!-- polling -->
+  <text x="170" y="36" font-size="8.4" font-weight="600" fill="#d7930a" text-anchor="middle">Polling</text>
+  <rect x="24" y="50" width="90" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="69" y="71" text-anchor="middle" font-size="7.6" fill="#1a1a22">DMA</text>
+  <rect x="242" y="50" width="90" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="287" y="71" text-anchor="middle" font-size="7.6" fill="#1a1a22">device</text>
+  <g stroke="#d7930a" stroke-width="1.2" fill="none" marker-end="url(#dm2)">
+    <path d="M114,60 H240"/><path d="M240,76 H116"/>
+  </g>
+  <text x="177" y="56" font-size="7" fill="#9c6d06" text-anchor="middle">"anything new?"</text>
+  <text x="177" y="92" font-size="7" fill="#8a8e9b" text-anchor="middle">"no" &mdash; most of the time</text>
+  <circle r="3" fill="#d7930a"><animateMotion dur="2s" repeatCount="indefinite" path="M114,60 H240"/></circle>
+  <text x="177" y="112" font-size="7.4" fill="#8a8e9b" text-anchor="middle">every interval, whether or not anything happened</text>
+  <text x="177" y="124" font-size="7.4" fill="#8a8e9b" text-anchor="middle">and reports are iterated through, not delivered in bulk</text>
+
+  <!-- listening -->
+  <text x="520" y="36" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Listening</text>
+  <rect x="380" y="50" width="90" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="425" y="71" text-anchor="middle" font-size="7.6" fill="#1a1a22">DMA</text>
+  <rect x="586" y="50" width="90" height="34" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.2"/>
+  <text x="631" y="71" text-anchor="middle" font-size="7.6" fill="#1a1a22">SEL RTAC</text>
+  <g stroke="#10a37f" stroke-width="1.4" fill="none" marker-end="url(#dm3)">
+    <path d="M584,60 H472"/>
+  </g>
+  <text x="528" y="56" font-size="7" fill="#0d7f63" text-anchor="middle">"New Event / New SOE / New Settings" &rarr; port 5000</text>
+  <circle r="3.5" fill="#10a37f"><animateMotion dur="2.2s" repeatCount="indefinite" path="M584,60 H472"/></circle>
+  <g stroke="#5468c4" stroke-width="1.4" fill="none" marker-end="url(#dm3)">
+    <path d="M472,78 H584"/>
+  </g>
+  <text x="528" y="94" font-size="7" fill="#5468c4" text-anchor="middle">TLS-encrypted database connection &rarr; port 5432</text>
+  <circle r="3.5" fill="#5468c4"><animateMotion dur="2.2s" begin="1.1s" repeatCount="indefinite" path="M472,78 H584"/></circle>
+  <text x="528" y="112" font-size="7.4" fill="#0d7f63" text-anchor="middle">the RTAC supplies reports compressed and optimized,</text>
+  <text x="528" y="124" font-size="7.4" fill="#0d7f63" text-anchor="middle">so DMA gathers all of them in one pass</text>
+
+  <rect x="24" y="140" width="652" height="46" rx="6" fill="#fafbfc" stroke="#e5e7eb"/>
+  <text x="38" y="158" font-size="8" font-weight="600" fill="#1a1a22">Setting it up</text>
+  <text x="38" y="174" font-size="7.8" fill="#454956">Listening is <tspan font-weight="600">on by default</tspan> &mdash; DMA automatically listens for a configured SEL RTAC's notifications. Disable it at <em>DMA Settings &rarr; General &rarr; Listening &rarr; Enabled</em>, which disables <tspan font-style="italic">all</tspan> listening operations.</text>
+  <text x="38" y="184" font-size="7.6" fill="#8a8e9b">The RTAC side is configured in ACSELERATOR RTAC (SEL-5033) to send notifications over port 5000.</text>
+
+  <rect x="24" y="196" width="652" height="46" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="38" y="214" font-size="8" font-weight="600" fill="#9c3838">Reading the Listening Log</text>
+  <text x="38" y="230" font-size="7.8" fill="#454956">The message column shows what the RTAC SEL Server sent: <tspan font-family="Consolas, monospace">New Oscillography</tspan>, <tspan font-family="Consolas, monospace">New SOE</tspan>, or <tspan font-family="Consolas, monospace">New Settings</tspan>.</text>
+  <text x="38" y="240" font-size="7.8" fill="#9c3838">A <tspan font-family="Consolas, monospace">Misconfigured</tspan> message means the password is wrong, the IP address is wrong, or the device does not exist as a resource in Blueframe.</text>
+</svg></div>
+<p class="figcap">Listening applies to Disturbance Monitoring and Configuration Monitoring. Custom Monitoring and Meter Monitoring are scheduled-polling only. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Disturbance Monitoring</h2>
+<p>Automated collection of <strong>oscillography and sequence-of-events</strong> data. Supports both scheduled polling and listening, and collected data can be published onward.</p>
+<h3>Advanced plan options</h3>
+<p>When Oscillography is in the plan Type, the settings cog beside the Type dropdown exposes:</p>
+<ul>
+<li><strong>Child-device record handling</strong> when there is no matching GUID.</li>
+<li><strong>A "Go Back To" date</strong> for oscillography collection.</li>
+<li><strong>File type selection, including advanced commands</strong>, when using an SEL ASCII connection. Which options a given device supports is in that device's instruction manual.</li>
+</ul>
+<div class="callout warn">
+<strong>Collect the smallest useful record.</strong> Over a device's in-service life an automated system performs thousands of file and directory reads. SEL's guidance: configure Disturbance Monitoring plans to collect <strong>only CEV or COMTRADE records where possible</strong>, and where an SEL communications processor such as an RTAC is in the path, configure its event collection option to collect only CEV or COMTRADE. Higher-sample-rate reports can be pulled on demand during event analysis when detail is actually needed.
+</div>
+
+<h3>Supported devices</h3>
+<p>Native oscillography and SOE support spans the SEL fleet &mdash; the 251, 300G, 311 and 321 families, the 351 family including 351R/351RS/351S, 387 family, 400G, 401, 411L, 421, 451, 487B/487E/487V, 501, 551, 587, 651R, 700G, 710, 731, 734 family, 735, 751/751A, 787, 849, 851, the 2020/2030/2032 communications processors, and 2411/2414/2440 controllers &mdash; with per-device notes (for example the SEL-221S is <em>EVE only</em>, the SEL-251 family is <em>SOE support only</em>, and the SEL-300G is <em>oscillography support only</em>). <strong>Support for other SEL and vendor devices is handled through RTAC aggregation.</strong></p>
+
+<h3>Third-party devices over MMS</h3>
+<ol>
+<li>In Resource Management, configure and enable an <strong>MMS connection</strong> on the target resource.</li>
+<li>In Disturbance Monitoring, create an <strong>oscillography</strong> collection plan for it.</li>
+<li>After the plan executes, generate a report in Disturbance Monitoring Archive.</li>
+</ol>
+<p>Supported COMTRADE formats over MMS are 1997, 1999, and 2013. <strong>SOE collection is not supported for third-party devices.</strong> Where a device has no MMS, use an SEL RTAC to collect the oscillography instead.</p>
+
+<h3>Disturbance Monitoring Archive</h3>
+<ol>
+<li>Select <strong>New Report</strong> and add the resources of interest.</li>
+<li>Set the <strong>Time Period</strong>: Past 24 Hours, 1 Week, 1 Month, 6 Months, 1 Year, or Custom with start and end date and time.</li>
+<li>Select the <strong>Event Types</strong> &mdash; SOE, Oscillography, or both.</li>
+<li><strong>Create.</strong> The populated report supports search, export, parameter modification, refresh, and record detail. From the Details view you can <strong>download an event record or launch the included event viewer</strong>.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">5</span>Configuration Monitoring</h2>
+<p>Automated collection of <strong>settings, firmware versions, and device property versions</strong>, for device-integrity analysis and compliance auditing. Supports polling and listening.</p>
+
+<div class="callout keyfact">
+<strong>An RTAC needs two connections, because the two data types live in different places.</strong> Property data comes from the RTAC's <strong>Postgres database</strong>; settings data comes from the RTAC's <strong>API over HTTPS</strong>. Configure both connections on the resource, then build <strong>two plans</strong> &mdash; a properties plan whose Connection is the Postgres connection, and a settings plan whose Connection is the HTTPS connection. Getting one connection right and the other wrong produces a plan that silently collects only half of what you expected.
+</div>
+
+<h3>Setup, for the RTAC case</h3>
+<ol>
+<li>In Resource Management, give the RTAC resource <strong>both a Postgres and an HTTPS connection</strong>. (Postgres: port 5432, Database <code>3530</code>.)</li>
+<li>In Configuration Monitoring select <strong>New Plan</strong>; define Name, Type = <em>properties</em>, Initial Plan Execution, and Schedule.</li>
+<li><strong>Select Resources</strong>, apply the selection, and confirm the Connection column shows the <strong>Postgres</strong> connection. Create.</li>
+<li>Repeat with a second plan, Type = <em>settings</em>, confirming the Connection column shows the <strong>HTTPS</strong> connection. Create.</li>
+</ol>
+<p>Both plans then execute on their schedules, and Configuration Monitoring Archive shows the collected data.</p>
+
+<h3>Configuration Monitoring Archive</h3>
+<p>Generate a <strong>resource audit report</strong>: select resources, choose the time period (24 Hours through 1 Year, or Custom), and Create. The report supports search, export, parameter modification, refresh, and record detail &mdash; the artifact you produce when someone asks what changed on a device and when.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Credential Management</h2>
+<p>Automated password rotation, credential checkout, password verification, and reporting. Where devices sit behind an SEL security gateway, DMA initiates rotation and collects and parses the generated passwords proxy report into a secure database for use across the platform.</p>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="dm4" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto"><path d="M0,0 L6,2.5 L0,5 z" fill="#5468c4"/></marker></defs>
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">Password rotation, phase by phase &mdash; and where the passwords live at each moment</text>
+
+  <!-- actors -->
+  <g font-size="7.4">
+    <rect x="20" y="40" width="120" height="40" rx="5" fill="#fdf3e7" stroke="#d7930a" stroke-width="1.3"/>
+    <text x="80" y="58" text-anchor="middle" font-weight="600" fill="#9c6d06">Credential</text>
+    <text x="80" y="70" text-anchor="middle" font-weight="600" fill="#9c6d06">Management</text>
+
+    <rect x="290" y="40" width="140" height="40" rx="5" fill="#eef0f9" stroke="#5468c4" stroke-width="1.3"/>
+    <text x="360" y="58" text-anchor="middle" font-weight="600" fill="#5468c4">Resource Communication</text>
+    <text x="360" y="70" text-anchor="middle" font-weight="600" fill="#5468c4">Services</text>
+
+    <rect x="560" y="40" width="120" height="40" rx="5" fill="#e7f6f1" stroke="#10a37f" stroke-width="1.3"/>
+    <text x="620" y="58" text-anchor="middle" font-weight="600" fill="#0d7f63">Resource</text>
+    <text x="620" y="70" text-anchor="middle" font-weight="600" fill="#0d7f63">Management</text>
+
+    <rect x="290" y="196" width="140" height="34" rx="5" fill="#fbeeee" stroke="#d63a3a" stroke-width="1.3"/>
+    <text x="360" y="217" text-anchor="middle" font-weight="600" fill="#d63a3a">the relay / IED</text>
+  </g>
+
+  <!-- databases -->
+  <g font-size="7">
+    <rect x="20" y="100" width="120" height="28" rx="4" fill="#fff" stroke="#d7930a" stroke-dasharray="4 3"/>
+    <text x="80" y="118" text-anchor="middle" fill="#9c6d06">Planned Passwords DB</text>
+    <rect x="20" y="136" width="120" height="28" rx="4" fill="#fff" stroke="#d7930a" stroke-dasharray="4 3"/>
+    <text x="80" y="154" text-anchor="middle" fill="#9c6d06">Password Archive DB</text>
+    <rect x="560" y="100" width="120" height="28" rx="4" fill="#fff" stroke="#10a37f" stroke-dasharray="4 3"/>
+    <text x="620" y="118" text-anchor="middle" fill="#0d7f63">Current Device</text>
+    <text x="620" y="127" text-anchor="middle" fill="#0d7f63" font-size="6.6">Passwords DB</text>
+  </g>
+
+  <!-- phase A -->
+  <path d="M140,52 H288" stroke="#5468c4" stroke-width="1.2" marker-end="url(#dm4)"/>
+  <text x="214" y="48" font-size="6.8" fill="#5468c4" text-anchor="middle">A1 &mdash; create rotation plan</text>
+
+  <!-- phase B -->
+  <path d="M288,68 H142" stroke="#5468c4" stroke-width="1.2" marker-end="url(#dm4)"/>
+  <text x="214" y="80" font-size="6.8" fill="#5468c4" text-anchor="middle">B1 &mdash; request new random passwords</text>
+  <path d="M80,82 V98" stroke="#d7930a" stroke-width="1.2" marker-end="url(#dm4)"/>
+  <text x="150" y="94" font-size="6.8" fill="#9c6d06">B2 &mdash; generate &amp; store planned</text>
+  <path d="M432,58 H558" stroke="#5468c4" stroke-width="1.2" marker-end="url(#dm4)"/>
+  <text x="496" y="52" font-size="6.8" fill="#5468c4" text-anchor="middle">B3 &mdash; request current</text>
+  <path d="M620,82 V98" stroke="#10a37f" stroke-width="1.2" marker-end="url(#dm4)"/>
+  <text x="536" y="94" font-size="6.8" fill="#0d7f63">B4 &mdash; read current</text>
+  <path d="M360,82 V194" stroke="#d63a3a" stroke-width="1.6" marker-end="url(#dm4)"/>
+  <text x="368" y="118" font-size="7" fill="#d63a3a">B5 &mdash; log in and set the planned passwords</text>
+  <circle r="4" fill="#d63a3a"><animateMotion dur="3s" repeatCount="indefinite" path="M360,82 V192"/></circle>
+
+  <!-- phase C -->
+  <path d="M344,192 V86" stroke="#0d7f63" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#dm4)"/>
+  <text x="200" y="188" font-size="6.8" fill="#0d7f63">C1 &mdash; create Password Publications for the last known planned passwords</text>
+  <path d="M288,74 H144" stroke="#0d7f63" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="214" y="106" font-size="6.8" fill="#0d7f63" text-anchor="middle">C2 &mdash; send publication</text>
+  <path d="M142,46 H286" stroke="#0d7f63" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="470" y="150" font-size="6.8" fill="#0d7f63">C3 &mdash; new password to Resource Management</text>
+  <text x="470" y="162" font-size="6.8" fill="#0d7f63">C4 &mdash; Current Device Passwords DB updated</text>
+  <text x="470" y="174" font-size="6.8" fill="#9c6d06">C5 &mdash; Password Archive DB updated</text>
+
+  <rect x="20" y="242" width="660" height="52" rx="6" fill="#fbeeee" stroke="#f0dcdc"/>
+  <text x="34" y="260" font-size="8" font-weight="600" fill="#9c3838">Why the backup discipline matters</text>
+  <text x="34" y="276" font-size="7.8" fill="#454956">Between B5 and C4 the device has a new password that the Current Device Passwords database does not yet hold. That is the window disaster recovery has to cover &mdash;</text>
+  <text x="34" y="288" font-size="7.8" fill="#454956">and it is exactly what the pre-rotation off-box export exists to protect against.</text>
+</svg></div>
+<p class="figcap">Credential Management data lives in a separate database from other DMA data, and credential records have <strong>no storage lifetime</strong> &mdash; they are not groomed away. <span class="print-note">(Animated in the browser.)</span></p>
+
+<h3>Password complexity</h3>
+<ul>
+<li>Complexity is derived from the <strong>model type</strong>, and Credential Management <strong>suggests a maximum supported complexity</strong> and applies it by default when the firmware attribute is defined on the resource.</li>
+<li>Because complexity varies with firmware version, the supported complexity for a particular device may differ from the model default. Options can be applied <strong>to a whole plan or to individual resources within a plan</strong>.</li>
+<li>Hovering an option shows a tooltip with the password length and the character set used to generate the random password. <strong>Custom</strong> lets you choose both length and permitted characters.</li>
+<li>Global exclusions live in <em>Admin Settings &rarr; Global Defaults &rarr; Password Settings</em>: choose characters excluded from all generated passwords. Validation keeps generation viable &mdash; <strong>at least one character must remain in each class, and hyphen and period cannot both be excluded.</strong></li>
+</ul>
+<div class="callout warn">
+<strong>When you override the default complexity, check the device's manual.</strong> Credential Management will happily generate a password the device will not accept.
+</div>
+
+<h3>Password exceptions</h3>
+<ul>
+<li>A <strong>temporary exception</strong> sets a known, easy-to-remember access-level password with a user-defined end date. When the date arrives, DMA automatically generates a new complex password, updates the device, and resumes the normal plan.</li>
+<li>An <strong>exception with no end date</strong> stays until cleared &mdash; useful for keeping a known Level 1 credential for read-only local access.</li>
+</ul>
+
+<h3>Checkout &mdash; self-service temporary access</h3>
+<ol>
+<li>Grant the <strong>Can Checkout</strong> advanced permission to the appropriate roles (<em>Permissions &rarr; Credential Management</em>, as an administrator).</li>
+<li>Set the defaults in <em>Admin Settings &rarr; Global Defaults &rarr; Checkout Settings</em>: default and maximum checkout duration, how many resources one checkout may include, whether completed-checkout history is retained, and the <strong>Default Passwords</strong> &mdash; which access levels are eligible and what password is used per complexity type.</li>
+<li>A user with Can Checkout selects the <strong>Checkout</strong> tab &rarr; <strong>Checkout Resources</strong>, enters a name and reason, selects resources, and optionally adjusts start and stop times.</li>
+<li>They define the checkout password &mdash; <strong>unless an administrator configured default passwords, in which case it cannot be overwritten.</strong></li>
+<li>DMA sets the credentials; Status shows when they are set on the device or what is blocking it.</li>
+</ol>
+<p>At the stop time, DMA automatically sets the credentials back to complex, unknown passwords. If a password change occurred during the checkout &mdash; manually or by schedule &mdash; new passwords are generated and applied; if not, DMA restores the last known password per credential type. <strong>Stop Checkout</strong> ends it early. Checkout actions are trackable in Credential Management Archive and in Blueframe's System Logs.</p>
+<div class="callout">
+<strong>Users with Can Checkout cannot create or edit automated credential plans.</strong> The role is deliberately scoped to self-service access, not to rotation configuration.
+</div>
+
+<h3>Password verification</h3>
+<p>The <strong>SEL Devices &ndash; Password Verification</strong> plan type checks whether the credentials on the physical device match what Blueframe believes they are: it connects to the resources in the referenced plan and attempts to authenticate to the target accounts with the stored credentials, on a schedule. Results appear as a report in Credential Management Archive. This is the answer to "are we actually in sync?" &mdash; ask it regularly.</p>
+
+<h3>Pre-rotation off-box credential export</h3>
+<p>Planned passwords can be exported to an off-box SFTP server <em>before</em> a rotation executes, to cover the case where Blueframe becomes disabled mid-rotation.</p>
+<ol>
+<li>In Resource Management, add a resource for the SFTP server endpoint and configure an <strong>SFTP connection</strong> with credentials.</li>
+<li>In Credential Management, go to <em>System &rarr; Admin Settings &rarr; SFTP Settings</em>.</li>
+<li>Enable <strong>Off-Box SFTP</strong> and specify the resource, the resource connection, and the remote path for planned password reports.</li>
+<li>Run <strong>Test Connection</strong> &mdash; it transfers a non-sensitive test file and verifies write access.</li>
+</ol>
+<div class="callout keyfact">
+<strong>When enabled, a successful export is a mandatory prerequisite to rotation.</strong> If the SFTP server is unreachable, authentication fails, or the report cannot be written to the remote path, <strong>rotation does not proceed</strong> &mdash; these are treated as blocking errors specifically to prevent partial or unrecoverable rotations. A security log entry is written on every successful export, and SFTP connection and transfer diagnostics live in Admin Settings.
+</div>
+
+<h3>Archive permissions and credential policies</h3>
+<ul>
+<li>Credential Management Archive can display sensitive information. From an account with <em>Can Manage</em>, open <em>Permissions &rarr; Credential Management Archive</em> and grant <strong>Can View Passwords</strong> only to the appropriate roles. Any user with it can generate a <strong>Current Password Report</strong>.</li>
+<li><strong>Credential policies</strong> (View &rarr; Credential Policies &rarr; New Policy) define common credential settings for a collection of resources, so reports can be generated against a policy rather than device by device.</li>
+<li><em>System &rarr; Reports</em> provides the <strong>Planned Passwords report</strong>, including reports exported to off-box storage.</li>
+</ul>
+
+<h3>SEL's implementation recommendations</h3>
+<div class="twocol">
+<div>
+<h4>Before you rotate anything</h4>
+<ul>
+<li><strong>Prove the network first.</strong> On large deployments (more than 1,000 resources) or complex networks, use a cheaper DMA plan &mdash; Configuration Monitoring properties collection &mdash; to test communication reliability and identify which devices will rotate successfully.</li>
+<li><strong>Start with known, simple passwords</strong> in the rotation. Move to complex randomized automation only after sufficient testing.</li>
+<li><strong>Watch intermediary devices.</strong> Terminal services between DMA and the IED can drop or alter communications &mdash; flow control limits, MTU, or proxying &mdash; with negative side effects on how the password is actually set on the end device.</li>
+<li><strong>Decide which access levels need rotating, and how often.</strong> Always use unique passwords beyond manufacturer defaults, but not every credential level needs a schedule.</li>
+</ul>
+</div>
+<div>
+<h4>Backup and plan hygiene</h4>
+<ul>
+<li><strong>Schedule outages and updates around rotations.</strong> Ensure all credential plans, including checkouts, are completed or resting before a system outage.</li>
+<li><strong>VM deployments:</strong> daily snapshots, monthly clones, records kept three to six months longer than the plan schedule; use replication, redundancy, and failover features.</li>
+<li><strong>Hardware deployments:</strong> use SEL BaRT before application or OS upgrades <em>and</em> before planned password changes.</li>
+<li><strong>Monthly:</strong> export the Archived Password report, the Current Planned Passwords report, and a Resource Management backup &mdash; all automatable through API calls.</li>
+<li><strong>Set System Logs retention to 365 days</strong> by default.</li>
+<li><strong>Plan sizing:</strong> under 250 devices per plan, limit schedule overlap, pause long-running plans until just before their rotation window, and understand plan-execution state before upgrading an application.</li>
+<li><strong>Consider redundancy</strong> &mdash; two Blueframe nodes, primary and backup.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Custom Monitoring</h2>
+<p>Automated collection of <strong>arbitrary files</strong> or <strong>the result of a device command</strong>. Scheduled polling only.</p>
+<table>
+  <tr><th>Plan type</th><th>Configure</th><th>Constraint</th></tr>
+  <tr><td><strong>File Transfer</strong></td><td>A folder directory plus a regular expression identifying which files to collect</td><td>Only supported on file transfer protocols</td></tr>
+  <tr><td><strong>Command result</strong></td><td>An ASCII command whose output is captured into a text file</td><td>DMA supports SEL ASCII commands and <em>attempts</em> non-SEL ones &mdash; SEL devices give consistent return prompts, non-SEL devices do not</td></tr>
+</table>
+<h3>Example: a NovaTech Orion</h3>
+<ol>
+<li>In Resource Management, configure and enable the connection that reaches the device's file system. Blueframe supports SFTP and non-secured FTP to the Orion depending on its configuration.</li>
+<li>In Custom Monitoring, create a <strong>New Plan</strong> for file collection.</li>
+<li>Specify the <strong>remote file path</strong> and the <strong>file format</strong>, matching the structure and file types actually present on the device.</li>
+<li>After execution, open Custom Monitoring Archive and create a report containing the collected files.</li>
+</ol>
+<p>In the Archive, pick a resource from the tree to see everything collected from it &mdash; searchable, filterable, and downloadable. When downloading, the dialog asks for a file name and <strong>you supply the extension</strong>.</p>
+</section>
+
+<section>
+<h2><span class="num">8</span>Meter Monitoring</h2>
+<p>Automated collection of <strong>load data profile (LDP)</strong> and <strong>voltage sag, swell, and interruption (VSSI)</strong> records. Scheduled polling only.</p>
+<ul>
+<li><strong>Supported devices:</strong> SEL-734, 734B, 734P, SEL-735, and the <strong>RTAC Trend Recorder</strong> (firmware R153). Other devices are handled through RTAC aggregation.</li>
+<li><strong>Advanced LDP option:</strong> limit the amount of data collected on the first poll. Disabled by default &mdash; meaning DMA gathers <em>everything</em> available on the device. The setting only takes effect on the first poll for a resource in a plan; where a resource is in multiple LDP plans, it applies on the first execution that includes it.</li>
+<li><strong>Setup:</strong> configure the supported SEL devices in Resource Management, then New Plan &rarr; name &rarr; Type and Schedule (the gear icon in the Type field sets the initial-collection limit) &rarr; Select Resources &rarr; Create.</li>
+</ul>
+<h3>Meter Monitoring Archive reports</h3>
+<table>
+  <tr><th>Report</th><th>Shows</th></tr>
+  <tr><td><strong>LDP Audit Report</strong></td><td>The last time a device was examined, and generates a <code>.csv</code>. The download displays LDP data for the last 12 hours</td></tr>
+  <tr><td><strong>VSSI Audit Report</strong></td><td>The last time a device was examined by a Meter Monitoring plan</td></tr>
+  <tr><td><strong>VSSI Event Summary</strong></td><td>Detected voltage sags, swells, and interruptions for a meter event</td></tr>
+</table>
+<p><strong>Export Filtered Report</strong> downloads the report as <code>.csv</code>; <strong>Download LDP Data</strong> retrieves the data between the First Record and Last Record for a selected resource entry.</p>
+<div class="callout warn">
+<strong>Meter data is the storage hog.</strong> SEL's explicit guidance: ensure adequate disk space when configuring Meter Monitoring, and <strong>if meter recorders are set to a high level, limit the number of metering devices</strong> DMA collects from.
+</div>
+</section>
+
+<section>
+<h2><span class="num">9</span>Publishing collected data</h2>
+<p>DMA can publish Disturbance, Configuration, Custom, and Meter Monitoring data from one Blueframe instance to another &mdash; encrypted in transport, private database to private database &mdash; or to a web server, an FTP/SFTP/FTPS server, or an email recipient group.</p>
+
+<h4>On the receiving Blueframe node</h4>
+<ol>
+<li>Create a <strong>user account with a role that has <em>Can Launch</em> permission to the DMA REST API</strong>. SEL recommends a specific user and role dedicated to publishing.</li>
+<li>Install the appropriate <strong>Archive application</strong> if the published data should be viewable there. Without it the data still arrives and is reachable through the DMA REST API &mdash; it just cannot be browsed.</li>
+</ol>
+<h4>On the publishing Blueframe node</h4>
+<ol>
+<li>In Resource Management create a <strong>New Resource</strong>, and under <em>Attributes &rarr; Preset</em> select <strong>Blueframe</strong>.</li>
+<li>Open its <strong>Connection Settings</strong>. Protocol must be <strong>HTTPS</strong>, Port must be <strong>443</strong>, Credential Type must be <strong>Basic</strong>, and the user and password must match the account created on the receiving node. No child resources are needed.</li>
+<li>Configure the publishing plan in the relevant DMA application.</li>
+</ol>
+<div class="callout keyfact">
+<strong>Two ordering rules that are easy to get wrong.</strong> First: <strong>configure the publishing plan <em>before</em> the collection or listening plan</strong>, because DMA publishes newly collected data &mdash; anything gathered before the publishing plan existed will not be sent. Second: <strong>export the resources from the publishing node's Resource Management and import them into the receiving node's</strong>, so published data is associated with the correct device on arrival.
+</div>
+<p>Email notifications use the Notifications recipient groups described on <a href="atlas:rtac-automation/blueframe/platform.html">the platform page</a>, which in turn require an SMTP server connection defined in Resource Management.</p>
+</section>
+
+<section>
+<h2><span class="num">10</span>DMA Tools &mdash; diagnostics, API, settings</h2>
+<h3>DMA Diagnostics</h3>
+<p>Four workspaces:</p>
+<table>
+  <tr><th>Workspace</th><th>Use for</th></tr>
+  <tr><td><strong>Plan Executions</strong></td><td>Live and Historical views. Live updates roughly <strong>every 5 seconds</strong>; a completed execution stays in the live table for <strong>1 minute</strong> or until refresh, then appears in Historical. Filter by plan, execution start time, resource, and result &mdash; filtering by resource is the usual first move</td></tr>
+  <tr><td><strong>Publishers</strong></td><td>Logging for configured publishing plans</td></tr>
+  <tr><td><strong>Listening Log</strong></td><td>Status and messages for listening operations &mdash; including the <code>Misconfigured</code> message described above</td></tr>
+  <tr><td><strong>Service Log</strong></td><td>Detailed automation-system logs; may be required for advanced troubleshooting with an SEL support engineer</td></tr>
+</table>
+<p><strong>Detailed logging view:</strong> select an execution, then <em>View</em> under Details. It lists the high-level steps of the connection; selecting a step shows its logs in ascending time order, interspersed by time across log types to give a holistic view. Log types include <strong>Communications</strong> (standard ASCII transmit and receive, populated with the most recent information around an error), <strong>Executions</strong> (the request to execute a sequence and its inputs), and <strong>Service</strong>.</p>
+<p><strong>How much history you get</strong> is tied to the disk space allocated to Diagnostics data in DMA Settings, and to how frequently plans run against how many devices.</p>
+
+<h3>DMA REST API</h3>
+<ul>
+<li><strong>Read-only</strong> programmatic access to the DMA private datastore, so collected data can reach tools outside Blueframe.</li>
+<li>Launching the application tile displays <strong>Swagger documentation</strong>; the server should read <code>/dma-rest/api/v1 - DMA</code>.</li>
+<li>Included with any DMA package purchase, but installed as its own package.</li>
+</ul>
+
+<h3>DMA Settings</h3>
+<table>
+  <tr><th>Workspace</th><th>Controls</th></tr>
+  <tr><td><strong>General</strong></td><td><strong>Execution Capacity</strong> (raise for more concurrent executions &mdash; monitor CPU and memory if you do), the <strong>Listening Enabled</strong> checkbox, and log level severity per log type</td></tr>
+  <tr><td><strong>Database</strong></td><td>Storage sizing, data retention policies, backup, and Reset Data. A bar chart shows configured size and present usage per data type</td></tr>
+</table>
+<p><strong>Default storage allocations</strong> &mdash; DMA consumes no more than <strong>40&nbsp;GB</strong> total by default:</p>
+<table>
+  <tr><th>Data type</th><th>Default</th><th>Contains</th></tr>
+  <tr><td>Disturbance</td><td>20 GB</td><td>Collected oscillography and SOE</td></tr>
+  <tr><td>Metering</td><td>20 GB</td><td>Collected LDP and VSSI</td></tr>
+  <tr><td>Configuration</td><td>8 GB</td><td>Collected settings and properties</td></tr>
+  <tr><td>Custom</td><td>8 GB</td><td>Collected files</td></tr>
+  <tr><td>Diagnostics</td><td>8 GB</td><td>DMA communication and service logs</td></tr>
+  <tr><td>System</td><td>4 GB</td><td>DMA plan and publication configuration</td></tr>
+</table>
+<p>Retention uses two thresholds: once <strong>Begin Groom At</strong> is reached for a data type, DMA deletes the oldest data until <strong>Groom Down To</strong> is met. When adjusting Target Size, account for any non-DMA application data so you do not over-allocate the disk.</p>
+<div class="callout warn">
+<strong>Reset Data clears all DMA collected data permanently</strong> and is unrecoverable, though it leaves the configured plans in place. Back up first, and stop active collection before resetting so deletion does not race with collection.
+</div>
+</section>
+
+<section>
+<h2><span class="num">11</span>Deployment architecture and sizing</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f">
+    <b>Distributed</b>
+    <span>Blueframe instances in substations or regional control centres. Best when <em>data availability</em> matters most and corporate-network communications may be intermittent. Local archiving means device data survives regardless of the WAN, with longer retention than the relay itself and better security around sensitive device information. Data is viewable locally or through a browser per instance.</span>
+  </div>
+  <div style="border-left:4px solid #5468c4">
+    <b>Centralized</b>
+    <span>One Blueframe instance reaching remote substation devices. Best when network communications are strong and reliable and substation aggregators such as SEL RTACs are in use &mdash; RTACs raise performance through listening, avoiding unnecessary connections. Where listening is not feasible, polling the RTAC as aggregator is still far more efficient than polling every device.</span>
+  </div>
+  <div style="border-left:4px solid #d7930a">
+    <b>Mixture</b>
+    <span>Both, chosen per substation. Common where some sites have reliable networks and others do not, and typical for systems modernizing existing architectures or with remote sites where improving communications is not feasible.</span>
+  </div>
+</div>
+
+<h3>Minimum recommendations for executing DMA plans</h3>
+<table>
+  <tr><th>Platform</th><th>Devices</th><th>CPUs</th><th>RAM</th><th>Disk</th><th>Concurrent users</th></tr>
+  <tr><td>SEL-3350</td><td>0&ndash;60</td><td>&mdash;</td><td>&mdash;</td><td>256 GB</td><td>2</td></tr>
+  <tr><td>SEL-3360</td><td>0&ndash;300</td><td>&mdash;</td><td>16 GB</td><td>256 GB</td><td>5</td></tr>
+  <tr><td>SEL-3355</td><td>0&ndash;500</td><td>&mdash;</td><td>32 GB</td><td>512 GB</td><td>10</td></tr>
+  <tr><td>SEL-3355</td><td>0&ndash;1000</td><td>&mdash;</td><td>64 GB</td><td>512 GB</td><td>20</td></tr>
+  <tr><td>Virtual machine</td><td>0&ndash;5000</td><td>8</td><td>64 GB</td><td>1 TB</td><td>30</td></tr>
+  <tr><td>Virtual machine</td><td>0&ndash;10000</td><td>32</td><td>128 GB</td><td>1 TB</td><td>50</td></tr>
+  <tr><td>Virtual machine</td><td>10000+</td><td colspan="4">Contact an SEL sales representative</td></tr>
+</table>
+<p><strong>What actually drives performance:</strong> the size of collected reports, how often devices generate them, the number of endpoint resources per instance, how frequently DMA interacts with them, connection quality, and the volume of meter data. Setting a polling interval to an unnecessarily high frequency <em>reduces</em> DMA's ability to service the devices efficiently. And no amount of tuning compensates for unreliable communications paths &mdash; DMA operates in less-than-ideal networks, but collection reliability and responsiveness suffer significantly.</p>
+
+<h3>Backup and restore</h3>
+<table>
+  <tr><th>What</th><th>How</th></tr>
+  <tr><td>Resource and connection information</td><td>Resource Management &rarr; <em>System &rarr; Export</em>, restored with <em>System &rarr; Import</em></td></tr>
+  <tr><td>Collection plans</td><td>Each application's own plan export and import</td></tr>
+  <tr><td>Collected data</td><td><em>DMA Settings &rarr; Database &rarr; Back Up Data</em>, by publishing to another Blueframe instance, or by using the API to move data to a file system for periodic archiving</td></tr>
+</table>
+<ul>
+<li><strong>Initiate and complete backups from a remote browser session.</strong></li>
+<li>Backup file size is <strong>1:1</strong> with the size reported in the Total Used DMA Storage chart. Budget roughly <strong>95 seconds per GB to back up</strong> and <strong>65 seconds per GB to restore</strong>.</li>
+<li>When restoring, ensure <strong>Resource Communication Services is installed</strong> and that <strong>the version at backup and the version at restore match</strong>.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">12</span>Gotchas</h2>
+<ul>
+<li><strong>"No connections available" on a plan resource</strong> means the resource has no connection matching that plan's data type. It is a Resource Management problem, not a plan problem.</li>
+<li><strong>An RTAC configured with only one connection</strong> collects only properties or only settings, never both. Postgres for properties, HTTPS for settings.</li>
+<li><strong>The publishing plan must exist before the collection plan</strong>, or the first batch of data is never published.</li>
+<li><strong>Resources not imported on the receiving node</strong> means published data arrives unassociated with the right device.</li>
+<li><strong>Off-box export failure blocks rotation entirely.</strong> That is by design &mdash; but it means an unreachable SFTP server silently stops your password program until someone notices.</li>
+<li><strong>Checkout default passwords, once set by an administrator, cannot be overridden</strong> by the checkout user. Decide deliberately whether you want that.</li>
+<li><strong>Listening is on by default</strong> and disabling it in DMA Settings disables it for <em>all</em> applications, not just the one you were thinking about.</li>
+<li><strong>The first poll of a device is not the whole history.</strong> Twenty reports come first, then the rest across subsequent executions &mdash; do not conclude collection is broken after one run.</li>
+<li><strong>Meter Monitoring plus high-resolution recorders will fill the disk.</strong> Size the storage or limit the device count.</li>
+<li><strong>Licences are tied to the serial number or VM agreement.</strong> Replacing hardware means contacting SEL, not moving a file.</li>
+<li><strong>Uninstalling a DMA package deletes its configuration and stored data</strong> &mdash; export plans and back up data first.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:rtac-automation/blueframe/platform.html">Blueframe Platform</a>
+  <a href="atlas:rtac-automation/blueframe/dms.html">Blueframe DMS &amp; FLISR</a>
+  <a href="atlas:relays-devices/settings-management.html">Settings Management</a>
+  <a href="atlas:comms/cybersecurity.html">Substation Cybersecurity</a>
+  <a href="atlas:relays-devices/oscillography.html">Event Reports &amp; Oscillography</a>
+  <a href="atlas:relays-devices/metering.html">Revenue &amp; Panel Metering</a>
+</div>
+<p class="footnote">Sources: SEL Blueframe Software &mdash; Device Management and Automation, Suite of Applications, Instruction Manual, date code 20260810 (bundled behind the Blueframe Application Platform manual in <code>Blueframe_DMA_IM</code>, intact copy in <code>C:\SEL\Instruction Manuals</code>) &mdash; Section 1 DMA Overview (what DMA automates, shared resource information, the eight application packages and which are included versus optional, licensing by feature and resource quantity with the warning banner and hardware-serial/VM binding, initial configuration and the DMA attribute preset, automation operations covering schedules/plans/plan executions, Run Plan Now, the 15-minute retry behaviour and overlap handling, data storage in a private Postgres database, system performance considerations and the variables that drive them, default storage allocations per data type, the minimum hardware and virtual machine table, backup and restore including the 1:1 size and 95 s/GB and 65 s/GB figures and the version-match requirement, the distributed/centralized/mixture deployment architectures, and the supported-resource matrix by package); Section 2 Installation and Package Management; Section 3 Disturbance Monitoring (applications, automated file/directory read best practices and the CEV/COMTRADE recommendation, supported devices and per-device notes, advanced oscillography plan options, the collection-plan Job Done sequence and the 20-most-recent-reports behaviour, the third-party MMS Job Done example and the no-SOE limitation, listening configuration on port 5000 with the TLS database connection, and archive report generation); Section 4 Configuration Monitoring (applications, supported devices, the RTAC dual-connection prerequisite with Postgres for properties and HTTPS for settings, both plan Job Done sequences, listening, and resource audit reports); Section 5 Credential Management (applications, the phase A/B/C password rotation flow through Resource Communication Services and the planned/current/archive databases, implementation best practices and general considerations for large deployments, password complexity by model type with custom options, password exceptions with and without end dates, checkout permissions/settings/workflow and stop behaviour, the Password Verification plan, System navigation and Admin Settings covering Checkout, Password, and SFTP settings and Permissions and Reports, pre-rotation off-box credential export including the blocking-error behaviour and configuration steps, archive report permissions and Can View Passwords, and credential policies); Section 6 Custom Monitoring (file and command plan types, SEL versus non-SEL ASCII consistency, the NovaTech Orion Job Done example, and archive usage); Section 7 Meter Monitoring (supported devices including the RTAC Trend Recorder at R153, advanced initial-LDP limit, plan creation, and the three archive report types); Section 8 DMA Collected Data Publishing (Blueframe-to-Blueframe, web/FTP/SFTP/FTPS and email endpoints, receiving-node account with Can Launch on the DMA REST API, publishing-node Blueframe resource with HTTPS/443/Basic credentials, resource export-import for correct association, and the configure-publishing-first ordering note); Section 9 DMA Tools (Diagnostics workspaces and refresh behaviour, detailed logging view and log types, the REST API Swagger interface and server path, and DMA Settings General and Database workspaces with retention grooming and Reset Data). Rev. 2026-08-23.</p>
+</section>
+
+</body>
+</html>

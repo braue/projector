@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voltage Regulation</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="regulator,SEL-2431,LDC,bandwidth,tap,voltage reduction,reverse power">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Voltage Regulation (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.teal { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Voltage Regulation</h1>
+  <p>The step voltage regulator and its brain, the SEL-2431 — setpoint, bandwidth, time delay, line-drop compensation, and reverse power on DG-rich feeders</p>
+  <div class="chips"><span>SEL-2431</span><span>32-step</span><span>F_CNBND</span><span>LDC</span><span>OPMODE</span><span>FLEXDG</span><span>tap counter</span><span>DNP3</span></div>
+</div>
+
+<section class="keep">
+<h2><span class="num">1</span>Why feeders need regulators</h2>
+<p>Load current through a feeder's series impedance drops voltage — a feeder that leaves the substation healthy can serve low voltage miles out, and the drop grows and shrinks with load all day. A <strong>step voltage regulator</strong> is a tap-changing autotransformer in the line that boosts or bucks in small steps to hold delivered voltage inside an acceptable band. The SEL-2431 manual's framing: the control regulates system voltage to an <strong>"in band"</strong> region; too high or low ("out of band") and it commands a tap change to bring it back. Typical installs: three single-phase regulators per substation feeder position (one SEL-2431 each), plus regulators out on the feeder. The band itself is a setting on a 120&nbsp;V secondary base — §3.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The machine: a 32-step regulator</h2>
+<p>The SEL-2431 is configured for use with standard <strong>single-phase, 32-tap step-type voltage regulators</strong>. The mechanism, as the manual walks through it:</p>
+<ul>
+  <li><strong>Series + shunt winding.</strong> A tapped series winding either adds to (boost) or subtracts from (buck) the line voltage; polarity is chosen by a motor-driven <strong>Raise/Lower reversing switch</strong>.</li>
+  <li><strong>Taps −16 … N … +16.</strong> Eight stationary contacts plus bridging positions give 16 steps each side of Neutral. At tap +16 the entire series winding boosts; at −16 it bucks; at <strong>N (neutral)</strong> the series winding is completely bypassed — source and load are at the same voltage. The reversing switch flips as the regulator passes through neutral.</li>
+  <li><strong>Step size.</strong> Global setting <code>VADJUST</code> defaults to 0.100 pu — a nominal 10% full-raise regulator — so one tap is 0.100/16 = 0.00625 pu, the classic <strong>0.625% (5/8%) step</strong> (0.75&nbsp;V on the 120&nbsp;V base). Some Type B designs need e.g. <code>VADJUST</code> = 0.111.</li>
+  <li><strong>Type A / Type B</strong> are the two ANSI regulator configurations (setting <code>TYPE</code>); Type A is "straight," shunt winding on the S-terminal side.</li>
+  <li><strong>Compatibility.</strong> One control retrofits many makes: <strong>Cooper/McGraw&nbsp;Edison, GE, Howard Industries, Siemens/Allis, Toshiba CR-3, ITB RAV-2, Romagnole SVR</strong> (interface ordering option + wiring-harness retrofit kits). Line-to-neutral or line-to-line (open/closed-delta) with a properly rated regulator.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>The control loop: setpoint, bandwidth, time delay</h2>
+<p>Three settings decide every automatic tap. Voltage is regulated on the 120&nbsp;V secondary base:</p>
+<table>
+<tr><th>Setting</th><th>Meaning</th><th>Range</th><th>Default</th></tr>
+<tr><td><code>F_CNBND</code></td><td>Forward Center Band — the voltage setpoint</td><td>96.0–144.0&nbsp;V sec</td><td>120.0</td></tr>
+<tr><td><code>F_BNDWD</code></td><td>Forward Band Width — total band around setpoint</td><td>1.0–10.0&nbsp;V sec</td><td>2.0</td></tr>
+<tr><td><code>F_TD1</code></td><td>Time Delay 1 — out-of-band must persist this long before the <em>first</em> tap</td><td>1.0–999.0&nbsp;s</td><td>60.0</td></tr>
+<tr><td><code>TD2</code></td><td>Time Delay 2 — spacing of <em>subsequent</em> taps while still out of band</td><td>1.0–999.0&nbsp;s</td><td>—</td></tr>
+</table>
+<p>Band edges are <code>F_CNBND ± F_BNDWD/2</code> — with defaults, 119–121&nbsp;V. Above 121&nbsp;V the <code>HBNDFWD</code> bit asserts; below 119&nbsp;V, <code>LBNDFWD</code>; between them, <code>IN_BNDF</code>. Bandwidth exists to prevent continual hunting. A mirror setting family (<code>R_CNBND</code>, <code>R_BNDWD</code>, <code>R_TD1</code>…) serves reverse-direction regulation.</p>
+
+<div class="fig"><svg viewBox="0 0 700 262" xmlns="http://www.w3.org/2000/svg">
+  <!-- axes / static -->
+  <text x="18" y="16" font-size="9.5" font-weight="600" fill="#1a1a22">Voltage profile along the feeder</text>
+  <line x1="100" y1="30" x2="100" y2="185" stroke="#d0d3da" stroke-width="1"/>
+  <line x1="100" y1="185" x2="620" y2="185" stroke="#d0d3da" stroke-width="1"/>
+  <text x="118" y="197" font-size="8" fill="#6e7180">regulator (load side)</text>
+  <text x="560" y="197" font-size="8" fill="#6e7180" text-anchor="middle">regulated point</text>
+  <!-- band drawn at regulated point -->
+  <rect x="100" y="88" width="520" height="24" fill="#10a37f" opacity="0.10"/>
+  <line x1="100" y1="88" x2="620" y2="88" stroke="#10a37f" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="100" y1="112" x2="620" y2="112" stroke="#10a37f" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="100" y1="100" x2="620" y2="100" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="1.5 3.5"/>
+  <text x="626" y="91" font-size="8" fill="#10a37f">121 V  high edge</text>
+  <text x="626" y="103" font-size="8" font-weight="600" fill="#10a37f">F_CNBND 120</text>
+  <text x="626" y="115" font-size="8" fill="#10a37f">119 V  low edge</text>
+  <text x="626" y="127" font-size="7.5" fill="#8a8e9b">F_BNDWD = 2 V</text>
+  <!-- static envelope lines (visible in print) -->
+  <line x1="120" y1="74" x2="560" y2="106" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="352" y="76" font-size="7.5" fill="#a9adb8">light load — shallow drop, in band</text>
+  <line x1="120" y1="90" x2="560" y2="124" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="380" y="130" font-size="7.5" fill="#a9adb8">heavy load — end sags out of band → tap raise</text>
+  <!-- timer bars (static shells) -->
+  <text x="100" y="222" font-size="8" font-weight="600" fill="#454956">out-of-band timer:</text>
+  <rect x="200" y="213" width="180" height="11" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+  <text x="384" y="222" font-size="7.5" fill="#6e7180">F_TD1 (first tap, 60 s dflt)</text>
+  <rect x="510" y="213" width="60" height="11" rx="2" fill="#f2f3f5" stroke="#d0d3da" stroke-width="0.75"/>
+  <text x="574" y="222" font-size="7.5" fill="#6e7180">TD2 (next taps)</text>
+  <text x="100" y="248" font-size="8" fill="#8a8e9b">one tap = 0.625% ≈ 0.75 V (120 V base) — if still out of band after a tap, TD2 spaces the next one</text>
+  <!-- ANIMATION -->
+  <g class="animlayer">
+    <!-- moving profile line: 16 s cycle -->
+    <line x1="120" y1="86" x2="560" y2="104" stroke="#1a1a22" stroke-width="2.25">
+      <animate attributeName="y1" dur="16s" repeatCount="indefinite" calcMode="linear"
+        values="86;92;92;83;83;74;74;74;70;70;79;79;86"
+        keyTimes="0;0.20;0.28;0.29;0.37;0.38;0.55;0.70;0.71;0.80;0.81;0.94;1"/>
+      <animate attributeName="y2" dur="16s" repeatCount="indefinite" calcMode="linear"
+        values="104;124;124;115;115;106;106;106;86;86;95;95;104"
+        keyTimes="0;0.20;0.28;0.29;0.37;0.38;0.55;0.70;0.71;0.80;0.81;0.94;1"/>
+    </line>
+    <!-- regulated-point dot -->
+    <circle cx="560" r="4" fill="#10a37f">
+      <animate attributeName="cy" dur="16s" repeatCount="indefinite" calcMode="linear"
+        values="104;124;124;115;115;106;106;106;86;86;95;95;104"
+        keyTimes="0;0.20;0.28;0.29;0.37;0.38;0.55;0.70;0.71;0.80;0.81;0.94;1"/>
+      <animate attributeName="fill" dur="16s" repeatCount="indefinite" calcMode="discrete"
+        values="#10a37f;#d63a3a;#d63a3a;#10a37f;#10a37f;#d63a3a;#d63a3a;#10a37f"
+        keyTimes="0;0.10;0.37;0.38;0.645;0.65;0.80;0.81"/>
+    </circle>
+    <!-- load annotation -->
+    <text x="352" y="160" font-size="8.5" font-weight="600" fill="#d7930a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.25;0.30;1" dur="16s" repeatCount="indefinite"/>
+      load rising → drop steepens ↓</text>
+    <text x="352" y="160" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.55;0.58;0.72;0.76;1" dur="16s" repeatCount="indefinite"/>
+      load falling → drop flattens ↑</text>
+    <!-- TD1 fill #1: out of band at 0.10, tap at 0.29 -->
+    <rect x="200" y="213" height="11" rx="2" fill="#d7930a" width="0">
+      <animate attributeName="width" dur="16s" repeatCount="indefinite" calcMode="linear"
+        values="0;0;180;0;0" keyTimes="0;0.10;0.288;0.29;1"/>
+    </rect>
+    <!-- TD2 fill: 0.29 -> 0.37 -->
+    <rect x="510" y="213" height="11" rx="2" fill="#d7930a" width="0">
+      <animate attributeName="width" dur="16s" repeatCount="indefinite" calcMode="linear"
+        values="0;0;60;0;0" keyTimes="0;0.295;0.378;0.38;1"/>
+    </rect>
+    <!-- TD1 fill #2 (high band): 0.645 -> 0.80 -->
+    <rect x="200" y="213" height="11" rx="2" fill="#d7930a" width="0">
+      <animate attributeName="width" dur="16s" repeatCount="indefinite" calcMode="linear"
+        values="0;0;180;0;0" keyTimes="0;0.645;0.805;0.81;1"/>
+    </rect>
+    <!-- tap events -->
+    <text x="560" y="52" font-size="9" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.29;0.30;0.34;0.36;1" dur="16s" repeatCount="indefinite"/>
+      RAISE — tap +1</text>
+    <text x="560" y="52" font-size="9" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.39;0.43;0.45;1" dur="16s" repeatCount="indefinite"/>
+      RAISE — tap +1 (after TD2)</text>
+    <text x="560" y="52" font-size="9" font-weight="700" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.81;0.82;0.86;0.88;1" dur="16s" repeatCount="indefinite"/>
+      LOWER — tap −1</text>
+  </g>
+</svg></div>
+<p class="figcap">The classic loop: load rises → regulated point drifts below band → F_TD1 qualifies the excursion → first raise (0.75 V) → still out, TD2 spaces a second raise → in band. Load falls and the same happens in reverse.<span class="print-note"> ▶ Animated in the HTML edition; dashed lines show the light/heavy-load envelope.</span></p>
+
+<h3>Four reset characteristics for the first-tap timer (F_CHAR / R_CHAR)</h3>
+<p>What happens to a partially-run <code>F_TD1</code> timer when voltage pops back in band is selectable — <code>F_CHAR</code>: <strong>FAST, DISC, DELAY, DLY_FRZ</strong> (default DISC):</p>
+<ul>
+  <li><strong>FAST</strong> — resets immediately on re-entering the band (like "sequential" mode on other controls). Weakness the manual calls out: short in-band excursions can repeat indefinitely and a mostly-out-of-band voltage never gets a tap.</li>
+  <li><strong>DISC</strong> — unwinds like an induction-disc relay at <code>F_DISC</code> seconds per elapsed second (range 0.10–2.00, default 0.60; typical 0.60–1.10 to coordinate with legacy controls). Resets immediately if voltage jumps to the <em>opposite</em> band or power flow reverses.</li>
+  <li><strong>DELAY / DLY_FRZ</strong> — hold, then reset after <code>F_DLYRS</code> (0.0–999.0&nbsp;s).</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">4</span>Line-drop compensation: regulating a point you can't measure</h2>
+<p>Without LDC the control holds its own terminals flat and the feeder end under-serves at heavy load. LDC makes the control mimic the line: from local voltage and current it <em>calculates</em> the voltage at a downstream <strong>regulation point</strong> (an important load center) and regulates that instead. The compensated voltage <strong>VCMP</strong> is a calculated value visible in metering; the regulator moves its real output <strong>VL</strong> however much is needed to hold VCMP at <code>F_CNBND</code>.</p>
+<div class="card teal">
+<h3>Making the settings (forward direction)</h3>
+<p style="margin-bottom:3px">Convert the primary line impedance from regulator to regulation point into secondary volts at rated CT current (0.2&nbsp;A secondary):</p>
+<ul style="margin-bottom:3px">
+<li><code>VLDCFWR</code> = Rpri × (BASE_SEC/BASE_PRI) × CTPRIM &nbsp;·&nbsp; <code>VLDCFWX</code> = Xpri × (BASE_SEC/BASE_PRI) × CTPRIM (each −24.0 to +24.0&nbsp;V sec)</li>
+<li>Multiply both by <strong>1.73</strong> for line-to-line (open/closed-delta) connections; by <strong>2</strong> on a single-phase two-wire circuit; by <strong>1.67</strong> if one of the two wires is a multigrounded neutral.</li>
+<li>Conductor changes / tapped load: model the line section as its majority conductor type, then lower R and X somewhat (keeping the R/X ratio) since not all load flows to the section end — the manual says some experimentation may be needed.</li>
+</ul>
+<p style="margin-bottom:0">Simplified alternative when feeder power factor is steady: set LDC to a straight slope — output rises from <code>F_CNBND</code> at no load to a chosen full-load voltage. Near unity pf: <code>VLDCFWR = (CTPRIM/IFL)×(VFL − F_CNBND)</code>, <code>VLDCFWX = 0</code>.</p>
+</div>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- top panel: no LDC -->
+  <text x="18" y="16" font-size="9.5" font-weight="600" fill="#454956">Local-only regulation (LDC off): hold VL flat — feeder end sags</text>
+  <rect x="100" y="46" width="470" height="18" fill="#10a37f" opacity="0.10"/>
+  <line x1="100" y1="46" x2="570" y2="46" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="3 3"/>
+  <line x1="100" y1="64" x2="570" y2="64" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="3 3"/>
+  <text x="576" y="58" font-size="7.5" fill="#10a37f">band</text>
+  <line x1="120" y1="55" x2="550" y2="80" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="360" y="94" font-size="7.5" fill="#a9adb8">heavy load: end below band</text>
+  <circle cx="120" cy="55" r="3.5" fill="#454956"/>
+  <text x="112" y="42" font-size="7.5" fill="#454956">VL pinned</text>
+  <!-- bottom panel: LDC -->
+  <text x="18" y="130" font-size="9.5" font-weight="600" fill="#10a37f">LDC on: hold calculated VCMP flat — VL rides up with load</text>
+  <rect x="100" y="160" width="470" height="18" fill="#10a37f" opacity="0.10"/>
+  <line x1="100" y1="160" x2="570" y2="160" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="3 3"/>
+  <line x1="100" y1="178" x2="570" y2="178" stroke="#10a37f" stroke-width="0.75" stroke-dasharray="3 3"/>
+  <text x="576" y="172" font-size="7.5" fill="#10a37f">band</text>
+  <line x1="120" y1="144" x2="550" y2="169" stroke="#a9adb8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="235" y="140" font-size="7.5" fill="#a9adb8">heavy load: VL raised, VCMP still in band</text>
+  <circle cx="550" cy="169" r="3.5" fill="#10a37f"/>
+  <text x="548" y="196" font-size="7.5" fill="#10a37f" text-anchor="middle">regulation point (VCMP)</text>
+  <!-- shared feeder axis labels -->
+  <text x="120" y="222" font-size="8" fill="#6e7180">regulator</text>
+  <text x="550" y="222" font-size="8" fill="#6e7180" text-anchor="middle">load center</text>
+  <line x1="100" y1="210" x2="570" y2="210" stroke="#d0d3da" stroke-width="1"/>
+  <text x="100" y="248" font-size="8.5" font-weight="600" fill="#454956">VCMP = VL − IL·(Rsec + jXsec)&nbsp;&nbsp;&nbsp;Rsec = VLDCFWR/0.2 A, Xsec = VLDCFWX/0.2 A</text>
+  <text x="100" y="262" font-size="8" fill="#8a8e9b">The control mimics the primary line impedance in secondary terms; VL, VCMP, IL are all observable in metering.</text>
+  <!-- ANIMATION: 10 s load swing -->
+  <g class="animlayer">
+    <!-- top: VL fixed, end sags -->
+    <line x1="120" y1="55" x2="550" y2="60" stroke="#1a1a22" stroke-width="2">
+      <animate attributeName="y2" dur="10s" repeatCount="indefinite" calcMode="linear"
+        values="60;80;80;60;60" keyTimes="0;0.40;0.55;0.90;1"/>
+    </line>
+    <circle cx="550" r="4" fill="#10a37f">
+      <animate attributeName="cy" dur="10s" repeatCount="indefinite" calcMode="linear"
+        values="60;80;80;60;60" keyTimes="0;0.40;0.55;0.90;1"/>
+      <animate attributeName="fill" dur="10s" repeatCount="indefinite" calcMode="discrete"
+        values="#10a37f;#d63a3a;#10a37f" keyTimes="0;0.25;0.78"/>
+    </circle>
+    <text x="612" y="76" font-size="8" font-weight="700" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.32;0.62;0.68;1" dur="10s" repeatCount="indefinite"/>
+      end customers low</text>
+    <!-- bottom: VCMP fixed, VL rises -->
+    <line x1="120" y1="164" x2="550" y2="169" stroke="#1a1a22" stroke-width="2">
+      <animate attributeName="y1" dur="10s" repeatCount="indefinite" calcMode="linear"
+        values="164;144;144;164;164" keyTimes="0;0.40;0.55;0.90;1"/>
+    </line>
+    <circle cx="120" r="3.5" fill="#454956">
+      <animate attributeName="cy" dur="10s" repeatCount="indefinite" calcMode="linear"
+        values="164;144;144;164;164" keyTimes="0;0.40;0.55;0.90;1"/>
+    </circle>
+    <text x="612" y="172" font-size="8" font-weight="700" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.32;0.62;0.68;1" dur="10s" repeatCount="indefinite"/>
+      VCMP held in band</text>
+    <!-- regulation point marker sliding downstream on feeder axis -->
+    <g>
+      <rect x="-32" y="-9" width="64" height="13" rx="3" fill="#10a37f"/>
+      <text x="0" y="1" font-size="7.5" font-weight="600" fill="#fff" text-anchor="middle">reg. point</text>
+      <animateTransform attributeName="transform" type="translate" dur="10s" repeatCount="indefinite" calcMode="linear"
+        values="140,232;140,232;550,232;550,232" keyTimes="0;0.04;0.22;1"/>
+    </g>
+    <text x="335" y="243" font-size="7.5" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.06;0.18;0.24;1" dur="10s" repeatCount="indefinite"/>
+      LDC engages — regulation point slides downstream</text>
+    <!-- load level indicator -->
+    <text x="18" y="105" font-size="8" fill="#d7930a" font-weight="600" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.45;0.55;1" dur="10s" repeatCount="indefinite"/>
+      IL ↑</text>
+    <text x="18" y="105" font-size="8" fill="#5468c4" font-weight="600" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.55;0.62;0.92;1" dur="10s" repeatCount="indefinite"/>
+      IL ↓</text>
+  </g>
+</svg></div>
+<p class="figcap">Same load swing, two policies. Local-only regulation pins VL and lets the end of the feeder sag out of band; LDC computes the remote voltage from local V, I and the R/X settings and raises VL just enough to hold that point flat.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+
+<ul>
+  <li><strong>LDC limits.</strong> <code>VLDCFWMP/VLDCFWMN</code> (and RV twins; OFF, ±0.1–24&nbsp;V sec) cap how far LDC may push VL up (positive max — the traditional case where |VCMP| ≤ |VL|) or down (negative max — advanced applications). These limit the <em>relative</em> VCMP–VL difference; VMAX/VMIN (§6) limit absolutes.</li>
+  <li><strong>LDC off</strong> (<code>ELDC := N</code>, or <code>SETLDC0 := Y</code> while voltage reduction is active) → VCMP = VL directly.</li>
+  <li>Utilities with their own LDC setting sheets: voltage-base conversion is already inside the SEL-2431 — don't double-apply it.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">5</span>Reverse power and operating modes</h2>
+<p>Power-flow direction is determined from current and the normal load-side voltage. Exactly one of three Device Word bits is asserted: <code>FORWARD</code>, <code>REVERSE</code>, or <code>NO_TORK</code> ("no torque" — too little signal, or a nearly pure capacitive/inductive load). Refined forward/reverse regions use current thresholds <code>50FWDP</code>/<code>50REVP</code> (0.002–0.020&nbsp;A sec, i.e. 1–10% of rating). The Group setting <code>OPMODE</code> then decides which direction gets regulated:</p>
+<table>
+<tr><th>OPMODE</th><th>Scenario (per the manual)</th></tr>
+<tr><td><code>LOCKFWD</code> / <code>LOCKREV</code></td><td>Flow expected always forward (normal load-side) / always reverse.</td></tr>
+<tr><td><code>IDLEREV</code></td><td>Always forward, but <em>no regulation</em> when flow is indeterminate (e.g. no load).</td></tr>
+<tr><td><code>BIDIR</code></td><td>Flow varies (multiple system interfaces); regulate VL on forward flow, VS on reverse.</td></tr>
+<tr><td><code>COGEN</code></td><td>Flow varies due to DERs on the load side; during reverse flow voltage is <em>still regulated from the forward perspective</em> (at the load-side terminal) — the utility source is still the stiff bus. This unique region uses the reverse LDC settings.</td></tr>
+<tr><td><code>FLEXDG</code></td><td>Flow direction proves nothing (DG + multiple sources); regulation direction is determined from the <em>voltage-regulation effectiveness of issued taps</em>.</td></tr>
+</table>
+<div class="callout warn"><strong>Why direction matters:</strong> the manual's Figure 4.5/4.6 walk-through — if the stiff utility source ends up on the "load" side (a feeder reconfiguration can do this) while the control keeps regulating VL, every tap moves VS instead, in the <em>undesired</em> direction. The control asks for raise after raise and drives the far-side voltage down. Current direction alone cannot detect this when DG is interspersed.</div>
+<ul>
+  <li><strong>BIASMODE</strong> (OFF/FWD/REV, for BIDIR and COGEN) picks a regulation direction inside the small-current zone (|I| below both 50FWDP/50REVP), so a lightly loaded regulator — e.g. few customers between it and a normally-open switch — isn't "stranded" unable to tap.</li>
+  <li><strong>FLEXDG mechanics:</strong> after each tap the control measures tap-delta voltage <code>DLT_VLS</code> (change in VL per tap; full value = VADJUST/16 × BASE_SEC ≈ 750&nbsp;mV sec at defaults). VL moves ≥ <code>TAPDELTH</code> (dflt 0.60 pu of full) → taps control VL, run cogeneration-style; VL moves ≤ <code>TAPDELTL</code> (dflt 0.50 pu) → taps aren't controlling VL, regulate VS regardless of current direction. Works even with only source-side voltage connected (monitors <code>DLT_VSS</code>).</li>
+  <li><strong>Inhibit/block:</strong> SELOGIC <code>INHIBSV</code> plus mode "no-operation" zones assert <code>INHIBIT</code> — no automatic tapping even in AUTO. A <code>BLOCKSV</code> equation blocks tapping; current firmware resumes TD2 timing/tapping after a block clears if still out of band.</li>
+</ul>
+<p><strong>DA tie-in:</strong> feeder reconfiguration (see the DAC pages in this section) is exactly what flips source direction mid-day on a regulator — the COGEN/BIDIR/FLEXDG discussion above is the regulator-side half of that story.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Voltage limits, runback, and voltage reduction</h2>
+<h3>VMAX / VMIN — first-tier limits (automatic mode only)</h3>
+<p>With <code>ENLIMIT := Y</code>: <code>VMAX</code> (OFF, 108.5–145.0&nbsp;V sec) and <code>VMIN</code> (OFF, 80.0–131.5; not settable within 3&nbsp;V of VMAX) protect customers <em>near the regulator</em> from LDC pushing VL too far while chasing VCMP. Priority: VL (a real measurement) stays in range; VCMP (calculated) is allowed out of its band. Automatic tapping is suspended when VL comes within 1&nbsp;V of the limit. If VMAX is exceeded, further raises are prevented but lowers are not — subsequent lowers spaced by TD2 continue until VL is back under.</p>
+<h3>Runback — second-tier, actively taps back</h3>
+<p>Beyond <code>VMAX + DBNDH</code> or <code>VMIN − DBNDL</code> (deadbands OFF/0–6&nbsp;V), timer <code>RUNBKPU</code> (0–9999&nbsp;s) qualifies the excursion, then the control <em>instigates</em> tapping toward normal; after the first tap, timing reverts to TD2. VOLTAGE HIGH/LOW LIMIT LEDs flash at 0.5&nbsp;Hz. Documented triggers: a large load change (this feeder or a sibling on the same transformer), cold-load pickup after an outage, switching manual→auto at a bad tap, or a group change with different limits.</p>
+<h3>Voltage reduction — deliberate demand relief</h3>
+<p>Lowers the center band (and both edges) by a set percentage when demand exceeds supply — the same system voltage is suddenly "high," and the regulator taps down. Three stages, each OFF or 0.1–10.0% (<code>VREDFP1–3</code> fwd, <code>VREDRP1–3</code> rev), time-qualified by <code>VRSPU1–3</code>. Modes (<code>VREDMOD</code>): <strong>LATCH</strong> (legacy SCADA binary-coded inputs), <strong>PULSE</strong> (legacy momentary-pulse advance), <strong>CONTROL</strong> (SELOGIC-driven — e.g. staged on load-current elements 50L1–3). <code>VRIPROG</code> asserts and the VOLTAGE REDUCTION LED lights while active; <code>SETLDC0 := Y</code> zeros LDC during reduction; <code>OVRIDSV</code> typically overrides in LOCAL/MANUAL. Gotcha: stage-to-stage transitions leave a gap with <em>no</em> reduction for the next stage's qualification time.</p>
+<p><strong>Software tap limits:</strong> <code>TAPMAX</code> (OFF, 8–16) / <code>TAPMIN</code> (OFF, −8 to −16) constrain automatic range; <code>MAXTAP</code>/<code>MINTAP</code> bits assert at the bounds.</p>
+</section>
+
+<section>
+<h2><span class="num">7</span>The SEL-2431 box itself</h2>
+<div class="twocol">
+<div>
+<h3>Metering &amp; accuracy</h3>
+<ul>
+  <li>Real-time V, I, frequency, power; 32 samples/cycle, control processing once per cycle, full-cycle cosine filter, 10-cycle averaging. Voltage control accuracy ±0.3% measured (±1.0% calculated), −40° to +85°C.</li>
+  <li><strong>Max/Min</strong> with date/time stamps, separate fwd/rev registers. <strong>Thermal demand</strong> + peak demand (fwd/rev current, power, 4-quadrant Q); <code>DMTC</code> = 5/10/15/30/60&nbsp;min, dflt 15. <strong>Energy</strong> with separate in/out real and reactive registers. <strong>Harmonics</strong> 2nd–15th plus THD — also usable in control logic.</li>
+  <li>IEEE C37.118 PMU output to 60 msg/s (Level 1 with PHCOMP = Y) — the DS suggests using it to identify the connected phase of downstream regulators.</li>
+</ul>
+<h3>Controls &amp; logic</h3>
+<ul>
+  <li><strong>4 setting groups</strong>, each with separate forward/reverse set points, delays, LDC, mode, reduction, limiting, runback — switchable by command or SELOGIC (calendar/clock, overcurrent, demand…).</li>
+  <li><strong>AUTO/MANUAL</strong> and <strong>REMOTE/LOCAL</strong> pushbuttons with SELOGIC overrides (<code>REMOTSV/LOCALSV/AUTOSV/MANULSV</code> — force or block either mode). Factory default <code>LOCALSV := MANUAL</code>: selecting MANUAL forces LOCAL, and REMOTE can't be selected until back in AUTO.</li>
+  <li>7 programmable pushbuttons/LEDs, 2×20 LCD, 32 display points; motor-control section as pushbuttons or toggle switch; voltmeter test terminals auto-follow the present load-side PT with power-flow direction (customizable via <code>VTJ_MODE</code>).</li>
+</ul>
+</div>
+<div>
+<h3>Communications &amp; SCADA</h3>
+<ul>
+  <li>Front EIA-232 standard; optional rear serial cards (EIA-232, 2/4-wire EIA-485, multimode fiber) and dual-Ethernet card in Port&nbsp;2. IRIG-B in via Port&nbsp;1 serial cards. Front Type A USB port takes a flash drive for settings transfer and automatic report backup.</li>
+  <li>Serial: SEL ASCII + Compressed ASCII, Fast Meter, Fast Operate, <strong>DNP3 Level 2 slave</strong> (rear ports), C37.118. Ethernet: DNP3, C37.118, SEL protocols over Telnet (everything but ping disabled until <code>SET P E</code>).</li>
+  <li><strong>DNP3:</strong> six sessions combined serial+Ethernet (max 4 Ethernet; 4 DNP sessions on Ethernet kills Telnet engineering access). Polled report-by-exception is SEL's recommended access method. Event buffers 1024 binary / 100 analog / 32 counter; SER-assigned binaries carry true occurrence time stamps, others get ~1&nbsp;s map-scan time. Custom maps via <code>SET DNP</code> with per-point class, deadband, scaling. Notable: binary outputs like <code>BO_F_TD1</code> bump the active F_TD1 in +5&nbsp;s steps — on-the-fly settings shifts over DNP; the DS calls this "Distribution Automation Ready." Protocol mechanics: see the DNP3 pages in atlas.</li>
+</ul>
+<h3>Security</h3>
+<ul>
+  <li>Access Levels 0 → 1 → 2 (settings/control) plus restricted Level C; Level 2 password required for e.g. <code>TAP W</code>. Shipped with <strong>default passwords — SEL's warning: change them at installation</strong> or accept unauthorized-access risk. Appendix I documents interfaces, access controls, and logging.</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">8</span>Tap tracking, operation counters, and wear data</h2>
+<p>Tap changes are the regulator's wear currency — the same way breaker ops are for a recloser. The SEL-2431 tracks position and counts everything, in nonvolatile memory:</p>
+<ul>
+  <li><strong>Position feedback:</strong> the control watches the <strong>operations-counter switch</strong> (Siemens: closed on odd taps; Howard: closed on even; GE/Toshiba/ITB/Romagnole: momentary pulse per tap) or Cooper's <strong>holding switch</strong>, plus raise/lower/hold <strong>motor current</strong> (<code>MRAISE/MLOWER/MHOLD</code>), and steps its internal tap counter. No feedback? <code>TPFDBK := N</code> dead-reckons <code>TAPDUR</code> seconds after each pulse.</li>
+  <li><strong>Counters:</strong> Total (NV, updated every operation), Year-to-date, Month-to-date, Sliding-24-hour, Since-Reset (<code>TAP R</code>), and <strong>per-tap counters for every position −16…N…+16</strong> (0–32767 each) — the histogram shows where the regulator lives and whether it's misapplied. <code>TAP</code> shows the report; <code>TAP W</code> preloads totals (0–500000) from a replaced control on retrofit.</li>
+  <li><strong>Signal (Load) Profile Recorder:</strong> up to 16 analogs (e.g. IL, VLSEC, VCMPSEC, TAP_POS) every 5/10/15/30/60&nbsp;min (<code>SPAR</code>; dflt 15 quantities @ 15&nbsp;min), 8640 NV entries, oldest overwritten — ≥90 days even at 16 analogs/15&nbsp;min. SELOGIC <code>SPEN</code> gates recording. Read with <code>PRO</code>, or <code>CPR</code> for spreadsheet-ready compressed ASCII; changing the list clears stored data.</li>
+  <li><strong>Event reports &amp; SER:</strong> oscillographic events include control element response, regulator interface signals, and motor current; the SER time-stamps state changes. All nonvolatile — valuable at sites with no comms yet.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">9</span>Field notes &amp; gotchas</h2>
+<ul>
+  <li><strong>Verify neutral with the NEUTRAL POSITION LED only.</strong> The manual is explicit: tap position 0 equals neutral, "but only the NEUTRAL POSITION indicator should be used for verification of neutral position." That LED is driven by the regulator's own neutral switch, is 120&nbsp;Vac powered, and can operate even when the control is not enabled — the check that matters before any bypass switching of the regulator. <code>NO_NEUT</code> asserts if Tap&nbsp;=&nbsp;0 but the neutral switch isn't closed (the counter is lying).</li>
+  <li><strong>Check regulation direction before trusting AUTO</strong> on any circuit that can back-feed: wrong direction means each tap moves the stiff-source side "in the undesired direction" and the control hunts (§5). The REVERSE POWER LED and the OPMODE/BIASMODE tables are the map.</li>
+  <li><strong>Tap-position drift alarms:</strong> <code>TAP_OFF</code> (counter-switch state disagrees with odd/even tap — Siemens/Howard), <code>TAP_DIF</code> (neutral switch closed but tap didn't arrive from ±1), <code>OPNOCUR</code> (counter pulsed, no motor current). Whenever the neutral switch newly closes, the internal tap resets to 0. <code>RSELIM/LWRLIM</code> (no tap, no motor current after <code>TAPDUR</code>) usually means the regulator is at its raise/lower <em>limit switch</em>. Abnormal bits route to the ALARM output in factory defaults.</li>
+  <li><strong>Make-specific timing:</strong> Siemens needs <code>NEUTOVR</code> (extra motor run at neutral so the reversing switch lands closed — too long and AUTO overshoots neutral; may need reducing as the regulator ages; also raises the TD2 floor to 1.3&nbsp;s + NEUTOVR). <code>TAPDUR</code> must exceed one tap time but stay under two (Cooper Quik-Drive: just <em>shorter</em> than its ~250&nbsp;ms tap). GE counter switches drift out of alignment — <code>GE_WIND</code> ignores extra pulses; some old McGraw-Edison units assert neutral with DHR — <code>TAP_DHR := Y</code> suppresses false re-syncs.</li>
+  <li><strong>Delta installs:</strong> global settings <code>CONFIG/DELTA/D_LAG/D_LEAD</code> handle the angle work for open/closed-delta banks — but you still apply the 1.73 multiplier to the LDC R/X settings yourself (§4).</li>
+  <li><strong>Retrofit hygiene:</strong> preload the old control's operation count with <code>TAP W</code> (zeros for unknown per-tap history) so wear records survive the swap; and change the default passwords.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">☰</span>Quick reference — the settings that do the work</h2>
+<table>
+<tr><th>Setting</th><th>What</th><th>Range / default</th></tr>
+<tr><td><code>OPMODE</code></td><td>Operating mode</td><td>LOCKFWD · LOCKREV · IDLEREV · BIDIR · COGEN · FLEXDG</td></tr>
+<tr><td><code>F_CNBND</code> / <code>F_BNDWD</code></td><td>Setpoint / band</td><td>96–144 V (120) / 1–10 V (2)</td></tr>
+<tr><td><code>F_TD1</code> / <code>TD2</code></td><td>First / subsequent tap delay</td><td>1–999 s (60) / 1–999 s</td></tr>
+<tr><td><code>F_CHAR</code> (+<code>F_DISC</code>, <code>F_DLYRS</code>)</td><td>TD1 reset character</td><td>FAST · DISC (dflt) · DELAY · DLY_FRZ</td></tr>
+<tr><td><code>ELDC</code>, <code>VLDCFWR/X</code></td><td>LDC enable, R/X model</td><td>−24 to +24 V sec</td></tr>
+<tr><td><code>VMAX</code> / <code>VMIN</code></td><td>Absolute VL limits</td><td>OFF, 108.5–145 / OFF, 80–131.5 V sec</td></tr>
+<tr><td><code>DBNDH/L</code>, <code>RUNBKPU</code></td><td>Runback deadbands, timer</td><td>OFF, 0–6 V / 0–9999 s</td></tr>
+<tr><td><code>VREDMOD</code>, <code>VREDFP1–3</code></td><td>Voltage reduction</td><td>PULSE · LATCH · CONTROL; OFF, 0.1–10% per stage</td></tr>
+<tr><td><code>TAPMAX</code> / <code>TAPMIN</code></td><td>Software tap bounds</td><td>OFF, 8–16 / OFF, −8 to −16</td></tr>
+<tr><td><code>50FWDP</code> / <code>50REVP</code></td><td>Direction current thresholds</td><td>0.002–0.020 A sec (1–10%)</td></tr>
+</table>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-equipment/capacitor-control.html">Capacitor Banks &amp; Control</a>
+  <a href="atlas:fundamentals/transformers.html">Power Transformers</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+  <a href="atlas:fundamentals/ac-power-basics.html">AC Power Basics</a>
+</div>
+<p class="footnote">Sources: SEL-2431 Voltage Regulator Control Instruction Manual, 2431_IM_20250722.pdf (regulator mechanics §5, control algorithms §3, operating modes §4, metering/counters §7, settings §8, communications §9 + App. D DNP3, definite-time characteristics App. G, glossary); SEL-2431 Data Sheet, 2431_DS_20250722.pdf (feature framing, DA-ready/DNP claims, spec cross-check). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

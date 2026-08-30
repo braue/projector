@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Transformer Protection</title>
+<meta name="atlas-order" content="80">
+<meta name="atlas-tags" content="transformer,87T,87Q,REF,restricted earth fault,24,volts per hertz,through-fault,63,sudden pressure,51N,SEL-787,SEL-487E,damage curve">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Transformer Protection (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  h4 { font-size: 9pt; color: #6e7180; margin: 7px 0 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; color: #1a1a22; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; line-height: 1.4; display: block; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  .seealso a:hover { background: #e7f6f1; border-color: #10a37f; }
+
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+    .seealso { display: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="masthead">
+  <h1>Transformer Protection</h1>
+  <p>The complete package around a power transformer — differential, restricted earth fault, backup overcurrent, volts/hertz, mechanical devices, and coordinating with the through-fault damage curve</p>
+  <div class="chips"><span>87T</span><span>87Q</span><span>REF</span><span>24 V/Hz</span><span>51N neutral</span><span>63 sudden pressure</span><span>through-fault</span><span>SEL-787</span><span>SEL-487E</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<h3 style="margin-top:2px">Protecting a transformer</h3>
+<ul style="margin-bottom:2px">
+<li><strong>Differential is the primary, but it is not sensitive to everything.</strong> Turn-to-turn faults and low-level ground faults near a neutral can produce differential current well below the pickup that inrush security forces on you.</li>
+<li><strong>That gap is filled by other elements:</strong> restricted earth fault for ground faults inside a grounded-wye winding, negative-sequence differential for turn-to-turn faults, and the mechanical devices for anything that generates gas.</li>
+<li><strong>Backup overcurrent must coordinate with two curves:</strong> the downstream devices, and the transformer's own through-fault withstand curve. Both constraints are real, and they sometimes conflict.</li>
+<li><strong>Inrush is not a fault.</strong> Energization draws several times rated current, rich in second harmonic, and every element that only measures magnitude must be secure through it.</li>
+<li><strong>Overexcitation is a distinct hazard.</strong> High V/Hz saturates the core, and the resulting current is rich in fifth harmonic. It needs its own element (24) matched to the equipment's capability, not an overcurrent element.</li>
+<li><strong>Mechanical protection sees things electrical protection cannot.</strong> A 63 or Buchholz operation means gas is being generated inside the tank right now &mdash; treat it accordingly.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The protection package, laid out</h2>
+
+<div class="fig"><svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">One transformer, and every element watching it &mdash; what each one is uniquely good at</text>
+
+  <!-- HV side -->
+  <line x1="60" y1="120" x2="230" y2="120" stroke="#1a1a22" stroke-width="2"/>
+  <text x="70" y="112" font-size="7.4" fill="#6e7180">115 kV</text>
+  <rect x="130" y="110" width="18" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <circle cx="180" cy="130" r="7" fill="none" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="180" y="150" font-size="6.6" fill="#5468c4" text-anchor="middle">CT-H</text>
+
+  <!-- transformer -->
+  <circle cx="270" cy="108" r="20" fill="none" stroke="#1a1a22" stroke-width="1.6"/>
+  <circle cx="270" cy="140" r="20" fill="none" stroke="#1a1a22" stroke-width="1.6"/>
+  <text x="270" y="80" font-size="7.4" fill="#6e7180" text-anchor="middle">Dyn1 &middot; 20 MVA &middot; 8.5%</text>
+  <line x1="230" y1="120" x2="250" y2="112" stroke="#1a1a22" stroke-width="2"/>
+
+  <!-- neutral -->
+  <line x1="270" y1="160" x2="270" y2="200" stroke="#5468c4" stroke-width="1.6"/>
+  <circle cx="279" cy="180" r="7" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="300" y="184" font-size="6.6" fill="#0d7f63">CT-N (neutral)</text>
+  <path d="M258,200 H282 M262,205 H278 M266,210 H274" stroke="#1a1a22" stroke-width="1.4"/>
+
+  <!-- LV side -->
+  <line x1="290" y1="140" x2="470" y2="140" stroke="#1a1a22" stroke-width="2"/>
+  <circle cx="340" cy="150" r="7" fill="none" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="340" y="170" font-size="6.6" fill="#5468c4" text-anchor="middle">CT-X</text>
+  <rect x="400" y="130" width="18" height="20" fill="#fff" stroke="#1a1a22" stroke-width="1.4"/>
+  <line x1="470" y1="110" x2="470" y2="180" stroke="#1a1a22" stroke-width="2.4"/>
+  <text x="470" y="102" font-size="7.4" fill="#6e7180" text-anchor="middle">12.47 kV bus</text>
+
+  <!-- differential zone -->
+  <rect x="168" y="66" width="184" height="106" rx="12" fill="none" stroke="#d63a3a" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="260" y="60" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle">87T differential zone (CT-H to CT-X)</text>
+
+  <!-- REF zone -->
+  <rect x="252" y="126" width="118" height="66" rx="10" fill="none" stroke="#10a37f" stroke-width="1.4" stroke-dasharray="4 3">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  <text x="392" y="204" font-size="7.2" fill="#0d7f63">REF: CT-X residual vs CT-N</text>
+
+  <!-- element cards -->
+  <g font-size="7.2">
+    <rect x="500" y="40" width="192" height="46" rx="5" fill="#fbeeee" stroke="#f0dcdc"/>
+    <text x="512" y="56" font-weight="600" fill="#9c3838">87T &mdash; phase differential</text>
+    <text x="512" y="69" fill="#454956">Fast, selective, covers phase faults.</text>
+    <text x="512" y="80" fill="#454956">Blind to turn-to-turn and near-neutral grounds.</text>
+
+    <rect x="500" y="92" width="192" height="46" rx="5" fill="#e7f6f1" stroke="#cfe9e1"/>
+    <text x="512" y="108" font-weight="600" fill="#0d7f63">REF &mdash; restricted earth fault</text>
+    <text x="512" y="121" fill="#454956">Ground faults inside a grounded-wye winding,</text>
+    <text x="512" y="132" fill="#454956">far more sensitively than 87T can manage.</text>
+
+    <rect x="500" y="144" width="192" height="46" rx="5" fill="#eef0f9" stroke="#dde1f2"/>
+    <text x="512" y="160" font-weight="600" fill="#5468c4">87Q &mdash; negative-sequence differential</text>
+    <text x="512" y="173" fill="#454956">Low-magnitude faults such as turn-to-turn,</text>
+    <text x="512" y="184" fill="#454956">which barely move the phase differential.</text>
+
+    <rect x="500" y="196" width="192" height="46" rx="5" fill="#fdf3e7" stroke="#f2e2cc"/>
+    <text x="512" y="212" font-weight="600" fill="#9c6d06">50/51 &mdash; backup overcurrent</text>
+    <text x="512" y="225" fill="#454956">Both windings. Covers 87T out of service and</text>
+    <text x="512" y="236" fill="#454956">faults beyond the zone that nothing else clears.</text>
+
+    <rect x="60" y="230" width="420" height="58" rx="5" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="74" y="247" font-weight="600" fill="#1a1a22">And the ones that do not measure current at all</text>
+    <text x="74" y="262" fill="#454956">24 V/Hz (overexcitation) &middot; 49 / RTD thermal &middot; 63 sudden pressure &middot; Buchholz gas</text>
+    <text x="74" y="275" fill="#454956">low oil level &middot; pressure relief &middot; cooling failure &middot; DGA trending</text>
+  </g>
+
+  <!-- fault marker cycling through zones -->
+  <circle r="6" fill="none" stroke="#d63a3a" stroke-width="1.8">
+    <animateMotion dur="9s" repeatCount="indefinite" path="M270,108 L270,140 L270,175 L340,140 L180,120 L270,108"/>
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+</svg></div>
+<p class="figcap">No single element covers every transformer failure mode. The package is deliberately overlapping. <span class="print-note">(Animated in the browser.)</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Differential, in application terms</h2>
+<p>The mechanics of percentage restraint, harmonic blocking, TAP settings, and connection compensation are covered in <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>. What matters at the application level:</p>
+<ul>
+<li><strong>Dual-slope percentage restraint with harmonic blocking and restraint</strong> is the standard characteristic. Second harmonic secures against inrush; fifth harmonic secures against overexcitation.</li>
+<li><strong>Winding count drives relay selection.</strong> The SEL-787 family supports as many as four windings with dual-slope differential; the SEL-487E covers larger and more complex applications.</li>
+<li><strong>Compensation is a setting, not wiring.</strong> Modern relays undo the delta&ndash;wye phase shift and the ratio mismatch in software, replacing the old practice of connecting CTs in delta. Get the compensation setting wrong and healthy load produces differential current &mdash; the single most common commissioning failure on a transformer relay.</li>
+<li><strong>Sensitivity has a floor.</strong> Because pickup must sit above the worst-case standing mismatch (tap position, CT error, LTC range), 87T pickup is typically a substantial fraction of rated current. That floor is precisely why REF and 87Q exist.</li>
+<li><strong>Negative-sequence differential (87Q)</strong> is the modern answer for turn-to-turn faults. A shorted turn circulates large current inside the winding while changing the terminal currents only slightly &mdash; but it produces negative sequence, which the 87Q element sees.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>Restricted earth fault</h2>
+<p>REF compares the residual current of a grounded-wye winding's phase CTs against the current measured in the neutral CT. For a ground fault <em>inside</em> the winding, the two disagree; for a fault outside, they match.</p>
+<table>
+  <tr><th>Aspect</th><th>Detail</th></tr>
+  <tr><td>What it needs</td><td>Phase CTs on the winding terminals <em>and</em> a CT on the neutral bushing or grounding conductor</td></tr>
+  <tr><td>Why it is sensitive</td><td>It compares two measurements of the same ground current rather than inferring a small difference between large phase currents &mdash; so its pickup can be a small fraction of rating</td></tr>
+  <tr><td>What it catches</td><td>Ground faults well down toward the neutral end of the winding, which 87T cannot see because the fault current available drops as the fault approaches the neutral</td></tr>
+  <tr><td>How many</td><td>The SEL-787 family provides as many as three independent REF elements &mdash; one per grounded-wye winding</td></tr>
+  <tr><td>Classic error</td><td>Neutral CT polarity. Reversed, the element operates for external ground faults and stays quiet for internal ones &mdash; the worst possible outcome</td></tr>
+</table>
+<div class="callout warn">
+<strong>Confirm which CT you have.</strong> A CT on the neutral <em>bushing</em> measures only the current in that winding's neutral. A CT in the grounding conductor below a point where other grounds connect measures something else. The three-line drawing settles it; the drawing being wrong is common enough that a primary injection test is worth the effort.
+</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Backup overcurrent and the damage curve</h2>
+<p>Overcurrent on both windings serves two purposes: backup if the differential is out of service or fails, and protection for faults just outside the differential zone that no other device clears quickly. Setting it means satisfying three constraints at once.</p>
+
+<div class="fig"><svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg">
+  <text x="8" y="14" font-size="9" font-weight="600" fill="#454956">The window your transformer backup 51 has to fit into</text>
+
+  <!-- axes -->
+  <line x1="70" y1="240" x2="660" y2="240" stroke="#a9adb8"/>
+  <line x1="70" y1="34" x2="70" y2="240" stroke="#a9adb8"/>
+  <text x="365" y="262" font-size="7.4" fill="#8a8e9b" text-anchor="middle">current (multiples of transformer rating, log scale)</text>
+  <text x="42" y="140" font-size="7.4" fill="#8a8e9b" text-anchor="middle" transform="rotate(-90 42 140)">time (log)</text>
+  <g font-size="7" fill="#8a8e9b">
+    <text x="150" y="253" text-anchor="middle">2&times;</text>
+    <text x="290" y="253" text-anchor="middle">6&times;</text>
+    <text x="430" y="253" text-anchor="middle">12&times;</text>
+    <text x="570" y="253" text-anchor="middle">25&times;</text>
+  </g>
+
+  <!-- damage curve (upper bound) -->
+  <path d="M110,60 C180,74 260,110 340,150 C420,188 520,214 650,226" fill="none" stroke="#d63a3a" stroke-width="2"/>
+  <text x="360" y="146" font-size="7.4" fill="#d63a3a">transformer through-fault withstand &mdash; must stay BELOW this</text>
+
+  <!-- inrush point -->
+  <circle cx="300" cy="216" r="5" fill="#d7930a"/>
+  <text x="310" y="220" font-size="7.4" fill="#9c6d06">inrush: ~8&times; rating for ~0.1 s &mdash; must stay ABOVE and to the right</text>
+
+  <!-- downstream device curve -->
+  <path d="M150,232 C220,214 300,180 380,150 C440,128 520,108 650,96" fill="none" stroke="#5468c4" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="470" y="112" font-size="7.4" fill="#5468c4">downstream feeder 51 &mdash; must stay ABOVE this by the CTI</text>
+
+  <!-- the transformer 51 -->
+  <path d="M170,214 C240,192 320,158 400,128 C460,106 540,84 650,72" fill="none" stroke="#10a37f" stroke-width="2.2"/>
+  <text x="185" y="200" font-size="7.6" font-weight="600" fill="#0d7f63">transformer backup 51</text>
+
+  <!-- available window shading -->
+  <path d="M150,232 C220,214 300,180 380,150 C440,128 520,108 650,96 L650,226 C520,214 420,188 340,150 C260,110 180,74 110,60 Z"
+        fill="#10a37f" opacity="0.07"/>
+  <text x="530" y="176" font-size="7" fill="#0d7f63">the available window</text>
+
+  <!-- sweeping fault current marker -->
+  <line y1="40" y2="240" stroke="#1a1a22" stroke-dasharray="3 3" opacity="0.35">
+    <animate attributeName="x1" values="110;650" dur="7s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="110;650" dur="7s" repeatCount="indefinite"/>
+  </line>
+
+  <rect x="70" y="268" width="590" height="18" rx="4" fill="#fdf3e7" stroke="#f2e2cc"/>
+  <text x="82" y="281" font-size="7.6" fill="#9c6d06">When the window closes &mdash; a downstream curve that crosses the damage curve &mdash; overcurrent alone cannot do it, and the answer is a scheme, not a compromise.</text>
+</svg></div>
+<p class="figcap">Three constraints, one curve. The differential covers the zone; the 51 exists for everything the differential does not, and it lives in whatever gap the other two leave. <span class="print-note">(Animated in the browser.)</span></p>
+
+<table>
+  <tr><th>Element</th><th>Set against</th><th>Notes</th></tr>
+  <tr><td>HV 51P</td><td>Below the transformer's through-fault withstand, above inrush and above emergency load</td><td>The classic backup. Often the slowest element in the station, and that is deliberate</td></tr>
+  <tr><td>HV 50P</td><td>Above the maximum LV-side through-fault current</td><td>So it only sees faults on the HV side of the transformer, which it can clear instantly</td></tr>
+  <tr><td>LV 51P</td><td>Coordinated with the feeder relays, above bus load</td><td>Effectively bus backup protection where there is no dedicated 87B</td></tr>
+  <tr><td>Neutral 51N</td><td>Above standing residual, below the neutral grounding device's short-time rating</td><td>Sensitive ground backup on the grounded-wye side; the grounding resistor's rating is often the binding constraint &mdash; see <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a></td></tr>
+  <tr><td>Negative-sequence 51Q</td><td>Machine or system unbalance capability</td><td>Catches unbalanced faults that phase elements set above load cannot see</td></tr>
+  <tr><td>Breaker failure</td><td>Per breaker</td><td>Standard for as many as four three-pole breakers on the SEL-787 family, with retrip logic, separate breaker-failure trip logic, and a settable seal-in delay</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">5</span>Volts per hertz (24)</h2>
+<p>Core flux is proportional to voltage divided by frequency. Push V/Hz above the design value and the core saturates, magnetizing current rises steeply and distorts, and stray flux heats structural steel and windings. It is a thermal failure mode with a time&ndash;magnitude characteristic, not an instantaneous one.</p>
+<ul>
+<li><strong>When it happens:</strong> generator step-up transformers during startup and shutdown (excitation applied at low speed), load rejection (voltage rises while frequency has not yet fallen), and voltage regulator failures.</li>
+<li><strong>How it is set:</strong> an inverse-time characteristic matched to the transformer's or generator's overexcitation capability curve, usually with a definite-time high-set stage.</li>
+<li><strong>Availability:</strong> on the SEL-787 family, volts/hertz protection with frequency tracking from <strong>15 to 70&nbsp;Hz</strong> is offered on the models with voltage inputs, which is what makes it usable for generator step-up and variable-frequency applications.</li>
+<li><strong>Why not just use overvoltage:</strong> at reduced frequency, normal voltage is already overexcitation. A 59 element set for rated frequency will not protect a machine coming up to speed.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Mechanical and thermal protection</h2>
+<p>These devices see the inside of the tank, which no current measurement can. Their signals arrive as contacts and analogs, and wiring and mapping them is squarely automation work &mdash; see <a href="atlas:fundamentals/transformers.html">Power Transformers</a> for the device-by-device detail.</p>
+<table>
+  <tr><th>Device</th><th>Detects</th><th>Typical action</th></tr>
+  <tr><td>Sudden / rapid pressure rise (63)</td><td>The pressure wave from internal arcing</td><td>Trip through the lockout. Can be faster than differential for some low-current internal faults</td></tr>
+  <tr><td>Buchholz gas relay</td><td>Slow gas accumulation, and surge</td><td>Alarm on accumulation, trip on surge. The accumulation alarm is early warning of a developing fault</td></tr>
+  <tr><td>Pressure relief</td><td>Tank overpressure that has already vented</td><td>Alarm plus investigation &mdash; something serious has happened</td></tr>
+  <tr><td>Winding and top-oil temperature (49)</td><td>Thermal loading</td><td>Fan stage control, alarm, and trip stages</td></tr>
+  <tr><td>Low oil level</td><td>Leak, or LTC compartment loss</td><td>Alarm; LTC low oil is a common precursor to LTC failure</td></tr>
+  <tr><td>Cooling failure</td><td>Fan or pump loss</td><td>Alarm &mdash; and remember the higher MVA rating has just disappeared</td></tr>
+  <tr><td>Through-fault accumulation</td><td>Cumulative mechanical stress on the windings</td><td>The SEL-787 includes a transformer through-fault monitor that accumulates through-fault levels; a maintenance input, not a trip</td></tr>
+  <tr><td>Thermal analog inputs</td><td>Ambient, LTC tank, and transformer oil temperatures</td><td>Optional 4&ndash;20&nbsp;mA or RTD inputs on the SEL-787 bring them into the relay as analogs rather than contacts</td></tr>
+</table>
+<div class="callout keyfact">
+<strong>Bring the mechanical trips into the relay, not just into the lockout.</strong> A 63 operation wired only to an 86 leaves you with a tripped transformer and no timestamped record of which device caused it. Wiring the same contact to a relay input as well puts it in the SER, alongside the currents, at millisecond resolution &mdash; which is exactly what you need at 3&nbsp;a.m. See <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Commissioning</h2>
+<ol>
+<li><strong>Verify the nameplate against the settings:</strong> MVA, voltages, connection, and the <em>actual</em> DETC position. A two-tap discrepancy is a standing differential of several percent.</li>
+<li><strong>Prove every CT ratio and polarity</strong> individually, and confirm the neutral CT separately &mdash; REF depends entirely on it.</li>
+<li><strong>Check the compensation settings</strong> against the vector group. QuickSet's phasor display is the practical tool here.</li>
+<li><strong>Inject to prove restraint and slope</strong>, including a through-current case that should <em>not</em> operate.</li>
+<li><strong>Energize and read the standing differential under load.</strong> This is the acceptance test that catches everything the bench missed. It should be a small percentage; anything larger is real.</li>
+<li><strong>Exercise the LTC across its range</strong> and watch the differential. It should move slightly and stay well inside the slope characteristic.</li>
+<li><strong>Prove each mechanical trip path</strong> by operating the device or its test lever &mdash; not by jumpering the relay input, which proves only that the relay works.</li>
+<li><strong>Record the through-fault counter's starting value</strong> so the accumulation means something later.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">8</span>Gotchas</h2>
+<ul>
+<li><strong>Compensation applied twice.</strong> CTs wired in delta <em>and</em> compensation set in the relay cancels the shift once too often. On a retrofit, check the physical CT connections before trusting the old drawings.</li>
+<li><strong>LTC range not accounted for in the slope.</strong> A transformer at the end of its tap range produces a real, permanent differential. Slope 1 must accommodate the full range plus CT error.</li>
+<li><strong>50P on the HV set too low.</strong> If it can see LV-side faults it will trip for feeder faults the feeder relay was going to clear &mdash; a coordination failure that only appears during real faults.</li>
+<li><strong>REF neutral CT reversed.</strong> Operates for external ground faults, blind to internal ones. Prove it with primary injection through the neutral if at all possible.</li>
+<li><strong>Sudden pressure misoperating on through-faults.</strong> Supervise it (current check or short qualification time) rather than disconnecting it.</li>
+<li><strong>Backup 51 that violates the damage curve at high current.</strong> Check the curve at the maximum through-fault, not just at pickup &mdash; the two curves converge at the right-hand end of the plot.</li>
+<li><strong>Volts/hertz omitted on a generator step-up.</strong> The transformer is exposed during every startup and every load rejection, and no other element covers it.</li>
+<li><strong>The relay's own voltage inputs unused.</strong> Models with voltage inputs unlock 24, 27/59, 81, and synchronism check &mdash; on the SEL-787-3S the VS/VBAT channel can serve either as a sync-check voltage or as a station battery monitor. Deciding this at ordering time is cheaper than discovering it later.</li>
+</ul>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/differential-87.html">Differential Protection (87)</a>
+  <a href="atlas:fundamentals/transformers.html">Power Transformers</a>
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
+  <a href="atlas:fundamentals/grounding-systems.html">System Grounding</a>
+  <a href="atlas:protection/bus-protection-87b.html">Bus Protection (87B)</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+</div>
+<p class="footnote">Sources: SEL-787-2, -3, -4 Transformer Protection Relays Data Sheet (20250501) &mdash; dual-slope differential with harmonic blocking and restraint for as many as four windings, as many as three independent REF elements, the negative-sequence percentage-restrained differential element (87Q) for low-magnitude faults such as turn-to-turn, phase/negative-sequence/residual-ground/neutral-ground backup overcurrent, breaker failure for as many as four three-pole breakers with retrip logic and the settable BFISID seal-in delay, volts/hertz with frequency tracking from 15 to 70 Hz on the -3E/3S/2E models, the VS/VBAT channel on the -3S for synchronism check or station battery monitoring, the transformer through-fault monitor, and optional 4&ndash;20 mA or RTD thermal inputs for ambient, LTC tank, and oil temperatures. Application practice cross-referenced with SEL AG2022-12 (transformer differential) and AG2007-06 (winding compensation). Rev. 2026-08-22.</p>
+</section>
+
+</body>
+</html>

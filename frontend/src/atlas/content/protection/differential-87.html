@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Differential Protection (87)</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="87,differential,restraint,slope,harmonic,inrush,REF,transformer">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "Differential Protection (87) (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card.ser   { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Differential Protection (87)</h1>
+  <p>Kirchhoff on a zone — operate vs. restraint, the slope characteristic, TAP and connection compensation, inrush harmonics, and why delta-wye gets people</p>
+  <div class="chips"><span>IOP / IRT</span><span>SLP1/SLP2</span><span>O87P</span><span>U87P</span><span>PCT2/PCT5</span><span>WnCTC</span><span>TRCON</span><span>87Q</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>The rules, stated plainly</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Everything flowing <strong>into</strong> a CT-bounded zone must flow <strong>out</strong>. If the phasor sum isn't ~zero, current is disappearing inside the zone — a fault.</li>
+<li>The relay trips on <strong>operate current vs. restraint current</strong>: a slope characteristic tolerates the measurement error that grows with through current.</li>
+<li>Transformers break the raw sum three ways — ratio, phase shift, zero sequence. <strong>TAP scaling</strong> fixes ratio; <strong>connection compensation</strong> (WnCTC / TRCON) fixes phase shift and strips zero sequence. Get compensation wrong and the relay trips on external ground faults.</li>
+<li>Energization inrush looks like an internal fault. <strong>Second-harmonic content</strong> is how the relay tells the difference.</li>
+<li>Commission with load: <code>MET DIF</code> should show IOP near zero. Standing operate current = wiring or settings error, not a fault.</li>
+</ul>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">1</span>The principle: a zone, and Kirchhoff</h2>
+<p>Draw a boundary through a set of CTs around the thing you protect. Sum every measured current with a reference direction into the zone. Healthy or externally faulted, the sum is ~zero; internally faulted, it isn't. The SEL-387 has three differential elements (87-1, 87-2, 87-3 — one per phase) and computes two quantities per element from the (compensated, TAP-scaled) winding currents:</p>
+<ul>
+  <li><strong>IOP (operate)</strong> — the <em>magnitude of the phasor sum</em> of the winding currents. Through current at rated load: about 1 + (−1) = <strong>0</strong>.</li>
+  <li><strong>IRT (restraint)</strong> — the <em>sum of the current magnitudes, divided by two</em>. Through current at rated load: (|1| + |−1|)/2 = <strong>1</strong>.</li>
+</ul>
+<p>Both are in dimensionless multiples of TAP, so "1" means rated transformer current regardless of winding. IOP measures how badly Kirchhoff is violated; IRT measures how much current is flowing through, i.e., how much error you should tolerate.</p>
+
+<div class="fig"><svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+  <!-- zone boundary -->
+  <rect x="185" y="34" width="330" height="120" rx="12" fill="#10a37f" opacity="0.05" stroke="#10a37f" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="350" y="28" font-size="8.5" font-weight="600" fill="#10a37f" text-anchor="middle">differential zone = between the CTs</text>
+  <!-- source and load buses -->
+  <line x1="30" y1="94" x2="185" y2="94" stroke="#454956" stroke-width="2.5"/>
+  <line x1="515" y1="94" x2="670" y2="94" stroke="#454956" stroke-width="2.5"/>
+  <text x="30" y="84" font-size="8" fill="#6e7180">system</text>
+  <text x="670" y="84" font-size="8" fill="#6e7180" text-anchor="end">load / system</text>
+  <!-- CTs -->
+  <circle cx="215" cy="94" r="11" fill="#fff" stroke="#454956" stroke-width="1.5"/>
+  <text x="215" y="120" font-size="8" fill="#454956" text-anchor="middle">CT W1</text>
+  <circle cx="485" cy="94" r="11" fill="#fff" stroke="#454956" stroke-width="1.5"/>
+  <text x="485" y="120" font-size="8" fill="#454956" text-anchor="middle">CT W2</text>
+  <!-- transformer -->
+  <circle cx="340" cy="94" r="17" fill="#fff" stroke="#1a1a22" stroke-width="1.5"/>
+  <circle cx="362" cy="94" r="17" fill="#fff" stroke="#1a1a22" stroke-width="1.5"/>
+  <line x1="226" y1="94" x2="323" y2="94" stroke="#454956" stroke-width="2.5"/>
+  <line x1="379" y1="94" x2="474" y2="94" stroke="#454956" stroke-width="2.5"/>
+  <text x="351" y="135" font-size="8" fill="#6e7180" text-anchor="middle">Δ–Y</text>
+  <!-- relay -->
+  <rect x="290" y="160" width="120" height="30" rx="5" fill="#fff" stroke="#1a1a22" stroke-width="1.25"/>
+  <text x="350" y="173" font-size="9" font-weight="600" fill="#1a1a22" text-anchor="middle">87 relay</text>
+  <text x="350" y="184" font-size="7.5" fill="#6e7180" text-anchor="middle">IOP = |ΣI|  ·  IRT = Σ|I| / 2</text>
+  <line x1="215" y1="105" x2="300" y2="160" stroke="#a9adb8" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="485" y1="105" x2="400" y2="160" stroke="#a9adb8" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="350" y="205" font-size="8" fill="#a9adb8" text-anchor="middle">external fault: current passes through, sum ≈ 0 · internal fault: both ends feed in, sum ≠ 0 · inrush: one-sided current, but 2nd-harmonic rich</text>
+  <g class="animlayer">
+    <!-- phase A: external / through (0-0.33) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.30;0.33;1" dur="12s" repeatCount="indefinite"/>
+      <text x="350" y="52" font-size="8.5" font-weight="600" fill="#10a37f" text-anchor="middle">through current (load or external fault): in = out → IOP ≈ 0</text>
+    </g>
+    <circle r="4.5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.29;0.31;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M40,94 L660,94" keyPoints="0;0;1;1" keyTimes="0;0.01;0.30;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4.5" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.06;0.08;0.29;0.31;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M40,94 L660,94" keyPoints="0;0;1;1" keyTimes="0;0.07;0.31;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <!-- phase B: internal fault (0.36-0.63) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.38;0.60;0.63;1" dur="12s" repeatCount="indefinite"/>
+      <text x="350" y="52" font-size="8.5" font-weight="600" fill="#d63a3a" text-anchor="middle">internal fault: both ends feed the zone → IOP large</text>
+    </g>
+    <circle r="4.5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.39;0.52;0.54;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M40,94 L345,94" keyPoints="0;0;1;1" keyTimes="0;0.38;0.53;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="4.5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.39;0.52;0.54;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M660,94 L357,94" keyPoints="0;0;1;1" keyTimes="0;0.38;0.53;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.53;0.55;0.60;0.63;1" dur="12s" repeatCount="indefinite"/>
+      <path d="M351,80 l-5,12 h7 l-6,14" fill="none" stroke="#d63a3a" stroke-width="2.5"/>
+      <rect x="296" y="163" width="108" height="14" rx="3" fill="#d63a3a"/>
+      <text x="350" y="174" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">87R TRIP</text>
+    </g>
+    <!-- phase C: inrush (0.66-0.97) -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.68;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <text x="350" y="52" font-size="8.5" font-weight="600" fill="#9c6d06" text-anchor="middle">energization inrush: one side only — looks differential, but 2nd-harmonic rich</text>
+      <line x1="493" y1="86" x2="493" y2="102" stroke="#d7930a" stroke-width="2"/>
+      <line x1="499" y1="86" x2="499" y2="102" stroke="#d7930a" stroke-width="2"/>
+      <text x="497" y="80" font-size="7.5" fill="#9c6d06" text-anchor="middle">open</text>
+    </g>
+    <circle r="4.5" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.68;0.69;0.80;0.82;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M40,94 L330,94" keyPoints="0;0;1;1" keyTimes="0;0.68;0.81;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="3" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.72;0.73;0.82;0.84;1" dur="12s" repeatCount="indefinite"/>
+      <animateMotion path="M40,94 L330,94" keyPoints="0;0;1;1" keyTimes="0;0.72;0.83;1" calcMode="linear" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.84;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="281" y="163" width="138" height="14" rx="3" fill="#d7930a"/>
+      <text x="350" y="174" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">I2/I1 &gt; PCT2 → 87BL blocks</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">One zone, three situations. Through current sums to zero; an internal fault doesn't; inrush doesn't either — so the relay checks harmonic content before believing the differential current.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">2</span>The percentage-restraint slope characteristic</h2>
+<p>A flat IOP threshold can't work: CT ratio error, LTC position, and CT saturation all produce <em>false</em> operate current that grows with through current. The 387's worked example: ±10% CT error plus a ±10% LTC swing gives up to <strong>28.18%</strong> apparent differential current on a purely external event; add ~3% excitation current and 5% relay error and the total error budget is <strong>36%</strong>. So the trip boundary is a slope in the IOP–IRT plane — tolerated error rises with restraint. Tripping requires IOP above the curve <em>and</em> above the minimum pickup O87P.</p>
+<table>
+  <tr><th>Setting</th><th>What it is</th><th>Range (387)</th><th>Typical (387 example)</th></tr>
+  <tr><td class="mono">O87P</td><td>minimum IOP for operation</td><td>0.1–1.0 × TAP (and O87P·TAPMIN ≥ 0.1·I<sub>N</sub>)</td><td>0.3</td></tr>
+  <tr><td class="mono">SLP1</td><td>initial slope from origin</td><td>5–100%</td><td>25% (40% if single-slope)</td></tr>
+  <tr><td class="mono">IRS1</td><td>IRT where SLP1 ends, SLP2 begins</td><td>1.0–20.0 × TAP</td><td>3.0</td></tr>
+  <tr><td class="mono">SLP2</td><td>second slope (≥ SLP1), OFF = single slope</td><td>OFF, 25–200%</td><td>50–60%</td></tr>
+</table>
+<p><strong>Why dual slope:</strong> low SLP1 keeps sensitivity where CT error is small (light through current); steep SLP2 buys security in the high-current region where CTs saturate — a 60% SLP2 covers CT error as great as 20%. The 387 manual notes the dual-slope characteristic exists to absorb "CT ratio mismatches, CT ratio errors, CT saturation, and errors because of tap changing."</p>
+
+<div class="fig"><svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- axes -->
+  <line x1="70" y1="200" x2="660" y2="200" stroke="#454956" stroke-width="1.5"/>
+  <line x1="70" y1="200" x2="70" y2="20" stroke="#454956" stroke-width="1.5"/>
+  <text x="655" y="216" font-size="9" fill="#454956" text-anchor="end">IRT (multiples of TAP)</text>
+  <text x="26" y="30" font-size="9" fill="#454956">IOP</text>
+  <!-- characteristic: O87P=0.3 (y=176), SLP1 25% to IRS1=3 (x=310, y=140), SLP2 60% onward -->
+  <path d="M70,176 L166,176 L310,140 L550,20" fill="none" stroke="#10a37f" stroke-width="2.5"/>
+  <path d="M70,176 L166,176 L310,140 L550,20 L70,20 Z" fill="#d63a3a" opacity="0.06"/>
+  <text x="200" y="60" font-size="9.5" font-weight="600" fill="#d63a3a">operating region</text>
+  <text x="470" y="180" font-size="9.5" font-weight="600" fill="#10a37f">restraining region</text>
+  <text x="76" y="171" font-size="8.5" fill="#454956">O87P = 0.3</text>
+  <text x="235" y="150" font-size="8.5" fill="#10a37f">SLP1 25%</text>
+  <text x="420" y="90" font-size="8.5" fill="#10a37f">SLP2 50%</text>
+  <line x1="310" y1="200" x2="310" y2="140" stroke="#a9adb8" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="310" y="212" font-size="8.5" fill="#6e7180" text-anchor="middle">IRS1 = 3</text>
+  <text x="150" y="212" font-size="8.5" fill="#6e7180" text-anchor="middle">1 (rated load)</text>
+  <line x1="150" y1="200" x2="150" y2="196" stroke="#454956" stroke-width="1.5"/>
+  <!-- static markers so the print frame reads -->
+  <circle cx="150" cy="192" r="4" fill="#454956"/>
+  <text x="150" y="232" font-size="8" fill="#8a8e9b" text-anchor="middle">load: IOP≈0, IRT≈1</text>
+  <path d="M480,190 L480,150" stroke="#6e7180" stroke-width="1.25" stroke-dasharray="3 2"/>
+  <text x="484" y="168" font-size="7.5" fill="#6e7180">through fault + CT error stays under the curve</text>
+  <path d="M200,185 L235,80" stroke="#d63a3a" stroke-width="1.25" stroke-dasharray="3 2"/>
+  <text x="243" y="78" font-size="7.5" fill="#d63a3a">internal fault crosses it</text>
+  <g class="animlayer">
+    <!-- through-fault excursion: point rides out along restraint axis, small IOP rise, returns (0-0.45) -->
+    <circle r="5" fill="#5468c4" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.42;0.45;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M150,192 C260,190 380,186 480,168 C520,161 545,158 560,156 C520,166 300,188 150,192" keyPoints="0;0;0.55;0.75;1" keyTimes="0;0.04;0.22;0.30;0.42" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <text x="430" y="135" font-size="8.5" font-weight="600" fill="#5468c4" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.12;0.14;0.34;0.38;1" dur="11s" repeatCount="indefinite"/>
+      external fault — IRT grows, CT error lifts IOP, still restrained
+    </text>
+    <!-- internal fault: point leaps up across the curve (0.5-0.95) -->
+    <circle r="5" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.50;0.52;0.90;0.95;1" dur="11s" repeatCount="indefinite"/>
+      <animateMotion path="M150,192 C170,190 195,188 205,182 C225,155 235,110 240,72 L240,72" keyPoints="0;0;0.3;1;1" keyTimes="0;0.52;0.60;0.72;1" calcMode="linear" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.70;0.72;0.90;0.95;1" dur="11s" repeatCount="indefinite"/>
+      <circle cx="240" cy="72" r="10" fill="none" stroke="#d63a3a" stroke-width="2"/>
+      <rect x="258" y="62" width="120" height="15" rx="3" fill="#d63a3a"/>
+      <text x="318" y="73.5" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">IOP &gt; f(IRT) → 87R</text>
+    </g>
+  </g>
+</svg></div>
+<p class="figcap">The operate/restraint plane with the 387 example settings (O87P 0.3, SLP1 25%, IRS1 3, SLP2 50%). Load and external faults ride under the characteristic; an internal fault drives IOP up across it.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+</section>
+
+<section class="keep">
+<h2><span class="num">3</span>Matching the transformer: TAP, MVA, and ratios</h2>
+<p>Winding currents arrive at the relay in different secondary amperes. TAP scaling normalizes them to per-unit of transformer rating so they can cancel. Per winding <em>n</em> (SEL-387):</p>
+<div class="callout" style="font-family:Consolas,monospace; font-size:9.5pt">TAPn = (MVA × 1000) / (√3 × VWDGn × CTRn) × C &nbsp;&nbsp;·&nbsp;&nbsp; C = 1 wye CTs, √3 delta CTs</div>
+<ul>
+  <li><strong>MVA</strong> (range OFF, 0.2–5000): set to the <em>highest</em> expected rating (FOA or emergency). With MVA set, the relay calculates TAP1–TAP4 itself; MVA = OFF lets you enter TAPn directly (5 A relay: 0.5–155 A range).</li>
+  <li><strong>VWDGn</strong>: nominal line-to-line kV. If an LTC is inside the zone, <strong>assume neutral position</strong> — the slope absorbs the swing either side.</li>
+  <li><strong>WnCT = D</strong> (delta CTs) raises TAPn by 1.732.</li>
+  <li><strong>TAPMAX/TAPMIN must be ≤ 7.5</strong> — the relay checks and flags a violation; fix it with CT ratio choices. (387 example: 10.46/1.74 = 6.01, OK.)</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">4</span>Connection compensation — the classic trap</h2>
+<p>A delta-wye transformer shifts current 30° and, on the grounded-wye side, sources zero-sequence current for <em>external</em> ground faults that the delta side never sees. Old practice fixed both by wiring the wye-side CTs in delta. Modern practice wires all CTs in wye and lets the relay do the math — but then you must tell it the math.</p>
+<h3>SEL-387: ICOM and WnCTC</h3>
+<p>Set <code>ICOM = Y</code>, then <code>W1CTC</code>–<code>W4CTC</code> pick a 3×3 compensation matrix CTC(0)–CTC(12): each step is 30° of rotation (CCW for ABC rotation, CW for ACB). CTC(0) is the identity — no shift, <strong>no zero-sequence removal</strong>. Every non-zero matrix, including CTC(12) (360° = 0° shift), <strong>removes zero-sequence</strong> from that winding's currents. The manual's recipe:</p>
+<div class="flow">
+  <div class="stage"><b>1 · Get the drawings</b><span>transformer nameplate + three-line showing system-phase→bushing, CT, and CT→relay connections</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Pick the reference</b><span>a delta winding if one is wired in → CTC(0). No delta → CTC(11) on one wye winding</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Rotate the rest</b><span>set the other windings' shift relative to the reference; odd matrices for wye windings, avoid even ones where possible</span></div>
+</div>
+<p>Worked default (230/138 kV wye autotransformer + 13.8 kV delta tertiary, all wye CTs, IEEE-standard 30° lag): delta on W3 is the reference, <code>W3CTC = 0</code>; the wye currents need 330° CCW, so <code>W1CTC = W2CTC = 11</code>.</p>
+<div class="callout keyfact"><strong>The zero-sequence rule (from the 387 commissioning sheet):</strong> a grounded-wye winding with wye CTs must <em>never</em> sit at <code>WnCTC = 0</code> — use 12 instead, purely for the zero-sequence filtering. Load checks will <strong>not</strong> catch this mistake; the first external phase-to-ground fault will, as a false differential trip.</div>
+<h3>SEL-587: TRCON (AG2000-01)</h3>
+<p>The 587 asks for the connection by name instead of by matrix: <code>TRCON = DABY</code> or <code>DACY</code> (plus <code>CTCON = YY</code> for wye CTs). AG2000-01's method — and its traps:</p>
+<ul>
+  <li>From the <strong>three-line</strong>, find which bushing (H1/H2/H3) carries system A-phase. That bushing is "the polarity of A-phase."</li>
+  <li>From the <strong>nameplate</strong>, see whether A-phase's polarity connects to the <em>non-polarity</em> of B-phase (→ <code>DAB</code>) or of C-phase (→ <code>DAC</code>).</li>
+  <li><strong>Phase rotation does not change TRCON.</strong> ABC vs. ACB flips whether the high side leads or lags by 30°, but the same nameplate + same landings give the same setting; set <code>PHROT</code> to the system rotation separately.</li>
+  <li><strong>Identical nameplates can need different settings:</strong> land C-B-A on H1-H2-H3 instead of A-B-C and DABY becomes DACY. The nameplate alone is not enough — you need the system connection diagram.</li>
+</ul>
+<p>AG2000-01's standing recommendations: wye CTs everywhere (residual elements stay available, secondary currents aren't √3-inflated, wiring is simpler), and always land system A/B/C on relay A/B/C.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">5</span>Inrush and overexcitation: harmonics buy security</h2>
+<p>Energizing a transformer draws magnetizing inrush into one terminal only — pure differential current to the relay. Inrush is identified by what fault current lacks:</p>
+<table>
+  <tr><th>Setting</th><th>Harmonic</th><th>Guards against</th><th>387 guidance</th></tr>
+  <tr><td class="mono">PCT2</td><td>2nd (even)</td><td>energization inrush</td><td>inrush usually &gt;30% I2/I1 in the first cycle; set 15% (as low as 7% if e.g. cable charging current dilutes the ratio)</td></tr>
+  <tr><td class="mono">PCT4</td><td>4th (even)</td><td>additional inrush security (not on -387-0)</td><td>set less than PCT2</td></tr>
+  <tr><td class="mono">DCRB</td><td>dc offset ratio</td><td>low-harmonic, high-dc-offset inrush</td><td>waveshape recognition on inrush vs. fault time constants; blocking only</td></tr>
+  <tr><td class="mono">PCT5</td><td>5th (odd)</td><td>overexcitation (V/Hz &gt; 1.05 pu full load / 1.1 pu no load)</td><td>35% is adequate; mainly GSU transformers near generators</td></tr>
+  <tr><td class="mono">TH5P/TH5D</td><td>5th, alarm</td><td>excitation alarm during startup</td><td>separate threshold + delay; alarm/event trigger, no trip</td></tr>
+</table>
+<div class="twocol">
+<div class="card pulse">
+<h3>Blocking (HRSTR = N)</h3>
+<p style="font-size:9pt">Each harmonic is an <strong>independent go/no-go test</strong>: if I2/I1 &gt; PCT2 <em>or</em> I4/I1 &gt; PCT4 (or 5th &gt; PCT5, or dc ratio), the blocking element 87BLn picks up and vetoes the restrained element. <code>IHBL</code> picks the scope: <code>N</code> = common (cross) blocking — any phase blocks <em>all</em> elements, more secure, slightly slower reset; <code>Y</code> = per-phase blocking, mainly for banks of single-phase units with independent-pole breakers.</p>
+</div>
+<div class="card latch">
+<h3>Restraint (HRSTR = Y, not -387-0)</h3>
+<p style="font-size:9pt">The scaled harmonics <strong>raise the characteristic</strong> instead of vetoing it: the sum (100/PCT2)·I2 + (100/PCT4)·I4 becomes the constant <em>c</em> in IOP = SLP1·IRT + <em>c</em> — the more harmonic content, the higher the trip boundary. Always per-phase; IHBL is ignored. More secure than blocking. Do <strong>not</strong> set PCT2/PCT4 to OFF with HRSTR = Y — that silently removes all harmonic restraint. 5th-harmonic blocking stays independent of HRSTR.</p>
+</div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">6</span>87U — the unrestrained high-set</h2>
+<p>Elements 87U1–3 compare IOP directly against <code>U87P</code> (range 1.0–20.0 × TAP, set ~<strong>10 × TAP</strong>) with <strong>no slope, no harmonic blocking, no restraint</strong> — nothing is allowed to slow it down. Fundamental-frequency component only. Its job is the currents that "clearly indicate an internal fault" — bushing and end-winding faults — so it must sit <em>above</em> worst-case inrush, since harmonic blocking won't save it. Both 87R and 87U are high-speed elements that should trip all zone breakers, classically via an 86 lockout.</p>
+</section>
+
+<section class="keep">
+<h2><span class="num">7</span>Restricted earth fault (REF)</h2>
+<p>The phase differential element has little sensitivity for wye-winding ground faults near the neutral — fault current shrinks with the fraction of shorted winding. REF compares <strong>zero-sequence current</strong> at the winding terminals against the <strong>neutral CT</strong> current, restricting protection to ground faults between those CTs, sensitive down toward the first turn from neutral (487E wording).</p>
+<ul>
+  <li><strong>387 implementation:</strong> a directional element (32I). Polarizing current = neutral CT (wired into one Winding-4 single-phase input) × CTR4; operating current = phasor sum of the selected windings' residuals × their CTRs, all in primary amperes (<code>32IOP</code> selects the windings — covers a single wye winding or a whole autotransformer with up to three line-end CT sets). The element computes Re(I<sub>OP</sub>·I<sub>POL</sub>*): positive (angle within ±90°) = internal → <code>32IF</code> after 1.5 cycles; negative = external → <code>32IR</code>. Pickup <code>50GP</code> on the neutral current enables it; a second path trips on neutral current with no line-end current (fault with the breaker open).</li>
+  <li><strong>Wye line CTs are mandatory</strong> — delta CTs cancel the zero-sequence quantity REF compares.</li>
+  <li><strong>Security:</strong> a positive-sequence restraint blocks the element when a winding residual looks like "false I0" from CT saturation on heavy three-phase faults (CTS bit; supervise with <code>E32I = !CTS</code>). Tripping can be direct from 32IF or delayed via an extremely-inverse U4 curve (TD 0.5) → <code>REFP</code>.</li>
+  <li>The 487E carries REF forward with up to three independent REF elements.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">8</span>The modern flavor: what the SEL-487E adds</h2>
+<ul>
+  <li><strong>Adaptive slope instead of a fixed dual slope.</strong> The characteristic is a single line through the origin, IOP = k·SLP<sub>c</sub>·IRT. Dedicated <em>external fault detection logic</em> (a change in restraint without matching operate current) switches the relay <strong>within 2 ms into high-security mode</strong>: Slope 1 is swapped for Slope 2 and the adaptive security timer stretches. It does not <em>block</em> for external faults — so an evolving external→internal fault still trips, just against the steeper slope. High-security holds ≥3 cycles, resets after 60 cycles or when CT-unsaturate logic says the danger is past.</li>
+  <li><strong>Slope arithmetic differs:</strong> k = 1 in the 487E vs. <strong>k = 0.5 in the SEL-387/587</strong> restraint calculation — the manual explicitly warns to account for this when carrying slope settings across.</li>
+  <li><strong>Negative-sequence differential (87Q)</strong> for turn-to-turn faults under load: balanced load contributes no negative sequence, so 87Q operates at ~0.1 pu operate current where the phase element (loaded) needed ~0.43 pu in the manual's 2%-of-winding example. Restraint is the <em>maximum</em> winding negative-sequence current; supervised by the external-fault detector (CON) and harmonic blocking (87QB), with a recommended 10-cycle delay for security.</li>
+  <li><strong>Harmonic blocking and restraint in parallel</strong> — you can enable both (blocking is always cross-phase, restraint always independent-phase); SEL calls the combination a good balance of speed and security.</li>
+  <li><strong>Big CT ratio mismatch tolerated</strong> — up to 25:1 (e.g., 2000/5 and 80/5 in a breaker-and-a-half bay), with per-input 1 A/5 A ordering.</li>
+</ul>
+</section>
+
+<section class="keep">
+<h2><span class="num">9</span>Other 87 zones, briefly</h2>
+<div class="twocol">
+<div class="card teal"><h3>87B — bus differential</h3>
+<p style="font-size:9pt">Same Kirchhoff principle, no transformer in the zone — so no TAP/phase-shift compensation, just one zone spanning every breaker on the bus. The defining challenge is security: a close-in external fault drives huge through current into one saturating CT, manufacturing false operate current, and bus trips drop every feeder at once. Bus schemes are therefore built around CT-saturation security (restraint from every terminal, or the high-impedance approach that lets a saturated CT's low impedance shunt the operate current), and zones must follow bus sectionalizing.</p></div>
+<div class="card ser"><h3>87L — line differential</h3>
+<p style="font-size:9pt">The zone's CTs are kilometers apart, so each terminal's relay sends its measured currents to the far end over a communications channel and both compare. That makes the scheme unit protection with no reach setting to coordinate — but it inherits the channel's problems: the currents must be time-aligned (channel delay measurement or external time reference), asymmetric channel delay skews the comparison, and long lines add charging current that appears differential. Loss of channel means loss of the scheme, so backup elements ride along.</p></div>
+</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">10</span>Commissioning: prove the zone with load</h2>
+<p>The 387's commissioning sheet is a checklist for exactly the errors that produce false trips later. It wants real load — <strong>&gt;0.1 A secondary, 0.5 A recommended</strong> — because with load current flowing, "the correctness (or lack thereof) of all the input connections becomes apparent."</p>
+<ul>
+  <li><strong><code>MET DIF</code>:</strong> read IOP1–3 and IRT1–3 (multiples of TAP) live. Compute mismatch <strong>MMn = IOPn/IRTn</strong>; it must be <strong>&lt; 0.10</strong>. Anything more = standing operate current: check magnitudes, angles, and an event report. (Arithmetic worth memorizing: a rolled CT polarity makes that winding <em>add</em> instead of cancel — IOP lands near 2× the through current instead of ~0; a wrong ratio or TAP shows as IOP proportional to the ratio error.)</li>
+  <li><strong><code>MET SEC</code>:</strong> per-winding magnitudes, angles, and sequence currents. Verify calculated vs. metered amperes, phase rotation per winding, and that windings' angular relationships make sense — current flowing <em>out</em> of a winding reads 180° from the reference because CT polarity marks normally face away from the transformer.</li>
+  <li><strong>Zero-sequence filtering check</strong> (settings review, §4): no grounded-wye winding with wye CTs on <code>WnCTC = 0</code>. The load checks above <em>cannot</em> detect this one.</li>
+  <li><code>MET DIF</code> also shows the 2nd/5th-harmonic element currents — the same ratios (×100 vs. PCT2/PCT5) the blocking logic uses, handy when chasing a blocked element during energization.</li>
+  <li>Cross-check panel meters (MW/MVAR → MVA → primary and secondary amperes per winding) against the relay before trusting any of it.</li>
+</ul>
+<div class="callout warn"><strong>Field rule:</strong> a differential that alarms or trips at energization or under first load has a settings/wiring problem until proven otherwise — compensation (§4), TAP inputs (§3), or CT polarity. The event report's per-winding currents plus <code>MET DIF</code> will point at the winding.</div>
+</section>
+
+<section class="keep">
+<h2><span class="num">11</span>Sources</h2>
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:protection/transformer-protection.html">Transformer Protection</a>
+  <a href="atlas:protection/bus-protection-87b.html">Bus Protection (87B)</a>
+  <a href="atlas:protection/line-differential-87l.html">Line Current Differential</a>
+  <a href="atlas:fundamentals/transformers.html">Power Transformers</a>
+  <a href="atlas:fundamentals/ct-pt-fundamentals.html">CT &amp; PT Fundamentals</a>
+</div>
+<p class="footnote" style="margin-top:2px">
+SEL-387-0, -5, -6 Relay Instruction Manual — <code>387_IM_20250127.pdf</code> (§3 differential/REF elements &amp; settings, §5 metering, commissioning/settings-check sheets).<br>
+SEL Application Guide AG2000-01, "Determining the Correct TRCON Setting in the SEL-587 … Delta-Wye Power Transformers" — <code>AG2000-01_DC_20100216.pdf</code> (TRCON/CTCON/PHROT method and examples).<br>
+SEL-487E Relay Instruction Manual — <code>487E_IM_20190325.pdf</code> (§1 features, §4 adaptive differential, external-fault detection, 87Q).<br>
+87B/87L cards are generic background, not sourced from these documents. Rev. 2026-08-22.
+</p>
+</section>
+
+</body>
+</html>
