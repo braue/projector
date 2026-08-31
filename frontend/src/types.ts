@@ -547,3 +547,10 @@ export interface DwgenResult {
   autocad: boolean
   warnings: string[]
 }
+
+/** A row on the machine-global todo list (see api.ts listTodos). */
+export interface Todo {
+  id: string
+  text: string
+  done: boolean
+}

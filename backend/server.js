@@ -24,12 +24,14 @@ import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
 import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from './lib/selPaths.js';
 import { projectRoutes } from './routes/projects.js';
 import { selRoutes } from './routes/sel.js';
+import { todoRoutes } from './routes/todos.js';
 import { toolsRoutes } from './routes/tools.js';
 import { ProjectsService } from './services/projects.js';
 import { RtacCatalog } from './services/rtacCatalog.js';
 import { createTools } from './services/tools/index.js';
 import { SelFullText } from './services/selFullText.js';
 import { SelLibrary } from './services/selLibrary.js';
+import { TodosService } from './services/todos.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HOME = process.env.USERPROFILE ?? process.env.HOME ?? '';
@@ -94,6 +96,9 @@ export async function startServer(options = {}) {
   const selLibrary = new SelLibrary({ root: selRoot });
   const selText = new SelFullText();
   selText.open(selIndex);
+  // Machine-global, so it sits at the top of the data directory rather than
+  // inside a project.
+  const todos = new TodosService({ file: path.join(dataDir, 'todos.json') });
   const projects = new ProjectsService({ dataDir, catalog });
   await projects.init();
   const tools = await createTools({ dataDir });
@@ -128,6 +133,7 @@ export async function startServer(options = {}) {
   });
   app.use('/api/projects', projectRoutes(projects, catalog));
   app.use('/api/sel', selRoutes(selLibrary, selText));
+  app.use('/api/todos', todoRoutes(todos));
   app.use('/api/tools', toolsRoutes(tools, projects));
 
   // The API always speaks JSON, including for failures the routers never see.

@@ -31,6 +31,7 @@ import { FileTree } from './components/FileTree'
 import { Preview } from './components/Preview'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
 import { SourcesSidebar } from './components/SourcesSidebar'
+import { TodoList } from './components/TodoList'
 // The atlas embeds the whole field-knowledge library — 82 documents inlined as
 // raw text — so it is its own chunk, fetched the first time it is opened
 // rather than parsed on every cold start of a canvas session.
@@ -507,6 +508,10 @@ export default function App() {
             />
           </>
         )}
+        {/* Beside the two takeover panes, and like them outside the project
+            guard: the list spans every project, so it stays reachable with
+            the tools or the atlas up. */}
+        <TodoList />
         <button
           className={toolsOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
           onClick={() => {

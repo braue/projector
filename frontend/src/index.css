@@ -227,7 +227,7 @@ button.ui-section-header:hover { color: var(--ink); }
    first one takes over the spacing .topbar-info normally provides so the
    corner never moves. (When the project row renders, its SegmentedControl is
    the first child and this rule stays out of the way.) */
-.atlas-toggle:first-child { margin-left: auto; }
+:is(.todo-switch, .atlas-toggle):first-child { margin-left: auto; }
 
 .app { flex: 1; display: flex; min-height: 0; }
 
@@ -388,7 +388,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .entry-rename:hover { color: var(--ink); }
 /* Quiet until you point at the row — one rule for every row kind that carries
  * them, so a new row kind opts in by joining this list. */
-:is(.project-entry, .ws-item, .file-row, .rdb-file-name):hover .entry-delete { opacity: 1; }
+:is(.project-entry, .ws-item, .file-row, .rdb-file-name, .todo-row):hover .entry-delete { opacity: 1; }
 /* Rows with a trailing icon group (✎ ✕, sometimes a count): only the FIRST
  * trailing element keeps the auto margin that pushes the group right — two
  * auto margins would split the free space and strand the ✎ mid-row. */
@@ -755,6 +755,83 @@ button.ui-section-header:hover { color: var(--ink); }
   padding: 7px 10px 3px; margin-top: 3px; border-top: 1px solid var(--border-soft);
   font-size: 11px; color: var(--muted);
 }
+
+/* --- todo list ------------------------------------------------------------ */
+/* The one surface that is not project data: a general scratch list, so it
+   rides beside Tools and the Atlas rather than in the mode row. It drops as a
+   floating panel (14px gutter, --shadow-menu, like the project switcher)
+   instead of taking the pane over — a task gets jotted without leaving the
+   canvas. */
+
+.todo-switch { position: relative; }
+/* Open items, on the trigger. Reads as a count, not a status, so it borrows
+   the accent tint rather than one of the three semantic tones. */
+.todo-count {
+  flex: none; min-width: 17px; padding: 0 5px; border-radius: 999px;
+  background: var(--accent-tint); color: var(--accent);
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 650; line-height: 16px;
+  text-align: center;
+}
+/* The pressed trigger is already accent-tinted; the chip inverts to stay read-able on it. */
+.atlas-toggle.on .todo-count { background: var(--card); }
+
+.todo-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 40;
+  width: 340px; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 11px; box-shadow: var(--shadow-menu);
+}
+.todo-head { display: flex; align-items: baseline; gap: 8px; padding: 12px 14px 9px; }
+.todo-head .t { font-size: 13px; font-weight: 650; }
+.todo-head .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+/* Progress at a glance; the fraction beside the title is there for when the
+   exact number matters. */
+.todo-bar { height: 3px; margin: 1px 14px 0; border-radius: 999px; background: var(--border); overflow: hidden; }
+.todo-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+@media (prefers-reduced-motion: no-preference) {
+  .todo-bar > i { transition: width 160ms ease; }
+}
+
+.todo-add { padding: 10px 14px; }
+.todo-add .ui-input { width: 100%; }
+
+/* Rows inset by 6px so a hovered row's fill sits inside the panel gutter
+   rather than running to its edge. */
+.todo-list { max-height: 322px; overflow-y: auto; padding: 0 8px 6px; }
+.todo-row {
+  display: flex; align-items: center; gap: 8px; padding: 7px 6px;
+  border-radius: 7px; font-size: 13px; line-height: 1.35;
+}
+.todo-row:hover { background: var(--fill); }
+.todo-row.dragging { opacity: 0.45; }
+/* Grip and ✕ are both quiet until you point at the row — the list reads as
+   text at rest, and grows its controls under the cursor. */
+.todo-grip {
+  flex: none; padding: 0 1px; font-size: 11px; line-height: 1;
+  color: var(--ghost-soft); cursor: grab; opacity: 0; user-select: none;
+}
+.todo-row:hover .todo-grip { opacity: 1; }
+.todo-grip:active { cursor: grabbing; }
+.todo-text { flex: 1; min-width: 0; cursor: text; overflow-wrap: anywhere; }
+.todo-row.done .todo-text { color: var(--ghost); text-decoration: line-through; }
+/* The inline editor takes the text's place in the row, so it drops the
+   sidebar padding the form carries elsewhere. */
+.todo-row .side-form { flex: 1; min-width: 0; padding: 0; }
+
+.todo-empty { padding: 2px 14px 16px; font-size: 12.5px; color: var(--muted); }
+/* A failed read or save — the list keeps working locally, so this reports
+   rather than blocks. */
+.todo-error { margin: 0 14px 8px; font-size: 12px; color: var(--bad); }
+
+.todo-foot {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  border-top: 1px solid var(--border-soft); font-size: 12px; color: var(--muted);
+}
+.todo-clear {
+  margin-left: auto; padding: 0; border: 0; background: none;
+  font-size: 12px; color: var(--muted); cursor: pointer;
+}
+.todo-clear:hover { color: var(--bad); }
 
 /* scd augmentation */
 .canvas-node .nm { display: flex; align-items: center; gap: 6px; white-space: nowrap; }

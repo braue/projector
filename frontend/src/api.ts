@@ -16,6 +16,7 @@ import type {
   SearchResults,
   SwsetGenerateResult,
   SwsetModel,
+  Todo,
   ToolJob,
   ToolRunFile,
   UploadSourceType,
@@ -50,6 +51,21 @@ export async function send<T>(url: string, method: string, body?: unknown): Prom
 export async function appVersion(): Promise<string | null> {
   const health = await get<{ ok: boolean; version?: string | null }>('/api/health')
   return health.version ?? null
+}
+
+/**
+ * The todo list — machine-global, not project state. It lives in the data
+ * directory rather than localStorage because the packaged app listens on port
+ * 0, so its origin changes every launch and browser-side storage does not
+ * survive a restart.
+ */
+export async function listTodos(): Promise<Todo[]> {
+  return (await get<{ todos: Todo[] }>('/api/todos')).todos
+}
+
+/** Whole-list replace — order is the user's, so it is sent as given. */
+export async function saveTodos(todos: Todo[]): Promise<Todo[]> {
+  return (await send<{ todos: Todo[] }>('/api/todos', 'PUT', { todos })).todos
 }
 
 // Everything except the project list itself is scoped to one project.
