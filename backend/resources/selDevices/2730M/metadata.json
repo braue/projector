@@ -1,15 +1,524 @@
 {
   "device": "2730M",
   "model_to_drawings": {
-    "front_and_rear": []
+    "front_and_rear": [
+      {
+        "when": {},
+        "front_pdf": "i7198f.pdf",
+        "rear_pdf": "i7198f.pdf"
+      }
+    ]
   },
   "model_to_layers": {
-    "has_layers": false
+    "has_layers": true,
+    "rules_by_pdf": {
+      "i7198f.pdf": {
+        "_note": "Generated 2026-08-30 from i7198f's own layer catalog (drawing located manually in CDN folder 23-1023; the configurator does not serve the 2730M). Group sources are the WI-9662 decode positions, which the catalog's codes confirm exactly (R/W/P mounting at 8, C/A PSU codes at 9-10, the 4-digit ports combos at 11-14, AAAA/CCCC SFP at 15-18).",
+        "always": [
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "34 0 R"
+          },
+          {
+            "name": "5.00____[INSTALLED SFP]",
+            "object_id": "36 0 R"
+          },
+          {
+            "name": "4.00_____[PORTS 9-24]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "3.00_____[POWER SUPPLY B]",
+            "object_id": "58 0 R"
+          },
+          {
+            "name": "2.00_____[POWER SUPPLY A]",
+            "object_id": "61 0 R"
+          },
+          {
+            "name": "1.00_____[MOUNTING]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "66 0 R"
+          },
+          {
+            "name": "5.00____[INSTALLED SFP]",
+            "object_id": "69 0 R"
+          },
+          {
+            "name": "4.00_____[PORTS 9-24]",
+            "object_id": "86 0 R"
+          },
+          {
+            "name": "3.00_____[POWER SUPPLY B]",
+            "object_id": "90 0 R"
+          },
+          {
+            "name": "2.00_____[POWER SUPPLY A]",
+            "object_id": "93 0 R"
+          },
+          {
+            "name": "1.00_____[MOUNTING]",
+            "object_id": "97 0 R"
+          },
+          {
+            "name": "6.00_____[DWG]",
+            "object_id": "98 0 R"
+          },
+          {
+            "name": "5.00____[INSTALLED SFP]",
+            "object_id": "101 0 R"
+          },
+          {
+            "name": "4.00_____[PORTS 9-24]",
+            "object_id": "118 0 R"
+          },
+          {
+            "name": "3.00_____[POWER SUPPLY B]",
+            "object_id": "122 0 R"
+          },
+          {
+            "name": "2.00_____[POWER SUPPLY A]",
+            "object_id": "125 0 R"
+          },
+          {
+            "name": "1.00_____[MOUNTING]",
+            "object_id": "129 0 R"
+          }
+        ],
+        "by_option_group": {
+          "INSTALLED_SFP": {
+            "source": {
+              "position": 15,
+              "length": 4
+            },
+            "options": {
+              "CCCC": [
+                {
+                  "name": "5.02__CCCC__(4) 10-100-1000BASE-T SFP",
+                  "object_id": "35 0 R"
+                },
+                {
+                  "name": "5.02__CCCC__(4) 10-100-1000BASE-T SFP",
+                  "object_id": "67 0 R"
+                },
+                {
+                  "name": "5.02__CCCC__(4) 10-100-1000BASE-T SFP",
+                  "object_id": "99 0 R"
+                }
+              ],
+              "AAAA": [
+                {
+                  "name": "5.01__AAAA__None",
+                  "object_id": "37 0 R"
+                },
+                {
+                  "name": "5.01__AAAA__None",
+                  "object_id": "68 0 R"
+                },
+                {
+                  "name": "5.01__AAAA__None",
+                  "object_id": "100 0 R"
+                }
+              ]
+            }
+          },
+          "PORTS_9_24": {
+            "source": {
+              "position": 11,
+              "length": 4
+            },
+            "options": {
+              "1111": [
+                {
+                  "name": "4.01__1111__(16) 10-100BASE T",
+                  "object_id": "53 0 R"
+                },
+                {
+                  "name": "4.01__1111__(16) 10-100BASE T",
+                  "object_id": "85 0 R"
+                },
+                {
+                  "name": "4.01__1111__(16) 10-100BASE T",
+                  "object_id": "117 0 R"
+                }
+              ],
+              "1112": [
+                {
+                  "name": "4.02__1112__(12) 10-100BASE T. (4) 100BASE FX Multimode",
+                  "object_id": "52 0 R"
+                },
+                {
+                  "name": "4.02__1112__(12) 10-100BASE T. (4) 100BASE FX Multimode",
+                  "object_id": "84 0 R"
+                },
+                {
+                  "name": "4.02__1112__(12) 10-100BASE T. (4) 100BASE FX Multimode",
+                  "object_id": "116 0 R"
+                }
+              ],
+              "1113": [
+                {
+                  "name": "4.03__1113__(12) 10-100BASE T. (4) 100BASE LX10 Singlemode",
+                  "object_id": "51 0 R"
+                },
+                {
+                  "name": "4.03__1113__(12) 10-100BASE T. (4) 100BASE LX10 Singlemode",
+                  "object_id": "83 0 R"
+                },
+                {
+                  "name": "4.03__1113__(12) 10-100BASE T. (4) 100BASE LX10 Singlemode",
+                  "object_id": "115 0 R"
+                }
+              ],
+              "1122": [
+                {
+                  "name": "4.04__1122__(8) 10-100BASE T. ( 8) 100BASE FX Multimode",
+                  "object_id": "50 0 R"
+                },
+                {
+                  "name": "4.04__1122__(8) 10-100BASE T. ( 8) 100BASE FX Multimode",
+                  "object_id": "82 0 R"
+                },
+                {
+                  "name": "4.04__1122__(8) 10-100BASE T. ( 8) 100BASE FX Multimode",
+                  "object_id": "114 0 R"
+                }
+              ],
+              "1123": [
+                {
+                  "name": "4.05__1123__(8) 10-100BASE T. (4) 100BASE-FX Multimode. (4) 100BASE LX10 Singlemode",
+                  "object_id": "49 0 R"
+                },
+                {
+                  "name": "4.05__1123__(8) 10-100BASE T. (4) 100BASE-FX Multimode. (4) 100BASE LX10 Singlemode",
+                  "object_id": "81 0 R"
+                },
+                {
+                  "name": "4.05__1123__(8) 10-100BASE T. (4) 100BASE-FX Multimode. (4) 100BASE LX10 Singlemode",
+                  "object_id": "113 0 R"
+                }
+              ],
+              "1133": [
+                {
+                  "name": "4.06__1133__(8) 10-100BASE T. (8) 100BASE LX10 Singlemode",
+                  "object_id": "48 0 R"
+                },
+                {
+                  "name": "4.06__1133__(8) 10-100BASE T. (8) 100BASE LX10 Singlemode",
+                  "object_id": "80 0 R"
+                },
+                {
+                  "name": "4.06__1133__(8) 10-100BASE T. (8) 100BASE LX10 Singlemode",
+                  "object_id": "112 0 R"
+                }
+              ],
+              "1142": [
+                {
+                  "name": "4.07__1142__(10) 10-100BASE T. (6) 100BASE FX Multimode",
+                  "object_id": "47 0 R"
+                },
+                {
+                  "name": "4.07__1142__(10) 10-100BASE T. (6) 100BASE FX Multimode",
+                  "object_id": "79 0 R"
+                },
+                {
+                  "name": "4.07__1142__(10) 10-100BASE T. (6) 100BASE FX Multimode",
+                  "object_id": "111 0 R"
+                }
+              ],
+              "1222": [
+                {
+                  "name": "4.08__1222__(4) 10-100BASE T. (12) 100BASE FX Multimode",
+                  "object_id": "46 0 R"
+                },
+                {
+                  "name": "4.08__1222__(4) 10-100BASE T. (12) 100BASE FX Multimode",
+                  "object_id": "78 0 R"
+                },
+                {
+                  "name": "4.08__1222__(4) 10-100BASE T. (12) 100BASE FX Multimode",
+                  "object_id": "110 0 R"
+                }
+              ],
+              "1223": [
+                {
+                  "name": "4.09__1223__(4) 10-100BASE T. (8) 100BASE-FX Multimode_ (4) 100BASE LX10 Singlemode",
+                  "object_id": "45 0 R"
+                },
+                {
+                  "name": "4.09__1223__(4) 10-100BASE T. (8) 100BASE-FX Multimode_ (4) 100BASE LX10 Singlemode",
+                  "object_id": "77 0 R"
+                },
+                {
+                  "name": "4.09__1223__(4) 10-100BASE T. (8) 100BASE-FX Multimode_ (4) 100BASE LX10 Singlemode",
+                  "object_id": "109 0 R"
+                }
+              ],
+              "1233": [
+                {
+                  "name": "4.10__1233__(4) 10-100BASE T. (4) 100BASE-FX Multimode. (8) 100BASE LX10 Singlemode",
+                  "object_id": "44 0 R"
+                },
+                {
+                  "name": "4.10__1233__(4) 10-100BASE T. (4) 100BASE-FX Multimode. (8) 100BASE LX10 Singlemode",
+                  "object_id": "76 0 R"
+                },
+                {
+                  "name": "4.10__1233__(4) 10-100BASE T. (4) 100BASE-FX Multimode. (8) 100BASE LX10 Singlemode",
+                  "object_id": "108 0 R"
+                }
+              ],
+              "1333": [
+                {
+                  "name": "4.11__1333__(4) 10-100BASE T. (12) 100BASE LX10 Singlemode",
+                  "object_id": "43 0 R"
+                },
+                {
+                  "name": "4.11__1333__(4) 10-100BASE T. (12) 100BASE LX10 Singlemode",
+                  "object_id": "75 0 R"
+                },
+                {
+                  "name": "4.11__1333__(4) 10-100BASE T. (12) 100BASE LX10 Singlemode",
+                  "object_id": "107 0 R"
+                }
+              ],
+              "2222": [
+                {
+                  "name": "4.12__2222__(16) 100BASE FX Multimode",
+                  "object_id": "42 0 R"
+                },
+                {
+                  "name": "4.12__2222__(16) 100BASE FX Multimode",
+                  "object_id": "74 0 R"
+                },
+                {
+                  "name": "4.12__2222__(16) 100BASE FX Multimode",
+                  "object_id": "106 0 R"
+                }
+              ],
+              "2223": [
+                {
+                  "name": "4.13__2223__(12) 100BASE FX Multimode. (4) 100BASE LX10 Singlemode",
+                  "object_id": "41 0 R"
+                },
+                {
+                  "name": "4.13__2223__(12) 100BASE FX Multimode. (4) 100BASE LX10 Singlemode",
+                  "object_id": "73 0 R"
+                },
+                {
+                  "name": "4.13__2223__(12) 100BASE FX Multimode. (4) 100BASE LX10 Singlemode",
+                  "object_id": "105 0 R"
+                }
+              ],
+              "2233": [
+                {
+                  "name": "4.14__2233__(8) 100BASE FX Multimode. (8) 100BASE LX10 Singlemode",
+                  "object_id": "40 0 R"
+                },
+                {
+                  "name": "4.14__2233__(8) 100BASE FX Multimode. (8) 100BASE LX10 Singlemode",
+                  "object_id": "72 0 R"
+                },
+                {
+                  "name": "4.14__2233__(8) 100BASE FX Multimode. (8) 100BASE LX10 Singlemode",
+                  "object_id": "104 0 R"
+                }
+              ],
+              "2333": [
+                {
+                  "name": "4.15__2333__(4) 100BASE FX Multimode. (12) 100BASE LX10 Singlemode",
+                  "object_id": "39 0 R"
+                },
+                {
+                  "name": "4.15__2333__(4) 100BASE FX Multimode. (12) 100BASE LX10 Singlemode",
+                  "object_id": "71 0 R"
+                },
+                {
+                  "name": "4.15__2333__(4) 100BASE FX Multimode. (12) 100BASE LX10 Singlemode",
+                  "object_id": "103 0 R"
+                }
+              ],
+              "3333": [
+                {
+                  "name": "4.16__3333__(16) 100BASE LX10 Singlemode",
+                  "object_id": "38 0 R"
+                },
+                {
+                  "name": "4.16__3333__(16) 100BASE LX10 Singlemode",
+                  "object_id": "70 0 R"
+                },
+                {
+                  "name": "4.16__3333__(16) 100BASE LX10 Singlemode",
+                  "object_id": "102 0 R"
+                }
+              ]
+            }
+          },
+          "POWER_SUPPLY_B": {
+            "source": {
+              "position": 10
+            },
+            "options": {
+              "A": [
+                {
+                  "name": "3.03__A__125-250 Vdc or Vac",
+                  "object_id": "55 0 R"
+                },
+                {
+                  "name": "3.03__A__125-250 Vdc or Vac",
+                  "object_id": "87 0 R"
+                },
+                {
+                  "name": "3.03__A__125-250 Vdc or Vac",
+                  "object_id": "119 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "3.02__C__24-48 Vdc",
+                  "object_id": "56 0 R"
+                },
+                {
+                  "name": "3.02__C__24-48 Vdc",
+                  "object_id": "88 0 R"
+                },
+                {
+                  "name": "3.02__C__24-48 Vdc",
+                  "object_id": "120 0 R"
+                }
+              ],
+              "X": [
+                {
+                  "name": "3.01__X__None",
+                  "object_id": "57 0 R"
+                },
+                {
+                  "name": "3.01__X__None",
+                  "object_id": "89 0 R"
+                },
+                {
+                  "name": "3.01__X__None",
+                  "object_id": "121 0 R"
+                }
+              ]
+            }
+          },
+          "POWER_SUPPLY_A": {
+            "source": {
+              "position": 9
+            },
+            "options": {
+              "A": [
+                {
+                  "name": "2.02__A__125-250 Vdc or Vac",
+                  "object_id": "59 0 R"
+                },
+                {
+                  "name": "2.02__A__125-250 Vdc or Vac",
+                  "object_id": "91 0 R"
+                },
+                {
+                  "name": "2.02__A__125-250 Vdc or Vac",
+                  "object_id": "123 0 R"
+                }
+              ],
+              "C": [
+                {
+                  "name": "2.01__C__24-48 Vdc",
+                  "object_id": "60 0 R"
+                },
+                {
+                  "name": "2.01__C__24-48 Vdc",
+                  "object_id": "92 0 R"
+                },
+                {
+                  "name": "2.01__C__24-48 Vdc",
+                  "object_id": "124 0 R"
+                }
+              ]
+            }
+          },
+          "MOUNTING": {
+            "source": {
+              "position": 8
+            },
+            "options": {
+              "P": [
+                {
+                  "name": "1.03__P__Panel Mount",
+                  "object_id": "62 0 R"
+                },
+                {
+                  "name": "1.03__P__Panel Mount",
+                  "object_id": "94 0 R"
+                },
+                {
+                  "name": "1.03__P__Panel Mount",
+                  "object_id": "126 0 R"
+                }
+              ],
+              "W": [
+                {
+                  "name": "1.02__W__Wall Surface Mount",
+                  "object_id": "63 0 R"
+                },
+                {
+                  "name": "1.02__W__Wall Surface Mount",
+                  "object_id": "95 0 R"
+                },
+                {
+                  "name": "1.02__W__Wall Surface Mount",
+                  "object_id": "127 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "1.01__R__Rack Mount",
+                  "object_id": "64 0 R"
+                },
+                {
+                  "name": "1.01__R__Rack Mount",
+                  "object_id": "96 0 R"
+                },
+                {
+                  "name": "1.01__R__Rack Mount",
+                  "object_id": "128 0 R"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
   },
   "crops": {
     "units": "PDF points",
     "origin": "bottom_left",
-    "views_by_pdf": {}
+    "views_by_pdf": {
+      "i7198f.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            128.3,
+            795.3,
+            1419.05,
+            938.01
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1798.7,
+            795.3,
+            3063.24,
+            938.01
+          ]
+        }
+      }
+    }
   },
   "port_transports": {
     "ports": [
@@ -92,7 +601,7 @@
       "value": "2730M0A",
       "description": "SEL-2730M Managed Ethernet Switch (fixed model/generation prefix; 24 ports: 4 SFP cages [Ports 1-4], 4 copper 10/100/1000BASE-T [Ports 5-8], 16 configurable 10/100 Mbps [Ports 9-24])"
     },
-    "note": "19-digit Model Option Table from WI-9662. No SEL-2730M drawing layers exist and no genuine part number was available to calibrate against, so option codes are taken from the ordering document and digit positions are calibrated by column-alignment against the WI-9662 part-number template grid; all option-bearing positions are marked low confidence. Positions 1-7 are the fixed 2730M0A prefix. Ports 9-24 (positions 11-14) is one 4-digit combined selection, not four independent digits. Ports 5-8 are fixed copper gigabit and Ports 1-4 SFP cages are populated via the Installed SFPs field / accessory SFP part numbers (8115/8130/8131), not by a config digit.",
+    "note": "19-digit Model Option Table from WI-9662. Master configuration drawing i7198f (located 2026-08-30 in CDN folder 23-1023) carries the full layer catalog, and its digit-position template grid CONFIRMS the WI-9662 column alignment exactly (mounting 8, PSU A/B 9-10, ports 11-14, SFP 15-18); option codes were taken from the ordering document and match the layer codes verbatim; all option-bearing positions are marked low confidence. Positions 1-7 are the fixed 2730M0A prefix. Ports 9-24 (positions 11-14) is one 4-digit combined selection, not four independent digits. Ports 5-8 are fixed copper gigabit and Ports 1-4 SFP cages are populated via the Installed SFPs field / accessory SFP part numbers (8115/8130/8131), not by a config digit.",
     "references": [
       "SEL-2730M Ordering Information (WI-9662, 20210802)",
       "SEL-2730M Managed Ethernet Switch Instruction Manual (2730M_IM_20250217)"
@@ -173,7 +682,7 @@
         "label": "Installed SFPs (Slots 1-4)",
         "source": "SEL-2730M Ordering Information (WI-9662)",
         "confidence": "low",
-        "note": "One digit per SFP cage (Ports 1-4). The MOT documents only the copper (8115-01) SFP as a factory-installed option; other SFP transceivers (8130/8131 accessory part numbers) are ordered separately and field-installed. WI-9662 shows the all-none (AAAA) and all-copper (CCCC) rows; per-slot mixing is represented here as independent digits. Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number.",
+        "note": "One digit per SFP cage (Ports 1-4). The MOT documents only the copper (8115-01) SFP as a factory-installed option; other SFP transceivers (8130/8131 accessory part numbers) are ordered separately and field-installed. WI-9662 shows the all-none (AAAA) and all-copper (CCCC) rows; per-slot mixing is represented here as independent digits. Doc-derived; column-calibrated against the WI-9662 template grid, not verified against a genuine part number. Codes from the i7198f layer catalog (2026-08-30): AAAA = no SFPs installed, CCCC = four 10/100/1000BASE-T SFPs.",
         "components": [
           {
             "offset": 0,
@@ -211,7 +720,11 @@
               "C": "10/100/1000BASE-T copper SFP, RJ45 (SEL-8115-01)"
             }
           }
-        ]
+        ],
+        "options": {
+          "AAAA": "None",
+          "CCCC": "(4) 10/100/1000BASE-T SFP (Ports 1-4)"
+        }
       },
       {
         "position": 19,

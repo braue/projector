@@ -1,0 +1,52 @@
+{
+  "partQuery": "0487E0141112C2B4H70X44XXX",
+  "fetchedAt": "2026-08-30T10:19:13.922Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-487E Transformer Protection Relay (Legacy) should be 23 characters (25 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9157 Front Panel Kit for the SEL-487E-0,-2 should be 23 characters (25 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9157 Front Panel Kit for the SEL-487E(-3,-4) should be 23 characters (25 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-487E-5 Transformer Protection Relay With Sampled Values or TiDL Technology has invalid digits in positions 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 16, 19, 20, 25"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-487E-3, -4 Transformer Protection Relay should be 23 characters (25 entered)"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

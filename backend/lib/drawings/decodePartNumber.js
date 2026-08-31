@@ -4,6 +4,7 @@
 // position with the selected code, its human-readable description, and
 // provenance — the UI's option-by-option breakdown.
 
+import { conditionScore } from '../selPartNumberRules.js';
 import { loadDeviceMetadata } from './deviceMetadata.js';
 
 function lookupOption(options, code) {
@@ -15,12 +16,26 @@ function lookupOption(options, code) {
   return null;
 }
 
-/** Decode against one metadata object's `part_number` spec; null without one. */
+/** Decode against one metadata object's `part_number` spec; null without one.
+ *
+ * Some products take differently-sized ordering strings per submodel (a
+ * 421-4 is 21 characters, a 421-7 is 25) with the same field at different
+ * positions, which one flat table cannot describe. A spec may carry
+ * `submodels: [{name, length?, when?, positions}]`; an entry matches when its
+ * `length` (if given) equals the part number's and its `when` conditions (if
+ * given, the drawing-rule condition syntax — needed where submodels share a
+ * length and differ by a digit, like the legacy 487E firmware codes) match.
+ * `spec.positions` stays the fallback for part numbers no submodel claims. */
 function decodeWithMetadata(metadata, partNumber) {
   const spec = metadata?.part_number;
   if (!spec) return null;
   const value = String(partNumber ?? '').trim().toUpperCase();
-  const positions = (spec.positions ?? []).map((pos) => {
+  const submodel = (spec.submodels ?? []).find((sub) => {
+    if (sub.length != null && Number(sub.length) !== value.length) return false;
+    if (sub.when && !conditionScore(sub.when, value).matched) return false;
+    return sub.length != null || sub.when != null;
+  }) ?? null;
+  const positions = ((submodel ?? spec).positions ?? []).map((pos) => {
     const start = Number(pos.position) - 1;
     const length = Number(pos.length) || 1;
     const code = start >= 0 ? value.slice(start, start + length) : '';
@@ -59,6 +74,7 @@ function decodeWithMetadata(metadata, partNumber) {
     model: spec.model ?? null,
     product: spec.product ?? null,
     partNumber: value || null,
+    submodel: submodel?.name ?? null,
     positions,
   };
 }

@@ -1068,7 +1068,7 @@
       },
       {
         "part_number": "2414A1A009X74151140",
-        "note": "Real PN (IM): 5\" color touchscreen, 125/250 V PS, 125 V DI, Slot C empty, Slot D (10) RTD, Slot E (3) ACI/(3) AVI, Slot Z (4) ACI, (1) 10/100BASE-T + IRIG + fiber serial, Std+DNP+IEC 61850, no LTC/no CC"
+        "note": "Real PN (IM): 5\" color touchscreen, 125/250 V PS, 125 V DI, Slot C empty, Slot D (10) RTD, Slot E (3) ACI/(3) AVI, Slot Z (4) ACI, (1) 10/100BASE-T + IRIG + fiber serial, Std+DNP+IEC 61850, no LTC/no CC [2026-08-30 audit: the SEL configurator rejects this PN (invalid digits in positions 8, 9, 14, 15) and its slot Z digits '15' match no catalog code, while this note's own 'Slot Z (4) ACI' would be code 8X - the PN is likely mistranscribed from the IM figure. Kept for reference; do not treat as a decode expectation.]"
       },
       {
         "part_number": "241421A0X0X0X0X1000",

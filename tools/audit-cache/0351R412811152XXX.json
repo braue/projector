@@ -1,0 +1,34 @@
+{
+  "partQuery": "0351R412811152XXX",
+  "fetchedAt": "2026-08-30T10:23:44.674Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [
+      {
+        "code": 24,
+        "message": "This product is no longer available to order."
+      }
+    ],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

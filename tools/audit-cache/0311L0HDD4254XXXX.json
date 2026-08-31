@@ -1,0 +1,506 @@
+{
+  "partQuery": "0311L0HDD4254XXXX",
+  "fetchedAt": "2026-08-30T10:17:23.587Z",
+  "response": {
+    "product": {
+      "id": 150,
+      "minorId": 0,
+      "productCode": "311L",
+      "cfgModel": "311L",
+      "name": "SEL-311L-0, -6 Line Current Differential System",
+      "summary": "<p>Use the SEL-311L Relay with integral four-zone distance backup for easy-to-apply, high-speed line protection.</p>",
+      "revision": "4",
+      "imageUrls": [
+        "uploadedImages/_New_Site/Products/iR1042_Left-Front.jpg?n=63878508316000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/311L/",
+      "cartType": 1
+    },
+    "partNumber": "311L#HVDQ",
+    "motString": "0311L0HDD4254XXXX",
+    "salesNumber": "311L#HVDQ",
+    "answerString": "'1-1','2-1','3-1','4-4','5-5','7-3','8-1','9-2','10-4','11-1','12-1','13-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard, Three-Pole Differential and Distance Protection",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Standard, Three-Pole Differential and Distance Protection"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Chassis",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "3U",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis",
+          "value": "3U"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Line Current Differential Communications Channel X",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 4,
+            "text": "1300nm Fiber",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "D"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Line Current Differential Communications Channel X",
+          "value": "1300nm Fiber"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Line Current Differential Communications Channel Y",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 5,
+            "questionId": 5,
+            "text": "1300nm Fiber",
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "D"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Line Current Differential Communications Channel Y",
+          "value": "1300nm Fiber"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 7,
+            "text": "125/250 Vdc or Vac",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Secondary Input Voltage",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "Wye-Connected Va, Vb, and Vc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Voltage",
+          "value": "Wye-Connected Va, Vb, and Vc"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 9,
+            "text": "5 Amp Phase and 5 Amp Polarizing Current Input",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "5 Amp Phase and 5 Amp Polarizing Current Input"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 10,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Control Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 11,
+        "text": "I/O Board",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 11,
+            "text": "No Additional I/O",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board",
+          "value": "No Additional I/O"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Communications Protocol",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 12,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocol",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 16,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "None"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9057a.dwg",
+            "fileSize": "57221"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9057a.pdf",
+            "fileSize": "113398"
+          }
+        }
+      },
+      {
+        "type": "Front",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i3436a.dwg",
+            "fileSize": "117238"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i3436a.pdf",
+            "fileSize": "38680"
+          }
+        }
+      },
+      {
+        "type": "Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i3441b.dwg",
+            "fileSize": "131315"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i3441b.pdf",
+            "fileSize": "81176"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [
+      {
+        "price": 2983.64,
+        "questionIds": [
+          4,
+          5
+        ],
+        "questions": [
+          {
+            "id": 4,
+            "text": "Line Current Differential Communications Channel X",
+            "questionType": 0,
+            "sortIndex": 7,
+            "answers": [
+              {
+                "id": 4,
+                "questionId": 4,
+                "text": "1300nm Fiber",
+                "sortIndex": 4,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 8,
+                    "value": "D"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "Line Current Differential Communications Channel X",
+              "value": "1300nm Fiber"
+            }
+          },
+          {
+            "id": 5,
+            "text": "Line Current Differential Communications Channel Y",
+            "questionType": 0,
+            "sortIndex": 8,
+            "answers": [
+              {
+                "id": 5,
+                "questionId": 5,
+                "text": "1300nm Fiber",
+                "sortIndex": 5,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 9,
+                    "value": "D"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "Line Current Differential Communications Channel Y",
+              "value": "1300nm Fiber"
+            }
+          }
+        ]
+      }
+    ],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

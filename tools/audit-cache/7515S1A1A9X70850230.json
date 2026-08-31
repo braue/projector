@@ -1,0 +1,969 @@
+{
+  "partQuery": "7515S1A1A9X70850230",
+  "fetchedAt": "2026-08-30T10:23:16.715Z",
+  "response": {
+    "product": {
+      "id": 997,
+      "minorId": 0,
+      "productCode": "751-M4",
+      "cfgModel": "751",
+      "name": "SEL-751 Feeder Protection Relay",
+      "summary": "<p>The SEL-751 is ideal for directional overcurrent, fault location, arc-flash detection, and high-impedance fault detection applications. Flexible I/O options, \r\n\r\neasy mounting, and fast settings make the SEL-751 the right solution for industrial and utility feeder protection.</p>",
+      "revision": "806",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/MKTGREN-599_751_LDM_8PB_with_modules_4_LF_01.jpg?n=63912467835000"
+      ],
+      "standardFeatures": [
+        {
+          "contentData": [
+            {
+              "html": {
+                "content": "<p><b>Protection </b></p> <ul><li>Overcurrent</li><li>Over/Under Frequency</li><li>Harmonic Blocking</li><li>Breaker Monitoring</li><li>Breaker Failure</li><li>IEC Thermal Element</li></ul> <p><b>Hardware </b></p> <ul><li>3-Phase AC Current Inputs         <ul><li>Slot Z</li></ul></li><li>Neutral AC Current Input         <ul><li>Slot Z</li></ul></li><li>2 Digital Inputs (DI)         <ul><li>Slot A</li></ul></li><li>3 Digital Outputs (DO)         <ul><li>Slot A</li></ul></li><li>IRIG-B Time Code Input         <ul><li>Slot B</li></ul></li></ul>"
+              },
+              "links": [],
+              "images": []
+            },
+            {
+              "html": {
+                "content": "<p><b>Human Machine Interface (HMI)</b></p> <ul><li>Display</li><li>Programmable Pushbuttons with Two Tri-Color LEDs each</li><li>8 Target Tri-Color LEDs (6 Programmable)</li><li>Operator Control Interface</li><li>User Configurable Labels</li><li>EIA-232 Port (Port F)</li><li>Multi-Language Support</li></ul> <p><b>Protocols </b></p> <ul><li>IEEE C37.118 Synchrophasors</li><li>Modbus RTU</li><li>SEL ASCII and Compressed ASCII</li><li>SEL Fast Meter, Fast Operate, Fast SER</li><li>SEL Fast Message</li><li>Ymodem File Transfer</li><li>SEL <span class=\"sm-caps\">Mirrored Bits</span> Communications</li><li>Event Messenger</li></ul> <p><b>Other</b></p> <ul><li><span class=\"sm-caps\">acSELerator</span> QuickSet SEL-5030 Software</li><li>User Configurable Labels</li></ul>"
+              },
+              "links": [],
+              "images": []
+            }
+          ]
+        }
+      ],
+      "standardFeatureCollection": {
+        "submodelId": 997,
+        "standardFeatures": [
+          {
+            "heading": "Protection",
+            "headingSortOrder": 1,
+            "values": [
+              {
+                "value": "Overcurrent",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Over/Under Frequency",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "Harmonic Blocking",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "Breaker Monitoring",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "Breaker Failure",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "IEC Thermal Element",
+                "valueSortOrder": 6
+              }
+            ]
+          },
+          {
+            "heading": "Hardware ",
+            "headingSortOrder": 2,
+            "values": [
+              {
+                "value": "3-Phase AC Current Inputs (Slot Z)",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Neutral AC Current Input (Slot Z)",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "2 Digital Inputs (DI) (Slot A)",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "3 Digital Outputs (DO) (Slot A)",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "IRIG-B Time Code Input (Slot B)",
+                "valueSortOrder": 5
+              }
+            ]
+          },
+          {
+            "heading": "Human Machine Interface (HMI)",
+            "headingSortOrder": 3,
+            "values": [
+              {
+                "value": "Display",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Programmable Pushbuttons with Two Tri-Color LEDs each",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "8 Target Tri-Color LEDs (6 Programmable)",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "Operator Control Interface",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "User Configurable Labels",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "EIA-232 Port (Port F)",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "Multi-Language Support",
+                "valueSortOrder": 7
+              }
+            ]
+          },
+          {
+            "heading": "Protocols ",
+            "headingSortOrder": 4,
+            "values": [
+              {
+                "value": "IEEE C37.118 Synchrophasors ",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Modbus RTU",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "SEL ASCII and Compressed ASCII",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "SEL Fast Meter, Fast Operate, Fast SER ",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "SEL Fast Message",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "Ymodem File Transfer ",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "SEL MIRRORED BITS Communications ",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "Event Messenger",
+                "valueSortOrder": 8
+              }
+            ]
+          },
+          {
+            "heading": "Other",
+            "headingSortOrder": 5,
+            "values": [
+              {
+                "value": "ACSELERATOR QuickSet SEL-5030 Software",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "User Configurable Labels",
+                "valueSortOrder": 2
+              }
+            ]
+          }
+        ]
+      },
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/751/",
+      "cartType": 1
+    },
+    "partNumber": "751#TDF3",
+    "motString": "7515S1A1A9X70850230",
+    "salesNumber": "751#TDF3",
+    "answerString": "'1-6','2-2','3-2','4-1','5-1','6-2','7-2','8-1','9-2','10-2','11-1','12-4','13-2','14-15','15-1','16-15','17-1','18-2','19-4','20-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Advanced Features",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 6,
+            "questionId": 1,
+            "text": "Reclosing, Directional, and Arc Sense",
+            "hasHelp": true,
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 4,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Advanced Features",
+          "value": "Reclosing, Directional, and Arc Sense"
+        }
+      },
+      {
+        "id": 2,
+        "text": "User Interface",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 2,
+            "text": "Spanish",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "S"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "User Interface",
+          "value": "Spanish"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Front Panel",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 3,
+            "text": "2x16 LCD With 8 Pushbuttons",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Front Panel",
+          "value": "2x16 LCD With 8 Pushbuttons"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Slot A Power Supply Voltage",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "110-250 Vdc (110-240 Vac); 50/60 Hz",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Power Supply Voltage",
+          "value": "110-250 Vdc (110-240 Vac); 50/60 Hz"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Slot A Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Digital Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Slot B Ethernet (Port 1)",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 6,
+            "text": "Single 10/100BASE-T Ethernet",
+            "hasHelp": true,
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Ethernet (Port 1)",
+          "value": "Single 10/100BASE-T Ethernet"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Slot B Multimode Fiber ST (Port 2)",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Multimode Fiber ST (Port 2)",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Slot B Rear Serial Port (Port 3)",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "EIA-232",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Rear Serial Port (Port 3)",
+          "value": "EIA-232"
+        }
+      },
+      {
+        "id": 9,
+        "text": "IEC 61850 Protocol",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 9,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 61850 Protocol",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 10,
+        "text": "DNP3 Protocol",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 10,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "DNP3 Protocol",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 11,
+        "text": "IEC 60870-5-103 Protocol",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 11,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 60870-5-103 Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 27,
+        "text": "EtherNet/IP Protocol",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 27,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "EtherNet/IP Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 29,
+        "text": "Extended IO (Slots 1, 2, 3, 4)",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 29,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "S"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Extended IO (Slots 1, 2, 3, 4)",
+          "value": "None"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Slot C",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 12,
+            "text": "4 DI / 4 DO Electromechanical (Form A)",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              },
+              {
+                "position": 9,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C",
+          "value": "4 DI / 4 DO Electromechanical (Form A)"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Slot C Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 13,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              },
+              {
+                "position": 9,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C Digital Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Slot D",
+        "questionType": 0,
+        "sortIndex": 16,
+        "answers": [
+          {
+            "id": 15,
+            "questionId": 14,
+            "text": "10 RTD Inputs",
+            "sortIndex": 15,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "9"
+              },
+              {
+                "position": 11,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D",
+          "value": "10 RTD Inputs"
+        }
+      },
+      {
+        "id": 15,
+        "text": "Slot D Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 17,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 15,
+            "text": "NA",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "9"
+              },
+              {
+                "position": 11,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D Digital Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 16,
+        "text": "Slot E",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 18,
+        "answers": [
+          {
+            "id": 15,
+            "questionId": 16,
+            "text": "Vsync (300 Vac)  / Vbat (300 Vdc) / 4 Arc-Flash Detection Inputs",
+            "hasHelp": true,
+            "sortIndex": 15,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "7"
+              },
+              {
+                "position": 13,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot E",
+          "value": "Vsync (300 Vac)  / Vbat (300 Vdc) / 4 Arc-Flash Detection Inputs"
+        }
+      },
+      {
+        "id": 17,
+        "text": "Slot E Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 19,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 17,
+            "text": "NA",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "7"
+              },
+              {
+                "position": 13,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot E Digital Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 18,
+        "text": "Slot Z Voltage Inputs",
+        "questionType": 0,
+        "sortIndex": 20,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 18,
+            "text": "3-Phase AC Voltage (300 Vac)",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "8"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot Z Voltage Inputs",
+          "value": "3-Phase AC Voltage (300 Vac)"
+        }
+      },
+      {
+        "id": 19,
+        "text": "Slot Z Current Inputs",
+        "questionType": 0,
+        "sortIndex": 21,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 19,
+            "text": "5 Amp Phase, 5 Amp Neutral",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot Z Current Inputs",
+          "value": "5 Amp Phase, 5 Amp Neutral"
+        }
+      },
+      {
+        "id": 20,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 22,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 20,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 28,
+        "text": "DMA Bundle",
+        "questionType": 0,
+        "sortIndex": 29,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 28,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "DMA Bundle",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "21-2587/i9411b.dwg",
+            "fileSize": "201336"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "21-2587/i9411b.pdf",
+            "fileSize": "99990"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "SEL-751: Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9089b.dwg",
+            "fileSize": "28645"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9089b.pdf",
+            "fileSize": "35700"
+          }
+        }
+      },
+      {
+        "type": "SEL-751: Front, Right, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "26-1114/i7213d.dwg",
+            "fileSize": "3011529"
+          },
+          "dwl": {
+            "format": "dwl",
+            "path": "18-1397/i7213b.dwl",
+            "fileSize": "58"
+          },
+          "dwl2": {
+            "format": "dwl2",
+            "path": "18-1397/i7213b.dwl2",
+            "fileSize": "208"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "26-1114/i7213d.pdf",
+            "fileSize": "3411122"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

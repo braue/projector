@@ -4,68 +4,29 @@
     "front_and_rear": [
       {
         "when": {
-          "observed_configurations": [
-            {
-              "model_config": {
-                "Mounting": [
-                  "1/2 Rack Horizontal Mount"
-                ]
-              },
-              "example_model_number": "24070000X",
-              "example_answer_string": "1-1,2-1,3-1,4-2"
-            }
-          ]
+          "position_9": "X"
         },
         "front_pdf": "i3858b.pdf",
-        "rear_pdf": "i3857b.pdf"
+        "rear_pdf": "i3857b.pdf",
+        "note": "2026-08-30 audit: rules keyed on the mounting digit (position 9) instead of observed-configuration example matching, which over-pinned the other digits — real orders like 240700013 fell through to the first-rule fallback. Mapping configurator-verified across all eight cached 2407 part numbers; i3857b is always the rear view."
       },
       {
         "when": {
-          "observed_configurations": [
-            {
-              "model_config": {
-                "Mounting": [
-                  "Panel Mount"
-                ]
-              },
-              "example_model_number": "240700003",
-              "example_answer_string": "1-1,2-1,3-1,4-4"
-            }
-          ]
+          "position_9": "3"
         },
         "front_pdf": "i4723a.pdf",
         "rear_pdf": "i3857b.pdf"
       },
       {
         "when": {
-          "observed_configurations": [
-            {
-              "model_config": {
-                "Mounting": [
-                  "Wall / Surface Mount"
-                ]
-              },
-              "example_model_number": "24070000W",
-              "example_answer_string": "1-1,2-1,3-1,4-3"
-            }
-          ]
+          "position_9": "W"
         },
         "front_pdf": "i4724a.pdf",
         "rear_pdf": "i3857b.pdf"
       },
       {
         "when": {
-          "observed_configurations": [
-            {
-              "model_config": {
-                "Mounting": [
-                  "19 in Horizontal Rack Mount With Bracket"
-                ]
-              },
-              "example_model_number": "24070010B",
-              "example_answer_string": "1-1,2-2,3-1,4-1"
-            }
-          ]
+          "position_9": "B"
         },
         "front_pdf": "i4725a.pdf",
         "rear_pdf": "i3857b.pdf"

@@ -367,7 +367,7 @@
         "label": "Fixed digit",
         "source": "SEL-651RA Ordering Information (WI-12760, 20250604)",
         "confidence": "high",
-        "note": "Constant 'A' in the header template and every observed part number (mandatory hardware).",
+        "note": "Constant 'A' in the header template and every observed part number (mandatory hardware). Exception: code '2' appears on genuine fleet units 0651RA01X1AX2A1A111XXX(XXX) (5 sightings, 2026-08-30 audit); the SEL configurator classifies those part numbers as legacy SEL-651R-0 with an 18-character format and refuses to decode them, so their layout likely differs and the digit's meaning is undocumented offline - deliberately not guessed.",
         "options": {
           "A": "Fixed"
         }
@@ -380,7 +380,7 @@
         "group": "GROUP_2",
         "source": "SEL-651RA Ordering Information (WI-12760, 20250604)+pdf-layers",
         "confidence": "high",
-        "note": "Drawing layer GROUP_2 (source.position 10) maps this field; the layer index is offset from this stored-PN position 14 (real part numbers are authoritative).",
+        "note": "Drawing layer GROUP_2 (source.position 10) maps this field; the layer index is offset from this stored-PN position 14 (real part numbers are authoritative). Code 'A' appears here on the legacy SEL-651R-0-format fleet units noted at position 13; on the SEL-651R the same position 14 'A' is configurator-decoded as '(1) 10/100BASE-T', but those units' layout likely differs, so no meaning is recorded for the 651RA and the layer group intentionally stays unresolved (renders no comms-module layer, with a warning).",
         "options": {
           "D": "(1) 100BASE-FX, EIA-485",
           "E": "(2) 10/100BASE-T, EIA-485",

@@ -1,0 +1,533 @@
+{
+  "partQuery": "0351A1H6X3D14X2",
+  "fetchedAt": "2026-08-30T10:22:43.850Z",
+  "response": {
+    "product": {
+      "id": 1486,
+      "minorId": 0,
+      "productCode": "351A-1.2",
+      "cfgModel": "351A",
+      "name": "SEL-351A-1 Protection System",
+      "summary": "<p>The SEL-351A Protection System has built-in Ethernet and IEEE C37.118 synchrophasors, and is the economical solution for overcurrent protection. Easy-to-use feeder protection and innovative features like SEL’s Best Choice Ground Directional Element logic and <span class=\"sm-caps\">SELogic</span> control equations provide superior protection on utility and industrial power systems.</p>",
+      "revision": "7",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/351a.png?n=63677058143000"
+      ],
+      "standardFeatures": [
+        {
+          "contentData": [
+            {
+              "html": {
+                "content": "<ul><li>Ethernet</li><li>IEEE C37.118 Synchrophasor Measurement</li><li>DNP3 Outstation</li><li>Modbus TCP/RTU</li><li>Telnet</li><li>FTP</li><li>Web Server</li><li>SNTP</li><li>Operator Controls and LCD</li><li>8 Outputs (OUT101 and OUT102 are configured as Hybrid High-Current Interrupting output contacts)</li><li>6 Inputs</li><li>Conventional Terminal Blocks</li><li><a href=\"/software/downloads/?search=SEL-5030%20Software\">Download <span class=\"sm-caps\">acSELerator</span> QuickSet SEL-5030</a>.  <span class=\"sm-caps\">acSELerator</span> QuickSet on CD (503001WX4) is available upon request.</li></ul> <p>Accepts single-phase voltage up to 300V line-neutral or three-phase voltages up to 300V line-neutral, wye or delta connection configurable via global setting.</p>"
+              },
+              "links": [],
+              "images": []
+            }
+          ]
+        }
+      ],
+      "standardFeatureCollection": {
+        "submodelId": 1486,
+        "standardFeatures": [
+          {
+            "heading": "General",
+            "headingSortOrder": 1,
+            "values": [
+              {
+                "value": "Ethernet",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "IEEE C37.118 Synchrophasor Measurement",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "DNP3 Outstation",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "Modbus TCP/RTU",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "Telnet",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "FTP",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "Web Server",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "SNTP",
+                "valueSortOrder": 8
+              },
+              {
+                "value": "Operator Controls and LCD",
+                "valueSortOrder": 9
+              },
+              {
+                "value": "8 Outputs (OUT101 and OUT102 are configured as Hybrid High-Current Interrupting output contacts)",
+                "valueSortOrder": 10
+              },
+              {
+                "value": "6 Inputs",
+                "valueSortOrder": 11
+              },
+              {
+                "value": "Conventional Terminal Blocks",
+                "valueSortOrder": 12
+              },
+              {
+                "value": "Download ACSELERATOR QuickSet SEL-5030.  ACSELERATOR QuickSet on CD (503001WX4) is available upon request.",
+                "valueSortOrder": 13
+              },
+              {
+                "value": "Accepts single-phase voltage up to 300V line-neutral or three-phase voltages up to 300V line-neutral, wye or delta connection configurable via global setting.",
+                "valueSortOrder": 14
+              }
+            ]
+          }
+        ]
+      },
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/351A/",
+      "cartType": 1
+    },
+    "partNumber": "351A#X7JE",
+    "motString": "0351A1H6X3D14X2",
+    "salesNumber": "351A#X7JE",
+    "answerString": "'1-1','2-1','4-2','5-2','6-2','7-4','8-1','9-4','10-1','11-2'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Non-Directional, Three-Voltage",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Non-Directional, Three-Voltage"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Chassis and Mounting",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "2U Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis and Mounting",
+          "value": "2U Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 4,
+        "text": "User Interface",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 4,
+            "text": "Standard Interface with USB",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "User Interface",
+          "value": "Standard Interface with USB"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Safelock Trip and Close Buttons",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Safelock Trip and Close Buttons",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 6,
+            "text": "48/125 Vdc or 120 Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "48/125 Vdc or 120 Vac"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Communications Interface",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 7,
+            "text": "One  100 BASE-FX MM LC, EIA-485",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "D"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Interface",
+          "value": "One  100 BASE-FX MM LC, EIA-485"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "1 A Phase, 1 A Neutral",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "1 A Phase, 1 A Neutral"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 9,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Control Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Communications Protocols",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 11,
+            "text": "Standard Plus IEC 61850",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocols",
+          "value": "Standard Plus IEC 61850"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9170c.dwg",
+            "fileSize": "44328"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9170c.pdf",
+            "fileSize": "107827"
+          }
+        }
+      },
+      {
+        "type": "FRONT, REAR",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "25-7040/i7020.C.dwg",
+            "fileSize": "197671"
+          },
+          "dwl": {
+            "format": "dwl",
+            "path": "000/i7020b.dwl",
+            "fileSize": "60"
+          },
+          "dwl2": {
+            "format": "dwl2",
+            "path": "000/i7020b.dwl2",
+            "fileSize": "210"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "25-7040/i7020.C.pdf",
+            "fileSize": "454100"
+          }
+        }
+      },
+      {
+        "type": "INSTRUCTIONS",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [
+      {
+        "price": 383.43,
+        "questionIds": [
+          4,
+          5
+        ],
+        "questions": [
+          {
+            "id": 4,
+            "text": "User Interface",
+            "questionType": 0,
+            "sortIndex": 4,
+            "answers": [
+              {
+                "id": 2,
+                "questionId": 4,
+                "text": "Standard Interface with USB",
+                "sortIndex": 2,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 8,
+                    "value": "6"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "User Interface",
+              "value": "Standard Interface with USB"
+            }
+          },
+          {
+            "id": 5,
+            "text": "Safelock Trip and Close Buttons",
+            "questionType": 0,
+            "sortIndex": 5,
+            "answers": [
+              {
+                "id": 2,
+                "questionId": 5,
+                "text": "Yes",
+                "sortIndex": 2,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 8,
+                    "value": "6"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "Safelock Trip and Close Buttons",
+              "value": "Yes"
+            }
+          }
+        ]
+      }
+    ],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

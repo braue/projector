@@ -1,0 +1,40 @@
+{
+  "partQuery": "07870X1A6X3A1A85020XX",
+  "fetchedAt": "2026-08-30T10:21:32.668Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-787 Transformer Protection Relay should be 20 characters (21 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-787-2, -3, -4 Transformer Protection Relay has invalid digits in positions 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

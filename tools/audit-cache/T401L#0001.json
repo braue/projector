@@ -1,0 +1,209 @@
+{
+  "partQuery": "T401L#0001",
+  "fetchedAt": "2026-08-30T10:22:37.033Z",
+  "response": {
+    "product": {
+      "id": 1353,
+      "minorId": 0,
+      "cfgModel": "T401L",
+      "name": "SEL-T401L Ultra-High-Speed Line Relay",
+      "summary": "<ul>\r\n<li>Ultra-high-speed line protection with time-domain* and phasor-based elements and schemes.</li>\r\n<li>Single- and double-ended traveling-wave fault locator, accurate to a tower span.</li>\r\n<li>Line monitor for condition-based line maintenance to prevent recurring faults.</li>\r\n<li>Ultra-high-resolution transient recorder to record six currents and six voltages.</li>\r\n<li>Flexible protection signaling using configurable encoding methods, SEL MB or IEEE C37.94.</li>\r\n<li>SCADA/HMI integration and engineering access using DNP3 LAN/WAN, FTP, Telnet, and FTDV.**</li>\r\n<li>Rated input current: 5 A; power supply rated voltage: 125–250 Vdc, 110–240.</li>\r\n</ul>\r\n<p class=\"small\">*For the TW87 scheme, order transceivers for the direct fiber-optic channel separately to account for the line length and fiber losses of a particular application. <br />**Order a 1 Gbps SFP transceiver for the engineering access port if you plan on using the FTDV protocol.</p>",
+      "revision": "30",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Popular/4XXX/T401L.png?n=63734159472000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/T401L/",
+      "cartType": 1
+    },
+    "partNumber": "T401L#0001",
+    "motString": "T401L#0001",
+    "salesNumber": "T401L#0001",
+    "answerString": "'1-1','2-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "AC Current Inputs | Power Supply",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "5 A | 125-250 Vdc, 110-240 Vac",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "0"
+              },
+              {
+                "position": 8,
+                "value": "0"
+              },
+              {
+                "position": 9,
+                "value": "0"
+              },
+              {
+                "position": 10,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "AC Current Inputs | Power Supply",
+          "value": "5 A | 125-250 Vdc, 110-240 Vac"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Contact Input Rated Voltage",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "125 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "0"
+              },
+              {
+                "position": 8,
+                "value": "0"
+              },
+              {
+                "position": 9,
+                "value": "0"
+              },
+              {
+                "position": 10,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Contact Input Rated Voltage",
+          "value": "125 Vdc"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "17-2856/i9386.A.dwg",
+            "fileSize": "256133"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "17-2856/i9386.A.pdf",
+            "fileSize": "134490"
+          }
+        }
+      },
+      {
+        "type": "Front",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "17-2856/i6360a.dwg",
+            "fileSize": "154857"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "17-2856/i6360a.pdf",
+            "fileSize": "140522"
+          }
+        }
+      },
+      {
+        "type": "Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "24-5675/i6361.B.dwg",
+            "fileSize": "177446"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "24-5675/i6361.B.pdf",
+            "fileSize": "261339"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "listPrice": 20519.08,
+    "price": 20519.08,
+    "isPopular": true,
+    "isOrderable": true,
+    "isOnlineOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {
+      "nonPopularPrice": 20519.08,
+      "partOverride": "SEL-T401L (5 A, 125–250 Vdc, 110–240 Vac)",
+      "applications": "<ul><li>5 A nominal current inputs</li><li>125–250 Vdc, 110–240 power supply rating</li><li>110, 125, and 250 Vdc contact input rating options</li></ul>",
+      "downloadLink": {},
+      "configOptions": [
+        {
+          "title": "Contact Input Rated Voltage",
+          "options": [
+            {
+              "optionId": 1,
+              "label": "110 Vdc",
+              "summary": "110 Vdc"
+            },
+            {
+              "optionId": 2,
+              "label": "125 Vdc",
+              "summary": "125 Vdc"
+            },
+            {
+              "optionId": 3,
+              "label": "250 Vdc",
+              "summary": "250 Vdc"
+            }
+          ]
+        }
+      ],
+      "optionIds": [
+        2
+      ],
+      "productCmsId": 128867,
+      "summaryCmsId": 131922,
+      "type": 1,
+      "reconfigureLink": "/products/popular-configure/?productCmsId=128867&summaryCmsId=131922&modelNumber=T401L%230001"
+    },
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

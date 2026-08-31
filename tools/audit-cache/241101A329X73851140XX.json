@@ -1,0 +1,44 @@
+{
+  "partQuery": "241101A329X73851140XX",
+  "fetchedAt": "2026-08-30T10:16:51.930Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-2411P Pump Automation Controller (Legacy) has invalid digits in positions 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-2411 Programmable Automation Controller (PAC) should be 19 characters (21 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9157 Front Panel Kit for the SEL-2411 should be 19 characters (21 entered)"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

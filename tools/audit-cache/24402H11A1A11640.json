@@ -1,0 +1,312 @@
+{
+  "partQuery": "24402H11A1A11640",
+  "fetchedAt": "2026-08-30T10:17:07.038Z",
+  "response": {
+    "product": {
+      "id": 996,
+      "minorId": 0,
+      "productCode": "2440-M2",
+      "cfgModel": "2440",
+      "name": "SEL-2440 Discrete Programmable Automation Controller (DPAC)",
+      "summary": "<p>The SEL-2440 DPAC is a 48-point discrete programmable automation controller that is ideal for utility and industrial applications as a rugged and reliable I/O solution at an economical price.</p>",
+      "revision": "182",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/2440.png?n=63574918971000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/2440/",
+      "cartType": 1
+    },
+    "partNumber": "2440#NBGG",
+    "motString": "24402H11A1A11640",
+    "salesNumber": "2440#NBGG",
+    "answerString": "'2-1','3-2','4-4','5-1','6-1','8-2','9-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 2,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 3,
+        "text": "I/O",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 3,
+            "text": "32 DI / 16 DO",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              },
+              {
+                "position": 9,
+                "value": "A"
+              },
+              {
+                "position": 10,
+                "value": "1"
+              },
+              {
+                "position": 11,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O",
+          "value": "32 DI / 16 DO"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Wetting Voltage",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 4,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              },
+              {
+                "position": 9,
+                "value": "A"
+              },
+              {
+                "position": 10,
+                "value": "1"
+              },
+              {
+                "position": 11,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Wetting Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Serial Port 2",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "EIA-232",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Serial Port 2",
+          "value": "EIA-232"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Ethernet Connection",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "Dual Copper 10/100BASE-T",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Connection",
+          "value": "Dual Copper 10/100BASE-T"
+        }
+      },
+      {
+        "id": 8,
+        "text": "IEC 61850",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 8,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 61850",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "13-0457/i9180b.dwg",
+            "fileSize": "199805"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "13-0457/i9180b.pdf",
+            "fileSize": "102471"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Front, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "20-2267/i7179b.dwg",
+            "fileSize": "595747"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "20-2267/i7179b.pdf",
+            "fileSize": "370978"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

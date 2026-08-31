@@ -102,6 +102,16 @@
         "rear_pdf": "i7378.B.pdf"
       },
       {
+        "when": {
+          "examples": [
+            "0700GW1A1A6X77870310"
+          ]
+        },
+        "front_pdf": "i7383.B.pdf",
+        "rear_pdf": "i7383.B.pdf",
+        "note": "700GW wind-generator dual-feeder configuration (positions 6=W, 13-16=7787): the SEL configurator lists drawing i7383.B for this exact fleet part number (part-lookup, 2026-08-30; CDN path 24-5210/i7383.B.pdf). Fetched 2026-08-30 with its DWG; layer rules generated from its catalog."
+      },
+      {
         "when": {},
         "front_pdf": "i7379.B.pdf",
         "rear_pdf": "i7379.B.pdf"
@@ -3390,6 +3400,245 @@
             }
           }
         }
+      },
+      "i7383.B.pdf": {
+        "_note": "Generated 2026-08-30 from i7383.B.pdf's own layer catalog; group sources copied from i7379.B.pdf's matching groups (same drawing family).",
+        "always": [
+          {
+            "name": "5.00_____DWG",
+            "object_id": "39 0 R"
+          },
+          {
+            "name": "4.00____[SLOT Z]",
+            "object_id": "43 0 R"
+          },
+          {
+            "name": "3.00____[SLOT D]",
+            "object_id": "54 0 R"
+          },
+          {
+            "name": "2.00____[SLOT C]",
+            "object_id": "65 0 R"
+          },
+          {
+            "name": "1.00____[COMBINED SLOT B. ETHERNET & SERIAL PORT]",
+            "object_id": "73 0 R"
+          }
+        ],
+        "by_option_group": {
+          "SLOT_Z": {
+            "source": {
+              "position": 15,
+              "length": 2
+            },
+            "options": {
+              "83": [
+                {
+                  "name": "4.01__83__3-Phase 1 Amp AC Current Input (SELECT 3 ACIZ)",
+                  "object_id": "42 0 R"
+                }
+              ],
+              "87": [
+                {
+                  "name": "4.02__87__3-Phase 5 Amp AC Current Input (SELECT 3 ACIZ)",
+                  "object_id": "41 0 R"
+                }
+              ],
+              "L3": [
+                {
+                  "name": "4.03__L3__3-Phase Rogowski Coil or Low Power Current Transformer (RJ45 Inputs) (SELECT 3 ACI)",
+                  "object_id": "40 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_D": {
+            "source": {
+              "position": 11,
+              "length": 2
+            },
+            "options": {
+              "9-": [
+                {
+                  "name": "3.10__9-__(10) RTD Inputs",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.09__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "3.08__4-__(14) DI",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.07__3-__(8) DI",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "3.06__2-__(8) DO  Electromechanical (Form A)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.05__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "49 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "50 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.03__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "52 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.01__0-__Empty",
+                  "object_id": "53 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_C": {
+            "source": {
+              "position": 9,
+              "length": 2
+            },
+            "options": {
+              "6-": [
+                {
+                  "name": "2.10__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "2.09__4-__(14) DI",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.08__3-__(8) DI",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "2.07__2-__(8) DO  Electromechanical (Form A)",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "2.06__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.05__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.04__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.03__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "2.02__A-__Serial Communications (EIA-232-485)",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__Empty",
+                  "object_id": "64 0 R"
+                }
+              ]
+            }
+          },
+          "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT": {
+            "source": {
+              "position": 7,
+              "length": 2
+            },
+            "options": {
+              "8-": [
+                {
+                  "name": "1.07__8-__(2) 100Base-FX MM LC Ethernet. EIA-232",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "1.06__6-__(2) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "67 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "1.05__4-__(1) 100Base-FX MM LC Ethernet. EIA-232",
+                  "object_id": "68 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "1.04__3-__(1) 10-100Base-T Ethernet. EIA-485",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "1.03__2-__(1) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "1.02__1-__None. EIA-485",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "1.01__0-__None. EIA-232",
+                  "object_id": "72 0 R"
+                }
+              ]
+            }
+          }
+        }
       }
     }
   },
@@ -3634,6 +3883,26 @@
             92.2,
             1666.24,
             658.5
+          ]
+        }
+      },
+      "i7383.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60.77,
+            92.23,
+            492.55,
+            658.51
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1259.06,
+            92.23,
+            1666.22,
+            658.51
           ]
         }
       }

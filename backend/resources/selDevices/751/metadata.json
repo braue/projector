@@ -161,8 +161,75 @@
                   "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
                   "object_id": "81 0 R"
                 }
+              ],
+              "S": [
+                {
+                  "name": "9.01__0__None",
+                  "object_id": "91 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "9.06__5__21 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "L": [
+                {
+                  "name": "9.07__6__21 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "9.08__7__21 Universal Binary Inputs (24-250 Vdc-Vac). 36 Electromechanical Digital Outputs",
+                  "object_id": "84 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "9.09__8__42 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "83 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "9.10__9__42 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "Q": [
+                {
+                  "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "9.12__B__12 Electromechanical Digital Outputs",
+                  "object_id": "80 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "9.13__C__24 Electromechanical Digital Outputs",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "U": [
+                {
+                  "name": "9.14__D__36 Electromechanical Digital Outputs",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "9.15__E__48 Electromechanical Digital Outputs",
+                  "object_id": "77 0 R"
+                }
               ]
-            }
+            },
+            "note": "Position 5 combines front-panel language with the extended-I/O card set; the drawing catalog only names the English codes (0-E). Language-variant codes (F-V) were mapped to the same layers as the English code with the identical I/O set, per the decode table (e.g. 'S' = Spanish/None draws what '0' = English/None draws). 'S' confirmed by SEL configurator part-lookup decode of 7515S1A1A9X70850230 (2026-08-30)."
           },
           "SLOT_Z": {
             "source": {
@@ -320,203 +387,134 @@
           },
           "COMBINED_SLOT_D_OPTION_9_&_SLOT_E": {
             "source": {
-              "position": 12,
-              "length": 2
-            },
-            "options": {
-              "70": [
+              "parts": [
                 {
-                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
-                  "object_id": "122 0 R"
-                }
-              ],
-              "77": [
-                {
-                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
-                  "object_id": "120 0 R"
-                }
-              ],
-              "9-": [
-                {
-                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "118 0 R"
+                  "position": 10
                 },
                 {
-                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "119 0 R"
-                },
-                {
-                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
-                  "object_id": "120 0 R"
-                },
-                {
-                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
-                  "object_id": "121 0 R"
-                },
-                {
-                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
-                  "object_id": "122 0 R"
-                },
-                {
-                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
-                  "object_id": "123 0 R"
-                },
-                {
-                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
-                  "object_id": "124 0 R"
-                },
-                {
-                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
-                  "object_id": "125 0 R"
-                },
-                {
-                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
-                  "object_id": "126 0 R"
-                },
-                {
-                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
-                  "object_id": "127 0 R"
-                },
-                {
-                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
-                  "object_id": "128 0 R"
-                },
-                {
-                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
-                  "object_id": "129 0 R"
-                },
-                {
-                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
-                  "object_id": "130 0 R"
-                },
-                {
-                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
-                  "object_id": "131 0 R"
-                },
-                {
-                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
-                  "object_id": "132 0 R"
-                },
-                {
-                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
-                  "object_id": "133 0 R"
-                },
-                {
-                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
-                  "object_id": "134 0 R"
-                },
-                {
-                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
-                  "object_id": "135 0 R"
-                },
-                {
-                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
-                  "object_id": "136 0 R"
-                }
-              ],
-              "L-": [
-                {
-                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "118 0 R"
-                }
-              ],
-              "7-": [
-                {
-                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "119 0 R"
-                }
-              ],
-              "L0": [
-                {
-                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
-                  "object_id": "121 0 R"
-                }
-              ],
-              "6-": [
-                {
-                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
-                  "object_id": "123 0 R"
-                }
-              ],
-              "5-": [
-                {
-                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
-                  "object_id": "124 0 R"
-                }
-              ],
-              "4-": [
-                {
-                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
-                  "object_id": "125 0 R"
-                }
-              ],
-              "3-": [
-                {
-                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
-                  "object_id": "126 0 R"
-                }
-              ],
-              "2G": [
-                {
-                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
-                  "object_id": "127 0 R"
-                }
-              ],
-              "2D": [
-                {
-                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
-                  "object_id": "128 0 R"
-                }
-              ],
-              "2C": [
-                {
-                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
-                  "object_id": "129 0 R"
-                }
-              ],
-              "2B": [
-                {
-                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
-                  "object_id": "130 0 R"
-                }
-              ],
-              "2A": [
-                {
-                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
-                  "object_id": "131 0 R"
-                }
-              ],
-              "D-": [
-                {
-                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
-                  "object_id": "132 0 R"
-                }
-              ],
-              "C-": [
-                {
-                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
-                  "object_id": "133 0 R"
-                }
-              ],
-              "1-": [
-                {
-                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
-                  "object_id": "134 0 R"
-                }
-              ],
-              "B-": [
-                {
-                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
-                  "object_id": "135 0 R"
-                }
-              ],
-              "0-": [
-                {
-                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
-                  "object_id": "136 0 R"
+                  "position": 12,
+                  "length": 2
                 }
               ]
-            }
+            },
+            "options": {
+              "90X": [
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "136 0 R"
+                }
+              ],
+              "91X": [
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "134 0 R"
+                }
+              ],
+              "92A": [
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "131 0 R"
+                }
+              ],
+              "92B": [
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "130 0 R"
+                }
+              ],
+              "92C": [
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "129 0 R"
+                }
+              ],
+              "92D": [
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "128 0 R"
+                }
+              ],
+              "92G": [
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "127 0 R"
+                }
+              ],
+              "93X": [
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "126 0 R"
+                }
+              ],
+              "94X": [
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "125 0 R"
+                }
+              ],
+              "95X": [
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "124 0 R"
+                }
+              ],
+              "96X": [
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "123 0 R"
+                }
+              ],
+              "970": [
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "122 0 R"
+                }
+              ],
+              "977": [
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "120 0 R"
+                }
+              ],
+              "97X": [
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "119 0 R"
+                }
+              ],
+              "9BX": [
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "135 0 R"
+                }
+              ],
+              "9CX": [
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "133 0 R"
+                }
+              ],
+              "9DX": [
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "132 0 R"
+                }
+              ],
+              "9L0": [
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "121 0 R"
+                }
+              ],
+              "9LX": [
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "118 0 R"
+                }
+              ]
+            },
+            "optional": true,
+            "note": "Combined layers apply only when slot D is the RTD card ('9' at position 10) - the layer names encode both slots (6.xx__9- <slotE>__). The old source read only slot E, so any 751 with a populated slot E got an RTD layer regardless of slot D (2026-08-30 audit, under-conditioned-group). Keys are the real MOT characters: slot D digit 9 + slot E positions 12-13, with 'X' where the catalog fragment uses the '-' filler (same shape as 751A's i7008 group; slot E '70' confirmed by configurator decode of 751501A1A9X70850230). Optional: for non-RTD units the composite matches nothing and SLOT_D draws the panel."
           },
           "SLOT_D": {
             "source": {
@@ -607,8 +605,10 @@
                   "name": "5.01__0-__Empty",
                   "object_id": "151 0 R"
                 }
-              ]
-            }
+              ],
+              "9-": []
+            },
+            "note": "Slot D code '9' ((10) RTD Inputs; configurator-decoded on 751501A1A9X70850230, 2026-08-30) has no standalone layer: the RTD rear panel is drawn by the COMBINED_SLOT_D_OPTION_9_&_SLOT_E layers (6.xx__9- <slotE>__), so '9-' maps to an empty list here rather than warning as unresolved."
           },
           "SLOT_C": {
             "source": {
@@ -1131,8 +1131,119 @@
                   "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
                   "object_id": "208 0 R"
                 }
+              ],
+              "S": [
+                {
+                  "name": "9.01__0__None",
+                  "object_id": "95 0 R"
+                },
+                {
+                  "name": "9.01__0__None",
+                  "object_id": "218 0 R"
+                }
+              ],
+              "K": [
+                {
+                  "name": "9.06__5__21 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "90 0 R"
+                },
+                {
+                  "name": "9.06__5__21 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "213 0 R"
+                }
+              ],
+              "L": [
+                {
+                  "name": "9.07__6__21 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "89 0 R"
+                },
+                {
+                  "name": "9.07__6__21 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "212 0 R"
+                }
+              ],
+              "M": [
+                {
+                  "name": "9.08__7__21 Universal Binary Inputs (24-250 Vdc-Vac). 36 Electromechanical Digital Outputs",
+                  "object_id": "88 0 R"
+                },
+                {
+                  "name": "9.08__7__21 Universal Binary Inputs (24-250 Vdc-Vac). 36 Electromechanical Digital Outputs",
+                  "object_id": "211 0 R"
+                }
+              ],
+              "N": [
+                {
+                  "name": "9.09__8__42 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "87 0 R"
+                },
+                {
+                  "name": "9.09__8__42 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "210 0 R"
+                }
+              ],
+              "P": [
+                {
+                  "name": "9.10__9__42 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "86 0 R"
+                },
+                {
+                  "name": "9.10__9__42 Universal Binary Inputs (24-250 Vdc-Vac). 24 Electromechanical Digital Outputs",
+                  "object_id": "209 0 R"
+                }
+              ],
+              "Q": [
+                {
+                  "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "85 0 R"
+                },
+                {
+                  "name": "9.11__A__63 Universal Binary Inputs (24-250 Vdc-Vac). 12 Electromechanical Digital Outputs",
+                  "object_id": "208 0 R"
+                }
+              ],
+              "R": [
+                {
+                  "name": "9.12__B__12 Electromechanical Digital Outputs",
+                  "object_id": "84 0 R"
+                },
+                {
+                  "name": "9.12__B__12 Electromechanical Digital Outputs",
+                  "object_id": "207 0 R"
+                }
+              ],
+              "T": [
+                {
+                  "name": "9.13__C__24 Electromechanical Digital Outputs",
+                  "object_id": "83 0 R"
+                },
+                {
+                  "name": "9.13__C__24 Electromechanical Digital Outputs",
+                  "object_id": "206 0 R"
+                }
+              ],
+              "U": [
+                {
+                  "name": "9.14__D__36 Electromechanical Digital Outputs",
+                  "object_id": "82 0 R"
+                },
+                {
+                  "name": "9.14__D__36 Electromechanical Digital Outputs",
+                  "object_id": "205 0 R"
+                }
+              ],
+              "V": [
+                {
+                  "name": "9.15__E__48 Electromechanical Digital Outputs",
+                  "object_id": "81 0 R"
+                },
+                {
+                  "name": "9.15__E__48 Electromechanical Digital Outputs",
+                  "object_id": "204 0 R"
+                }
               ]
-            }
+            },
+            "note": "Position 5 combines front-panel language with the extended-I/O card set; the drawing catalog only names the English codes (0-E). Language-variant codes (F-V) were mapped to the same layers as the English code with the identical I/O set, per the decode table (e.g. 'S' = Spanish/None draws what '0' = English/None draws). 'S' confirmed by SEL configurator part-lookup decode of 7515S1A1A9X70850230 (2026-08-30)."
           },
           "SLOT_Z": {
             "source": {
@@ -1382,355 +1493,210 @@
           },
           "COMBINED_SLOT_D_OPTION_9_&_SLOT_E": {
             "source": {
-              "position": 12,
-              "length": 2
-            },
-            "options": {
-              "70": [
+              "parts": [
                 {
-                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
-                  "object_id": "126 0 R"
+                  "position": 10
                 },
                 {
-                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
-                  "object_id": "249 0 R"
-                }
-              ],
-              "77": [
-                {
-                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
-                  "object_id": "124 0 R"
-                },
-                {
-                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
-                  "object_id": "247 0 R"
-                }
-              ],
-              "9-": [
-                {
-                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "122 0 R"
-                },
-                {
-                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "123 0 R"
-                },
-                {
-                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
-                  "object_id": "124 0 R"
-                },
-                {
-                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
-                  "object_id": "125 0 R"
-                },
-                {
-                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
-                  "object_id": "126 0 R"
-                },
-                {
-                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
-                  "object_id": "127 0 R"
-                },
-                {
-                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
-                  "object_id": "128 0 R"
-                },
-                {
-                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
-                  "object_id": "129 0 R"
-                },
-                {
-                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
-                  "object_id": "130 0 R"
-                },
-                {
-                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
-                  "object_id": "131 0 R"
-                },
-                {
-                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
-                  "object_id": "132 0 R"
-                },
-                {
-                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
-                  "object_id": "133 0 R"
-                },
-                {
-                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
-                  "object_id": "134 0 R"
-                },
-                {
-                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
-                  "object_id": "135 0 R"
-                },
-                {
-                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
-                  "object_id": "136 0 R"
-                },
-                {
-                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
-                  "object_id": "137 0 R"
-                },
-                {
-                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
-                  "object_id": "138 0 R"
-                },
-                {
-                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
-                  "object_id": "139 0 R"
-                },
-                {
-                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
-                  "object_id": "140 0 R"
-                },
-                {
-                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "245 0 R"
-                },
-                {
-                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "246 0 R"
-                },
-                {
-                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
-                  "object_id": "247 0 R"
-                },
-                {
-                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
-                  "object_id": "248 0 R"
-                },
-                {
-                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
-                  "object_id": "249 0 R"
-                },
-                {
-                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
-                  "object_id": "250 0 R"
-                },
-                {
-                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
-                  "object_id": "251 0 R"
-                },
-                {
-                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
-                  "object_id": "252 0 R"
-                },
-                {
-                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
-                  "object_id": "253 0 R"
-                },
-                {
-                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
-                  "object_id": "254 0 R"
-                },
-                {
-                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
-                  "object_id": "255 0 R"
-                },
-                {
-                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
-                  "object_id": "256 0 R"
-                },
-                {
-                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
-                  "object_id": "257 0 R"
-                },
-                {
-                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
-                  "object_id": "258 0 R"
-                },
-                {
-                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
-                  "object_id": "259 0 R"
-                },
-                {
-                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
-                  "object_id": "260 0 R"
-                },
-                {
-                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
-                  "object_id": "261 0 R"
-                },
-                {
-                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
-                  "object_id": "262 0 R"
-                },
-                {
-                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
-                  "object_id": "263 0 R"
-                }
-              ],
-              "L-": [
-                {
-                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "122 0 R"
-                },
-                {
-                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "245 0 R"
-                }
-              ],
-              "7-": [
-                {
-                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "123 0 R"
-                },
-                {
-                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
-                  "object_id": "246 0 R"
-                }
-              ],
-              "L0": [
-                {
-                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
-                  "object_id": "125 0 R"
-                },
-                {
-                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
-                  "object_id": "248 0 R"
-                }
-              ],
-              "6-": [
-                {
-                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
-                  "object_id": "127 0 R"
-                },
-                {
-                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
-                  "object_id": "250 0 R"
-                }
-              ],
-              "5-": [
-                {
-                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
-                  "object_id": "128 0 R"
-                },
-                {
-                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
-                  "object_id": "251 0 R"
-                }
-              ],
-              "4-": [
-                {
-                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
-                  "object_id": "129 0 R"
-                },
-                {
-                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
-                  "object_id": "252 0 R"
-                }
-              ],
-              "3-": [
-                {
-                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
-                  "object_id": "130 0 R"
-                },
-                {
-                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
-                  "object_id": "253 0 R"
-                }
-              ],
-              "2G": [
-                {
-                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
-                  "object_id": "131 0 R"
-                },
-                {
-                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
-                  "object_id": "254 0 R"
-                }
-              ],
-              "2D": [
-                {
-                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
-                  "object_id": "132 0 R"
-                },
-                {
-                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
-                  "object_id": "255 0 R"
-                }
-              ],
-              "2C": [
-                {
-                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
-                  "object_id": "133 0 R"
-                },
-                {
-                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
-                  "object_id": "256 0 R"
-                }
-              ],
-              "2B": [
-                {
-                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
-                  "object_id": "134 0 R"
-                },
-                {
-                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
-                  "object_id": "257 0 R"
-                }
-              ],
-              "2A": [
-                {
-                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
-                  "object_id": "135 0 R"
-                },
-                {
-                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
-                  "object_id": "258 0 R"
-                }
-              ],
-              "D-": [
-                {
-                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
-                  "object_id": "136 0 R"
-                },
-                {
-                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
-                  "object_id": "259 0 R"
-                }
-              ],
-              "C-": [
-                {
-                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
-                  "object_id": "137 0 R"
-                },
-                {
-                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
-                  "object_id": "260 0 R"
-                }
-              ],
-              "1-": [
-                {
-                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
-                  "object_id": "138 0 R"
-                },
-                {
-                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
-                  "object_id": "261 0 R"
-                }
-              ],
-              "B-": [
-                {
-                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
-                  "object_id": "139 0 R"
-                },
-                {
-                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
-                  "object_id": "262 0 R"
-                }
-              ],
-              "0-": [
-                {
-                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
-                  "object_id": "140 0 R"
-                },
-                {
-                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
-                  "object_id": "263 0 R"
+                  "position": 12,
+                  "length": 2
                 }
               ]
-            }
+            },
+            "options": {
+              "90X": [
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "140 0 R"
+                },
+                {
+                  "name": "6.01__9- 0-__(10) RTD Input & Empty",
+                  "object_id": "263 0 R"
+                }
+              ],
+              "91X": [
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "138 0 R"
+                },
+                {
+                  "name": "6.03__9- 1-__(10) RTD Input & (4) DI. (4) DO (Electromechanical)",
+                  "object_id": "261 0 R"
+                }
+              ],
+              "92A": [
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "135 0 R"
+                },
+                {
+                  "name": "6.06__9- 2A__(10) RTD Input & (8) Form A DO",
+                  "object_id": "258 0 R"
+                }
+              ],
+              "92B": [
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "134 0 R"
+                },
+                {
+                  "name": "6.07__9- 2B__(10) RTD Input & (8) Form B DO",
+                  "object_id": "257 0 R"
+                }
+              ],
+              "92C": [
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "133 0 R"
+                },
+                {
+                  "name": "6.08__9- 2C__(10) RTD Input & (8) DO (6) Form A. (2) Form B",
+                  "object_id": "256 0 R"
+                }
+              ],
+              "92D": [
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "132 0 R"
+                },
+                {
+                  "name": "6.09__9- 2D__(10) RTD Input & (8) DO (2) Form A. (6) Form B",
+                  "object_id": "255 0 R"
+                }
+              ],
+              "92G": [
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "131 0 R"
+                },
+                {
+                  "name": "6.10__9- 2G__(10) RTD Input & (8) DO (4) Form A. (4) Form B",
+                  "object_id": "254 0 R"
+                }
+              ],
+              "93X": [
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "130 0 R"
+                },
+                {
+                  "name": "6.11__9- 3-__(10) RTD Input & (8) DI",
+                  "object_id": "253 0 R"
+                }
+              ],
+              "94X": [
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "129 0 R"
+                },
+                {
+                  "name": "6.12__9- 4-__(10) RTD Input & (14) DI",
+                  "object_id": "252 0 R"
+                }
+              ],
+              "95X": [
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "128 0 R"
+                },
+                {
+                  "name": "6.13__9- 5-__(10) RTD Input & (8) AI",
+                  "object_id": "251 0 R"
+                }
+              ],
+              "96X": [
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "127 0 R"
+                },
+                {
+                  "name": "6.14__9- 6-__(10) RTD Input & (4) AI & (4) AO",
+                  "object_id": "250 0 R"
+                }
+              ],
+              "970": [
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "126 0 R"
+                },
+                {
+                  "name": "6.15__9- 70__(10) RTD Input & (2) AVI & (4) AFDI",
+                  "object_id": "249 0 R"
+                }
+              ],
+              "977": [
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "124 0 R"
+                },
+                {
+                  "name": "6.17__9- 77__(10) RTD Input & (8) AFDI",
+                  "object_id": "247 0 R"
+                }
+              ],
+              "97X": [
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "123 0 R"
+                },
+                {
+                  "name": "6.18__9- 7-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "246 0 R"
+                }
+              ],
+              "9BX": [
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "139 0 R"
+                },
+                {
+                  "name": "6.02__9- B-__(10) RTD Input & (3) DI. (4) DO. (1) AO (4-20mA)",
+                  "object_id": "262 0 R"
+                }
+              ],
+              "9CX": [
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "137 0 R"
+                },
+                {
+                  "name": "6.04__9- C-__(10) RTD Input & (4) DI. (4) DO (Fast HC Interrupting)",
+                  "object_id": "260 0 R"
+                }
+              ],
+              "9DX": [
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "136 0 R"
+                },
+                {
+                  "name": "6.05__9- D-__(10) RTD Input & (4) DI. (3) DO (2) Form C. (1) Form B",
+                  "object_id": "259 0 R"
+                }
+              ],
+              "9L0": [
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "125 0 R"
+                },
+                {
+                  "name": "6.16__9- L0__(10) RTD Input & (2) LEA AVI & (4) AFDI",
+                  "object_id": "248 0 R"
+                }
+              ],
+              "9LX": [
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "122 0 R"
+                },
+                {
+                  "name": "6.19__9- L-__(10) RTD Input & (2) AVI & (7) DI",
+                  "object_id": "245 0 R"
+                }
+              ]
+            },
+            "optional": true,
+            "note": "Combined layers apply only when slot D is the RTD card ('9' at position 10) - the layer names encode both slots (6.xx__9- <slotE>__). The old source read only slot E, so any 751 with a populated slot E got an RTD layer regardless of slot D (2026-08-30 audit, under-conditioned-group). Keys are the real MOT characters: slot D digit 9 + slot E positions 12-13, with 'X' where the catalog fragment uses the '-' filler (same shape as 751A's i7008 group; slot E '70' confirmed by configurator decode of 751501A1A9X70850230). Optional: for non-RTD units the composite matches nothing and SLOT_D draws the panel."
           },
           "SLOT_D": {
             "source": {
@@ -1877,8 +1843,10 @@
                   "name": "5.01__0-__Empty",
                   "object_id": "278 0 R"
                 }
-              ]
-            }
+              ],
+              "9-": []
+            },
+            "note": "Slot D code '9' ((10) RTD Inputs; configurator-decoded on 751501A1A9X70850230, 2026-08-30) has no standalone layer: the RTD rear panel is drawn by the COMBINED_SLOT_D_OPTION_9_&_SLOT_E layers (6.xx__9- <slotE>__), so '9-' maps to an empty list here rather than warning as unresolved."
           },
           "SLOT_C": {
             "source": {

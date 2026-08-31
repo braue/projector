@@ -684,7 +684,7 @@
         "label": "Fixed placeholder",
         "source": "SEL-351S Ordering Information (WI-8323, 20211221)",
         "confidence": "high",
-        "note": "Fixed 'X' printed in the ordering-table part-number template; not a selectable option.",
+        "note": "Fixed 'X' printed in the ordering-table part-number template; not a selectable option. Codes observed on genuine legacy fleet units 0351S71H34554X1 and 0351S73H5455421 (45 sightings, 2026-08-30 audit) that the SEL configurator refuses to decode (classified legacy SEL-351-x / 'not available through this application'): '1' and '3' appear here; meaning undocumented offline, deliberately not guessed.",
         "options": {
           "X": "Fixed placeholder"
         }
@@ -763,7 +763,8 @@
           "H": "(1) 10/100Base-T, (1) 100Base-FX MM LC, (1) FO MM ST serial port",
           "J": "(2) 10/100Base-T, (1) FO MM ST serial port",
           "K": "(2) 100Base-FX MM LC, (1) FO MM ST serial port"
-        }
+        },
+        "note": "Codes observed on genuine legacy fleet units 0351S71H34554X1 and 0351S73H5455421 (45 sightings, 2026-08-30 audit) that the SEL configurator refuses to decode (classified legacy SEL-351-x / 'not available through this application'): '5' appears here where current ordering uses letters A-K; the comms hardware those units carry is unknown, so the drawing layer group intentionally stays unresolved for them (renders no comms layer, with a warning)."
       },
       {
         "position": 12,

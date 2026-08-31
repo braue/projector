@@ -1,0 +1,341 @@
+{
+  "partQuery": "05870W1X1X11",
+  "fetchedAt": "2026-08-30T10:19:49.203Z",
+  "response": {
+    "product": {
+      "id": 1570,
+      "minorId": 0,
+      "productCode": "587Connectorized",
+      "cfgModel": "587",
+      "name": "SEL-587-0, -1 Connectorized Current Differential Relay",
+      "summary": "<p>Apply economical differential protection for two-winding transformers or any two-terminal apparatus.</p>",
+      "revision": "1",
+      "imageUrls": [
+        "uploadedImages/_New_Site/Products/587_PanelMNT_Left-Front_B.jpg?n=63754470146000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/587/",
+      "cartType": 1
+    },
+    "partNumber": "587#K44P",
+    "motString": "05870W1X1X11",
+    "salesNumber": "587#K44P",
+    "answerString": "'1-1','3-1','4-1','5-1','6-1','7-1','8-1','9-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Firmware Revision",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware Revision",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "W"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "24 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "24 Vdc"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Communications Protocol",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocol",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "1 A Phase",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "1 A Phase"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Packaging",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Packaging",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Communications Port",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "EIA-232",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Port",
+          "value": "EIA-232"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "24 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Control Input Voltage",
+          "value": "24 Vdc"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9011b.dwg",
+            "fileSize": "48110"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9011b.pdf",
+            "fileSize": "102446"
+          }
+        }
+      },
+      {
+        "type": "FRONT,REAR",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "22-1615/i7234b.dwg",
+            "fileSize": "346075"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "22-1615/i7234b.pdf",
+            "fileSize": "254671"
+          }
+        }
+      },
+      {
+        "type": "INSTRUCTIONS",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

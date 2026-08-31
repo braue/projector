@@ -1,0 +1,40 @@
+{
+  "partQuery": "071050E1B1X0X7583A21X",
+  "fetchedAt": "2026-08-30T10:21:09.818Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-710-5 Motor Protection Relay has invalid digits in positions 10, 11, 21"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9157 Front Panel Kit for the SEL-710-5 has invalid digits in positions 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 16, 17, 19, 20, 21"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

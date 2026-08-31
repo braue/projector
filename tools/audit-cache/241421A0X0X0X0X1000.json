@@ -1,0 +1,668 @@
+{
+  "partQuery": "241421A0X0X0X0X1000",
+  "fetchedAt": "2026-08-30T10:16:57.997Z",
+  "response": {
+    "product": {
+      "id": 117,
+      "minorId": 0,
+      "productCode": "2414",
+      "cfgModel": "2414",
+      "name": "SEL-2414 Transformer Automation Controller (TAC)",
+      "summary": "<p>The SEL-2414 Transformer Monitor provides an exceptional combination of monitoring, control, and communications in a compact package.</p>",
+      "revision": "25",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/MKTGREN-607_2414_Duo_TAC_LF_01(1).png?n=63901600916000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/2414/",
+      "cartType": 1
+    },
+    "partNumber": "2414#8B5Q",
+    "motString": "241421A0X0X0X0X1000",
+    "salesNumber": "2414#8B5Q",
+    "answerString": "'1-1','2-1','3-4','4-1','5-2','6-2','7-1','8-1','9-1','10-1','11-1','12-1','13-1','14-1','15-1','16-1','17-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 25,
+        "text": "Load Tap Changer Control",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 25,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Load Tap Changer Control",
+          "value": "No"
+        }
+      },
+      {
+        "id": 1,
+        "text": "Chassis",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Vertical Panel Mount",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis",
+          "value": "Vertical Panel Mount"
+        }
+      },
+      {
+        "id": 24,
+        "text": "Front Panel",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 24,
+            "text": "Large LCD With 4 Pushbuttons (7 Programmable LEDs)",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Front Panel",
+          "value": "Large LCD With 4 Pushbuttons (7 Programmable LEDs)"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Slot A Power Supply Voltage",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "125-250 Vdc (120-240 Vac)",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Power Supply Voltage",
+          "value": "125-250 Vdc (120-240 Vac)"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Slot A Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 3,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Digital Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Slot B Ethernet",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Ethernet",
+          "value": "None"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Slot B Fiber-Optic Serial",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Fiber-Optic Serial",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Slot B IRIG Connector",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 6,
+            "text": "Yes",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B IRIG Connector",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 7,
+        "text": "IEC 61850 Protocol",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 61850 Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 8,
+        "text": "DNP3 Protocol",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "DNP3 Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Slot C",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "0"
+              },
+              {
+                "position": 9,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Slot C Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "NA",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "0"
+              },
+              {
+                "position": 9,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C Digital Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Slot D",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 11,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "0"
+              },
+              {
+                "position": 11,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Slot D Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 12,
+            "text": "NA",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "0"
+              },
+              {
+                "position": 11,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D Digital Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Slot E",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "0"
+              },
+              {
+                "position": 13,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot E",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Slot E Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 16,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 14,
+            "text": "NA",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "0"
+              },
+              {
+                "position": 13,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot E Digital Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 15,
+        "text": "Slot Z",
+        "questionType": 0,
+        "sortIndex": 17,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 15,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "0"
+              },
+              {
+                "position": 15,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot Z",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 16,
+        "text": "Slot Z Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 18,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 16,
+            "text": "NA",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "0"
+              },
+              {
+                "position": 15,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot Z Digital Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 17,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 19,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 17,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9089b.dwg",
+            "fileSize": "28645"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9089b.pdf",
+            "fileSize": "35700"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Front, Right, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "25-7348/i7033.D.dwg",
+            "fileSize": "1107291"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "25-7348/i7033.D.pdf",
+            "fileSize": "1051330"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

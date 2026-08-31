@@ -1,0 +1,680 @@
+{
+  "partQuery": "0411L0X6X5C8DCXH6247424",
+  "fetchedAt": "2026-08-30T10:17:53.854Z",
+  "response": {
+    "product": {
+      "id": 185,
+      "minorId": 0,
+      "productCode": "411L",
+      "cfgModel": "411L",
+      "name": "SEL-411L With Conventional Secondary Inputs",
+      "summary": "<p>With comprehensive distance and differential protection the SEL-411L allows you to stock one relay for all transmission lines. The SEL-411L is also the only relay with traveling-wave fault location\r\nwhich pinpoints faults to the nearest tower or span.</p>",
+      "revision": "181",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/411L.png?n=63664336401000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/411L/",
+      "cartType": 1
+    },
+    "partNumber": "411L#PV3Q",
+    "motString": "0411L0X6X5C8DCXH6247424",
+    "salesNumber": "411L#PV3Q",
+    "answerString": "'1-1','2-1','3-3','4-1','5-2','6-3','7-4','8-5','9-4','10-1','11-3','12-1','13-4','14-3','15-4','16-2','17-4'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard Current Differential and Distance Elements for Single/Dual Breaker, Single/Three Pole Tripping Applications",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              },
+              {
+                "position": 11,
+                "value": "C"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Standard Current Differential and Distance Elements for Single/Dual Breaker, Single/Three Pole Tripping Applications"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 3,
+            "text": "125-250 Vdc or 110-240 Vac",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "125-250 Vdc or 110-240 Vac"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Connector Type",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "Screw Terminal Block",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Connector Type",
+          "value": "Screw Terminal Block"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Secondary Inputs",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "300 V Phase - Neutral Maximum (Wye), 5 A Phase",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Inputs",
+          "value": "300 V Phase - Neutral Maximum (Wye), 5 A Phase"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Ethernet Communications Protocols and 87L Line Current Differential",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 6,
+            "text": "FTP, Telnet, Synchrophasors, DNP3 LAN/WAN and IEC 61850",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              },
+              {
+                "position": 11,
+                "value": "C"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Communications Protocols and 87L Line Current Differential",
+          "value": "FTP, Telnet, Synchrophasors, DNP3 LAN/WAN and IEC 61850"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Ethernet Connection Options",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 7,
+            "text": "Two 10/100BASE-T and Two 100BASE-FX Connectors",
+            "hasHelp": true,
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "8"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Connection Options",
+          "value": "Two 10/100BASE-T and Two 100BASE-FX Connectors"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Serial Line Current Differential Communications Channel 1",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 5,
+            "questionId": 8,
+            "text": "1300 nm Fiber",
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "D"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Serial Line Current Differential Communications Channel 1",
+          "value": "1300 nm Fiber"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Serial Line Current Differential Communications Channel 2",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 9,
+            "text": "850 nm IEEE C37.94 Fiber",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "C"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Serial Line Current Differential Communications Channel 2",
+          "value": "850 nm IEEE C37.94 Fiber"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Chassis",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 11,
+            "text": "6U, Up to Three I/O Boards",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis",
+          "value": "6U, Up to Three I/O Boards"
+        }
+      },
+      {
+        "id": 12,
+        "text": "I/O Board Position B for 4U, 5U, 6U or 7U Chassis",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 12,
+            "text": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position B for 4U, 5U, 6U or 7U Chassis",
+          "value": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs"
+        }
+      },
+      {
+        "id": 13,
+        "text": "I/O Board Position B Input Voltage",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 13,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position B Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 14,
+        "text": "I/O Board Position C for 5U, 6U or 7U Chassis",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 14,
+            "text": "8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "7"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position C for 5U, 6U or 7U Chassis",
+          "value": "8 Optoisolated Independent Level-Sensitive Inputs, 13 High-Current Interrupting Form A, 2 Standard Form C Outputs"
+        }
+      },
+      {
+        "id": 15,
+        "text": "I/O Board Position C Input Voltage",
+        "questionType": 0,
+        "sortIndex": 16,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 15,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 21,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position C Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 16,
+        "text": "I/O Board Position D and E for 6U or 7U Chassis",
+        "questionType": 0,
+        "sortIndex": 18,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 16,
+            "text": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 22,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position D and E for 6U or 7U Chassis",
+          "value": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs"
+        }
+      },
+      {
+        "id": 17,
+        "text": "I/O Board Position D and E Input Voltage",
+        "questionType": 0,
+        "sortIndex": 19,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 17,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 23,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position D and E Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 21,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 31,
+        "text": "DMA Bundle",
+        "questionType": 0,
+        "sortIndex": 31,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 31,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "DMA Bundle",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "SEL-411L: Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9269c.dwg",
+            "fileSize": "114576"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9269c.pdf",
+            "fileSize": "256448"
+          }
+        }
+      },
+      {
+        "type": "SEL-411L: Front, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "24-0333/i7251.F.dwg",
+            "fileSize": "849983"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "24-0333/i7251.F.pdf",
+            "fileSize": "1041496"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [
+      {
+        "price": 752.45,
+        "questionIds": [
+          11,
+          16
+        ],
+        "questions": [
+          {
+            "id": 11,
+            "text": "Chassis",
+            "questionType": 0,
+            "sortIndex": 11,
+            "answers": [
+              {
+                "id": 3,
+                "questionId": 11,
+                "text": "6U, Up to Three I/O Boards",
+                "sortIndex": 3,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 17,
+                    "value": "6"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "Chassis",
+              "value": "6U, Up to Three I/O Boards"
+            }
+          },
+          {
+            "id": 16,
+            "text": "I/O Board Position D and E for 6U or 7U Chassis",
+            "questionType": 0,
+            "sortIndex": 18,
+            "answers": [
+              {
+                "id": 2,
+                "questionId": 16,
+                "text": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+                "sortIndex": 2,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 22,
+                    "value": "2"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "I/O Board Position D and E for 6U or 7U Chassis",
+              "value": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs"
+            }
+          }
+        ]
+      }
+    ],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

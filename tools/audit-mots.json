@@ -1,0 +1,310 @@
+{
+  "_comment": [
+    "MOT corpus for tools/audit-sel-metadata.mjs --verify (metadata-audit-plan.md Phase 1).",
+    "fleet entries are real PARTNOs read from the user's QuickSet Extract dumps and RDB",
+    "uploads (`seen` = occurrence count); synthesized entries exist only so uncovered",
+    "models exercise their drawing rules — the configurator may reject them.",
+    "The on-disk sweep (metadata examples + dwg-sources lookup PNs) is merged in",
+    "automatically by the harness; this file holds what is NOT derivable from metadata."
+  ],
+  "_no_decode_models": [
+    "2731",
+    "2740S",
+    "2741",
+    "2742",
+    "2743",
+    "2744",
+    "3350",
+    "3355",
+    "3360SE",
+    "3400",
+    "3505",
+    "3555",
+    "3560E",
+    "3560S",
+    "9L"
+  ],
+  "_no_decode_note": "these models have no part_number.positions at all and every layer group is hardcoded — no MOT can be synthesized; rebuilding their decode is Phase 3 authoring work against SEL ordering-information sheets",
+  "mots": [
+    {
+      "model": "2725",
+      "mot": "2725XXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "2730M",
+      "mot": "2730M0ARCA1112CCCC0",
+      "via": "synthesized full configuration (rack, PSU C+A, ports 1112, SFP CCCC) — exercises every i7198f layer group"
+    },
+    {
+      "model": "300G",
+      "mot": "0300GXXXXXXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "311C",
+      "mot": "0311CX0HXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "311C",
+      "mot": "0311CX0VXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "311C",
+      "mot": "0311CX1HXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "311C",
+      "mot": "0311CX1VXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "351",
+      "mot": "0351R21281115X110",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 29
+    },
+    {
+      "model": "351",
+      "mot": "0351R21281115X125",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 203
+    },
+    {
+      "model": "351",
+      "mot": "0351R21281115X1XX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 87
+    },
+    {
+      "model": "351",
+      "mot": "0351R21281X15X1XX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 58
+    },
+    {
+      "model": "351",
+      "mot": "0351R21X8111XX1XX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 3
+    },
+    {
+      "model": "351",
+      "mot": "0351R412811152XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 145
+    },
+    {
+      "model": "351",
+      "mot": "0351R41281115XA25",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 116
+    },
+    {
+      "model": "351",
+      "mot": "0351R41X8111XX1XX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 2
+    },
+    {
+      "model": "351RS",
+      "mot": "0351RS022X41A11X1XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 31
+    },
+    {
+      "model": "351RS",
+      "mot": "0351RS02XX31A11XXXXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 1
+    },
+    {
+      "model": "351S",
+      "mot": "0351S71H34554X1",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 1
+    },
+    {
+      "model": "351S",
+      "mot": "0351S73H5455421",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 44
+    },
+    {
+      "model": "351S",
+      "mot": "0351S7X464B5421",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 50
+    },
+    {
+      "model": "351S",
+      "mot": "0351S7XH34A54X1",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 2
+    },
+    {
+      "model": "351S",
+      "mot": "0351S7XHD4B5421",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 25
+    },
+    {
+      "model": "351S",
+      "mot": "0351S7XHE4B5421",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 50
+    },
+    {
+      "model": "352",
+      "mot": "0352XXXXXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "3620",
+      "mot": "3620XXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "451",
+      "mot": "045152111B0X1H74141XX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 41
+    },
+    {
+      "model": "451",
+      "mot": "04515211XXXX1H1XXXXXX",
+      "via": "former drawing-rule example (rule now position-based; kept for coverage)"
+    },
+    {
+      "model": "451",
+      "mot": "04515211XXXX1V1XXXXXX",
+      "via": "former drawing-rule example (rule now position-based; kept for coverage)"
+    },
+    {
+      "model": "451",
+      "mot": "04515615XC4X3H60X0XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 1
+    },
+    {
+      "model": "501",
+      "mot": "0501XXXXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "551",
+      "mot": "0551XXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "651R",
+      "mot": "0651R214XAAXAE1112XXXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 9
+    },
+    {
+      "model": "651R",
+      "mot": "0651R221XGAXAA1113DCXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 799
+    },
+    {
+      "model": "651R",
+      "mot": "0651R22AXGAAAE1113DFXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 2987
+    },
+    {
+      "model": "651R",
+      "mot": "0651R22AXGAXAE11131001",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 29
+    },
+    {
+      "model": "651R",
+      "mot": "0651R22AXGAXAE1113DCXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 1305
+    },
+    {
+      "model": "651R",
+      "mot": "0651R22AXGAXAE1113DFXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 29
+    },
+    {
+      "model": "651R",
+      "mot": "0651R2AVXGA8AF11X3XXXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 116
+    },
+    {
+      "model": "651RA",
+      "mot": "0651RA01X1AAAF1A23111XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 2280
+    },
+    {
+      "model": "651RA",
+      "mot": "0651RA01X1AX2A1A111XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 1
+    },
+    {
+      "model": "651RA",
+      "mot": "0651RA01X1AX2A1A111XXXXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 4
+    },
+    {
+      "model": "651RA",
+      "mot": "0651RA01XBAAAD1A23111XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 76
+    },
+    {
+      "model": "651RA",
+      "mot": "0651RA01XBAAAD1A2311BXXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 342
+    },
+    {
+      "model": "651RA",
+      "mot": "0651RA01XBAAAF1A23111XXX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 380
+    },
+    {
+      "model": "734B",
+      "mot": "0734XXXXXXXXXXXXXXXXX",
+      "via": "synthesized from drawing-rule constraints"
+    },
+    {
+      "model": "735",
+      "mot": "0735HX00521BXXX1XX15101XX",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 2
+    },
+    {
+      "model": "751",
+      "mot": "751001A0X0X0X811A00",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 1
+    },
+    {
+      "model": "751",
+      "mot": "751002B1B0X0XL11220",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 52
+    },
+    {
+      "model": "751A",
+      "mot": "751A51ABA0X71850230",
+      "via": "fleet (QuickSet dumps / RDB uploads)",
+      "seen": 3
+    }
+  ]
+}

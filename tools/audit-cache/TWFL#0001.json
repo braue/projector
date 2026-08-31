@@ -1,0 +1,139 @@
+{
+  "partQuery": "TWFL#0001",
+  "fetchedAt": "2026-08-30T10:22:39.090Z",
+  "response": {
+    "product": {
+      "id": 2064,
+      "minorId": 0,
+      "productCode": "TWFL",
+      "cfgModel": "TWFL",
+      "name": "SEL-TWFL Dual Traveling-Wave Fault Locator and 12-Channel MHz Recorder",
+      "revision": "2",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/SEL-TWFL.png?n=63848281537000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/twfl/",
+      "cartType": 1
+    },
+    "partNumber": "TWFL#0001",
+    "salesNumber": "TWFL#0001",
+    "answerString": "'1-1','2-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "AC Current Inputs | Power Supply",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "5 A | 125-250 Vdc, 110-240 Vac",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "0"
+              },
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "AC Current Inputs | Power Supply",
+          "value": "5 A | 125-250 Vdc, 110-240 Vac"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Contact Input Rated Voltage",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "125 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "0"
+              },
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Contact Input Rated Voltage",
+          "value": "125 Vdc"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "17-2856/i9386.A.dwg",
+            "fileSize": "256133"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "17-2856/i9386.A.pdf",
+            "fileSize": "134490"
+          }
+        }
+      },
+      {
+        "type": "FRONT,REAR",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "21-0400/i6465.A.dwg",
+            "fileSize": "130764"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "21-0400/i6465.A.pdf",
+            "fileSize": "263869"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

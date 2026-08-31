@@ -1,0 +1,44 @@
+{
+  "partQuery": "0587ZXXXX5XX2XX",
+  "fetchedAt": "2026-08-30T10:20:13.724Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-587-0,-1 Current Differential Relay (Connectorized) should be 12 characters (15 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-587-0,-1 Current Differential Relay should be 11 characters (15 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-587Z High-Impedance Differential Relay has invalid digits in positions 6, 8, 9, 11, 12"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

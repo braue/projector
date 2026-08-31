@@ -4,6 +4,43 @@
     "front_and_rear": [
       {
         "when": {
+          "position_5": "R",
+          "position_13": "5",
+          "position_11": "1"
+        },
+        "front_pdf": "i3523a.pdf",
+        "rear_pdf": "i3096b.pdf",
+        "note": "SEL-351R rules (2026-08-30 audit): front panel tracks User Interface at position 13 ('5' = configurable-label operator controls -> i3523a, 'X' = standard -> i3097a); rear tracks Communications Port at position 11 ('1' = EIA-485 port fitted -> i3096b, 'X' -> i3468b, which shows serial port 1 as NOT ORDERED). Verified against the configurator drawing lists for the fleet units; the 'X'/'X' combination is inferred from the two independent axes (front and rear vary independently)."
+      },
+      {
+        "when": {
+          "position_5": "R",
+          "position_13": "5",
+          "position_11": "X"
+        },
+        "front_pdf": "i3523a.pdf",
+        "rear_pdf": "i3468b.pdf"
+      },
+      {
+        "when": {
+          "position_5": "R",
+          "position_13": "X",
+          "position_11": "1"
+        },
+        "front_pdf": "i3097a.pdf",
+        "rear_pdf": "i3096b.pdf"
+      },
+      {
+        "when": {
+          "position_5": "R",
+          "position_13": "X",
+          "position_11": "X"
+        },
+        "front_pdf": "i3097a.pdf",
+        "rear_pdf": "i3468b.pdf"
+      },
+      {
+        "when": {
           "position_6": [
             "2",
             "4",
@@ -556,6 +593,50 @@
             1448.29
           ]
         }
+      },
+      "i3096b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            230.4,
+            451.37,
+            1496.3,
+            845.35
+          ]
+        }
+      },
+      "i3097a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            602.21,
+            171.22,
+            1125.79,
+            1124.21
+          ]
+        }
+      },
+      "i3468b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            235.66,
+            451.37,
+            1495.01,
+            844.06
+          ]
+        }
+      },
+      "i3523a.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            602.21,
+            171.22,
+            1127.16,
+            1124.21
+          ]
+        }
       }
     }
   },
@@ -850,6 +931,145 @@
           "1": "Standard protocols (DNP3, Modbus, C37.118, etc.)",
           "2": "Standard plus IEC 61850"
         }
+      }
+    ],
+    "submodels": [
+      {
+        "name": "SEL-351R Recloser Control (17-character MOT)",
+        "when": {
+          "position_5": "R"
+        },
+        "length": 17,
+        "note": "The SEL-351R recloser control shares the 0351 ordering prefix with the SEL-351 relay (position 5 = 'R') but is a different product with its own field layout and its own per-configuration static drawings (i3523a/i3097a fronts, i3096b/i3468b rears). Built 2026-08-30 from the configurator decode of the QuickSet-dump fleet units; codes those units did not order are deliberately not described.",
+        "positions": [
+          {
+            "position": 6,
+            "length": 1,
+            "field": "firmware",
+            "label": "Firmware",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "2": "Standard"
+            },
+            "note": "Code '4' observed on genuine fleet units (0351R412811152XXX and siblings, 263 sightings) that the configurator refuses ('not available through this application'); its firmware meaning, position 14 '2' and position 15 'A' on those units are undocumented offline and deliberately not guessed."
+          },
+          {
+            "position": 7,
+            "length": 1,
+            "field": "power_supply",
+            "label": "Power Supply",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "1": "120 Vac with Integral Battery Charger"
+            }
+          },
+          {
+            "position": 8,
+            "length": 1,
+            "field": "secondary_input_voltage",
+            "label": "Secondary Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "2": "V1, V2, V3, and VS (300 Vac maximum, phase-neutral, wye)",
+              "X": "Single Phase Only (300 Vac maximum)"
+            }
+          },
+          {
+            "position": 9,
+            "length": 1,
+            "field": "secondary_input_current",
+            "label": "Secondary Input Current",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "8": "1 A Phase, 0.05 A Neutral (Includes Sensitive Earth Fault detection)"
+            }
+          },
+          {
+            "position": 10,
+            "length": 1,
+            "field": "control_input_voltage",
+            "label": "Control Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "1": "24 Vdc"
+            }
+          },
+          {
+            "position": 11,
+            "length": 1,
+            "field": "communications_port",
+            "label": "Communications Port",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "1": "Three EIA 232 and One EIA 485",
+              "X": "Three EIA 232"
+            }
+          },
+          {
+            "position": 12,
+            "length": 1,
+            "field": "communications_protocol",
+            "label": "Communications Protocol",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "1": "DNP3 Level 2 Slave (Includes all protocols listed above)"
+            }
+          },
+          {
+            "position": 13,
+            "length": 1,
+            "field": "user_interface",
+            "label": "User Interface",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "5": "Operator Controls, LCD and Targets - Configurable Labels",
+              "X": "Operator Controls, LCD and Targets"
+            }
+          },
+          {
+            "position": 14,
+            "length": 1,
+            "field": "conformal_coat",
+            "label": "Conformal Coat",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "X": "No"
+            }
+          },
+          {
+            "position": 15,
+            "length": 1,
+            "field": "enclosure",
+            "label": "Enclosure",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "1": "Single-Size, ANSI 61 Gray Steel"
+            }
+          },
+          {
+            "position": 16,
+            "length": 2,
+            "field": "installed_accessories",
+            "label": "Installed Accessories",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of 5 genuine fleet SEL-351R units (0351R21281115X110, 0351R21281115X125, 0351R21281115X1XX, ...)",
+            "options": {
+              "10": "Accessory Mounting Kit (9250 001)",
+              "25": "Accessory Mounting Kit and Low-Voltage Close Socket (2-pin female) Connected to AC on Terminal Block",
+              "XX": "None"
+            }
+          }
+        ]
       }
     ]
   }

@@ -1,0 +1,377 @@
+{
+  "partQuery": "24880RAX1181BX23X",
+  "fetchedAt": "2026-08-30T10:17:16.925Z",
+  "response": {
+    "product": {
+      "id": 120,
+      "minorId": 0,
+      "productCode": "2488",
+      "cfgModel": "2488",
+      "name": "SEL-2488 Satellite-Synchronized Network Clock",
+      "summary": "<p>The SEL-2488 raises the bar for satellite-synchronized clocks by providing industry-leading accuracy, time distribution, security, and ease of use not offered in other critical infrastructure clocks.</p>",
+      "revision": "12",
+      "imageUrls": [
+        "uploadedImages/_New_Site/Products/Cropped-2488_10Hz_stacked_LF_2025_01.png?n=63885077783000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/2488/",
+      "cartType": 1
+    },
+    "partNumber": "2488#YLQR",
+    "motString": "24880RAX1181BX23X",
+    "salesNumber": "2488#YLQR",
+    "answerString": "'1-1','2-1','3-2','4-1','5-1','6-1','7-2','8-2','9-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Time Distribution Protocols",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "IRIG-B, NTP",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Time Distribution Protocols",
+          "value": "IRIG-B, NTP"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "R"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Power Supply A",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 3,
+            "text": "125/250 Vdc or Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply A",
+          "value": "125/250 Vdc or Vac"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Power Supply B",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply B",
+          "value": "None"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Ethernet Port (ETH 1, ETH 2)",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "2 10/100BASE-T",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Port (ETH 1, ETH 2)",
+          "value": "2 10/100BASE-T"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Ethernet Port (ETH 3, ETH 4)",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "2 10/100BASE-T",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Port (ETH 3, ETH 4)",
+          "value": "2 10/100BASE-T"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Holdover",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "OCXO",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "B"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Holdover",
+          "value": "OCXO"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Frequency Outputs",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Frequency Outputs",
+          "value": "None"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Antenna",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 8,
+            "text": "Complete 75ft LMR-400 GPS/GLONASS Installation Kit",
+            "hasHelp": true,
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Antenna",
+          "value": "Complete 75ft LMR-400 GPS/GLONASS Installation Kit"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "21-0503/i9327b.dwg",
+            "fileSize": "152021"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "21-0503/i9327b.pdf",
+            "fileSize": "106988"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Front, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "23-1515/i7114.J.dwg",
+            "fileSize": "94996"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "23-1515/i7114.J.pdf",
+            "fileSize": "282648"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

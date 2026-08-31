@@ -1,0 +1,44 @@
+{
+  "partQuery": "0487V0X61511XXBAH4XXXXX",
+  "fetchedAt": "2026-08-30T10:19:44.831Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9611 IO Board Kits for the SEL-487V has invalid digits in positions 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9157 Front Panel Kit for the SEL-487V() has invalid digits in positions 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-487V Capacitor Protection and Control System has invalid digits in positions 1, 2, 3, 4, 5, 12, 15, 16, 19, 20, 23"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

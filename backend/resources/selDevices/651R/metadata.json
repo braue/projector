@@ -78,7 +78,9 @@
             "source": {
               "position": 14
             },
+            "note": "Code 'A' ((1) 10/100BASE-T, decoded by the SEL configurator for genuine fleet unit 0651R221XGAXAA1113DCXX) has no layer in this group's catalog - the built-in single Ethernet port adds nothing to the drawing, so it maps to an empty layer list rather than warning as unresolved.",
             "options": {
+              "A": [],
               "L": [
                 {
                   "name": "3.4__L__(1) 10-100Base-T. (1) 100Base-FX",
@@ -264,7 +266,9 @@
             "source": {
               "position": 14
             },
+            "note": "Code 'A' ((1) 10/100BASE-T, decoded by the SEL configurator for genuine fleet unit 0651R221XGAXAA1113DCXX) has no layer in this group's catalog - the built-in single Ethernet port adds nothing to the drawing, so it maps to an empty layer list rather than warning as unresolved.",
             "options": {
+              "A": [],
               "L": [
                 {
                   "name": "3.4__L__(1) 10-100Base-T. (1) 100Base-FX",
@@ -626,7 +630,7 @@
         "label": "Enclosure",
         "source": "SEL-651R-2 Ordering Information (WI-9861)",
         "confidence": "low",
-        "note": "WI-9861 (2026) uses letter codes A-D (high confidence). Both genuine stored part numbers instead use legacy numeric codes at this position (0651R221... uses '1', 0651R214... uses '4'); the numeric->enclosure mapping (1->A, 2->B, 3->C, 4->D) is inferred by parallel ordering. Per WI-9861 footnotes, enclosures ordered before 2026 were painted steel and are painted 5052 marine-grade aluminum thereafter. The model_to_drawings rule switches to the single-door/rear-mount drawing i7172.c when this position is 'C'.",
+        "note": "WI-9861 (2026) uses letter codes A-D (high confidence). Both genuine stored part numbers instead use legacy numeric codes at this position (0651R221... uses '1', 0651R214... uses '4'); the numeric->enclosure mapping (1->A, 2->B, 3->C, 4->D) is inferred by parallel ordering. Per WI-9861 footnotes, enclosures ordered before 2026 were painted steel and are painted 5052 marine-grade aluminum thereafter. The model_to_drawings rule switches to the single-door/rear-mount drawing i7172.c when this position is 'C'. Code 'V' is observed on genuine fleet units (0651R2AVXGA8AF11X3XXXX, 116 sightings in QuickSet dumps) but is undocumented offline: WI-9861 does not list it and the SEL configurator refuses the whole part number ('not available through this application'), so no meaning is recorded rather than an invented one.",
         "options": {
           "1": "Dual Door (Side Mount), Painted Aluminum/Steel (legacy numeric, = option A)",
           "2": "Dual Door (Side Mount), Painted Type 304 Stainless Steel (legacy numeric, = option B)",
@@ -717,10 +721,11 @@
         "field": "communications_interface",
         "label": "Communications Interface",
         "group": "GROUP_3",
-        "source": "SEL-651R-2 Ordering Information (WI-9861)+pdf-layers",
+        "source": "SEL-651R-2 Ordering Information (WI-9861)+pdf-layers; 'A' from SEL configurator part-lookup decode of genuine fleet unit 0651R221XGAXAA1113DCXX (2026-08-30)",
         "confidence": "high",
-        "note": "Drawing layer GROUP_3 (source.position 14) maps this field and agrees with the stored-PN position 14.",
+        "note": "Drawing layer GROUP_3 (source.position 14) maps this field and agrees with the stored-PN position 14. Code 'A' has no layer in the GROUP_3 catalog (the single built-in port adds nothing to the drawing).",
         "options": {
+          "A": "(1) 10/100BASE-T",
           "D": "(1) 100BASE-FX, EIA-485",
           "E": "(2) 10/100BASE-T, EIA-485",
           "F": "(2) 100BASE-FX, EIA-485",
@@ -786,9 +791,9 @@
         "length": 2,
         "field": "installed_accessories",
         "label": "Installed Accessories (2-digit)",
-        "source": "SEL-651R-2 Ordering Information (WI-9861)",
+        "source": "SEL-651R-2 Ordering Information (WI-9861); 'DC'/'DF' from SEL configurator part-lookup decode of genuine fleet units 0651R221XGAXAA1113DCXX and 0651R22AXGAAAE1113DFXX (2026-08-30)",
         "confidence": "high",
-        "note": "Two-digit field selecting factory-installed enclosure accessories (shelves, fuse blocks, transfer switch, heater, receptacles, mounted SEL-2401/2725/3031/3061/3622 devices, security straps, control cables). WI-9861 enumerates ~70 combination codes; only the common single-accessory codes are listed here. XX = None.",
+        "note": "Two-digit field selecting factory-installed enclosure accessories (shelves, fuse blocks, transfer switch, heater, receptacles, mounted SEL-2401/2725/3031/3061/3622 devices, security straps, control cables). WI-9861 enumerates ~70 combination codes; only the common single-accessory codes plus the configurator-decoded fleet combination codes are listed here. XX = None.",
         "options": {
           "10": "Accessory Shelf",
           "11": "Voltage Input Fuse Block (Secondary Voltages)",
@@ -805,7 +810,9 @@
           "XX": "None",
           "1A": "Two SEL-2812MR Transceivers (2812MRX0)",
           "1G": "SEL-3061 Cellular Router (3061#M47Q) on Accessory Shelf",
-          "1M": "Security Package 1: SEL-3622 Security Gateway (3622XDE00XX1) on Accessory Shelf and Door Switch"
+          "1M": "Security Package 1: SEL-3622 Security Gateway (3622XDE00XX1) on Accessory Shelf and Door Switch",
+          "DC": "Accessory Shelf and AC Transfer Switch",
+          "DF": "Custom (See Custom Details)"
         }
       },
       {

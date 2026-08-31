@@ -1,0 +1,48 @@
+{
+  "partQuery": "0311L0HDD4254XX",
+  "fetchedAt": "2026-08-30T10:17:21.260Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-311A, B, C Line Protection Relay (Connectorized, Legacy) has invalid digits in positions 5, 7, 8, 9"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-311A, B, C Line Protection Relay (Legacy) has invalid digits in positions 5, 7, 8, 9"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-311L-0, -6  Line Current Differential Protection and Automation System should be 17 characters (15 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-311L-1, -7  Line Current Differential Protection and Automation System should be 17 characters (15 entered)"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

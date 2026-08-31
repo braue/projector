@@ -1,0 +1,509 @@
+{
+  "partQuery": "085100011110130",
+  "fetchedAt": "2026-08-30T10:22:29.982Z",
+  "response": {
+    "product": {
+      "id": 1361,
+      "minorId": 0,
+      "productCode": "851",
+      "cfgModel": "851",
+      "name": "SEL-851 Feeder Protection Relay",
+      "summary": "<ul>\r\n<li>Overcurrent, over/underfrequency, and breaker failure protection with autoreclosing</li>\r\n<li>Universal power supply (24–250 Vdc/110–240 Vac).</li>\r\n<li>Setting-selectable universal current inputs (1 A/5 A)</li>\r\n<li>10 digital inputs and 5 digital outputs (1 Form C, 2 Form A standard, and 2 Form A hybrid)</li>\r\n<li>4 arc-flash detection inputs </li>\r\n<li>3 voltage inputs (300 Vac)</li>\r\n<li>Universal binary inputs (24–250 Vdc/Vac)</li>\r\n<li>Communications ports: USB-C front port, EIA-232/EIA-485 rear serial port, and two 10/100BASE-T Ethernet ports</li>\r\n<li>Protocols: SEL protocols, Modbus RTU, Modbus TCP, Telnet, FTP, HTTP/HTTP5 web server, SNTP, DNP3, and IEC 61850</li>\r\n</ul>",
+      "revision": "8",
+      "imageUrls": [
+        "uploadedImages/_New_Site/Products/iR1257_Left-Front.jpg?n=63755244901000"
+      ],
+      "standardFeatures": [
+        {
+          "contentData": [
+            {
+              "html": {
+                "content": "<p><b>Protection</b></p> <ul><li>Overcurrent</li><li>Breaker Failure</li><li>Reclosing</li><li>Second-Harmonic Blocking</li></ul> <p><b>Hardware</b></p> <ul><li>Horizontal Mount</li><li>Universal Power Supply (24-250 Vdc / 110-240 Vac)</li><li>Four CT (3-phase and neutral) Universal 1 A / 5 A inputs</li><li>5 Digital Outputs (1 Form C, 2 Form A Standard, 2 Form A Hybrid)</li><li>4 Digital Inputs</li><li>USB-C Front Port</li><li>10/100BASE-T Ethernet Rear Port (RJ45)</li><li>EIA-232/EIA-485 Rear Port with IRIG-B (RJ45)</li></ul> <p><b>Built-in Human Machine Interface (HMI)</b></p> <ul><li>Graphical monochrome LCD (4 lines, 21 characters in each line)</li><li>5 Function Keys With Text Strings on LCD</li><li>10 Tri-Color Target LEDs</li><li>4 Control Pushbuttons</li><li>6 Navigation Pushbuttons</li></ul>"
+              },
+              "links": [],
+              "images": []
+            },
+            {
+              "html": {
+                "content": "<p><b>Protocols</b></p> <ul><li>Modbus® RTU, Modbus TCP/IP     </li><li><span class=\"sm-caps\">Mirrored Bits</span></li><li>Telnet, FTP</li><li>HTTP/HTTPS Web Server</li><li>SNTP</li><li>SEL ASCII and Compressed ASCII</li><li>SEL Fast Meter, Fast Operate, Fast SER</li><li>SEL Fast Message</li><li>Ymodem File Transfer</li></ul> <p><b>Other</b></p> <ul><li>SEL GRID Configurator Software</li></ul>"
+              },
+              "links": [],
+              "images": []
+            }
+          ]
+        }
+      ],
+      "standardFeatureCollection": {
+        "submodelId": 1361,
+        "standardFeatures": [
+          {
+            "heading": "Protection",
+            "headingSortOrder": 1,
+            "values": [
+              {
+                "value": "Overcurrent",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Breaker Failure",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "Reclosing",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "Second-Harmonic Blocking",
+                "valueSortOrder": 4
+              }
+            ]
+          },
+          {
+            "heading": "Hardware",
+            "headingSortOrder": 2,
+            "values": [
+              {
+                "value": "Horizontal Mount",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Universal Power Supply (24-250 Vdc / 110-240 Vac)",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "Four CT (3-phase and neutral) Universal 1 A / 5 A inputs",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "5 Digital Outputs (1 Form C, 2 Form A Standard, 2 Form A Hybrid)",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "4 Digital Inputs",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "USB-C Front Port",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "10/100BASE-T Ethernet Rear Port (RJ45)",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "EIA-232/EIA-485 Rear Port with IRIG-B (RJ45)",
+                "valueSortOrder": 8
+              }
+            ]
+          },
+          {
+            "heading": "Built-in Human Machine Interface (HMI)",
+            "headingSortOrder": 3,
+            "values": [
+              {
+                "value": "Graphical monochrome LCD (4 lines, 21 characters in each line)",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "5 Function Keys With Text Strings on LCD",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "10 Tri-Color Target LEDs",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "4 Control Pushbuttons",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "6 Navigation Pushbuttons",
+                "valueSortOrder": 5
+              }
+            ]
+          },
+          {
+            "heading": "Protocols",
+            "headingSortOrder": 4,
+            "values": [
+              {
+                "value": "Modbus RTU, Modbus TCP/IP  ",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "MIRRORED BITS",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "Telnet, FTP",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "HTTP/HTTPS Web Server",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "SNTP",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "SEL ASCII and Compressed ASCII",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "SEL Fast Meter, Fast Operate, Fast SER",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "SEL Fast Message",
+                "valueSortOrder": 8
+              },
+              {
+                "value": "Ymodem File Transfer",
+                "valueSortOrder": 9
+              }
+            ]
+          },
+          {
+            "heading": "Other",
+            "headingSortOrder": 5,
+            "values": [
+              {
+                "value": "SEL GRID Configurator Software",
+                "valueSortOrder": 1
+              }
+            ]
+          }
+        ]
+      },
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/851/",
+      "cartType": 1
+    },
+    "partNumber": "851#CNJK",
+    "motString": "085100011110130",
+    "salesNumber": "851#CNJK",
+    "answerString": "'1-1','2-2','3-2','4-2','5-2','6-2','7-4','8-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Mounting",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Horizontal Mount",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Mount"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Voltage Inputs",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 2,
+            "text": "3-Phase AC Voltage 300 Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Voltage Inputs",
+          "value": "3-Phase AC Voltage 300 Vac"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Arc-Flash Inputs",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 3,
+            "text": "4 Arc-Flash Inputs",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Arc-Flash Inputs",
+          "value": "4 Arc-Flash Inputs"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Digital Input Wetting",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 4,
+            "text": "External Universal Binary 24-250 Vdc/Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Digital Input Wetting",
+          "value": "External Universal Binary 24-250 Vdc/Vac"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Additional Inputs/Outputs",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "6 Additional Inputs",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Additional Inputs/Outputs",
+          "value": "6 Additional Inputs"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Additional Communications Port",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 6,
+            "text": "Additional 10/100Base-T",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Additional Communications Port",
+          "value": "Additional 10/100Base-T"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Additional Communications Protocols",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 7,
+            "text": "IEC 61850/DNP3 Protocol",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Additional Communications Protocols",
+          "value": "IEC 61850/DNP3 Protocol"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Configurable Drawing",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "22-0467/i7237b.dwg",
+            "fileSize": "259068"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "22-0467/i7237b.pdf",
+            "fileSize": "250714"
+          }
+        }
+      },
+      {
+        "type": "Configurable Drawing Instructions",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Dimension Drawing",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "21-3335/i9393b.dwg",
+            "fileSize": "112587"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "21-3335/i9393b.pdf",
+            "fileSize": "104215"
+          }
+        }
+      },
+      {
+        "type": "Dimension Drawing",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "16-0167/i9398a.dwg",
+            "fileSize": "111526"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "16-0167/i9398a.pdf",
+            "fileSize": "90048"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "listPrice": 2378.64,
+    "price": 2378.64,
+    "isPopular": true,
+    "isOrderable": true,
+    "isOnlineOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {
+      "nonPopularPrice": 2378.64,
+      "applications": "<ul><li>Advanced feeder protection, including reclosing</li><li>Arc-flash mitigation</li><li>Voltage protection</li><li>Communication</li></ul>",
+      "downloadLink": {},
+      "optionIds": [],
+      "productCmsId": 132589,
+      "summaryCmsId": 135151,
+      "type": 1,
+      "reconfigureLink": "/products/popular-configure/?productCmsId=132589&summaryCmsId=135151&modelNumber=851%23CNJK"
+    },
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

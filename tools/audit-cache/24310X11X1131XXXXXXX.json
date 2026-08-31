@@ -1,0 +1,267 @@
+{
+  "partQuery": "24310X11X1131XXXXXXX",
+  "fetchedAt": "2026-08-30T10:17:02.575Z",
+  "response": {
+    "product": {
+      "id": 118,
+      "minorId": 0,
+      "productCode": "2431",
+      "cfgModel": "2431",
+      "name": "SEL-2431 Single-Phase Voltage Regulator Control (Legacy)",
+      "revision": "3",
+      "imageUrls": [],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "cartType": 1
+    },
+    "partNumber": "2431#0F91",
+    "motString": "24310X11X1131XXXXXXX",
+    "salesNumber": "2431#0F91",
+    "answerString": "'3-1','4-4','5-2','6-1','7-1','8-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 3,
+        "text": "Manual Raise/Lower Operators",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "Pushbutton Raise/Lower Operators",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Manual Raise/Lower Operators",
+          "value": "Pushbutton Raise/Lower Operators"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Communications Port (Port 1)",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 4,
+            "text": "Fiber Optic, 200µm, Multimode, VPIN Style Connector",
+            "hasHelp": true,
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Port (Port 1)",
+          "value": "Fiber Optic, 200µm, Multimode, VPIN Style Connector"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Communications Port (Port 2)",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "EIA-232",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Port (Port 2)",
+          "value": "EIA-232"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Retrofit Kits",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "X"
+              },
+              {
+                "position": 18,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Retrofit Kits",
+          "value": "None"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Installed Accessories",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "X"
+              },
+              {
+                "position": 20,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Installed Accessories",
+          "value": "None"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "18-0281/i9135c.dwg",
+            "fileSize": "208861"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "18-0281/i9135c.pdf",
+            "fileSize": "109800"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Front, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i7096b.dwg",
+            "fileSize": "1180407"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7096b.pdf",
+            "fileSize": "789115"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

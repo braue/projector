@@ -1,0 +1,574 @@
+{
+  "partQuery": "0700BT1A1ABAL185A630",
+  "fetchedAt": "2026-08-30T10:20:31.318Z",
+  "response": {
+    "product": {
+      "id": 1331,
+      "minorId": 0,
+      "productCode": "700BT",
+      "cfgModel": "700BT",
+      "name": "SEL-700BT Motor Bus Transfer Relay",
+      "revision": "22",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/700BT.png?n=63731551998000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/700BT/",
+      "cartType": 1
+    },
+    "partNumber": "700BT#MWH7",
+    "motString": "0700BT1A1ABAL185A630",
+    "salesNumber": "700BT#MWH7",
+    "answerString": "'1-1','3-1','4-1','5-4','6-1','7-2','8-2','9-1','10-1','11-4','12-2','13-2','14-2','15-3','17-2','18-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "User Interface",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "English",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "User Interface",
+          "value": "English"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Slot A Power Supply Voltage",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "110-250 Vdc (110-240 Vac)",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Power Supply Voltage",
+          "value": "110-250 Vdc (110-240 Vac)"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Slot A Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Digital Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Slot B Ethernet (Port 1)",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 5,
+            "text": "Dual 10/100BASE-T",
+            "hasHelp": true,
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Ethernet (Port 1)",
+          "value": "Dual 10/100BASE-T"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Slot B Rear Serial Port (Port 3)",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "EIA-232",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Rear Serial Port (Port 3)",
+          "value": "EIA-232"
+        }
+      },
+      {
+        "id": 7,
+        "text": "IEC 61850 Protocol",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 61850 Protocol",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 8,
+        "text": "DNP3 Protocol",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 8,
+            "text": "Yes",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "DNP3 Protocol",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 9,
+        "text": "IEC 60870-5-103 Protocol",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 60870-5-103 Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 10,
+        "text": "EtherNet/IP Protocol",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "EtherNet/IP Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Slot C",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 11,
+            "text": "4 DI / 4 DO Electromechanical (Form A)",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              },
+              {
+                "position": 10,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C",
+          "value": "4 DI / 4 DO Electromechanical (Form A)"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Slot C Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 12,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              },
+              {
+                "position": 10,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C Digital Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Slot D",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 13,
+            "text": "3 DI / 4 DO / 1 AO (4-20 mA Range)",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "B"
+              },
+              {
+                "position": 12,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D",
+          "value": "3 DI / 4 DO / 1 AO (4-20 mA Range)"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Slot D Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 14,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "B"
+              },
+              {
+                "position": 12,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D Digital Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 15,
+        "text": "Slot E",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 15,
+            "text": "3-Phase Rogowski Coil or Low Power Current Transformer (RJ45 inputs) / 3-Phase and Vsync Input LEA Voltage Sensor (RJ45 inputs) (SELECT 3 ACI / 4 AVI)",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "L"
+              },
+              {
+                "position": 14,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot E",
+          "value": "3-Phase Rogowski Coil or Low Power Current Transformer (RJ45 inputs) / 3-Phase and Vsync Input LEA Voltage Sensor (RJ45 inputs) (SELECT 3 ACI / 4 AVI)"
+        }
+      },
+      {
+        "id": 17,
+        "text": "Slot Z Current and/or Voltage Inputs",
+        "questionType": 0,
+        "sortIndex": 17,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 17,
+            "text": "3-Phase 5 Amp AC Current Input / 5 Amp Neutral AC Current Input / 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI / 3 AVI)",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "8"
+              },
+              {
+                "position": 16,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot Z Current and/or Voltage Inputs",
+          "value": "3-Phase 5 Amp AC Current Input / 5 Amp Neutral AC Current Input / 3-Phase AC Voltage (300 Vac) (SELECT 4 ACI / 3 AVI)"
+        }
+      },
+      {
+        "id": 18,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 18,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 18,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Configurable Drawing Instructions",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Dimension Drawing",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9089b.dwg",
+            "fileSize": "28645"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9089b.pdf",
+            "fileSize": "35700"
+          }
+        }
+      },
+      {
+        "type": "GENERAL",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "24-5210/i7224.C.dwg",
+            "fileSize": "806115"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "24-5210/i7224.C.pdf",
+            "fileSize": "855450"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

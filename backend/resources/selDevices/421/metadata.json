@@ -258,8 +258,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source moved from position 9 to 11 (Ethernet Connection Options on the 21-character format, configurator-decoded)."
           },
           "GROUP_1": {
             "options": {
@@ -286,8 +287,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 6
-            }
+              "position": 7
+            },
+            "note": "2026-08-30 audit: source moved from position 6 (Power Supply on the 21-character format, configurator-decoded) to 7 (Connector Type) - a 24-48 Vdc unit ('2' at 6) used to get the Connectorized Relay layer."
           }
         }
       },
@@ -402,8 +404,10 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "value": "0"
-            }
+              "position": 16
+            },
+            "optional": true,
+            "note": "2026-08-30 audit: was hardcoded to \"0\"; now reads position 16 (I/O board position B on the 21-character format, configurator-decoded as 0X = Empty). The catalog only has the Empty layer, so populated boards resolve to nothing (optional - no warning; the board itself is not drawn by this group)."
           },
           "GROUP_4": {
             "options": {
@@ -580,8 +584,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source moved from position 9 to 11 (Ethernet Connection Options on the 21-character format, configurator-decoded)."
           },
           "GROUP_1": {
             "options": {
@@ -616,8 +621,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 6
-            }
+              "position": 7
+            },
+            "note": "2026-08-30 audit: source moved from position 6 (Power Supply on the 21-character format, configurator-decoded) to 7 (Connector Type) - a 24-48 Vdc unit ('2' at 6) used to get the Connectorized Relay layer."
           }
         }
       },
@@ -708,8 +714,10 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "value": "0"
-            }
+              "position": 18
+            },
+            "optional": true,
+            "note": "2026-08-30 audit: was hardcoded to \"0\"; now reads position 18 (I/O board position C on the 21-character format, configurator-decoded as 0X = Empty). The catalog only has the Empty layer, so populated boards resolve to nothing (optional - no warning; the board itself is not drawn by this group)."
           },
           "GROUP_6": {
             "options": {
@@ -726,8 +734,10 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "value": "0"
-            }
+              "position": 16
+            },
+            "optional": true,
+            "note": "2026-08-30 audit: was hardcoded to \"0\"; now reads position 16 (I/O board position B on the 21-character format, configurator-decoded as 0X = Empty). The catalog only has the Empty layer, so populated boards resolve to nothing (optional - no warning; the board itself is not drawn by this group)."
           },
           "GROUP_4": {
             "options": {
@@ -860,8 +870,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source moved from position 9 to 11 (Ethernet Connection Options on the 21-character format, configurator-decoded)."
           },
           "GROUP_1": {
             "options": {
@@ -888,8 +899,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 6
-            }
+              "position": 7
+            },
+            "note": "2026-08-30 audit: source moved from position 6 (Power Supply on the 21-character format, configurator-decoded) to 7 (Connector Type) - a 24-48 Vdc unit ('2' at 6) used to get the Connectorized Relay layer."
           }
         }
       },
@@ -1036,8 +1048,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source moved from position 9 to 11 (Ethernet Connection Options on the 21-character format, configurator-decoded)."
           },
           "GROUP_1": {
             "options": {
@@ -1064,8 +1077,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 6
-            }
+              "position": 7
+            },
+            "note": "2026-08-30 audit: source moved from position 6 (Power Supply on the 21-character format, configurator-decoded) to 7 (Connector Type) - a 24-48 Vdc unit ('2' at 6) used to get the Connectorized Relay layer."
           }
         }
       },
@@ -1180,8 +1194,10 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "value": "0"
-            }
+              "position": 16
+            },
+            "optional": true,
+            "note": "2026-08-30 audit: was hardcoded to \"0\"; now reads position 16 (I/O board position B on the 21-character format, configurator-decoded as 0X = Empty). The catalog only has the Empty layer, so populated boards resolve to nothing (optional - no warning; the board itself is not drawn by this group)."
           },
           "GROUP_4": {
             "options": {
@@ -1358,8 +1374,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source moved from position 9 to 11 (Ethernet Connection Options on the 21-character format, configurator-decoded)."
           },
           "GROUP_1": {
             "options": {
@@ -1394,8 +1411,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 6
-            }
+              "position": 7
+            },
+            "note": "2026-08-30 audit: source moved from position 6 (Power Supply on the 21-character format, configurator-decoded) to 7 (Connector Type) - a 24-48 Vdc unit ('2' at 6) used to get the Connectorized Relay layer."
           }
         }
       },
@@ -1486,8 +1504,10 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "value": "0"
-            }
+              "position": 18
+            },
+            "optional": true,
+            "note": "2026-08-30 audit: was hardcoded to \"0\"; now reads position 18 (I/O board position C on the 21-character format, configurator-decoded as 0X = Empty). The catalog only has the Empty layer, so populated boards resolve to nothing (optional - no warning; the board itself is not drawn by this group)."
           },
           "GROUP_6": {
             "options": {
@@ -1504,8 +1524,10 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "value": "0"
-            }
+              "position": 16
+            },
+            "optional": true,
+            "note": "2026-08-30 audit: was hardcoded to \"0\"; now reads position 16 (I/O board position B on the 21-character format, configurator-decoded as 0X = Empty). The catalog only has the Empty layer, so populated boards resolve to nothing (optional - no warning; the board itself is not drawn by this group)."
           },
           "GROUP_4": {
             "options": {
@@ -1638,8 +1660,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source moved from position 9 to 11 (Ethernet Connection Options on the 21-character format, configurator-decoded)."
           },
           "GROUP_1": {
             "options": {
@@ -1666,8 +1689,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 6
-            }
+              "position": 7
+            },
+            "note": "2026-08-30 audit: source moved from position 6 (Power Supply on the 21-character format, configurator-decoded) to 7 (Connector Type) - a 24-48 Vdc unit ('2' at 6) used to get the Connectorized Relay layer."
           }
         }
       },
@@ -3169,7 +3193,7 @@
       "value": "0421",
       "description": "SEL-421 Protection, Automation, and Control System"
     },
-    "note": "25-digit MOT string for the SEL-421-7 (WI-13777, the Sampled Values / TiDL variant — the only current SEL-421 ordering-information doc). Positions 6, 15, 16, 18, 20, 22 are anchored by the SEL-421-7 master drawing layers (i7208/i7209/i7211/i7212 family, groups GROUP_1..GROUP_6). Positions 8, 11, 12, 13, 24, 25 are fixed template digits. Because this is the SV/TiDL doc, positions 6/7/9/14 carry SV-subscriber (X) and TiDL (R/T) codes in addition to the standard screw/connectorized publisher codes. A separate older SEL-421 (21-digit, prefix 0421...) and SEL-421-7-early families exist in the drawings but have no standalone ordering-information doc.",
+    "note": "25-digit MOT string for the SEL-421-7 (WI-13777, the Sampled Values / TiDL variant — the only current SEL-421 ordering-information doc). Positions 6, 15, 16, 18, 20, 22 are anchored by the SEL-421-7 master drawing layers (i7208/i7209/i7211/i7212 family, groups GROUP_1..GROUP_6). Positions 8, 11, 12, 13, 24, 25 are fixed template digits. Because this is the SV/TiDL doc, positions 6/7/9/14 carry SV-subscriber (X) and TiDL (R/T) codes in addition to the standard screw/connectorized publisher codes. A separate older SEL-421 (21-digit, prefix 0421...) and SEL-421-7-early families exist in the drawings but have no standalone ordering-information doc. The `submodels` entry describes the 21-character SEL-421-4/-5 format; this top-level table applies to 25-character part numbers (SEL-421-7).",
     "references": [
       "SEL-421-7 Ordering Information (WI-13777, 20231221) — SEL-421-7 With Sampled Values or TiDL Technology",
       "SEL-421-7 master configuration drawings i7208.C/i7209.D/i7211.C/i7212.D (drawing layers GROUP_1..GROUP_6)"
@@ -3499,6 +3523,171 @@
         "options": {
           "X": "Fixed digit"
         }
+      }
+    ],
+    "submodels": [
+      {
+        "name": "SEL-421-4/-5 (21-character MOT)",
+        "length": 21,
+        "note": "21-character ordering format used by the non-Sampled-Values SEL-421 submodels; the same fields sit at different positions than the 25-character 421-7 format that the top-level `positions` table describes (Mounting is position 14 here, 16 there). Built 2026-08-30 from the SEL configurator part-lookup decode of the six 21-character drawing-rule MOTs. Positions 9, 12, 17, 19 and 21 were X (unspecified) in every decoded MOT and are deliberately not described.",
+        "positions": [
+          {
+            "position": 5,
+            "length": 1,
+            "field": "firmware",
+            "label": "Firmware",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "4": "Standard"
+            },
+            "note": "Only firmware 4 is configurator-verified for this length; other 21-character firmware codes are undocumented offline."
+          },
+          {
+            "position": 6,
+            "length": 1,
+            "field": "power_supply",
+            "label": "Power Supply",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "2": "24-48 Vdc"
+            },
+            "note": "Only '2' is configurator-verified; the 421-7 table's power-supply codes 4/6 (at its position 10) are plausible siblings but unverified here."
+          },
+          {
+            "position": 7,
+            "length": 1,
+            "field": "connector_type",
+            "label": "Connector Type",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "1": "Screw-Terminal Block",
+              "2": "Connectorized Relay"
+            },
+            "note": "'2' from the layer catalog of the i7000d/i7001d/i7002d/i7052c/i7053c/i7054c drawings (code embedded in the layer name)."
+          },
+          {
+            "position": 8,
+            "length": 1,
+            "field": "secondary_inputs",
+            "label": "Secondary Inputs",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "1": "300 V Phase - Neutral Maximum (Wye), 1 A Phase"
+            }
+          },
+          {
+            "position": 10,
+            "length": 1,
+            "field": "ethernet_protocols",
+            "label": "Ethernet Communications Protocols",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "X": "None"
+            }
+          },
+          {
+            "position": 11,
+            "length": 1,
+            "field": "ethernet_connection",
+            "label": "Ethernet Connection Options",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "X": "None",
+              "0": "Ports 5C & 5D: (2) 10/100BASE-T Connectors",
+              "1": "Ports 5A & 5B with PTP: (2) 10/100BASE-T Connectors",
+              "2": "Ports 5C & 5D: (2) 100BASE-FX Connectors",
+              "3": "Ports 5A & 5B with PTP: (2) 100BASE-FX Connectors",
+              "4": "Ports 5C & 5D: (1) 10/100BASE-T & (1) 100BASE-FX Connectors",
+              "5": "Ports 5A & 5B with PTP: (1) 10/100BASE-T & (1) 100BASE-FX Connectors"
+            },
+            "note": "'0'-'5' from the layer catalog of the i7000d/i7001d/i7002d/i7052c/i7053c/i7054c drawings (code embedded in the layer name); 'X' configurator-verified."
+          },
+          {
+            "position": 13,
+            "length": 1,
+            "field": "mainboard_input_voltage",
+            "label": "Mainboard Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "1": "24 Vdc"
+            }
+          },
+          {
+            "position": 14,
+            "length": 1,
+            "field": "mounting",
+            "label": "Mounting",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "H": "Horizontal Rack Mount",
+              "V": "Vertical Rack Mount",
+              "3": "Horizontal Panel Mount",
+              "4": "Vertical Panel Mount"
+            },
+            "note": "'3'/'4' from the layer catalog of the i7000d/i7001d/i7002d/i7052c/i7053c/i7054c drawings (code embedded in the layer name)."
+          },
+          {
+            "position": 15,
+            "length": 1,
+            "field": "chassis",
+            "label": "Chassis",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "1": "3U, Standard I/O",
+              "2": "4U, Up to One Additional I/O Board",
+              "6": "5U, Up to Two Additional I/O Boards",
+              "3": "4U, Front Panel with (24) Target LEDs, (12) Operator Control Pushbuttons and Tri-Color LEDs",
+              "7": "5U, Front Panel with (24) Target LEDs, (12) Operator Control Pushbuttons and Tri-Color LEDs"
+            },
+            "note": "'3'/'7' from the layer catalog of the i7000d/i7001d/i7002d/i7052c/i7053c/i7054c drawings (code embedded in the layer name)."
+          },
+          {
+            "position": 16,
+            "length": 2,
+            "field": "io_board_b",
+            "label": "I/O Board Position B (4U/5U chassis) and Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "0X": "Empty",
+              "XX": "None (3U chassis has no position B)"
+            },
+            "note": "Only empty/absent boards are configurator-verified for this length; populated board codes are undocumented offline."
+          },
+          {
+            "position": 18,
+            "length": 2,
+            "field": "io_board_c",
+            "label": "I/O Board Position C (5U chassis) and Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "0X": "Empty",
+              "XX": "None (chassis without position C)"
+            },
+            "note": "Only empty/absent boards are configurator-verified for this length; populated board codes are undocumented offline."
+          },
+          {
+            "position": 20,
+            "length": 1,
+            "field": "conformal_coat",
+            "label": "Conformal Coat",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of the six 21-character drawing-rule MOTs (04214211XXXX1H1XXXXXX .. 04214211XXXX1V60X0XXX)",
+            "options": {
+              "X": "None"
+            }
+          }
+        ]
       }
     ]
   }

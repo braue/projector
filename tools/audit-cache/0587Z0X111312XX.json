@@ -1,0 +1,322 @@
+{
+  "partQuery": "0587Z0X111312XX",
+  "fetchedAt": "2026-08-30T10:19:54.583Z",
+  "response": {
+    "product": {
+      "id": 201,
+      "minorId": 0,
+      "productCode": "587Z",
+      "cfgModel": "587Z",
+      "name": "SEL-587Z High-Impedance Differential Relay",
+      "summary": "<p>Provide single-zone high-impedance bus differential protection, backup overcurrent protection, and breaker failure protection for any number of terminals in a bus. Use the simple settings and dedicated same-ratio CTs to create a cost-effective and easily expandable bus protection solution.</p>",
+      "revision": "3",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/587Z.png?n=63574915918000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/587Z/",
+      "cartType": 1
+    },
+    "partNumber": "587Z#D9PA",
+    "motString": "0587Z0X111312XX",
+    "salesNumber": "587Z#D9PA",
+    "answerString": "'1-1','4-1','5-1','6-1','7-1','8-2','9-1','10-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Power Supply; Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "24 Vdc; 24 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply; Control Input Voltage",
+          "value": "24 Vdc; 24 Vdc"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Energy-Clamping MOVs",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "1 MOV - 2500 J, 2000 V",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Energy-Clamping MOVs",
+          "value": "1 MOV - 2500 J, 2000 V"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "1 A Phase",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "1 A Phase"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 8,
+            "text": "Horizontal Panel Mount",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Panel Mount"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Communications Port",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "EIA-232 Front and Rear Port",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Port",
+          "value": "EIA-232 Front and Rear Port"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Communications Protocol",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "Standard Plus Modbus RTU",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocol",
+          "value": "Standard Plus Modbus RTU"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9029c.dwg",
+            "fileSize": "53580"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9029c.pdf",
+            "fileSize": "96088"
+          }
+        }
+      },
+      {
+        "type": "FRONT",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i3481b.dwg",
+            "fileSize": "135203"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i3481b.pdf",
+            "fileSize": "31572"
+          }
+        }
+      },
+      {
+        "type": "REAR",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i3482b.dwg",
+            "fileSize": "79105"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i3482b.pdf",
+            "fileSize": "43477"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

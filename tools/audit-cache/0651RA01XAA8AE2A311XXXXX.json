@@ -1,0 +1,60 @@
+{
+  "partQuery": "0651RA01XAA8AE2A311XXXXX",
+  "fetchedAt": "2026-08-30T10:20:22.635Z",
+  "response": {
+    "product": {
+      "id": 0,
+      "minorId": 0,
+      "imageUrls": [],
+      "configuratorTypeGrouping": 0,
+      "erpConfiguratorTypeGrouping": 0,
+      "cartType": 1
+    },
+    "questions": [],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-651R-0 Advanced Recloser Control (Legacy) should be 18 characters (24 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-651R-0 Advanced Recloser Control (No Enclosure, Legacy) should be 18 characters (24 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-651R-1 Advanced Recloser Control should be 18 characters (24 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-651R-1 Advanced Recloser Control (No Enclosure) should be 18 characters (24 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-9157 Front Panel Kit for the SEL-651R-0,-1 should be 17 characters (24 entered)"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-651RA Recloser Control has invalid digits in positions 12"
+      },
+      {
+        "code": 14,
+        "message": "The part number provided for SEL-651RA Advanced Recloser Control (No Enclosure) has invalid digits in positions 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 16, 18, 19, 20, 21, 22, 23, 24"
+      },
+      {
+        "message": "Model could not be determined from the part number."
+      },
+      {
+        "message": "The part was found, but is not available through this application. Please contact a customer service representative for more information about this part."
+      }
+    ],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

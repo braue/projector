@@ -1,0 +1,606 @@
+{
+  "partQuery": "0400G0X6X11B6XXH824240X",
+  "fetchedAt": "2026-08-30T10:17:37.279Z",
+  "response": {
+    "product": {
+      "id": 183,
+      "minorId": 0,
+      "productCode": "400G",
+      "cfgModel": "400G",
+      "name": "SEL-400G Advanced Generator Protection System",
+      "summary": "<ul>\r\n<li>Differential, overcurrent, voltage, and frequency protection</li>\r\n<li>Four 10/100BASE-T connector with FTP, Telnet, DNP3 LAN/WAN, Modbus TCP, and Parallel Redundancy Protocol (PRP)</li>\r\n<li>16 125 VDC inputs, 26 Form A and 4 Form C outputs</li>\r\n<li>SEL ASCII, Compressed ASCII, Extended Fast Meter, Fast Operate, Fast Message, Fast SER, <span class=\"sm-caps\">Mirrored Bits</span>, and synchrophasor communications</li>\r\n<li>Front panel with 24 target LEDs, 12 operator control pushbuttons, and tricolor LEDs</li>\r\n</ul>",
+      "revision": "29",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Popular/4XX/400G-8u.png?n=63734159351000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/400G/",
+      "cartType": 1
+    },
+    "partNumber": "400G#GJDM",
+    "motString": "0400G0X6X11B6XXH824240X",
+    "salesNumber": "400G#GJDM",
+    "answerString": "'1-1','2-1','3-3','4-1','5-1','6-1','7-2','8-2','9-1','10-1','11-4','12-2','13-4','14-1','15-7'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Model",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard",
+            "hasHelp": true,
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Model",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 3,
+            "text": "125-250 Vdc (110-240 Vac)",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "125-250 Vdc (110-240 Vac)"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Connector Type",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "Screw Terminal Block",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Connector Type",
+          "value": "Screw Terminal Block"
+        }
+      },
+      {
+        "id": 5,
+        "text": "AC Input Card 1 Configuration (Current Channels S, T, U), (Voltage Channel V)",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "S (Three-Phase) = 5 A, T (Three-Phase) = 5 A, U (Three-Phase) = 5 A, V (Phase) = 300 V",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "AC Input Card 1 Configuration (Current Channels S, T, U), (Voltage Channel V)",
+          "value": "S (Three-Phase) = 5 A, T (Three-Phase) = 5 A, U (Three-Phase) = 5 A, V (Phase) = 300 V"
+        }
+      },
+      {
+        "id": 6,
+        "text": "AC Input Card 2 Configuration (Current Channels W, X, Y), (Voltage Channel Z)",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "W (Three-Phase) = 5 A, X (Three-Phase) = 5 A, Y (Single or Three-Phase) = 5 A, 5 A, 5 A, Z (Three-Phase) = 300 V",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "AC Input Card 2 Configuration (Current Channels W, X, Y), (Voltage Channel Z)",
+          "value": "W (Three-Phase) = 5 A, X (Three-Phase) = 5 A, Y (Single or Three-Phase) = 5 A, 5 A, 5 A, Z (Three-Phase) = 300 V"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Ethernet Communications Protocols",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "Standard",
+            "hasHelp": true,
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "B"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Communications Protocols",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Ethernet Connection Options",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 8,
+            "text": "Four 10/100BASE-T Connectors",
+            "hasHelp": true,
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Connection Options",
+          "value": "Four 10/100BASE-T Connectors"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "Horizontal Rack",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack"
+        }
+      },
+      {
+        "id": 18,
+        "text": "Chassis",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 18,
+            "text": "8U, Up to Three I/O Boards",
+            "sortIndex": 3,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "8"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis",
+          "value": "8U, Up to Three I/O Boards"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Slot B",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B",
+          "value": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Slot B Input Voltage",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 11,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Slot C",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 12,
+            "text": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C",
+          "value": "8 Optoisolated Independent Level-Sensitive Inputs, 13 Standard Form A, 2 Standard Form C Outputs"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Slot C Input Voltage",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 4,
+            "questionId": 13,
+            "text": "125 Vdc",
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 21,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C Input Voltage",
+          "value": "125 Vdc"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Slot D",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 14,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 22,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 15,
+        "text": "Slot D Input Voltage",
+        "questionType": 0,
+        "sortIndex": 16,
+        "answers": [
+          {
+            "id": 7,
+            "questionId": 15,
+            "text": "NA",
+            "sortIndex": 7,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 23,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D Input Voltage",
+          "value": "NA"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "05-0001/i9377a.dwg",
+            "fileSize": "292508"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "05-0001/i9377a.pdf",
+            "fileSize": "134122"
+          }
+        }
+      },
+      {
+        "type": "FRONT,REAR",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "22-1551/i7200.C.dwg",
+            "fileSize": "371235"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "22-1551/i7200.C.pdf",
+            "fileSize": "791794"
+          }
+        }
+      },
+      {
+        "type": "INSTRUCTIONS",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "listPrice": 18982.76,
+    "price": 18982.76,
+    "isPopular": true,
+    "isOrderable": true,
+    "isOnlineOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {
+      "nonPopularPrice": 18982.76,
+      "partOverride": "SEL-400G",
+      "applications": "<ul><li>Basic generator protection</li><li>For hydro, thermal, combined-cycle, and pumped-storage applications</li></ul>",
+      "downloadLink": {},
+      "configOptions": [
+        {
+          "title": "Power Supply Rating",
+          "options": [
+            {
+              "optionId": 1,
+              "label": "125–250 Vdc, 110–240 Vac",
+              "summary": "Power Supply Rating—125–250 Vdc, 110–240 Vac"
+            },
+            {
+              "optionId": 2,
+              "label": "48–125 Vdc, 110–120 Vac",
+              "summary": "Power Supply Rating—48–125 Vdc, 110–120 Vac"
+            }
+          ]
+        },
+        {
+          "title": "Current Input",
+          "options": [
+            {
+              "optionId": 3,
+              "label": "5 A",
+              "summary": "5 A"
+            },
+            {
+              "optionId": 4,
+              "label": "1 A",
+              "summary": "1 A"
+            }
+          ]
+        }
+      ],
+      "optionIds": [
+        1,
+        3
+      ],
+      "productCmsId": 128899,
+      "summaryCmsId": 131939,
+      "type": 1,
+      "reconfigureLink": "/products/popular-configure/?productCmsId=128899&summaryCmsId=131939&modelNumber=400G%23GJDM"
+    },
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

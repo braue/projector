@@ -1,0 +1,405 @@
+{
+  "partQuery": "0351RS021X31A11X1XXX",
+  "fetchedAt": "2026-08-30T10:17:30.610Z",
+  "response": {
+    "product": {
+      "id": 167,
+      "minorId": 0,
+      "productCode": "351RS",
+      "cfgModel": "351RS",
+      "name": "SEL-351RS Kestrel Single Phase Recloser Control",
+      "summary": "<p>The SEL-351RS Kestrel is a lightweight, advanced recloser control with integrated logic, communications, and comprehensive protection for single-phase applications. Convenient operator controls allow easy local access to metering and event data.</p>",
+      "revision": "5",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/351R-kestrel.png?n=63631345288000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/351RS_Kestrel/",
+      "cartType": 1
+    },
+    "motString": "0351RS021X31A11X1XXX",
+    "answerString": "'1-1','2-1','3-2','4-1','5-1','7-1','9-1','10-1','11-1','12-2','13-1','14-1'",
+    "questions": [
+      {
+        "id": 1,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Recloser Interface",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "G&W Viper-SP or Elastimold MVR (10 Pin)",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Recloser Interface",
+          "value": "G&W Viper-SP or Elastimold MVR (10 Pin)"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Enclosure",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 3,
+            "text": "Lift-To-Open, Painted Aluminum",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Enclosure",
+          "value": "Lift-To-Open, Painted Aluminum"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 5,
+        "text": "User Interface",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "Standard Interface",
+            "sortIndex": 1,
+            "isSpecial": true,
+            "status": 3,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "User Interface",
+          "value": "Standard Interface",
+          "isSpecial": true
+        }
+      },
+      {
+        "id": 7,
+        "text": "I/O Board",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "One 12 Vdc Input, One Standard Output, and One Alarm Output",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board",
+          "value": "One 12 Vdc Input, One Standard Output, and One Alarm Output"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Communications Interface",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "One 10/100BASE-T",
+            "sortIndex": 1,
+            "isSpecial": true,
+            "status": 3,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Interface",
+          "value": "One 10/100BASE-T",
+          "isSpecial": true
+        }
+      },
+      {
+        "id": 10,
+        "text": "Communications Protocols",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "Standard Protocols",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocols",
+          "value": "Standard Protocols"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 11,
+            "text": "120/230 Vac or 125/250 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "1"
+              },
+              {
+                "position": 16,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "120/230 Vac or 125/250 Vdc"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Battery Option",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 12,
+            "text": "12 V, 16 Ahr",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Battery Option",
+          "value": "12 V, 16 Ahr"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Installed Accessories",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "X"
+              },
+              {
+                "position": 19,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Installed Accessories",
+          "value": "None"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Packaged Accessories",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 14,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Packaged Accessories",
+          "value": "None"
+        }
+      }
+    ],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [
+      {
+        "code": 9,
+        "message": "This configuration number is no longer available."
+      }
+    ],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

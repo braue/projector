@@ -1,0 +1,588 @@
+{
+  "partQuery": "045152111B0X1H74141XX",
+  "fetchedAt": "2026-08-30T10:24:12.454Z",
+  "response": {
+    "product": {
+      "id": 796,
+      "minorId": 0,
+      "productCode": "451-5",
+      "cfgModel": "451",
+      "name": "SEL-451 With Conventional Secondary Inputs",
+      "summary": "<p>Quickly integrate bay control status and control for breakers and disconnect switches with full automation and protection in one device. With advanced \r\n\r\nsynchrophasor measurement, the SEL-451 provides system stability awareness. Choose between Ethernet and serial communications ports with DNP3 and IEC 61850 Edition 2 protocols.\r\n</p>",
+      "revision": "346",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/451.png?n=63574914027000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/451/",
+      "cartType": 1
+    },
+    "motString": "045152111B0X1H74141XX",
+    "answerString": "'2-1','3-1','4-1','5-2','6-2','7-5','8-1','9-1','10-3','11-2','12-3','13-2','14-1','15-1','16-5','18-6'",
+    "questions": [
+      {
+        "id": 34,
+        "text": "Firmware",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 34,
+            "text": "Protection, Automation, and Bay Control System for Single/Dual Breaker Applications",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Protection, Automation, and Bay Control System for Single/Dual Breaker Applications"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "24-48 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "24-48 Vdc"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Connector Type",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "Screw-Terminal Block",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Connector Type",
+          "value": "Screw-Terminal Block"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "1 A Phase",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "1 A Phase"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Secondary Input Voltage",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+            "hasHelp": true,
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Voltage",
+          "value": "Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Ethernet Communications Protocols",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 6,
+            "text": "FTP, Telnet, Synchrophasors, and DNP3 LAN/WAN",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "B"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Communications Protocols",
+          "value": "FTP, Telnet, Synchrophasors, and DNP3 LAN/WAN"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Ethernet Connection Options",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 5,
+            "questionId": 7,
+            "text": "Ports 5C, 5D: Ethernet Card With Two 10/100BASE-T Connectors",
+            "hasHelp": true,
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Connection Options",
+          "value": "Ports 5C, 5D: Ethernet Card With Two 10/100BASE-T Connectors"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Mainboard Input Voltage",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "24 Vdc",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mainboard Input Voltage",
+          "value": "24 Vdc"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 18,
+        "text": "Chassis",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 6,
+            "questionId": 18,
+            "text": "5U, Front Panel With 24 Target LEDs, 12 Operator Control Pushbuttons, and Tri-Color LEDs",
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "7"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis",
+          "value": "5U, Front Panel With 24 Target LEDs, 12 Operator Control Pushbuttons, and Tri-Color LEDs"
+        }
+      },
+      {
+        "id": 10,
+        "text": "I/O Board Position B",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 10,
+            "text": "24 Optoisolated Level-Sensitive Inputs, 8 Outputs",
+            "hasHelp": true,
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "4"
+              },
+              {
+                "position": 17,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position B",
+          "value": "24 Optoisolated Level-Sensitive Inputs, 8 Outputs"
+        }
+      },
+      {
+        "id": 11,
+        "text": "I/O Board Position B Input Voltage",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 11,
+            "text": "24 Vdc",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "4"
+              },
+              {
+                "position": 17,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position B Input Voltage",
+          "value": "24 Vdc"
+        }
+      },
+      {
+        "id": 12,
+        "text": "I/O Board Position C",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 17,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 12,
+            "text": "24 Optoisolated Level-Sensitive Inputs, 8 Outputs",
+            "hasHelp": true,
+            "sortIndex": 4,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "4"
+              },
+              {
+                "position": 19,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position C",
+          "value": "24 Optoisolated Level-Sensitive Inputs, 8 Outputs"
+        }
+      },
+      {
+        "id": 13,
+        "text": "I/O Board Position C Input Voltage",
+        "questionType": 0,
+        "sortIndex": 18,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 13,
+            "text": "24 Vdc",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "4"
+              },
+              {
+                "position": 19,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position C Input Voltage",
+          "value": "24 Vdc"
+        }
+      },
+      {
+        "id": 16,
+        "text": "I/O Board Positions D and E (Same I/O Type, Utilizing the Selected Mainboard Input Voltage)",
+        "questionType": 0,
+        "sortIndex": 19,
+        "answers": [
+          {
+            "id": 5,
+            "questionId": 16,
+            "text": "NA",
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Positions D and E (Same I/O Type, Utilizing the Selected Mainboard Input Voltage)",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 21,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 14,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "None"
+        }
+      },
+      {
+        "id": 15,
+        "text": "Front Overlay",
+        "questionType": 0,
+        "sortIndex": 22,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 15,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 21,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Front Overlay",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 35,
+        "text": "DMA Bundle",
+        "questionType": 0,
+        "sortIndex": 38,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 35,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "DMA Bundle",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [],
+    "priceAdjustments": [],
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [
+      {
+        "code": 9,
+        "message": "This configuration number is no longer available."
+      }
+    ],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

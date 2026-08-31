@@ -1,0 +1,114 @@
+{
+  "partQuery": "2664S01XX83",
+  "fetchedAt": "2026-08-30T10:17:19.197Z",
+  "response": {
+    "product": {
+      "id": 132,
+      "minorId": 0,
+      "productCode": "2664S",
+      "cfgModel": "2664S",
+      "name": "SEL-2664S Stator Ground Protection Relay",
+      "summary": "<p>Protect high-impedance grounded generators from ground faults at standstill, during startup, and while running with the multisine frequency injection and neutral overvoltage-based protection in the SEL-2664S.</p>",
+      "revision": "3",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/iR0251_Left.jpg?n=63881711851000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/2664S/",
+      "cartType": 1
+    },
+    "partNumber": "2664S#CY8W",
+    "motString": "2664S01XX83",
+    "salesNumber": "2664S#CY8W",
+    "answerString": "'1-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "Standard (Wall Mount)",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Standard (Wall Mount)"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9322a.dwg",
+            "fileSize": "76140"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9322a.pdf",
+            "fileSize": "78470"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Front, Rear,Left",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i7108b.dwg",
+            "fileSize": "1100070"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7108b.pdf",
+            "fileSize": "421291"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

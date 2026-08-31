@@ -4,21 +4,23 @@
     "front_and_rear": [
       {
         "when": {
-          "examples": [
-            "04515211XXXX1H1XXXXXX"
-          ]
+          "position_5": "5",
+          "position_14": "H",
+          "position_15": "1"
         },
         "front_pdf": "i7014c.pdf",
-        "rear_pdf": "i7014c.pdf"
+        "rear_pdf": "i7014c.pdf",
+        "note": "21-character SEL-451-5 rule (position 5 = firmware 5): drawing choice is mounting (position 14) + chassis (position 15), configurator-verified. The old example-MOT rules also pinned the I/O board digits at 0/X, so real fleet units with populated boards fell through to the 3U drawing (2026-08-30 audit). Position 5 in the condition keeps these rules from colliding with the 25-character 451-6 rules, whose position 14 is an Ethernet code, never H/V."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1V1XXXXXX"
-          ]
+          "position_5": "5",
+          "position_14": "V",
+          "position_15": "1"
         },
         "front_pdf": "i7061c.pdf",
-        "rear_pdf": "i7061c.pdf"
+        "rear_pdf": "i7061c.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
@@ -100,75 +102,83 @@
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1H60X0XXX"
-          ]
+          "position_5": "5",
+          "position_14": "H",
+          "position_15": "6"
         },
         "front_pdf": "i7311.A.pdf",
-        "rear_pdf": "i7311.A.pdf"
+        "rear_pdf": "i7311.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1H70X0XXX"
-          ]
+          "position_5": "5",
+          "position_14": "H",
+          "position_15": "7"
         },
         "front_pdf": "i7312.A.pdf",
-        "rear_pdf": "i7312.A.pdf"
+        "rear_pdf": "i7312.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1V60X0XXX"
-          ]
+          "position_5": "5",
+          "position_14": "V",
+          "position_15": "6"
         },
         "front_pdf": "i7313.A.pdf",
-        "rear_pdf": "i7313.A.pdf"
+        "rear_pdf": "i7313.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1V70X0XXX"
-          ]
+          "position_5": "5",
+          "position_14": "V",
+          "position_15": "7"
         },
         "front_pdf": "i7314.A.pdf",
-        "rear_pdf": "i7314.A.pdf"
+        "rear_pdf": "i7314.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1H20XXXXX"
-          ]
+          "position_5": "5",
+          "position_14": "H",
+          "position_15": "2"
         },
         "front_pdf": "i7315.A.pdf",
-        "rear_pdf": "i7315.A.pdf"
+        "rear_pdf": "i7315.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1H30XXXXX"
-          ]
+          "position_5": "5",
+          "position_14": "H",
+          "position_15": "3"
         },
         "front_pdf": "i7316.A.pdf",
-        "rear_pdf": "i7316.A.pdf"
+        "rear_pdf": "i7316.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1V20XXXXX"
-          ]
+          "position_5": "5",
+          "position_14": "V",
+          "position_15": "2"
         },
         "front_pdf": "i7317.A.pdf",
-        "rear_pdf": "i7317.A.pdf"
+        "rear_pdf": "i7317.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       },
       {
         "when": {
-          "examples": [
-            "04515211XXXX1V30XXXXX"
-          ]
+          "position_5": "5",
+          "position_14": "V",
+          "position_15": "3"
         },
         "front_pdf": "i7318.A.pdf",
-        "rear_pdf": "i7318.A.pdf"
+        "rear_pdf": "i7318.A.pdf",
+        "note": "See the first 21-character rule for the audit note."
       }
     ]
   },
@@ -292,8 +302,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 15
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "GROUP_4": {
             "options": {
@@ -314,8 +325,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 13
-            }
+              "position": 15
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): chassis is position 15 (13 is mainboard voltage)."
           },
           "GROUP_3": {
             "options": {
@@ -456,8 +468,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11."
           },
           "GROUP_1": {
             "options": {
@@ -522,14 +535,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": " & "
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -614,8 +628,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 15
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "GROUP_4": {
             "options": {
@@ -632,8 +647,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 13
-            }
+              "position": 15
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): chassis is position 15 (13 is mainboard voltage)."
           },
           "GROUP_3": {
             "options": {
@@ -738,8 +754,9 @@
             },
             "options_source": "pdf_layer_codes",
             "source": {
-              "position": 9
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11."
           },
           "GROUP_1": {
             "options": {
@@ -788,14 +805,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": " & "
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -2029,8 +2047,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_C": {
             "options": {
@@ -2207,8 +2226,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -2240,14 +2260,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -2299,8 +2320,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_C": {
             "options": {
@@ -2489,8 +2511,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -2522,14 +2545,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -2581,8 +2605,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_C": {
             "options": {
@@ -2771,8 +2796,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -2804,14 +2830,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -2863,8 +2890,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_C": {
             "options": {
@@ -3053,8 +3081,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -3086,14 +3115,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -3141,8 +3171,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_B": {
             "options": {
@@ -3264,8 +3295,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -3297,14 +3329,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -3352,8 +3385,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_B": {
             "options": {
@@ -3487,8 +3521,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -3520,14 +3555,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -3639,8 +3675,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_B": {
             "options": {
@@ -3898,8 +3935,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -3963,14 +4001,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       },
@@ -4018,8 +4057,9 @@
               ]
             },
             "source": {
-              "position": 13
-            }
+              "position": 21
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): the front overlay is position 21 (13 is mainboard voltage - every 24 Vdc unit used to get the Bay Control overlay)."
           },
           "IO_BOARD_POSITION_B": {
             "options": {
@@ -4153,8 +4193,9 @@
               ]
             },
             "source": {
-              "position": 12
-            }
+              "position": 11
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): Ethernet connection options are position 11 (12 is the I/O boards D/E digit)."
           },
           "CONNECTOR_TYPE_&_SECONDARY_INPUT_VOLTAGE": {
             "options": {
@@ -4186,14 +4227,15 @@
             "source": {
               "parts": [
                 {
-                  "position": 6
+                  "position": 7
                 },
                 {
-                  "position": 8
+                  "position": 9
                 }
               ],
               "separator": "-"
-            }
+            },
+            "note": "2026-08-30 audit: source position corrected against the configurator-verified 21-character SEL-451-5 decode table (part_number.submodels): connector type is position 7 and secondary input voltage 9 (6 and 8 are power supply and secondary current)."
           }
         }
       }
@@ -4805,7 +4847,7 @@
       "value": "0451",
       "description": "SEL-451 Protection, Automation, and Bay Control System; position 5 selects the sub-model/firmware (6 = SEL-451-6)"
     },
-    "note": "25-digit Model Option Table for the SEL-451-6 (long/8U-capable string decoded by WI-15509). Positions 6 (connector type), 15 (Ethernet connection), 16 (mounting) and the I/O board slots at 18/20/22 are anchored by the 8U configuration drawings (i7301-i7306); the remaining positions come from WI-15509 and were confirmed against the instruction-manual VER sample part number. Positions 11-13 (00X) and 24-25 (XX) are fixed/reserved template digits. This is distinct from the shorter 3U SEL-451/-5 string (drawings i7014c/i7061c) whose digit meanings differ.",
+    "note": "25-digit Model Option Table for the SEL-451-6 (long/8U-capable string decoded by WI-15509). Positions 6 (connector type), 15 (Ethernet connection), 16 (mounting) and the I/O board slots at 18/20/22 are anchored by the 8U configuration drawings (i7301-i7306); the remaining positions come from WI-15509 and were confirmed against the instruction-manual VER sample part number. Positions 11-13 (00X) and 24-25 (XX) are fixed/reserved template digits. This is distinct from the shorter 3U SEL-451/-5 string (drawings i7014c/i7061c) whose digit meanings differ. The `submodels` entry describes the 21-character SEL-451-5 format; this top-level table applies to 25-character part numbers (SEL-451-6).",
     "references": [
       "SEL-451-6 With Sampled Values or TiDL Technology Ordering Information (WI-15509, 20231221)",
       "SEL-451-5 With 8U Chassis Ordering Information (WI-13119, 20190731) - shared I/O board / voltage tables",
@@ -5103,6 +5145,262 @@
         "options": {
           "XX": "Reserved (fixed digits)"
         }
+      }
+    ],
+    "submodels": [
+      {
+        "name": "SEL-451-5 (21-character MOT)",
+        "length": 21,
+        "note": "21-character ordering format (firmware 5, single/dual-breaker); the same fields sit at different positions than the 25-character 451-6 format the top-level positions table describes, and some codes mean different hardware. Built 2026-08-30 from the SEL configurator part-lookup decode of a real fleet unit plus the eleven 21-character drawing-rule MOTs. Position 17/19 are the board input-voltage digits (components); positions with only X observed are described minimally.",
+        "positions": [
+          {
+            "position": 5,
+            "length": 1,
+            "field": "firmware",
+            "label": "Firmware",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "5": "Protection, Automation, and Bay Control System for Single/Dual Breaker Applications"
+            },
+            "note": "Only firmware 5 is configurator-verified for this length; NOTE the 25-character 451-6 format is described by the top-level positions table, not here."
+          },
+          {
+            "position": 6,
+            "length": 1,
+            "field": "power_supply",
+            "label": "Power Supply",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "2": "24-48 Vdc",
+              "6": "125-250 Vdc or 110-240 Vac"
+            }
+          },
+          {
+            "position": 7,
+            "length": 1,
+            "field": "connector_type",
+            "label": "Connector Type",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "1": "Screw-Terminal Block",
+              "2": "Connectorized Relay (Harness Configured Separately)"
+            },
+            "note": "'2' from the layer catalog of the 21-character drawings."
+          },
+          {
+            "position": 8,
+            "length": 1,
+            "field": "secondary_input_current",
+            "label": "Secondary Input Current",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "1": "1 A Phase",
+              "5": "5 A Phase"
+            }
+          },
+          {
+            "position": 9,
+            "length": 1,
+            "field": "secondary_input_voltage",
+            "label": "Secondary Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "1": "Euro Connector With IEEE C37.92 Low-Energy Analog (LEA) Inputs",
+              "X": "300 V Phase - Neutral Maximum (Wye)"
+            }
+          },
+          {
+            "position": 10,
+            "length": 1,
+            "field": "ethernet_protocols",
+            "label": "Ethernet Communications Protocols",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "B": "FTP, Telnet, Synchrophasors, and DNP3 LAN/WAN",
+              "C": "FTP, Telnet, Synchrophasors, DNP3 LAN/WAN, and IEC 61850",
+              "X": "None"
+            }
+          },
+          {
+            "position": 11,
+            "length": 1,
+            "field": "ethernet_connection",
+            "label": "Ethernet Connection Options",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "0": "Ports 5C, 5D: Ethernet Card With Two 10/100BASE-T Connectors",
+              "4": "Ports 5C, 5D: Ethernet Card With One 10/100BASE-T, One 100BASE-FX Connector",
+              "X": "None",
+              "1": "1",
+              "2": "2",
+              "3": "3",
+              "5": "5"
+            },
+            "note": "codes beyond 0/4/X from the layer catalog of the 21-character drawings (i7014c/i7061c/i7311-i7318)."
+          },
+          {
+            "position": 12,
+            "length": 1,
+            "field": "io_boards_d_e",
+            "label": "I/O Board Positions D and E",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "X": "NA"
+            },
+            "note": "Same I/O type, utilizing the selected mainboard input voltage (configurator question text); only X (absent) is verified."
+          },
+          {
+            "position": 13,
+            "length": 1,
+            "field": "mainboard_input_voltage",
+            "label": "Mainboard Input Voltage",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "1": "24 Vdc",
+              "3": "110 Vdc"
+            }
+          },
+          {
+            "position": 14,
+            "length": 1,
+            "field": "mounting",
+            "label": "Mounting",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "H": "Horizontal Rack Mount",
+              "V": "Vertical Rack Mount",
+              "3": "Horizontal Panel Mount",
+              "4": "Vertical Panel Mount"
+            },
+            "note": "'3'/'4' from the layer catalog of the 21-character drawings (i7014c/i7061c/i7311-i7318)."
+          },
+          {
+            "position": 15,
+            "length": 1,
+            "field": "chassis",
+            "label": "Chassis",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "1": "3U, Standard I/O",
+              "2": "4U, Up to One Additional I/O Board",
+              "3": "4U, Front Panel With 24 Target LEDs, 12 Operator Control Pushbuttons, and Tri-Color LEDs",
+              "6": "5U, Up to Two Additional I/O Boards",
+              "7": "5U, Front Panel With 24 Target LEDs, 12 Operator Control Pushbuttons, and Tri-Color LEDs"
+            }
+          },
+          {
+            "position": 16,
+            "length": 2,
+            "field": "io_board_b",
+            "label": "I/O Board Position B (card | input voltage)",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "components": [
+              {
+                "offset": 0,
+                "length": 1,
+                "label": "I/O board card",
+                "options": {
+                  "4": "24 Optoisolated Level-Sensitive Inputs, 8 Outputs",
+                  "0": "Empty I/O Board Position",
+                  "X": "None / position not present in this chassis",
+                  "1": "(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "2": "(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "5": "(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "6": "(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "7": "(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "8": "(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "A": "Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "B": "Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs"
+                },
+                "note": "card codes beyond 4/0/X from the layer catalog of the 21-character drawings (i7014c/i7061c/i7311-i7318)."
+              },
+              {
+                "offset": 1,
+                "length": 1,
+                "label": "Input voltage",
+                "options": {
+                  "1": "24 Vdc",
+                  "X": "NA"
+                }
+              }
+            ],
+            "note": "Card codes DIFFER from the 25-character 451-6 format ('4' is the 24-input board here; the 451-6 table's '4' is a different card)."
+          },
+          {
+            "position": 18,
+            "length": 2,
+            "field": "io_board_c",
+            "label": "I/O Board Position C (card | input voltage)",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "components": [
+              {
+                "offset": 0,
+                "length": 1,
+                "label": "I/O board card",
+                "options": {
+                  "4": "24 Optoisolated Level-Sensitive Inputs, 8 Outputs",
+                  "0": "Empty I/O Board Position",
+                  "X": "None / position not present in this chassis",
+                  "1": "(8) Independent Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "2": "(8) Optoisolated Independent Level-Sensitive Inputs. (13) Standard Form A. (2) Standard Form C Outputs",
+                  "5": "(8) Independent Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "6": "(8) Independent Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "7": "(8) Optoisolated Independent Level-Sensitive Inputs. (13) High-Current Interrupting Form A. (2) Standard Form C Outputs",
+                  "8": "(8) Optoisolated Independent Level-Sensitive Inputs. (8) High-Speed High-Current Interrupting Form A Outputs",
+                  "A": "Auxiliary Trip-Close Pushbuttons. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs",
+                  "B": "Auxiliary Trip-Close Pushbuttons with Guards. (24) Optoisolated Level-Sensitive Inputs. (4) High-Current Interrupting Form A Outputs"
+                },
+                "note": "card codes beyond 4/0/X from the layer catalog of the 21-character drawings (i7014c/i7061c/i7311-i7318)."
+              },
+              {
+                "offset": 1,
+                "length": 1,
+                "label": "Input voltage",
+                "options": {
+                  "1": "24 Vdc",
+                  "X": "NA"
+                }
+              }
+            ]
+          },
+          {
+            "position": 20,
+            "length": 1,
+            "field": "conformal_coat",
+            "label": "Conformal Coat",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "X": "None"
+            }
+          },
+          {
+            "position": 21,
+            "length": 1,
+            "field": "front_overlay",
+            "label": "Front Overlay",
+            "confidence": "high",
+            "source": "SEL configurator part-lookup decode (2026-08-30) of genuine fleet unit 045152111B0X1H74141XX and the eleven 21-character drawing-rule MOTs (04515211XXXX1H1XXXXXX ..)",
+            "options": {
+              "X": "Standard",
+              "1": "Bay Control"
+            },
+            "note": "'1' from the layer catalog of the 21-character drawings (i7014c/i7061c/i7311-i7318)."
+          }
+        ]
       }
     ]
   }

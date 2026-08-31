@@ -1,0 +1,804 @@
+{
+  "partQuery": "0735BX20944EXXXXXX16201XX",
+  "fetchedAt": "2026-08-30T10:23:06.508Z",
+  "response": {
+    "product": {
+      "id": 2098,
+      "minorId": 0,
+      "productCode": "735",
+      "cfgModel": "735",
+      "name": "SEL-735 Power Quality and Revenue Meter",
+      "summary": "<p>The SEL-735 Power Quality and Revenue Meter is fully Class A-compliant to the IEC 61000-4-30 power quality standard. With reliable Class A measurement, operators can identify power system anomalies and isolate their source with confidence.</p>",
+      "revision": "7",
+      "imageUrls": [
+        "uploadedImages/_New_Site/Products/735_duo_WaveScreen_LF_01-01.jpg?n=63874484025000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/735/",
+      "cartType": 1
+    },
+    "partNumber": "735#0302",
+    "motString": "0735BX20944EXXXXXX16201XX",
+    "salesNumber": "735#0302",
+    "answerString": "'1-2','2-1','3-1','4-1','5-1','6-1','7-2','8-5','9-1','10-1','11-1','12-1','13-1','14-1','15-2','16-2','17-1','18-2','19-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Display",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 1,
+            "text": "Monochromatic",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "B"
+              },
+              {
+                "position": 6,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Display",
+          "value": "Monochromatic"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Front Port",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "EIA-232",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "B"
+              },
+              {
+                "position": 6,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Front Port",
+          "value": "EIA-232"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Front Panel Orientation",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "Vertical",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "B"
+              },
+              {
+                "position": 6,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Front Panel Orientation",
+          "value": "Vertical"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Enclosure Type",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "B"
+              },
+              {
+                "position": 6,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Enclosure Type",
+          "value": "None"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Power Quality and Recording",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "Advanced",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Quality and Recording",
+          "value": "Advanced"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Meter Form",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "Form 9",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "9"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Meter Form",
+          "value": "Form 9"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Slot A Power Supply Voltage",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "110-240 Vac 50/60 Hz, 110-250 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "4"
+              },
+              {
+                "position": 11,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Power Supply Voltage",
+          "value": "110-240 Vac 50/60 Hz, 110-250 Vdc"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Slot A Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 5,
+            "questionId": 8,
+            "text": "125 Vdc/Vac",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "4"
+              },
+              {
+                "position": 11,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot A Control Input Voltage",
+          "value": "125 Vdc/Vac"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Slot B Ethernet (Port 1)",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "Single 10/100BASE-T",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "E"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Ethernet (Port 1)",
+          "value": "Single 10/100BASE-T"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Slot B Port 3 Serial Port (includes Port 2 EIA-232 Standard)",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "Port 3 EIA-485",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "E"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot B Port 3 Serial Port (includes Port 2 EIA-232 Standard)",
+          "value": "Port 3 EIA-485"
+        }
+      },
+      {
+        "id": 11,
+        "text": "Slot C Communications",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 11,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot C Communications",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Slot D I/O",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 12,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D I/O",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Slot D Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot D Control Input Voltage",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 14,
+        "text": "Slot Z Current Class",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 14,
+            "text": "CL2/10/20, Optimized for Low-End Accuracy",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Slot Z Current Class",
+          "value": "CL2/10/20, Optimized for Low-End Accuracy"
+        }
+      },
+      {
+        "id": 15,
+        "text": "System Frequency",
+        "questionType": 0,
+        "sortIndex": 16,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 15,
+            "text": "60 Hz",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "6"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "System Frequency",
+          "value": "60 Hz"
+        }
+      },
+      {
+        "id": 16,
+        "text": "Communications Protocol",
+        "questionType": 0,
+        "sortIndex": 17,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 16,
+            "text": "Standard Plus IEC 61850 With GOOSE and MMS",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 21,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocol",
+          "value": "Standard Plus IEC 61850 With GOOSE and MMS"
+        }
+      },
+      {
+        "id": 17,
+        "text": "Front Panel Labeling",
+        "questionType": 0,
+        "sortIndex": 18,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 17,
+            "text": "ANSI",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 22,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Front Panel Labeling",
+          "value": "ANSI"
+        }
+      },
+      {
+        "id": 18,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 19,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 18,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 23,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 19,
+        "text": "Software Bundle",
+        "questionType": 0,
+        "sortIndex": 20,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 19,
+            "text": "None",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 24,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Software Bundle",
+          "value": "None"
+        }
+      },
+      {
+        "id": 20,
+        "text": "Custom Nameplate Text",
+        "questionType": 3,
+        "sortIndex": 21,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 20,
+            "text": "Not Applicable",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "Custom Nameplate Text"
+        }
+      },
+      {
+        "id": 21,
+        "text": "Standard Front Nameplate",
+        "questionType": 0,
+        "sortIndex": 22,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 21,
+            "text": "Yes",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "Standard Front Nameplate",
+          "value": "Yes"
+        }
+      },
+      {
+        "id": 22,
+        "text": "Custom Barcode Text (Leave Blank for SEL Specified Number)",
+        "questionType": 3,
+        "sortIndex": 23,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 22,
+            "text": "Not Applicable",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "Custom Barcode Text (Leave Blank for SEL Specified Number)"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9276a.dwg",
+            "fileSize": "30963"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9276a.pdf",
+            "fileSize": "34784"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "FRONT,RIGHT,REAR",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "23-1327/i7386.A.dwg",
+            "fileSize": "543252"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "23-1327/i7386.A.pdf",
+            "fileSize": "510402"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [
+      {
+        "price": 1705.2,
+        "questionIds": [
+          1,
+          5
+        ],
+        "questions": [
+          {
+            "id": 1,
+            "text": "Display",
+            "questionType": 0,
+            "sortIndex": 1,
+            "answers": [
+              {
+                "id": 2,
+                "questionId": 1,
+                "text": "Monochromatic",
+                "sortIndex": 1,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 5,
+                    "value": "B"
+                  },
+                  {
+                    "position": 6,
+                    "value": "X"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "Display",
+              "value": "Monochromatic"
+            }
+          },
+          {
+            "id": 5,
+            "text": "Power Quality and Recording",
+            "questionType": 0,
+            "sortIndex": 5,
+            "answers": [
+              {
+                "id": 1,
+                "questionId": 5,
+                "text": "Advanced",
+                "sortIndex": 1,
+                "status": 1,
+                "minValue": 0,
+                "maxValue": 0,
+                "interval": 0,
+                "quantity": 0,
+                "motDigits": [
+                  {
+                    "position": 7,
+                    "value": "2"
+                  }
+                ]
+              }
+            ],
+            "optionSummary": {
+              "label": "Power Quality and Recording",
+              "value": "Advanced"
+            }
+          }
+        ]
+      }
+    ],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

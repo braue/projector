@@ -1,0 +1,205 @@
+{
+  "partQuery": "0551C0BX5X1X",
+  "fetchedAt": "2026-08-30T10:19:47.032Z",
+  "response": {
+    "product": {
+      "id": 197,
+      "minorId": 0,
+      "productCode": "551C",
+      "cfgModel": "551C",
+      "name": "SEL-551C Overcurrent/Reclosing Relay",
+      "summary": "<p>The SEL-551C Overcurrent/Reclosing Relay combines overcurrent protection, built-in I/O, enhanced communications features, and multiple-shot reclosing in one compact relay. Great for industrial, commercial, and utility, primary or secondary overcurrent protection.</p>",
+      "revision": "2",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/551C.png?n=63574914363000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/551C/",
+      "cartType": 1
+    },
+    "partNumber": "551C#32QK",
+    "motString": "0551C0BX5X1X",
+    "salesNumber": "551C#32QK",
+    "answerString": "'3-3','4-1','5-2','6-1','7-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 3,
+        "text": "Power Supply; Control Input Voltage",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 3,
+            "text": "48/125 Vdc or 125 Vac; 125 Vdc (level sensitive inputs)",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "B"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply; Control Input Voltage",
+          "value": "48/125 Vdc or 125 Vac; 125 Vdc (level sensitive inputs)"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "5 A Phase, 5 A Neutral",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "5"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "5 A Phase, 5 A Neutral"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Packaging",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Packaging",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Communications Port",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "EIA-232 Rear Port",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Port",
+          "value": "EIA-232 Rear Port"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "DIMENSION",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9077a.dwg",
+            "fileSize": "51063"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9077a.pdf",
+            "fileSize": "94692"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

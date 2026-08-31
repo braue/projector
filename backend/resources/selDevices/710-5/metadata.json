@@ -68,12 +68,29 @@
             "6"
           ],
           "position_18": [
-            "0",
-            "1"
+            "0"
           ]
         },
         "front_pdf": "i7354.B.pdf",
-        "rear_pdf": "i7354.B.pdf"
+        "rear_pdf": "i7354.B.pdf",
+        "note": "2026-08-30 audit: front-panel '1' split out to i7355 (configurator lists i7355.B for 071050E1A6XCA74851300; the i7346/i7347/i7348 triple shows the same panel-code split)."
+      },
+      {
+        "when": {
+          "position_14": [
+            "7"
+          ],
+          "position_15": [
+            "4",
+            "6"
+          ],
+          "position_18": [
+            "1"
+          ]
+        },
+        "front_pdf": "i7355.B.pdf",
+        "rear_pdf": "i7355.B.pdf",
+        "note": "i7355.B.pdf fetched 2026-08-30 with its DWG; layer rules generated from its catalog."
       },
       {
         "when": {
@@ -3108,6 +3125,335 @@
             }
           }
         }
+      },
+      "i7355.B.pdf": {
+        "_note": "Generated 2026-08-30 from i7355.B.pdf's own layer catalog; group sources copied from i7354.B.pdf's matching groups (same drawing family).",
+        "always": [
+          {
+            "name": "6.00_____DWG",
+            "object_id": "41 0 R"
+          },
+          {
+            "name": "5.00_____[SLOT Z]",
+            "object_id": "49 0 R"
+          },
+          {
+            "name": "4.00_____[SLOT E]",
+            "object_id": "52 0 R"
+          },
+          {
+            "name": "3.00_____[SLOT D]",
+            "object_id": "68 0 R"
+          },
+          {
+            "name": "2.00_____[SLOT C]",
+            "object_id": "84 0 R"
+          },
+          {
+            "name": "1.00_____[COMBINED SLOT B. ETHERNET & SERIAL PORT]",
+            "object_id": "89 0 R"
+          }
+        ],
+        "by_option_group": {
+          "SLOT_Z": {
+            "source": {
+              "position": 16,
+              "length": 2
+            },
+            "options": {
+              "81": [
+                {
+                  "name": "5.01__81__1 Amp Phase. 1 Amp Neutral. 3-Phase AC Voltages (300 Vac)",
+                  "object_id": "48 0 R"
+                }
+              ],
+              "82": [
+                {
+                  "name": "5.02__82__1 Amp Phase. 5 Amp Neutral. 3-Phase AC Voltages (300 Vac)",
+                  "object_id": "47 0 R"
+                }
+              ],
+              "83": [
+                {
+                  "name": "5.03__83__1 Amp Phase. 2.5 mA High Sense Neutral. 3-Phase AC Voltages (300 Vac)",
+                  "object_id": "46 0 R"
+                }
+              ],
+              "85": [
+                {
+                  "name": "5.04__85__5 Amp Phase. 5 Amp Neutral. 3-Phase AC Voltages (300 Vac)",
+                  "object_id": "45 0 R"
+                }
+              ],
+              "86": [
+                {
+                  "name": "5.05__86__5 Amp Phase. 1 Amp Neutral. 3-Phase AC Voltages (300 Vac)",
+                  "object_id": "44 0 R"
+                }
+              ],
+              "87": [
+                {
+                  "name": "5.06__87__5 Amp Phase. 2.5 mA High Sense Neutral. 3-Phase AC Voltages (300 Vac)",
+                  "object_id": "43 0 R"
+                }
+              ],
+              "L1": [
+                {
+                  "name": "5.07__L1__1-Neutral Rogowski Coil or Low Power Current Transformer (RJ45 Inputs) - 3-Phase LEA Voltage Sensor (RJ45 inputs) (SELECT 1 ACI - 3 AVI)",
+                  "object_id": "42 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_E": {
+            "source": {
+              "position": 14,
+              "length": 2
+            },
+            "options": {
+              "74": [
+                {
+                  "name": "4.01__74____(4) Arc-Flash Detection Inputs. (3) Motor DIFF AC Current Inputs (1A-5A)",
+                  "object_id": "51 0 R"
+                }
+              ],
+              "76": [
+                {
+                  "name": "4.02__76__(8) Arc-Flash Detection Inputs",
+                  "object_id": "50 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_D": {
+            "source": {
+              "position": 12,
+              "length": 2
+            },
+            "options": {
+              "9-": [
+                {
+                  "name": "3.15__9-__(10) RTD Inputs",
+                  "object_id": "53 0 R"
+                }
+              ],
+              "6-": [
+                {
+                  "name": "3.14__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "54 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "3.13__5-__(8) AI (±20 mA or ±10 V Range)",
+                  "object_id": "55 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "3.12__4-__(14) DI",
+                  "object_id": "56 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "3.11__3-__(8) DI",
+                  "object_id": "57 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "3.10__2G__(8) DO Electromechanical (4) Form A & (4) Form B",
+                  "object_id": "58 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "3.09__2D__(8) DO Electromechanical (2) Form A & (6) Form B",
+                  "object_id": "59 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "3.08__2C__(8) DO Electromechanical (6) Form A & (2) Form B",
+                  "object_id": "60 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "3.07__2B__(8) DO  Electromechanical (Form B)",
+                  "object_id": "61 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "3.06__2A__(8) DO  Electromechanical (Form A)",
+                  "object_id": "62 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "3.05__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "63 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "3.04__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "64 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "3.03__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "65 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "3.02__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "66 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "3.01__0-__Empty",
+                  "object_id": "67 0 R"
+                }
+              ]
+            }
+          },
+          "SLOT_C": {
+            "source": {
+              "position": 10,
+              "length": 2
+            },
+            "options": {
+              "6-": [
+                {
+                  "name": "2.15__6-__(4) AI. (4) AO (±20 mA or ±10 V Range)",
+                  "object_id": "69 0 R"
+                }
+              ],
+              "5-": [
+                {
+                  "name": "2.14__5-__(8) AI (±20 mA or ±10 V Range)",
+                  "object_id": "70 0 R"
+                }
+              ],
+              "4-": [
+                {
+                  "name": "2.13__4-__(14) DI",
+                  "object_id": "71 0 R"
+                }
+              ],
+              "3-": [
+                {
+                  "name": "2.12__3-__(8) DI",
+                  "object_id": "72 0 R"
+                }
+              ],
+              "2G": [
+                {
+                  "name": "2.11__2G__(8) DO Electromechanical (4) Form A & (4) Form B",
+                  "object_id": "73 0 R"
+                }
+              ],
+              "2D": [
+                {
+                  "name": "2.10__2D__(8) DO Electromechanical (2) Form A & (6) Form B",
+                  "object_id": "74 0 R"
+                }
+              ],
+              "2C": [
+                {
+                  "name": "2.09__2C__(8) DO Electromechanical (6) Form A & (2) Form B",
+                  "object_id": "75 0 R"
+                }
+              ],
+              "2B": [
+                {
+                  "name": "2.08__2B__(8) DO  Electromechanical (Form B)",
+                  "object_id": "76 0 R"
+                }
+              ],
+              "2A": [
+                {
+                  "name": "2.07__2A__(8) DO  Electromechanical (Form A)",
+                  "object_id": "77 0 R"
+                }
+              ],
+              "D-": [
+                {
+                  "name": "2.06__D-__(4) DI. (3) DO Electromechanical (2) Form C & (1) Form B",
+                  "object_id": "78 0 R"
+                }
+              ],
+              "C-": [
+                {
+                  "name": "2.05__C-__(4) DI. (4) DO Fast High Current Hybrid (Form A)",
+                  "object_id": "79 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "2.04__1-__(4) DI. (4) DO Electromechanical (Form A)",
+                  "object_id": "80 0 R"
+                }
+              ],
+              "B-": [
+                {
+                  "name": "2.03__B-__(3) DI. (4) DO. (1) AO (4-20 mA Range)",
+                  "object_id": "81 0 R"
+                }
+              ],
+              "A-": [
+                {
+                  "name": "2.02__A-__Serial Communications (EIA-232-485)",
+                  "object_id": "82 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "2.01__0-__Empty",
+                  "object_id": "83 0 R"
+                }
+              ]
+            }
+          },
+          "COMBINED_SLOT_B._ETHERNET_&_SERIAL_PORT": {
+            "source": {
+              "position": 19,
+              "length": 2
+            },
+            "options": {
+              "3-": [
+                {
+                  "name": "1.04__3-__(1) 10-100Base-T Ethernet. EIA-485",
+                  "object_id": "85 0 R"
+                }
+              ],
+              "2-": [
+                {
+                  "name": "1.03__2-__(1) 10-100Base-T Ethernet. EIA-232",
+                  "object_id": "86 0 R"
+                }
+              ],
+              "1-": [
+                {
+                  "name": "1.02__1-__None. EIA-485",
+                  "object_id": "87 0 R"
+                }
+              ],
+              "0-": [
+                {
+                  "name": "1.01__0-__None. EIA-232",
+                  "object_id": "88 0 R"
+                }
+              ]
+            }
+          }
+        }
       }
     }
   },
@@ -3252,6 +3598,26 @@
             92.2,
             1665.28,
             658.5
+          ]
+        }
+      },
+      "i7355.B.pdf": {
+        "front": {
+          "page": 1,
+          "box": [
+            60.77,
+            92.23,
+            492.55,
+            658.51
+          ]
+        },
+        "rear": {
+          "page": 1,
+          "box": [
+            1258.56,
+            92.23,
+            1665.79,
+            658.51
           ]
         }
       }

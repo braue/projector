@@ -1,0 +1,315 @@
+{
+  "partQuery": "24070000X",
+  "fetchedAt": "2026-08-30T10:16:23.301Z",
+  "response": {
+    "product": {
+      "id": 995,
+      "minorId": 0,
+      "productCode": "2407-M2",
+      "cfgModel": "2407",
+      "name": "SEL-2407 Satellite-Synchronized Clock",
+      "summary": "<p>The SEL-2407 provides time display, reliability, durability and high-accuracy timing to ± 100 nanoseconds.</p>",
+      "revision": "41",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/2407.png?n=63574918904000"
+      ],
+      "standardFeatures": [
+        {
+          "contentData": [
+            {
+              "html": {
+                "content": "<p><b>Hardware </b></p> <ul><li>Internal power supply</li></ul> <p><b>Input/Output</b></p> <ul><li>Alarm contact</li><li>GPS input</li><li>7 IRIG-B outputs  ( See Specs for Details.)</li></ul> <p><b>HMI</b></p> <ul><li>Alphanumeric display</li><li>3 Status LEDs</li></ul>"
+              },
+              "links": [],
+              "images": []
+            },
+            {
+              "html": {
+                "content": "<p><b>Communication</b></p> <ul><li>EIA-232 port</li></ul> <p><b>Protocol</b></p> <ul><li>IRIG</li><li>PPS</li><li>KPPS</li><li>SEL ASCII</li></ul> <p><b>Other</b></p> <ul><li>Instruction Manual CD</li></ul>"
+              },
+              "links": [],
+              "images": []
+            }
+          ]
+        }
+      ],
+      "standardFeatureCollection": {
+        "submodelId": 995,
+        "standardFeatures": [
+          {
+            "heading": "Hardware",
+            "headingSortOrder": 1,
+            "values": [
+              {
+                "value": "Internal power supply",
+                "valueSortOrder": 1
+              }
+            ]
+          },
+          {
+            "heading": "Input/Output",
+            "headingSortOrder": 2,
+            "values": [
+              {
+                "value": "Alarm contact",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "GPS input",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "7 IRIG-B outputs  (See Specs for Details)",
+                "valueSortOrder": 3
+              }
+            ]
+          },
+          {
+            "heading": "HMI",
+            "headingSortOrder": 3,
+            "values": [
+              {
+                "value": "Alphanumeric display",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "3 Status LEDs",
+                "valueSortOrder": 2
+              }
+            ]
+          },
+          {
+            "heading": "Communication",
+            "headingSortOrder": 4,
+            "values": [
+              {
+                "value": "EIA-232 port",
+                "valueSortOrder": 1
+              }
+            ]
+          },
+          {
+            "heading": "Protocol",
+            "headingSortOrder": 5,
+            "values": [
+              {
+                "value": "PPS",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "KPPS",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "SEL ASCII",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "IRIG",
+                "valueSortOrder": 4
+              }
+            ]
+          },
+          {
+            "heading": "Other",
+            "headingSortOrder": 6,
+            "values": [
+              {
+                "value": "Instruction Manual CD",
+                "valueSortOrder": 1
+              }
+            ]
+          }
+        ]
+      },
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/2407/",
+      "cartType": 1
+    },
+    "partNumber": "2407#7HF4",
+    "motString": "24070000X",
+    "salesNumber": "2407#7HF4",
+    "answerString": "'1-1','2-1','3-1','4-2'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "850 nm Communication Port",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "None",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "850 nm Communication Port",
+          "value": "None"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Antenna",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Antenna",
+          "value": "None"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 4,
+            "text": "1/2 Rack Horizontal Mount",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "1/2 Rack Horizontal Mount"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9033d.dwg",
+            "fileSize": "42176"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9033d.pdf",
+            "fileSize": "229091"
+          }
+        }
+      },
+      {
+        "type": "Front",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i3858b.dwg",
+            "fileSize": "104736"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i3858b.pdf",
+            "fileSize": "127179"
+          }
+        }
+      },
+      {
+        "type": "Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i3857b.dwg",
+            "fileSize": "83412"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i3857b.pdf",
+            "fileSize": "121915"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

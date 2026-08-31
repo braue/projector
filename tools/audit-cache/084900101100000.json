@@ -1,0 +1,405 @@
+{
+  "partQuery": "084900101100000",
+  "fetchedAt": "2026-08-30T10:22:25.436Z",
+  "response": {
+    "product": {
+      "id": 1005,
+      "minorId": 0,
+      "productCode": "849",
+      "cfgModel": "849",
+      "name": "SEL-849 Motor Management Relay",
+      "summary": "<p>The SEL-849 provides current, voltage, and thermal-based protection, arc-flash detection, and power metering for motor protection applications.</p>",
+      "revision": "17",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/849.png?n=63604639295000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/849/",
+      "cartType": 1
+    },
+    "partNumber": "849#CD2D",
+    "motString": "084900101100000",
+    "salesNumber": "849#CD2D",
+    "answerString": "'3-1','4-2','5-2','6-1','7-2','8-1','9-1','10-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 3,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "125-250 Vdc (110-240 Vac); 50/60 Hz",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "125-250 Vdc (110-240 Vac); 50/60 Hz"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Voltage Inputs",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 4,
+            "text": "690 V Direct-Connect (line-to-line)",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Voltage Inputs",
+          "value": "690 V Direct-Connect (line-to-line)"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Digital Inputs",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 5,
+            "text": "6 Standard Plus 6 Additional Internally Wetted",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              },
+              {
+                "position": 11,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Digital Inputs",
+          "value": "6 Standard Plus 6 Additional Internally Wetted"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Digital Input Voltage",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "24 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              },
+              {
+                "position": 11,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Digital Input Voltage",
+          "value": "24 Vdc"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Analog Output",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "1 Analog Output 0-20 mA",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "1"
+              },
+              {
+                "position": 11,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Analog Output",
+          "value": "1 Analog Output 0-20 mA"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Communications Options",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "Single 10/100BASE-T",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "0"
+              },
+              {
+                "position": 14,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Options",
+          "value": "Single 10/100BASE-T"
+        }
+      },
+      {
+        "id": 9,
+        "text": "IEC 61850 Protocol",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "0"
+              },
+              {
+                "position": 14,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "IEC 61850 Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 12,
+        "text": "DNP3 Protocol",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 12,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "0"
+              },
+              {
+                "position": 14,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "DNP3 Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 13,
+        "text": "EtherNet/IP Protocol",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "0"
+              },
+              {
+                "position": 14,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "EtherNet/IP Protocol",
+          "value": "No"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 10,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "0"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "SEL-849: Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9296e.dwg",
+            "fileSize": "86822"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9296e.pdf",
+            "fileSize": "113985"
+          }
+        }
+      },
+      {
+        "type": "SEL-849: Front, Right, Top, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "22-3188/i7086j.dwg",
+            "fileSize": "74624"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "22-3188/i7086j.pdf",
+            "fileSize": "264932"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

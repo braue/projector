@@ -1,0 +1,685 @@
+{
+  "partQuery": "0651RA01XBAAAF1A23111XXX",
+  "fetchedAt": "2026-08-30T10:24:46.842Z",
+  "response": {
+    "product": {
+      "id": 203,
+      "minorId": 0,
+      "productCode": "651RA2",
+      "cfgModel": "651RA",
+      "name": "SEL-651RA Recloser Control",
+      "summary": "<p>The SEL-651RA Recloser Control offers exceptional protection and communications capabilities for Automatic Network Reconfiguration and other distribution automation needs. These capabilities assist you in maintaining reliable service to as many customers as possible in the event of a fault.</p>",
+      "revision": "11",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/651RA.png?n=63636266695000"
+      ],
+      "standardFeatures": [
+        {
+          "contentData": [
+            {
+              "html": {
+                "content": "<p><b>Protection </b></p> <ul><li>Overcurrent</li><li>Second-Harmonic Blocking</li><li>Directional Overcurrent</li><li>Over/Under Voltage</li><li>Over/Under/Rate Frequency</li><li>Fast Rate-of Change Frequency</li><li>Vector Shift</li><li>Directional Power</li><li>Synchronism-Check</li><li>Autosynchronizer</li></ul> <p><b>Hardware </b></p> <ul><li>(3) 1A Phase Current Inputs</li><li>0.2 A Neutral Current Input</li><li>One Voltage Input</li><li>USB Type B</li><li>IRIG-B (BNC)</li><li>(3) EIA-232 Serial Ports</li><li>(2) Form-C Output and (2) Input Contacts</li></ul> <p><b>Human-Machine Interface (HMI)</b></p> <ul><li>Display</li><li>12 Programmable Pushbuttons</li><li>24 Programmable Target LEDs</li></ul>"
+              },
+              "links": [],
+              "images": []
+            },
+            {
+              "html": {
+                "content": "<p><b>Protocols </b></p> <ul><li>DNP3 Serial/IP</li><li>Modbus TCP/RTU</li><li><span class=\"sm-caps\">Mirrored Bits</span></li><li>IEEE C37.188 Synchrophasors</li><li>Telnet, FTP</li><li>HTTP Web Server</li><li>SNTP</li><li>SEL ASCII and Compressed ASCII</li><li>SEL Fast Meter, Fast Operatre, Fast SER</li><li>SEL Fast Message</li><li>Ymodem File Transfer</li><li>MACsec/MKA</li></ul> <p> <b>Other</b></p> <ul><li>Load Data Profiling</li><li>Voltage Sag, Swell, and Interrupt</li><li>Breaker Wear Monitor</li><li>Demand and Energy Metering</li><li>Harmonic Metering</li><li>Eight Settings Groups</li><li>Design Template Storage</li><li><span class=\"sm-caps\">acSELerator</span> Quickset SEL-5030 Software</li><li>User Configurable Lables</li></ul>"
+              },
+              "links": [],
+              "images": []
+            }
+          ]
+        }
+      ],
+      "standardFeatureCollection": {
+        "submodelId": 203,
+        "standardFeatures": [
+          {
+            "heading": "Protection ",
+            "headingSortOrder": 1,
+            "values": [
+              {
+                "value": "Overcurrent",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Second-Harmonic Blocking",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "Directional Overcurrent",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "Over/Under Voltage",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "Over/Under/Rate Frequency",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "Fast Rate-of Change Frequency",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "Vector Shift",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "Directional Power",
+                "valueSortOrder": 8
+              },
+              {
+                "value": "Synchronism-Check",
+                "valueSortOrder": 9
+              },
+              {
+                "value": "Autosynchronizer",
+                "valueSortOrder": 10
+              }
+            ]
+          },
+          {
+            "heading": "Hardware",
+            "headingSortOrder": 2,
+            "values": [
+              {
+                "value": "(3) 1A Phase Current Inputs",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "0.2 A Neutral Current Input",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "One Voltage Input",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "USB Type B",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "IRIG-B (BNC)",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "(3) EIA-232 Serial Ports",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "(2) Form-C Output and (2) Input Contacts",
+                "valueSortOrder": 7
+              }
+            ]
+          },
+          {
+            "heading": "Human-Machine Interface (HMI)",
+            "headingSortOrder": 3,
+            "values": [
+              {
+                "value": "Display",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "12 Programmable Pushbuttons",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "24 Programmable Target LEDs",
+                "valueSortOrder": 3
+              }
+            ]
+          },
+          {
+            "heading": "Protocols",
+            "headingSortOrder": 4,
+            "values": [
+              {
+                "value": "DNP3 Serial/IP",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Modbus TCP/RTU",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "MIRRORED Bits",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "IEEE C37.188 Synchrophasors",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "Telnet, FTP",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "HTTP Web Server",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "SNTP",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "SEL ASCII and Compressed ASCII",
+                "valueSortOrder": 8
+              },
+              {
+                "value": "SEL Fast Meter, Fast Operatre, Fast SER",
+                "valueSortOrder": 9
+              },
+              {
+                "value": "SEL Fast Message",
+                "valueSortOrder": 10
+              },
+              {
+                "value": "Ymodem File Transfer",
+                "valueSortOrder": 11
+              },
+              {
+                "value": "MACsec/MKA",
+                "valueSortOrder": 12
+              }
+            ]
+          },
+          {
+            "heading": "Other",
+            "headingSortOrder": 5,
+            "values": [
+              {
+                "value": "Load Data Profiling",
+                "valueSortOrder": 1
+              },
+              {
+                "value": "Voltage Sag, Swell, and Interrupt",
+                "valueSortOrder": 2
+              },
+              {
+                "value": "Breaker Wear Monitor",
+                "valueSortOrder": 3
+              },
+              {
+                "value": "Demand and Energy Metering",
+                "valueSortOrder": 4
+              },
+              {
+                "value": "Harmonic Metering",
+                "valueSortOrder": 5
+              },
+              {
+                "value": "Eight Settings Groups",
+                "valueSortOrder": 6
+              },
+              {
+                "value": "Design Template Storage",
+                "valueSortOrder": 7
+              },
+              {
+                "value": "ACSELERATOR Quickset SEL-5030 Software",
+                "valueSortOrder": 8
+              },
+              {
+                "value": "User Configurable Lables",
+                "valueSortOrder": 9
+              }
+            ]
+          }
+        ]
+      },
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/651RA/",
+      "cartType": 1
+    },
+    "partNumber": "651RA#YL6X",
+    "motString": "0651RA01XBAAAF1A23111XXX",
+    "salesNumber": "651RA#YL6X",
+    "answerString": "'1-1','2-3','3-1','4-2','5-5','6-1','7-2','8-3','9-2','10-2','11-2','12-1','13-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 1,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 1,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 1,
+            "text": "No",
+            "sortIndex": 0,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 9,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "No"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Secondary Input Voltage",
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 2,
+            "text": "(3) 8 Vac Max LEA Inputs (VY) and (3) 300 Vac Max Inputs (VZ)",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "B"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Voltage",
+          "value": "(3) 8 Vac Max LEA Inputs (VY) and (3) 300 Vac Max Inputs (VZ)"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Secondary Input Current",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "1 A Phase, 0.2 A Neutral",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Input Current",
+          "value": "1 A Phase, 0.2 A Neutral"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Extra Inputs/Outputs",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 4,
+            "text": "(2) 125 Vdc and (5) 12 Vdc Inputs/(8) Standard Outputs",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 12,
+                "value": "A"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Extra Inputs/Outputs",
+          "value": "(2) 125 Vdc and (5) 12 Vdc Inputs/(8) Standard Outputs"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Communications Interface",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 5,
+            "questionId": 5,
+            "text": "(2) 100 BASE-FX, EIA-485",
+            "sortIndex": 5,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "F"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Interface",
+          "value": "(2) 100 BASE-FX, EIA-485"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Communications Protocol",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "Standard",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Communications Protocol",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 7,
+        "text": "User Interface",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 7,
+            "text": "Configurable Labels",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 17,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "User Interface",
+          "value": "Configurable Labels"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Enclosure",
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 3,
+            "questionId": 8,
+            "text": "Painted Aluminum With GFCI Outlet",
+            "sortIndex": 3,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "3"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Enclosure",
+          "value": "Painted Aluminum With GFCI Outlet"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Battery Option",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 9,
+            "text": "12 V, 16 Ahr",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 19,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Battery Option",
+          "value": "12 V, 16 Ahr"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Accessory Infrastructure",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 10,
+            "text": "Accessory Mounting Kit With 12 V Aux TB",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Accessory Infrastructure",
+          "value": "Accessory Mounting Kit With 12 V Aux TB"
+        }
+      },
+      {
+        "id": 11,
+        "text": "LV Close and Secondary Input Voltage Connectors",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 11,
+            "text": "Low-Voltage Close Connector (2-Pin Female)",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 21,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "LV Close and Secondary Input Voltage Connectors",
+          "value": "Low-Voltage Close Connector (2-Pin Female)"
+        }
+      },
+      {
+        "id": 12,
+        "text": "Accessories",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 12,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 22,
+                "value": "X"
+              },
+              {
+                "position": 23,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Accessories",
+          "value": "None"
+        }
+      },
+      {
+        "id": 13,
+        "text": "Bundled Accessories (Shipped in box with SEL-651RA but not installed in enclosure)",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 13,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 24,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Bundled Accessories (Shipped in box with SEL-651RA but not installed in enclosure)",
+          "value": "None"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9297b.dwg",
+            "fileSize": "144212"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9297b.pdf",
+            "fileSize": "389666"
+          }
+        }
+      },
+      {
+        "type": "FAQ & Instructions: How to use the Master Configurable Drawings",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Front, Right, Top",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "22-1215/i7167a.dwg",
+            "fileSize": "247782"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "22-1215/i7167a.pdf",
+            "fileSize": "277668"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

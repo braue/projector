@@ -1,0 +1,535 @@
+{
+  "partQuery": "04214211XXXX1H20XXXXX",
+  "fetchedAt": "2026-08-30T10:18:11.920Z",
+  "response": {
+    "product": {
+      "id": 1370,
+      "minorId": 0,
+      "productCode": "421-4,-5",
+      "cfgModel": "421",
+      "name": "SEL-421 With Conventional Secondary Inputs",
+      "summary": "<p>Protect transmission lines with high-speed distance and directional functions.</p>",
+      "revision": "150",
+      "imageUrls": [
+        "uploadedImages/Web/Products/Images/421.png?n=63574914008000"
+      ],
+      "isPublic": true,
+      "isActive": true,
+      "salesLifecycle": 1,
+      "configuratorTypeGrouping": 1,
+      "configuratorType": 1,
+      "erpConfiguratorTypeGrouping": 1,
+      "productPageLink": "/products/421/",
+      "cartType": 1
+    },
+    "partNumber": "421#8F2K",
+    "motString": "04214211XXXX1H20XXXXX",
+    "salesNumber": "421#8F2K",
+    "answerString": "'2-1','3-1','4-1','5-1','6-1','7-1','8-1','9-1','10-2','11-1','12-8','13-9','14-8','15-1'",
+    "specialSpec": 0,
+    "questions": [
+      {
+        "id": 2,
+        "text": "Firmware",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 2,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 2,
+            "text": "Standard",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 5,
+                "value": "4"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Firmware",
+          "value": "Standard"
+        }
+      },
+      {
+        "id": 3,
+        "text": "Power Supply",
+        "questionType": 0,
+        "sortIndex": 3,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 3,
+            "text": "24-48 Vdc",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 6,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Power Supply",
+          "value": "24-48 Vdc"
+        }
+      },
+      {
+        "id": 4,
+        "text": "Connector Type",
+        "questionType": 0,
+        "sortIndex": 4,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 4,
+            "text": "Screw-Terminal Block",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 7,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Connector Type",
+          "value": "Screw-Terminal Block"
+        }
+      },
+      {
+        "id": 5,
+        "text": "Secondary Inputs",
+        "questionType": 0,
+        "sortIndex": 5,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 5,
+            "text": "300 V Phase - Neutral Maximum (Wye), 1 A Phase",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 8,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Secondary Inputs",
+          "value": "300 V Phase - Neutral Maximum (Wye), 1 A Phase"
+        }
+      },
+      {
+        "id": 6,
+        "text": "Ethernet Communications Protocols",
+        "questionType": 0,
+        "sortIndex": 6,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 6,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 10,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Communications Protocols",
+          "value": "None"
+        }
+      },
+      {
+        "id": 7,
+        "text": "Ethernet Connection Options",
+        "questionType": 0,
+        "sortIndex": 7,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 7,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 11,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Ethernet Connection Options",
+          "value": "None"
+        }
+      },
+      {
+        "id": 8,
+        "text": "Mainboard Input Voltage",
+        "hasHelp": true,
+        "questionType": 0,
+        "sortIndex": 8,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 8,
+            "text": "24 Vdc",
+            "hasHelp": true,
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 13,
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mainboard Input Voltage",
+          "value": "24 Vdc"
+        }
+      },
+      {
+        "id": 9,
+        "text": "Mounting",
+        "questionType": 0,
+        "sortIndex": 9,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 9,
+            "text": "Horizontal Rack Mount",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 14,
+                "value": "H"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Mounting",
+          "value": "Horizontal Rack Mount"
+        }
+      },
+      {
+        "id": 10,
+        "text": "Chassis",
+        "questionType": 0,
+        "sortIndex": 10,
+        "answers": [
+          {
+            "id": 2,
+            "questionId": 10,
+            "text": "4U, Up to One Additional I/O Board",
+            "sortIndex": 2,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 15,
+                "value": "2"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Chassis",
+          "value": "4U, Up to One Additional I/O Board"
+        }
+      },
+      {
+        "id": 11,
+        "text": "I/O Board Position B For 4U or 5U Chassis",
+        "questionType": 0,
+        "sortIndex": 11,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 11,
+            "text": "Empty",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "0"
+              },
+              {
+                "position": 17,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position B For 4U or 5U Chassis",
+          "value": "Empty"
+        }
+      },
+      {
+        "id": 12,
+        "text": "I/O Board Position B Input Voltage",
+        "questionType": 0,
+        "sortIndex": 12,
+        "answers": [
+          {
+            "id": 8,
+            "questionId": 12,
+            "text": "NA",
+            "sortIndex": 8,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 16,
+                "value": "0"
+              },
+              {
+                "position": 17,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position B Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 13,
+        "text": "I/O Board Position C for 5U Chassis Only",
+        "questionType": 0,
+        "sortIndex": 13,
+        "answers": [
+          {
+            "id": 9,
+            "questionId": 13,
+            "text": "NA",
+            "sortIndex": 9,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "X"
+              },
+              {
+                "position": 19,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position C for 5U Chassis Only",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 14,
+        "text": "I/O Board Position C Input Voltage",
+        "questionType": 0,
+        "sortIndex": 14,
+        "answers": [
+          {
+            "id": 8,
+            "questionId": 14,
+            "text": "NA",
+            "sortIndex": 8,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 18,
+                "value": "X"
+              },
+              {
+                "position": 19,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "I/O Board Position C Input Voltage",
+          "value": "NA"
+        }
+      },
+      {
+        "id": 15,
+        "text": "Conformal Coat",
+        "questionType": 0,
+        "sortIndex": 15,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 15,
+            "text": "None",
+            "sortIndex": 1,
+            "status": 1,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": [
+              {
+                "position": 20,
+                "value": "X"
+              }
+            ]
+          }
+        ],
+        "optionSummary": {
+          "label": "Conformal Coat",
+          "value": "None"
+        }
+      },
+      {
+        "id": 24,
+        "text": "DMA Bundle",
+        "questionType": 0,
+        "sortIndex": 24,
+        "answers": [
+          {
+            "id": 1,
+            "questionId": 24,
+            "text": "No",
+            "sortIndex": 1,
+            "status": 4,
+            "minValue": 0,
+            "maxValue": 0,
+            "interval": 0,
+            "quantity": 0,
+            "motDigits": []
+          }
+        ],
+        "optionSummary": {
+          "label": "DMA Bundle",
+          "value": "No"
+        }
+      }
+    ],
+    "drawings": [
+      {
+        "type": "Configurable Drawing Instructions",
+        "files": {
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7999e.pdf",
+            "fileSize": "1028721"
+          }
+        }
+      },
+      {
+        "type": "Dimension",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i9027f.dwg",
+            "fileSize": "48500"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i9027f.pdf",
+            "fileSize": "144214"
+          }
+        }
+      },
+      {
+        "type": "Front, Rear",
+        "files": {
+          "dwg": {
+            "format": "dwg",
+            "path": "000/i7001d.dwg",
+            "fileSize": "7223531"
+          },
+          "pdf": {
+            "format": "pdf",
+            "path": "000/i7001d.pdf",
+            "fileSize": "1628148"
+          }
+        }
+      }
+    ],
+    "priceAdjustments": [],
+    "isOrderable": true,
+    "discountPriceGroups": [],
+    "discountPrices": [],
+    "popularModelInfo": {},
+    "errors": [],
+    "warnings": [],
+    "submodelWarnings": [],
+    "partialMatches": [],
+    "salesItemResponses": []
+  }
+}

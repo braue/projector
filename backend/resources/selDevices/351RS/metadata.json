@@ -25,6 +25,13 @@
           "position_13": "D"
         },
         "pdf": "i4942a.pdf"
+      },
+      {
+        "when": {
+          "position_13": "A"
+        },
+        "pdf": "i4868b.pdf",
+        "note": "2026-08-30 audit: comms code 'A' (One 10/100BASE-T, configurator-decoded on the fleet units) has no drawing in SEL's configurator response (it lists none for these configurations). i4868b - the single 10/100BASE-T 'E' rear - is the closest documented variant and is chosen EXPLICITLY here as an approximation rather than via the silent first-rule fallback; replace if a dedicated code-A drawing surfaces."
       }
     ]
   },
@@ -208,9 +215,9 @@
         "label": "Reserved / fixed (position 7)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual. Codes 0 re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "0": "Fixed value '0'"
+          "0": "Standard"
         }
       },
       {
@@ -220,9 +227,9 @@
         "label": "Reserved / fixed (position 8)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual. Codes 2 re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "2": "Fixed value '2'"
+          "2": "G&W Viper-SP or Elastimold MVR (10 Pin)"
         }
       },
       {
@@ -232,9 +239,11 @@
         "label": "Reserved / fixed (position 9)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual. Codes 1/2/X re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "1": "Fixed value '1'"
+          "1": "Lift-To-Open, Painted Aluminum",
+          "2": "Swing Open, Painted Aluminum With 3-Point Latch",
+          "X": "No Enclosure, Relay Module Only"
         }
       },
       {
@@ -244,9 +253,9 @@
         "label": "Reserved / fixed (position 10)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual. Codes X re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "X": "Not applicable (placeholder)"
+          "X": "No"
         }
       },
       {
@@ -256,10 +265,11 @@
         "label": "Hardware ordering option (position 11)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Varies between real units (observed 'A' and '3'), so it encodes a genuine hardware ordering option, but this position is not exposed in the QuickSet Device Part Number dialog and its meaning is not documented in the available data sheet or instruction manual.",
+        "note": "Varies between real units (observed 'A' and '3'), so it encodes a genuine hardware ordering option, but this position is not exposed in the QuickSet Device Part Number dialog and its meaning is not documented in the available data sheet or instruction manual. Codes 3/4/A re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "3": "Undocumented option '3' (observed in real PARTNO 0351RS021X31A11X1XXX)",
-          "A": "Undocumented option 'A' (observed in real PARTNO 0351RS021XA2E21X1XXX)"
+          "3": "Standard Interface",
+          "A": "Standard Interface plus USB",
+          "4": "Standard plus Configurable Labels"
         }
       },
       {
@@ -269,10 +279,10 @@
         "label": "User Inputs/Outputs",
         "source": "SEL-351RS Instruction Manual Figure 3.6 (QuickSet Device Part Number dialog) + real PARTNO",
         "confidence": "high",
-        "note": "First of three QuickSet-selectable positions. Option '2' is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021XA2E21X1XXX. Option '1' is observed in real PARTNO 0351RS021X31A11X1XXX but its exact description is inferred (the data sheet shows IN102-IN104 and OUT101-OUT104 as ordering options).",
+        "note": "First of three QuickSet-selectable positions. Option '2' is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021XA2E21X1XXX. Option '1' is observed in real PARTNO 0351RS021X31A11X1XXX but its exact description is inferred (the data sheet shows IN102-IN104 and OUT101-OUT104 as ordering options). Codes 1/2 re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "1": "Reduced input/output configuration (inferred)",
-          "2": "(4) Inputs (12 Vdc), (5) Outputs and (1) Alarm Output"
+          "1": "One 12 Vdc Input, One Standard Output, and One Alarm Output",
+          "2": "Four 12 Vdc Inputs, Five Standard Outputs, and One Alarm Output"
         }
       },
       {
@@ -282,10 +292,10 @@
         "label": "Communication Interface",
         "source": "SEL-351RS Instruction Manual Figure 3.6 (QuickSet Device Part Number dialog) + real PARTNO + metadata rear-panel drawings",
         "confidence": "high",
-        "note": "Second QuickSet-selectable position; aligns with metadata model_to_layers position_13 (D/E/F select the rear-panel Ethernet drawings i4942a/i4868b/i4937a). Option 'E' is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021XA2E21X1XXX. 'A' is observed in real PARTNO 0351RS021X31A11X1XXX. 'D' and 'F' descriptions are inferred from the data sheet Ethernet port options (dual copper / single fiber / dual fiber, internal Ethernet switch) and the dual-port rear drawings; treat A/D/F as low-confidence.",
+        "note": "Second QuickSet-selectable position; aligns with metadata model_to_layers position_13 (D/E/F select the rear-panel Ethernet drawings i4942a/i4868b/i4937a). Option 'E' is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021XA2E21X1XXX. 'A' is observed in real PARTNO 0351RS021X31A11X1XXX. 'D' and 'F' descriptions are inferred from the data sheet Ethernet port options (dual copper / single fiber / dual fiber, internal Ethernet switch) and the dual-port rear drawings; treat A/D/F as low-confidence. Codes A/E re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "E": "Single 10/100BASE-T (RJ45), EIA-485",
-          "A": "Single-port Ethernet variant (observed in real PARTNO; exact description undocumented)",
+          "E": "Two 10/100BASE-T, EIA-485",
+          "A": "One 10/100BASE-T",
           "D": "Dual redundant 10/100BASE-T (RJ45), EIA-485 (inferred)",
           "F": "Dual redundant 100BASE-FX multimode (LC), EIA-485 (inferred)"
         }
@@ -297,10 +307,10 @@
         "label": "Communications Protocols",
         "source": "SEL-351RS Instruction Manual Figure 3.6 (QuickSet Device Part Number dialog) + real PARTNO",
         "confidence": "high",
-        "note": "Third QuickSet-selectable position. Option '1' (Standard Protocols) is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021X31A11X1XXX. Option '2' is observed in real PARTNO 0351RS021XA2E21X1XXX (which also carries an Ethernet interface); its description is inferred (IEC 61850 is the typical Ethernet-only protocol adder).",
+        "note": "Third QuickSet-selectable position. Option '1' (Standard Protocols) is confirmed verbatim by the QuickSet dialog and by real PARTNO 0351RS021X31A11X1XXX. Option '2' is observed in real PARTNO 0351RS021XA2E21X1XXX (which also carries an Ethernet interface); its description is inferred (IEC 61850 is the typical Ethernet-only protocol adder). Codes 1/2 re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "1": "Standard Protocols (SEL ASCII, Modbus, DNP3, IEEE C37.118, etc.)",
-          "2": "Standard plus IEC 61850 (requires Ethernet) (inferred)"
+          "1": "Standard Protocols",
+          "2": "Standard Protocols Plus IEC 61850"
         }
       },
       {
@@ -334,9 +344,10 @@
         "label": "Reserved / fixed (position 17)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual. Codes 1/X re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "1": "Fixed value '1'"
+          "1": "12 V, 16 Ahr",
+          "X": "None"
         }
       },
       {
@@ -370,9 +381,9 @@
         "label": "Reserved / fixed (position 20)",
         "source": "Real PARTNO strings from SEL-351RS IM CID examples",
         "confidence": "low",
-        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual.",
+        "note": "Fixed digit in all observed SEL-351RS PARTNO strings; not user-selectable in the QuickSet Device Part Number dialog (marked '*'). Specific meaning is not documented in the data sheet or instruction manual. Codes X re-grounded verbatim by SEL configurator part-lookup decode (2026-08-30) of fleet units 0351RS021X31A11X1XXX, 0351RS021XA2E21X1XXX, ....",
         "options": {
-          "X": "Not applicable (placeholder)"
+          "X": "None"
         }
       }
     ]

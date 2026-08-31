@@ -42,6 +42,14 @@
     "rear": [
       {
         "when": {
+          "position_8": "D",
+          "position_9": "D"
+        },
+        "pdf": "i3441b.pdf",
+        "note": "2026-08-30 audit: dual 1300nm-fiber line-current-differential channels (D at positions 8 and 9) draw rear i3441 per the SEL configurator (part-lookup of genuine unit 0311L0HDD4254XX). i3441b.pdf fetched 2026-08-30 with its DWG (static drawing, no layers). Rule listed first so it outranks the equal-score i3442b rule."
+      },
+      {
+        "when": {
           "position_7": [
             "H",
             "3",
@@ -240,6 +248,17 @@
             334.12,
             1593.23,
             959.8
+          ]
+        }
+      },
+      "i3441b.pdf": {
+        "rear": {
+          "page": 1,
+          "box": [
+            235.66,
+            450.07,
+            1493.64,
+            845.35
           ]
         }
       }
