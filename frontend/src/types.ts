@@ -9,6 +9,9 @@ export interface ProjectEntry {
   name: string
   status: ProjectStatus
   error?: string
+  /** When this export last landed, epoch ms. Absent while exporting, and
+   *  null when the folder's time could not be read. */
+  at?: number | null
 }
 
 export interface ProjectList {
@@ -302,6 +305,8 @@ export interface UploadProfileEntry {
 export interface UploadedFile {
   id: string
   fileName: string
+  /** When the file was uploaded, epoch ms; null when it cannot be determined. */
+  uploadedAt: number | null
   profiles: UploadProfileEntry[]
 }
 

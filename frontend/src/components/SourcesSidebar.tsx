@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 
+import { formatWhen } from '../lib/format'
 import { SOURCE_MIME, SOURCE_TABS, sourceKey } from '../lib/sources'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
@@ -11,6 +12,15 @@ import type {
 } from '../types'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { Button, InlineNameForm, RowAction, SegmentedControl, Spinner } from './ui'
+
+/**
+ * The second line of a source's hover title — "Uploaded Aug 31, 2026 at
+ * 6:42 PM". Empty when the time is unknown, so the tooltip simply stays one
+ * line rather than claiming a date it does not have.
+ */
+function whenLine(verb: string, at: number | null | undefined): string {
+  return at ? `\n${verb} ${formatWhen(at)}` : ''
+}
 
 // The left rail: four source tabs. Every source belongs to the CURRENT
 // projector project. RTAC exports arrive two ways — browse the machine's
@@ -299,7 +309,7 @@ export function SourcesSidebar({
                       {...(ready ? dragProps(source) : {})}
                       title={
                         ready
-                          ? `${name} — drag to canvas, click to inspect`
+                          ? `${name} — drag to canvas, click to inspect${whenLine('Added', entry.at)}`
                           : status === 'error'
                             ? `Export failed: ${error ?? 'unknown error'} — double-click to retry`
                             : `${name} — downloading…`
@@ -361,7 +371,7 @@ export function SourcesSidebar({
                   <div className="rdb-file-name">
                     <button
                       className="rdb-file-toggle"
-                      title={`${file.fileName} — click to ${open ? 'collapse' : 'expand'}`}
+                      title={`${file.fileName} — click to ${open ? 'collapse' : 'expand'}${whenLine('Uploaded', file.uploadedAt)}`}
                       onClick={() => toggleCollapsed(folderKey)}
                     >
                       <span className="tree-caret">{open ? '▾' : '▸'}</span>

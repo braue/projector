@@ -16,7 +16,7 @@
 // the standard comparable() adapter.
 
 import { createHash } from 'node:crypto';
-import { access, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { modelSignature } from '../lib/compare.js';
@@ -62,9 +62,12 @@ class RtacService {
     // first read of an export pays the parse (promise-cached, so concurrent
     // readers share it) — no background pre-warm.
     const onDisk = await readdir(this.exportsDir, { withFileTypes: true });
-    for (const entry of onDisk) {
-      if (entry.isDirectory()) this.state.set(entry.name, { status: 'ready' });
-    }
+    await Promise.all(onDisk.map(async (entry) => {
+      if (!entry.isDirectory()) return;
+      // `at` is when this export last landed in the project. It lives only in
+      // memory, so a restart recovers it from the folder the export wrote.
+      this.state.set(entry.name, { status: 'ready', at: await folderTime(path.join(this.exportsDir, entry.name)) });
+    }));
   }
 
   // Only what this project holds (or is fetching right now) — the sidebar
@@ -119,7 +122,7 @@ class RtacService {
       try {
         await rm(directory, { recursive: true, force: true });
         await this.catalog.client.exportXml({ name, directory });
-        this.state.set(name, { status: 'ready' });
+        this.state.set(name, { status: 'ready', at: Date.now() });
       } catch (err) {
         this.state.set(name, { status: 'error', error: err?.message ?? String(err) });
       }
@@ -157,7 +160,7 @@ class RtacService {
         await mkdir(path.dirname(target), { recursive: true });
         await writeFile(target, entry.buffer);
       }
-      this.state.set(name, { status: 'ready' });
+      this.state.set(name, { status: 'ready', at: Date.now() });
       this.parseCache.delete(name);
       added.push({ name, files: entries.length });
     }
@@ -420,6 +423,20 @@ class RtacService {
     }
 
     return { terms: wanted, scoped: Boolean(scope), rows };
+  }
+}
+
+/**
+ * When an export's folder was last written, in epoch ms — mtime rather than
+ * birthtime, because re-exporting rewrites a folder that already exists, and
+ * the useful answer is when these settings landed, not when the name first
+ * did. Null when it cannot be read, so unknown reads as unknown.
+ */
+async function folderTime(dir) {
+  try {
+    return Math.round((await stat(dir)).mtimeMs) || null;
+  } catch {
+    return null;
   }
 }
 

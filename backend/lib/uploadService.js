@@ -56,6 +56,8 @@ class UploadService {
           await this.store.saveParsed(id, {
             fileName: stored.fileName,
             modelVersion: this.modelVersion,
+            // Re-parsing is not re-uploading: the file landed when it landed.
+            uploadedAt: stored.uploadedAt,
             model: this.parse(buffer),
           });
         } catch (err) {
@@ -73,7 +75,7 @@ class UploadService {
       throw httpError(400, `${this.uploadErrorLabel}: ${err?.message ?? err}`);
     }
     this.validate?.(model);
-    const stored = { fileName, modelVersion: this.modelVersion, model };
+    const stored = { fileName, modelVersion: this.modelVersion, uploadedAt: Date.now(), model };
     const id = await this.store.add(fileName, buffer, stored);
     await this.afterUpload?.(id, stored);
     return this.summary(id, stored);
@@ -108,6 +110,9 @@ class UploadService {
     return {
       id,
       fileName: stored.fileName,
+      // Null for an upload whose folder has no readable creation time; the
+      // sidebar just omits the line rather than inventing a date.
+      uploadedAt: stored.uploadedAt ?? null,
       profiles: this.profilesOf(stored.model, id).map((profile) => ({
         ...profile,
         ref: `${id}${REF_SEPARATOR}${profile.name}`,
@@ -115,8 +120,16 @@ class UploadService {
     };
   }
 
+  // Newest first. Re-uploading a settings file is how a revision arrives, so
+  // the one just added is the one being looked for — and two revisions of the
+  // same file share a display name (the id behind them differs), which makes
+  // the ORDER the thing that tells them apart. Ties break on id descending, so
+  // two uploads landing in the same millisecond still read newest-first, and
+  // an upload with no known time sorts last rather than first.
   list() {
-    return [...this.store.entries()].map(([id, stored]) => this.summary(id, stored));
+    return [...this.store.entries()]
+      .map(([id, stored]) => this.summary(id, stored))
+      .sort((a, b) => (b.uploadedAt ?? 0) - (a.uploadedAt ?? 0) || b.id.localeCompare(a.id));
   }
 
   profile(ref) {

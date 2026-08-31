@@ -4,7 +4,7 @@
 // sanitized upload name, unique-ified. Services own parsing and shaping —
 // this store owns the disk.
 
-import { mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveChild } from './http.js';
@@ -28,10 +28,16 @@ class UploadStore {
     const entries = (await readdir(this.root, { withFileTypes: true }))
       .filter((entry) => entry.isDirectory());
     await Promise.all(entries.map(async (entry) => {
+      const dir = path.join(this.root, entry.name);
       try {
-        this.files.set(entry.name, JSON.parse(
-          await readFile(path.join(this.root, entry.name, 'parsed.json'), 'utf8'),
-        ));
+        const stored = JSON.parse(await readFile(path.join(dir, 'parsed.json'), 'utf8'));
+        // Uploads that predate the timestamp fall back to when their folder
+        // was created — the upload wrote it, and birthtime rides the inode,
+        // so a later rename does not move it. Derived on every start rather
+        // than written back: it is the same answer each time, and startup
+        // has no business rewriting files it only meant to read.
+        stored.uploadedAt ??= await folderBirthTime(dir);
+        this.files.set(entry.name, stored);
       } catch (err) {
         console.warn(`skipping unreadable ${this.label} upload ${entry.name}: ${err?.message ?? err}`);
       }
@@ -104,6 +110,21 @@ class UploadStore {
     }
     await rm(this.dir(fileId), { recursive: true, force: true });
     this.files.delete(fileId);
+  }
+}
+
+/**
+ * When an upload's folder was created, in epoch ms. Filesystems that do not
+ * carry a creation time report 0 for birthtimeMs, so fall back to mtime, and
+ * to null if the folder cannot be read at all — an unknown time must read as
+ * unknown, never as 1970.
+ */
+async function folderBirthTime(dir) {
+  try {
+    const info = await stat(dir);
+    return Math.round(info.birthtimeMs || info.mtimeMs) || null;
+  } catch {
+    return null;
   }
 }
 

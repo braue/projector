@@ -38,8 +38,11 @@ test('list failure is non-fatal, served, and recoverable', async () => {
     await service.init();
     await catalog.refresh(); // the failure lands in catalog.error, never throws
 
-    // The project's own list serves regardless of the database.
-    assert.deepEqual(service.list(), { projects: [{ name: 'Beta', status: 'ready' }] });
+    // The project's own list serves regardless of the database. Beta was
+    // exported in a previous run, so its time is recovered from the folder.
+    const [beta] = service.list().projects;
+    assert.deepEqual({ name: beta.name, status: beta.status }, { name: 'Beta', status: 'ready' });
+    assert.ok(beta.at > 0, 'a restored export carries when it landed');
     let available = service.available();
     assert.match(available.error, /database unreachable/);
     assert.deepEqual(available.projects, []);
@@ -89,6 +92,7 @@ test('an exported XML folder uploads into the project without the database', asy
     await service.init();
 
     const xml = (name) => Buffer.from(`<?xml version="1.0"?><Root name="${name}" />`);
+    const before = Date.now();
     const result = await service.uploadFolder([
       { path: 'StationA/SEL_RTAC/Devices.xml', buffer: xml('devices') },
       { path: 'StationA/Tag Processor.xml', buffer: xml('tags') },
@@ -96,7 +100,13 @@ test('an exported XML folder uploads into the project without the database', asy
       { path: 'StationA/../evil.xml', buffer: xml('evil') }, // '..' stripped, lands inside
     ]);
     assert.deepEqual(result.added, [{ name: 'StationA', files: 3 }]);
-    assert.deepEqual(service.list().projects, [{ name: 'StationA', status: 'ready' }]);
+    const [stationA] = service.list().projects;
+    assert.deepEqual(
+      { name: stationA.name, status: stationA.status },
+      { name: 'StationA', status: 'ready' },
+    );
+    // An uploaded folder is stamped as it lands, not read back off disk.
+    assert.ok(stationA.at >= before, 'an uploaded export is stamped when it lands');
 
     // The parse pipeline reads the uploaded files like any export.
     const tree = await service.tree('StationA');
