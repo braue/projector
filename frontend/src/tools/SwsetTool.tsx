@@ -6,9 +6,9 @@
 import { useRef, useState } from 'react'
 
 import { generateSwsetXml, parseSwsetProjectFile, parseSwsetXml } from '../api'
-import { Button, CollapsibleSection, Spinner, TabBar, TextInput } from '../components/ui'
+import { Button, CollapsibleSection, Select, Spinner, TabBar, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import type { SwsetGenerateResult, SwsetModel, SwsetTable } from '../types'
+import type { SwsetColumn, SwsetGenerateResult, SwsetModel, SwsetTable } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
@@ -16,6 +16,21 @@ import { RunOutputs } from './RunOutputs'
 type TableEdits = { fields?: Record<string, string>; rows?: Record<string, string>[] }
 
 const asText = (value: string | null | undefined) => (value == null ? '' : String(value))
+
+/** A constrained cell's choices for one row — speed/duplex varies by port block. */
+function columnOptions(column: SwsetColumn, rowIndex: number): string[] | undefined {
+  const ranged = column.optionsByRow?.find(
+    (r) => rowIndex >= r.start && (r.end === undefined || rowIndex <= r.end),
+  )
+  return ranged?.options ?? column.options
+}
+
+/** The dropdown must always be able to SHOW the file's current value — an
+ *  off-list value (older firmware vocabulary, a hand-edited file) is listed
+ *  too rather than silently misdisplayed, and stays pickable to leave as-is. */
+function withCurrent(options: string[], value: string): string[] {
+  return !value || options.includes(value) ? options : [value, ...options]
+}
 
 function initialEdits(model: SwsetModel): Record<string, TableEdits> {
   const edits: Record<string, TableEdits> = {}
@@ -132,6 +147,14 @@ export function SwsetTool({ project }: ToolProps) {
                     <span className="ui-label">{field.label}</span>
                     <span className="swset-readonly mono">{asText(table.values[field.id]) || '—'}</span>
                   </>
+                ) : field.options ? (
+                  <Select
+                    label={field.label}
+                    value={edits[table.id]?.fields?.[field.id] ?? ''}
+                    options={withCurrent(field.options, edits[table.id]?.fields?.[field.id] ?? '')}
+                    placeholder="—"
+                    onChange={(value) => setField(table.id, field.id, value)}
+                  />
                 ) : (
                   <TextInput
                     label={field.label}
@@ -163,6 +186,13 @@ export function SwsetTool({ project }: ToolProps) {
               <span key={`${i}:${column.id}`}>
                 {column.fixed || column.readOnly ? (
                   <span className="swset-readonly mono">{asText(column.fixed ?? row[column.id]) || '—'}</span>
+                ) : columnOptions(column, i) ? (
+                  <Select
+                    value={row[column.id] ?? ''}
+                    options={withCurrent(columnOptions(column, i)!, row[column.id] ?? '')}
+                    placeholder="—"
+                    onChange={(value) => setCell(table.id, i, column.id, value)}
+                  />
                 ) : (
                   <TextInput
                     value={row[column.id] ?? ''}

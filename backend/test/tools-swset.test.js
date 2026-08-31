@@ -71,6 +71,34 @@ test('swset xml: collect, translated get, and set round-trip', () => {
   assert.ok(xmlSet(config, ['brand_new', 'leaf'], 'x', { create: true }));
 });
 
+test('swset schema: constrained fields carry the workbook dropdown vocabularies', async () => {
+  const { buildSchema273x } = await import('../services/tools/swset/schema273x.js');
+  const { sections } = buildSchema273x({ Type: 'SEL-2730M' });
+  const table = (id) => sections.flatMap((s) => s.tables).find((t) => t.id === id);
+
+  // The Excel data validations, verbatim.
+  const rstp = table('tbl_RSTP');
+  assert.deepEqual(rstp.fields.find((f) => f.id === 'stpMode').options, ['OFF', 'RSTP']);
+  assert.equal(rstp.fields.find((f) => f.id === 'bridgePriority').options.length, 16);
+  const ports = table('tbl_PortSettings');
+  assert.deepEqual(ports.columns.find((c) => c.id === 'enabled').options, ['True', 'False']);
+  assert.equal(ports.columns.find((c) => c.id === 'ingressRate').options.length, 12);
+  // Speed/duplex is row-block-dependent: SFP, combo, then Fast Ethernet.
+  const speed = ports.columns.find((c) => c.id === 'speedDuplex');
+  assert.deepEqual(speed.optionsByRow[0], { start: 0, end: 3, options: ['Auto', '1Gbps Full Duplex'] });
+  assert.equal(speed.optionsByRow[2].options.length, 5);
+  // Enum vocabularies from the translation table.
+  const users = table('tbl_LocalUser');
+  assert.deepEqual(users.columns.find((c) => c.id === 'role').options, ['Admin', 'Engineer', 'User Manager', 'Monitor']);
+  assert.deepEqual(
+    table('tbl_SyslogLocal').fields[0].options,
+    ['Informational', 'Notice', 'Warning', 'Error', 'Critical', 'Alert'],
+  );
+  // Free-form fields stay free: no options on text-shaped settings.
+  assert.equal(table('tbl_Global').fields.find((f) => f.id === 'contact').options, undefined);
+  assert.equal(table('tbl_IP').columns.find((c) => c.id === 'ipAddress').options, undefined);
+});
+
 test('swset service: parse -> edit -> generate over a real 2730M default', { skip: !existsSync(SAMPLE) }, async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-swset-'));
   try {

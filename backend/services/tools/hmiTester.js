@@ -18,7 +18,6 @@ import { access, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
-import { toCsv } from '../../lib/csv.js';
 import { httpError } from '../../lib/http.js';
 
 const run = promisify(execFile);
@@ -91,12 +90,33 @@ function analyzeHprj(text) {
       sameScreen: [...diagrams.values()].some((n) => n > 1),
     }));
 
+  // Per-diagram rollup — which screens to open Diagram Builder on first.
+  // Worst first: most bad placements, then most same-screen duplication;
+  // ties keep the file's own diagram order (sort is stable).
+  const byDiagram = new Map();
+  for (const { diagram } of used) {
+    if (!byDiagram.has(diagram)) {
+      byDiagram.set(diagram, { diagram, tags: 0, bad: 0, sameScreenDuplicates: 0 });
+    }
+    byDiagram.get(diagram).tags += 1;
+  }
+  for (const { diagram } of badTags) byDiagram.get(diagram).bad += 1;
+  for (const entry of byTag.values()) {
+    for (const [diagram, uses] of entry.diagrams) {
+      if (uses > 1) byDiagram.get(diagram).sameScreenDuplicates += 1;
+    }
+  }
+  const diagrams = [...byDiagram.values()].sort(
+    (a, b) => (b.bad - a.bad) || (b.sameScreenDuplicates - a.sameScreenDuplicates),
+  );
+
   return {
     totalTags: used.length,
     importedCount: imported.size,
     usedTags: used,
     badTags,
     duplicateTags,
+    diagrams,
   };
 }
 
@@ -109,9 +129,11 @@ class HmiTesterService {
   }
 
   /**
-   * Analyze one uploaded .hprj/.hprb (a multer memory-storage file). Writes
-   * the input and the CSV reports into a fresh run, so the results can be
-   * downloaded or saved into a project afterwards.
+   * Analyze one uploaded .hprj/.hprb (a multer memory-storage file). The
+   * response IS the result — the UI shows the tables in place, and nothing
+   * is kept for later download. A .hprb still touches disk on the way: it
+   * lands in a scratch run because ProjectConvert.exe needs real files, and
+   * the run is removed once the text is read.
    */
   async analyze(upload) {
     const name = String(upload.originalname ?? '');
@@ -120,37 +142,25 @@ class HmiTesterService {
       throw httpError(400, 'upload a .hprj (or a .hprb with Diagram Builder installed)');
     }
 
-    const { runId, dir } = await this.workspace.createRun('hmi');
-    const inputPath = path.join(dir, path.basename(name));
-    await writeFile(inputPath, upload.buffer);
-
     // The project text: directly for .hprj, via ProjectConvert.exe for .hprb.
     let text;
     if (lower.endsWith('.hprb')) {
-      const hprjPath = `${inputPath.slice(0, -1)}j`;
-      await this.#convert(inputPath, hprjPath);
-      text = await readFile(hprjPath, 'latin1');
+      const { runId, dir } = await this.workspace.createRun('hmi');
+      try {
+        const inputPath = path.join(dir, path.basename(name));
+        await writeFile(inputPath, upload.buffer);
+        const hprjPath = `${inputPath.slice(0, -1)}j`;
+        await this.#convert(inputPath, hprjPath);
+        text = await readFile(hprjPath, 'latin1');
+      } finally {
+        await this.workspace.removeRun('hmi', runId).catch(() => {});
+      }
     } else {
       text = upload.buffer.toString('latin1');
     }
 
-    const report = analyzeHprj(text);
-    const stem = path.basename(name).replace(/\.[^.]+$/, '');
-    const reports = [
-      { path: `${stem} bad tags.csv`, label: 'Bad tags CSV' },
-      { path: `${stem} duplicate tags.csv`, label: 'Duplicate tags CSV' },
-    ];
-    await writeFile(path.join(dir, reports[0].path), toCsv(
-      ['Tag', 'Diagram'],
-      report.badTags.map(({ tag, diagram }) => [tag, diagram]),
-    ));
-    await writeFile(path.join(dir, reports[1].path), toCsv(
-      ['Tag', 'Uses', 'Same screen'],
-      report.duplicateTags.map(({ tag, count, sameScreen }) => [tag, count, sameScreen ? 'yes' : '']),
-    ));
-
-    const { usedTags: _usedTags, ...summary } = report;
-    return { tool: 'hmi', run: runId, reports, ...summary };
+    const { usedTags: _usedTags, ...summary } = analyzeHprj(text);
+    return { tool: 'hmi', ...summary };
   }
 
   async #convert(hprbPath, hprjPath) {

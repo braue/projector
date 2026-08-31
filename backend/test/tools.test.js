@@ -107,6 +107,12 @@ test('hmi: bad tags, duplicates, and the imported-list marker', async () => {
   assert.deepEqual(report.duplicateTags, [{ tag: 'BKR_52A', count: 3, sameScreen: true }]);
   // Used tags carry the diagram they sit on.
   assert.deepEqual(report.usedTags[3], { tag: 'BKR_52A', diagram: 'Feeder 1' });
+  // Per-diagram rollup, worst screen first: Feeder 1 carries the bad tag,
+  // Overview only a same-screen duplicate.
+  assert.deepEqual(report.diagrams, [
+    { diagram: 'Feeder 1', tags: 2, bad: 1, sameScreenDuplicates: 0 },
+    { diagram: 'Overview', tags: 3, bad: 0, sameScreenDuplicates: 1 },
+  ]);
 });
 
 test('tool settings: merge, remove, and empty default', async () => {

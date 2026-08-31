@@ -436,12 +436,12 @@ export interface ToolReport {
 /** The HMI Tag Tester's analysis of one Diagram Builder project. */
 export interface HmiReport {
   tool: string
-  run: string
-  reports: ToolReport[]
   totalTags: number
   importedCount: number
   badTags: { tag: string; diagram: string }[]
   duplicateTags: { tag: string; count: number; sameScreen: boolean }[]
+  /** Per-screen rollup, worst first — where to open Diagram Builder. */
+  diagrams: { diagram: string; tags: number; bad: number; sameScreenDuplicates: number }[]
 }
 
 /** QuickSet Extract: the relay inventory over a configs run. */
@@ -469,6 +469,8 @@ export interface SwsetField {
   id: string
   label: string
   readOnly?: boolean
+  /** Constrained choices (display labels); renders as a dropdown. */
+  options?: string[]
 }
 
 export interface SwsetColumn {
@@ -477,6 +479,10 @@ export interface SwsetColumn {
   readOnly?: boolean
   /** Constant display value; never editable. */
   fixed?: string
+  /** Constrained choices (display labels); renders as a dropdown. */
+  options?: string[]
+  /** Row-position-dependent choices (speed/duplex varies by port block). */
+  optionsByRow?: { start: number; end?: number; options: string[] }[]
 }
 
 export type SwsetTable =

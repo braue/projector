@@ -11,7 +11,6 @@ import { errorMessage } from '../lib/errors'
 import type { HmiReport } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
-import { RunOutputs } from './RunOutputs'
 
 export function HmiTesterTool({ project }: ToolProps) {
   const [busy, setBusy] = useState(false)
@@ -124,7 +123,27 @@ export function HmiTesterTool({ project }: ToolProps) {
                 <div className="tool-empty">None — every tag is assigned once.</div>
               )}
             </CollapsibleSection>
-            <RunOutputs tool="hmi" run={report.run} reports={report.reports} />
+            <CollapsibleSection title="By diagram" count={report.diagrams.length}>
+              <DataTable
+                maxHeight="320px"
+                columns={[
+                  { key: 'diagram', label: 'Diagram' },
+                  { key: 'tags', label: 'Tags used' },
+                  { key: 'bad', label: 'Bad' },
+                  { key: 'dupes', label: 'Duplicated on-screen' },
+                ]}
+                rows={report.diagrams.map(({ diagram, tags, bad, sameScreenDuplicates }) => ({
+                  id: diagram,
+                  cells: {
+                    diagram,
+                    tags,
+                    bad: bad || '',
+                    dupes: sameScreenDuplicates || '',
+                  },
+                  tone: bad ? ('removed' as const) : undefined,
+                }))}
+              />
+            </CollapsibleSection>
           </>
         )}
       </div>

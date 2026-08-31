@@ -12,6 +12,7 @@
  * @property {(string|number)[]} path  xmlGet/xmlSet path array.
  * @property {boolean} [create]        Write with { create: true } (old tool used create=True).
  * @property {boolean} [readOnly]      Old tool read this but never wrote it back.
+ * @property {string[]} [options]      Constrained choices (display labels); renders as a dropdown.
  */
 
 /**
@@ -22,6 +23,10 @@
  * @property {boolean} [create]         Write with { create: true }.
  * @property {boolean} [readOnly]       Shown but never written back.
  * @property {string} [fixed]           Constant display value; never read from or written to the XML.
+ * @property {string[]} [options]       Constrained choices (display labels); renders as a dropdown.
+ * @property {{start:number,end?:number,options:string[]}[]} [optionsByRow]
+ *   Row-position-dependent choices (the workbook validated speed/duplex per
+ *   port block); first matching range wins, `options` is the fallback.
  */
 
 /**
@@ -78,6 +83,41 @@ const ALARM_TRIGGERS = [
 
 const slug = (label) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+// Constrained-choice vocabularies. The lists are transcribed from the old
+// workbook's Excel data validations (System and Switch Management sheets
+// carried them), plus the enum vocabularies ./xml.js's translation table
+// defines in full for fields the workbook left unvalidated (ingress type,
+// syslog thresholds, user roles) and the plain True/False flags the device
+// XML stores literally. A field or column carrying `options` renders as a
+// dropdown; every value is the workbook's DISPLAY label — xml.js translates
+// to and from the XML's own tokens.
+const BOOL = ['True', 'False'];
+const ALARM_BEHAVIORS = ['Pulse', 'Latch (Automatic Clear)', 'Latch (Manual Clear)'];
+const STP_MODES = ['OFF', 'RSTP'];
+// 0–61440 in steps of 4096 and 0–240 in steps of 16 — the workbook's lists.
+const BRIDGE_PRIORITIES = Array.from({ length: 16 }, (_, i) => String(i * 4096));
+const RSTP_PORT_PRIORITIES = Array.from({ length: 16 }, (_, i) => String(i * 16));
+const RSTP_PORT_MODES = ['Auto', 'Non-STP BPDU Guard', 'Fast Port BPDU Guard', 'Fast Port'];
+const RATE_LIMITS = [
+  'No Limit', '1 Mb', '5 Mb', '10 Mb', '20 Mb', '30 Mb', '42 Mb',
+  '50 Mb', '75 Mb', '100 Mb', '150 Mb', '300 Mb',
+];
+const INGRESS_TYPES = ['Broadcast', 'Multicast and Broadcast', 'Flooded Unicast, Multicast, and Broadcast'];
+const COS_PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
+const TRANSMISSION_POLICIES = ['Strict', 'Weighted Round Robin'];
+const SYSLOG_THRESHOLDS = ['Informational', 'Notice', 'Warning', 'Error', 'Critical', 'Alert'];
+const USER_ROLES = ['Admin', 'Engineer', 'User Manager', 'Monitor'];
+// Speed/duplex choices vary by port position, exactly as the workbook
+// validated them: the first four rows are the gigabit SFP ports, the next
+// four the combo ports, and everything after is Fast Ethernet.
+const SPEED_FE = ['Auto', '10Mbps Half Duplex', '10Mbps Full Duplex', '100Mbps Half Duplex', '100Mbps Full Duplex'];
+const SPEED_GIG = ['Auto', '1Gbps Full Duplex'];
+const SPEED_BY_ROW = [
+  { start: 0, end: 3, options: SPEED_GIG },
+  { start: 4, end: 7, options: [...SPEED_FE, '1Gbps Full Duplex'] },
+  { start: 8, options: SPEED_FE },
+];
+
 /**
  * The SEL-273x family editing schema, resolved for one device.
  * @param {object} nameplate  Configuration.Nameplate as parsed (keys like Type, Id, FID, PartNumber, SerialNumber, SettingsVersionNumber)
@@ -118,7 +158,7 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_Global',
         label: 'Global',
         fields: [
-          { id: 'language', label: 'Language', path: ['locale', 'language', 'GS_DEFAULTLANGUAGE_ST'] },
+          { id: 'language', label: 'Language', path: ['locale', 'language', 'GS_DEFAULTLANGUAGE_ST'], options: ['English', 'Español'] },
           { id: 'maxSessions', label: 'Maximum Sessions', path: ['web_server_settings', 'user_session_settings', 'GS_MAXUSERS_ST'] },
           { id: 'sessionTimeout', label: 'Session Timeout', path: ['web_server_settings', 'user_session_settings', 'GS_TIMEOUT_ST'] },
           { id: 'contact', label: 'Contact', path: ['device_contact', 'contact_info', 'GS_CONTACT_ST'] },
@@ -131,7 +171,7 @@ export function buildSchema273x(nameplate) {
         label: 'Time / NTP',
         fields: [
           { id: 'timeZone', label: 'Time Zone', path: ['date_time', 'time_zone', 'DT_TIMEZONE_ST'] },
-          { id: 'enableNtp', label: 'Enable NTP', path: ['date_time', 'time_sources', 'DT_ENABLENTPCLIENT_ST'] },
+          { id: 'enableNtp', label: 'Enable NTP', path: ['date_time', 'time_sources', 'DT_ENABLENTPCLIENT_ST'], options: BOOL },
         ],
       },
       {
@@ -162,11 +202,13 @@ export function buildSchema273x(nameplate) {
             id: `${slug(name)}-enable`,
             label: `${name} alarm — Enable`,
             path: ['alarm_contact', 'alarm_settings', enableKey],
+            options: BOOL,
           },
           {
             id: `${slug(name)}-behavior`,
             label: `${name} alarm — Behavior`,
             path: ['alarm_contact', 'alarm_signal_settings', behaviorKey],
+            options: ALARM_BEHAVIORS,
           },
         ]),
       },
@@ -182,7 +224,7 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_VLANAware',
         label: 'VLAN Aware',
         fields: [
-          { id: 'vlanAware', label: 'VLAN Aware', path: ['vlan_settings', 'vlan_aware_mode', 'VL_AWARE_ST'] },
+          { id: 'vlanAware', label: 'VLAN Aware', path: ['vlan_settings', 'vlan_aware_mode', 'VL_AWARE_ST'], options: BOOL },
         ],
       },
       // The old workbook's tbl_VLAN first row was the default VLAN (VID fixed
@@ -218,12 +260,12 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_RSTP',
         label: 'RSTP',
         fields: [
-          { id: 'stpMode', label: 'STP Mode', path: ['SEL_RSTP', 'Global Settings', 'STP_MODE_ST'] },
-          { id: 'bridgePriority', label: 'Bridge Priority', path: ['SEL_RSTP', 'Global Settings', 'STP_BRIDGEPRIORITY_ST'] },
+          { id: 'stpMode', label: 'STP Mode', path: ['SEL_RSTP', 'Global Settings', 'STP_MODE_ST'], options: STP_MODES },
+          { id: 'bridgePriority', label: 'Bridge Priority', path: ['SEL_RSTP', 'Global Settings', 'STP_BRIDGEPRIORITY_ST'], options: BRIDGE_PRIORITIES },
           { id: 'helloTime', label: 'Hello Time', path: ['SEL_RSTP', 'Global Settings', 'STP_HELLOTIME_ST'] },
           { id: 'maxAge', label: 'Max Age', path: ['SEL_RSTP', 'Global Settings', 'STP_MAXAGE_ST'] },
           { id: 'forwardDelay', label: 'Forward Delay', path: ['SEL_RSTP', 'Global Settings', 'STP_FWDDELAY_ST'] },
-          { id: 'bpduTimeoutEnable', label: 'BPDU Timeout Enable', path: ['SEL_RSTP', 'Global Settings', 'STP_BPDU_TIMEOUT_EN_ST'] },
+          { id: 'bpduTimeoutEnable', label: 'BPDU Timeout Enable', path: ['SEL_RSTP', 'Global Settings', 'STP_BPDU_TIMEOUT_EN_ST'], options: BOOL },
           { id: 'bpduTimeout', label: 'BPDU Timeout (min)', path: ['SEL_RSTP', 'Global Settings', 'STP_BPDU_TIMEOUT_ST'] },
         ],
       },
@@ -234,9 +276,9 @@ export function buildSchema273x(nameplate) {
         base: ['SEL_RSTP', 'Ports', 'Port'],
         columns: [
           { id: 'port', label: 'Port', key: ['port_id'] },
-          { id: 'priority', label: 'Priority', key: ['STP_PRT_PRIORITY_ST'] },
+          { id: 'priority', label: 'Priority', key: ['STP_PRT_PRIORITY_ST'], options: RSTP_PORT_PRIORITIES },
           { id: 'pathCost', label: 'Path Cost', key: ['STP_PRT_PATHCOST_ST'] },
-          { id: 'stpMode', label: 'STP Mode', key: ['STP_PORT_MODE_ST'] },
+          { id: 'stpMode', label: 'STP Mode', key: ['STP_PORT_MODE_ST'], options: RSTP_PORT_MODES },
         ],
       },
       {
@@ -254,10 +296,10 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_Mirror',
         label: 'Port Mirror',
         fields: [
-          { id: 'enable', label: 'Enable', path: ['port_mirror', 'mirror_settings', 'PM_ENABLE_ST'] },
+          { id: 'enable', label: 'Enable', path: ['port_mirror', 'mirror_settings', 'PM_ENABLE_ST'], options: BOOL },
           { id: 'targetPort', label: 'Target Port', path: ['port_mirror', 'mirror_settings', 'PM_TARGET_ST'] },
-          { id: 'ingress', label: 'Ingress', path: ['port_mirror', 'mirror_settings', 'PM_INGRESS_ST'] },
-          { id: 'egress', label: 'Egress', path: ['port_mirror', 'mirror_settings', 'PM_EGRESS_ST'] },
+          { id: 'ingress', label: 'Ingress', path: ['port_mirror', 'mirror_settings', 'PM_INGRESS_ST'], options: BOOL },
+          { id: 'egress', label: 'Egress', path: ['port_mirror', 'mirror_settings', 'PM_EGRESS_ST'], options: BOOL },
         ],
       },
       {
@@ -267,13 +309,13 @@ export function buildSchema273x(nameplate) {
         base: ['port_settings', 'ports', 'port'],
         columns: [
           { id: 'port', label: 'Port', key: ['port_id'] },
-          { id: 'enabled', label: 'Enabled', key: ['PRTS_ENABLE_ST'] },
-          { id: 'fefi', label: 'Far End Fault Indication', key: ['PRTS_FEFI_ST'] },
+          { id: 'enabled', label: 'Enabled', key: ['PRTS_ENABLE_ST'], options: BOOL },
+          { id: 'fefi', label: 'Far End Fault Indication', key: ['PRTS_FEFI_ST'], options: BOOL },
           { id: 'alias', label: 'Alias', key: ['PRTS_NAME_ST'] },
-          { id: 'speedDuplex', label: 'Speed/Duplex', key: ['PRTS_SPDDPLX_ST'] },
-          { id: 'ingressRate', label: 'Ingress Rate', key: ['RL_ING_RATE_ST'] },
-          { id: 'ingressType', label: 'Ingress Type', key: ['RL_INGRESS_TYPE_ST'] },
-          { id: 'egressRate', label: 'Egress Rate', key: ['RL_EG_RATE_ST'] },
+          { id: 'speedDuplex', label: 'Speed/Duplex', key: ['PRTS_SPDDPLX_ST'], options: SPEED_FE, optionsByRow: SPEED_BY_ROW },
+          { id: 'ingressRate', label: 'Ingress Rate', key: ['RL_ING_RATE_ST'], options: RATE_LIMITS },
+          { id: 'ingressType', label: 'Ingress Type', key: ['RL_INGRESS_TYPE_ST'], options: INGRESS_TYPES },
+          { id: 'egressRate', label: 'Egress Rate', key: ['RL_EG_RATE_ST'], options: RATE_LIMITS },
         ],
       },
       {
@@ -281,7 +323,7 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_Transmission',
         label: 'Transmission Policy',
         fields: [
-          { id: 'transmissionPolicy', label: 'Transmission Policy', path: ['cos', 'cos_algorithm', 'CS_COSWEIGHING_ST'] },
+          { id: 'transmissionPolicy', label: 'Transmission Policy', path: ['cos', 'cos_algorithm', 'CS_COSWEIGHING_ST'], options: TRANSMISSION_POLICIES },
         ],
       },
       {
@@ -292,6 +334,7 @@ export function buildSchema273x(nameplate) {
           id: `pcp${i}`,
           label: `PCP ${i} — Priority`,
           path: ['cos', 'cos_priority', `CS_PCP_${i}_PRI`],
+          options: COS_PRIORITIES,
         })),
       },
       {
@@ -301,7 +344,7 @@ export function buildSchema273x(nameplate) {
         base: ['qos_settings', 'diffserv_mappings', 'diffserv_mapping'],
         columns: [
           { id: 'dscp', label: 'DSCP', key: ['DIFFSERV_DSCP_ST'] },
-          { id: 'priority', label: 'Priority', key: ['DIFFSERV_PRI_ST'] },
+          { id: 'priority', label: 'Priority', key: ['DIFFSERV_PRI_ST'], options: COS_PRIORITIES },
         ],
       },
     ],
@@ -328,11 +371,11 @@ export function buildSchema273x(nameplate) {
         base: ['network_settings', 'interfaces', 'interface'],
         columns: [
           { id: 'interface', label: 'Interface', key: ['interface_id'] },
-          { id: 'enabled', label: 'Enabled', key: [enabledKey] },
+          { id: 'enabled', label: 'Enabled', key: [enabledKey], options: BOOL },
           { id: 'ipAddress', label: 'IP Address', key: [addr1, addr2, 0, ipKey] },
-          { id: 'https', label: 'HTTPS', key: [addr1, addr2, 0, 'applications', httpsKey] },
-          { id: 'captivePort', label: 'Captive Port', key: [addr1, addr2, 0, 'applications', captiveKey] },
-          { id: 'snmp', label: 'SNMP', key: [addr1, addr2, 0, 'applications', snmpKey] },
+          { id: 'https', label: 'HTTPS', key: [addr1, addr2, 0, 'applications', httpsKey], options: BOOL },
+          { id: 'captivePort', label: 'Captive Port', key: [addr1, addr2, 0, 'applications', captiveKey], options: BOOL },
+          { id: 'snmp', label: 'SNMP', key: [addr1, addr2, 0, 'applications', snmpKey], options: BOOL },
         ],
       },
       {
@@ -381,13 +424,13 @@ export function buildSchema273x(nameplate) {
           { id: 'trapAlias', label: 'TRAP Alias', key: ['SNMP_TRAP_ALIAS_ST'] },
           { id: 'user', label: 'User', key: ['SNMP_TRAP_USER_ST'] },
           { id: 'ipAddress', label: 'IP Address', key: ['SNMP_TRAP_DEST_ST'] },
-          { id: 'authentication', label: 'Authentication', key: ['SNMP_TRAPS_ST', 'Authentication'] },
-          { id: 'chassis', label: 'Chassis', key: ['SNMP_TRAPS_ST', 'Chassis'] },
-          { id: 'configuration', label: 'Configuration', key: ['SNMP_TRAPS_ST', 'Configuration'] },
-          { id: 'ethF', label: 'ETH F', key: ['SNMP_TRAPS_ST', 'ETH F'] },
-          { id: 'link', label: 'Link', key: ['SNMP_TRAPS_ST', 'Link'] },
-          { id: 'portSecurity', label: 'Port Security', key: ['SNMP_TRAPS_ST', 'Port Security'] },
-          { id: 'spanningTree', label: 'Spanning Tree', key: ['SNMP_TRAPS_ST', 'Spanning Tree'] },
+          { id: 'authentication', label: 'Authentication', key: ['SNMP_TRAPS_ST', 'Authentication'], options: BOOL },
+          { id: 'chassis', label: 'Chassis', key: ['SNMP_TRAPS_ST', 'Chassis'], options: BOOL },
+          { id: 'configuration', label: 'Configuration', key: ['SNMP_TRAPS_ST', 'Configuration'], options: BOOL },
+          { id: 'ethF', label: 'ETH F', key: ['SNMP_TRAPS_ST', 'ETH F'], options: BOOL },
+          { id: 'link', label: 'Link', key: ['SNMP_TRAPS_ST', 'Link'], options: BOOL },
+          { id: 'portSecurity', label: 'Port Security', key: ['SNMP_TRAPS_ST', 'Port Security'], options: BOOL },
+          { id: 'spanningTree', label: 'Spanning Tree', key: ['SNMP_TRAPS_ST', 'Spanning Tree'], options: BOOL },
         ],
       },
       {
@@ -395,7 +438,7 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_SyslogLocal',
         label: 'Syslog Local',
         fields: [
-          { id: 'localThreshold', label: 'Local Threshold', path: ['syslog_settings', 'syslog_general', 'SL_LOCALTHRESH_ST'] },
+          { id: 'localThreshold', label: 'Local Threshold', path: ['syslog_settings', 'syslog_general', 'SL_LOCALTHRESH_ST'], options: SYSLOG_THRESHOLDS },
         ],
       },
       {
@@ -406,7 +449,7 @@ export function buildSchema273x(nameplate) {
         columns: [
           { id: 'alias', label: 'Alias', key: ['SL_SVRALIAS_ST'] },
           { id: 'ipAddress', label: 'IP Address', key: ['SL_SVRIP_ST'] },
-          { id: 'threshold', label: 'Threshold', key: ['SL_SVRTHRESH_ST'] },
+          { id: 'threshold', label: 'Threshold', key: ['SL_SVRTHRESH_ST'], options: SYSLOG_THRESHOLDS },
         ],
       },
       {
@@ -433,11 +476,11 @@ export function buildSchema273x(nameplate) {
         base: ['users', 'user_accounts', 'user_account'],
         columns: [
           { id: 'username', label: 'Username', key: ['UM_USERNAME_ST'] },
-          { id: 'role', label: 'Role', key: ['UM_USERROLE_ST'] },
-          { id: 'enabled', label: 'Enabled', key: ['UM_ACCOUNTENABLED_ST'] },
+          { id: 'role', label: 'Role', key: ['UM_USERROLE_ST'], options: USER_ROLES },
+          { id: 'enabled', label: 'Enabled', key: ['UM_ACCOUNTENABLED_ST'], options: BOOL },
           { id: 'password', label: 'Password', key: ['UM_PASSWORD_ST'] },
           { id: 'hashedPassword', label: 'Hashed Password', key: ['password_hashed'] },
-          { id: 'complexPassword', label: 'Complex Password', key: ['UM_COMPLEXPASSWORD_ST'] },
+          { id: 'complexPassword', label: 'Complex Password', key: ['UM_COMPLEXPASSWORD_ST'], options: BOOL },
           { id: 'creationDate', label: 'Creation Date', key: ['account_creation_dt'] },
           { id: 'lastLogin', label: 'Last Login', key: ['last_access_dt'] },
           { id: 'passwordChange', label: 'Password Change', key: ['password_change_dt'] },
@@ -448,8 +491,8 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_LDAPGeneral',
         label: 'LDAP General',
         fields: [
-          { id: 'enabled', label: 'Enabled', path: ['SEL_LDAP_CLIENT', 'General Settings', 'EN_LDAP'] },
-          { id: 'tlsRequired', label: 'TLS Required', path: ['SEL_LDAP_CLIENT', 'General Settings', 'LDAP_EN_TLS'] },
+          { id: 'enabled', label: 'Enabled', path: ['SEL_LDAP_CLIENT', 'General Settings', 'EN_LDAP'], options: BOOL },
+          { id: 'tlsRequired', label: 'TLS Required', path: ['SEL_LDAP_CLIENT', 'General Settings', 'LDAP_EN_TLS'], options: BOOL },
           { id: 'syncInterval', label: 'Sync Interval (h)', path: ['SEL_LDAP_CLIENT', 'General Settings', 'LDAP_SYNC'] },
           { id: 'searchBase', label: 'Search Base', path: ['SEL_LDAP_CLIENT', 'General Settings', 'SEARCH_BASE'] },
           { id: 'groupMembershipAttribute', label: 'Group Membership Attribute', path: ['SEL_LDAP_CLIENT', 'General Settings', 'MEM_ATTR'] },
@@ -484,14 +527,14 @@ export function buildSchema273x(nameplate) {
         id: 'tbl_RADIUSGeneral',
         label: 'RADIUS General',
         fields: [
-          { id: 'enabled', label: 'Enabled', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_ENABLE_ST'] },
-          { id: 'enableAnonymousId', label: 'Enable Anonymous ID', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_ANONYMOUS_ID_ENABLE_ST'] },
+          { id: 'enabled', label: 'Enabled', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_ENABLE_ST'], options: BOOL },
+          { id: 'enableAnonymousId', label: 'Enable Anonymous ID', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_ANONYMOUS_ID_ENABLE_ST'], options: BOOL },
           { id: 'anonymousId', label: 'Anonymous ID', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_ANONYMOUS_ID_ST'] },
           { id: 'sharedSecret', label: 'Shared Secret', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_SHARED_SECRET_ST'] },
           { id: 'authProtocol', label: 'Auth Protocol', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_AUTHENTICATION_PROTOCOL_ST'] },
           { id: 'retryAmount', label: 'Retry Amount', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_RETRIES_ST'] },
           { id: 'retryTimeout', label: 'Retry Timeout', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_TIMEOUT_ST'] },
-          { id: 'checkServerCertHostname', label: 'Check Server Cert Hostname', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_CHECK_SERVER_CERT_HOSTNAME_ST'] },
+          { id: 'checkServerCertHostname', label: 'Check Server Cert Hostname', path: ['SEL_RADIUS_Client', 'General Settings', 'RADIUS_CHECK_SERVER_CERT_HOSTNAME_ST'], options: BOOL },
         ],
       },
       {
@@ -538,7 +581,7 @@ export function buildSchema273x(nameplate) {
         base: ['mac_security', 'port'],
         columns: [
           { id: 'port', label: 'Port', key: ['port_id'] },
-          { id: 'enable', label: 'Enable', key: ['PS_SECURITYMODE_ST'] },
+          { id: 'enable', label: 'Enable', key: ['PS_SECURITYMODE_ST'], options: BOOL },
           { id: 'countLock', label: 'Count Lock', key: ['PS_COUNTLOCK_ST'] },
           { id: 'timeLock', label: 'Time Lock', key: ['PS_TIMELOCK_ST'] },
           // The old tool joined ALL mac_addresses/mac_address entries into one
