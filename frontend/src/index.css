@@ -190,15 +190,20 @@ button.ui-section-header:hover { color: var(--ink); }
 
 .ui-table-viewport { overflow: auto; }
 .ui-table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; min-width: 100%; }
-/* Cells WRAP; they never ellipsis-truncate. A settings value the reader
- * cannot finish reading is the same as no value at all — whole-row page
- * references (Tag Processor) run hundreds of characters. Long content grows
- * the row; the min-width keeps columns from being crushed, and the viewport
- * scrolls horizontally when a wide table needs it. */
+/* Cells never truncate AND never wrap. A settings value the reader cannot
+ * finish is the same as no value at all — but a DNP tag name folded over four
+ * lines is barely better, and a column of them is unreadable. So long content
+ * makes the TABLE wider rather than the ROW taller, and the viewport scrolls
+ * sideways; whole-row page references (Tag Processor) run hundreds of
+ * characters and are meant to be scrolled to, not stacked.
+ *
+ * `pre`, not `nowrap`: a value that carries its own newlines keeps them, so a
+ * multi-line setting still reads as the lines its author wrote. No max-width,
+ * because a capped cell that cannot wrap would just spill over its neighbour. */
 .ui-table th, .ui-table td {
   text-align: left; padding: 7px 16px; border-bottom: 1px solid var(--border-soft);
-  min-width: 96px; max-width: 520px; vertical-align: top;
-  white-space: pre-wrap; overflow-wrap: anywhere;
+  min-width: 96px; vertical-align: top;
+  white-space: pre;
 }
 .ui-table thead th {
   position: sticky; top: 0; z-index: 1; background: var(--card);
