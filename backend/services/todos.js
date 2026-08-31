@@ -13,8 +13,7 @@
 // ordered, and that order is the user's (they drag to reorder), so it is
 // saved and returned exactly as given.
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
 
 import { httpError } from '../lib/http.js';
 
@@ -49,7 +48,8 @@ class TodosService {
     if (!Array.isArray(todos)) throw httpError(400, 'todos must be an array');
     const cleaned = todos.map(clean).filter(Boolean);
     const run = this.#queue.then(async () => {
-      await mkdir(path.dirname(this.file), { recursive: true });
+      // The directory is ProjectsService.init()'s to make, and it is awaited
+      // in startServer() long before a request can land here.
       await writeFile(this.file, JSON.stringify(cleaned, null, 2));
       return cleaned;
     });

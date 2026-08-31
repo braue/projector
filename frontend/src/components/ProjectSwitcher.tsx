@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { appVersion } from '../api'
+import { useDismiss } from '../lib/useDismiss'
 
 import { InlineNameForm, RowAction } from './ui'
 
@@ -32,23 +33,18 @@ export function ProjectSwitcher({
   // upgrade actually took. It cannot change while the process runs, so it is
   // fetched once rather than tied to the menu.
   const [version, setVersion] = useState<string | null>(null)
-  const wrap = useRef<HTMLDivElement>(null)
+  const wrap = useDismiss<HTMLDivElement>(open, () => setOpen(false))
 
   useEffect(() => {
     appVersion().then(setVersion, () => {})
   }, [])
 
+  // A closed menu has no half-finished form to come back to.
   useEffect(() => {
     if (!open) {
       setNaming(false)
       setRenaming(null)
-      return
     }
-    const close = (e: MouseEvent) => {
-      if (!wrap.current?.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
   }, [open])
 
   return (

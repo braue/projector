@@ -223,17 +223,18 @@ button.ui-section-header:hover { color: var(--ink); }
   padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--card);
 }
 .topbar-info { margin-left: auto; font-size: 13px; color: var(--muted); }
-/* With a takeover pane up, the toggles are all that is left in the row — the
-   first one takes over the spacing .topbar-info normally provides so the
-   corner never moves. (When the project row renders, its SegmentedControl is
-   the first child and this rule stays out of the way.) */
-:is(.todo-switch, .atlas-toggle):first-child { margin-left: auto; }
+/* With a takeover pane up, the todo list and the toggles are all that is left
+   in the row — the first one takes over the spacing .topbar-info normally
+   provides so the corner never moves. (When the project row renders, its
+   SegmentedControl is the first child and this rule stays out of the way.) */
+:is(.todo-switch, .topbar-toggle):first-child { margin-left: auto; }
 
 .app { flex: 1; display: flex; min-height: 0; }
 
-/* The two outlined buttons at the right of the topbar — the project switcher's
-   trigger and the atlas toggle. They sit next to each other, so they are one
-   rule; only their resting ink and their pressed state differ. */
+/* The outlined buttons at the right of the topbar — the project switcher's
+   trigger, and the todo / tools / atlas toggles. They sit next to each other,
+   so they are one rule; only their resting ink and their pressed state
+   differ. */
 .topbar-button {
   display: flex; align-items: center; gap: 7px; flex: none; padding: 5px 12px;
   border: 1px solid var(--border); border-radius: 9px; background: var(--card);
@@ -352,12 +353,12 @@ button.ui-section-header:hover { color: var(--ink); }
 .dwgen-layers { list-style: none; margin: 0; padding: 8px 0 4px; }
 .dwgen-layers li { padding: 1px 0; color: var(--muted); }
 
-.atlas-toggle { color: var(--muted); }
-.atlas-toggle:hover { color: var(--ink); }
-.atlas-toggle.on {
+.topbar-toggle { color: var(--muted); }
+.topbar-toggle:hover { color: var(--ink); }
+.topbar-toggle.on {
   border-color: var(--accent); background: var(--accent-tint); color: var(--accent);
 }
-.atlas-toggle-mark { font-size: 9px; color: var(--accent); }
+.topbar-toggle-mark { font-size: 9px; color: var(--accent); }
 
 /* --- sources sidebar ------------------------------------------------------- */
 
@@ -728,16 +729,19 @@ button.ui-section-header:hover { color: var(--ink); }
 .findings-panel > :last-child { margin-bottom: 12px; }
 
 /* project switcher — the ws- prefix predates the workspace→project rename */
-.ws-switch { position: relative; }
+:is(.ws-switch, .todo-switch) { position: relative; }
 .ws-trigger { color: var(--ink); }
 .ws-caret { font-size: 10px; color: var(--muted); }
-.ws-menu {
-  /* Right-anchored under its own trigger; the trigger sits at the right of
-     the topbar, just inside the atlas toggle. */
-  position: absolute; top: calc(100% + 6px); right: 0; z-index: 40; min-width: 200px;
-  padding: 5px; background: var(--card); border: 1px solid var(--border);
+/* Both topbar dropdowns — the project switcher and the todo list — are the
+   same kind of surface: right-anchored under their own trigger, at the right
+   of the topbar. One rule, so tuning the drop offset or the elevation cannot
+   move only one of them. */
+:is(.ws-menu, .todo-menu) {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 40;
+  background: var(--card); border: 1px solid var(--border);
   border-radius: 11px; box-shadow: var(--shadow-menu);
 }
+.ws-menu { min-width: 200px; padding: 5px; }
 .ws-item {
   display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 10px;
   border: 0; border-radius: 7px; background: none; font-size: 13px;
@@ -763,7 +767,6 @@ button.ui-section-header:hover { color: var(--ink); }
    instead of taking the pane over — a task gets jotted without leaving the
    canvas. */
 
-.todo-switch { position: relative; }
 /* Open items, on the trigger. Reads as a count, not a status, so it borrows
    the accent tint rather than one of the three semantic tones. */
 .todo-count {
@@ -773,14 +776,11 @@ button.ui-section-header:hover { color: var(--ink); }
   text-align: center;
 }
 /* The pressed trigger is already accent-tinted; the chip inverts to stay read-able on it. */
-.atlas-toggle.on .todo-count { background: var(--card); }
+.topbar-toggle.on .todo-count { background: var(--card); }
 
-.todo-menu {
-  position: absolute; top: calc(100% + 6px); right: 0; z-index: 40;
-  width: 340px; display: flex; flex-direction: column; overflow: hidden;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 11px; box-shadow: var(--shadow-menu);
-}
+/* Chrome comes from the shared :is(.ws-menu, .todo-menu) rule; this is only
+   what differs — a fixed width, and a column that clips its own scroller. */
+.todo-menu { width: 340px; display: flex; flex-direction: column; overflow: hidden; }
 .todo-head { display: flex; align-items: baseline; gap: 8px; padding: 12px 14px 9px; }
 .todo-head .t { font-size: 13px; font-weight: 650; }
 .todo-head .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }

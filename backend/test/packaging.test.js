@@ -39,16 +39,28 @@ test('packaging: nothing user-written is shipped inside the install directory', 
   // The install directory is deleted and rewritten on every upgrade, so
   // anything the user can change must not live there. backend/data is the
   // from-source data directory; it must never be packaged.
-  assert.ok(pkg.build.files.includes('!backend/data/**'));
+  assert.ok(pkg.build.files.some((pattern) => /^!backend\/data\b/.test(pattern)));
 
-  // The installer hook may close the running app, but must not remove data.
-  // Comments are stripped first — the hook's own comment explains that state
-  // lives in %APPDATA%, which is the opposite of a deletion.
+  // The installer hook runs with the power to delete anything, and no test can
+  // prove a negative about free NSIS text — a blocklist of scary keywords
+  // would pass the one spelling nobody thought of. So pin the command set
+  // instead: any edit to this script fails here, and the failure means "go
+  // read it again", not "you used a forbidden word". Comments are excluded so
+  // the prose can be rewritten freely.
   const hook = await readFile(path.join(ROOT, 'build', 'installer.nsh'), 'utf8');
   const commands = hook
     .split('\n')
-    .filter((line) => !line.trim().startsWith(';'))
-    .join('\n');
-  assert.match(commands, /taskkill/);
-  assert.doesNotMatch(commands, /RMDir|\bDelete\b|APPDATA/i);
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith(';'));
+  assert.deepEqual(commands, [
+    '!macro customInit',
+    'DetailPrint "Closing Projector if it is running..."',
+    'nsExec::Exec \'taskkill /IM "Projector.exe"\'',
+    'Pop $0',
+    'Sleep 2000',
+    'nsExec::Exec \'taskkill /F /T /IM "Projector.exe"\'',
+    'Pop $0',
+    'Sleep 500',
+    '!macroend',
+  ]);
 });

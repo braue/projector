@@ -513,7 +513,7 @@ export default function App() {
             the tools or the atlas up. */}
         <TodoList />
         <button
-          className={toolsOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
+          className={toolsOpen ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
           onClick={() => {
             setToolsOpen((open) => !open)
             setToolsEverOpened(true)
@@ -521,11 +521,11 @@ export default function App() {
           }}
           title={toolsOpen ? 'Back to the project' : 'Open the tools'}
         >
-          <span className="atlas-toggle-mark">⚒</span>
+          <span className="topbar-toggle-mark">⚒</span>
           <span>Tools</span>
         </button>
         <button
-          className={atlasOpen ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
+          className={atlasOpen ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
           onClick={() => {
             setAtlasOpen((open) => !open)
             setAtlasEverOpened(true)
@@ -533,7 +533,7 @@ export default function App() {
           }}
           title={atlasOpen ? 'Back to the project' : 'Open the atlas reference'}
         >
-          <span className="atlas-toggle-mark">◆</span>
+          <span className="topbar-toggle-mark">◆</span>
           <span>Atlas</span>
         </button>
       </header>

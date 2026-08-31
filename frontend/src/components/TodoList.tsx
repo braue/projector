@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { listTodos, saveTodos } from '../api'
 import { errorMessage } from '../lib/errors'
+import { useDismiss } from '../lib/useDismiss'
 import type { Todo } from '../types'
 
 import { Checkbox, InlineNameForm, RowAction, TextInput } from './ui'
@@ -18,39 +19,16 @@ import { Checkbox, InlineNameForm, RowAction, TextInput } from './ui'
 // an upgrade preserves — it lives outside the install folder the installer
 // replaces — so the list survives both.
 
-/** Where the list used to live. Read once, then cleared — see migrate(). */
-const LEGACY_KEY = 'projector-todos'
-
 /** Saves are coalesced: ticking three boxes is one write, not three. */
 const SAVE_DEBOUNCE_MS = 400
 
-/**
- * Carry a list written by the build that kept todos in localStorage into the
- * data directory. Only ever runs against an empty server list, so it cannot
- * resurrect items deleted since, and the key is dropped either way so this
- * happens exactly once per origin.
- */
-function migrate(stored: Todo[]): Todo[] {
-  let legacy: Todo[] = []
-  try {
-    const raw: unknown = JSON.parse(localStorage.getItem(LEGACY_KEY) ?? '[]')
-    if (Array.isArray(raw)) {
-      legacy = raw
-        .filter((t): t is Todo => !!t && typeof t.id === 'string' && typeof t.text === 'string')
-        .map((t) => ({ id: t.id, text: t.text, done: !!t.done }))
-    }
-  } catch {
-    legacy = []
-  }
-  localStorage.removeItem(LEGACY_KEY)
-  return stored.length === 0 ? legacy : stored
-}
-
-const newId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
+/** The starting list, shared with the "nothing to save yet" mark below so the
+ *  two are the same array and not merely equal. */
+const EMPTY: Todo[] = []
 
 export function TodoList() {
   const [open, setOpen] = useState(false)
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useState<Todo[]>(EMPTY)
   // Distinguishes "no todos" from "not fetched yet", so the empty state does
   // not flash before the list arrives.
   const [loaded, setLoaded] = useState(false)
@@ -61,67 +39,59 @@ export function TodoList() {
   // only the grip arms it, so a click on the text can still open the editor.
   const [dragId, setDragId] = useState<string | null>(null)
   const [gripped, setGripped] = useState(false)
-  const wrap = useRef<HTMLDivElement>(null)
+  // The list as the server last had it. Every mutator below builds a new
+  // array, so an identity check is enough to tell an edit from the list we
+  // just fetched — which must not be written straight back.
+  const saved = useRef<Todo[]>(EMPTY)
+  // Same dismissal as the project switcher, plus Escape: the panel floats
+  // over live work, so getting out of it must never need aim.
+  const wrap = useDismiss<HTMLDivElement>(open, () => setOpen(false), { escape: true })
 
   useEffect(() => {
     listTodos().then(
       (stored) => {
-        const merged = migrate(stored)
-        setTodos(merged)
+        saved.current = stored
+        setTodos(stored)
         setLoaded(true)
-        // A migration is only real once it lands on disk.
-        if (merged !== stored) saveTodos(merged).catch((err) => setError(errorMessage(err)))
       },
       (err) => {
+        // saved.current stays EMPTY, which is still the list on screen, so a
+        // failed read reports itself without writing anything back.
         setError(errorMessage(err))
         setLoaded(true)
       },
     )
   }, [])
 
-  // Persist on change, debounced. Skipped until the first fetch lands so the
-  // initial empty state can never overwrite a stored list.
+  // Persist on change, debounced. Waits for the first fetch so the initial
+  // empty state cannot overwrite a stored list, and skips the list we were
+  // handed — otherwise every launch would write back what it just read.
   useEffect(() => {
-    if (!loaded) return
+    if (!loaded || todos === saved.current) return
     const timer = setTimeout(() => {
       saveTodos(todos).then(
-        () => setError(null),
+        () => {
+          saved.current = todos
+          setError(null)
+        },
         (err) => setError(errorMessage(err)),
       )
     }, SAVE_DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [todos, loaded])
 
-  // Same dismissal as the project switcher, plus Escape — the panel floats
-  // over live work, so getting out of it must never need aim.
+  // A closed panel has no open editor to come back to.
   useEffect(() => {
-    if (!open) {
-      setEditing(null)
-      return
-    }
-    const clickAway = (e: MouseEvent) => {
-      if (!wrap.current?.contains(e.target as Node)) setOpen(false)
-    }
-    // An open item editor stops the key before it reaches here, so Escape
-    // cancels that edit first and closes the panel only on a second press.
-    const escape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', clickAway)
-    document.addEventListener('keydown', escape)
-    return () => {
-      document.removeEventListener('mousedown', clickAway)
-      document.removeEventListener('keydown', escape)
-    }
+    if (!open) setEditing(null)
   }, [open])
 
-  const done = useMemo(() => todos.filter((t) => t.done).length, [todos])
+  const done = todos.filter((t) => t.done).length
   const openCount = todos.length - done
 
   const add = () => {
     const text = draft.trim()
     if (!text) return
-    setTodos((list) => [...list, { id: newId(), text, done: false }])
+    setTodos((list) => [...list, { id: crypto.randomUUID(), text, done: false }])
     setDraft('')
   }
 
@@ -146,11 +116,11 @@ export function TodoList() {
   return (
     <div className="todo-switch" ref={wrap}>
       <button
-        className={open ? 'topbar-button atlas-toggle on' : 'topbar-button atlas-toggle'}
+        className={open ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
         onClick={() => setOpen(!open)}
         title={open ? 'Close the todo list' : 'Open the todo list'}
       >
-        <span className="atlas-toggle-mark">✓</span>
+        <span className="topbar-toggle-mark">✓</span>
         <span>Todo</span>
         {openCount > 0 && <span className="todo-count">{openCount}</span>}
       </button>
@@ -180,9 +150,10 @@ export function TodoList() {
             />
           </div>
           {error && <div className="todo-error">{error}</div>}
-          {todos.length === 0 ? (
-            loaded && <div className="todo-empty">Nothing on the list.</div>
-          ) : (
+          {loaded && todos.length === 0 && (
+            <div className="todo-empty">Nothing on the list.</div>
+          )}
+          {todos.length > 0 && (
             <div className="todo-list">
               {todos.map((todo) => (
                 <div
