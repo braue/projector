@@ -4,11 +4,12 @@
 // sanitized upload name, unique-ified. Services own parsing and shaping —
 // this store owns the disk.
 
-import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveChild } from './http.js';
-import { uniqueName } from './names.js';
+import { folderBirthTime } from './fsTime.js';
+import { idBase, uniqueName } from './names.js';
 
 class UploadStore {
   constructor({ dataDir, label, extension, originalName }) {
@@ -58,7 +59,7 @@ class UploadStore {
 
   // A display name reduced to a directory-safe id base.
   #idBase(name) {
-    return name.replace(this.extension, '').replace(/[^\w.-]+/g, '_') || 'upload';
+    return idBase(name.replace(this.extension, ''), 'upload');
   }
 
   // Store a new upload (original bytes + parsed.json); returns the new id.
@@ -110,21 +111,6 @@ class UploadStore {
     }
     await rm(this.dir(fileId), { recursive: true, force: true });
     this.files.delete(fileId);
-  }
-}
-
-/**
- * When an upload's folder was created, in epoch ms. Filesystems that do not
- * carry a creation time report 0 for birthtimeMs, so fall back to mtime, and
- * to null if the folder cannot be read at all — an unknown time must read as
- * unknown, never as 1970.
- */
-async function folderBirthTime(dir) {
-  try {
-    const info = await stat(dir);
-    return Math.round(info.birthtimeMs || info.mtimeMs) || null;
-  } catch {
-    return null;
   }
 }
 
