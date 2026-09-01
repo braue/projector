@@ -54,10 +54,17 @@ function rtacRoutes(resolve, catalog) {
     ));
   });
 
-  // Start (or retry) a database export into this project. 202 — completion
-  // is polled via the list.
+  // Download a DATABASE project into this project, always as a new copy.
+  // :name is the database name; the response carries the id the copy landed
+  // under. 202 — completion is polled via the list.
   router.post('/:name/export', async (req, res) => {
     res.status(202).json((await resolve(req)).startExport(req.params.name));
+  });
+
+  // Retry a failed export in place. :id addresses the copy already here, so
+  // it keeps its id and anything pointing at it.
+  router.post('/:id/retry', async (req, res) => {
+    res.status(202).json((await resolve(req)).retryExport(req.params.id));
   });
 
   // Take an export out of this project.
@@ -66,8 +73,8 @@ function rtacRoutes(resolve, catalog) {
     res.json({ ok: true });
   });
 
-  // Rename an export in this project. The name is the canvas ref; the
-  // service's onRenamed hook (wired by the project bundle) drags refs along.
+  // Rename an export in this project — the display name only. The ref is the
+  // id in the path, which does not move, so no placements need rewriting.
   router.patch('/:name', async (req, res) => {
     res.json(await (await resolve(req)).rename(req.params.name, req.body?.name));
   });

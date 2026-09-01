@@ -13,8 +13,7 @@ import {
   renameProject,
   renameRtacExport,
   renameUpload,
-  rtacExportNames,
-  startExport,
+  retryExport,
   uploadRtacFolder,
   uploadSourceFile,
 } from './api'
@@ -41,7 +40,6 @@ const AtlasView = lazy(() =>
 import { Button, SegmentedControl, TextInput } from './components/ui'
 import { ToolsView } from './tools/ToolsView'
 import type { ToolSeek } from './tools/registry'
-import { confirmOverwrite } from './lib/confirm'
 import { errorMessage } from './lib/errors'
 import { count } from './lib/format'
 import { replaceRefFile, sourceKey } from './lib/sources'
@@ -262,16 +260,19 @@ export default function App() {
     return () => window.clearTimeout(timer)
   }, [exporting, rtacProjects, refreshRtac])
 
-  const handleExport = useCallback(
-    async (name: string) => {
+  // Re-run a failed export, by id. Only the copy that failed is touched, so
+  // nothing else in the sidebar moves and the selection only clears if it was
+  // pointing at this one.
+  const handleRetry = useCallback(
+    async (id: string) => {
       if (!project) return
       try {
-        await startExport(project, name)
+        await retryExport(project, id)
       } catch (err) {
-        setListError(`Could not start the export of ${name}: ${errorMessage(err)}`)
+        setListError(`Could not restart the export: ${errorMessage(err)}`)
         return
       }
-      setSelectedSource((current) => (current?.type === 'rtac' && current.ref === name ? null : current))
+      setSelectedSource((current) => (current?.type === 'rtac' && current.ref === id ? null : current))
       await refreshRtac()
     },
     [project, refreshRtac],
@@ -282,9 +283,8 @@ export default function App() {
   const handleUploadRtacFolder = useCallback(
     async (files: File[]) => {
       if (!project) return
-      const overwriting = rtacExportNames(files)
-        .filter((name) => rtacProjects.some((entry) => entry.name === name))
-      if (!confirmOverwrite(overwriting, 'this upload')) return
+      // No overwrite question: a folder whose name is already here lands as
+      // another copy, the same as downloading one twice.
       setRtacBusy(true)
       setListError(null)
       try {
@@ -297,7 +297,7 @@ export default function App() {
         setRtacBusy(false)
       }
     },
-    [project, rtacProjects, refreshRtac],
+    [project, refreshRtac],
   )
 
   const handleDeleteRtac = useCallback(
@@ -322,18 +322,14 @@ export default function App() {
     setGraphVersion((v) => v + 1)
   }, [refreshRtac])
 
-  // Renames are identity changes — the backend rewrites canvas refs, and the
-  // local selection follows the new ref. Failures throw so the sidebar's
-  // inline form can show them.
+  // An RTAC rename moves the display name only — the ref is the export id and
+  // does not move — so nothing needs remapping and the list just re-reads.
+  // Failures throw so the sidebar's inline form can show them.
   const handleRenameRtac = useCallback(
     async (name: string, nextName: string) => {
       if (!project) return
-      const renamed = await renameRtacExport(project, name, nextName)
-      setSelectedSource((current) =>
-        current?.type === 'rtac' && current.ref === name ? { type: 'rtac', ref: renamed.name } : current,
-      )
+      await renameRtacExport(project, name, nextName)
       await refreshRtac()
-      setGraphVersion((v) => v + 1)
     },
     [project, refreshRtac],
   )
@@ -558,7 +554,7 @@ export default function App() {
               onRtacChanged={handleRtacChanged}
               selected={mode === 'inspect' ? selectedSource : null}
               onSelect={handleSelectSource}
-              onExport={handleExport}
+              onRetry={handleRetry}
               placedRefs={placedRefs}
             />
           )}

@@ -108,20 +108,14 @@ export function refreshRtacAvailable(project: string): Promise<RtacAvailableList
   return send(`${base(project)}/rtac/refresh`, 'POST')
 }
 
+/** Download a database project as a NEW copy; any copy already here is kept. */
 export async function startExport(project: string, name: string): Promise<void> {
   await send(`${base(project)}/rtac/${encodeURIComponent(name)}/export`, 'POST')
 }
 
-/** The export names a folder upload will create — the backend groups by the
- * top path segment of each .xml (services/rtac.js uploadFolder; keep the two
- * in step). Feeds the overwrite confirmation before uploadRtacFolder. */
-export function rtacExportNames(files: File[]): string[] {
-  return [...new Set(files
-    .map((file) => (file.webkitRelativePath || file.name)
-      .split(/[\\/]/)
-      .filter((segment) => segment && segment !== '.' && segment !== '..'))
-    .filter((segments) => segments.length >= 2 && /\.xml$/i.test(segments[segments.length - 1]))
-    .map((segments) => segments[0]))]
+/** Re-run a failed export in place, keeping its id and anything pointing at it. */
+export async function retryExport(project: string, id: string): Promise<void> {
+  await send(`${base(project)}/rtac/${encodeURIComponent(id)}/retry`, 'POST')
 }
 
 /** Upload an exported RTAC XML folder. Multer basenames filenames, so the
@@ -129,7 +123,7 @@ export function rtacExportNames(files: File[]): string[] {
 export function uploadRtacFolder(
   project: string,
   files: File[],
-): Promise<{ added: { name: string; files: number }[] }> {
+): Promise<{ added: { name: string; id: string; files: number }[] }> {
   const form = new FormData()
   form.append(
     'paths',
@@ -150,7 +144,7 @@ export function renameRtacExport(
   project: string,
   name: string,
   nextName: string,
-): Promise<{ name: string }> {
+): Promise<{ name: string; displayName: string }> {
   return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'PATCH', { name: nextName })
 }
 

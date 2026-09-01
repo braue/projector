@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import { fetchCompareItem, fetchCompareTree } from '../api'
+import { rtacLabel } from '../lib/sources'
 import { useFetch } from '../lib/useFetch'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
@@ -77,7 +78,7 @@ export function CompareView({
     if (tab === 'rtac') {
       return projects
         .filter((project) => project.status === 'ready')
-        .map((project) => ({ value: project.name, label: project.name }))
+        .map((project) => ({ value: project.name, label: rtacLabel(project) }))
     }
     if (tab === 'scd') {
       return uploads.scd.files.map((file) => ({ value: file.id, label: file.fileName }))

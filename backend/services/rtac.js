@@ -6,27 +6,58 @@
 //
 // The AcRTAC database list is machine-global (services/rtacCatalog.js, one
 // shared instance); what is PER PROJECT is which of those RTAC projects the
-// user exported into it. Exports land under <project>/rtac/<name>/ as the
+// user exported into it. Exports land under <project>/rtac/<id>/ as the
 // folder-of-XML format cli.exportxml produces. An export already on disk is
 // 'ready' at startup, so restarts don't force a re-download. Parsed models
-// are cached per name and invalidated by a fresh export.
+// are cached per id and invalidated by a fresh export.
+//
+// IDENTITY vs DISPLAY NAME. The same database project is downloaded again
+// whenever its settings change, and both copies are kept — comparing a
+// project against its earlier self is the point of having them. So the two
+// jobs the name used to do are split:
+//
+//   id           the folder on disk AND the canvas ref. Unique, minted from
+//                the display name (SUB_1, then SUB_1-2). Never changes, so
+//                placements and comparisons survive anything the user does.
+//   displayName  what the sidebar shows. Two copies of one project share it;
+//                the hover date tells them apart, and a rename moves only
+//                this — no folder move, no refs to rewrite.
+//
+// The pairing lives in <project>/rtac/.exports.json, reconciled against the
+// folders on disk at startup: a folder with no entry falls back to its own
+// name and time, an entry with no folder is forgotten.
+//
+// Beside the folders rather than inside them — which is where the upload
+// family keeps the same metadata (lib/uploadStore.js). Two reasons it differs
+// here: an export folder is cleared with rm -rf before the bridge rewrites
+// it, so anything inside would have to be re-created on every download and
+// would be lost by a download that failed; and the folder is foreign data the
+// user may zip up and hand to a colleague, which our bookkeeping has no
+// business riding along in.
 //
 // On top of browsing, an analysis feature works across the cached models:
 // aggregate (a list of setting names pivoted across objects). Compare rides
 // the standard comparable() adapter.
 
 import { createHash } from 'node:crypto';
-import { access, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { access, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { modelSignature } from '../lib/compare.js';
+import { folderBirthTime } from '../lib/fsTime.js';
 import { httpError, resolveChild } from '../lib/http.js';
+import { idBase, uniqueName } from '../lib/names.js';
 import { itemSummary } from '../lib/inspect.js';
 import { parseRtacProject } from '../lib/parsers/rtac/index.js';
 import { moduleBaseName } from '../lib/parsers/rtac/project.js';
 import { foldTree } from '../lib/tree.js';
 
 const EXPORTABLE = /\.xml$/i;
+
+// The id -> { name, at } pairing, beside the export folders. Dot-prefixed so
+// it reads as bookkeeping, and skipped by the isDirectory() scan either way.
+const INDEX_FILE = '.exports.json';
 
 // True when the parser captured no content-ful fields from an item — its
 // canonical signature would be constant however the file changes. Items with
@@ -44,8 +75,8 @@ class RtacService {
   constructor({ catalog, dataDir }) {
     this.catalog = catalog;
     this.exportsDir = dataDir;
-    // name -> { status: 'exporting'|'ready'|'error', error? } — only names
-    // this project has touched; everything else in the catalog is 'available'.
+    // id -> { status: 'exporting'|'ready'|'error', displayName, at?, error? }.
+    // Only exports this project holds; the rest of the catalog is not here.
     this.state = new Map();
     // name -> { model, byFile: Map<file, item>, rawHashes: Map<file, sha1>,
     // signatures?: Map<file, sha1> — filled lazily by comparable() }
@@ -61,81 +92,186 @@ class RtacService {
     // even if the database turns out to be unreachable. Parsing is LAZY: the
     // first read of an export pays the parse (promise-cached, so concurrent
     // readers share it) — no background pre-warm.
-    const onDisk = await readdir(this.exportsDir, { withFileTypes: true });
+    const [index, onDisk] = await Promise.all([
+      this.#loadIndex(),
+      readdir(this.exportsDir, { withFileTypes: true }),
+    ]);
     await Promise.all(onDisk.map(async (entry) => {
       if (!entry.isDirectory()) return;
-      // `at` is when this export last landed in the project. It lives only in
-      // memory, so a restart recovers it from the folder the export wrote.
-      this.state.set(entry.name, { status: 'ready', at: await folderTime(path.join(this.exportsDir, entry.name)) });
+      // The folders on disk are the truth; the index only supplies the
+      // display name and the download time. An export written by a build
+      // that predates the index (or restored by hand) falls back to its own
+      // folder name and time — exactly what it used to show. This is the ONE
+      // place the fallback belongs: past here, every entry has a name.
+      const stored = index[entry.name];
+      this.state.set(entry.name, {
+        status: 'ready',
+        displayName: stored?.name ?? entry.name,
+        at: stored?.at ?? await folderBirthTime(path.join(this.exportsDir, entry.name)),
+      });
     }));
   }
 
   // Only what this project holds (or is fetching right now) — the sidebar
   // list. The full catalog lives behind available(), for the database
   // browser.
+  /** The wire shape of one export. `name` is the id — the folder on disk and
+   *  the canvas ref; `displayName` is what the sidebar reads. */
+  #entry(id) {
+    return { ...this.state.get(id), name: id };
+  }
+
+  // Sorted by display name, so the list still reads alphabetically — then
+  // newest first WITHIN a name, because copies of one project share a name
+  // and only their date sets them apart.
   list() {
     return {
-      projects: [...this.state.entries()]
-        .map(([name, state]) => ({ name, ...state }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+      projects: [...this.state.keys()]
+        .map((id) => this.#entry(id))
+        .sort((a, b) =>
+          a.displayName.localeCompare(b.displayName)
+          || (b.at ?? 0) - (a.at ?? 0)
+          || a.name.localeCompare(b.name)),
     };
   }
 
   // The machine-global AcRTAC catalog, flagged with what is already in this
   // project — the database-browser modal's list.
   available() {
+    // How many copies of each database project this projector project already
+    // holds. Purely informational now — downloading again adds another copy
+    // rather than replacing one, so nothing here blocks a download.
+    const copies = new Map();
+    for (const { displayName } of this.state.values()) {
+      copies.set(displayName, (copies.get(displayName) ?? 0) + 1);
+    }
     return {
       projects: this.catalog.names.map((name) => ({
         name,
-        inProject: this.state.has(name),
+        copies: copies.get(name) ?? 0,
       })),
       error: this.catalog.error ?? null,
     };
   }
 
-  // Names come from the AcRTAC database, but they become a path segment here.
+  #indexPath() {
+    return path.join(this.exportsDir, INDEX_FILE);
+  }
+
+  /** id -> { name, at }. A missing or unreadable index is simply no pairing:
+   *  every export still lists, under its own folder name. */
+  async #loadIndex() {
+    try {
+      const parsed = JSON.parse(await readFile(this.#indexPath(), 'utf8'));
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  /** Rewrite the index from live state. Called after anything that adds,
+   *  renames, or removes an export; a failure is logged, never thrown — it
+   *  costs a display name, not an export. Written via a temp file and renamed
+   *  the way canvas.js saves, so a crash mid-write cannot leave a truncated
+   *  index that loses every display name at once. */
+  async #saveIndex() {
+    const index = {};
+    for (const [id, state] of this.state) {
+      // 'exporting' is transient — a folder only earns an entry once it has
+      // something in it.
+      if (state.status !== 'exporting') index[id] = { name: state.displayName, at: state.at ?? null };
+    }
+    const file = this.#indexPath();
+    try {
+      await writeFile(`${file}.tmp`, JSON.stringify(index, null, 2));
+      await rename(`${file}.tmp`, file);
+    } catch (err) {
+      console.warn(`could not write the RTAC export index: ${err?.message ?? err}`);
+    }
+  }
+
+  /** A free folder name for a new copy: SUB_1, then SUB_1-2, SUB_1-3.
+   *
+   *  Checked against the folders on disk as well as against state: state is
+   *  reconciled with disk only at init(), so an export dropped into the
+   *  folder while the app runs is invisible to it — and #run() clears the
+   *  directory it picks. Nothing may ever be replaced, so the check has to
+   *  hold continuously, not just at startup. */
+  #freeId(displayName) {
+    return uniqueName(idBase(displayName, 'export'), (candidate) =>
+      this.state.has(candidate) || existsSync(path.join(this.exportsDir, candidate)));
+  }
+
+  // #freeId already sanitizes, but ids also arrive from the URL — so every
+  // one of them is confined to the exports folder before it touches disk.
   #dir(name) {
     return resolveChild(this.exportsDir, name, `invalid project name: ${name}`);
   }
 
-  #known(name) {
-    const state = this.state.get(name);
+  // Resolves an EXPORT id — reads address a copy in this project, never a
+  // database name (which no longer identifies anything on its own).
+  #known(id) {
+    const state = this.state.get(id);
     if (state) return state;
-    if (this.catalog.names.includes(name)) return { status: 'available' };
-    throw httpError(404, `unknown RTAC project: ${name}`);
+    throw httpError(404, `not in this project: ${id}`);
   }
 
-  // Kick off (or restart, after an error / for a refresh) an export into
-  // this project. Returns the new state immediately; completion is observed
-  // by polling list().
-  startExport(name) {
-    const state = this.#known(name);
-    if (state.status === 'exporting') return state;
+  // Download a database project into this project, ALWAYS as a new copy.
+  // Downloading one that is already here is how a newer revision arrives, and
+  // the copy already on disk is what it gets compared against — so nothing is
+  // replaced and nothing is prompted for. Returns the new entry immediately;
+  // completion is observed by polling list().
+  startExport(displayName) {
+    if (!this.catalog.names.includes(displayName)) {
+      throw httpError(404, `unknown RTAC project: ${displayName}`);
+    }
+    return this.#run(this.#freeId(displayName), displayName);
+  }
 
-    const directory = this.#dir(name);
-    this.state.set(name, { status: 'exporting' });
-    this.parseCache.delete(name);
+  // Re-run an export that failed, in place. The id is kept, so a placement
+  // already pointing at it survives — this is the same copy trying again,
+  // not a new one.
+  retryExport(id) {
+    const state = this.#known(id);
+    if (state.status === 'exporting') return this.#entry(id);
+    return this.#run(id, state.displayName);
+  }
+
+  /** The export itself, for a known id and database name. */
+  #run(id, displayName) {
+    const directory = this.#dir(id);
+    // Stamped now, not on completion: the row the user just created has to
+    // sort as the newest copy of its name while the spinner runs, or it
+    // appears below the copy it supersedes and jumps when it finishes.
+    this.state.set(id, { status: 'exporting', displayName, at: Date.now() });
+    this.parseCache.delete(id);
 
     // Fire-and-forget on purpose: the request returns 202 and the sidebar
     // spinner polls. Failures land in state as 'error' rather than throwing.
     (async () => {
       try {
         await rm(directory, { recursive: true, force: true });
-        await this.catalog.client.exportXml({ name, directory });
-        this.state.set(name, { status: 'ready', at: Date.now() });
+        await this.catalog.client.exportXml({ name: displayName, directory });
+        this.state.set(id, { status: 'ready', displayName, at: Date.now() });
+        await this.#saveIndex();
       } catch (err) {
-        this.state.set(name, { status: 'error', error: err?.message ?? String(err) });
+        this.state.set(id, {
+          status: 'error',
+          displayName,
+          error: err?.message ?? String(err),
+        });
       }
     })();
 
-    return this.state.get(name);
+    return this.#entry(id);
   }
 
   // An exported folder uploaded straight from disk — the no-database path.
   // Files arrive with folder-relative paths as their names
   // ("Export1/SEL_RTAC/Devices.xml"); the top segment names the export and
-  // the .xml files land under it, replacing any previous export of the same
-  // name. Multiple top-level folders in one upload become multiple exports.
+  // the .xml files land under it. Like a database download, a folder whose
+  // name is already here lands as ANOTHER copy rather than replacing one.
+  // Multiple top-level folders in one upload become multiple exports.
   async uploadFolder(files) {
     const groups = new Map();
     for (const file of files) {
@@ -153,69 +289,47 @@ class RtacService {
 
     const added = [];
     for (const [name, entries] of groups) {
-      const dir = this.#dir(name);
+      const id = this.#freeId(name);
+      const dir = this.#dir(id);
       await rm(dir, { recursive: true, force: true });
       for (const entry of entries) {
         const target = path.join(dir, ...entry.rest);
         await mkdir(path.dirname(target), { recursive: true });
         await writeFile(target, entry.buffer);
       }
-      this.state.set(name, { status: 'ready', at: Date.now() });
-      this.parseCache.delete(name);
-      added.push({ name, files: entries.length });
+      this.state.set(id, { status: 'ready', displayName: name, at: Date.now() });
+      this.parseCache.delete(id);
+      added.push({ name, id, files: entries.length });
     }
+    await this.#saveIndex();
     return { added };
   }
 
-  // Rename an export within this project (folder move + caches). The caller
-  // rewrites canvas refs — the ref IS the name. A renamed export keeps no tie
-  // to its database identity: re-exporting from the database lands under the
-  // original catalog name as a separate entry.
-  async rename(name, nextName) {
+  // Rename an export within this project. Only the DISPLAY name moves: the
+  // folder and the canvas ref are the id, which never changes. That makes a
+  // rename pure bookkeeping — no folder move to fail on a locked file, no
+  // placements to rewrite, and no reason to reject a name another copy is
+  // already using (two copies of one project are meant to share a name).
+  async rename(id, nextName) {
     const trimmed = nextName?.trim();
     if (!trimmed) throw httpError(400, 'name required');
-    const state = this.state.get(name);
-    if (!state) throw httpError(404, `not in this project: ${name}`);
+    const state = this.#known(id);
     if (state.status === 'exporting') {
       throw httpError(409, 'wait for the export to finish before renaming');
     }
-    if (trimmed === name) return { name: trimmed };
-    if (this.state.has(trimmed)) throw httpError(409, `already in this project: ${trimmed}`);
-    const to = this.#dir(trimmed);
-    try {
-      await rename(this.#dir(name), to);
-    } catch (err) {
-      // EPERM/EBUSY (a read mid-walk, an AV scan): fail cleanly, and never
-      // leak raw filesystem paths in the response.
-      throw httpError(409, `could not rename ${name} — the export is busy, retry in a moment`);
-    }
-    this.state.delete(name);
-    this.state.set(trimmed, state);
-    // Never carry the cached parse across: it may be an IN-FLIGHT promise
-    // that the folder move just doomed, and its eviction handler is keyed to
-    // the old name. Re-parse under the new name on its next read.
-    this.parseCache.delete(name);
-    // The name is the canvas ref — the project bundle wires this hook to
-    // rewrite placements. The rename is already committed above, so a failed
-    // rewrite must not report failure; a canvas too broken to rewrite will
-    // surface on its next read.
-    try {
-      await this.onRenamed?.(name, trimmed);
-    } catch (err) {
-      console.warn(`canvas refs not rewritten for rename ${name} -> ${trimmed}: ${err?.message ?? err}`);
-    }
-    return { name: trimmed };
+    state.displayName = trimmed;
+    await this.#saveIndex();
+    return this.#entry(id);
   }
 
   // Take an export out of this project (the database copy, if any, is
   // untouched — it can be downloaded again).
   async remove(name) {
-    if (!this.state.has(name)) {
-      throw httpError(404, `not in this project: ${name}`);
-    }
+    this.#known(name);
     await rm(this.#dir(name), { recursive: true, force: true });
     this.state.delete(name);
     this.parseCache.delete(name);
+    await this.#saveIndex();
   }
 
   // Parse the exported folder into { model, byFile } (cached until the next
@@ -327,7 +441,10 @@ class RtacService {
     const nodes = model.items.map((item) => RtacService.#itemNode(item));
 
     return {
-      name: model.name ?? name,
+      // What the sidebar calls this copy, so the pane heading and the row
+      // agree — the name inside the XML is the same for every copy of one
+      // project, and ignores a rename.
+      name: this.state.get(name)?.displayName ?? model.name ?? name,
       schema: model.schema,
       deviceLabel: model.deviceMOT ? `SEL-${model.deviceMOT}` : null,
       summary: model.summary,
@@ -366,7 +483,7 @@ class RtacService {
       return signature;
     };
     return {
-      label: parsed.model.name ?? name,
+      label: this.state.get(name)?.displayName ?? parsed.model.name ?? name,
       entries: parsed.model.items.map((item) => ({
         path: item.file,
         name: item.name ?? moduleBaseName(item.file),
@@ -423,20 +540,6 @@ class RtacService {
     }
 
     return { terms: wanted, scoped: Boolean(scope), rows };
-  }
-}
-
-/**
- * When an export's folder was last written, in epoch ms — mtime rather than
- * birthtime, because re-exporting rewrites a folder that already exists, and
- * the useful answer is when these settings landed, not when the name first
- * did. Null when it cannot be read, so unknown reads as unknown.
- */
-async function folderTime(dir) {
-  try {
-    return Math.round((await stat(dir)).mtimeMs) || null;
-  } catch {
-    return null;
   }
 }
 

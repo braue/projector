@@ -147,11 +147,10 @@ class ProjectsService {
     const notes = new NotesService({ file: path.join(projectDir, 'notes.json') });
     const files = new FilesService({ dataDir: projectDir });
 
-    // A renamed source must drag its canvas refs along: the rename lives in
+    // A renamed upload must drag its canvas refs along: the rename lives in
     // the service, the rewrite in the canvas, and this bundle is where the
-    // two meet (the same pattern as `augment`).
-    rtac.onRenamed = (from, to) =>
-      canvas.renameRefs('rtac', (ref) => (ref === from ? to : ref));
+    // two meet (the same pattern as `augment`). RTAC is absent on purpose —
+    // its ref is the export id, which a rename does not touch.
     for (const [type, service] of Object.entries({ rdb, scd, sw })) {
       service.onRenamed = (fromId, toId) =>
         canvas.renameRefs(type, (ref) => replaceRefFile(ref, fromId, toId));

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { fetchRtacAvailable, refreshRtacAvailable, startExport } from '../api'
-import { confirmOverwrite } from '../lib/confirm'
 import { errorMessage } from '../lib/errors'
 import type { RtacAvailableEntry } from '../types'
 import { Button, Checkbox, Spinner, TextInput } from './ui'
@@ -9,9 +8,11 @@ import { Button, Checkbox, Spinner, TextInput } from './ui'
 // The AcRTAC database browser: a window over the app listing every project
 // in the machine's database. Check the ones to download; they export into
 // the CURRENT projector project and appear in the sidebar with per-item
-// spinners while the CLI works. Listing the database itself goes through the
-// Python bridge (slow), so the list has its own loading state and an
-// explicit refresh.
+// spinners while the CLI works. A project already here is badged but never
+// dimmed or blocked — downloading it again is how a newer revision arrives,
+// and it lands beside the copy you have rather than over it. Listing the
+// database itself goes through the Python bridge (slow), so the list has its
+// own loading state and an explicit refresh.
 
 export function RtacDatabaseModal({
   project,
@@ -58,12 +59,8 @@ export function RtacDatabaseModal({
   }
 
   const download = async () => {
-    // Same-name selections replace the project's existing export — never
-    // silently. Cancel aborts the whole download.
-    const overwriting = (entries ?? [])
-      .filter((entry) => checked.has(entry.name) && entry.inProject)
-      .map((entry) => entry.name)
-    if (!confirmOverwrite(overwriting, 'a fresh download')) return
+    // Nothing to confirm: a project already here gets a SECOND copy rather
+    // than being replaced, so a download can never cost you what you have.
     setStarting(true)
     try {
       for (const name of checked) {
@@ -110,16 +107,20 @@ export function RtacDatabaseModal({
             )}
             <div className="modal-list">
               {shown.map((entry) => (
-                <label
-                  key={entry.name}
-                  className={entry.inProject ? 'modal-row in-project' : 'modal-row'}
-                >
+                <label key={entry.name} className="modal-row">
                   <Checkbox
                     checked={checked.has(entry.name)}
                     onChange={(value) => toggle(entry.name, value)}
                   />
                   <span className="modal-name">{entry.name}</span>
-                  {entry.inProject && <span className="modal-badge">in project</span>}
+                  {entry.copies > 0 && (
+                    <span
+                      className="modal-badge"
+                      title="Downloading again adds another copy — the one you have is kept"
+                    >
+                      {entry.copies > 1 ? `${entry.copies} copies` : 'in project'}
+                    </span>
+                  )}
                 </label>
               ))}
               {!entries.length && !error && (

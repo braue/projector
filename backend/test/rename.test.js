@@ -2,7 +2,7 @@
 // plus the notes store.
 
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -58,7 +58,7 @@ test('upload rename moves the id and the canvas ref follows', async () => {
   }
 });
 
-test('rtac export rename moves the folder and keeps state', async () => {
+test('rtac export rename moves the display name, never the id', async () => {
   const tmp = await tmpDir();
   try {
     await mkdir(path.join(tmp, 'Alpha'));
@@ -67,13 +67,28 @@ test('rtac export rename moves the folder and keeps state', async () => {
     const service = new RtacService({ catalog: new RtacCatalog({ client: {} }), dataDir: tmp });
     await service.init();
 
-    assert.deepEqual(await service.rename('Alpha', 'Beta'), { name: 'Beta' });
-    assert.deepEqual(service.list().projects.map((p) => p.name), ['Beta']);
-    const tree = await service.tree('Beta');
-    assert.equal(tree.tree.length, 1);
+    // The id is the folder AND the canvas ref, so a rename must not touch it:
+    // only what the sidebar reads changes.
+    const renamed = await service.rename('Alpha', 'Beta');
+    assert.deepEqual(
+      { name: renamed.name, displayName: renamed.displayName },
+      { name: 'Alpha', displayName: 'Beta' },
+    );
+    assert.deepEqual(service.list().projects.map((p) => [p.name, p.displayName]), [['Alpha', 'Beta']]);
 
-    await assert.rejects(() => service.rename('Alpha', 'X'), /not in this project/);
-    await assert.rejects(() => service.rename('Beta', ''), /name required/);
+    // Reads still address the id — a placement made before the rename works.
+    const tree = await service.tree('Alpha');
+    assert.equal(tree.tree.length, 1);
+    // And the folder is where it always was.
+    await access(path.join(tmp, 'Alpha'));
+
+    // The new display name survives a restart, from the index.
+    const restarted = new RtacService({ catalog: new RtacCatalog({ client: {} }), dataDir: tmp });
+    await restarted.init();
+    assert.deepEqual(restarted.list().projects.map((p) => [p.name, p.displayName]), [['Alpha', 'Beta']]);
+
+    await assert.rejects(() => service.rename('Beta', 'X'), /not in this project/);
+    await assert.rejects(() => service.rename('Alpha', ''), /name required/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

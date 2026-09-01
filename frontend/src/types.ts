@@ -6,7 +6,12 @@ export type ProjectStatus = 'exporting' | 'ready' | 'error'
 
 /** One RTAC export in the current project. */
 export interface ProjectEntry {
+  /** The export's identity: its folder on disk and its canvas ref. Unique,
+   *  and never changed by a rename — see backend/services/rtac.js. */
   name: string
+  /** What to show. Two downloads of one database project share it; their
+   *  dates tell them apart. */
+  displayName: string
   status: ProjectStatus
   error?: string
   /** When this export last landed, epoch ms. Absent while exporting, and
@@ -21,8 +26,9 @@ export interface ProjectList {
 /** One AcRTAC database project, as the database browser lists it. */
 export interface RtacAvailableEntry {
   name: string
-  /** Already exported into the current projector project. */
-  inProject: boolean
+  /** How many copies of it this project already holds. Informational only —
+   *  downloading again adds another, so nothing here blocks a download. */
+  copies: number
 }
 
 export interface RtacAvailableList {

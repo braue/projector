@@ -53,8 +53,8 @@ test('list failure is non-fatal, served, and recoverable', async () => {
     available = service.available();
     assert.equal(available.error, null);
     assert.deepEqual(available.projects, [
-      { name: 'Alpha', inProject: false },
-      { name: 'Beta', inProject: true },
+      { name: 'Alpha', copies: 0 },
+      { name: 'Beta', copies: 1 },
     ]);
   } finally {
     await rm(dataDir, { recursive: true, force: true });
@@ -77,7 +77,7 @@ test('a ready export whose folder vanished from disk drops out of the project', 
     assert.deepEqual(service.list().projects, []);
     assert.deepEqual(
       service.available().projects.find((p) => p.name === 'Beta'),
-      { name: 'Beta', inProject: false },
+      { name: 'Beta', copies: 0 },
     );
   } finally {
     await rm(dataDir, { recursive: true, force: true });
@@ -99,7 +99,7 @@ test('an exported XML folder uploads into the project without the database', asy
       { path: 'StationA/readme.txt', buffer: Buffer.from('not xml — skipped') },
       { path: 'StationA/../evil.xml', buffer: xml('evil') }, // '..' stripped, lands inside
     ]);
-    assert.deepEqual(result.added, [{ name: 'StationA', files: 3 }]);
+    assert.deepEqual(result.added, [{ name: 'StationA', id: 'StationA', files: 3 }]);
     const [stationA] = service.list().projects;
     assert.deepEqual(
       { name: stationA.name, status: stationA.status },

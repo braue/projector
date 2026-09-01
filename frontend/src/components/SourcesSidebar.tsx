@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 
 import { formatWhen } from '../lib/format'
-import { SOURCE_MIME, SOURCE_TABS, sourceKey } from '../lib/sources'
+import { SOURCE_MIME, SOURCE_TABS, rtacLabel, rtacSource, sourceKey } from '../lib/sources'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type {
   DeviceSource,
@@ -208,7 +208,7 @@ export function SourcesSidebar({
   onRtacChanged,
   selected,
   onSelect,
-  onExport,
+  onRetry,
   placedRefs,
 }: {
   /** The current projector project every source below belongs to. */
@@ -230,7 +230,8 @@ export function SourcesSidebar({
   onRtacChanged: () => void
   selected: DeviceSource | null
   onSelect: (source: DeviceSource) => void
-  onExport: (name: string) => void
+  /** Re-run a failed export in place, by its id. */
+  onRetry: (id: string) => void
   /** sourceKey() values already on the canvas — shown with a dot. */
   placedRefs: Set<string>
 }) {
@@ -282,16 +283,20 @@ export function SourcesSidebar({
 
             <ul className="source-list">
               {projects.map((entry) => {
+                // `name` is the identity (folder + canvas ref); `displayName`
+                // is what the engineer reads. Two downloads of one database
+                // project share the latter and are told apart by their date.
                 const { name, status, error } = entry
+                const displayName = rtacLabel(entry)
                 const ready = status === 'ready'
-                const source: DeviceSource = { type: 'rtac', ref: name }
+                const source = rtacSource(entry)
                 const classes = ['project-entry', `status-${status}`]
                 if (isSelected(source)) classes.push('selected')
                 if (renaming?.kind === 'rtac' && renaming.name === name) {
                   return (
                     <li key={name}>
                       <InlineNameForm
-                        initial={name}
+                        initial={displayName}
                         placeholder="New name — Enter to rename"
                         onCommit={async (value) => {
                           await onRenameRtac(name, value)
@@ -309,23 +314,23 @@ export function SourcesSidebar({
                       {...(ready ? dragProps(source) : {})}
                       title={
                         ready
-                          ? `${name} — drag to canvas, click to inspect${whenLine('Added', entry.at)}`
+                          ? `${displayName} — drag to canvas, click to inspect${whenLine('Added', entry.at)}`
                           : status === 'error'
                             ? `Export failed: ${error ?? 'unknown error'} — double-click to retry`
-                            : `${name} — downloading…`
+                            : `${displayName} — downloading…`
                       }
                       onClick={() => ready && onSelect(source)}
-                      onDoubleClick={() => status === 'error' && onExport(name)}
+                      onDoubleClick={() => status === 'error' && onRetry(name)}
                     >
                       {ready && <span className="grip">⠿</span>}
-                      <span className="project-name">{name}</span>
+                      <span className="project-name">{displayName}</span>
                       {status === 'exporting' && <Spinner />}
                       {status === 'error' && <span className="error-mark">!</span>}
                       {ready && placedRefs.has(sourceKey(source)) && <span className="on-canvas" />}
                       {ready && (
                         <RowAction
                           kind="rename"
-                          title={`Rename ${name}`}
+                          title={`Rename ${displayName}`}
                           onClick={() => setRenaming({ kind: 'rtac', name })}
                         />
                       )}
