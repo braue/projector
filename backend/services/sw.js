@@ -1,17 +1,22 @@
-// SW source service — uploaded SEL managed-switch settings exports
-// (SEL-2730M XML). Lifecycle lives in lib/uploadService.js; this service owns
-// only the SW-shaped parts. One file describes one switch, so each upload
-// carries exactly one profile, addressed "<fileId>::<name>" like every other
-// upload-backed ref.
+// SW artifact kind — SEL managed-switch settings exports (SEL-2730M XML) in
+// the project tree. Model lifecycle lives in lib/artifacts.js; this kind
+// owns only the SW-shaped parts. One file describes one switch, so each
+// carries exactly one profile, addressed "<path>::<name>" like every other
+// artifact ref.
 
+import path from 'node:path';
+
+import { ArtifactKind } from '../lib/artifacts.js';
 import { httpError } from '../lib/http.js';
 import { flag, sectionItem, sectionNode, tablePage } from '../lib/inspect.js';
 import { parseSw, switchName } from '../lib/parsers/sw/index.js';
-import { UploadService } from '../lib/uploadService.js';
 
-// Bumped when the parsed model's shape changes; stale uploads re-parse from
-// their original bytes in the background on startup.
-const MODEL_VERSION = 2;
+// What a switch is called when its settings carry no name of their own: the
+// file's own base name.
+function fallbackName(treePath) {
+  const base = path.basename(treePath ?? '');
+  return base.replace(path.extname(base), '') || base;
+}
 
 // Membership the VLAN table states, turned inside out: which VLANs ride a
 // given port number, as "20 (tagged)" pieces.
@@ -24,28 +29,22 @@ function portVlans(model, portNumber) {
   return pieces;
 }
 
-class SwService extends UploadService {
-  constructor({ dataDir }) {
-    super({
-      dataDir,
-      label: 'sw',
-      extension: /\.(xml|txt|cfg|bin)$/i,
-      originalName: 'original.xml',
-      modelVersion: MODEL_VERSION,
-      uploadErrorLabel: 'not a readable switch settings export',
-    });
+class SwKind extends ArtifactKind {
+  constructor({ artifacts }) {
+    super({ artifacts, label: 'sw' });
+    this.uploadErrorLabel = 'not a readable switch settings export';
   }
 
   parse(buffer) {
     return parseSw(buffer.toString('utf8'));
   }
 
-  profilesOf(model, fileId) {
-    return [{ name: switchName(model, fileId), deviceType: model.nameplate.type }];
+  profilesOf(model, treePath) {
+    return [{ name: switchName(model, fallbackName(treePath)), deviceType: model.nameplate.type }];
   }
 
-  findProfile(model, name, fileId) {
-    return switchName(model, fileId) === name ? model : null;
+  findProfile(model, name, treePath) {
+    return switchName(model, fallbackName(treePath)) === name ? model : null;
   }
 
   // --- inspect mapping --------------------------------------------------------
@@ -53,8 +52,8 @@ class SwService extends UploadService {
   // the physical ports, and the VLAN plan. Settings mirror each table for
   // compare signatures; pages carry the full rows.
 
-  tree(ref) {
-    const { fileId, model } = this.profile(ref);
+  async tree(ref) {
+    const { path: treePath, model } = await this.profile(ref);
     const sections = [
       sectionNode({ name: 'Overview', path: 'overview', kindLabel: 'Switch identity', category: 'system' }),
       sectionNode({
@@ -71,7 +70,7 @@ class SwService extends UploadService {
       }),
     ];
     return {
-      name: switchName(model, fileId),
+      name: switchName(model, fallbackName(treePath)),
       schema: null,
       deviceLabel: model.nameplate.type,
       summary: { files: sections.length },
@@ -80,8 +79,8 @@ class SwService extends UploadService {
     };
   }
 
-  item(ref, key) {
-    const { model } = this.profile(ref);
+  async item(ref, key) {
+    const { model } = await this.profile(ref);
     const swItem = (overrides) => sectionItem('SwSection', overrides);
 
     if (key === 'overview') {
@@ -189,4 +188,4 @@ class SwService extends UploadService {
   }
 }
 
-export { SwService };
+export { SwKind };

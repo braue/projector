@@ -9,8 +9,22 @@ import path from 'node:path';
 import test from 'node:test';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
-import { RdbService } from '../services/rdb.js';
+import { ArtifactsService } from '../lib/artifacts.js';
+import { FilesService } from '../services/files.js';
+import { RdbKind } from '../services/rdb.js';
 import { makeRdb } from './helpers/makeRdb.js';
+
+// The bundle wiring, with the drawing generator pointed at the synthetic
+// device corpus.
+async function makeRdbBundle(tmp, selDevicesDir) {
+  let artifacts;
+  const files = new FilesService({ dataDir: tmp, onChanged: (p) => artifacts?.invalidate(p) });
+  artifacts = new ArtifactsService({ files, catalog: { names: [], error: null }, projectDir: tmp });
+  const rdb = new RdbKind({ artifacts, projectDir: tmp, selDevicesDir });
+  artifacts.register('rdb', rdb);
+  await files.init();
+  return { files, artifacts, rdb };
+}
 
 // Left half of the page is the front view, right half the rear — the crops
 // carve the two apart.
@@ -51,32 +65,29 @@ async function testDevicesDir(tmp) {
 test('rdb upload generates front/rear drawings, tree leads with them, item serves the image', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-drawings-'));
   try {
-    const service = new RdbService({ dataDir: tmp, selDevicesDir: await testDevicesDir(tmp) });
-    await service.init();
-
-    const rdb = makeRdb([{
+    const { files, rdb: service } = await makeRdbBundle(tmp, await testDevicesDir(tmp));
+    await files.upload('', [{ originalname: 'unit.rdb', buffer: makeRdb([{
       name: 'UNIT_1',
       relayType: 'SEL-TESTREL',
       sections: [{ key: 'G', desc: 'Global', settings: { TID: 'UNIT ONE' } }],
-    }]);
-    const summary = await service.upload('unit.rdb', rdb);
-    const ref = summary.profiles[0].ref;
+    }]) }], 'initial');
+    const ref = 'unit.rdb::UNIT_1';
 
-    const tree = service.tree(ref);
+    const tree = await service.tree(ref);
     const [first] = tree.tree;
     assert.equal(first.type, 'folder');
     assert.equal(first.name, 'Drawings');
     assert.deepEqual(first.children.map((child) => child.path), ['drawing:front', 'drawing:rear']);
 
-    const item = service.item(ref, 'drawing:front');
+    const item = await service.item(ref, 'drawing:front');
     assert.equal(item.name, 'Front view');
     assert.equal(item.kind, 'Drawing');
-    assert.match(item.image.url, /^\/api\/rdb\/drawing\?ref=/);
+    assert.match(item.image.url, /^\/api\/artifacts\/drawing\?ref=/);
 
     for (const view of ['front', 'rear']) {
-      await access(service.drawingPath(ref, view)); // the PNG exists on disk
+      await access(await service.drawingPath(ref, view)); // the PNG exists on disk
     }
-    assert.throws(() => service.drawingPath(ref, 'top'), /no top drawing/);
+    await assert.rejects(() => service.drawingPath(ref, 'top'), /no top drawing/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -85,19 +96,16 @@ test('rdb upload generates front/rear drawings, tree leads with them, item serve
 test('a model without drawing assets uploads cleanly with no Drawings section', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-drawings-'));
   try {
-    const service = new RdbService({ dataDir: tmp, selDevicesDir: path.join(tmp, 'empty') });
-    await service.init();
-
-    const rdb = makeRdb([{
+    const { files, rdb: service } = await makeRdbBundle(tmp, path.join(tmp, 'empty'));
+    await files.upload('', [{ originalname: 'u.rdb', buffer: makeRdb([{
       name: 'UNIT_2',
       relayType: 'SEL-451',
       sections: [{ key: 'G', desc: 'Global', settings: { TID: 'UNIT TWO' } }],
-    }]);
-    const summary = await service.upload('u.rdb', rdb);
+    }]) }], 'initial');
 
-    const tree = service.tree(summary.profiles[0].ref);
+    const tree = await service.tree('u.rdb::UNIT_2');
     assert.ok(!tree.tree.some((node) => node.name === 'Drawings'));
-    assert.throws(() => service.item(summary.profiles[0].ref, 'drawing:front'), /no front drawing/);
+    await assert.rejects(() => service.item('u.rdb::UNIT_2', 'drawing:front'), /no front drawing/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

@@ -1,190 +1,64 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
 import { fetchCompareItem, fetchCompareTree } from '../api'
-import { rtacLabel } from '../lib/sources'
 import { useFetch } from '../lib/useFetch'
-import { useSidebarWidth } from '../lib/usePaneWidth'
-import type {
-  DeviceSource,
-  ProjectEntry,
-  SourceType,
-  UploadSourceType,
-  UploadedFile,
-} from '../types'
 import { DiffPreview } from './DiffPreview'
 import { TreePane, TreeRows } from './FileTree'
-import { RtacIntake, SourceTabs, UploadIntake } from './SourcesSidebar'
-import { Button, Select } from './ui'
+import { Button } from './ui'
 
-// Compare mode: the left rail looks like every other page — the RTAC/RDB/SCD
-// source tabs — but instead of a list it carries the Original/New pickers for
-// that type (two RTAC projects, two relay profiles, two whole SCDs; the tab
-// IS the same-type constraint). The union item tree shows added/removed/
-// edited tints; click a row for the structured diff.
-//
-// The state lives in App, not here: this view unmounts whenever the user
-// leaves Compare mode, and a comparison mid-review must survive a detour
-// through Inspect. Picks are kept PER TYPE so switching source tabs flips
-// between comparisons instead of discarding them.
-
-/** One source tab's comparison: the picked pair and the item under review. */
-export type ComparePicks = { original: string; updated: string; selected: string | null }
-
-export type CompareState = { tab: SourceType; picks: Record<SourceType, ComparePicks> }
-
-const NO_PICKS: ComparePicks = { original: '', updated: '', selected: null }
-
-export const EMPTY_COMPARE: CompareState = {
-  tab: 'rtac',
-  picks: { rtac: NO_PICKS, rdb: NO_PICKS, scd: NO_PICKS, sw: NO_PICKS },
-}
+// Compare — two same-kind artifacts (or two versions of one), entered from
+// the tree: ⇆ on a version row compares it against the current version, and
+// ctrl+click picks any second artifact. The union item tree shows added/
+// removed/edited tints; click a row for the structured diff.
 
 export function CompareView({
   project,
-  projects,
-  uploads,
-  state,
-  onState,
-  listError,
-  onRetryList,
-  onUpload,
-  rtacBusy,
-  onUploadRtacFolder,
-  onRtacChanged,
+  original,
+  updated,
+  onSwap,
+  onClear,
 }: {
-  /** The projector project every ref below lives in. */
   project: string
-  projects: ProjectEntry[]
-  uploads: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }>
-  state: CompareState
-  onState: (state: CompareState) => void
-  /** Source intake, same handlers as the sources rail — a missing revision
-   * gets uploaded right here instead of forcing a detour through Inspect. */
-  listError: string | null
-  onRetryList: () => void
-  onUpload: (type: UploadSourceType, file: File) => void
-  rtacBusy: boolean
-  onUploadRtacFolder: (files: File[]) => void
-  onRtacChanged: () => void
+  original: { ref: string; label: string }
+  updated: { ref: string; label: string }
+  onSwap: () => void
+  /** Back to inspecting just the selected artifact. */
+  onClear: () => void
 }) {
-  const { tab } = state
-  const picks = state.picks[tab]
+  const [selected, setSelected] = useState<string | null>(null)
 
-  // What a pick MEANS per type: an RTAC project and an SCD are compared whole
-  // (an .scd's IEDs are one substation — reading them apart loses the point),
-  // while an RDB or a switch export is compared one profile at a time, which
-  // is how two revisions of the same relay get held up against each other.
-  const options = useMemo(() => {
-    if (tab === 'rtac') {
-      return projects
-        .filter((project) => project.status === 'ready')
-        .map((project) => ({ value: project.name, label: rtacLabel(project) }))
-    }
-    if (tab === 'scd') {
-      return uploads.scd.files.map((file) => ({ value: file.id, label: file.fileName }))
-    }
-    return uploads[tab].files.flatMap((file) =>
-      file.profiles.map((profile) => ({
-        value: profile.ref,
-        label: `${file.fileName} · ${profile.name}`,
-      })),
-    )
-  }, [tab, projects, uploads])
-
-  // A tab switch only changes which comparison is showing — the tab left
-  // behind keeps its picks. Changing a picker resets the item selection (it
-  // belongs to the old pair); a remembered ref whose source has since been
-  // deleted stays stored but stops acting until it's offered again.
-  const pickTab = (next: SourceType) => onState({ ...state, tab: next })
-  const patch = (change: Partial<ComparePicks>) =>
-    onState({ ...state, picks: { ...state.picks, [tab]: { ...picks, ...change } } })
-  const offered = (ref: string) => options.some((option) => option.value === ref)
-
-  const original = offered(picks.original) ? picks.original : ''
-  const updated = offered(picks.updated) ? picks.updated : ''
-  const selected = picks.selected
-
-  const bothPicked = Boolean(original && updated && original !== updated)
-  const a: DeviceSource = { type: tab, ref: original }
-  const b: DeviceSource = { type: tab, ref: updated }
+  // A new pair means the old item selection belongs to a diff that no longer
+  // exists.
+  useEffect(() => {
+    setSelected(null)
+  }, [original.ref, updated.ref])
 
   const { data: tree, error: treeError } = useFetch(
-    bothPicked ? () => fetchCompareTree(project, a, b) : null,
-    [project, tab, original, updated, bothPicked],
+    () => fetchCompareTree(project, original.ref, updated.ref),
+    [project, original.ref, updated.ref],
   )
   const { data: compareItem, error: itemError } = useFetch(
-    bothPicked && selected ? () => fetchCompareItem(project, a, b, selected) : null,
-    [project, tab, original, updated, selected, bothPicked],
+    selected ? () => fetchCompareItem(project, original.ref, updated.ref, selected) : null,
+    [project, original.ref, updated.ref, selected],
     { keepStale: true },
   )
 
-  const { width, startResize } = useSidebarWidth()
+  // Whole-file compares of many-profile artifacts fold a folder per profile;
+  // opening every folder buries the changed ones the compare exists to show.
+  const manyFolders = (tree?.tree ?? []).filter((node) => node.type === 'folder').length > 3
 
   return (
     <>
-      <aside className="sources" style={{ width }}>
-        <div className="sidebar-resize" onMouseDown={startResize} title="Drag to resize" />
-        <SourceTabs tab={tab} onPick={pickTab} />
-
-        <div className="compare-picker">
-          <Select
-            label="Original"
-            value={original}
-            onChange={(value) => patch({ original: value, selected: null })}
-            options={options}
-            placeholder="— select —"
-          />
-          <Select
-            label="New"
-            value={updated}
-            onChange={(value) => patch({ updated: value, selected: null })}
-            options={options}
-            placeholder="— select —"
-          />
-        </div>
-
-        {/* The same intake as the sources rail: a revision that isn't in the
-            project yet gets added here, and the new source lands straight in
-            the pickers above. */}
-        <div className="source-scroll">
-          {tab === 'rtac' ? (
-            <>
-              {listError && (
-                <div className="list-error">
-                  <div className="list-error-text">{listError}</div>
-                  <Button onClick={onRetryList}>Retry</Button>
-                </div>
-              )}
-              <RtacIntake
-                project={project}
-                busy={rtacBusy}
-                onUploadFolder={onUploadRtacFolder}
-                onChanged={onRtacChanged}
-              />
-            </>
-          ) : (
-            <UploadIntake
-              type={tab}
-              error={uploads[tab].error}
-              onUpload={(file) => onUpload(tab, file)}
-            />
-          )}
-        </div>
-      </aside>
-
       <TreePane
         header={
-          tree ? (
-            <>
-              <div className="tree-title">{tree.updated.name}</div>
-              <div className="tree-subtitle">vs {tree.original.name} (original)</div>
-            </>
-          ) : (
-            <>
-              <div className="tree-title">Compare</div>
-              <div className="tree-subtitle">added · removed · modified</div>
-            </>
-          )
+          <>
+            <div className="tree-title">{tree?.updated.name ?? updated.label}</div>
+            <div className="tree-subtitle">vs {tree?.original.name ?? original.label} (original)</div>
+            <div className="compare-actions">
+              <Button onClick={onSwap} title="Swap which side counts as original">⇆ Swap</Button>
+              <Button onClick={onClear} title="Stop comparing">Done</Button>
+            </div>
+          </>
         }
         footer={
           tree ? (
@@ -198,23 +72,14 @@ export function CompareView({
         }
       >
         {tree ? (
-          // A whole-SCD tree is a folder per IED and dozens of them; opening
-          // every one by default buries the changed IEDs it exists to show.
           <TreeRows
             nodes={tree.tree}
             selected={selected}
-            onSelect={(path) => patch({ selected: path })}
-            defaultOpen={tab !== 'scd'}
+            onSelect={setSelected}
+            defaultOpen={!manyFolders}
           />
         ) : (
-          <div className="pane-message">
-            {treeError ??
-              (bothPicked
-                ? 'Comparing…'
-                : original && updated
-                  ? 'Pick two different sources.'
-                  : 'Pick an original and a new source in the sidebar.')}
-          </div>
+          <div className="pane-message">{treeError ?? 'Comparing…'}</div>
         )}
       </TreePane>
 
@@ -222,12 +87,7 @@ export function CompareView({
         <DiffPreview compare={compareItem} />
       ) : (
         <main className="preview">
-          <div className="pane-message">
-            {itemError ??
-              (tree
-                ? 'Select an item to see what changed.'
-                : 'The union of both sources will show here with added, removed, and modified items tinted.')}
-          </div>
+          {itemError && <div className="pane-message">{itemError}</div>}
         </main>
       )}
     </>

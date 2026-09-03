@@ -8,8 +8,8 @@
 //     window at the returned URL. There is no proxy then — this server also
 //     serves the built frontend, so the UI and the API share one origin.
 //
-// State is a data directory of self-contained projects (each holding its own
-// RTAC exports, uploads, and canvas) plus the machine-global AcRTAC catalog
+// State is a data directory of self-contained projects (each one versioned
+// file tree of artifacts, documents, and notes) plus the machine-global AcRTAC catalog
 // and SEL document library. The data directory is a parameter because the
 // packaged app must write under the user's profile, not into Program Files.
 

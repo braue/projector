@@ -162,7 +162,10 @@ function toolsRoutes(tools, projects) {
     const buffer = await workspace.readFile(tool, run, filePath);
     const files = (await projects.bundle(project)).files;
     const originalname = String(name ?? '').trim() || path.basename(String(filePath));
-    res.status(201).json(await files.upload(dir ?? '', [{ originalname, buffer }]));
+    // A tool output saved into the project is a version like any other;
+    // callers may say what changed, and the tool run names the default.
+    const note = String(req.body?.note ?? '').trim() || `saved from ${tool} run ${run}`;
+    res.status(201).json(await files.upload(dir ?? '', [{ originalname, buffer }], note));
   });
 
   router.get('/:tool/runs/:run/files', async (req, res) => {

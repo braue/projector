@@ -1,6 +1,6 @@
-// Generic settings compare — two sources of the SAME type, for any type that
-// can enumerate its inspect items. Per-type adapters (injected from index.js)
-// supply { label, entries: [{ path, name, item, signature }] }:
+// Generic settings compare — two artifacts of the SAME kind, for any kind
+// that can enumerate its inspect items. The injected loader resolves a ref
+// to { kind, label, entries: [{ path, name, item, signature }] }:
 //
 //   signature decides added/removed/edited/unchanged. Every type signs the
 //   whole canonical PARSED item — raw-XML noise the parser doesn't model
@@ -45,22 +45,17 @@ function rollUpStatus(nodes) {
 }
 
 class CompareService {
-  // adapters: type -> async (ref) => { label, entries }
-  constructor({ adapters }) {
-    this.adapters = adapters;
-  }
-
-  async #load({ type, ref }) {
-    const adapter = this.adapters[type];
-    if (!adapter) throw httpError(400, `unsupported compare type: ${type}`);
-    return adapter(ref);
+  // load: async (ref) => { kind, label, entries }
+  constructor({ load }) {
+    this.load = load;
   }
 
   async #pair(a, b) {
-    if (a.type !== b.type) {
-      throw httpError(400, 'compare requires two sources of the same type');
+    const [original, updated] = await Promise.all([this.load(a), this.load(b)]);
+    if (original.kind !== updated.kind) {
+      throw httpError(400, 'compare requires two artifacts of the same kind');
     }
-    return Promise.all([this.#load(a), this.#load(b)]);
+    return [original, updated];
   }
 
   // Load both sides, sign, derive per-path status and the summary tally.

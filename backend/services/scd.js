@@ -1,31 +1,17 @@
-// SCD source service — uploaded IEC 61850 SCL substation configurations.
-//
-// Lifecycle (storage, versioned re-parse, refs, compare adapter) lives in
-// lib/uploadService.js; this service owns only what is SCD-shaped: which
-// profiles a file carries (its IEDs) and the inspect sections. A profile —
-// one IED — is addressed "<fileId>::<iedName>". An SCD profile can stand
-// alone on the canvas or augment a device placed from another artifact (the
-// same physical device seen by two documents).
+// SCD artifact kind — IEC 61850 SCL substation configurations in the
+// project tree. Model lifecycle lives in lib/artifacts.js; this kind owns
+// only what is SCD-shaped: which profiles a file carries (its IEDs) and the
+// inspect sections. A profile — one IED — is addressed "<path>::<iedName>".
 
+import { ArtifactKind } from '../lib/artifacts.js';
 import { httpError } from '../lib/http.js';
 import { flag, sectionItem, sectionNode, tablePage } from '../lib/inspect.js';
 import { connectedAps, ldevicesOf, parseScd, wireAddressFor } from '../lib/parsers/scd/index.js';
-import { UploadService } from '../lib/uploadService.js';
 
-// Bumped when the parsed model's shape changes; stale uploads re-parse from
-// their original bytes in the background on startup.
-const MODEL_VERSION = 2;
-
-class ScdService extends UploadService {
-  constructor({ dataDir }) {
-    super({
-      dataDir,
-      label: 'scd',
-      extension: /\.(scd|ssd|sed|cid|icd)$/i,
-      originalName: 'original.scd',
-      modelVersion: MODEL_VERSION,
-      uploadErrorLabel: 'not a readable SCL file',
-    });
+class ScdKind extends ArtifactKind {
+  constructor({ artifacts }) {
+    super({ artifacts, label: 'scd' });
+    this.uploadErrorLabel = 'not a readable SCL file';
   }
 
   parse(buffer) {
@@ -61,8 +47,8 @@ class ScdService extends UploadService {
   // Settings mirror each table's identity for compare signatures; pages carry
   // the full rows for the inspect sheets.
 
-  tree(ref) {
-    const { profile: ied, model } = this.profile(ref);
+  async tree(ref) {
+    const { profile: ied, model } = await this.profile(ref);
     const ldevices = ldevicesOf(ied);
     const pick = (of) => ldevices.flatMap(({ ldevice }) => of(ldevice));
     const gooseControls = pick((ld) => ld.gooseControls);
@@ -116,8 +102,8 @@ class ScdService extends UploadService {
     };
   }
 
-  item(ref, key) {
-    const { profile: ied, model } = this.profile(ref);
+  async item(ref, key) {
+    const { profile: ied, model } = await this.profile(ref);
     const ldevices = ldevicesOf(ied);
     const scdItem = (overrides) => sectionItem('ScdSection', overrides);
 
@@ -309,4 +295,4 @@ class ScdService extends UploadService {
   }
 }
 
-export { ScdService };
+export { ScdKind };

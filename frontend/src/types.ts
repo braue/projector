@@ -2,39 +2,25 @@
 // Only the fields the UI actually reads are typed — the API returns more; see
 // the backend services for the full payloads.
 
-export type ProjectStatus = 'exporting' | 'ready' | 'error'
-
-/** One RTAC export in the current project. */
-export interface ProjectEntry {
-  /** The export's identity: its folder on disk and its canvas ref. Unique,
-   *  and never changed by a rename — see backend/services/rtac.js. */
-  name: string
-  /** What to show. Two downloads of one database project share it; their
-   *  dates tell them apart. */
-  displayName: string
-  status: ProjectStatus
-  error?: string
-  /** When this export last landed, epoch ms. Absent while exporting, and
-   *  null when the folder's time could not be read. */
-  at?: number | null
-}
-
-export interface ProjectList {
-  projects: ProjectEntry[]
-}
-
 /** One AcRTAC database project, as the database browser lists it. */
 export interface RtacAvailableEntry {
   name: string
-  /** How many copies of it this project already holds. Informational only —
-   *  downloading again adds another, so nothing here blocks a download. */
-  copies: number
 }
 
 export interface RtacAvailableList {
   projects: RtacAvailableEntry[]
   /** Last database-list failure, or null when the list is healthy. */
   error: string | null
+}
+
+/** One in-flight (or failed) AcRTAC export, overlaid on the file tree. */
+export interface RtacExportStatus {
+  /** Tree path the export lands at ("Station A/GP-Naheola.rtac"). */
+  path: string
+  status: 'exporting' | 'error'
+  at: number
+  note: string
+  error?: string
 }
 
 export type ItemCategory =
@@ -44,6 +30,7 @@ export type ItemCategory =
   | 'system'
   | 'hardware'
   | 'extension'
+  | 'visual'
   | 'meta'
   | 'other'
 
@@ -243,15 +230,6 @@ export interface AggregateResult {
   rows: AggregateRow[]
 }
 
-// --- notes --------------------------------------------------------------------
-
-export interface Note {
-  id: string
-  name: string
-  /** One free-form text blob; list markers ("[ ]", "-", "1.") are plain text. */
-  text: string
-}
-
 // --- search -------------------------------------------------------------------
 
 export interface SearchMatch {
@@ -280,136 +258,46 @@ export interface SearchResults {
   truncated: boolean
 }
 
-// --- project files ------------------------------------------------------------
+// --- the project tree -----------------------------------------------------------
+
+/** Which settings-artifact family an entry belongs to (null = a plain file). */
+export type ArtifactKindName = 'rtac' | 'rdb' | 'scd' | 'sw'
+
+/** One archived version of a tree entry, newest first. */
+export interface FileVersion {
+  /** Real store path of the archived bytes ("dir/.versions/169…-name.rdb") —
+   *  readable, openable, and inspectable like any entry. */
+  path: string
+  size: number | null
+  at: number | null
+  note: string | null
+}
 
 export type FileNode =
   | { type: 'folder'; name: string; path: string; children: FileNode[] }
-  | { type: 'file'; name: string; path: string; size: number; modifiedAt: string }
+  | {
+      type: 'file'
+      name: string
+      path: string
+      kind: ArtifactKindName | null
+      /** Null for artifact directories (RTAC exports). */
+      size: number | null
+      modifiedAt: string
+      /** When this version landed, epoch ms (sidecar first, mtime fallback). */
+      uploadedAt: number | null
+      /** The version note — what this version changed. Null predates notes. */
+      note: string | null
+      versions: FileVersion[]
+    }
 
-// --- canvas / workspaces ------------------------------------------------------
-
-export type SourceType = 'rtac' | 'rdb' | 'scd' | 'sw'
-
-export interface DeviceSource {
-  type: SourceType
-  ref: string
-}
-
-/** An rdb ref is "<fileId>::<profileName>" (see backend/services/rdb.js). */
+/** A profile inside an artifact ("<path>::<profileName>"). */
 export const REF_SEPARATOR = '::'
 
-/** The upload-backed source types (RTAC projects come from the database). */
-export type UploadSourceType = 'rdb' | 'scd' | 'sw'
-
-export interface UploadProfileEntry {
+export interface ArtifactProfile {
   name: string
   ref: string
   /** Device model/type badge: relay type for RDB, IED type for SCD. */
   deviceType: string | null
-}
-
-export interface UploadedFile {
-  id: string
-  fileName: string
-  /** When the file was uploaded, epoch ms; null when it cannot be determined. */
-  uploadedAt: number | null
-  profiles: UploadProfileEntry[]
-}
-
-export type LinkTier = 'confirmed' | 'conflict' | 'probable' | 'declared' | 'manual'
-
-// Mirrors graphDevice() in backend/lib/comm/model.js — the projection is the
-// contract; change the two together.
-export interface GraphDevice {
-  id: string
-  x: number
-  y: number
-  source: DeviceSource
-  name: string
-  model: string | null
-  /** The ordered part number (MOT), when the artifact states one (RDB). */
-  partNumber?: string
-  endpointCount?: number
-  error?: string
-  /** Network fabric ('switch') vs an end device (absent). */
-  kind?: string
-  /** Physical port inventory — the connect dialog's choices (switches). */
-  ports?: { id: string; name: string | null; enabled: boolean }[]
-  /** Serial lines the connect dialog can pair by hand. */
-  serialEndpoints?: { id: string; name: string; detail: string | null }[]
-  /** SCD profile augmenting this device, when one is attached. */
-  scd?: { ref: string; error?: string; warning?: string } | null
-}
-
-/** A workspace-wide settings finding (duplicate IP, GOOSE wire collision). */
-export interface NetworkDiagnostic {
-  severity: 'error' | 'warning'
-  text: string
-}
-
-export interface GraphGhost {
-  id: string
-  label: string
-  sublabel: string
-  /** Human-readable port/protocol statements, shown in the hub popup. */
-  lines: string[]
-}
-
-/**
- * One question the linker asked of a link, and the answer it got.
- *
- *   pass     asked and both ends agree
- *   fail     asked and they disagree — this is what makes a link a conflict
- *   warn     worth knowing, not proof of a fault
- *   unknown  could not be asked: one side states nothing. Never guessed.
- *
- * Every link carries the whole list, passes included: the point is to show
- * what was verified, not only what went wrong.
- */
-export type CheckStatus = 'pass' | 'fail' | 'warn' | 'unknown'
-
-export interface LinkCheck {
-  label: string
-  status: CheckStatus
-  detail: string
-}
-
-export interface GraphLink {
-  id: string
-  /** Set on user-drawn links — its presence enables "Remove connection". */
-  manualId?: string
-  /**
-   * An acknowledged conflict: the engineer recorded why this disagreement is
-   * acceptable. The tier stays 'conflict' — the settings still disagree —
-   * but the canvas paints it quiet and the to-do count skips it. The server
-   * drops the mark the moment the disagreeing values change.
-   */
-  waived?: { id: string; reason: string; at: string }
-  sourceDeviceId: string
-  targetDeviceId?: string
-  targetGhostId?: string
-  /**
-   * The drawn cable run this link travels, as manual link ids in order.
-   * Present only on inferred links, and only when the user has drawn a path
-   * between the two ends: the canvas then rides those segments instead of
-   * cutting a chord across the switches between them.
-   */
-  path?: string[]
-  tier: LinkTier
-  summary: string
-  a: { label: string; lines: string[] }
-  b: { label: string; lines: string[] }
-  checks: LinkCheck[]
-}
-
-export interface WorkspaceGraph {
-  name: string
-  devices: GraphDevice[]
-  ghosts: GraphGhost[]
-  links: GraphLink[]
-  diagnostics: NetworkDiagnostic[]
-  /** The linker's tier tallies: open conflicts, and acknowledged ones. */
-  summary: { conflicts: number; waived: number }
 }
 
 // --- tools (global utilities — see backend/routes/tools.js) -------------------

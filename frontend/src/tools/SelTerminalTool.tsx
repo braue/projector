@@ -217,7 +217,7 @@ export function SelTerminalTool({ project }: ToolProps) {
     setSaveStatus(null)
     const file = new File([buffer], transcriptName(), { type: 'text/plain' })
     try {
-      const { added } = await uploadFiles(project, '', [file])
+      const { added } = await uploadFiles(project, '', [file], 'terminal transcript')
       setSaveStatus(`Saved to ${project} › Files as ${added[0]}`)
     } catch (err) {
       setSaveStatus(`Save failed: ${errorMessage(err)}`)

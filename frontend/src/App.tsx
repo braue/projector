@@ -1,175 +1,81 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
 
 import {
   createProject,
   deleteProject,
-  deleteRtacExport,
-  deleteUpload,
-  fetchSourceItem,
-  fetchSourceTree,
+  fetchRtacStatus,
+  listFiles,
   listProjects,
-  listRtacProjects,
-  listUploads,
+  openFileEntry,
   renameProject,
-  renameRtacExport,
-  renameUpload,
-  retryExport,
-  uploadRtacFolder,
-  uploadSourceFile,
 } from './api'
-import { AggregateView } from './components/AggregateView'
-import { CanvasView } from './components/CanvasView'
-import { CompareView, EMPTY_COMPARE } from './components/CompareView'
-import type { CompareState } from './components/CompareView'
-import { FilesSearchView } from './components/FilesSearchView'
-import { FilesView } from './components/FilesView'
-import { NotesSearchView } from './components/NotesSearchView'
-import { NotesView } from './components/NotesView'
-import { SearchView } from './components/SearchView'
-import { FileTree } from './components/FileTree'
-import { Preview } from './components/Preview'
+import { CompareView } from './components/CompareView'
+import { InspectView } from './components/InspectView'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
-import { SourcesSidebar } from './components/SourcesSidebar'
+import {
+  ProjectTree,
+  findLeafFor,
+  isTextFile,
+  refLabel,
+  type FileLeaf,
+} from './components/ProjectTree'
+import { TextFileView } from './components/TextFileView'
 import { TodoList } from './components/TodoList'
 // The atlas embeds the whole field-knowledge library — 82 documents inlined as
 // raw text — so it is its own chunk, fetched the first time it is opened
-// rather than parsed on every cold start of a canvas session.
+// rather than parsed on every cold start.
 const AtlasView = lazy(() =>
   import('./components/AtlasView').then((m) => ({ default: m.AtlasView })),
 )
-import { Button, SegmentedControl, TextInput } from './components/ui'
+import { Button, TextInput } from './components/ui'
 import { ToolsView } from './tools/ToolsView'
-import type { ToolSeek } from './tools/registry'
 import { errorMessage } from './lib/errors'
-import { count } from './lib/format'
-import { replaceRefFile, sourceKey } from './lib/sources'
-import { useFetch } from './lib/useFetch'
-import { REF_SEPARATOR } from './types'
-import type {
-  DeviceSource,
-  ProjectEntry,
-  UploadSourceType,
-  UploadedFile,
-  WorkspaceGraph,
-} from './types'
+import { formatSize, formatStamp, formatWhen } from './lib/format'
+import type { FileNode, RtacExportStatus } from './types'
 
-const POLL_MS = 1200
+const EXPORT_POLL_MS = 1200
 const PROJECT_KEY = 'projector-project'
 
-type Mode = 'canvas' | 'inspect' | 'compare' | 'notes' | 'files'
-type InspectSub = 'browse' | 'aggregate' | 'search'
-
-// A mode's working-view/search split (Notes, Files). One state object keeps
-// the coupling structural: entering search drops any pending jump target,
-// and opening a hit carries the target back into the working view.
-function useSubSearch<Jump>() {
-  const [state, setState] = useState<{ searching: boolean; jump: Jump | null }>({
-    searching: false,
-    jump: null,
-  })
-  const setSearching = useCallback((searching: boolean) => setState({ searching, jump: null }), [])
-  const openAt = useCallback((jump: Jump) => setState({ searching: false, jump }), [])
-  return { searching: state.searching, jump: state.jump, setSearching, openAt }
-}
-
-type SubSearch = ReturnType<typeof useSubSearch<string>>
-
-/** The working-view/search toggle a sub-search mode puts in the topbar. */
-function SubSearchTabs({ search, browseLabel }: { search: SubSearch; browseLabel: string }) {
-  return (
-    <SegmentedControl
-      options={[
-        { value: 'browse', label: browseLabel },
-        { value: 'search', label: 'Search' },
-      ]}
-      value={search.searching ? 'search' : 'browse'}
-      onChange={(sub) => search.setSearching(sub === 'search')}
-    />
-  )
-}
-
-const MODES: { value: Mode; label: string }[] = [
-  { value: 'canvas', label: 'Canvas' },
-  { value: 'inspect', label: 'Inspect' },
-  { value: 'compare', label: 'Compare' },
-  { value: 'notes', label: 'Notes' },
-  { value: 'files', label: 'Files' },
-]
-
-/** Modes that bring their own left rail instead of the sources sidebar. */
-const OWN_RAIL: Mode[] = ['compare', 'notes', 'files']
-
-const EMPTY_UPLOADS: Record<UploadSourceType, { files: UploadedFile[]; error: string | null }> = {
-  rdb: { files: [], error: null },
-  scd: { files: [], error: null },
-  sw: { files: [], error: null },
-}
-const UPLOAD_TYPES = Object.keys(EMPTY_UPLOADS) as UploadSourceType[]
-
 export default function App() {
-  const [mode, setMode] = useState<Mode>('canvas')
-  // The atlas is reference material, not project data: it sits beside every
-  // mode rather than inside the mode row, and keeps its place while you dip
-  // back into the project.
+  // Reference material and global utilities sit beside the project, hold the
+  // top-right corner, and latch once opened so an open terminal session or a
+  // half-read page survives a detour back into the project.
   const [atlasOpen, setAtlasOpen] = useState(false)
-  // Latched on the first open: the atlas chunk is fetched then, and the pane
-  // stays mounted from that point so the reading position survives a detour.
   const [atlasEverOpened, setAtlasEverOpened] = useState(false)
-  // The tools are global utilities, so like the atlas they live beside the
-  // mode row — and latch for the same reason: an open terminal session or a
-  // half-configured extraction survives dipping back into the project.
   const [toolsOpen, setToolsOpen] = useState(false)
   const [toolsEverOpened, setToolsEverOpened] = useState(false)
-  // Reference jumps out of a canvas device popup: the seek says what to show
-  // over there, and its `n` bumps per request so a repeat still lands.
-  const [toolsSeek, setToolsSeek] = useState<ToolSeek | null>(null)
-  const [inspectSub, setInspectSub] = useState<InspectSub>('browse')
-  // Notes and Files each split into their working view and a full-pane search.
-  const notesSearch = useSubSearch<string>()
-  const filesSearch = useSubSearch<string>()
-  // Destructured so effects can depend on the stable callbacks, not the
-  // per-render hook object.
-  const { setSearching: setNotesSearching } = notesSearch
-  const { setSearching: setFilesSearching } = filesSearch
-  // The current project scopes every source, canvas, and compare below.
-  // null projects = still loading the list; null project + loaded list =
-  // nothing exists yet, so the user names their first project before work.
+  // The current project scopes everything below. null projects = still
+  // loading the list; null project + loaded list = nothing exists yet.
   const [project, setProject] = useState<string | null>(null)
   const [projects, setProjects] = useState<string[] | null>(null)
-  const [rtacProjects, setRtacProjects] = useState<ProjectEntry[]>([])
-  const [listError, setListError] = useState<string | null>(null)
-  const [uploads, setUploads] = useState(EMPTY_UPLOADS)
-  const [selectedSource, setSelectedSource] = useState<DeviceSource | null>(null)
-  const [selectedItem, setSelectedItem] = useState<string | null>(null)
-  // Compare picks live here, not in CompareView: that view unmounts on every
-  // mode switch, and a comparison mid-review must survive a detour through
-  // Inspect or the canvas.
-  const [compare, setCompare] = useState<CompareState>(EMPTY_COMPARE)
-  const [graph, setGraph] = useState<WorkspaceGraph | null>(null)
-  const [graphVersion, setGraphVersion] = useState(0)
-  const [showFindings, setShowFindings] = useState(false)
+  // THE tree — the one sidebar everything lives in.
+  const [tree, setTree] = useState<FileNode[] | null>(null)
+  const [treeError, setTreeError] = useState<string | null>(null)
+  const [exports, setExports] = useState<RtacExportStatus[]>([])
+  // Selection: the path being worked on (live entry or archived version), a
+  // SECOND path picked with ctrl+click, and — only once asked for from the
+  // context menu — the compare pair being viewed.
+  const [selected, setSelected] = useState<string | null>(null)
+  const [secondary, setSecondary] = useState<string | null>(null)
+  const [comparePair, setComparePair] = useState<{ original: string; updated: string } | null>(null)
 
-  const refreshRtac = useCallback(async () => {
+  const loadTree = useCallback(async () => {
     if (!project) return
     try {
-      const list = await listRtacProjects(project)
-      setRtacProjects(list.projects)
-      setListError(null)
+      setTree(await listFiles(project))
+      setTreeError(null)
     } catch (err) {
-      setListError(`Cannot reach the backend: ${errorMessage(err)}`)
+      setTreeError(`Cannot reach the backend: ${errorMessage(err)}`)
     }
   }, [project])
 
-  const refreshUploads = useCallback(async (type: UploadSourceType) => {
+  const loadExports = useCallback(async () => {
     if (!project) return
     try {
-      const files = await listUploads(project, type)
-      setUploads((current) => ({ ...current, [type]: { ...current[type], files } }))
-    } catch (err) {
-      setUploads((current) => ({
-        ...current,
-        [type]: { ...current[type], error: errorMessage(err) },
-      }))
+      setExports(await fetchRtacStatus(project))
+    } catch {
+      // The status overlay is best-effort; the tree itself already surfaces
+      // backend failures.
     }
   }, [project])
 
@@ -179,7 +85,6 @@ export default function App() {
       setProjects(names)
       return names
     } catch {
-      // Backend unreachable: the sidebar already surfaces it; keep the list.
       return null
     }
   }, [])
@@ -198,21 +103,37 @@ export default function App() {
     if (project) localStorage.setItem(PROJECT_KEY, project)
   }, [project])
 
-  // Switching projects swaps every source list and clears per-project state.
+  // Switching projects swaps the tree and clears per-project state.
   useEffect(() => {
-    setRtacProjects([])
-    setUploads(EMPTY_UPLOADS)
-    setSelectedSource(null)
-    setSelectedItem(null)
-    setCompare(EMPTY_COMPARE)
-    setGraph(null)
-    setShowFindings(false)
-    setNotesSearching(false)
-    setFilesSearching(false)
+    setTree(null)
+    setTreeError(null)
+    setExports([])
+    setSelected(null)
+    setSecondary(null)
+    setComparePair(null)
     if (!project) return
-    refreshRtac()
-    for (const type of UPLOAD_TYPES) refreshUploads(type)
-  }, [project, refreshRtac, refreshUploads, setNotesSearching, setFilesSearching])
+    loadTree()
+    loadExports()
+  }, [project, loadTree, loadExports])
+
+  // Poll while any AcRTAC export is in flight so spinners resolve on their
+  // own; a download that finishes (drops out of the status list) means the
+  // tree gained an entry.
+  const exporting = exports.some((entry) => entry.status === 'exporting')
+  useEffect(() => {
+    if (!exporting || !project) return
+    const timer = window.setTimeout(async () => {
+      const before = exports.filter((entry) => entry.status === 'exporting').length
+      await loadExports()
+      // A completed export changed the tree even if others still run.
+      setExports((current) => {
+        const after = current.filter((entry) => entry.status === 'exporting').length
+        if (after < before) loadTree()
+        return current
+      })
+    }, EXPORT_POLL_MS)
+    return () => window.clearTimeout(timer)
+  }, [exporting, exports, project, loadExports, loadTree])
 
   const handleCreateProject = useCallback(
     async (name: string) => {
@@ -234,279 +155,75 @@ export default function App() {
 
   const handleDeleteProject = useCallback(
     async (name: string) => {
-      if (!window.confirm(`Delete project "${name}" and all of its sources? This cannot be undone.`)) {
+      if (!window.confirm(`Delete project "${name}" and everything in it? This cannot be undone.`)) {
         return
       }
       try {
         await deleteProject(name)
       } catch (err) {
-        setListError(errorMessage(err))
+        setTreeError(errorMessage(err))
         return
       }
       const names = (await refreshProjects()) ?? []
-      setProject((current) =>
-        current === name ? names[0] ?? null : current,
-      )
+      setProject((current) => (current === name ? names[0] ?? null : current))
     },
     [refreshProjects],
   )
 
-  // Poll while any export is in flight so spinners resolve on their own —
-  // each refresh replaces `rtacProjects`, which re-arms the timer.
-  const exporting = rtacProjects.some((p) => p.status === 'exporting')
-  useEffect(() => {
-    if (!exporting) return
-    const timer = window.setTimeout(refreshRtac, POLL_MS)
-    return () => window.clearTimeout(timer)
-  }, [exporting, rtacProjects, refreshRtac])
-
-  // Re-run a failed export, by id. Only the copy that failed is touched, so
-  // nothing else in the sidebar moves and the selection only clears if it was
-  // pointing at this one.
-  const handleRetry = useCallback(
-    async (id: string) => {
-      if (!project) return
-      try {
-        await retryExport(project, id)
-      } catch (err) {
-        setListError(`Could not restart the export: ${errorMessage(err)}`)
-        return
-      }
-      setSelectedSource((current) => (current?.type === 'rtac' && current.ref === id ? null : current))
-      await refreshRtac()
-    },
-    [project, refreshRtac],
-  )
-
-  // RTAC sources beyond the database double-click: folder upload + removal.
-  const [rtacBusy, setRtacBusy] = useState(false)
-  const handleUploadRtacFolder = useCallback(
-    async (files: File[]) => {
-      if (!project) return
-      // No overwrite question: a folder whose name is already here lands as
-      // another copy, the same as downloading one twice.
-      setRtacBusy(true)
-      setListError(null)
-      try {
-        await uploadRtacFolder(project, files)
-        await refreshRtac()
-        setGraphVersion((v) => v + 1)
-      } catch (err) {
-        setListError(errorMessage(err))
-      } finally {
-        setRtacBusy(false)
-      }
-    },
-    [project, refreshRtac],
-  )
-
-  const handleDeleteRtac = useCallback(
-    async (name: string) => {
-      if (!project) return
-      try {
-        await deleteRtacExport(project, name)
-      } catch (err) {
-        setListError(errorMessage(err))
-      }
-      setSelectedSource((current) =>
-        current?.type === 'rtac' && current.ref === name ? null : current,
-      )
-      await refreshRtac()
-      setGraphVersion((v) => v + 1)
-    },
-    [project, refreshRtac],
-  )
-
-  const handleRtacChanged = useCallback(async () => {
-    await refreshRtac()
-    setGraphVersion((v) => v + 1)
-  }, [refreshRtac])
-
-  // An RTAC rename moves the display name only — the ref is the export id and
-  // does not move — so nothing needs remapping and the list just re-reads.
-  // Failures throw so the sidebar's inline form can show them.
-  const handleRenameRtac = useCallback(
-    async (name: string, nextName: string) => {
-      if (!project) return
-      await renameRtacExport(project, name, nextName)
-      await refreshRtac()
-    },
-    [project, refreshRtac],
-  )
-
-  const handleRenameUpload = useCallback(
-    async (type: UploadSourceType, id: string, name: string) => {
-      if (!project) return
-      const renamed = await renameUpload(project, type, id, name)
-      setSelectedSource((current) => {
-        if (current?.type !== type) return current
-        const ref = replaceRefFile(current.ref, id, renamed.id)
-        return ref === current.ref ? current : { type, ref }
-      })
-      await refreshUploads(type)
-      setGraphVersion((v) => v + 1)
-    },
-    [project, refreshUploads],
-  )
-
-  const setUploadError = useCallback((type: UploadSourceType, error: string | null) => {
-    setUploads((current) => ({ ...current, [type]: { ...current[type], error } }))
+  // A plain click is a fresh single selection — any second pick and any
+  // open comparison follow the click away.
+  const handleSelect = useCallback((path: string | null) => {
+    setSelected(path)
+    setSecondary(null)
+    setComparePair(null)
   }, [])
 
-  const handleUpload = useCallback(
-    async (type: UploadSourceType, file: File) => {
-      if (!project) return
-      setUploadError(type, null)
-      try {
-        await uploadSourceFile(project, type, file)
-        await refreshUploads(type)
-        // New profiles may resolve existing ghosts (or re-resolve a deleted
-        // file's attachments after a re-upload) — recompute the canvas.
-        setGraphVersion((v) => v + 1)
-      } catch (err) {
-        setUploadError(type, errorMessage(err))
-      }
-    },
-    [project, refreshUploads, setUploadError],
-  )
-
-  const handleDeleteUpload = useCallback(
-    async (type: UploadSourceType, id: string) => {
-      if (!project) return
-      try {
-        await deleteUpload(project, type, id)
-      } catch (err) {
-        setUploadError(type, errorMessage(err))
-      }
-      setSelectedSource((current) =>
-        current?.type === type && current.ref.startsWith(`${id}${REF_SEPARATOR}`) ? null : current,
-      )
-      await refreshUploads(type)
-      setGraphVersion((v) => v + 1)
-    },
-    [project, refreshUploads, setUploadError],
-  )
-
-  // Entering a mode always lands on its working view, not a stale search.
-  const changeMode = useCallback((next: Mode) => {
-    setMode(next)
-    setNotesSearching(false)
-    setFilesSearching(false)
-  }, [setNotesSearching, setFilesSearching])
-
-  // Selecting a source (sidebar click, or canvas node double-click via onInspect).
-  const handleSelectSource = useCallback((source: DeviceSource) => {
-    setSelectedSource(source)
-    setSelectedItem(null)
-    setInspectSub('browse')
+  // Ctrl/cmd-click: pick (or unpick) the SECOND selection. Comparing itself
+  // is asked for from the context menu once two rows are held.
+  const handleToggleSecondary = useCallback((path: string) => {
+    setComparePair(null)
+    setSecondary((current) => {
+      if (current === path) return null
+      return path
+    })
   }, [])
 
-  const inspectFromCanvas = useCallback(
-    (source: DeviceSource) => {
-      handleSelectSource(source)
-      setMode('inspect')
-    },
-    [handleSelectSource],
-  )
-
-  // A device popup's "Connection drawing": the Drawing Generator opens seeded
-  // with the device's part number and corpus model, and runs at once when the
-  // part number is known.
-  const openDrawingTool = useCallback((dwgen: { partNumber: string | null; model: string | null }) => {
-    setToolsSeek((prev) => ({ tool: 'dwgen', dwgen, n: (prev?.n ?? 0) + 1 }))
-    setToolsOpen(true)
-    setToolsEverOpened(true)
-    setAtlasOpen(false)
+  const handleComparePair = useCallback((original: string, updated: string) => {
+    setComparePair({ original, updated })
   }, [])
-
-  const { data: tree, error: treeError } = useFetch(
-    project && selectedSource ? () => fetchSourceTree(project, selectedSource) : null,
-    [project, selectedSource],
-  )
-  const { data: item, error: itemError } = useFetch(
-    project && selectedSource && selectedItem
-      ? () => fetchSourceItem(project, selectedSource, selectedItem)
-      : null,
-    [project, selectedSource, selectedItem],
-    { keepStale: true },
-  )
-
-  const placedRefs = useMemo(
-    () => new Set((graph?.devices ?? []).map((device) => sourceKey(device.source))),
-    [graph],
-  )
-
-  const canAggregate = selectedSource?.type === 'rtac'
-
-  const topbarInfo =
-    mode === 'canvas' && graph
-      ? `${graph.links.length} connections · ${count(graph.summary.conflicts, 'conflict')}`
-        + (graph.summary.waived ? ` · ${graph.summary.waived} acknowledged` : '')
-      : ''
 
   // Still loading the project list: just the shell, no flash of onboarding.
   if (projects === null) {
-    return (
-      <header className="topbar">
-      </header>
-    )
+    return <header className="topbar" />
   }
 
-  // Nothing exists yet (first run, or everything deleted): name a project
-  // before any work starts.
   if (project === null) {
     return <FirstProject onCreate={handleCreateProject} />
   }
 
+  // What the main pane shows for the current selection.
+  const selectedLeaf: FileLeaf | null =
+    tree && selected !== null ? findLeafFor(tree, selected) : null
+
   return (
     <>
       <header className="topbar">
-        {/* Everything up to the tools/atlas toggles is scoped to the current
-            project, so one guard covers the lot — the way the body below
-            does it. Those two panes span every project, hold the corner so
-            their toggles never move, and the project switcher goes away with
-            the rest: nothing on screen is scoped to a project while either
-            is up. */}
+        {/* Top-left: the project — the only control on that side. It goes
+            away while a takeover pane is up, since nothing on screen is
+            scoped to a project then. */}
         {!atlasOpen && !toolsOpen && (
-          <>
-            <SegmentedControl options={MODES} value={mode} onChange={changeMode} />
-            {mode === 'inspect' && selectedSource && (
-              <SegmentedControl
-                options={[
-                  { value: 'browse' as InspectSub, label: 'Browse' },
-                  ...(canAggregate
-                    ? [{ value: 'aggregate' as InspectSub, label: 'Aggregate' }]
-                    : []),
-                  { value: 'search' as InspectSub, label: 'Search' },
-                ]}
-                value={inspectSub}
-                onChange={setInspectSub}
-              />
-            )}
-            {mode === 'notes' && <SubSearchTabs search={notesSearch} browseLabel="Create" />}
-            {mode === 'files' && <SubSearchTabs search={filesSearch} browseLabel="Navigate" />}
-            <span className="topbar-info">{topbarInfo}</span>
-            {mode === 'canvas' && graph && graph.diagnostics.length > 0 && (
-              <button
-                className={showFindings ? 'findings-chip on' : 'findings-chip'}
-                onClick={() => setShowFindings((current) => !current)}
-              >
-                ⚠ {count(graph.diagnostics.length, 'network finding')}
-              </button>
-            )}
-            <ProjectSwitcher
-              current={project}
-              projects={projects}
-              onSelect={setProject}
-              onCreate={handleCreateProject}
-              onRename={handleRenameProject}
-              onDelete={handleDeleteProject}
-            />
-          </>
+          <ProjectSwitcher
+            current={project}
+            projects={projects}
+            onSelect={setProject}
+            onCreate={handleCreateProject}
+            onRename={handleRenameProject}
+            onDelete={handleDeleteProject}
+          />
         )}
-        {/* Beside the two takeover panes, and like them outside the project
-            guard: the list spans every project, so it stays reachable with
-            the tools or the atlas up. */}
+        <span className="topbar-info" />
+        {/* Top-right: the machine-global panes, holding the corner so their
+            toggles never move. */}
         <TodoList />
         <button
           className={toolsOpen ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
@@ -537,126 +254,53 @@ export default function App() {
       <div className="app">
         {!atlasOpen && !toolsOpen && (
           <>
-          {!OWN_RAIL.includes(mode) && (
-            <SourcesSidebar
+            <ProjectTree
               project={project}
-              projects={rtacProjects}
-              listError={listError}
-              onRetryList={refreshRtac}
-              uploads={uploads}
-              onUpload={handleUpload}
-              onDeleteUpload={handleDeleteUpload}
-              onRenameRtac={handleRenameRtac}
-              onRenameUpload={handleRenameUpload}
-              rtacBusy={rtacBusy}
-              onUploadRtacFolder={handleUploadRtacFolder}
-              onDeleteRtac={handleDeleteRtac}
-              onRtacChanged={handleRtacChanged}
-              selected={mode === 'inspect' ? selectedSource : null}
-              onSelect={handleSelectSource}
-              onRetry={handleRetry}
-              placedRefs={placedRefs}
+              tree={tree}
+              treeError={treeError}
+              exports={exports}
+              selected={selected}
+              secondary={secondary}
+              onSelect={handleSelect}
+              onToggleSecondary={handleToggleSecondary}
+              onComparePair={handleComparePair}
+              onReload={loadTree}
+              onExportsChanged={loadExports}
             />
-          )}
 
-          {mode === 'canvas' && (
-            <div className="canvas-column">
-              <CanvasView
+            {comparePair ? (
+              <CompareView
                 project={project}
-                reloadKey={graphVersion}
-                onInspect={inspectFromCanvas}
-                onGraph={setGraph}
-                onOpenDrawing={openDrawingTool}
+                original={{ ref: comparePair.original, label: refLabel(tree, comparePair.original) }}
+                updated={{ ref: comparePair.updated, label: refLabel(tree, comparePair.updated) }}
+                onSwap={() => setComparePair({ original: comparePair.updated, updated: comparePair.original })}
+                onClear={() => setComparePair(null)}
               />
-              {showFindings && graph && graph.diagnostics.length > 0 && (
-                <div className="findings-panel">
-                  <div className="findings-head">
-                    <span>Network review — {count(graph.diagnostics.length, 'finding')}</span>
-                    <button className="x" onClick={() => setShowFindings(false)} title="Close">✕</button>
-                  </div>
-                  {graph.diagnostics.map((finding, i) => (
-                    <div key={i} className={`finding ${finding.severity === 'error' ? 'bad' : 'warnc'}`}>
-                      {finding.text}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {mode === 'inspect' &&
-            (selectedSource && inspectSub === 'search' ? (
-              <SearchView
-                key={`${project}:${sourceKey(selectedSource)}`}
+            ) : selected && selectedLeaf?.kind ? (
+              <InspectView
+                key={`${project}:${selected}`}
                 project={project}
-                source={selectedSource}
-                onOpen={(path) => {
-                  setSelectedItem(path)
-                  setInspectSub('browse')
-                }}
+                path={selected}
+                kind={selectedLeaf.kind}
+                title={refLabel(tree, selected)}
               />
-            ) : selectedSource && tree && inspectSub === 'aggregate' && canAggregate ? (
-              <AggregateView
-                key={`${project}:${selectedSource.ref}`}
+            ) : selected && selectedLeaf && isTextFile(selectedLeaf.name) ? (
+              <TextFileView
+                key={`${project}:${selected}`}
                 project={project}
-                name={selectedSource.ref}
-                tree={tree}
+                path={selected}
+                name={refLabel(tree, selected)}
+                readOnly={selected !== selectedLeaf.path}
               />
+            ) : selected && selectedLeaf ? (
+              <FileInfo project={project} path={selected} leaf={selectedLeaf} />
             ) : (
-              <>
-                {selectedSource && tree && (
-                  <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} />
+              <main className="preview">
+                {tree === null && treeError && (
+                  <div className="pane-message">{treeError}</div>
                 )}
-                {selectedSource && !tree && (
-                  <aside className="file-tree">
-                    <div className="pane-message">{treeError ?? 'Loading…'}</div>
-                  </aside>
-                )}
-                {item ? (
-                  <Preview item={item} />
-                ) : (
-                  <main className="preview">
-                    <div className="pane-message">
-                      {itemError ??
-                        (selectedSource
-                          ? 'Select an item to view its settings.'
-                          : 'Pick a source from the sidebar — or click a device on the canvas.')}
-                    </div>
-                  </main>
-                )}
-              </>
-            ))}
-
-          {mode === 'compare' && (
-            <CompareView
-              key={project}
-              project={project}
-              projects={rtacProjects}
-              uploads={uploads}
-              state={compare}
-              onState={setCompare}
-              listError={listError}
-              onRetryList={refreshRtac}
-              onUpload={handleUpload}
-              rtacBusy={rtacBusy}
-              onUploadRtacFolder={handleUploadRtacFolder}
-              onRtacChanged={handleRtacChanged}
-            />
-          )}
-
-          {mode === 'notes' &&
-            (notesSearch.searching ? (
-              <NotesSearchView key={project} project={project} onOpen={notesSearch.openAt} />
-            ) : (
-              <NotesView key={project} project={project} initialSelectedId={notesSearch.jump} />
-            ))}
-
-          {mode === 'files' &&
-            (filesSearch.searching ? (
-              <FilesSearchView key={project} project={project} onOpen={filesSearch.openAt} />
-            ) : (
-              <FilesView key={project} project={project} initialSelected={filesSearch.jump} />
-            ))}
+              </main>
+            )}
           </>
         )}
 
@@ -664,13 +308,12 @@ export default function App() {
             tool form survives a detour back into the project. */}
         {toolsEverOpened && (
           <div className="tools-pane" hidden={!toolsOpen}>
-            <ToolsView project={project} seek={toolsSeek} />
+            <ToolsView project={project} seek={null} />
           </div>
         )}
 
         {/* Mounted from the first open onwards — never before, so the library
-            is not in the startup path, and never unmounted after, so a
-            half-read page is still there when you come back from the project. */}
+            is not in the startup path, and never unmounted after. */}
         {atlasEverOpened && (
           <div className="atlas-pane" hidden={!atlasOpen}>
             <Suspense fallback={null}>
@@ -680,6 +323,55 @@ export default function App() {
         )}
       </div>
     </>
+  )
+}
+
+/** Details for a plain (non-artifact, non-text) file — or an archived
+ *  version of one: size, times, note, and the OS-default-app open. */
+function FileInfo({
+  project,
+  path,
+  leaf,
+}: {
+  project: string
+  path: string
+  leaf: FileLeaf
+}) {
+  const [error, setError] = useState<string | null>(null)
+  const isVersion = path !== leaf.path
+  const version = isVersion ? leaf.versions.find((v) => v.path === path) : null
+  const at = isVersion ? version?.at ?? null : leaf.uploadedAt
+  const note = isVersion ? version?.note ?? null : leaf.note
+  const size = isVersion ? version?.size ?? null : leaf.size
+
+  return (
+    <main className="preview">
+      <header className="preview-header">
+        <div className="preview-title-row">
+          <h2>{leaf.name}</h2>
+          {isVersion && version && (
+            <span className="note-count">
+              v{leaf.versions.length - leaf.versions.indexOf(version)}
+            </span>
+          )}
+        </div>
+        <div className="preview-subtitle">
+          <span className="mono">{path}</span>
+        </div>
+      </header>
+      <div className="files-detail">
+        {size !== null && <div>{formatSize(size)}</div>}
+        {at !== null && <div title={formatWhen(at)}>Added {formatStamp(at)}</div>}
+        {note && <div className="file-note">“{note}”</div>}
+        <Button
+          variant="primary"
+          onClick={() => openFileEntry(project, path).catch((err) => setError(errorMessage(err)))}
+        >
+          Open
+        </Button>
+        {error && <div className="list-error-text">{error}</div>}
+      </div>
+    </main>
   )
 }
 
@@ -704,16 +396,15 @@ function FirstProject({ onCreate }: { onCreate: (name: string) => Promise<void> 
 
   return (
     <>
-      <header className="topbar">
-      </header>
+      <header className="topbar" />
       <div className="app onboard">
         <div className="modal-card onboard-card">
           <div className="modal-head">
             <span className="t">Name your first project</span>
           </div>
           <div className="modal-sub">
-            A project holds its own RTAC exports, settings uploads, and canvas —
-            everything scoped to one job.
+            A project is one folder tree — settings artifacts, documents, and
+            notes side by side, everything scoped to one job.
           </div>
           <div className="onboard-form">
             <TextInput

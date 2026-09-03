@@ -1,25 +1,32 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { fetchRtacAvailable, refreshRtacAvailable, startExport } from '../api'
+import { fetchRtacAvailable, refreshRtacAvailable, startRtacExport } from '../api'
 import { errorMessage } from '../lib/errors'
 import type { RtacAvailableEntry } from '../types'
 import { Button, Checkbox, Spinner, TextInput } from './ui'
 
 // The AcRTAC database browser: a window over the app listing every project
-// in the machine's database. Check the ones to download; they export into
-// the CURRENT projector project and appear in the sidebar with per-item
-// spinners while the CLI works. A project already here is badged but never
-// dimmed or blocked — downloading it again is how a newer revision arrives,
-// and it lands beside the copy you have rather than over it. Listing the
-// database itself goes through the Python bridge (slow), so the list has its
-// own loading state and an explicit refresh.
+// in the machine's database. Check the ones to download; they land in the
+// tree at the DESTINATION folder as <name>.rtac — a new version when the
+// export is already there, with the previous one kept underneath. Every
+// download carries the mandatory version note. Listing the database itself
+// goes through the Python bridge (slow), so the list has its own loading
+// state and an explicit refresh.
 
 export function RtacDatabaseModal({
   project,
+  destination,
+  versionOf = null,
   onClose,
   onStarted,
 }: {
   project: string
+  /** Tree folder the downloads land in ('' = the project root). */
+  destination: string
+  /** "New version from AcRTAC": the ONE picked database project exports
+   *  onto this existing .rtac entry (in `destination`), whatever the entry
+   *  is named. Selection is single in this mode. */
+  versionOf?: string | null
   onClose: () => void
   /** Called after exports kick off, so the sidebar starts polling. */
   onStarted: () => void
@@ -29,6 +36,7 @@ export function RtacDatabaseModal({
   const [error, setError] = useState<string | null>(null)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [starting, setStarting] = useState(false)
+  const [note, setNote] = useState('')
   // Name filter over the (often long) database list. Checked projects a
   // narrower filter hides STAY checked — the Download count is the truth.
   const [filter, setFilter] = useState('')
@@ -51,6 +59,8 @@ export function RtacDatabaseModal({
 
   const toggle = (name: string, value: boolean) => {
     setChecked((current) => {
+      // Versioning one entry takes exactly one source project.
+      if (versionOf) return value ? new Set([name]) : new Set()
       const next = new Set(current)
       if (value) next.add(name)
       else next.delete(name)
@@ -59,12 +69,14 @@ export function RtacDatabaseModal({
   }
 
   const download = async () => {
-    // Nothing to confirm: a project already here gets a SECOND copy rather
-    // than being replaced, so a download can never cost you what you have.
+    // Nothing to confirm: an export already in the tree becomes the previous
+    // VERSION of the new one — a download can never cost you what you have.
+    const trimmed = note.trim()
+    if (!trimmed) return
     setStarting(true)
     try {
       for (const name of checked) {
-        await startExport(project, name)
+        await startRtacExport(project, destination, name, trimmed, versionOf ?? undefined)
       }
       onStarted()
       onClose()
@@ -85,7 +97,18 @@ export function RtacDatabaseModal({
           <button className="x" onClick={onClose} title="Close">✕</button>
         </div>
         <div className="modal-sub">
-          Select the RTAC projects to download into <b>{project}</b>.
+          {versionOf ? (
+            <>
+              Select the database project to pull as the <b>next version of{' '}
+              {versionOf}</b> — the copy you have is kept underneath.
+            </>
+          ) : (
+            <>
+              Select the RTAC projects to download into{' '}
+              <b>{destination || 'the project root'}</b>. One already there
+              becomes its next version.
+            </>
+          )}
         </div>
 
         {entries === null ? (
@@ -113,14 +136,6 @@ export function RtacDatabaseModal({
                     onChange={(value) => toggle(entry.name, value)}
                   />
                   <span className="modal-name">{entry.name}</span>
-                  {entry.copies > 0 && (
-                    <span
-                      className="modal-badge"
-                      title="Downloading again adds another copy — the one you have is kept"
-                    >
-                      {entry.copies > 1 ? `${entry.copies} copies` : 'in project'}
-                    </span>
-                  )}
                 </label>
               ))}
               {!entries.length && !error && (
@@ -133,11 +148,22 @@ export function RtacDatabaseModal({
           </>
         )}
 
+        <div className="modal-filter">
+          <TextInput
+            value={note}
+            placeholder="Version note — what is this download? (required)"
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
         <div className="modal-foot">
           <Button onClick={() => load(true)} disabled={entries === null}>
             Refresh list
           </Button>
-          <Button variant="primary" disabled={!checked.size || starting} onClick={download}>
+          <Button
+            variant="primary"
+            disabled={!checked.size || !note.trim() || starting}
+            onClick={download}
+          >
             {starting ? <Spinner /> : `Download ${checked.size || ''}`.trim()}
           </Button>
         </div>

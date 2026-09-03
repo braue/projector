@@ -95,3 +95,88 @@ test('unknown kinds still parse generically', () => {
   assert.equal(item.name, 'Widget1');
   assert.equal(item.settings.Mode, 'Auto');
 });
+
+// --- kinds found in real field exports (USB corpus census, 2026-09) ----------
+
+const wrap = (inner) => `<?xml version="1.0" encoding="utf-8"?><RTACModule>${inner}</RTACModule>`;
+
+test('read-in items flatten their XML body into settings', () => {
+  const { items } = parseRtacProject([{
+    file: 'Advanced Read-in Items/Ethernet Settings.xml',
+    xml: wrap(`<RTACBackupableObject>
+      <ObjectName>Ethernet Settings</ObjectName>
+      <ObjectText>
+        <schema version="schema_38">
+          <global_keep_alive time="10" probes="5" />
+          <ipv4_network_interfaces ipv4_address="172.17.16.76/24" name="Eth_01">
+            <static_routes destination="0.0.0.0/0" gateway="172.17.16.10" />
+          </ipv4_network_interfaces>
+          <ipv4_network_interfaces ipv4_address="192.168.2.2/24" name="Eth_02" />
+        </schema>
+      </ObjectText>
+    </RTACBackupableObject>`),
+  }]);
+  const [item] = items;
+  assert.equal(item.kind, 'RTACBackupableObject');
+  assert.equal(item.category, 'system');
+  assert.equal(item.name, 'Ethernet Settings');
+  assert.equal(item.settings['schema/ipv4_network_interfaces[1] · ipv4_address'], '172.17.16.76/24');
+  assert.equal(item.settings['schema/ipv4_network_interfaces[1]/static_routes · gateway'], '172.17.16.10');
+  assert.equal(item.settings['schema/ipv4_network_interfaces[2] · name'], 'Eth_02');
+  assert.equal(item.settings['schema/global_keep_alive · probes'], '5');
+});
+
+test('the main controller surfaces its task table', () => {
+  const { items } = parseRtacProject([{
+    file: 'System/Main Controller.xml',
+    xml: wrap(`<MainController>
+      <MainTask><CycleTime>100</CycleTime><WatchdogTime>15000</WatchdogTime></MainTask>
+      <Task><Name>Automation</Name><CycleTime>1000</CycleTime><WatchdogTime>15000</WatchdogTime></Task>
+    </MainController>`),
+  }]);
+  const [item] = items;
+  assert.equal(item.settings['Main Task · Cycle Time (ms)'], '100');
+  assert.equal(item.settings['Task Automation · Cycle Time (ms)'], '1000');
+  assert.equal(item.settings['Task Automation · Watchdog Time (ms)'], '15000');
+});
+
+test('user libraries carry their nameplate; logic objects their type + fingerprint', () => {
+  const { items } = parseRtacProject([
+    {
+      file: 'Libraries/DA_Simulator.xml',
+      xml: wrap(`<UserLibrary>
+        <Name>DA_Simulator</Name><Company>SEL ES</Company>
+        <Title>DA_Simulator</Title><Version>1.8.2</Version>
+      </UserLibrary>`),
+    },
+    {
+      file: 'POUs/GlobalTextList.xml',
+      xml: wrap(`<LogicEngineObject>
+        <Name>GlobalTextList</Name><Type>TextList</Type>
+        <ArchivedContent><![CDATA[<Single>blob</Single>]]></ArchivedContent>
+      </LogicEngineObject>`),
+    },
+  ]);
+  const library = items.find((item) => item.kind === 'UserLibrary');
+  assert.equal(library.category, 'extension');
+  assert.equal(library.settings.Version, '1.8.2');
+  const textList = items.find((item) => item.kind === 'LogicEngineObject');
+  assert.equal(textList.category, 'logic');
+  assert.equal(textList.pouKind, 'TextList');
+  assert.ok(textList.archivedContentHash, 'blob fingerprinted for compare');
+});
+
+test('visualizations classify with a fingerprinted screen blob', () => {
+  const { items } = parseRtacProject([{
+    file: 'Visualizations/Overview.xml',
+    xml: wrap(`<Visualization>
+      <Name>Overview</Name>
+      <ArchivedContent><![CDATA[<Single>screen</Single>]]></ArchivedContent>
+    </Visualization>`),
+  }]);
+  const [item] = items;
+  assert.equal(item.category, 'visual');
+  assert.equal(item.kindLabel, 'Visualization');
+  assert.equal(item.hasArchivedContent, true);
+  assert.ok(item.archivedContentHash);
+});

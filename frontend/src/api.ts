@@ -1,27 +1,23 @@
 import type {
   AggregateResult,
+  ArtifactProfile,
   CompareItem,
   CompareTree,
-  DeviceSource,
   DwgenResult,
   FileNode,
   HmiReport,
-  Note,
   ProjectItem,
-  ProjectList,
   ProjectTree,
   QuicksetExtract,
   QuicksetInventory,
   RtacAvailableList,
+  RtacExportStatus,
   SearchResults,
   SwsetGenerateResult,
   SwsetModel,
   Todo,
   ToolJob,
   ToolRunFile,
-  UploadSourceType,
-  UploadedFile,
-  WorkspaceGraph,
 } from './types'
 
 // Every endpoint speaks JSON, including failures: { error } with a status.
@@ -91,40 +87,53 @@ export function renameProject(name: string, nextName: string): Promise<{ name: s
   return send(`/api/projects/${encodeURIComponent(name)}`, 'PATCH', { name: nextName })
 }
 
-// --- RTAC (the machine-global catalog, exported per project) -------------------
-
-/** The RTAC exports in this project (the sidebar list). */
-export function listRtacProjects(project: string): Promise<ProjectList> {
-  return get(`${base(project)}/rtac`)
-}
+// --- RTAC intake (the machine-global catalog, exported into the tree) ----------
 
 /** The machine-global AcRTAC catalog (the database browser's list). */
 export function fetchRtacAvailable(project: string): Promise<RtacAvailableList> {
-  return get(`${base(project)}/rtac/available`)
+  return get(`${base(project)}/artifacts/rtac/available`)
 }
 
 /** Re-query the database list, then return the catalog. */
 export function refreshRtacAvailable(project: string): Promise<RtacAvailableList> {
-  return send(`${base(project)}/rtac/refresh`, 'POST')
+  return send(`${base(project)}/artifacts/rtac/refresh`, 'POST')
 }
 
-/** Download a database project as a NEW copy; any copy already here is kept. */
-export async function startExport(project: string, name: string): Promise<void> {
-  await send(`${base(project)}/rtac/${encodeURIComponent(name)}/export`, 'POST')
+/** Download a database project into `dir` as <name>.rtac — a NEW VERSION when
+ * that entry already exists there. `into` targets an existing .rtac entry by
+ * name instead (versioning a renamed export). Completion is polled via the
+ * status list. */
+export async function startRtacExport(
+  project: string,
+  dir: string,
+  name: string,
+  note: string,
+  into?: string,
+): Promise<void> {
+  await send(`${base(project)}/artifacts/rtac/export`, 'POST', { dir, name, note, into })
 }
 
-/** Re-run a failed export in place, keeping its id and anything pointing at it. */
-export async function retryExport(project: string, id: string): Promise<void> {
-  await send(`${base(project)}/rtac/${encodeURIComponent(id)}/retry`, 'POST')
+/** In-flight and failed exports, overlaid on the tree while they run. */
+export async function fetchRtacStatus(project: string): Promise<RtacExportStatus[]> {
+  return (await get<{ exports: RtacExportStatus[] }>(`${base(project)}/artifacts/rtac/status`)).exports
 }
 
-/** Upload an exported RTAC XML folder. Multer basenames filenames, so the
- * folder-relative paths ride in a parallel field, index-aligned. */
+/** Dismiss one failed export from the overlay. */
+export function dismissRtacError(project: string, path: string): Promise<unknown> {
+  return send(`${base(project)}/artifacts/rtac/status?path=${encodeURIComponent(path)}`, 'DELETE')
+}
+
+/** Upload an exported RTAC XML folder into `dir`. Multer basenames filenames,
+ * so the folder-relative paths ride in a parallel field, index-aligned. */
 export function uploadRtacFolder(
   project: string,
+  dir: string,
   files: File[],
-): Promise<{ added: { name: string; id: string; files: number }[] }> {
+  note: string,
+): Promise<{ added: { path: string; files: number }[] }> {
   const form = new FormData()
+  form.append('dir', dir)
+  form.append('note', note)
   form.append(
     'paths',
     JSON.stringify(files.map((file) => file.webkitRelativePath || file.name)),
@@ -132,107 +141,42 @@ export function uploadRtacFolder(
   for (const file of files) {
     form.append('files', file)
   }
-  return send(`${base(project)}/rtac/upload`, 'POST', form)
+  return send(`${base(project)}/artifacts/rtac/upload`, 'POST', form)
 }
 
-export function deleteRtacExport(project: string, name: string): Promise<unknown> {
-  return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'DELETE')
-}
-
-/** Rename an export. The name is the ref — the backend rewrites canvas refs. */
-export function renameRtacExport(
-  project: string,
-  name: string,
-  nextName: string,
-): Promise<{ name: string; displayName: string }> {
-  return send(`${base(project)}/rtac/${encodeURIComponent(name)}`, 'PATCH', { name: nextName })
-}
-
+/** Aggregate a list of setting names across one RTAC export's objects. */
 export function aggregateSettings(
   project: string,
-  name: string,
+  path: string,
   terms: string[],
   files: string[],
 ): Promise<AggregateResult> {
-  return send(`${base(project)}/rtac/${encodeURIComponent(name)}/aggregate`, 'POST', { terms, files })
+  return send(`${base(project)}/artifacts/aggregate`, 'POST', { path, terms, files })
 }
 
 // --- compare ------------------------------------------------------------------
+// Refs address artifacts by tree path ("a.rdb", "dir/x.scd::IED_1", or an
+// archived version's ".versions/…" path); the kind is derived server-side.
 
-function comparePair(original: DeviceSource, updated: DeviceSource): string {
-  return `originalType=${encodeURIComponent(original.type)}&original=${encodeURIComponent(original.ref)}`
-    + `&updatedType=${encodeURIComponent(updated.type)}&updated=${encodeURIComponent(updated.ref)}`
+function comparePair(original: string, updated: string): string {
+  return `original=${encodeURIComponent(original)}&updated=${encodeURIComponent(updated)}`
 }
 
 export function fetchCompareTree(
   project: string,
-  original: DeviceSource,
-  updated: DeviceSource,
+  original: string,
+  updated: string,
 ): Promise<CompareTree> {
   return get(`${base(project)}/compare/tree?${comparePair(original, updated)}`)
 }
 
 export function fetchCompareItem(
   project: string,
-  original: DeviceSource,
-  updated: DeviceSource,
+  original: string,
+  updated: string,
   file: string,
 ): Promise<CompareItem> {
   return get(`${base(project)}/compare/item?${comparePair(original, updated)}&file=${encodeURIComponent(file)}`)
-}
-
-// --- uploads (rdb, scd, sw — same route shapes) --------------------------------
-
-export async function listUploads(project: string, type: UploadSourceType): Promise<UploadedFile[]> {
-  const body = await get<{ files: UploadedFile[] }>(`${base(project)}/${type}`)
-  return body.files
-}
-
-export function uploadSourceFile(
-  project: string,
-  type: UploadSourceType,
-  file: File,
-): Promise<UploadedFile> {
-  const form = new FormData()
-  form.append('file', file)
-  return send(`${base(project)}/${type}`, 'POST', form)
-}
-
-export function deleteUpload(project: string, type: UploadSourceType, id: string): Promise<unknown> {
-  return send(`${base(project)}/${type}/${encodeURIComponent(id)}`, 'DELETE')
-}
-
-/** Rename an upload: display name and id together; canvas refs follow. */
-export function renameUpload(
-  project: string,
-  type: UploadSourceType,
-  id: string,
-  name: string,
-): Promise<UploadedFile & { previousId: string }> {
-  return send(`${base(project)}/${type}/${encodeURIComponent(id)}`, 'PATCH', { name })
-}
-
-// --- notes --------------------------------------------------------------------
-
-export async function listNotes(project: string): Promise<Note[]> {
-  const body = await get<{ notes: Note[] }>(`${base(project)}/notes`)
-  return body.notes
-}
-
-export function createNote(project: string, name: string): Promise<Note> {
-  return send(`${base(project)}/notes`, 'POST', { name })
-}
-
-export function renameNote(project: string, id: string, name: string): Promise<Note> {
-  return send(`${base(project)}/notes/${encodeURIComponent(id)}`, 'PATCH', { name })
-}
-
-export function saveNoteText(project: string, id: string, text: string): Promise<Note> {
-  return send(`${base(project)}/notes/${encodeURIComponent(id)}/text`, 'PUT', { text })
-}
-
-export function deleteNote(project: string, id: string): Promise<unknown> {
-  return send(`${base(project)}/notes/${encodeURIComponent(id)}`, 'DELETE')
 }
 
 // --- project files -------------------------------------------------------------
@@ -243,9 +187,17 @@ export async function listFiles(project: string): Promise<FileNode[]> {
   return body.tree
 }
 
-export function uploadFiles(project: string, dir: string, files: File[]): Promise<{ added: string[] }> {
+/** Upload into `dir`, stamped with the batch's version note. A name already
+ * present there becomes that entry's NEW VERSION (old bytes archived). */
+export function uploadFiles(
+  project: string,
+  dir: string,
+  files: File[],
+  note: string,
+): Promise<{ added: string[] }> {
   const form = new FormData()
   form.append('dir', dir)
+  form.append('note', note)
   for (const file of files) form.append('files', file)
   return send(`${base(project)}/files/upload`, 'POST', form)
 }
@@ -271,98 +223,47 @@ export function openFileEntry(project: string, path: string): Promise<unknown> {
   return send(`${base(project)}/files/open`, 'POST', { path })
 }
 
-// Inspect works for any source type — same shapes, per-type endpoints. RTAC
-// refs are a path segment; upload-backed types (rdb, scd, sw) share the ?ref=
-// route shape.
-function inspectUrl(project: string, source: DeviceSource, leaf: string, query?: Record<string, string>): string {
-  const params = new URLSearchParams(source.type === 'rtac' ? query : { ref: source.ref, ...query })
-  const path = source.type === 'rtac'
-    ? `${base(project)}/rtac/${encodeURIComponent(source.ref)}/${leaf}`
-    : `${base(project)}/${source.type}/${leaf}`
-  const qs = params.toString()
-  return qs ? `${path}?${qs}` : path
+/** Show an entry ('' = the project root) in the OS file manager. */
+export function revealFileEntry(project: string, path: string): Promise<unknown> {
+  return send(`${base(project)}/files/reveal`, 'POST', { path })
 }
 
-export function fetchSourceTree(project: string, source: DeviceSource): Promise<ProjectTree> {
-  return get(inspectUrl(project, source, 'tree'))
+/** A text file's content, for the built-in editor. */
+export async function readTextFile(project: string, path: string): Promise<string> {
+  return (await get<{ text: string }>(`${base(project)}/files/text?path=${encodeURIComponent(path)}`)).text
 }
 
-export function fetchSourceItem(
-  project: string,
-  source: DeviceSource,
-  file: string,
-): Promise<ProjectItem> {
-  return get(inspectUrl(project, source, 'item', { file }))
+/** Save a text file in place (creates it when new). Not a version. */
+export function saveTextFile(project: string, path: string, text: string): Promise<unknown> {
+  return send(`${base(project)}/files/text`, 'PUT', { path, text })
+}
+
+// --- artifacts (inspect) --------------------------------------------------------
+
+/** The profiles inside one artifact (RDB relays, SCD IEDs, the one switch). */
+export async function fetchArtifactProfiles(project: string, path: string): Promise<ArtifactProfile[]> {
+  const body = await get<{ profiles: ArtifactProfile[] }>(
+    `${base(project)}/artifacts/profiles?path=${encodeURIComponent(path)}`,
+  )
+  return body.profiles
+}
+
+export function fetchArtifactTree(project: string, ref: string): Promise<ProjectTree> {
+  return get(`${base(project)}/artifacts/tree?ref=${encodeURIComponent(ref)}`)
+}
+
+export function fetchArtifactItem(project: string, ref: string, file: string): Promise<ProjectItem> {
+  return get(
+    `${base(project)}/artifacts/item?ref=${encodeURIComponent(ref)}&file=${encodeURIComponent(file)}`,
+  )
 }
 
 // --- search -------------------------------------------------------------------
 
-/** Search one source's parsed items (names, settings, points, tables, logic). */
-export function searchSource(project: string, source: DeviceSource, query: string): Promise<SearchResults> {
-  const params = new URLSearchParams({ type: source.type, ref: source.ref, q: query })
+/** Search one artifact's parsed items (names, settings, points, tables, logic). */
+export function searchArtifact(project: string, ref: string, query: string): Promise<SearchResults> {
+  const params = new URLSearchParams({ ref, q: query })
   return get(`${base(project)}/search?${params}`)
-}
-
-// --- canvas -------------------------------------------------------------------
-
-export function fetchGraph(project: string): Promise<WorkspaceGraph> {
-  return get(`${base(project)}/graph`)
-}
-
-export function placeDevice(
-  project: string,
-  source: DeviceSource,
-  x: number,
-  y: number,
-): Promise<{ id: string }> {
-  return send(`${base(project)}/devices`, 'POST', { source, x, y })
-}
-
-export function moveDevice(project: string, deviceId: string, x: number, y: number): Promise<unknown> {
-  return send(`${base(project)}/devices/${encodeURIComponent(deviceId)}`, 'PATCH', { x, y })
-}
-
-export function removeDevice(project: string, deviceId: string): Promise<unknown> {
-  return send(`${base(project)}/devices/${encodeURIComponent(deviceId)}`, 'DELETE')
-}
-
-export function attachScd(project: string, deviceId: string, ref: string): Promise<unknown> {
-  return send(`${base(project)}/devices/${encodeURIComponent(deviceId)}/scd`, 'POST', { ref })
-}
-
-export function detachScd(project: string, deviceId: string): Promise<unknown> {
-  return send(`${base(project)}/devices/${encodeURIComponent(deviceId)}/scd`, 'DELETE')
-}
-
-/** Draw a connection between two placed devices: an ethernet port run
- * (aPort/bPort) or a serial pair (aEndpointId/bEndpointId). */
-export function addManualLink(
-  project: string,
-  link: {
-    type: 'ethernet' | 'serial'
-    aDeviceId: string
-    bDeviceId: string
-    aPort?: string
-    bPort?: string
-    aEndpointId?: string
-    bEndpointId?: string
-  },
-): Promise<{ id: string }> {
-  return send(`${base(project)}/links`, 'POST', link)
-}
-
-export function removeManualLink(project: string, linkId: string): Promise<unknown> {
-  return send(`${base(project)}/links/${encodeURIComponent(linkId)}`, 'DELETE')
-}
-
-/** Acknowledge a conflicting link: record why the disagreement is acceptable. */
-export function addWaiver(project: string, linkId: string, reason: string): Promise<{ id: string }> {
-  return send(`${base(project)}/waivers`, 'POST', { linkId, reason })
-}
-
-/** Reopen an acknowledged conflict. */
-export function removeWaiver(project: string, waiverId: string): Promise<unknown> {
-  return send(`${base(project)}/waivers/${encodeURIComponent(waiverId)}`, 'DELETE')
 }
 
 // --- tools (global utilities beside the projects) ------------------------------

@@ -1,6 +1,6 @@
-// Generic compare across source types: RDB relay profiles and SCD IEDs run
-// through the same CompareService the RTAC path uses (whose adapter is a thin
-// wrapper over the parse cache, exercised by the sample-based tests).
+// Generic compare across artifact kinds: RDB relay profiles and SCD IEDs run
+// through the same CompareService the RTAC path uses, loading over the
+// artifacts cache. Refs are tree paths ("pair.rdb::OLD_UNIT").
 
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -9,15 +9,13 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { CompareService } from '../services/compare.js';
-import { RdbService } from '../services/rdb.js';
-import { ScdService } from '../services/scd.js';
+import { asUpload, makeBundle } from './helpers/bundle.js';
 import { makeRdb } from './helpers/makeRdb.js';
 import { MINI_SCL } from './helpers/miniScl.js';
 
 async function fixture(tmp) {
-  const rdb = new RdbService({ dataDir: tmp });
-  await rdb.init();
-  await rdb.upload('pair.rdb', makeRdb([
+  const { files, load } = await makeBundle(tmp);
+  await files.upload('', [asUpload('pair.rdb', makeRdb([
     {
       name: 'OLD_UNIT',
       relayType: 'SEL-451',
@@ -34,26 +32,17 @@ async function fixture(tmp) {
         { key: 'M1', desc: 'Modbus', settings: { MODADR: '3' } },
       ],
     },
-  ]));
-
-  const scd = new ScdService({ dataDir: tmp });
-  await scd.init();
-  await scd.upload('mini.scd', Buffer.from(MINI_SCL));
-
-  return new CompareService({
-    adapters: {
-      rdb: (ref) => rdb.comparable(ref),
-      scd: (ref) => scd.comparable(ref),
-    },
-  });
+  ]))], 'initial');
+  await files.upload('', [asUpload('mini.scd', MINI_SCL)], 'initial');
+  return new CompareService({ load });
 }
 
 test('rdb profile vs rdb profile: section union with statuses, settings diff', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
     const compare = await fixture(tmp);
-    const a = { type: 'rdb', ref: 'pair::OLD_UNIT' };
-    const b = { type: 'rdb', ref: 'pair::NEW_UNIT' };
+    const a = 'pair.rdb::OLD_UNIT';
+    const b = 'pair.rdb::NEW_UNIT';
 
     const result = await compare.compare(a, b);
     assert.deepEqual(result.summary, { added: 1, removed: 1, edited: 1, unchanged: 0 });
@@ -78,40 +67,32 @@ test('rdb profile vs rdb profile: section union with statuses, settings diff', a
 test('reordered settings are not an edit: signatures are key-sorted', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
-    const rdb = new RdbService({ dataDir: tmp });
-    await rdb.init();
+    const { files, load } = await makeBundle(tmp);
     // Same section, same settings, opposite key order in the file.
-    await rdb.upload('order.rdb', makeRdb([
+    await files.upload('', [asUpload('order.rdb', makeRdb([
       { name: 'A_UNIT', relayType: 'SEL-451', sections: [{ key: 'G', desc: 'Global', settings: { TID: 'X', SID: 'Y' } }] },
       { name: 'B_UNIT', relayType: 'SEL-451', sections: [{ key: 'G', desc: 'Global', settings: { SID: 'Y', TID: 'X' } }] },
-    ]));
-    const compare = new CompareService({ adapters: { rdb: (ref) => rdb.comparable(ref) } });
+    ]))], 'initial');
+    const compare = new CompareService({ load });
 
-    const result = await compare.compare(
-      { type: 'rdb', ref: 'order::A_UNIT' },
-      { type: 'rdb', ref: 'order::B_UNIT' },
-    );
+    const result = await compare.compare('order.rdb::A_UNIT', 'order.rdb::B_UNIT');
     assert.deepEqual(result.summary, { added: 0, removed: 0, edited: 0, unchanged: 1 });
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
 });
 
-test('upload signatures cover page rows: a Report-ID-only edit reads edited', async () => {
+test('signatures cover page rows: a Report-ID-only edit reads edited', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
-    const scd = new ScdService({ dataDir: tmp });
-    await scd.init();
+    const { files, load } = await makeBundle(tmp);
     // rptID lives only in the Reports page rows — the settings summary
     // deliberately abbreviates it away.
-    await scd.upload('a.scd', Buffer.from(MINI_SCL));
-    await scd.upload('b.scd', Buffer.from(MINI_SCL.replace('rptID="BRep01"', 'rptID="BRep01_v2"')));
-    const compare = new CompareService({ adapters: { scd: (ref) => scd.comparable(ref) } });
+    await files.upload('', [asUpload('a.scd', MINI_SCL)], 'initial');
+    await files.upload('', [asUpload('b.scd', MINI_SCL.replace('rptID="BRep01"', 'rptID="BRep01_v2"'))], 'initial');
+    const compare = new CompareService({ load });
 
-    const result = await compare.compare(
-      { type: 'scd', ref: 'a::RELAY_1' },
-      { type: 'scd', ref: 'b::RELAY_1' },
-    );
+    const result = await compare.compare('a.scd::RELAY_1', 'b.scd::RELAY_1');
     const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
     assert.equal(byPath.get('reports'), 'edited');
   } finally {
@@ -122,17 +103,16 @@ test('upload signatures cover page rows: a Report-ID-only edit reads edited', as
 test('a receive-map edit diffs as the point table, not summary settings', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
-    const scd = new ScdService({ dataDir: tmp });
-    await scd.init();
+    const { files, load } = await makeBundle(tmp);
     // Rebinding an ExtRef to another control block moves it between summary
     // groups — without the derived flag that read as a removed + added pair
     // of "N points bound" settings on top of the real row change.
-    await scd.upload('a.scd', Buffer.from(MINI_SCL));
-    await scd.upload('b.scd', Buffer.from(MINI_SCL.replace('srcCBName="GPub01"', 'srcCBName="GPub02"')));
-    const compare = new CompareService({ adapters: { scd: (ref) => scd.comparable(ref) } });
+    await files.upload('', [asUpload('a.scd', MINI_SCL)], 'initial');
+    await files.upload('', [asUpload('b.scd', MINI_SCL.replace('srcCBName="GPub01"', 'srcCBName="GPub02"'))], 'initial');
+    const compare = new CompareService({ load });
 
-    const a = { type: 'scd', ref: 'a::RTU_1' };
-    const b = { type: 'scd', ref: 'b::RTU_1' };
+    const a = 'a.scd::RTU_1';
+    const b = 'b.scd::RTU_1';
     const result = await compare.compare(a, b);
     const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
     assert.equal(byPath.get('subscriptions'), 'edited'); // still flags
@@ -151,20 +131,17 @@ test('a receive-map edit diffs as the point table, not summary settings', async 
 test('whole scd vs whole scd: a folder per IED, status rolled up onto it', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
-    const scd = new ScdService({ dataDir: tmp });
-    await scd.init();
+    const { files, load } = await makeBundle(tmp);
     // b.scd edits one section inside RELAY_1 and renames the other IED, so
     // the three folders cover every rollup: mixed, wholly removed, wholly
     // added.
-    await scd.upload('a.scd', Buffer.from(MINI_SCL));
-    await scd.upload('b.scd', Buffer.from(MINI_SCL
+    await files.upload('', [asUpload('a.scd', MINI_SCL)], 'initial');
+    await files.upload('', [asUpload('b.scd', MINI_SCL
       .replace('rptID="BRep01"', 'rptID="BRep01_v2"')
-      .replace('<IED name="RTU_1"', '<IED name="RTU_2"')));
-    const compare = new CompareService({ adapters: { scd: (ref) => scd.comparable(ref) } });
+      .replace('<IED name="RTU_1"', '<IED name="RTU_2"'))], 'initial');
+    const compare = new CompareService({ load });
 
-    const a = { type: 'scd', ref: 'a' };
-    const b = { type: 'scd', ref: 'b' };
-    const result = await compare.compare(a, b);
+    const result = await compare.compare('a.scd', 'b.scd');
 
     // The pane header names the FILES, not a profile inside one.
     assert.equal(result.original.name, 'a.scd');
@@ -182,7 +159,7 @@ test('whole scd vs whole scd: a folder per IED, status rolled up onto it', async
     assert.equal(relay.get('RELAY_1/reports'), 'edited');
     assert.equal(relay.get('RELAY_1/network'), 'unchanged');
 
-    const item = await compare.compareItem(a, b, 'RELAY_1/reports');
+    const item = await compare.compareItem('a.scd', 'b.scd', 'RELAY_1/reports');
     assert.equal(item.status, 'edited');
     const changed = item.diff.pages[0].changes.find((row) => row.kind === 'changed');
     assert.equal(changed.updated['Report ID'], 'BRep01_v2');
@@ -191,12 +168,12 @@ test('whole scd vs whole scd: a folder per IED, status rolled up onto it', async
   }
 });
 
-test('scd ied vs scd ied compares inspect items; mixed types are rejected', async () => {
+test('scd ied vs scd ied compares inspect items; mixed kinds are rejected', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-compare-'));
   try {
     const compare = await fixture(tmp);
-    const relay = { type: 'scd', ref: 'mini::RELAY_1' };
-    const rtu = { type: 'scd', ref: 'mini::RTU_1' };
+    const relay = 'mini.scd::RELAY_1';
+    const rtu = 'mini.scd::RTU_1';
 
     const result = await compare.compare(relay, rtu);
     const byPath = new Map(result.tree.map((node) => [node.path, node.status]));
@@ -208,12 +185,12 @@ test('scd ied vs scd ied compares inspect items; mixed types are rejected', asyn
     assert.equal(byPath.get('structure'), 'edited'); // different logical devices
 
     await assert.rejects(
-      () => compare.compare(relay, { type: 'rdb', ref: 'pair::OLD_UNIT' }),
-      /same type/,
+      () => compare.compare(relay, 'pair.rdb::OLD_UNIT'),
+      /same kind/,
     );
     await assert.rejects(
-      () => compare.compare({ type: 'nope', ref: 'x' }, { type: 'nope', ref: 'y' }),
-      /unsupported compare type/,
+      () => compare.compare('x.nope', 'y.nope'),
+      /not a settings artifact/,
     );
   } finally {
     await rm(tmp, { recursive: true, force: true });

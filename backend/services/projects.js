@@ -1,35 +1,26 @@
-// Projector projects — the top-level container everything now lives in. A
-// project is a folder under DATA_DIR/projects/<name>/ holding that project's
-// own sources and canvas:
+// Projector projects — the top-level container everything lives in. A
+// project is a folder under DATA_DIR/projects/<name>/ whose heart is ONE
+// user-organized file tree:
 //
-//   <name>/rtac/<rtacProject>/   RTAC exports the user pulled into this project
-//   <name>/rdb/<uploadId>/       relay database uploads
-//   <name>/scd/<uploadId>/       SCL/SCD uploads
-//   <name>/sw/<uploadId>/        switch settings uploads
-//   <name>/canvas.json           placements + manual links
+//   <name>/files/         the folder tree — settings artifacts, documents,
+//                         and .txt notes side by side, versioned in place
+//   <name>/drawings/      generated RDB panel drawings, keyed by content hash
 //
-// Each project gets its own service bundle (rtac, rdb, scd, sw, canvas,
-// compare), built lazily on first touch and cached; the AcRTAC database
+// Each project gets its own service bundle (files, artifacts, compare,
+// search), built lazily on first touch and cached; the AcRTAC database
 // catalog is the one machine-global piece, shared across bundles.
 
 import { mkdir, readdir, rename, rm } from 'node:fs/promises';
 import path from 'node:path';
 
-import { attachmentWarning, augmentProfile, extractScdProfile } from '../lib/comm/extract/scd.js';
-import { extractRdbProfile } from '../lib/comm/extract/rdb.js';
-import { extractRtacProfile } from '../lib/comm/extract/rtac.js';
-import { extractSwProfile } from '../lib/comm/extract/sw.js';
+import { ArtifactsService } from '../lib/artifacts.js';
 import { httpError, resolveChild } from '../lib/http.js';
-import { replaceRefFile } from '../lib/refs.js';
-import { CanvasService } from './canvas.js';
 import { CompareService } from './compare.js';
 import { FilesService } from './files.js';
-import { NotesService } from './notes.js';
 import { SearchService } from './search.js';
-import { RdbService } from './rdb.js';
-import { RtacService } from './rtac.js';
-import { ScdService } from './scd.js';
-import { SwService } from './sw.js';
+import { RdbKind } from './rdb.js';
+import { ScdKind } from './scd.js';
+import { SwKind } from './sw.js';
 
 class ProjectsService {
   constructor({ dataDir, catalog }) {
@@ -111,53 +102,27 @@ class ProjectsService {
     const projectDir = this.dir(name);
     const apiBase = `/api/projects/${encodeURIComponent(name)}`;
 
-    const rtac = new RtacService({ catalog: this.catalog, dataDir: path.join(projectDir, 'rtac') });
-    const rdb = new RdbService({ dataDir: projectDir, apiBase });
-    const scd = new ScdService({ dataDir: projectDir });
-    const sw = new SwService({ dataDir: projectDir });
-
-    const canvas = new CanvasService({
-      file: path.join(projectDir, 'canvas.json'),
-      resolvers: {
-        rtac: async (ref) => extractRtacProfile(await rtac.model(ref), ref),
-        rdb: async (ref) => extractRdbProfile(rdb.profile(ref).profile, ref),
-        scd: async (ref) => extractScdProfile(scd.profile(ref), ref),
-        sw: async (ref) => extractSwProfile(sw.profile(ref), ref),
-      },
-      augment: async (baseProfile, ref) => {
-        const scdProfile = extractScdProfile(scd.profile(ref), ref);
-        return {
-          profile: augmentProfile(baseProfile, scdProfile),
-          warning: attachmentWarning(baseProfile, scdProfile),
-        };
-      },
+    // Files own the bytes; artifacts own the meaning. A changed entry must
+    // drop its cached model, so the two point at each other — the box breaks
+    // the construction cycle.
+    let artifacts;
+    const files = new FilesService({
+      dataDir: projectDir,
+      onChanged: (relPath) => artifacts?.invalidate(relPath),
     });
+    artifacts = new ArtifactsService({ files, catalog: this.catalog, projectDir });
+    artifacts.register('rdb', new RdbKind({ artifacts, projectDir, apiBase }));
+    artifacts.register('scd', new ScdKind({ artifacts }));
+    artifacts.register('sw', new SwKind({ artifacts }));
 
-    // Compare and search consume the same per-type adapter: every parsed
-    // item of a source, in the shared inspect shape.
-    const adapters = {
-      rtac: (ref) => rtac.comparable(ref),
-      rdb: (ref) => rdb.comparable(ref),
-      scd: (ref) => scd.comparable(ref),
-      sw: (ref) => sw.comparable(ref),
-    };
-    const compare = new CompareService({ adapters });
-    const search = new SearchService({ adapters });
+    // Compare and search consume the same loader: every parsed item of an
+    // artifact, in the shared inspect shape.
+    const load = (ref) => artifacts.comparable(ref);
+    const compare = new CompareService({ load });
+    const search = new SearchService({ load });
 
-    const notes = new NotesService({ file: path.join(projectDir, 'notes.json') });
-    const files = new FilesService({ dataDir: projectDir });
-
-    // A renamed upload must drag its canvas refs along: the rename lives in
-    // the service, the rewrite in the canvas, and this bundle is where the
-    // two meet (the same pattern as `augment`). RTAC is absent on purpose —
-    // its ref is the export id, which a rename does not touch.
-    for (const [type, service] of Object.entries({ rdb, scd, sw })) {
-      service.onRenamed = (fromId, toId) =>
-        canvas.renameRefs(type, (ref) => replaceRefFile(ref, fromId, toId));
-    }
-
-    await Promise.all([rtac.init(), rdb.init(), scd.init(), sw.init(), canvas.init(), files.init()]);
-    return { rtac, rdb, scd, sw, canvas, compare, search, notes, files };
+    await files.init();
+    return { files, artifacts, compare, search };
   }
 }
 

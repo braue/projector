@@ -1,26 +1,27 @@
 import { useState } from 'react'
 
-import { searchSource } from '../api'
+import { searchArtifact } from '../api'
 import { errorMessage } from '../lib/errors'
 import { count } from '../lib/format'
-import type { DeviceSource, SearchResults } from '../types'
+import type { SearchResults } from '../types'
 import { Highlight } from './Highlight'
 import { MatchRow, SearchHit, SearchPane } from './SearchShell'
 import { Button } from './ui'
 
-// Inspect › Search: every instance of a string within the SELECTED source —
-// one RTAC export or one uploaded profile. Results group by the object the
+// Inspect › Search: every instance of a string within the SELECTED artifact
+// (or one profile of it). Results group by the object the
 // string lives in; the object header opens it in Browse, and each match
 // names its exact location (setting, point row, table cell, logic line)
 // with the hit highlighted.
 
 export function SearchView({
   project,
-  source,
+  refId,
   onOpen,
 }: {
   project: string
-  source: DeviceSource
+  /** The artifact ref being searched ("<path>" or "<path>::<profile>"). */
+  refId: string
   /** Open a hit in Browse: select its item. */
   onOpen: (path: string) => void
 }) {
@@ -35,7 +36,7 @@ export function SearchView({
     setRunning(true)
     setError(null)
     try {
-      setResults(await searchSource(project, source, trimmed))
+      setResults(await searchArtifact(project, refId, trimmed))
     } catch (err) {
       setError(errorMessage(err))
       setResults(null)
@@ -45,13 +46,11 @@ export function SearchView({
   }
 
   const message = error
-    ?? (!results
-      ? 'Searches everything in the selected source: names, settings, point maps, tables, and logic source.'
-      : results.results.length === 0 ? `No matches for "${results.query}".` : null)
+    ?? (results && results.results.length === 0 ? `No matches for "${results.query}".` : null)
 
   return (
     <SearchPane
-      placeholder="Find a string in this source…"
+      placeholder="Find a string in this artifact…"
       query={query}
       onQuery={setQuery}
       onEnter={run}

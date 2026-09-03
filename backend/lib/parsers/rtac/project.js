@@ -145,14 +145,17 @@ function moduleBaseName(file) {
 // verbatim so a new extractor's output reaches the API without touching this
 // file.
 function buildItem(module) {
-  const { settingPages, ...rest } = module;
+  // An extractor may contribute settings of its own (read-in items, the
+  // controller's task table) — page-derived settings layer on top, so a
+  // config page can never be shadowed by an extractor.
+  const { settingPages, settings: extracted, ...rest } = module;
   const { settings, points, pages } = interpretPages(module);
 
   const item = {
     ...rest,
     // The file path is the only identity an export guarantees to be unique.
     id: module.file,
-    settings,
+    settings: { ...(extracted ?? {}), ...settings },
     points,
     pointCount: points.length,
     pages,

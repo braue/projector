@@ -12,6 +12,7 @@
 //     Program Files, which is read-only for a normal user, so projects would
 //     be unsaveable if the store stayed next to the code.
 
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,6 +29,50 @@ const ROOT = path.join(HERE, '..');
 const DEV_URL = process.env.PROJECTOR_DEV_URL ?? null;
 
 let serverHandle = null;
+
+// The backend runs in THIS process, and a big RTAC export parses into a
+// model of a gigabyte and more. The artifacts cache bounds how many stay
+// live, but one comparison of two large exports legitimately needs several
+// GB — above V8's default ~4 GB ceiling, and a heap OOM here aborts the
+// whole app. Raise the ceiling; the OS only commits what is actually used.
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=12288');
+
+// GPU self-healing. Chromium aborts the WHOLE app ("GPU process isn't
+// usable. Goodbye.") once its GPU process has crashed too many times — seen
+// in the wild here on an NVIDIA card while several inspect/compare views
+// were open. The escape hatch is software rendering, which this DOM-heavy
+// app barely notices. It has to be chosen before app ready, so a crash in
+// one run leaves a marker that the next run reads:
+//
+//   - first GPU-process crash: write the marker (the next launch is safe)
+//   - second crash in the same run: relaunch ourselves into software
+//     rendering now, before Chromium reaches its own fatal limit
+//
+// The marker sticks until the user opts back in via the Help menu.
+const GPU_MARKER = path.join(app.getPath('userData'), 'disable-gpu');
+const gpuFallback = existsSync(GPU_MARKER);
+if (gpuFallback) app.disableHardwareAcceleration();
+
+let gpuCrashes = 0;
+app.on('child-process-gone', (_event, details) => {
+  if (details.type !== 'GPU') return;
+  if (!['crashed', 'abnormal-exit', 'killed', 'launch-failed'].includes(details.reason)) return;
+  console.warn(`GPU process gone (${details.reason}, exit ${details.exitCode})`);
+  try {
+    writeFileSync(
+      GPU_MARKER,
+      'Projector runs without GPU acceleration because the GPU process crashed.\n'
+      + 'Delete this file (or use Help > Re-enable GPU acceleration) to try again.\n',
+    );
+  } catch {
+    // Losing the marker only loses the fallback, never the session.
+  }
+  gpuCrashes += 1;
+  if (gpuCrashes >= 2 && !gpuFallback) {
+    app.relaunch();
+    app.exit(0);
+  }
+});
 
 /**
  * One window at a time. A second launch (double-clicking the icon again)
@@ -114,6 +159,18 @@ function buildMenu() {
           label: 'Open the data folder',
           click: () => shell.openPath(path.join(app.getPath('userData'), 'data')),
         },
+        ...(gpuFallback ? [{
+          label: 'Re-enable GPU acceleration (restarts)',
+          click: () => {
+            try {
+              rmSync(GPU_MARKER, { force: true });
+            } catch {
+              return;
+            }
+            app.relaunch();
+            app.quit();
+          },
+        }] : []),
         { type: 'separator' },
         {
           label: `Projector ${app.getVersion()}`,
@@ -176,5 +233,13 @@ app.on('will-quit', (event) => {
   const handle = serverHandle;
   serverHandle = null;
   event.preventDefault();
-  handle.close().finally(() => app.quit());
+  // Seen in the wild on Linux: the re-entered quit stalls somewhere in the
+  // shutdown sequence, leaving a zombie window with a dead backend that
+  // still holds the single-instance lock. The failsafe makes quit mean
+  // quit: if the graceful path has not finished shortly after the server
+  // is down, exit hard.
+  handle.close().finally(() => {
+    setTimeout(() => app.exit(0), 3000);
+    app.quit();
+  });
 });

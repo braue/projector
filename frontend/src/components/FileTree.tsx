@@ -11,6 +11,7 @@ const CATEGORY_GLYPH: Record<ItemCategory, { glyph: string; className: string }>
   system: { glyph: '⚙', className: 'cat-system' },
   hardware: { glyph: '▤', className: 'cat-hardware' },
   extension: { glyph: '✚', className: 'cat-extension' },
+  visual: { glyph: '▣', className: 'cat-visual' },
   meta: { glyph: 'ℹ', className: 'cat-meta' },
   other: { glyph: '?', className: 'cat-other' },
 }

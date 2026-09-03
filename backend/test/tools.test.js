@@ -153,7 +153,7 @@ test('files service: read guards match the store rules', async () => {
   try {
     const files = new FilesService({ dataDir: tmp });
     await files.init();
-    await files.upload('', [{ originalname: 'switch.xml', buffer: Buffer.from('<x/>') }]);
+    await files.upload('', [{ originalname: 'switch.xml', buffer: Buffer.from('<x/>') }], 'initial');
     assert.equal((await files.read('switch.xml')).toString(), '<x/>');
     await assert.rejects(() => files.read('missing.xml'), /no such file/);
     await assert.rejects(() => files.read('../outside'), /invalid file path/);

@@ -543,6 +543,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .tree-glyph { width: 16px; flex: none; text-align: center; font-size: 10px; font-family: var(--font-mono); color: var(--muted); }
 .cat-connection { color: #3d6fa8; } .cat-taglist { color: #7a5cb0; } .cat-logic { color: #b07a2e; }
 .cat-system { color: var(--muted); } .cat-hardware { color: #2e8f66; } .cat-extension { color: #a8578c; }
+.cat-visual { color: #3a8fb0; }
 .cat-meta { color: var(--muted); } .cat-other { color: var(--ghost); }
 .tree-tag {
   font-size: 10.5px; font-family: var(--font-mono); color: var(--muted);
@@ -984,7 +985,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .files-root.file-drop { background: var(--fill); }
 .files-toolbar { padding: 0 16px 8px; display: flex; }
 .files-toolbar .ui-button { flex: 1; }
-.files-tree { display: flex; flex-direction: column; padding-bottom: 12px; }
+.files-tree { display: flex; flex-direction: column; padding: 8px 0 12px; }
 .file-row.file-drop { background: var(--fill); box-shadow: inset 0 0 0 1.5px var(--ghost); }
 .file-glyph { flex: none; width: 14px; color: var(--muted); font-size: 11px; }
 .files-detail {
@@ -1022,3 +1023,117 @@ button.ui-section-header:hover { color: var(--ink); }
   overflow-wrap: anywhere;
 }
 .search-size { flex: none; color: var(--muted); }
+
+/* --- the unified project tree + inspect shell ---------------------------------
+ * One sidebar for everything (artifacts, documents, notes) with git-style
+ * version accordions; the inspect column carries its own header bar. */
+
+/* The project switcher moved to the top-left corner; its menu opens under
+ * its left edge rather than hugging the (now distant) right one. */
+.ws-switch .ws-menu { right: auto; left: 0; }
+
+/* The right-click menu — the sidebar's whole command surface, so the rows
+ * sit over clean empty space. Floating surface: 14px feel, menu shadow. */
+.context-menu {
+  position: fixed; z-index: 60; min-width: 190px; padding: 5px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 11px; box-shadow: var(--shadow-menu);
+}
+.ctx-item {
+  display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 7px;
+  background: none; text-align: left; font: inherit; font-size: 13px; cursor: pointer;
+}
+.ctx-item:hover { background: var(--fill); }
+.ctx-item.danger { color: var(--bad-ink); }
+.ctx-item.danger:hover { background: var(--bad-tint); }
+.ctx-sep { margin: 5px 8px; border-top: 1px solid var(--border-soft); }
+
+/* Tree row icons: a fixed icon column keeps names aligned whether the row
+ * leads with a chevron+folder, a document icon, or a kind badge. The
+ * chevron rotates instead of swapping glyphs, so toggling reads as motion
+ * rather than a repaint. */
+.tree-icon { flex: none; width: 15px; height: 15px; color: var(--muted); }
+.tree-icon.folder { color: var(--ink-soft); }
+.tree-chevron { flex: none; width: 12px; height: 12px; color: var(--ghost); }
+@media (prefers-reduced-motion: no-preference) {
+  .tree-chevron { transition: transform 0.12s ease; }
+}
+.tree-chevron.open { transform: rotate(90deg); }
+
+/* Artifact-kind badges. A palette like the tree's category glyphs (house-rule
+ * exception), aligned with those hues per kind. */
+.kind-badge {
+  flex: none; width: 38px; text-align: center; padding: 2px 0; border-radius: 5px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em;
+}
+.kind-rtac { background: var(--accent-tint); color: var(--accent); }
+.kind-rdb { background: #e8eefc; color: #3d6fa8; }
+.kind-scd { background: #f0e9fb; color: #7a5cb0; }
+.kind-sw { background: #e9f5ef; color: #2e8f66; }
+
+/* Every version wears its time; the row's right side is stamp then actions. */
+.row-stamp {
+  margin-left: auto; flex: none; font-family: var(--font-mono);
+  font-size: 10.5px; color: var(--ghost);
+}
+.file-row .row-stamp ~ .entry-delete { margin-left: 0; }
+
+/* Width priority, CONTINUOUS (no pop-in thresholds): the name grows into
+ * the slack and is guaranteed nearly half the row; the entry row's stamp
+ * shrinks away smoothly first (it stays on the hover title); the trailing
+ * icons hold the right edge throughout. Version rows keep their stamps —
+ * the date is those rows' content. */
+.file-row .tree-name { flex: 1 1 auto; min-width: 45%; }
+.file-row .entry-delete { margin-left: 0; }
+.file-row:not(.version-row) .row-stamp {
+  margin-left: 0; flex: 0 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* The vN badge doubles as the version-accordion toggle. */
+.version-count {
+  flex: none; padding: 1px 7px; border-radius: 999px; background: var(--fill);
+  font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); cursor: pointer;
+}
+.version-count:hover, .version-count.on { color: var(--ink); }
+
+/* Expanded versions: vN · time · note, quieter than the live row. The badge
+ * is a fixed-width outline so stamps and notes align down the stack. */
+.version-row { height: 24px; font-size: 11.5px; color: var(--ink-soft); }
+.version-row .row-stamp { margin-left: 0; flex: none; }
+.version-badge {
+  flex: none; width: 30px; text-align: center; padding: 1px 0;
+  border: 1px solid var(--border); border-radius: 6px; background: none;
+  font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+}
+.version-row .row-note {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  color: var(--muted);
+}
+/* The current version's row inside an open accordion. */
+.version-badge.current { border-color: var(--ink-soft); color: var(--ink-soft); font-weight: 650; }
+/* The second held selection (ctrl+click) — right-click either held row to
+ * compare the two. Same quiet fill as the primary selection; being held is
+ * enough, no outline. */
+.tree-row.compare-mark { background: var(--fill); }
+
+/* In-flight / failed AcRTAC downloads overlaid at the top of the tree. */
+.export-row { color: var(--ghost-soft); cursor: default; }
+.export-row.export-error { color: var(--bad-ink); background: var(--bad-tint); }
+.export-row .entry-delete { opacity: 1; }
+.export-row .row-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+
+/* Inspect column: a slim identity/controls bar over the flexing panes. */
+.inspect-column { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.inspect-bar {
+  display: flex; align-items: center; gap: 12px; flex: none;
+  padding: 8px 16px; border-bottom: 1px solid var(--border); background: var(--card);
+}
+.inspect-title {
+  font-weight: 650; font-size: 13px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.inspect-panes { display: flex; flex: 1; min-height: 0; }
+
+.compare-actions { display: flex; gap: 6px; margin-top: 6px; }
+.file-note { color: var(--muted); font-style: italic; }

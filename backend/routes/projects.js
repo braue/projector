@@ -1,19 +1,14 @@
 // The project surface — everything is scoped to /api/projects/:project/...
-// A project bundles its own sources (rtac exports, rdb/scd/sw uploads),
-// canvas, and compare; this router owns project CRUD and mounts each
-// sub-surface with a per-request bundle resolver.
+// A project bundles its file tree, the artifacts layered over it, and
+// compare/search; this router owns project CRUD and mounts each sub-surface
+// with a per-request bundle resolver.
 
 import { Router } from 'express';
 
-import { canvasRoutes } from './canvas.js';
+import { artifactRoutes } from './artifacts.js';
 import { compareRoutes } from './compare.js';
 import { fileRoutes } from './files.js';
-import { noteRoutes } from './notes.js';
 import { searchRoutes } from './search.js';
-import { rdbRoutes } from './rdb.js';
-import { rtacRoutes } from './rtac.js';
-import { scdRoutes } from './scd.js';
-import { swRoutes } from './sw.js';
 
 function projectRoutes(projects, catalog) {
   const router = Router();
@@ -37,15 +32,10 @@ function projectRoutes(projects, catalog) {
 
   const bundle = (req) => projects.bundle(req.params.project);
   const scoped = Router({ mergeParams: true });
-  scoped.use('/rtac', rtacRoutes(async (req) => (await bundle(req)).rtac, catalog));
-  scoped.use('/rdb', rdbRoutes(async (req) => (await bundle(req)).rdb));
-  scoped.use('/scd', scdRoutes(async (req) => (await bundle(req)).scd));
-  scoped.use('/sw', swRoutes(async (req) => (await bundle(req)).sw));
+  scoped.use('/files', fileRoutes(bundle));
+  scoped.use('/artifacts', artifactRoutes(async (req) => (await bundle(req)).artifacts, catalog));
   scoped.use('/compare', compareRoutes(async (req) => (await bundle(req)).compare));
-  scoped.use('/notes', noteRoutes(async (req) => (await bundle(req)).notes));
-  scoped.use('/files', fileRoutes(async (req) => (await bundle(req)).files));
   scoped.use('/search', searchRoutes(async (req) => (await bundle(req)).search));
-  scoped.use('/', canvasRoutes(async (req) => (await bundle(req)).canvas));
   router.use('/:project', scoped);
 
   return router;

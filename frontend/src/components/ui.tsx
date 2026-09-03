@@ -17,9 +17,10 @@
 //   - pane scaffolding (headers/footers/three-pane flex) is layout, not a
 //     control.
 
-import { useRef, useState, type ReactElement, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 import { errorMessage } from '../lib/errors'
+import { useDismiss } from '../lib/useDismiss'
 
 // --- buttons -----------------------------------------------------------------
 
@@ -410,6 +411,71 @@ export function DataTable({
           ))}
         </tbody>
       </table>
+    </div>
+  )
+}
+
+// --- context menu ------------------------------------------------------------
+
+export interface ContextMenuItem {
+  /** A separator row when true; every other field is ignored. */
+  separator?: boolean
+  label?: ReactNode
+  /** Destructive action — tinted like the delete row actions. */
+  danger?: boolean
+  onClick?: () => void
+}
+
+/**
+ * Right-click menu at a fixed point. The caller owns the open state (render
+ * it only while open) and the items; picking an item runs it and closes.
+ * Clicks outside and Escape dismiss. Position clamps to the viewport so a
+ * right-click near an edge never spills the menu off screen.
+ */
+export function ContextMenu({
+  x,
+  y,
+  items,
+  onClose,
+}: {
+  x: number
+  y: number
+  items: ContextMenuItem[]
+  onClose: () => void
+}) {
+  const wrap = useDismiss<HTMLDivElement>(true, onClose, { escape: true })
+
+  useLayoutEffect(() => {
+    const el = wrap.current
+    if (!el) return
+    const box = el.getBoundingClientRect()
+    el.style.left = `${Math.max(8, Math.min(x, window.innerWidth - box.width - 8))}px`
+    el.style.top = `${Math.max(8, Math.min(y, window.innerHeight - box.height - 8))}px`
+  }, [x, y, wrap])
+
+  return (
+    <div
+      ref={wrap}
+      className="context-menu"
+      style={{ left: x, top: y }}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {items.map((item, index) =>
+        item.separator ? (
+          <div key={index} className="ctx-sep" />
+        ) : (
+          <button
+            key={index}
+            className={item.danger ? 'ctx-item danger' : 'ctx-item'}
+            onClick={() => {
+              onClose()
+              item.onClick?.()
+            }}
+          >
+            {item.label}
+          </button>
+        ),
+      )}
     </div>
   )
 }

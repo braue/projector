@@ -100,13 +100,13 @@ function parseRtacModule(xmlString, file = '<memory>') {
   // not surface it as "this connection has logic".
   module.hasControllerPou = findFirst(container, 'ControllerPOU') !== undefined;
 
-  // Graphical logic (CFC/LD) ships as an ArchivedContent blob the parser
-  // cannot decode: presence for the UI, and a fingerprint so compare still
-  // sees edits inside it. LOGIC KINDS ONLY — protocol connections embed
-  // ArchivedContent blobs of their own (OPCUA data sources), which are the
-  // RTAC's plumbing: not user logic, and their regeneration is exactly the
-  // raw-blob noise signatures must not see.
-  if (spec.category === 'logic') {
+  // Graphical logic (CFC/LD) and visualizations ship as an ArchivedContent
+  // blob the parser cannot decode: presence for the UI, and a fingerprint so
+  // compare still sees edits inside it. LOGIC AND OPTED-IN KINDS ONLY —
+  // protocol connections embed ArchivedContent blobs of their own (OPCUA
+  // data sources), which are the RTAC's plumbing: not user content, and
+  // their regeneration is exactly the raw-blob noise signatures must not see.
+  if (spec.category === 'logic' || spec.archivedContent) {
     const archived = findFirst(container, 'ArchivedContent');
     if (archived !== undefined) {
       module.hasArchivedContent = true;

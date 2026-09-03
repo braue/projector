@@ -1,42 +1,32 @@
-// RDB source service — uploaded QuickSet relay databases.
+// RDB artifact kind — QuickSet relay databases (.rdb) in the project tree.
 //
-// Lifecycle lives in lib/uploadService.js; this service owns the RDB-shaped
+// Model lifecycle lives in lib/artifacts.js; this kind owns the RDB-shaped
 // parts: which profiles a file carries (its relays), the inspect sections,
 // and the generated panel drawings. A profile is addressed
-// "<fileId>::<profileName>" (see lib/refs.js).
+// "<path>::<profileName>".
 
 import path from 'node:path';
 
+import { ArtifactKind, splitArtifactRef } from '../lib/artifacts.js';
 import { createImages } from '../lib/drawings/createImages.js';
 import { httpError } from '../lib/http.js';
 import { sectionItem, sectionNode } from '../lib/inspect.js';
 import { parseRdb, relayType } from '../lib/parsers/rdb/index.js';
-import { REF_SEPARATOR, splitRef as splitSourceRef } from '../lib/refs.js';
-import { UploadService } from '../lib/uploadService.js';
 
 const DRAWING_LABEL = { front: 'Front view', rear: 'Rear view' };
 const DRAWING_PREFIX = 'drawing:';
 
-const splitRef = (ref) => splitSourceRef(ref, 'rdb');
-
-// Bumped when the parsed model's shape changes; stale uploads (including
-// pre-versioning ones) re-parse from their original bytes in the background.
-const MODEL_VERSION = 1;
-
-class RdbService extends UploadService {
-  constructor({ dataDir, selDevicesDir, apiBase = '/api' }) {
-    super({
-      dataDir,
-      label: 'rdb',
-      extension: /\.rdb$/i,
-      originalName: 'original.rdb',
-      modelVersion: MODEL_VERSION,
-      uploadErrorLabel: 'not a readable .rdb (OLE compound) file',
-    });
+class RdbKind extends ArtifactKind {
+  constructor({ artifacts, projectDir, selDevicesDir, apiBase = '/api' }) {
+    super({ artifacts, label: 'rdb' });
+    this.uploadErrorLabel = 'not a readable .rdb (OLE compound) file';
+    // Generated drawings, keyed by the source file's content hash — a new
+    // version renders fresh, an old version keeps its own.
+    this.drawingsDir = path.join(projectDir, 'drawings');
     // Passed through to the drawing generator; undefined = its bundled default.
     this.selDevicesDir = selDevicesDir;
     // Prefix for the drawing-image URLs baked into item payloads — projects
-    // scope the route, so the service must know where it is mounted.
+    // scope the route, so the kind must know where it is mounted.
     this.apiBase = apiBase;
   }
 
@@ -64,27 +54,21 @@ class RdbService extends UploadService {
     return model.profiles.find((profile) => profile.name === name) ?? null;
   }
 
-  async init() {
-    await super.init();
-    // Uploads from before drawings existed (or whose drawings failed because a
-    // PDF was missing at the time) retry after any model migration — dropping
-    // a drawing PDF into resources/selDevices/<model>/ heals on next start.
-    this.migrated = this.migrated.then(() => this.#backfillDrawings());
-  }
-
-  async afterUpload(id, stored) {
-    stored.drawings = await this.#generateDrawings(id, stored.model.profiles);
-    await this.store.saveParsed(id, stored);
-  }
-
   // --- panel drawings ---------------------------------------------------------
-  // Best-effort at upload: a profile whose model has no metadata (or whose
-  // drawing PDF is absent) simply gets no Drawings section.
+  // Rendered lazily on the first inspect of a file and memoized on its cache
+  // entry: a profile whose model has no metadata (or whose drawing PDF is
+  // absent) simply gets no Drawings section.
 
-  async #generateDrawings(fileId, profiles) {
+  async #views(treePath) {
+    const entry = await this.artifacts.entry(treePath);
+    entry.drawings ??= this.#generate(entry);
+    return entry.drawings;
+  }
+
+  async #generate(entry) {
     const drawings = {};
-    for (const profile of profiles) {
-      const outputDir = path.join(this.store.dir(fileId), 'drawings', profile.name);
+    for (const profile of entry.model.profiles) {
+      const outputDir = path.join(this.drawingsDir, entry.hash, profile.name);
       try {
         drawings[profile.name] = await createImages(
           relayType(profile),
@@ -93,51 +77,34 @@ class RdbService extends UploadService {
           { devicesDir: this.selDevicesDir },
         );
       } catch (err) {
-        console.warn(`no panel drawings for ${fileId}${REF_SEPARATOR}${profile.name}: ${err?.message ?? err}`);
+        console.warn(`no panel drawings for ${profile.name}: ${err?.message ?? err}`);
         drawings[profile.name] = [];
       }
     }
     return drawings;
   }
 
-  async #backfillDrawings() {
-    for (const [fileId, stored] of this.store.entries()) {
-      const missing = !stored.drawings
-        || stored.model.profiles.some((profile) => !stored.drawings[profile.name]?.length);
-      if (!missing) continue;
-      try {
-        stored.drawings = await this.#generateDrawings(fileId, stored.model.profiles);
-        await this.store.saveParsed(fileId, stored);
-      } catch (err) {
-        console.warn(`drawing backfill failed for ${fileId}: ${err?.message ?? err}`);
-      }
-    }
-  }
-
-  #views(fileId, profileName) {
-    return this.store.get(fileId)?.drawings?.[profileName] ?? [];
-  }
-
   // Absolute path of one generated drawing PNG, for the image route.
-  drawingPath(ref, view) {
-    const { fileId, profileName } = splitRef(ref);
-    this.profile(ref);
-    if (!this.#views(fileId, profileName).includes(view)) {
+  async drawingPath(ref, view) {
+    const { path: treePath, profileName } = splitArtifactRef(ref);
+    await this.profile(ref);
+    const entry = await this.artifacts.entry(treePath);
+    const views = (await this.#views(treePath))[profileName] ?? [];
+    if (!views.includes(view)) {
       throw httpError(404, `no ${view} drawing for ${ref}`);
     }
-    return path.join(this.store.dir(fileId), 'drawings', profileName, `${view}.png`);
+    return path.join(this.drawingsDir, entry.hash, profileName, `${view}.png`);
   }
 
   // --- inspect mapping --------------------------------------------------------
   // The Inspect UI speaks the RTAC tree/item shapes; an RDB profile maps onto
   // them naturally: one item per settings section, the section's key/value
-  // table as the item's settings. RTAC-only fields (connection summary,
-  // schema, pages) are simply absent — the shapes mark them optional.
+  // table as the item's settings.
 
-  tree(ref) {
-    const { fileId, profileName } = splitRef(ref);
-    const { profile } = this.profile(ref);
-    const views = this.#views(fileId, profileName);
+  async tree(ref) {
+    const { path: treePath, profileName } = splitArtifactRef(ref);
+    const { profile } = await this.profile(ref);
+    const views = (await this.#views(treePath))[profileName] ?? [];
 
     // Generated panel drawings lead the tree in their own section; the
     // settings sections follow.
@@ -169,13 +136,13 @@ class RdbService extends UploadService {
     };
   }
 
-  item(ref, sectionKey) {
-    const { profile } = this.profile(ref);
+  async item(ref, sectionKey) {
+    const { profile } = await this.profile(ref);
 
     if (sectionKey.startsWith(DRAWING_PREFIX)) {
       const view = sectionKey.slice(DRAWING_PREFIX.length);
       // Validates the view exists (404s otherwise); the URL serves the PNG.
-      this.drawingPath(ref, view);
+      await this.drawingPath(ref, view);
       return sectionItem('Drawing', {
         id: sectionKey,
         file: `${view}.png`,
@@ -183,7 +150,7 @@ class RdbService extends UploadService {
         kindLabel: 'Panel drawing',
         name: DRAWING_LABEL[view] ?? view,
         image: {
-          url: `${this.apiBase}/rdb/drawing?ref=${encodeURIComponent(ref)}&view=${encodeURIComponent(view)}`,
+          url: `${this.apiBase}/artifacts/drawing?ref=${encodeURIComponent(ref)}&view=${encodeURIComponent(view)}`,
           view,
         },
       });
@@ -204,4 +171,4 @@ class RdbService extends UploadService {
   }
 }
 
-export { RdbService };
+export { RdbKind };

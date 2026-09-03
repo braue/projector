@@ -78,23 +78,21 @@ function matchItem(item, needle, limit) {
 }
 
 class SearchService {
-  // adapters: type -> async (ref) => { label, entries: [{ path, name, item }] }
-  constructor({ adapters }) {
-    this.adapters = adapters;
+  // load: async (ref) => { label, entries: [{ path, name, item }] }
+  constructor({ load }) {
+    this.load = load;
   }
 
   // `caps` shrink the payload for callers that fan out — a multi-source
   // search runs this over every source of every project and needs a taste of
   // each, not the full 200-object listing the single-source pane shows.
-  async search({ type, ref }, query, caps = {}) {
+  async search(ref, query, caps = {}) {
     const { maxItems = MAX_ITEMS, maxMatchesPerItem = MAX_MATCHES_PER_ITEM } = caps;
     const q = String(query ?? '').trim();
     if (!q) throw httpError(400, 'a search string is required');
-    const adapter = this.adapters[type];
-    if (!adapter) throw httpError(400, `unknown source type: ${type}`);
     const needle = q.toLowerCase();
 
-    const { label, entries } = await adapter(ref);
+    const { label, entries } = await this.load(ref);
 
     const results = [];
     let totalMatches = 0;

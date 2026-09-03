@@ -25,9 +25,14 @@ import { cdata, findFirst, text, toArray } from '../xml.js';
 //   logic      — user IEC 61131 code (POU / GVL / DataType)
 //   system     — controller built-ins (contact I/O, system tags, time, ...)
 //   hardware   — physical I/O topology (Axion EtherCAT network)
-//   extension  — custom applications and their definitions
+//   extension  — custom applications, their definitions, user libraries
+//   visual     — HMI screens (Visualization objects)
 //   meta       — project-level files (project info, navigator layout)
 //   other      — anything this registry has never heard of
+//
+// A kind may also set `archivedContent: true` when its ArchivedContent blob
+// IS the object's content (visualizations) — parseModule then fingerprints
+// it the way it does for logic kinds, so compare sees edits inside it.
 
 // --- kind-specific extractors -----------------------------------------------
 
@@ -128,6 +133,80 @@ function extractProjectInfo(container) {
   return { description: cdata(findFirst(container, 'Description')) || null };
 }
 
+// The controller's task table: main-task timing plus every additional task.
+function extractMainController(container) {
+  const settings = {};
+  const task = (label, node) => {
+    const cycle = text(node?.CycleTime);
+    const watchdog = text(node?.WatchdogTime);
+    if (cycle) settings[`${label} · Cycle Time (ms)`] = cycle;
+    if (watchdog) settings[`${label} · Watchdog Time (ms)`] = watchdog;
+  };
+  task('Main Task', findFirst(container, 'MainTask'));
+  for (const node of toArray(container?.Task)) {
+    task(`Task ${text(node?.Name) || '?'}`, node);
+  }
+  return { settings };
+}
+
+// An installed library's nameplate — the version is the thing worth diffing.
+function extractUserLibrary(container) {
+  const settings = {};
+  for (const field of ['Company', 'Title', 'Version']) {
+    const value = text(findFirst(container, field));
+    if (value) settings[field] = value;
+  }
+  return { settings };
+}
+
+// Logic-engine bookkeeping objects (TextList, ImagePool, ...): the payload is
+// an ArchivedContent blob (fingerprinted generically); Type says what it is.
+function extractLogicEngineObject(container) {
+  return { pouKind: text(findFirst(container, 'Type')) || null };
+}
+
+/** Flatten a parsed XML subtree into "path · attribute" settings entries —
+ *  generic on purpose, so any read-in item (Ethernet, Hosts, Website, or a
+ *  kind this parser has never seen) surfaces every value it carries. */
+function flattenXml(node, prefix, out) {
+  if (node === null || typeof node !== 'object') {
+    const value = String(node ?? '').trim();
+    if (value) out[prefix || 'value'] = value;
+    return;
+  }
+  for (const [key, value] of Object.entries(node)) {
+    if (key.startsWith('@_')) {
+      const rendered = String(value ?? '').trim();
+      if (rendered !== '') out[`${prefix ? `${prefix} · ` : ''}${key.slice(2)}`] = rendered;
+      continue;
+    }
+    if (key === '#text' || key === '__cdata') {
+      const rendered = String(value ?? '').trim();
+      if (rendered) out[prefix || 'text'] = rendered;
+      continue;
+    }
+    const children = toArray(value);
+    children.forEach((child, index) => {
+      const label = children.length > 1 ? `${key}[${index + 1}]` : key;
+      flattenXml(child, prefix ? `${prefix}/${label}` : label, out);
+    });
+  }
+}
+
+// Device-level settings the RTAC reads in whole (Ethernet interfaces, hosts
+// file, web server config): <ObjectName> plus an <ObjectText> XML body whose
+// every element/attribute is a setting — IP addresses and static routes live
+// here, so this is comm truth, not bookkeeping.
+function extractReadInItem(container) {
+  const settings = {};
+  const body = findFirst(container, 'ObjectText');
+  if (body !== undefined) flattenXml(body, '', settings);
+  return {
+    name: text(findFirst(container, 'ObjectName')) || null,
+    settings,
+  };
+}
+
 // --- the registry ------------------------------------------------------------
 
 const KIND_REGISTRY = new Map(Object.entries({
@@ -139,9 +218,16 @@ const KIND_REGISTRY = new Map(Object.entries({
   TagProcessor: { category: 'system', label: 'Tag Processor' },
   AccessPointRouter: { category: 'system', label: 'Access Point Router' },
   ContactIO: { category: 'system', label: 'Contact I/O' },
-  MainController: { category: 'system', label: 'Main Controller' },
+  MainController: { category: 'system', label: 'Main Controller', extract: extractMainController },
   SystemTags: { category: 'system', label: 'System Tags' },
   SystemTimeControl: { category: 'system', label: 'System Time Control' },
+  RTACBackupableObject: { category: 'system', label: 'Read-in Item', extract: extractReadInItem },
+  UserLibrary: { category: 'extension', label: 'User Library', extract: extractUserLibrary },
+  LogicEngineObject: { category: 'logic', label: 'Logic Object', extract: extractLogicEngineObject },
+  // HMI screens: the content is a CoDeSys ArchivedContent blob the parser
+  // cannot decode — presence + fingerprint make edits visible to compare.
+  Visualization: { category: 'visual', label: 'Visualization', archivedContent: true },
+  VisualizationManager: { category: 'visual', label: 'Visualization Manager', archivedContent: true },
   EtherCATNetwork: { category: 'hardware', label: 'EtherCAT I/O Network', extract: extractEtherCatNetwork },
   CustomApplication: { category: 'extension', label: 'Custom Application', extract: extractCustomApplication },
   CustomApplicationDefinition: {

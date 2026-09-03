@@ -10,16 +10,42 @@ export function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+/** "Aug 31" — the tightest stamp, for collapsed tree rows where width is
+ * precious; the time lives on hover and in the expanded version rows. */
+export function formatDay(ms: number): string {
+  const when = new Date(ms)
+  const now = new Date()
+  return when.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    ...(when.getFullYear() !== now.getFullYear() ? { year: '2-digit' } : {}),
+  })
+}
+
 /**
- * "Aug 31, 2026 at 6:42:07 PM" — when a source landed in the project. Lives in
- * hover titles rather than the row itself: it is the answer to "which upload
- * is this, the one from this morning?", which is worth a hover and not worth
- * a line of every sidebar row.
+ * "Aug 31 · 6:42 PM" — the compact inline stamp version rows wear. Every
+ * version shows its time at a glance; the full seconds-bearing string
+ * (formatWhen) rides the hover title for the "which of these two uploads
+ * from the same minute" question.
+ */
+export function formatStamp(ms: number): string {
+  const when = new Date(ms)
+  const now = new Date()
+  const date = when.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    ...(when.getFullYear() !== now.getFullYear() ? { year: 'numeric' } : {}),
+  })
+  const time = when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  return `${date} · ${time}`
+}
+
+/**
+ * "Aug 31, 2026 at 6:42:07 PM" — the full landing time, for hover titles.
  *
- * Seconds are not noise here, they are the point: two uploads of the SAME
- * settings file share a display name, so this string is the only thing that
- * tells them apart — and re-uploading twice inside a minute is exactly what
- * fixing a mistake looks like.
+ * Seconds are not noise here, they are the point: two versions of one
+ * settings file differ only in when they landed — and re-uploading twice
+ * inside a minute is exactly what fixing a mistake looks like.
  */
 export function formatWhen(ms: number): string {
   const when = new Date(ms)

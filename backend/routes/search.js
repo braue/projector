@@ -1,4 +1,4 @@
-// Per-source search: ?type=&ref=&q= searches one source's parsed items.
+// Per-artifact search: ?ref=&q= searches one artifact's parsed items.
 // `resolve(req)` supplies the project's SearchService.
 
 import { Router } from 'express';
@@ -9,8 +9,7 @@ function searchRoutes(resolve) {
   const router = Router({ mergeParams: true });
 
   router.get('/', async (req, res) => {
-    const source = { type: requireQuery(req, 'type'), ref: requireQuery(req, 'ref') };
-    res.json(await (await resolve(req)).search(source, requireQuery(req, 'q')));
+    res.json(await (await resolve(req)).search(requireQuery(req, 'ref'), requireQuery(req, 'q')));
   });
 
   return router;
