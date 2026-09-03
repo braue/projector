@@ -95,12 +95,8 @@ export function AggregateView({
   const treePane = useMemo(
     () => (
       <TreePane
-        header={
-          <>
-            <div className="tree-title">{tree.name}</div>
-            <div className="tree-subtitle">check objects to scope · none = all</div>
-          </>
-        }
+        // No name line: the inspect bar right above already carries it.
+        header={<div className="tree-subtitle">check objects to scope · none = all</div>}
         footer={checked.size ? `${checked.size} objects in scope` : 'whole project in scope'}
       >
         <TreeRows nodes={tree.tree} checked={checked} onToggleCheck={onToggleCheck} />

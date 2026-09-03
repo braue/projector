@@ -114,7 +114,7 @@ export function InspectView({
             {tree ? (
               <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} />
             ) : (
-              <TreePane header={<div className="tree-title">{title}</div>}>
+              <TreePane header={null}>
                 <div className="pane-message">{treeError ?? profilesError ?? 'Parsing…'}</div>
               </TreePane>
             )}

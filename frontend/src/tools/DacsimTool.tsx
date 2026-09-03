@@ -31,10 +31,21 @@ interface SchemeRow {
   remoteIp: string
 }
 
-/** "Station A/Feeder 1.rtac" -> "Feeder 1" — the default scheme name. */
+/** A scheme name becomes an RTAC variable name in the generated master, so
+ *  it must be an IEC identifier: letters/digits/underscores, letter first.
+ *  (A "Covington North 13.2kv" scheme crashes the converter mid-build.) */
+const SCHEME_NAME = /^[A-Za-z][A-Za-z0-9_]*$/
+
+/** "Station A/Feeder 1.rtac" -> "Feeder_1" — the default scheme name,
+ *  squeezed into identifier shape. */
 function schemeNameFor(path: string): string {
   const base = path.split('/').pop() ?? path
-  return base.replace(/\.rtac$/i, '').replace(/[^A-Za-z0-9 _.-]/g, '_')
+  return base.replace(/\.rtac$/i, '')
+    .replace(/[^A-Za-z0-9_]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^[^A-Za-z]+/, '')
+    .replace(/_+$/, '')
+    || 'Scheme'
 }
 
 /** Every RTAC export entry in a project tree (the candidates for DACs). */
@@ -111,7 +122,9 @@ export function DacsimTool({ project }: ToolProps) {
   const setRow = (index: number, patch: Partial<SchemeRow>) =>
     setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
 
-  const rowsReady = rows.length > 0
+  const badName = rows.find((row) => row.schemeName.trim()
+    && !SCHEME_NAME.test(row.schemeName.trim()))
+  const rowsReady = rows.length > 0 && !badName
     && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIp.trim())
     && masterIp.trim() !== ''
 
@@ -222,6 +235,13 @@ export function DacsimTool({ project }: ToolProps) {
           </>
         )}
 
+        {badName && (
+          <div className="tool-error">
+            Scheme name “{badName.schemeName.trim()}” won't work — it becomes an RTAC
+            variable name, so it needs letters, digits, and underscores only,
+            starting with a letter (e.g. Feeder_9).
+          </div>
+        )}
         {error && <div className="tool-error">{error}</div>}
 
         {job && (

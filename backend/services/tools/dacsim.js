@@ -86,8 +86,12 @@ class DacsimService {
 
     const staged = schemes.map((scheme, index) => {
       const schemeName = String(scheme?.schemeName ?? '').trim();
-      if (!/^[A-Za-z0-9 _.-]+$/.test(schemeName)) {
-        throw httpError(400, `scheme ${index + 1}: name must be letters, digits, spaces, _ - .`);
+      // The converter writes the scheme name into the master's declarations
+      // as an RTAC VARIABLE name — anything outside IEC identifier shape
+      // crashes it mid-build ("Covington North 13.2kv", 2026-09-03).
+      if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(schemeName)) {
+        throw httpError(400, `scheme ${index + 1}: the name becomes an RTAC variable — `
+          + 'use letters, digits, and underscores, starting with a letter (e.g. Feeder_9)');
       }
       const dacIps = (Array.isArray(scheme?.dacIps) ? scheme.dacIps : [])
         .map((ip) => String(ip).trim()).filter(Boolean);

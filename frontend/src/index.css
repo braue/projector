@@ -1133,10 +1133,6 @@ button.ui-section-header:hover { color: var(--ink); }
 }
 /* The current version's row inside an open accordion. */
 .version-badge.current { border-color: var(--ink-soft); color: var(--ink-soft); font-weight: 650; }
-/* The name a version lived under when it was current, when a later arrival
- * renamed the entry — leads the note column ("spec.pdf — as-found") so its
- * old identity stays readable; the tooltip carries the full text. */
-.version-was { font-style: italic; }
 /* The second held selection (ctrl+click) — right-click either held row to
  * compare the two. Same quiet fill as the primary selection; being held is
  * enough, no outline. */

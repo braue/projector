@@ -699,9 +699,6 @@ export function ProjectTree({
     current?: boolean
     at: number | null
     note: string | null
-    /** The name this version lived under — shown when it differs from the
-     *  entry's current name (a later arrival renamed the entry). */
-    wasNamed?: string
     title: string
     depth: number
     onDoubleClick?: () => void
@@ -718,26 +715,20 @@ export function ProjectTree({
     >
       <span className={opts.current ? 'version-badge current' : 'version-badge'}>{opts.label}</span>
       {opts.at !== null && <span className="row-stamp">{formatStamp(opts.at)}</span>}
-      <span className="row-note">
-        {opts.wasNamed ? (
-          <>
-            <span className="version-was">{opts.wasNamed}</span>
-            {opts.note ? ` — ${opts.note}` : ''}
-          </>
-        ) : (opts.note ?? '—')}
-      </span>
+      <span className="row-note">{opts.note ?? '—'}</span>
     </button>
   )
 
   const renderVersion = (leaf: FileLeaf, version: FileVersion, index: number, depth: number) => {
     const label = `v${leaf.versions.length - index}`
+    // A version renamed by a later arrival keeps its identity off-row: the
+    // hover title names it, and Import to AcRTAC uses it.
     const renamed = version.name !== leaf.name
     return versionRow({
       path: version.path,
       label,
       at: version.at,
       note: version.note,
-      wasNamed: renamed ? version.name : undefined,
       depth,
       title: [
         `${leaf.name} ${label}${version.at ? ` — ${formatWhen(version.at)}` : ''}`,

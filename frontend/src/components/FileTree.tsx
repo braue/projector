@@ -165,13 +165,11 @@ export function FileTree({
   return (
     <TreePane
       header={
-        <>
-          <div className="tree-title">{tree.name}</div>
-          <div className="tree-subtitle">
-            {tree.deviceLabel ?? 'Unknown device'}
-            {tree.schema && ` · schema ${tree.schema}`}
-          </div>
-        </>
+        // No name line: the inspect bar right above already carries it.
+        <div className="tree-subtitle">
+          {tree.deviceLabel ?? 'Unknown device'}
+          {tree.schema && ` · schema ${tree.schema}`}
+        </div>
       }
       footer={
         summary.connections !== undefined

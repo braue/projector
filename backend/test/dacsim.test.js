@@ -41,15 +41,25 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     const base = {
       masterIp: '192.168.254.11',
       schemes: [{
-        schemeName: 'Feeder 9',
+        schemeName: 'Feeder_9',
         dacPath: 'Feeder 9.rtac',
         dacIps: ['192.168.199.21'],
         remoteIp: '192.168.254.21',
       }],
     };
 
-    // Guards: no schemes, missing IPs, a pick that is not a directory.
+    // Guards: no schemes, an identifier-unsafe name, missing IPs, a pick
+    // that is not a directory.
     await assert.rejects(() => dacsim.stageFromProject(files, { schemes: [] }), /at least one scheme/);
+    // The scheme name lands in the master's declarations as an RTAC
+    // variable name — spaces and dots crash the converter mid-build.
+    await assert.rejects(
+      () => dacsim.stageFromProject(files, {
+        ...base,
+        schemes: [{ ...base.schemes[0], schemeName: 'Covington North 13.2kv' }],
+      }),
+      /becomes an RTAC variable/,
+    );
     await assert.rejects(
       () => dacsim.stageFromProject(files, { ...base, masterIp: '' }),
       /master IP is required/,
@@ -82,14 +92,14 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     // path uses.
     const bundle = await dacsim.stageFromProject(files, base);
     assert.deepEqual(bundle.schemes, [{
-      schemeName: 'Feeder 9',
-      dacFolder: 'DAC Feeder 9',
-      remoteFolder: 'Feeder 9_REMOTE',
+      schemeName: 'Feeder_9',
+      dacFolder: 'DAC Feeder_9',
+      remoteFolder: 'Feeder_9_REMOTE',
       logicFolder: 'SIM Master',
     }]);
     const staged = await workspace.listFiles('dacsim', bundle.run);
     assert.deepEqual(staged.map((file) => file.path), [
-      'DAC Feeder 9/SEL_RTAC/DAC/DeviceDeclarations.xml',
+      'DAC Feeder_9/SEL_RTAC/DAC/DeviceDeclarations.xml',
       'settings.json',
     ]);
     const settings = JSON.parse(
