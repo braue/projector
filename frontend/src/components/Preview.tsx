@@ -4,6 +4,7 @@ import { tokenizeBlock } from '../lib/st'
 import type { LayoutItem, Point, ProjectItem, SettingPage } from '../types'
 import { StText } from './StText'
 import {
+  Button,
   CollapsibleSection,
   DataTable,
   TabBar,
@@ -176,13 +177,27 @@ function sheetTableRows(s: Sheet): TableRow[] {
   }))
 }
 
+// A tag list can run to 10k+ rows, and committing them all in one render
+// stalls the pane — big sheets start capped behind an explicit "show all".
+const SHEET_ROW_CAP = 500
+
 function SheetTable({ sheet: s, maxHeight }: { sheet: Sheet; maxHeight?: string }) {
+  const [showAll, setShowAll] = useState(false)
+  const rows = useMemo(() => sheetTableRows(s), [s])
+  const capped = !showAll && rows.length > SHEET_ROW_CAP
   return (
-    <DataTable
-      columns={s.columns.map((column) => ({ key: column, label: column }))}
-      rows={sheetTableRows(s)}
-      maxHeight={maxHeight}
-    />
+    <>
+      <DataTable
+        columns={s.columns.map((column) => ({ key: column, label: column }))}
+        rows={capped ? rows.slice(0, SHEET_ROW_CAP) : rows}
+        maxHeight={maxHeight}
+      />
+      {capped && (
+        <Button onClick={() => setShowAll(true)}>
+          Show all {rows.length} rows
+        </Button>
+      )}
+    </>
   )
 }
 

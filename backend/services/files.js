@@ -37,12 +37,10 @@ import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 
 import path from 'node:path';
 
 import { httpError, resolveWithin } from '../lib/http.js';
+import { statOrNull, INVALID_NAME } from '../lib/fs.js';
 import { openWithOs, revealWithOs } from '../lib/openWithOs.js';
 import { uniqueName } from '../lib/names.js';
 import { treeOrder } from '../lib/tree.js';
-
-// Windows-invalid filename characters (also covers the path separators).
-const INVALID_NAME = /[<>:"/\\|?*\x00-\x1f]/g;
 
 const SIDECAR = '.versions.json';
 const ARCHIVE_DIR = '.versions';
@@ -116,15 +114,6 @@ class FilesService {
     return resolveWithin(this.root, relPath, `invalid file path: ${relPath}`);
   }
 
-  async #statOrNull(absolute) {
-    try {
-      return await stat(absolute);
-    } catch (err) {
-      if (err?.code === 'ENOENT') return null;
-      throw err;
-    }
-  }
-
   /**
    * Stat identity of one entry, for cache keying: a new version under the
    * same path yields a new key. Directories key on the path + record time
@@ -133,7 +122,7 @@ class FilesService {
    */
   async identify(relPath) {
     const absolute = this.#resolve(relPath);
-    const info = await this.#statOrNull(absolute);
+    const info = await statOrNull(absolute);
     if (!info) throw httpError(404, `no such entry: ${relPath}`);
     const record = (await this.#loadRecords(path.dirname(absolute)))[path.basename(absolute)];
     const key = info.isDirectory()
@@ -197,7 +186,7 @@ class FilesService {
           // Dirent answers for the LINK on a symlink; follow it, so a linked
           // export or folder reads as what it points at.
           const isDirectory = entry.isSymbolicLink()
-            ? (await this.#statOrNull(path.join(dir, entry.name)))?.isDirectory() ?? false
+            ? (await statOrNull(path.join(dir, entry.name)))?.isDirectory() ?? false
             : entry.isDirectory();
           const kind = annotate(entry.name, isDirectory);
           if (isDirectory && !kind) {
@@ -211,7 +200,7 @@ class FilesService {
           // Null-safe: a dangling symlink, or an entry deleted between the
           // readdir and this stat, drops from the listing instead of failing
           // the entire tree.
-          const info = await this.#statOrNull(path.join(dir, entry.name));
+          const info = await statOrNull(path.join(dir, entry.name));
           if (!info) return null;
           const record = records[entry.name];
           return {
@@ -245,7 +234,7 @@ class FilesService {
     if (!record?.history?.length) return [];
     const parentRel = path.dirname(relPath) === '.' ? '' : path.dirname(relPath);
     const nodes = await Promise.all([...record.history].reverse().map(async (entry) => {
-      const info = await this.#statOrNull(path.join(dir, ARCHIVE_DIR, entry.storedName));
+      const info = await statOrNull(path.join(dir, ARCHIVE_DIR, entry.storedName));
       if (!info) return null;
       return {
         path: parentRel
@@ -269,9 +258,12 @@ class FilesService {
     return this.#serialized(async () => {
       const added = [];
       for (const file of files) {
-        const name = cleanName(file.originalname);
-        await this.#place(dirPath, name, trimmedNote, (target) => writeFile(target, file.buffer));
-        added.push(dirPath ? `${dirPath}/${name}` : name);
+        // In-memory bytes, or a disk-staged upload (multer diskStorage) whose
+        // bytes never need to enter the heap.
+        const write = (target) => (file.buffer !== undefined
+          ? writeFile(target, file.buffer)
+          : copyFile(file.path, target));
+        added.push(await this.#place(dirPath, cleanName(file.originalname), trimmedNote, write));
       }
       return { added };
     });
@@ -291,12 +283,12 @@ class FilesService {
   async #place(dirPath, name, note, writer, { directory = false } = {}) {
     assertMutable(dirPath);
     const dir = this.#resolve(dirPath);
-    if (!(await this.#statOrNull(dir))?.isDirectory()) {
+    if (!(await statOrNull(dir))?.isDirectory()) {
       throw httpError(404, `no such folder: ${dirPath || '/'}`);
     }
     const records = await this.#loadRecords(dir, { forWrite: true });
     const live = path.join(dir, name);
-    const previous = await this.#statOrNull(live);
+    const previous = await statOrNull(live);
     // Versions stack same-shaped things only. A file arriving under the name
     // of an existing FOLDER (or a folder under a file's name) is a mistake —
     // archiving the folder would bury its whole subtree behind a version row
@@ -332,7 +324,7 @@ class FilesService {
       }
       throw err;
     }
-    const placed = await this.#statOrNull(live);
+    const placed = await statOrNull(live);
     records[name] = {
       at: Date.now(),
       note,
@@ -355,7 +347,9 @@ class FilesService {
       await rm(path.join(dir, COMMITTED_DIR, name), { force: true }).catch(() => {});
     }
     await this.#saveRecords(dir, records);
-    this.#changed(dirPath ? `${dirPath}/${name}` : name);
+    const treePath = dirPath ? `${dirPath}/${name}` : name;
+    this.#changed(treePath);
+    return treePath;
   }
 
   /** Move the superseded version of `name` — the live copy, or `source`
@@ -381,7 +375,7 @@ class FilesService {
       const parent = this.#resolve(dirPath);
       const folder = path.join(parent, cleanName(name));
       this.#resolve(path.relative(this.root, folder));
-      if (await this.#statOrNull(folder)) throw httpError(409, `already exists: ${name}`);
+      if (await statOrNull(folder)) throw httpError(409, `already exists: ${name}`);
       await mkdir(folder, { recursive: false });
     });
   }
@@ -391,11 +385,11 @@ class FilesService {
       assertMutable(relPath);
       const from = this.#resolve(relPath);
       if (from === this.root) throw httpError(400, 'cannot rename the root');
-      if (!(await this.#statOrNull(from))) throw httpError(404, `no such entry: ${relPath}`);
+      if (!(await statOrNull(from))) throw httpError(404, `no such entry: ${relPath}`);
       const cleaned = cleanName(nextName);
       const to = path.join(path.dirname(from), cleaned);
       if (to === from) return;
-      if (await this.#statOrNull(to)) throw httpError(409, `already exists: ${nextName}`);
+      if (await statOrNull(to)) throw httpError(409, `already exists: ${nextName}`);
       await rename(from, to);
       // An entry's versions follow its name; the archived bytes stay put
       // (they are addressed through the record, not through the live name).
@@ -420,10 +414,10 @@ class FilesService {
       assertMutable(toDir);
       const from = this.#resolve(relPath);
       if (from === this.root) throw httpError(400, 'cannot move the root');
-      const info = await this.#statOrNull(from);
+      const info = await statOrNull(from);
       if (!info) throw httpError(404, `no such entry: ${relPath}`);
       const target = this.#resolve(toDir);
-      if (!(await this.#statOrNull(target))?.isDirectory()) {
+      if (!(await statOrNull(target))?.isDirectory()) {
         throw httpError(404, `no such folder: ${toDir || '/'}`);
       }
       // A folder cannot move into itself or a descendant.
@@ -433,7 +427,7 @@ class FilesService {
       const name = path.basename(from);
       const to = path.join(target, name);
       if (to === from) return;
-      if (await this.#statOrNull(to)) {
+      if (await statOrNull(to)) {
         throw httpError(409, `already exists there: ${name}`);
       }
       await rename(from, to);
@@ -452,7 +446,7 @@ class FilesService {
    *  there is none). */
   async #moveCommitted(fromDir, fromName, toDir, toName) {
     const from = path.join(fromDir, COMMITTED_DIR, fromName);
-    if (!(await this.#statOrNull(from))) return;
+    if (!(await statOrNull(from))) return;
     await mkdir(path.join(toDir, COMMITTED_DIR), { recursive: true });
     await rename(from, path.join(toDir, COMMITTED_DIR, toName));
   }
@@ -490,7 +484,7 @@ class FilesService {
       assertMutable(relPath);
       const absolute = this.#resolve(relPath);
       if (absolute === this.root) throw httpError(400, 'cannot delete the root');
-      const info = await this.#statOrNull(absolute);
+      const info = await statOrNull(absolute);
       if (!info) throw httpError(404, `no such entry: ${relPath}`);
       await rm(absolute, { recursive: true, force: true });
       // Deleting an entry deletes its history with it — the versions were
@@ -516,7 +510,7 @@ class FilesService {
   // project instead of a fresh upload.
   async read(relPath) {
     const absolute = this.#resolve(relPath);
-    if (!(await this.#statOrNull(absolute))?.isFile()) {
+    if (!(await statOrNull(absolute))?.isFile()) {
       throw httpError(404, `no such file: ${relPath}`);
     }
     return readFile(absolute);
@@ -545,9 +539,9 @@ class FilesService {
       // name means the caller asked for characters no entry may carry (':'
       // would collide with the "path::profile" ref separator).
       if (cleanName(base) !== base) throw httpError(400, `invalid name: ${base}`);
-      const existing = await this.#statOrNull(absolute);
+      const existing = await statOrNull(absolute);
       if (existing?.isDirectory()) throw httpError(409, `a folder is named that: ${relPath}`);
-      if (!(await this.#statOrNull(path.dirname(absolute)))?.isDirectory()) {
+      if (!(await statOrNull(path.dirname(absolute)))?.isDirectory()) {
         throw httpError(404, 'no such folder');
       }
       await writeFile(absolute, text);
@@ -564,7 +558,7 @@ class FilesService {
         const info = await stat(absolute);
         record.stat = { mtimeMs: info.mtimeMs, size: info.size };
         const committed = path.join(dir, COMMITTED_DIR, base);
-        if (await this.#statOrNull(committed)) {
+        if (await statOrNull(committed)) {
           await copyFile(absolute, committed).catch(() => {});
         }
         await this.#saveRecords(dir, records);
@@ -583,7 +577,7 @@ class FilesService {
   // predate committed copies (dropped in by hand, or before the feature).
   async open(relPath) {
     const absolute = this.#resolve(relPath);
-    const info = await this.#statOrNull(absolute);
+    const info = await statOrNull(absolute);
     if (!info?.isFile()) throw httpError(404, `no such file: ${relPath}`);
     await this.ensureCommittedCopy(relPath);
     openWithOs(absolute);
@@ -603,7 +597,7 @@ class FilesService {
     if (segments.some((segment) => segment.startsWith('.'))) return Promise.resolve();
     return this.#serialized(async () => {
       const absolute = this.#resolve(relPath);
-      const info = await this.#statOrNull(absolute);
+      const info = await statOrNull(absolute);
       if (!info?.isFile()) return;
       const dir = path.dirname(absolute);
       const name = path.basename(absolute);
@@ -619,7 +613,7 @@ class FilesService {
         && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size);
       if (diverged) return;
       const committed = path.join(dir, COMMITTED_DIR, name);
-      if (!(await this.#statOrNull(committed))) {
+      if (!(await statOrNull(committed))) {
         await mkdir(path.join(dir, COMMITTED_DIR), { recursive: true });
         await copyFile(absolute, committed);
       }
@@ -642,7 +636,7 @@ class FilesService {
     return this.#serialized(async () => {
       assertMutable(relPath);
       const absolute = this.#resolve(relPath);
-      const info = await this.#statOrNull(absolute);
+      const info = await statOrNull(absolute);
       if (!info?.isFile()) throw httpError(404, `no such file: ${relPath}`);
       const dir = path.dirname(absolute);
       const name = path.basename(absolute);
@@ -653,7 +647,7 @@ class FilesService {
       if (!diverged) throw httpError(409, `no on-disk edits to record: ${relPath}`);
       record.history ??= [];
       const committed = path.join(dir, COMMITTED_DIR, name);
-      if (await this.#statOrNull(committed)) {
+      if (await statOrNull(committed)) {
         await this.#archive(dir, name, record, committed);
       }
       records[name] = {
@@ -683,7 +677,7 @@ class FilesService {
       const dir = path.dirname(absolute);
       const name = path.basename(absolute);
       const committed = path.join(dir, COMMITTED_DIR, name);
-      if (!(await this.#statOrNull(committed))) {
+      if (!(await statOrNull(committed))) {
         throw httpError(404, `no committed copy to restore: ${relPath}`);
       }
       await copyFile(committed, absolute);
@@ -706,7 +700,7 @@ class FilesService {
   // its folder with the file selected where the platform can.
   async reveal(relPath) {
     const absolute = this.#resolve(relPath);
-    const info = await this.#statOrNull(absolute);
+    const info = await statOrNull(absolute);
     if (!info) throw httpError(404, `no such entry: ${relPath || '/'}`);
     revealWithOs(absolute, info.isDirectory());
   }

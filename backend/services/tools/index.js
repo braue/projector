@@ -1,6 +1,7 @@
 // The tools bundle — one constructor for everything behind /api/tools, so
 // the server wires a single object and each new tool is one line here.
 
+import { AcrtacImportService } from './acrtacImport.js';
 import { DacsimService } from './dacsim.js';
 import { DwgenService } from './dwgen.js';
 import { HmiTesterService } from './hmiTester.js';
@@ -24,7 +25,8 @@ async function createTools({ dataDir }) {
   const rtacExport = new RtacExportService({ workspace, jobs });
   const dwgen = new DwgenService({ workspace, jobs, settings });
   const dacsim = new DacsimService({ workspace, jobs });
-  return { workspace, settings, jobs, hmi, terminal, quickset, swset, rtacExport, dwgen, dacsim };
+  const acrtacImport = new AcrtacImportService({ jobs });
+  return { workspace, settings, jobs, hmi, terminal, quickset, swset, rtacExport, dwgen, dacsim, acrtacImport };
 }
 
 export { createTools };

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Button, Spinner, TextInput } from './ui'
+import { Button, Modal, Spinner, TextInput } from './ui'
 
 // The version-note dialog every intake path runs through: files dropped into
 // the tree, an RTAC folder upload, a tool output — nothing lands without the
@@ -36,12 +36,7 @@ export function VersionNoteModal({
   const anyVersion = items.some((item) => item.isNewVersion)
 
   return (
-    <div className="modal-overlay" onClick={busy ? undefined : onCancel}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <span className="t">{title}</span>
-          <button className="x" onClick={onCancel} title="Cancel">✕</button>
-        </div>
+    <Modal title={title} onClose={onCancel} locked={busy}>
         <div className="modal-sub">
           Into <b>{destination || 'the project root'}</b>. Say what this version
           changes — the note shows beside it in the tree.
@@ -77,7 +72,6 @@ export function VersionNoteModal({
             {busy ? <Spinner /> : 'Add'}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   )
 }

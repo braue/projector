@@ -1,14 +1,14 @@
 """Bulk-export bridge between the Node backend and SEL's selacrtac library.
 
 The Tools pane's RTAC Exporter (ported from the standalone RTAC EXPORTER
-FastAPI app). Takes its whole request as a single JSON document on STDIN;
-the database login is the fixed admin/TAIL pair, same as acrtac_bridge.py:
+FastAPI app). Takes its whole request as a single JSON document on STDIN:
 
     {"command": "list"}
     {"command": "export", "projects": [...], "format": "xml"|"exp",
      "directory": ..., "projectPassword": null}
 
 Prints one JSON document on stdout; errors go to stderr with a non-zero exit.
+Session and framing live in acrtac_common.py.
 """
 
 import json
@@ -16,14 +16,7 @@ import os
 import sys
 from pathlib import Path
 
-from selacrtac.acrtac import AcRTAC
-
-
-def wait_on(job):
-    # login() hands back a waitable job; the export calls may too, and the
-    # work must finish before the with-block tears the CLI process down.
-    if hasattr(job, "wait"):
-        job.wait()
+from acrtac_common import run_session, wait_on
 
 
 def cmd_list(cli, _request):
@@ -58,18 +51,7 @@ def cmd_export(cli, request):
 def main():
     request = json.load(sys.stdin)
     handler = {"list": cmd_list, "export": cmd_export}[request["command"]]
-    try:
-        with AcRTAC() as cli:
-            cli.login("admin", "TAIL").wait()
-            if not cli.is_logged_in():
-                print("Failed to log in to the RTAC database.", file=sys.stderr)
-                sys.exit(2)
-            result = handler(cli, request)
-    except Exception as exc:  # surface any selacrtac failure as the process error
-        print(str(exc), file=sys.stderr)
-        sys.exit(1)
-
-    json.dump(result, sys.stdout)
+    run_session(lambda cli: handler(cli, request))
 
 
 if __name__ == "__main__":

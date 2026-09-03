@@ -5,6 +5,7 @@
 // and the generated panel drawings. A profile is addressed
 // "<path>::<profileName>".
 
+import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 import { ArtifactKind, splitArtifactRef } from '../lib/artifacts.js';
@@ -69,19 +70,30 @@ class RdbKind extends ArtifactKind {
     const drawings = {};
     for (const profile of entry.model.profiles) {
       const outputDir = path.join(this.drawingsDir, entry.hash, profile.name);
-      try {
-        drawings[profile.name] = await createImages(
-          relayType(profile),
-          profile.info?.PARTNO,
-          outputDir,
-          { devicesDir: this.selDevicesDir },
-        );
-      } catch (err) {
-        console.warn(`no panel drawings for ${profile.name}: ${err?.message ?? err}`);
-        drawings[profile.name] = [];
-      }
+      drawings[profile.name] = await this.#profileViews(profile, outputDir);
     }
     return drawings;
+  }
+
+  async #profileViews(profile, outputDir) {
+    // The output dir is content-hash-keyed, so PNGs rendered by an earlier
+    // inspect (before a cache eviction or an app restart) are valid as-is —
+    // re-rendering is seconds of main-process CPU per profile.
+    const onDisk = (await readdir(outputDir).catch(() => []))
+      .filter((name) => name.endsWith('.png'))
+      .map((name) => name.slice(0, -'.png'.length));
+    if (onDisk.length) return ['front', 'rear'].filter((view) => onDisk.includes(view));
+    try {
+      return await createImages(
+        relayType(profile),
+        profile.info?.PARTNO,
+        outputDir,
+        { devicesDir: this.selDevicesDir },
+      );
+    } catch (err) {
+      console.warn(`no panel drawings for ${profile.name}: ${err?.message ?? err}`);
+      return [];
+    }
   }
 
   // Absolute path of one generated drawing PNG, for the image route.

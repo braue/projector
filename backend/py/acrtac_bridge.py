@@ -6,13 +6,12 @@ Invoked per call by lib/acrtac/pythonClient.js:
     python acrtac_bridge.py export --name PROJECT --directory OUT_DIR
 
 Prints one JSON document on stdout; errors go to stderr with a non-zero exit.
+Session and framing live in acrtac_common.py.
 """
 
 import argparse
-import json
-import sys
 
-from selacrtac.acrtac import AcRTAC
+from acrtac_common import run_session, wait_on
 
 
 def cmd_list(cli, _args):
@@ -21,11 +20,7 @@ def cmd_list(cli, _args):
 
 
 def cmd_export(cli, args):
-    job = cli.exportxml(directory=args.directory, name=args.name, project_password=None)
-    # login() hands back a waitable job; if exportxml does too, the export
-    # must finish before the with-block in main() tears the CLI process down.
-    if hasattr(job, "wait"):
-        job.wait()
+    wait_on(cli.exportxml(directory=args.directory, name=args.name, project_password=None))
     return {"ok": True}
 
 
@@ -41,20 +36,7 @@ def main():
 
     args = parser.parse_args()
     handler = {"list": cmd_list, "export": cmd_export}[args.command]
-
-    try:
-        # AcRTAC only works as a context manager: __enter__ starts the CLI
-        # process and registers its alias, __exit__ tears it down. The whole
-        # command therefore runs inside the with-block — a client that
-        # escapes it is talking to a process that no longer exists.
-        with AcRTAC() as cli:
-            cli.login("admin", "TAIL").wait()
-            result = handler(cli, args)
-    except Exception as exc:  # surface any selacrtac failure as the process error
-        print(str(exc), file=sys.stderr)
-        sys.exit(1)
-
-    json.dump(result, sys.stdout)
+    run_session(lambda cli: handler(cli, args))
 
 
 if __name__ == "__main__":

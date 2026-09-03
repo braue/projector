@@ -61,4 +61,4 @@ async function loadDeviceMetadata(model, devicesDir = SEL_DEVICES_DIR) {
   return metadata;
 }
 
-export { SEL_DEVICES_DIR, loadDeviceMetadata };
+export { SEL_DEVICES_DIR, deviceDirs, loadDeviceMetadata };

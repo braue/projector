@@ -3,8 +3,7 @@ import { TextInput } from './ui'
 // The scaffold every search pane shares (Inspect, Notes, Files): the query
 // bar, an optional subtitle count line, and a scrollable body that shows a
 // pane message until there are results. Views keep only their data
-// acquisition and row rendering (query state for the live panes lives in
-// lib/useSearchQuery.ts).
+// acquisition and row rendering.
 
 export function SearchPane({
   placeholder,

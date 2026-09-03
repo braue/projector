@@ -5,16 +5,15 @@
 // server-side folder. Needs the machine with the RTAC database (Python +
 // selacrtac) — elsewhere the load fails with a clear message.
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { fetchToolJob, listRtacExportProjects, startRtacExportJob } from '../api'
+import { listRtacExportProjects, startRtacExportJob } from '../api'
 import { Button, Checkbox, SectionHeader, SegmentedControl, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import type { RtacExportResult, ToolJob, ToolReport } from '../types'
+import { useToolJob } from '../lib/useToolJob'
+import type { RtacExportResult, ToolReport } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
-
-const POLL_MS = 1200
 
 interface ExportOutcome {
   run: string
@@ -33,9 +32,11 @@ export function RtacExportTool(_props: ToolProps) {
   const [picked, setPicked] = useState<Set<string>>(new Set())
   const [format, setFormat] = useState<'xml' | 'exp'>('xml')
 
-  const [jobId, setJobId] = useState<string | null>(null)
-  const [job, setJob] = useState<ToolJob | null>(null)
   const [outcome, setOutcome] = useState<ExportOutcome | null>(null)
+  const { job, running: exporting, start } = useToolJob(
+    (result) => setOutcome(result as ExportOutcome),
+    setError,
+  )
 
   const load = async () => {
     setBusy(true)
@@ -51,44 +52,15 @@ export function RtacExportTool(_props: ToolProps) {
     }
   }
 
-  useEffect(() => {
-    if (!jobId) return
-    let cancelled = false
-    const tick = async () => {
-      try {
-        const state = await fetchToolJob(jobId)
-        if (cancelled) return
-        setJob(state)
-        if (state.status === 'running') {
-          window.setTimeout(tick, POLL_MS)
-        } else {
-          setJobId(null)
-          if (state.status === 'done') setOutcome(state.result as ExportOutcome)
-          else setError(state.error)
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setJobId(null)
-          setError(errorMessage(err))
-        }
-      }
-    }
-    tick()
-    return () => {
-      cancelled = true
-    }
-  }, [jobId])
-
   const startExport = async () => {
     setError(null)
     setOutcome(null)
-    setJob(null)
     try {
       const { job: id } = await startRtacExportJob({
         projects: [...picked],
         format,
       })
-      setJobId(id)
+      start(id)
     } catch (err) {
       setError(errorMessage(err))
     }
@@ -98,7 +70,6 @@ export function RtacExportTool(_props: ToolProps) {
     name.toLowerCase().includes(filter.trim().toLowerCase()),
   )
   const allVisiblePicked = visible.length > 0 && visible.every((name) => picked.has(name))
-  const exporting = jobId !== null
 
   const toggle = (name: string, on: boolean) => {
     setPicked((current) => {

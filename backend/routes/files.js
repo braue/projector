@@ -4,6 +4,9 @@
 // paths contain slashes, so they travel as ?path= / body fields, never as
 // route params. `resolve(req)` supplies the project's { files, artifacts }.
 
+import { rm } from 'node:fs/promises';
+import os from 'node:os';
+
 import { Router } from 'express';
 import multer from 'multer';
 
@@ -13,8 +16,12 @@ const MAX_UPLOAD_BYTES = 256 * 1024 * 1024;
 
 function fileRoutes(resolve) {
   const router = Router({ mergeParams: true });
+  // Disk storage, not memory: this backend shares the Electron main process,
+  // and buffering a whole upload batch in RAM is the OOM class the parse
+  // cache exists to prevent (same reasoning as the RTAC upload route). The
+  // store copies the temp files into place; they are removed after.
   const upload = multer({
-    storage: multer.memoryStorage(),
+    storage: multer.diskStorage({ destination: os.tmpdir() }),
     limits: { fileSize: MAX_UPLOAD_BYTES, files: 100 },
   });
 
@@ -26,9 +33,15 @@ function fileRoutes(resolve) {
   // Multipart field "files"; "dir" names the target folder ('' = root);
   // "note" is the mandatory version note shared by the batch.
   router.post('/upload', upload.array('files'), async (req, res) => {
-    if (!req.files?.length) throw httpError(400, 'multipart field "files" required');
-    const { files } = await resolve(req);
-    res.status(201).json(await files.upload(req.body?.dir ?? '', req.files, req.body?.note));
+    try {
+      if (!req.files?.length) throw httpError(400, 'multipart field "files" required');
+      const { files } = await resolve(req);
+      res.status(201).json(await files.upload(req.body?.dir ?? '', req.files, req.body?.note));
+    } finally {
+      await Promise.all((req.files ?? []).map(
+        (file) => rm(file.path, { force: true }).catch(() => {}),
+      ));
+    }
   });
 
   router.post('/folder', async (req, res) => {

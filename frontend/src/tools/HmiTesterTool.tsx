@@ -3,10 +3,10 @@
 // binary form needs Diagram Builder's converter at its standard install path
 // (Windows only); otherwise upload the converted .hprj.
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { analyzeHmi, analyzeHmiProjectFile } from '../api'
-import { CollapsibleSection, DataTable, Spinner } from '../components/ui'
+import { CollapsibleSection, DataTable, FileDropZone, Spinner } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { HmiReport } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
@@ -17,7 +17,6 @@ export function HmiTesterTool({ project }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
   const [report, setReport] = useState<HmiReport | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
-  const input = useRef<HTMLInputElement>(null)
 
   const run = async (name: string, request: () => Promise<HmiReport>) => {
     if (busy) return
@@ -46,30 +45,10 @@ export function HmiTesterTool({ project }: ToolProps) {
         </div>
       </div>
       <div className="tool-scroll">
-        <input
-          ref={input}
-          type="file"
-          accept=".hprj,.hprb"
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) analyze(file)
-            e.target.value = ''
-          }}
-        />
-        <button
-          className="drop-zone as-button"
-          onClick={() => input.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault()
-            const file = e.dataTransfer.files[0]
-            if (file) analyze(file)
-          }}
-        >
+        <FileDropZone accept=".hprj,.hprb" onFile={analyze}>
           <b>Drop an .hprj here</b>
           or click to browse — .hprb also works where Diagram Builder is installed
-        </button>
+        </FileDropZone>
         <ProjectFilePick
           project={project}
           extensions={['.hprj', '.hprb']}

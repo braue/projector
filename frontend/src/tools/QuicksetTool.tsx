@@ -2,12 +2,11 @@
 // ZIP), then inventory the relay fleet and pull chosen settings across it.
 // Database credentials are typed here per run and never stored.
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import {
   extractQuicksetSettings,
   fetchQuicksetInventory,
-  fetchToolJob,
   importQuicksetProjectConfigs,
   startQuicksetDump,
   uploadQuicksetConfigs,
@@ -16,18 +15,18 @@ import {
   Button,
   CollapsibleSection,
   DataTable,
+  FileDropZone,
   SectionHeader,
   Spinner,
   TextArea,
   TextInput,
 } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import type { QuicksetExtract, QuicksetInventory, ToolJob } from '../types'
+import { useToolJob } from '../lib/useToolJob'
+import type { QuicksetExtract, QuicksetInventory } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
-
-const POLL_MS = 1200
 
 const DEFAULT_SETTINGS = [
   'OUT101', 'OUT102', 'OUT103', 'OUT104', 'OUT105', 'OUT106', 'OUT107', 'OUT108',
@@ -41,14 +40,11 @@ export function QuicksetTool({ project }: ToolProps) {
 
   // Database dump form + its job.
   const [db, setDb] = useState({ host: 'localhost', port: '5432', dbname: '', user: 'postgres', password: '' })
-  const [jobId, setJobId] = useState<string | null>(null)
-  const [job, setJob] = useState<ToolJob | null>(null)
 
   const [inventory, setInventory] = useState<QuicksetInventory | null>(null)
   const [busy, setBusy] = useState(false)
   const [terms, setTerms] = useState(DEFAULT_SETTINGS)
   const [extract, setExtract] = useState<QuicksetExtract | null>(null)
-  const input = useRef<HTMLInputElement>(null)
 
   const openRun = async (runId: string) => {
     setRun(runId)
@@ -64,40 +60,17 @@ export function QuicksetTool({ project }: ToolProps) {
     }
   }
 
-  // Poll the dump job until it settles; its run becomes the source.
-  useEffect(() => {
-    if (!jobId) return
-    let cancelled = false
-    const tick = async () => {
-      try {
-        const state = await fetchToolJob(jobId)
-        if (cancelled) return
-        setJob(state)
-        if (state.status === 'running') {
-          window.setTimeout(tick, POLL_MS)
-        } else {
-          setJobId(null)
-          if (state.status === 'done') {
-            const result = state.result as { run?: string } | null
-            if (result?.run) openRun(result.run)
-          }
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setJobId(null)
-          setError(errorMessage(err))
-        }
-      }
-    }
-    tick()
-    return () => {
-      cancelled = true
-    }
-  }, [jobId])
+  // The dump job; its run becomes the source.
+  const { job, running: dumping, start } = useToolJob(
+    (result) => {
+      const settled = result as { run?: string } | null
+      if (settled?.run) openRun(settled.run)
+    },
+    setError,
+  )
 
   const startDump = async () => {
     setError(null)
-    setJob(null)
     try {
       const { job: id } = await startQuicksetDump({
         host: db.host,
@@ -106,7 +79,7 @@ export function QuicksetTool({ project }: ToolProps) {
         user: db.user,
         password: db.password,
       })
-      setJobId(id)
+      start(id)
     } catch (err) {
       setError(errorMessage(err))
     }
@@ -139,7 +112,6 @@ export function QuicksetTool({ project }: ToolProps) {
     }
   }
 
-  const dumping = jobId !== null
   const field = (key: keyof typeof db, label: string, type = 'text') => (
     <TextInput
       label={label}
@@ -160,30 +132,10 @@ export function QuicksetTool({ project }: ToolProps) {
       </div>
       <div className="tool-scroll">
         <SectionHeader title="Source" />
-        <input
-          ref={input}
-          type="file"
-          accept=".zip"
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) uploadZip(file)
-            e.target.value = ''
-          }}
-        />
-        <button
-          className="drop-zone as-button"
-          onClick={() => input.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault()
-            const file = e.dataTransfer.files[0]
-            if (file) uploadZip(file)
-          }}
-        >
+        <FileDropZone accept=".zip" onFile={uploadZip}>
           <b>Drop an exported-configs ZIP here</b>
           or click to browse — the location/device tree from a previous dump
-        </button>
+        </FileDropZone>
         <ProjectFilePick
           project={project}
           extensions={['.zip']}
@@ -207,7 +159,6 @@ export function QuicksetTool({ project }: ToolProps) {
             {job.progress !== null && job.status === 'running' && (
               <div className="tool-stats">{Math.round(job.progress * 100)}%</div>
             )}
-            {job.status === 'error' && <div className="tool-error">{job.error}</div>}
             {job.log.slice(-8).map((entry, i) => (
               <div key={i} className="tool-joblog-line">{entry}</div>
             ))}

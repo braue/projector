@@ -5,46 +5,10 @@
 // JSON on the bridge's stdin, and the exports land in a tool run instead of
 // the old fixed C:\RTAC_exports path, zipped for download / save-to-project.
 
-import { spawn } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
-import path from 'node:path';
-
 import { httpError } from '../../lib/http.js';
-import { bridgeMessage, bridgePath, PYTHON } from '../../lib/acrtac/pythonClient.js';
+import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const SCRIPT = 'acrtac_export.py';
-const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
-
-/** One bridge invocation: request JSON on stdin, result JSON on stdout. */
-function runExportBridge(request) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(PYTHON, [bridgePath(SCRIPT)], { windowsHide: true });
-    let stdout = '';
-    let stderr = '';
-    const timer = setTimeout(() => {
-      child.kill();
-    }, BRIDGE_TIMEOUT_MS);
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      reject(new Error(bridgeMessage(err, stderr)));
-    });
-    child.on('close', (code, signal) => {
-      clearTimeout(timer);
-      if (code !== 0 || signal) {
-        reject(new Error(bridgeMessage({ killed: Boolean(signal), code }, stderr)));
-        return;
-      }
-      try {
-        resolve(JSON.parse(stdout));
-      } catch {
-        reject(new Error(`acrtac export bridge returned non-JSON output: ${stdout.slice(0, 200)}`));
-      }
-    });
-    child.stdin.end(JSON.stringify(request));
-  });
-}
 
 class RtacExportService {
   constructor({ workspace, jobs }) {
@@ -53,7 +17,7 @@ class RtacExportService {
   }
 
   async listProjects() {
-    const result = await runExportBridge({ command: 'list' });
+    const result = await runStdinBridge(SCRIPT, { command: 'list' });
     return { projects: result.projects };
   }
 
@@ -68,7 +32,7 @@ class RtacExportService {
     const workspace = this.workspace;
     const job = this.jobs.start(`RTAC export: ${projects.length} project(s)`, async (handle) => {
       handle.log(`Exporting ${projects.length} project(s) as ${exportFormat.toUpperCase()}…`);
-      const { results } = await runExportBridge({
+      const { results } = await runStdinBridge(SCRIPT, {
         command: 'export',
         projects,
         format: exportFormat,
@@ -79,18 +43,11 @@ class RtacExportService {
         handle.log(entry.success ? `✓ ${entry.project}` : `✕ ${entry.project}: ${entry.error}`);
       }
       // One ZIP of the whole run for download / save-to-project.
-      const files = await workspace.listFiles('rtac-export', runId);
-      const reports = [];
-      if (files.length) {
-        const { zipSync } = await import('fflate');
-        const entries = {};
-        for (const file of files) {
-          entries[file.path] = new Uint8Array(await workspace.readFile('rtac-export', runId, file.path));
-        }
-        const zipName = 'rtac exports.zip';
-        await writeFile(path.join(dir, zipName), zipSync(entries));
-        reports.push({ path: zipName, label: `Exports ZIP (${files.length} files)` });
-      }
+      const zipName = 'rtac exports.zip';
+      const zipped = await workspace.zipRun('rtac-export', runId, zipName);
+      const reports = zipped
+        ? [{ path: zipName, label: `Exports ZIP (${zipped} files)` }]
+        : [];
       const succeeded = results.filter((r) => r.success).length;
       return { run: runId, succeeded, failed: results.length - succeeded, results, reports };
     });

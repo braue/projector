@@ -49,11 +49,6 @@ function clean(text) {
   return String(text ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-/** A model token becomes part of a regex in manualFor; escape it first. */
-function escapeRegExp(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 /**
  * How many top-ranked pages to consider before grouping. Deep enough that the
  * short document types still have candidates left after the manuals have taken
@@ -118,37 +113,6 @@ class SelFullText {
         : null,
       error: this.#error,
     };
-  }
-
-  /**
-   * The instruction manual for a device model, or null.
-   *
-   * Resolution reads the index's document LIST, not the page text: a manual
-   * mentions every model it interoperates with, but its filename names
-   * exactly one. The model must appear in that name as a whole token —
-   * "751" must not claim the SEL-751A manual, nor "751A" the SEL-751's —
-   * and only documents filed under an instruction-manual folder are
-   * considered. Several editions of the same manual resolve to the newest
-   * file; whether the PDF itself is on this machine is the library's
-   * question, not answered here.
-   */
-  manualFor(model) {
-    if (!this.#db) return null;
-    const bare = String(model ?? '').replace(/^SEL[-\s]*/i, '').trim();
-    if (!bare) return null;
-    let rows;
-    try {
-      rows = this.#db
-        .prepare("SELECT path, name, mtime, pages FROM docs WHERE folder LIKE '%instruction%'")
-        .all();
-    } catch {
-      return null;
-    }
-    const token = new RegExp(`(^|[^0-9a-z])${escapeRegExp(bare)}([^0-9a-z]|$)`, 'i');
-    const best = rows
-      .filter((row) => token.test(row.name))
-      .sort((a, b) => (b.mtime - a.mtime) || (b.pages - a.pages))[0];
-    return best ? { path: best.path, name: best.name } : null;
   }
 
   /**

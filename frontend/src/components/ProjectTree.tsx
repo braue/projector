@@ -19,6 +19,7 @@ import { errorMessage } from '../lib/errors'
 import { formatDay, formatStamp, formatWhen } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import type { ArtifactKindName, FileNode, FileVersion, RtacExportStatus } from '../types'
+import { AcrtacImportModal } from './AcrtacImportModal'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { ContextMenu, InlineNameForm, Spinner, type ContextMenuItem } from './ui'
 import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
@@ -216,6 +217,7 @@ export function ProjectTree({
   // The AcRTAC browser, opened at a destination folder — optionally aimed
   // at an existing entry as its next version (null = closed).
   const [dbState, setDbState] = useState<{ dir: string; versionOf?: string } | null>(null)
+  const [importTarget, setImportTarget] = useState<{ path: string; name: string } | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number; target: MenuTarget } | null>(null)
   const { width, startResize } = useSidebarWidth()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -455,11 +457,15 @@ export function ProjectTree({
         : []),
       // Versioning an RTAC export means pulling it from the database again
       // (or re-uploading the folder); single-file entries get a direct
-      // file-picker path.
+      // file-picker path. RTAC entries also go the other way: import this
+      // copy into the AcRTAC database.
       ...(node.kind === 'rtac'
         ? [{
             label: 'New version from AcRTAC…',
             onClick: () => setDbState({ dir: nodeDir, versionOf: node.name }),
+          }, {
+            label: 'Import to AcRTAC…',
+            onClick: () => setImportTarget({ path: node.path, name: node.name }),
           }]
         : [{
             label: 'Add new version…',
@@ -517,26 +523,90 @@ export function ProjectTree({
     return classes.filter(Boolean).join(' ')
   }
 
+  // One version-history row — the archived versions and the current-version
+  // head row share this chrome, differing only in badge, title and handlers.
+  const versionRow = (opts: {
+    path: string
+    label: string
+    current?: boolean
+    at: number | null
+    note: string | null
+    title: string
+    depth: number
+    onDoubleClick?: () => void
+    onContextMenu: (e: React.MouseEvent) => void
+  }) => (
+    <button
+      key={`${opts.path}${opts.current ? ':current' : ''}`}
+      className={rowClasses(opts.path, ['version-row'])}
+      style={{ paddingLeft: `${10 + (opts.depth + 1) * 14}px` }}
+      title={opts.title}
+      onClick={(e) => select(e, opts.path)}
+      onDoubleClick={opts.onDoubleClick}
+      onContextMenu={opts.onContextMenu}
+    >
+      <span className={opts.current ? 'version-badge current' : 'version-badge'}>{opts.label}</span>
+      {opts.at !== null && <span className="row-stamp">{formatStamp(opts.at)}</span>}
+      <span className="row-note">{opts.note ?? '—'}</span>
+    </button>
+  )
+
   const renderVersion = (leaf: FileLeaf, version: FileVersion, index: number, depth: number) => {
     const label = `v${leaf.versions.length - index}`
-    return (
-      <button
-        key={version.path}
-        className={rowClasses(version.path, ['version-row'])}
-        style={{ paddingLeft: `${10 + (depth + 1) * 14}px` }}
-        title={`${leaf.name} ${label}${version.at ? ` — ${formatWhen(version.at)}` : ''}${version.note ? `\n${version.note}` : ''}`}
-        onClick={(e) => select(e, version.path)}
-        onDoubleClick={version.size !== null
-          ? () => act(() => openFileEntry(project, version.path))
-          : undefined}
-        onContextMenu={(e) => openMenu(e, { type: 'version', leaf, version })}
-      >
-        <span className="version-badge">{label}</span>
-        {version.at !== null && <span className="row-stamp">{formatStamp(version.at)}</span>}
-        <span className="row-note">{version.note ?? '—'}</span>
-      </button>
-    )
+    return versionRow({
+      path: version.path,
+      label,
+      at: version.at,
+      note: version.note,
+      depth,
+      title: `${leaf.name} ${label}${version.at ? ` — ${formatWhen(version.at)}` : ''}${version.note ? `\n${version.note}` : ''}`,
+      onDoubleClick: version.size !== null
+        ? () => act(() => openFileEntry(project, version.path))
+        : undefined,
+      onContextMenu: (e) => openMenu(e, { type: 'version', leaf, version }),
+    })
   }
+
+  // The rename form both entry shapes (leaf and folder) swap in for their row.
+  const renameForm = (node: { path: string; name: string }) => (
+    <InlineNameForm
+      initial={node.name}
+      placeholder="New name — Enter to rename"
+      onCommit={async (value) => {
+        await renameFileEntry(project, node.path, value)
+        setRenaming(null)
+        onReload()
+      }}
+      onCancel={() => setRenaming(null)}
+    />
+  )
+
+  // The create-folder / create-note forms rendered under whichever dir the
+  // context menu opened them for — the root and every folder share these.
+  const intakeForms = (dir: string, dirName: string | null) => (
+    <>
+      {creatingIn === dir && (
+        <InlineNameForm
+          placeholder={dirName
+            ? `Folder name in ${dirName} — Enter to create`
+            : 'Folder name — Enter to create'}
+          onCommit={async (value) => {
+            await createFileFolder(project, dir, value)
+            setCreatingIn(null)
+            onReload()
+          }}
+          onCancel={() => setCreatingIn(null)}
+        />
+      )}
+      {notingIn === dir && (
+        <InlineNameForm
+          placeholder="Note name — Enter to create"
+          onCommit={(value) => createNote(dir, value)}
+          onCancel={() => setNotingIn(null)}
+        />
+      )}
+    </>
+  )
 
   const renderLeaf = (node: FileLeaf, depth: number) => {
     const versionsOpen = openVersions.has(node.path)
@@ -545,18 +615,7 @@ export function ProjectTree({
     const stamp = node.uploadedAt !== null ? formatDay(node.uploadedAt) : ''
     return (
       <div key={node.path} className="tree-entry">
-        {renaming === node.path ? (
-          <InlineNameForm
-            initial={node.name}
-            placeholder="New name — Enter to rename"
-            onCommit={async (value) => {
-              await renameFileEntry(project, node.path, value)
-              setRenaming(null)
-              onReload()
-            }}
-            onCancel={() => setRenaming(null)}
-          />
-        ) : (
+        {renaming === node.path ? renameForm(node) : (
           <button
             draggable
             onDragStart={(e) => {
@@ -614,23 +673,22 @@ export function ProjectTree({
             {/* The current version leads its own history — same row shape as
                 the archived ones, so its note and time read in the same
                 columns, only here when the accordion is open. */}
-            <button
-              className={rowClasses(node.path, ['version-row'])}
-              style={{ paddingLeft: `${10 + (depth + 1) * 14}px` }}
-              title={[
+            {versionRow({
+              path: node.path,
+              label: `v${currentVersion}`,
+              current: true,
+              at: node.uploadedAt,
+              note: node.note,
+              depth,
+              title: [
                 `${node.name} v${currentVersion} (current)${node.uploadedAt ? ` — ${formatWhen(node.uploadedAt)}` : ''}`,
                 node.note ?? undefined,
-              ].filter(Boolean).join('\n')}
-              onClick={(e) => select(e, node.path)}
-              onDoubleClick={node.kind === null
+              ].filter(Boolean).join('\n'),
+              onDoubleClick: node.kind === null
                 ? () => act(() => openFileEntry(project, node.path))
-                : undefined}
-              onContextMenu={(e) => openMenu(e, { type: 'leaf', node })}
-            >
-              <span className="version-badge current">v{currentVersion}</span>
-              {node.uploadedAt !== null && <span className="row-stamp">{formatStamp(node.uploadedAt)}</span>}
-              <span className="row-note">{node.note ?? '—'}</span>
-            </button>
+                : undefined,
+              onContextMenu: (e) => openMenu(e, { type: 'leaf', node }),
+            })}
             {node.versions.map((version, index) => renderVersion(node, version, index, depth))}
           </>
         )}
@@ -644,18 +702,7 @@ export function ProjectTree({
     const open = !collapsed.has(node.path)
     return (
       <div key={node.path} className="tree-entry">
-        {renaming === node.path ? (
-          <InlineNameForm
-            initial={node.name}
-            placeholder="New name — Enter to rename"
-            onCommit={async (value) => {
-              await renameFileEntry(project, node.path, value)
-              setRenaming(null)
-              onReload()
-            }}
-            onCancel={() => setRenaming(null)}
-          />
-        ) : (
+        {renaming === node.path ? renameForm(node) : (
           <button
             draggable
             onDragStart={(e) => {
@@ -682,24 +729,7 @@ export function ProjectTree({
           </button>
         )}
         {open && node.children.map((child) => renderNode(child, depth + 1))}
-        {open && creatingIn === node.path && (
-          <InlineNameForm
-            placeholder={`Folder name in ${node.name} — Enter to create`}
-            onCommit={async (value) => {
-              await createFileFolder(project, node.path, value)
-              setCreatingIn(null)
-              onReload()
-            }}
-            onCancel={() => setCreatingIn(null)}
-          />
-        )}
-        {open && notingIn === node.path && (
-          <InlineNameForm
-            placeholder="Note name — Enter to create"
-            onCommit={(value) => createNote(node.path, value)}
-            onCancel={() => setNotingIn(null)}
-          />
-        )}
+        {open && intakeForms(node.path, node.name)}
       </div>
     )
   }
@@ -798,24 +828,7 @@ export function ProjectTree({
             e.target.value = ''
           }}
         />
-        {creatingIn === '' && (
-          <InlineNameForm
-            placeholder="Folder name — Enter to create"
-            onCommit={async (value) => {
-              await createFileFolder(project, '', value)
-              setCreatingIn(null)
-              onReload()
-            }}
-            onCancel={() => setCreatingIn(null)}
-          />
-        )}
-        {notingIn === '' && (
-          <InlineNameForm
-            placeholder="Note name — Enter to create"
-            onCommit={(value) => createNote('', value)}
-            onCancel={() => setNotingIn(null)}
-          />
-        )}
+        {intakeForms('', null)}
         <div className="files-tree">
           {exportRows}
           {tree?.map((node) => renderNode(node, 0))}
@@ -856,6 +869,14 @@ export function ProjectTree({
           versionOf={dbState.versionOf ?? null}
           onClose={() => setDbState(null)}
           onStarted={onExportsChanged}
+        />
+      )}
+      {importTarget !== null && (
+        <AcrtacImportModal
+          project={project}
+          path={importTarget.path}
+          entryName={importTarget.name}
+          onClose={() => setImportTarget(null)}
         />
       )}
     </aside>

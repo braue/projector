@@ -6,25 +6,24 @@
 // converts in py/dacsim_convert.py, headless (prompts auto-skip onto the
 // package's own warning scaffolds, narration streams into the job log); the
 // generated simulator folders land back in the SOURCE PROJECT's tree as
-// versioned .rtac entries under "DAC SIM Converter/"; and each one imports
-// into the AcRTAC database via py/acrtac_import.py with the user's device
-// type + firmware (per scheme for remotes, one pair for the master).
-// Import failures never cost the run — the outputs are already safe in the
-// project — they land in the result for the UI to show.
+// versioned .rtac entries under "DAC SIM Converter/". Getting one into the
+// AcRTAC database is the tree's generic "Import to AcRTAC" action
+// (services/tools/acrtacImport.js), not part of this pipeline.
 
-import { spawn } from 'node:child_process';
-import { createInterface } from 'node:readline';
 import { cp, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
-import { bridgePath, PYTHON } from '../../lib/acrtac/pythonClient.js';
+import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const CONVERT_SCRIPT = 'dacsim_convert.py';
-const IMPORT_SCRIPT = 'acrtac_import.py';
-const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
 const ZIP_NAME = 'sim projects.zip';
 const PROJECT_FOLDER = 'DAC SIM Converter';
+
+/** This tool's own wording for the failure classes runStdinBridge shapes. */
+const EXPLAIN = {
+  python: 'Python was not found on PATH — install Python 3.12+ to run the DAC SIM Converter.',
+};
 
 /** The scheme list from a run's settings.json — the converter's own Python
  *  validation is authoritative; this is the cheap Node-side read the staging
@@ -57,64 +56,6 @@ function requireIp(value, label) {
   const ip = String(value ?? '').trim();
   if (!ip) throw httpError(400, `${label} is required`);
   return ip;
-}
-
-function requireField(value, label) {
-  const text = String(value ?? '').trim();
-  if (!text) throw httpError(400, `${label} is required`);
-  return text;
-}
-
-/** A readable one-liner for a failed bridge: the traceback's LAST line is
- *  the actual Python error ("FileNotFoundError: …"); the full traceback is
- *  already in the job log. */
-function bridgeFailure(script, err, lastLines) {
-  if (err?.killed) return `${script} timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`;
-  if (err?.code === 'ENOENT') {
-    return 'Python was not found on PATH — install Python 3.12+ to run the DAC SIM Converter.';
-  }
-  if (/No module named ['"]?selacrtac/.test(lastLines.join('\n'))) {
-    return 'Python is installed but the selacrtac package is missing, so projects cannot be imported into AcRTAC.';
-  }
-  const last = [...lastLines].reverse().find((line) => /^\S.*\S/.test(line));
-  return last ?? `${script} failed with no error output`;
-}
-
-/** Run a python bridge with `request` on stdin, streaming its stderr
- *  narration into `log`; resolves the JSON document from stdout. */
-function runBridge(script, request, log) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
-    let stdout = '';
-    const lastLines = [];
-    const timer = setTimeout(() => {
-      child.kill();
-    }, BRIDGE_TIMEOUT_MS);
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    createInterface({ input: child.stderr }).on('line', (line) => {
-      if (!line.trim()) return;
-      log(line);
-      lastLines.push(line);
-      if (lastLines.length > 30) lastLines.shift();
-    });
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      reject(new Error(bridgeFailure(script, err, lastLines)));
-    });
-    child.on('close', (code, signal) => {
-      clearTimeout(timer);
-      if (code !== 0 || signal) {
-        reject(new Error(bridgeFailure(script, { killed: Boolean(signal), code }, lastLines)));
-        return;
-      }
-      try {
-        resolve(JSON.parse(stdout));
-      } catch {
-        reject(new Error(`${script} returned non-JSON output: ${stdout.slice(0, 200)}`));
-      }
-    });
-    child.stdin.end(JSON.stringify(request));
-  });
 }
 
 class DacsimService {
@@ -159,7 +100,7 @@ class DacsimService {
         subSimId: `Sim${index + 1}`,
         dacPath: String(scheme?.dacPath ?? ''),
         dac: { subFolder: `DAC ${schemeName}`, ipAddr: dacIps },
-        remote: { subFolder: `SIM ${schemeName}`, ipAddr: requireIp(scheme?.remoteIp, `${schemeName}: remote IP`) },
+        remote: { subFolder: `${schemeName}_REMOTE`, ipAddr: requireIp(scheme?.remoteIp, `${schemeName}: remote IP`) },
         logic: { subFolder: masterFolder, ipAddr: masterIp },
         nameConversions: [],
         parameters: { defaultLoad },
@@ -202,39 +143,26 @@ class DacsimService {
   }
 
   /**
-   * The whole pipeline as one job: stage, convert, land the generated
+   * The whole pipeline as one job: stage, convert, and land the generated
    * simulator projects back in the source project's tree (versioned .rtac
-   * entries under "DAC SIM Converter/"), and import each into the AcRTAC
-   * database with the user's device type + firmware.
-   *
-   * payload adds to staging: per scheme { deviceType, firmware }, plus
-   * { masterDeviceType, masterFirmware } for the one master project.
+   * entries under "DAC SIM Converter/"). From there, any of them imports
+   * into AcRTAC via the tree's generic "Import to AcRTAC" action.
    */
   async generate(files, payload) {
-    const schemes = Array.isArray(payload?.schemes) ? payload.schemes : [];
-    // Import targeting validates BEFORE any staging or job.
-    const importsByPrefix = schemes.map((scheme, index) => ({
-      prefix: `SIM ${String(scheme?.schemeName ?? '').trim()}`,
-      deviceType: requireField(scheme?.deviceType, `scheme ${index + 1}: device type`),
-      firmware: requireField(scheme?.firmware, `scheme ${index + 1}: firmware`),
-    }));
-    const master = {
-      deviceType: requireField(payload?.masterDeviceType, 'master device type'),
-      firmware: requireField(payload?.masterFirmware, 'master firmware'),
-    };
-
     const { run: runId, schemes: staged } = await this.stageFromProject(files, payload);
     const dir = await this.workspace.runDir('dacsim', runId);
     const workspace = this.workspace;
-    const masterFolder = staged[0].logicFolder;
 
     const job = this.jobs.start(`DAC SIM generate: ${staged.length} scheme(s)`, async (handle) => {
       handle.log(`Converting ${staged.length} scheme(s)…`);
-      const result = await runBridge(CONVERT_SCRIPT, { root: dir }, handle.log);
+      const result = await runStdinBridge(CONVERT_SCRIPT, { root: dir }, {
+        onStderrLine: handle.log,
+        explain: EXPLAIN,
+      });
 
       // The GENERATED simulator folders (remote + master) — the DAC inputs
       // came from the project and stay in the run only for reference.
-      // Prefix-matched: a large scheme can split into "SIM X", "SIM X_2", …
+      // Prefix-matched: a large scheme can split into "X_REMOTE", "X_REMOTE_2", …
       const simPrefixes = [...new Set(staged
         .flatMap((scheme) => [scheme.remoteFolder, scheme.logicFolder]))];
       const simDirs = (await readdir(dir, { withFileTypes: true }))
@@ -244,18 +172,11 @@ class DacsimService {
         .sort();
 
       // ZIP for download / save-to-project.
-      const outputs = (await workspace.listFiles('dacsim', runId)).filter(({ path: rel }) =>
+      const zipped = await workspace.zipRun('dacsim', runId, ZIP_NAME, ({ path: rel }) =>
         simDirs.includes(rel.split('/')[0]));
-      const reports = [];
-      if (outputs.length) {
-        const { zipSync } = await import('fflate');
-        const zipEntries = {};
-        for (const file of outputs) {
-          zipEntries[file.path] = new Uint8Array(await workspace.readFile('dacsim', runId, file.path));
-        }
-        await writeFile(path.join(dir, ZIP_NAME), zipSync(zipEntries));
-        reports.push({ path: ZIP_NAME, label: `Simulator projects ZIP (${outputs.length} files)` });
-      }
+      const reports = zipped
+        ? [{ path: ZIP_NAME, label: `Simulator projects ZIP (${zipped} files)` }]
+        : [];
 
       // Land each simulator in the source project as a versioned .rtac
       // entry under one top-level folder the user can rearrange from.
@@ -273,36 +194,7 @@ class DacsimService {
         handle.log(`Placed ${PROJECT_FOLDER}/${entryName}`);
       }
 
-      // Import into AcRTAC: the master gets its one device/firmware pair,
-      // every other sim folder inherits its scheme's. Failures are reported,
-      // never fatal — the projects are already safe in the tree.
-      const stamp = new Date().toISOString().slice(0, 19).replace('T', ' ').replaceAll(':', '');
-      const items = simDirs.map((simDir) => {
-        const target = simDir.startsWith(masterFolder)
-          ? master
-          : importsByPrefix.find(({ prefix }) => simDir.startsWith(prefix));
-        return target && {
-          path: path.join(dir, simDir),
-          name: `${simDir} ${stamp}`,
-          type: target.deviceType,
-          version: target.firmware,
-        };
-      }).filter(Boolean);
-      let imports = null;
-      let importError = null;
-      try {
-        handle.log(`Importing ${items.length} project(s) into AcRTAC…`);
-        const response = await runBridge(IMPORT_SCRIPT, { items }, handle.log);
-        imports = response.results;
-        for (const entry of imports) {
-          handle.log(entry.success ? `✓ ${entry.name}` : `✕ ${entry.name}: ${entry.error}`);
-        }
-      } catch (err) {
-        importError = err?.message ?? String(err);
-        handle.log(`AcRTAC import failed: ${importError}`);
-      }
-
-      return { run: runId, ...result, files: outputs.length, reports, placed, imports, importError };
+      return { run: runId, ...result, files: zipped, reports, placed };
     });
     return { job: job.id, run: runId };
   }

@@ -17,7 +17,6 @@ import type {
   SwsetModel,
   Todo,
   ToolJob,
-  ToolRunFile,
 } from './types'
 
 // Every endpoint speaks JSON, including failures: { error } with a status.
@@ -287,18 +286,9 @@ export function fetchToolJob(id: string): Promise<ToolJob> {
   return get(`/api/tools/jobs/${encodeURIComponent(id)}`)
 }
 
-export async function listToolRunFiles(tool: string, run: string): Promise<ToolRunFile[]> {
-  const body = await get<{ files: ToolRunFile[] }>(`${toolRun(tool, run)}/files`)
-  return body.files
-}
-
 /** Browser-navigable download URL for one run output file. */
 export function toolRunFileUrl(tool: string, run: string, path: string): string {
   return `${toolRun(tool, run)}/file?path=${encodeURIComponent(path)}`
-}
-
-export function deleteToolRun(tool: string, run: string): Promise<unknown> {
-  return send(toolRun(tool, run), 'DELETE')
 }
 
 /** Copy one run output into a project's Files store (never overwrites). */
@@ -392,23 +382,32 @@ export function extractQuicksetSettings(
 // --- DAC SIM Converter ----------------------------------------------------------
 
 /** The whole pipeline as one job: stage the picked DAC exports (settings.json
- * is generated server-side), convert, land the simulator projects back in
- * the project's tree, and import them into AcRTAC. `masterIp` and the master
- * device/firmware are one set for the whole run. */
+ * is generated server-side), convert, and land the simulator projects back
+ * in the project's tree. `masterIp` is one address for the whole run. */
 export function generateDacsim(project: string, payload: {
   schemes: {
     schemeName: string
     dacPath: string
     dacIps: string[]
     remoteIp: string
-    deviceType: string
-    firmware: string
   }[]
   masterIp: string
-  masterDeviceType: string
-  masterFirmware: string
 }): Promise<{ job: string; run: string }> {
   return send('/api/tools/dacsim/generate', 'POST', { project, ...payload })
+}
+
+// --- Import to AcRTAC (the project tree's action on an RTAC entry) --------------
+
+/** Import one RTAC tree entry into the AcRTAC database, as a pollable job. */
+export function startAcrtacImport(project: string, payload: {
+  /** Tree path of the .rtac entry. */
+  path: string
+  /** What the database project will be called. */
+  name: string
+  deviceType: string
+  firmware: string
+}): Promise<{ job: string }> {
+  return send('/api/tools/acrtac/import', 'POST', { project, ...payload })
 }
 
 // --- SWSET (switch settings editor) --------------------------------------------

@@ -1,28 +1,26 @@
 // DAC SIM Converter — build simulator (Remote IO + SIM Master) projects from
 // DAC exports already in a project: the chosen project's RTAC entries list
-// as a check-off roster, each checked DAC grows its addressing + device
-// fields, and settings.json is generated server-side. One GENERATE runs the
-// whole pipeline as a job: convert (the converter's own narration is the
-// log), land the simulator projects back in the project's tree under
-// "DAC SIM Converter/", and import each into AcRTAC with the given device
-// type + firmware.
+// as a check-off roster, each checked DAC grows its addressing fields, and
+// settings.json is generated server-side. One GENERATE runs the whole
+// pipeline as a job: convert (the converter's own narration is the log) and
+// land the simulator projects back in the project's tree under
+// "DAC SIM Converter/". Importing one into the AcRTAC database is the
+// project tree's generic "Import to AcRTAC" right-click action.
 
 import { useEffect, useState } from 'react'
 
 import {
-  fetchToolJob,
   generateDacsim,
   listFiles,
   listProjects,
 } from '../api'
-import { Button, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { FILES_CHANGED_EVENT } from '../lib/filesChanged'
-import type { DacsimResult, FileNode, ToolJob } from '../types'
+import { useToolJob } from '../lib/useToolJob'
+import type { DacsimResult, FileNode } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
-
-const POLL_MS = 1200
 
 /** One scheme row of the from-project form. */
 interface SchemeRow {
@@ -31,10 +29,6 @@ interface SchemeRow {
   /** Comma/space separated in the field; split on generate. */
   dacIps: string
   remoteIp: string
-  /** AcRTAC hardware type for this scheme's Remote IO import (3555, 3530…). */
-  deviceType: string
-  /** AcRTAC firmware revision for the import ("R151"). */
-  firmware: string
 }
 
 /** "Station A/Feeder 1.rtac" -> "Feeder 1" — the default scheme name. */
@@ -54,9 +48,16 @@ function rtacPaths(nodes: FileNode[], out: string[] = []): string[] {
 
 export function DacsimTool({ project }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
-  const [jobId, setJobId] = useState<string | null>(null)
-  const [job, setJob] = useState<ToolJob | null>(null)
   const [result, setResult] = useState<DacsimResult | null>(null)
+  const { job, running: generating, start } = useToolJob(
+    (settled) => {
+      setResult(settled as DacsimResult)
+      // The job placed entries in a project's tree behind the sidebar's
+      // back — let the app refresh it.
+      window.dispatchEvent(new Event(FILES_CHANGED_EVENT))
+    },
+    setError,
+  )
 
   // The form: the chosen project's RTAC entries as a roster — the user
   // checks which ones are DACs, each checked one grows its addressing and
@@ -66,10 +67,9 @@ export function DacsimTool({ project }: ToolProps) {
   const [formProject, setFormProject] = useState(project)
   const [rtacEntries, setRtacEntries] = useState<string[] | null>(null)
   const [rows, setRows] = useState<SchemeRow[]>([])
-  // ONE master IP + device/firmware for the whole run (settings.json
-  // repeats the IP per scheme because the format demands it; the device
-  // pair targets the single SIM Master import).
-  const [master, setMaster] = useState({ ip: '', deviceType: '', firmware: '' })
+  // ONE master IP for the whole run (settings.json repeats it per scheme
+  // because the format demands it).
+  const [masterIp, setMasterIp] = useState('')
 
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {})
@@ -105,8 +105,6 @@ export function DacsimTool({ project }: ToolProps) {
           dacPath,
           dacIps: '',
           remoteIp: '',
-          deviceType: '',
-          firmware: '',
         }])
   }
 
@@ -114,47 +112,12 @@ export function DacsimTool({ project }: ToolProps) {
     setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
 
   const rowsReady = rows.length > 0
-    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim()
-      && row.remoteIp.trim() && row.deviceType.trim() && row.firmware.trim())
-    && master.ip.trim() !== '' && master.deviceType.trim() !== '' && master.firmware.trim() !== ''
-
-  // Poll the conversion job until it settles.
-  useEffect(() => {
-    if (!jobId) return
-    let cancelled = false
-    const tick = async () => {
-      try {
-        const state = await fetchToolJob(jobId)
-        if (cancelled) return
-        setJob(state)
-        if (state.status === 'running') {
-          window.setTimeout(tick, POLL_MS)
-        } else {
-          setJobId(null)
-          if (state.status === 'done') {
-            setResult(state.result as DacsimResult)
-            // The job placed entries in a project's tree behind the
-            // sidebar's back — let the app refresh it.
-            window.dispatchEvent(new Event(FILES_CHANGED_EVENT))
-          }
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setJobId(null)
-          setError(errorMessage(err))
-        }
-      }
-    }
-    tick()
-    return () => {
-      cancelled = true
-    }
-  }, [jobId])
+    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIp.trim())
+    && masterIp.trim() !== ''
 
   const generate = async () => {
     setError(null)
     setResult(null)
-    setJob(null)
     try {
       const { job: id } = await generateDacsim(formProject, {
         schemes: rows.map((row) => ({
@@ -162,20 +125,14 @@ export function DacsimTool({ project }: ToolProps) {
           dacPath: row.dacPath,
           dacIps: row.dacIps.split(/[\s,;]+/).filter(Boolean),
           remoteIp: row.remoteIp.trim(),
-          deviceType: row.deviceType.trim(),
-          firmware: row.firmware.trim(),
         })),
-        masterIp: master.ip.trim(),
-        masterDeviceType: master.deviceType.trim(),
-        masterFirmware: master.firmware.trim(),
+        masterIp: masterIp.trim(),
       })
-      setJobId(id)
+      start(id)
     } catch (err) {
       setError(errorMessage(err))
     }
   }
-
-  const generating = jobId !== null
 
   return (
     <>
@@ -207,8 +164,7 @@ export function DacsimTool({ project }: ToolProps) {
               const checked = rows.some((row) => row.dacPath === path)
               return (
                 <label key={path} className={checked ? 'dacsim-entry on' : 'dacsim-entry'}>
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={checked}
                     disabled={generating}
                     onChange={() => toggleEntry(path)}
@@ -239,18 +195,6 @@ export function DacsimTool({ project }: ToolProps) {
               placeholder="192.168.254.21"
               onChange={(e) => setRow(index, { remoteIp: e.target.value })}
             />
-            <TextInput
-              label={index === 0 ? 'Device' : undefined}
-              value={row.deviceType}
-              placeholder="3555"
-              onChange={(e) => setRow(index, { deviceType: e.target.value })}
-            />
-            <TextInput
-              label={index === 0 ? 'Firmware' : undefined}
-              value={row.firmware}
-              placeholder="R151"
-              onChange={(e) => setRow(index, { firmware: e.target.value })}
-            />
             <Button onClick={() => toggleEntry(row.dacPath)}>✕</Button>
           </div>
         ))}
@@ -259,21 +203,9 @@ export function DacsimTool({ project }: ToolProps) {
             <div className="tool-row">
               <TextInput
                 label="Master IP"
-                value={master.ip}
+                value={masterIp}
                 placeholder="192.168.254.11"
-                onChange={(e) => setMaster((m) => ({ ...m, ip: e.target.value }))}
-              />
-              <TextInput
-                label="Master device"
-                value={master.deviceType}
-                placeholder="3555"
-                onChange={(e) => setMaster((m) => ({ ...m, deviceType: e.target.value }))}
-              />
-              <TextInput
-                label="Master firmware"
-                value={master.firmware}
-                placeholder="R151"
-                onChange={(e) => setMaster((m) => ({ ...m, firmware: e.target.value }))}
+                onChange={(e) => setMasterIp(e.target.value)}
               />
             </div>
             <div className="tool-row">
@@ -294,7 +226,6 @@ export function DacsimTool({ project }: ToolProps) {
 
         {job && (
           <div className="tool-joblog">
-            {job.status === 'error' && <div className="tool-error">{job.error}</div>}
             {job.log.slice(-10).map((entry, i) => (
               <div key={i} className="tool-joblog-line">{entry}</div>
             ))}
@@ -308,18 +239,6 @@ export function DacsimTool({ project }: ToolProps) {
                 Added to the project: {result.placed.join(', ')}
               </div>
             )}
-            {result.importError !== null && (
-              <div className="tool-error">AcRTAC import: {result.importError}</div>
-            )}
-            {result.imports?.map((entry) => (
-              <div
-                key={entry.name}
-                className={entry.success ? 'tool-status' : 'tool-error'}
-              >
-                {entry.success ? '✓' : '✕'} AcRTAC: {entry.name}
-                {entry.error ? ` — ${entry.error}` : ''}
-              </div>
-            ))}
             <RunOutputs tool="dacsim" run={result.run} reports={result.reports} />
           </>
         )}

@@ -21,26 +21,6 @@ function selRoutes(library, fullText) {
     res.json(fullText.search(requireQuery(req, 'q')));
   });
 
-  // The instruction manual for a device model, resolved from the index's
-  // document list. `manual` is null when no index is loaded, no manual names
-  // the model, or the PDF itself is not on this machine — the caller hides
-  // the affordance rather than erroring.
-  router.get('/manual', async (req, res) => {
-    const manual = fullText.manualFor(requireQuery(req, 'model'));
-    const present = manual
-      ? await library.filePath(manual.path).then(() => true, () => false)
-      : false;
-    res.json({ manual: present ? manual : null });
-  });
-
-  // The manual itself, streamed inline so it renders in a browser tab.
-  router.get('/manual/file', async (req, res) => {
-    const model = requireQuery(req, 'model');
-    const manual = fullText.manualFor(model);
-    if (!manual) throw httpError(404, `no instruction manual indexed for ${model}`);
-    res.sendFile(await library.filePath(manual.path));
-  });
-
   router.post('/open', async (req, res) => {
     const relPath = req.body?.path;
     if (typeof relPath !== 'string') throw httpError(400, 'body field "path" required');

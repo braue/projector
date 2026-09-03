@@ -297,9 +297,6 @@ export type FileNode =
       versions: FileVersion[]
     }
 
-/** A profile inside an artifact ("<path>::<profileName>"). */
-export const REF_SEPARATOR = '::'
-
 export interface ArtifactProfile {
   name: string
   ref: string
@@ -321,13 +318,6 @@ export interface ToolJob {
   log: string[]
   result: unknown
   error: string | null
-}
-
-/** One output file in a tool run's workspace. */
-export interface ToolRunFile {
-  path: string
-  size: number
-  modifiedAt: string
 }
 
 /** One downloadable report file a tool run produced. */
@@ -382,10 +372,6 @@ export interface DacsimResult {
   reports: ToolReport[]
   /** Tree paths of the simulator entries placed in the source project. */
   placed: string[]
-  /** Per-project AcRTAC import outcomes; null when the bridge never ran. */
-  imports: { name: string; success: boolean; error?: string }[] | null
-  /** Whole-bridge import failure (no selacrtac, login refused), or null. */
-  importError: string | null
 }
 
 // --- SWSET (switch settings editor) --------------------------------------------

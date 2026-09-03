@@ -14,7 +14,7 @@ import type { DwgenResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 
-export function DwgenTool({ seek }: ToolProps) {
+export function DwgenTool(_props: ToolProps) {
   const [partNumber, setPartNumber] = useState('')
   const [model, setModel] = useState('')
   const [models, setModels] = useState<string[]>([])
@@ -40,19 +40,6 @@ export function DwgenTool({ seek }: ToolProps) {
       setBusy(false)
     }
   }, [])
-
-  // Seeded arrival — a canvas device popup's "Connection drawing". The
-  // device's part number and model land in the form, and when the part number
-  // is known the run starts at once: the click asked for the drawing, not for
-  // a form to fill in.
-  useEffect(() => {
-    if (!seek?.dwgen) return
-    const pn = seek.dwgen.partNumber ?? ''
-    const m = seek.dwgen.model ?? ''
-    setPartNumber(pn)
-    setModel(m)
-    if (pn.trim()) generate(pn, m)
-  }, [seek, generate])
 
   const openDwg = async (run: string, stem: string) => {
     setDwgStatus(null)

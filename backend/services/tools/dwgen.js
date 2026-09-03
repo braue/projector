@@ -24,7 +24,7 @@ import {
   resolveEnabledLayers,
 } from '../../lib/drawings/createImages.js';
 import { decodeWithMetadata } from '../../lib/drawings/decodePartNumber.js';
-import { loadDeviceMetadata, SEL_DEVICES_DIR } from '../../lib/drawings/deviceMetadata.js';
+import { deviceDirs, loadDeviceMetadata, SEL_DEVICES_DIR } from '../../lib/drawings/deviceMetadata.js';
 import { latestDwgRevision } from '../../lib/drawings/revisions.js';
 import { httpError } from '../../lib/http.js';
 import { normalizePartNumber } from '../../lib/selPartNumberRules.js';
@@ -32,14 +32,7 @@ import { normalizePartNumber } from '../../lib/selPartNumberRules.js';
 /** Identify the model from the MOT via each model's part_number.prefix
  *  (positions like "1-4", value like "0351"); longest matching value wins. */
 async function detectModel(pn, devicesDir) {
-  let dirs;
-  try {
-    dirs = (await readdir(devicesDir, { withFileTypes: true }))
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name);
-  } catch {
-    return null;
-  }
+  const dirs = await deviceDirs(devicesDir);
   let best = null;
   const loaded = await Promise.all(dirs.map((dir) => loadDeviceMetadata(dir, devicesDir)));
   for (const [index, metadata] of loaded.entries()) {
@@ -174,12 +167,7 @@ class DwgenService {
 
   /** The 64 known models, for the UI's manual override. */
   async listModels() {
-    try {
-      const entries = await readdir(this.devicesDir, { withFileTypes: true });
-      return entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
-    } catch {
-      return [];
-    }
+    return [...await deviceDirs(this.devicesDir)].sort();
   }
 
   async generate({ partNumber, model }) {

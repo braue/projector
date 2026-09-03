@@ -36,23 +36,23 @@ function clip(value, needle) {
 function matchItem(item, needle, limit) {
   const matches = [];
   let total = 0;
-  const found = (where, location, text) => {
+  const found = (location, text) => {
     total += 1;
-    if (matches.length < limit) matches.push({ where, location, text: clip(text, needle) });
+    if (matches.length < limit) matches.push({ location, text: clip(text, needle) });
   };
   const hit = (value) => String(value ?? '').toLowerCase().includes(needle);
 
-  if (hit(item.name)) found('name', 'object name', item.name);
+  if (hit(item.name)) found('object name', item.name);
 
   for (const [key, value] of Object.entries(item.settings ?? {})) {
-    if (hit(key) || hit(value)) found('setting', key, `${key} = ${value}`);
+    if (hit(key) || hit(value)) found(key, `${key} = ${value}`);
   }
 
   for (const point of item.points ?? []) {
     for (const [column, value] of Object.entries(point.raw ?? {})) {
       if (hit(value) || hit(column)) {
         const rowName = point.tagName ? ` · ${point.tagName}` : '';
-        found('point', `${point.page}${rowName} · ${column}`, value);
+        found(`${point.page}${rowName} · ${column}`, value);
       }
     }
   }
@@ -62,7 +62,7 @@ function matchItem(item, needle, limit) {
   for (const page of item.pages ?? []) {
     page.rows.forEach((row, index) => {
       if (!Object.values(row).some(hit)) return;
-      found('page', `${page.name} · row ${index + 1}`, rowText(row));
+      found(`${page.name} · row ${index + 1}`, rowText(row));
     });
   }
 
@@ -70,7 +70,7 @@ function matchItem(item, needle, limit) {
     const source = item.code?.[part];
     if (!source) continue;
     source.split('\n').forEach((line, index) => {
-      if (hit(line)) found('logic', `${part} · line ${index + 1}`, line.trim());
+      if (hit(line)) found(`${part} · line ${index + 1}`, line.trim());
     });
   }
 
@@ -83,11 +83,7 @@ class SearchService {
     this.load = load;
   }
 
-  // `caps` shrink the payload for callers that fan out — a multi-source
-  // search runs this over every source of every project and needs a taste of
-  // each, not the full 200-object listing the single-source pane shows.
-  async search(ref, query, caps = {}) {
-    const { maxItems = MAX_ITEMS, maxMatchesPerItem = MAX_MATCHES_PER_ITEM } = caps;
+  async search(ref, query) {
     const q = String(query ?? '').trim();
     if (!q) throw httpError(400, 'a search string is required');
     const needle = q.toLowerCase();
@@ -98,7 +94,7 @@ class SearchService {
     let totalMatches = 0;
     let truncated = false;
     for (const entry of entries) {
-      const budget = results.length < maxItems ? maxMatchesPerItem : 0;
+      const budget = results.length < MAX_ITEMS ? MAX_MATCHES_PER_ITEM : 0;
       const { matches, total } = matchItem(entry.item, needle, budget);
       if (!total) continue;
       totalMatches += total;

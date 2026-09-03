@@ -35,17 +35,12 @@ import { resolveDrawings, resolveEnabledLayers } from '../backend/lib/drawings/c
 import { drawingBase } from '../backend/lib/drawings/revisions.js';
 import { detectModel } from '../backend/services/tools/dwgen.js';
 import { normalizePartNumber } from '../backend/lib/selPartNumberRules.js';
+import { DEFAULT_DELAY_MS, fetchPartLookup, lengthHints } from './lib/selPartApi.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CACHE_DIR = path.join(HERE, 'audit-cache');
 const SOURCES_PATH = path.join(SEL_DEVICES_DIR, 'dwg-sources.json');
 
-const PART_LOOKUP_URL = (pn) =>
-  `https://selinc.com/api/configurator/part-lookup/?partQuery=${encodeURIComponent(pn)}`;
-const DEFAULT_DELAY_MS = 1500;
-// Browser UA — Incapsula fronts selinc.com and dislikes obvious bots even on
-// the anonymous endpoint (same string fetch-sel-dwgs.mjs uses).
-const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 
 // ----------------------------------------------------------------- utilities
 
@@ -445,27 +440,11 @@ async function partLookup(pn, options) {
 
   if (networkRequests) await sleep(options.delayMs);
   networkRequests += 1;
-  const response = await fetch(PART_LOOKUP_URL(pn), {
-    headers: { 'User-Agent': USER_AGENT, Referer: 'https://selinc.com/', Accept: 'application/json' },
-  });
-  if (response.status !== 200) throw new Error(`part-lookup HTTP ${response.status} for ${pn}`);
-  const body = await response.json();
+  const body = await fetchPartLookup(pn);
   const record = { partQuery: pn, fetchedAt: new Date().toISOString(), response: body };
   await fs.mkdir(CACHE_DIR, { recursive: true });
   await fs.writeFile(cachePath(pn), `${JSON.stringify(record, null, 2)}\n`);
   return record;
-}
-
-// A short MOT fails with one code-14 error per submodel naming the length it
-// expects; padding with X ("unspecified") legitimately addresses the longer
-// submodels — the same trick the DWG fetch uses.
-function lengthHints(response, pn) {
-  const hints = new Set();
-  for (const error of response?.errors ?? []) {
-    const match = /should be (\d+) characters/.exec(error.message ?? '');
-    if (match && Number(match[1]) > pn.length) hints.add(Number(match[1]));
-  }
-  return [...hints].sort((a, b) => a - b).map((len) => pn + 'X'.repeat(len - pn.length));
 }
 
 /** Lookup with one round of length-hint retries. Returns {record, query} or null. */

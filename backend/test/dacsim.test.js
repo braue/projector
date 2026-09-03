@@ -10,6 +10,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { FilesService } from '../services/files.js';
+import { AcrtacImportService } from '../services/tools/acrtacImport.js';
 import { DacsimService } from '../services/tools/dacsim.js';
 import { JobRegistry } from '../services/tools/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
@@ -75,21 +76,6 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
       /not organized for the converter/,
     );
 
-    // generate() additionally demands the AcRTAC import targeting — per
-    // scheme and for the master — BEFORE staging anything.
-    await assert.rejects(
-      () => dacsim.generate(files, { ...base, masterDeviceType: '3555', masterFirmware: 'R151' }),
-      /scheme 1: device type is required/,
-    );
-    await assert.rejects(
-      () => dacsim.generate(files, {
-        ...base,
-        schemes: [{ ...base.schemes[0], deviceType: '3530', firmware: 'R151' }],
-        masterDeviceType: '3555',
-      }),
-      /master firmware is required/,
-    );
-
     // The good case: DAC bytes copied under the generated subFolder, and the
     // written settings.json round-trips through the same validator the ZIP
     // path uses.
@@ -97,7 +83,7 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     assert.deepEqual(bundle.schemes, [{
       schemeName: 'Feeder 9',
       dacFolder: 'DAC Feeder 9',
-      remoteFolder: 'SIM Feeder 9',
+      remoteFolder: 'Feeder 9_REMOTE',
       logicFolder: 'SIM Master',
     }]);
     const staged = await workspace.listFiles('dacsim', bundle.run);
@@ -112,6 +98,33 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     assert.deepEqual(settings[0].dac.ipAddr, ['192.168.199.21']);
     assert.equal(settings[0].parameters.defaultLoad, 1);
     assert.equal(settings[0].dacPath, undefined);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('acrtac import: request validation before any bridge spawn', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-acrtacimp-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+    await files.placeEntry('', 'Feeder 9.rtac', 'from AcRTAC', async (target) => {
+      await mkdir(path.join(target, 'SEL_RTAC'), { recursive: true });
+      await writeFile(path.join(target, 'SEL_RTAC', 'Devices.xml'), '<GVL/>');
+    }, { directory: true });
+    await files.upload('', [{ originalname: 'notes.txt', buffer: Buffer.from('x') }], 'n');
+
+    const importer = new AcrtacImportService({ jobs: new JobRegistry() });
+    const base = { path: 'Feeder 9.rtac', name: 'Feeder 9', deviceType: '3555', firmware: 'R151' };
+
+    await assert.rejects(() => importer.start(files, { ...base, name: ' ' }), /name is required/);
+    await assert.rejects(() => importer.start(files, { ...base, deviceType: '' }), /device type is required/);
+    await assert.rejects(() => importer.start(files, { ...base, firmware: '' }), /firmware is required/);
+    await assert.rejects(() => importer.start(files, { ...base, path: 'nope.rtac' }), /no such entry/);
+    await assert.rejects(
+      () => importer.start(files, { ...base, path: 'notes.txt' }),
+      /not an RTAC export folder/,
+    );
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

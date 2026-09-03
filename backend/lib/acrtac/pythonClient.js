@@ -4,8 +4,9 @@
 //
 // Requires Python with the selacrtac package on PATH.
 
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import path from 'node:path';
+import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
 // Packaged, this file lives inside app.asar — but Python is a separate process
@@ -22,26 +23,36 @@ const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
 
 /**
  * A readable one-liner instead of a Python traceback. The packaged app ships
- * without Python — the AcRTAC database panel is the only thing that needs it —
- * so "no module named selacrtac" is a normal state a user may sit in for a
- * long time, and it has to explain itself rather than look like a crash.
+ * without Python — the AcRTAC-backed features are the only things that need
+ * it — so "no module named selacrtac" is a normal state a user may sit in for
+ * a long time, and it has to explain itself rather than look like a crash.
+ *
+ * `explain` swaps in per-feature wording for a failure class where the
+ * default AcRTAC-panel phrasing doesn't fit (the DAC SIM converter names its
+ * own feature): { timeout, python, script, selacrtac }.
  */
-function bridgeMessage(err, stderr) {
-  if (err.killed) return `AcRTAC bridge timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`;
+function bridgeMessage(err, stderr, explain = {}) {
+  if (err.killed) {
+    return explain.timeout
+      ?? `Python bridge timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`;
+  }
   const text = String(stderr ?? '');
   if (err.code === 'ENOENT') {
-    return 'Python was not found on PATH, so the AcRTAC database cannot be reached. Everything else works; install Python and the selacrtac package to browse and export projects from the database.';
+    return explain.python
+      ?? 'Python was not found on PATH, so the AcRTAC database cannot be reached. Everything else works; install Python and the selacrtac package to browse and export projects from the database.';
   }
-  if (/can't open file|No such file or directory/.test(text)) {
-    return 'The AcRTAC bridge script could not be found, so the database cannot be reached. Everything else works.';
+  if (/can't open file/.test(text)) {
+    return explain.script
+      ?? 'The AcRTAC bridge script could not be found, so the database cannot be reached. Everything else works.';
   }
   if (/No module named ['"]?selacrtac/.test(text)) {
-    return "Python is installed but the selacrtac package is missing, so the AcRTAC database cannot be reached. Everything else works; install selacrtac to browse and export projects from the database.";
+    return explain.selacrtac
+      ?? "Python is installed but the selacrtac package is missing, so the AcRTAC database cannot be reached. Everything else works; install selacrtac to browse and export projects from the database.";
   }
   // Anything else: last non-empty stderr line, which is where Python puts the
   // actual error, rather than the whole traceback.
   const lines = text.trim().split(/[\r\n]+/).filter((l) => l.trim());
-  return lines[lines.length - 1]?.trim() || err.message;
+  return lines[lines.length - 1]?.trim() || err.message || 'Python bridge failed with no error output';
 }
 
 function runBridge(args) {
@@ -74,6 +85,49 @@ function bridgePath(scriptName) {
     .replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
 }
 
+/**
+ * One bridge invocation of the stdin-JSON flavor: `request` travels as JSON
+ * on stdin, the result is the JSON document printed on stdout. Stderr is the
+ * bridge's narration channel — `onStderrLine` streams it (into a job log);
+ * its tail is kept either way to shape a failure via bridgeMessage, with
+ * `explain` passed through for per-feature wording.
+ */
+function runStdinBridge(script, request, { onStderrLine, explain } = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
+    let stdout = '';
+    const lastLines = [];
+    const timer = setTimeout(() => {
+      child.kill();
+    }, BRIDGE_TIMEOUT_MS);
+    const fail = (err) => reject(new Error(bridgeMessage(err, lastLines.join('\n'), explain)));
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    createInterface({ input: child.stderr }).on('line', (line) => {
+      if (!line.trim()) return;
+      onStderrLine?.(line);
+      lastLines.push(line);
+      if (lastLines.length > 30) lastLines.shift();
+    });
+    child.on('error', (err) => {
+      clearTimeout(timer);
+      fail(err);
+    });
+    child.on('close', (code, signal) => {
+      clearTimeout(timer);
+      if (code !== 0 || signal) {
+        fail({ killed: Boolean(signal), code });
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout));
+      } catch {
+        reject(new Error(`${script} returned non-JSON output: ${stdout.slice(0, 200)}`));
+      }
+    });
+    child.stdin.end(JSON.stringify(request));
+  });
+}
+
 function createAcRtacClient() {
   return {
     async listProjects() {
@@ -87,4 +141,4 @@ function createAcRtacClient() {
   };
 }
 
-export { createAcRtacClient, bridgeMessage, bridgePath, PYTHON };
+export { createAcRtacClient, bridgeMessage, bridgePath, runStdinBridge, PYTHON };

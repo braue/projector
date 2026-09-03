@@ -463,4 +463,4 @@ function diffItems(original, updated) {
   };
 }
 
-export { STATUS, compareSignatures, diffItems, hiddenPageColumn, modelSignature };
+export { STATUS, compareSignatures, diffItems, modelSignature };

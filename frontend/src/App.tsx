@@ -325,7 +325,7 @@ export default function App() {
             tool form survives a detour back into the project. */}
         {toolsEverOpened && (
           <div className="tools-pane" hidden={!toolsOpen}>
-            <ToolsView project={project} seek={null} />
+            <ToolsView project={project} />
           </div>
         )}
 

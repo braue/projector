@@ -40,7 +40,7 @@ test('search scopes to one artifact and reports object + location per match', as
     assert.equal(byValue.results.length, 1);
     assert.equal(byValue.results[0].path, 'P5');
     assert.deepEqual(byValue.results[0].matches[0], {
-      where: 'setting', location: 'IPADDR', text: 'IPADDR = 10.0.0.5',
+      location: 'IPADDR', text: 'IPADDR = 10.0.0.5',
     });
 
     // Key match, case-insensitive.
@@ -82,7 +82,6 @@ test('a page-row hit reports the whole row, once per row', async () => {
   const result = await search.search('r', 'sel_451');
   assert.equal(result.totalMatches, 1);
   assert.deepEqual(result.results[0].matches, [{
-    where: 'page',
     location: 'Tags · row 1',
     text: 'Destination = SEL_451.BR1 · Source = SEL_451.MV01',
   }]);

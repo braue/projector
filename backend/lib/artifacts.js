@@ -9,8 +9,8 @@
 // An artifact is addressed by its TREE PATH (an archived version by its real
 // `dir/.versions/<storedName>` path — old versions inspect and compare like
 // any other artifact). A profile inside one is "<path>::<profileName>"
-// (lib/refs.js; ':' is invalid in file names, so the separator cannot occur
-// in the path half).
+// (':' is invalid in file names — services/files.js strips it — so the
+// separator cannot occur in the path half).
 //
 // KINDS are per-type classes (services/rdb.js, scd.js, sw.js, and RtacKind
 // below) plugged into a registry here. Detection is by extension — cheap
@@ -40,13 +40,14 @@ import { copyFile, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:
 import path from 'node:path';
 
 import { modelSignature } from './compare.js';
+import { INVALID_NAME } from './fs.js';
 import { httpError } from './http.js';
 import { itemSummary } from './inspect.js';
-import { REF_SEPARATOR } from './refs.js';
 import { parseRtacModule } from './parsers/rtac/parseModule.js';
 import { buildProject, moduleBaseName } from './parsers/rtac/project.js';
 import { foldTree } from './tree.js';
 
+const REF_SEPARATOR = '::';
 const RTAC_SUFFIX = /\.rtac$/i;
 const EXPORTABLE = /\.xml$/i;
 const RTAC_MODEL_VERSION = 2;
@@ -123,17 +124,19 @@ class ArtifactKind {
   // Compare adapter entries at either granularity, chosen by the ref:
   //   "<path>::<profile>"  one profile's items
   //   "<path>"             the whole file, items namespaced "<profile>/<path>"
+  // Memoized on the cache entry, so the adapters die with the model; kinds
+  // with their own adapter shape override buildComparable, not this.
   async comparable(ref) {
     const { path: treePath, profileName } = splitArtifactRef(ref);
     const entry = await this.artifacts.entry(treePath);
     entry.comparable ??= new Map();
     if (!entry.comparable.has(ref)) {
-      entry.comparable.set(ref, await this.#build(ref, treePath, profileName, entry));
+      entry.comparable.set(ref, await this.buildComparable(ref, treePath, profileName, entry));
     }
     return entry.comparable.get(ref);
   }
 
-  async #build(ref, treePath, profileName, entry) {
+  async buildComparable(ref, treePath, profileName, entry) {
     if (profileName === null) {
       const wholeEntries = [];
       for (const profile of this.profilesOf(entry.model, treePath)) {
@@ -288,38 +291,31 @@ class RtacKind extends ArtifactKind {
     return item;
   }
 
-  // Signatures fold the raw hash back in for model-blind files; memoized on
-  // the cache entry, so they die with the model.
-  async comparable(ref) {
-    const { path: treePath } = splitArtifactRef(ref);
-    const entry = await this.artifacts.entry(treePath);
-    entry.comparable ??= new Map();
-    if (!entry.comparable.has(ref)) {
-      const signatures = new Map();
-      const signatureOf = (item) => {
-        let signature = signatures.get(item.file);
-        if (!signature) {
-          const hash = createHash('sha1').update(modelSignature(item));
-          const raw = entry.rawHashes.get(item.file);
-          if (raw) hash.update(raw);
-          signature = hash.digest('hex');
-          signatures.set(item.file, signature);
-        }
-        return signature;
-      };
-      entry.comparable.set(ref, {
-        label: entryLabel(treePath).replace(RTAC_SUFFIX, ''),
-        entries: entry.model.items.map((item) => ({
-          path: item.file,
-          name: item.name ?? moduleBaseName(item.file),
-          item,
-          get signature() {
-            return signatureOf(item);
-          },
-        })),
-      });
-    }
-    return entry.comparable.get(ref);
+  // Signatures fold the raw hash back in for model-blind files.
+  buildComparable(ref, treePath, _profileName, entry) {
+    const signatures = new Map();
+    const signatureOf = (item) => {
+      let signature = signatures.get(item.file);
+      if (!signature) {
+        const hash = createHash('sha1').update(modelSignature(item));
+        const raw = entry.rawHashes.get(item.file);
+        if (raw) hash.update(raw);
+        signature = hash.digest('hex');
+        signatures.set(item.file, signature);
+      }
+      return signature;
+    };
+    return {
+      label: entryLabel(treePath).replace(RTAC_SUFFIX, ''),
+      entries: entry.model.items.map((item) => ({
+        path: item.file,
+        name: item.name ?? moduleBaseName(item.file),
+        item,
+        get signature() {
+          return signatureOf(item);
+        },
+      })),
+    };
   }
 
   // Pivot a list of setting names across a range of objects: for each object
@@ -509,9 +505,10 @@ class ArtifactsService {
   }
 
   async aggregate(treePath, options) {
+    // Any kind that implements the hook aggregates; today that is RTAC only.
     const kind = this.#kindFor(treePath);
-    if (!(kind instanceof RtacKind)) {
-      throw httpError(400, 'aggregate works on RTAC exports');
+    if (typeof kind.aggregate !== 'function') {
+      throw httpError(400, `aggregate is not available for ${kind.label} artifacts`);
     }
     return kind.aggregate(treePath, options);
   }
@@ -555,8 +552,8 @@ class ArtifactsService {
       throw httpError(404, `unknown RTAC project: ${displayName}`);
     }
     const entryName = into
-      ? String(into).replace(INVALID_EXPORT, '_')
-      : `${displayName.replace(INVALID_EXPORT, '_')}.rtac`;
+      ? String(into).replace(INVALID_NAME, '_')
+      : `${displayName.replace(INVALID_NAME, '_')}.rtac`;
     if (!RTAC_SUFFIX.test(entryName)) {
       throw httpError(400, `not an RTAC entry: ${into}`);
     }
@@ -628,7 +625,7 @@ class ArtifactsService {
 
     const added = [];
     for (const [name, entries] of groups) {
-      const entryName = `${name.replace(INVALID_EXPORT, '_')}.rtac`;
+      const entryName = `${name.replace(INVALID_NAME, '_')}.rtac`;
       const treePath = dirPath ? `${dirPath}/${entryName}` : entryName;
       await this.files.placeEntry(dirPath, entryName, trimmedNote, async (target) => {
         for (const entry of entries) {
@@ -644,8 +641,5 @@ class ArtifactsService {
     return { added };
   }
 }
-
-// Characters that cannot land in a file name (mirrors services/files.js).
-const INVALID_EXPORT = /[<>:"/\\|?*\x00-\x1f]/g;
 
 export { ArtifactKind, ArtifactsService, splitArtifactRef };

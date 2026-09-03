@@ -223,11 +223,13 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
 export function Checkbox({
   checked,
   indeterminate = false,
+  disabled = false,
   onChange,
   stopClickPropagation = false,
 }: {
   checked: boolean
   indeterminate?: boolean
+  disabled?: boolean
   onChange: (checked: boolean) => void
   /** For checkboxes embedded in clickable rows. */
   stopClickPropagation?: boolean
@@ -237,12 +239,86 @@ export function Checkbox({
       type="checkbox"
       className="ui-checkbox"
       checked={checked}
+      disabled={disabled}
       ref={(el) => {
         if (el) el.indeterminate = indeterminate
       }}
       onClick={stopClickPropagation ? (e) => e.stopPropagation() : undefined}
       onChange={(e) => onChange(e.target.checked)}
     />
+  )
+}
+
+/**
+ * The hidden-input + drop-target pair every file-taking tool shares: click
+ * to browse (accept-filtered) or drop a file on it. Children are the zone's
+ * copy.
+ */
+export function FileDropZone({
+  accept,
+  onFile,
+  children,
+}: {
+  accept: string
+  onFile: (file: File) => void
+  children: ReactNode
+}) {
+  const input = useRef<HTMLInputElement>(null)
+  return (
+    <>
+      <input
+        ref={input}
+        type="file"
+        accept={accept}
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) onFile(file)
+          e.target.value = ''
+        }}
+      />
+      <button
+        className="drop-zone as-button"
+        onClick={() => input.current?.click()}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault()
+          const file = e.dataTransfer.files[0]
+          if (file) onFile(file)
+        }}
+      >
+        {children}
+      </button>
+    </>
+  )
+}
+
+/**
+ * Modal scaffold: dimmed click-to-close overlay, the card, a titled head
+ * with its ✕. `locked` holds the overlay's close path (mid-commit) — the ✕
+ * stays live as the deliberate escape hatch.
+ */
+export function Modal({
+  title,
+  onClose,
+  locked = false,
+  children,
+}: {
+  title: string
+  onClose: () => void
+  locked?: boolean
+  children: ReactNode
+}) {
+  return (
+    <div className="modal-overlay" onClick={locked ? undefined : onClose}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <span className="t">{title}</span>
+          <button className="x" onClick={onClose} title="Close">✕</button>
+        </div>
+        {children}
+      </div>
+    </div>
   )
 }
 

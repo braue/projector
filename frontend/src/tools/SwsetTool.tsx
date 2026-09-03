@@ -3,10 +3,10 @@
 // updated XML. Values shown are the old workbook's translated labels; the
 // backend translates them back on write.
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { generateSwsetXml, parseSwsetProjectFile, parseSwsetXml } from '../api'
-import { Button, CollapsibleSection, Select, Spinner, TabBar, TextInput } from '../components/ui'
+import { Button, CollapsibleSection, FileDropZone, Select, Spinner, TabBar, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { SwsetColumn, SwsetGenerateResult, SwsetModel, SwsetTable } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
@@ -59,7 +59,6 @@ export function SwsetTool({ project }: ToolProps) {
   const [edits, setEdits] = useState<Record<string, TableEdits>>({})
   const [section, setSection] = useState('system')
   const [result, setResult] = useState<SwsetGenerateResult | null>(null)
-  const input = useRef<HTMLInputElement>(null)
 
   const load = async (request: () => Promise<SwsetModel>) => {
     setBusy(true)
@@ -223,30 +222,10 @@ export function SwsetTool({ project }: ToolProps) {
         </div>
       </div>
       <div className="tool-scroll">
-        <input
-          ref={input}
-          type="file"
-          accept=".xml"
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) parse(file)
-            e.target.value = ''
-          }}
-        />
-        <button
-          className="drop-zone as-button"
-          onClick={() => input.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault()
-            const file = e.dataTransfer.files[0]
-            if (file) parse(file)
-          }}
-        >
+        <FileDropZone accept=".xml" onFile={parse}>
           <b>Drop a switch Configuration XML here</b>
           or click to browse — SEL-2730M / 2731 family
-        </button>
+        </FileDropZone>
         <ProjectFilePick
           project={project}
           extensions={['.xml']}

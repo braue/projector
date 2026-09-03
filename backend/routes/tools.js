@@ -1,8 +1,9 @@
 // The Tools surface — global utilities beside the projects, mounted at
-// /api/tools. This router owns what every tool shares: job polling, run-file
-// listing/download/removal, and copying a run file into a project's Files
-// store. Each tool mounts its own sub-router here as it lands.
+// /api/tools. This router owns what every tool shares — job polling, run-file
+// download, copying a run file into a project's Files store — plus each
+// tool's own endpoints, grouped per tool below.
 
+import { copyFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { Router } from 'express';
@@ -152,6 +153,15 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(await tools.dacsim.generate(files, payload));
   });
 
+  // Import to AcRTAC — the project tree's generic action on an RTAC entry:
+  // { project, path, name, deviceType, firmware } in, a pollable job out.
+  router.post('/acrtac/import', async (req, res) => {
+    const { project, ...payload } = req.body ?? {};
+    if (!project) throw httpError(400, 'project required');
+    const files = (await projects.bundle(project)).files;
+    res.status(202).json(await tools.acrtacImport.start(files, payload));
+  });
+
   // Drawing Generator: part number in, configured drawings + AutoCAD bundle
   // out. open-dwg launches local AutoCAD on one bundled drawing with its
   // layer script — the on-demand DWG pass.
@@ -170,17 +180,16 @@ function toolsRoutes(tools, projects) {
   router.post('/save-to-project', async (req, res) => {
     const { project, tool, run, path: filePath, dir, name } = req.body ?? {};
     if (!project) throw httpError(400, 'project required');
-    const buffer = await workspace.readFile(tool, run, filePath);
+    // Copied disk-to-disk — a run output can be a hundreds-of-MB exports ZIP,
+    // and its bytes never need to enter the heap.
+    const absolute = await workspace.filePath(tool, run, filePath);
     const files = (await projects.bundle(project)).files;
-    const originalname = String(name ?? '').trim() || path.basename(String(filePath));
+    const entryName = String(name ?? '').trim() || path.basename(String(filePath));
     // A tool output saved into the project is a version like any other;
     // callers may say what changed, and the tool run names the default.
     const note = String(req.body?.note ?? '').trim() || `saved from ${tool} run ${run}`;
-    res.status(201).json(await files.upload(dir ?? '', [{ originalname, buffer }], note));
-  });
-
-  router.get('/:tool/runs/:run/files', async (req, res) => {
-    res.json({ files: await workspace.listFiles(req.params.tool, req.params.run) });
+    const added = await files.placeEntry(dir ?? '', entryName, note, (target) => copyFile(absolute, target));
+    res.status(201).json({ added: [added] });
   });
 
   router.get('/:tool/runs/:run/file', async (req, res) => {
@@ -190,11 +199,6 @@ function toolsRoutes(tools, projects) {
       requireQuery(req, 'path'),
     );
     res.download(absolute);
-  });
-
-  router.delete('/:tool/runs/:run', async (req, res) => {
-    await workspace.removeRun(req.params.tool, req.params.run);
-    res.json({ ok: true });
   });
 
   return router;

@@ -8,6 +8,7 @@ The DAC SIM Converter's final step: import generated simulator projects
 
 Prints one JSON document on stdout ({"results": [...]}); a whole-bridge
 failure (no selacrtac, login refused) goes to stderr with a non-zero exit.
+Session and framing live in acrtac_common.py.
 
 selacrtac's importxml kwargs have drifted across releases — the docs say
 importxml(type, version, file, name), the old DACSIMCONVERT called
@@ -20,12 +21,7 @@ import inspect
 import json
 import sys
 
-from selacrtac.acrtac import AcRTAC
-
-
-def wait_on(job):
-    if hasattr(job, "wait"):
-        job.wait()
+from acrtac_common import run_session, wait_on
 
 
 def import_kwargs(cli, item):
@@ -50,26 +46,20 @@ def import_kwargs(cli, item):
     }
 
 
+def cmd_import(cli, request):
+    results = []
+    for item in request["items"]:
+        try:
+            wait_on(cli.importxml(**import_kwargs(cli, item)))
+            results.append({"name": item["name"], "success": True})
+        except Exception as exc:
+            results.append({"name": item["name"], "success": False, "error": str(exc)})
+    return {"results": results}
+
+
 def main():
     request = json.load(sys.stdin)
-    results = []
-    try:
-        with AcRTAC() as cli:
-            cli.login("admin", "TAIL").wait()
-            if hasattr(cli, "is_logged_in") and not cli.is_logged_in():
-                print("Failed to log in to the RTAC database.", file=sys.stderr)
-                sys.exit(2)
-            for item in request["items"]:
-                try:
-                    wait_on(cli.importxml(**import_kwargs(cli, item)))
-                    results.append({"name": item["name"], "success": True})
-                except Exception as exc:
-                    results.append({"name": item["name"], "success": False, "error": str(exc)})
-    except Exception as exc:  # no selacrtac / CLI failed to start / login died
-        print(str(exc), file=sys.stderr)
-        sys.exit(1)
-
-    json.dump({"results": results}, sys.stdout)
+    run_session(lambda cli: cmd_import(cli, request))
 
 
 if __name__ == "__main__":

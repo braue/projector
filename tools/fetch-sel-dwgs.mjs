@@ -36,23 +36,14 @@ import { setTimeout as sleep } from 'timers/promises';
 
 import { loadDeviceMetadata, SEL_DEVICES_DIR } from '../backend/lib/drawings/deviceMetadata.js';
 import { drawingBase } from '../backend/lib/drawings/revisions.js';
+import { DEFAULT_DELAY_MS, USER_AGENT, fetchPartLookup, lengthHints } from './lib/selPartApi.mjs';
 
 const MANIFEST_PATH = path.join(SEL_DEVICES_DIR, 'drawings.manifest.json');
 const SOURCES_PATH = path.join(SEL_DEVICES_DIR, 'dwg-sources.json');
 
-const PART_LOOKUP_URL = (pn) =>
-  `https://selinc.com/api/configurator/part-lookup/?partQuery=${encodeURIComponent(pn)}`;
 const DOWNLOAD_URL = (cdnPath) =>
   `https://selinc.com/api/download/?link=https://cdn.selinc.com/Protected/drawings/${cdnPath}`;
 
-// Requests are serialized with a pause between them. This runs once per
-// install against someone else's servers; there is no reason to be greedy.
-const DEFAULT_DELAY_MS = 1500;
-
-// A browser UA, not an identifying one: selinc.com fronts with Incapsula,
-// which binds the session cookies to the browser fingerprint they were minted
-// under and rejects the same cookies presented with a non-browser UA.
-const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 
 // ------------------------------------------------------------------ corpus
 
@@ -137,19 +128,6 @@ function candidatePartNumbers(metadata, model) {
     candidates.push(model);
   }
   return [...new Set(candidates)];
-}
-
-// The API rejects a wrong-length part number with one code-14 error per
-// submodel, each naming the length that submodel expects. An X in any option
-// position means "unspecified" to the configurator, so padding a short part
-// number with X is a legitimate way to address the longer submodels.
-function lengthHints(result, pn) {
-  const hints = new Set();
-  for (const error of result?.errors ?? []) {
-    const match = /should be (\d+) characters/.exec(error.message ?? '');
-    if (match && Number(match[1]) > pn.length) hints.add(Number(match[1]));
-  }
-  return [...hints].map((len) => pn + 'X'.repeat(len - pn.length));
 }
 
 // A part number whose length fits a submodel but carries one stale option
@@ -275,14 +253,6 @@ async function commandStatus() {
 
 // ------------------------------------------------------------------- lookup
 
-async function partLookup(pn) {
-  const response = await fetch(PART_LOOKUP_URL(pn), {
-    headers: { 'User-Agent': USER_AGENT, Referer: 'https://selinc.com/', Accept: 'application/json' },
-  });
-  if (response.status !== 200) throw new Error(`HTTP ${response.status}`);
-  return response.json();
-}
-
 async function commandLookup(options) {
   const models = await scanCorpus();
   const sources = (await readSources()) ?? {};
@@ -321,7 +291,7 @@ async function commandLookup(options) {
       modelRequests += 1;
       let result;
       try {
-        result = await partLookup(pn);
+        result = await fetchPartLookup(pn);
       } catch (error) {
         console.log(`  ${pn}: ${error.message}`);
         continue;

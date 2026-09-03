@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { fetchRtacAvailable, refreshRtacAvailable, startRtacExport } from '../api'
 import { errorMessage } from '../lib/errors'
 import type { RtacAvailableEntry } from '../types'
-import { Button, Checkbox, Spinner, TextInput } from './ui'
+import { Button, Checkbox, Modal, Spinner, TextInput } from './ui'
 
 // The AcRTAC database browser: a window over the app listing every project
 // in the machine's database. Check the ones to download; they land in the
@@ -90,12 +90,7 @@ export function RtacDatabaseModal({
   const shown = (entries ?? []).filter((entry) => entry.name.toLowerCase().includes(needle))
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <span className="t">AcRTAC database</span>
-          <button className="x" onClick={onClose} title="Close">✕</button>
-        </div>
+    <Modal title="AcRTAC database" onClose={onClose}>
         <div className="modal-sub">
           {versionOf ? (
             <>
@@ -167,7 +162,6 @@ export function RtacDatabaseModal({
             {starting ? <Spinner /> : `Download ${checked.size || ''}`.trim()}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   )
 }

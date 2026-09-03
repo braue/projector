@@ -159,34 +159,36 @@ async function configurePdfLayers(pdfBytes, enabledLayers) {
   return document.save({ useObjectStreams: false });
 }
 
-async function readPageSize(pdfBytes, pageNumber) {
-  const document = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-  const page = document.getPage(pageNumber - 1);
-  return page.getSize();
+// One PDFium WASM instance for the process — init is not cheap, and every
+// rendered view needs it.
+let pdfiumLibrary = null;
+function pdfium() {
+  return (pdfiumLibrary ??= PDFiumLibrary.init());
 }
 
+/** Rasterize one page; the page size (PDF points) rides along so the crop
+ *  math scales against the same geometry PDFium rendered from. */
 async function renderPdfPage(pdfBytes, pageNumber) {
-  const library = await PDFiumLibrary.init();
+  const library = await pdfium();
+  const document = await library.loadDocument(Buffer.from(pdfBytes));
 
   try {
-    const document = await library.loadDocument(Buffer.from(pdfBytes));
+    const page = document.getPage(pageNumber - 1);
+    const { originalWidth, originalHeight } = page.getOriginalSize();
+    const rendered = await page.render({
+      scale: PDF_RENDER_SCALE,
+      render: async ({ data, width, height }) => {
+        const image = new Jimp({ data: Buffer.from(data), width, height });
+        return image.getBuffer(JimpMime.png);
+      },
+    });
 
-    try {
-      const page = document.getPage(pageNumber - 1);
-      const rendered = await page.render({
-        scale: PDF_RENDER_SCALE,
-        render: async ({ data, width, height }) => {
-          const image = new Jimp({ data: Buffer.from(data), width, height });
-          return image.getBuffer(JimpMime.png);
-        },
-      });
-
-      return Buffer.from(rendered.data);
-    } finally {
-      document.destroy();
-    }
+    return {
+      renderedPage: Buffer.from(rendered.data),
+      pageSize: { width: originalWidth, height: originalHeight },
+    };
   } finally {
-    library.destroy();
+    document.destroy();
   }
 }
 
@@ -223,10 +225,7 @@ async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber,
     // the configured bytes hands them in and we only rasterize.
     const configuredPdfBytes = configuredPdfs?.get(pdfName)
       ?? await configurePdfLayers(await fs.readFile(pdfPath), enabledLayers);
-    renderCache.set(cacheKey, {
-      pageSize: await readPageSize(configuredPdfBytes, pageNumber),
-      renderedPage: await renderPdfPage(configuredPdfBytes, pageNumber),
-    });
+    renderCache.set(cacheKey, await renderPdfPage(configuredPdfBytes, pageNumber));
   }
 
   return renderCache.get(cacheKey);

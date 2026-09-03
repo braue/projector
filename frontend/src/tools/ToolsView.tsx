@@ -3,13 +3,12 @@
 // Opened tools latch-mount and stay mounted while hidden, so a terminal
 // session or a half-filled form survives switching between tools.
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import { TOOLS } from './registry'
-import type { ToolSeek } from './registry'
 
-export function ToolsView({ project, seek }: { project: string; seek?: ToolSeek | null }) {
+export function ToolsView({ project }: { project: string }) {
   const [selected, setSelected] = useState<string | null>(null)
   const [everOpened, setEverOpened] = useState<Set<string>>(new Set())
   const { width, startResize } = useSidebarWidth()
@@ -18,12 +17,6 @@ export function ToolsView({ project, seek }: { project: string; seek?: ToolSeek 
     setSelected(id)
     setEverOpened((current) => (current.has(id) ? current : new Set(current).add(id)))
   }, [])
-
-  // A seek from the project side (a device popup's reference button) lands on
-  // its tool; the tool itself reads the prefill off the seek prop below.
-  useEffect(() => {
-    if (seek) open(seek.tool)
-  }, [seek, open])
 
   return (
     <>
@@ -53,11 +46,7 @@ export function ToolsView({ project, seek }: { project: string; seek?: ToolSeek 
         )}
         {TOOLS.filter((tool) => everOpened.has(tool.id)).map((tool) => (
           <div key={tool.id} className="tool-host" hidden={tool.id !== selected}>
-            <tool.component
-              project={project}
-              active={tool.id === selected}
-              seek={seek?.tool === tool.id ? seek : undefined}
-            />
+            <tool.component project={project} active={tool.id === selected} />
           </div>
         ))}
       </main>
