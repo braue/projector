@@ -11,13 +11,15 @@ import {
   DACSIM_TEMPLATE_URL,
   fetchToolJob,
   importDacsimProjectBundle,
+  listFiles,
+  listProjects,
   stageDacsimFromProject,
   startDacsimConvert,
   uploadDacsimBundle,
 } from '../api'
-import { Button, DataTable, LinkButton, SectionHeader, Spinner, TextInput } from '../components/ui'
+import { Button, DataTable, LinkButton, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import type { DacsimBundle, DacsimResult, ToolJob } from '../types'
+import type { DacsimBundle, DacsimResult, FileNode, ToolJob } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
@@ -39,6 +41,15 @@ function schemeNameFor(path: string): string {
   return base.replace(/\.rtac$/i, '').replace(/[^A-Za-z0-9 _.-]/g, '_')
 }
 
+/** Every RTAC export entry in a project tree (the candidates for DACs). */
+function rtacPaths(nodes: FileNode[], out: string[] = []): string[] {
+  for (const node of nodes) {
+    if (node.type === 'folder') rtacPaths(node.children, out)
+    else if (node.kind === 'rtac') out.push(node.path)
+  }
+  return out
+}
+
 export function DacsimTool({ project }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
   const [bundle, setBundle] = useState<DacsimBundle | null>(null)
@@ -48,30 +59,46 @@ export function DacsimTool({ project }: ToolProps) {
   const [busy, setBusy] = useState(false)
   const input = useRef<HTMLInputElement>(null)
 
-  // The from-project form: picked DAC entries with their few settings; the
-  // backend writes settings.json from these. Tools are global, so the DAC
-  // entries name their own source project — the only constraint is that one
-  // staged bundle draws from one project.
+  // The from-project form: the chosen project's RTAC entries as a roster —
+  // the user checks which ones are DACs, each checked one grows its
+  // addressing fields, and the backend writes settings.json from them.
+  // Tools are global: the open project is only the dropdown's start value.
+  const [projects, setProjects] = useState<string[]>([])
+  const [formProject, setFormProject] = useState(project)
+  const [rtacEntries, setRtacEntries] = useState<string[] | null>(null)
   const [rows, setRows] = useState<SchemeRow[]>([])
-  const [formProject, setFormProject] = useState<string | null>(null)
   const [master, setMaster] = useState({ folder: 'SIM Master', ip: '', defaultLoad: '10' })
 
-  const addRow = (dacPath: string, fromProject: string) => {
-    if (rows.length && formProject && fromProject !== formProject) {
-      setError(`Schemes must all come from one project — remove the ${formProject} rows first`)
-      return
-    }
-    setError(null)
-    setFormProject(fromProject)
-    if (!rows.some((row) => row.dacPath === dacPath)) {
-      setRows([...rows, { schemeName: schemeNameFor(dacPath), dacPath, dacIps: '', remoteIp: '' }])
-    }
+  useEffect(() => {
+    listProjects().then(setProjects).catch(() => {})
+  }, [])
+
+  // The roster for the chosen project. Refreshed via onFocusCapture below,
+  // so exports added while the (latched) tool pane sat hidden still show.
+  const loadEntries = (chosen: string) => {
+    listFiles(chosen)
+      .then((tree) => setRtacEntries(rtacPaths(tree)))
+      .catch((err) => setError(errorMessage(err)))
   }
 
-  const removeRow = (index: number) => {
-    const next = rows.filter((_, i) => i !== index)
-    setRows(next)
-    if (!next.length) setFormProject(null)
+  useEffect(() => {
+    setRtacEntries(null)
+    if (formProject) loadEntries(formProject)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formProject])
+
+  const switchProject = (name: string) => {
+    if (!name || name === formProject) return
+    setFormProject(name)
+    setRows([])
+    setError(null)
+  }
+
+  const toggleEntry = (dacPath: string) => {
+    setError(null)
+    setRows((current) => current.some((row) => row.dacPath === dacPath)
+      ? current.filter((row) => row.dacPath !== dacPath)
+      : [...current, { schemeName: schemeNameFor(dacPath), dacPath, dacIps: '', remoteIp: '' }])
   }
 
   const setRow = (index: number, patch: Partial<SchemeRow>) =>
@@ -125,7 +152,7 @@ export function DacsimTool({ project }: ToolProps) {
 
   const uploadZip = (file: File) => stage(() => uploadDacsimBundle(file))
 
-  const stageFromForm = () => stage(() => stageDacsimFromProject(formProject ?? project, {
+  const stageFromForm = () => stage(() => stageDacsimFromProject(formProject, {
     schemes: rows.map((row) => ({
       schemeName: row.schemeName.trim(),
       dacPath: row.dacPath,
@@ -168,15 +195,43 @@ export function DacsimTool({ project }: ToolProps) {
       <div className="tool-scroll">
         <SectionHeader title="Schemes from a project" />
         <div className="preview-subtitle">
-          Pick each DAC export (an RTAC entry in one of your projects), fill
-          in the addressing, and settings.json is generated for you.
+          Every RTAC export in the chosen project is listed — check the ones
+          that are DACs, fill in each one's addressing, and settings.json is
+          generated for you.
         </div>
-        <ProjectFilePick
-          project={project}
-          extensions={['.rtac']}
-          onPick={addRow}
-          disabled={busy || converting}
-        />
+        <div className="tool-row">
+          <Select
+            label="Project"
+            value={formProject}
+            options={projects.length ? projects : [formProject].filter(Boolean)}
+            onChange={switchProject}
+          />
+        </div>
+        {rtacEntries !== null && (
+          <div
+            className="tool-col dacsim-roster"
+            onFocusCapture={() => loadEntries(formProject)}
+          >
+            {rtacEntries.length === 0 && (
+              <div className="tool-stats">No RTAC exports in {formProject}</div>
+            )}
+            {rtacEntries.map((path) => {
+              const checked = rows.some((row) => row.dacPath === path)
+              return (
+                <label key={path} className={checked ? 'dacsim-entry on' : 'dacsim-entry'}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={busy || converting}
+                    onChange={() => toggleEntry(path)}
+                  />
+                  <span className="dacsim-entry-name">{schemeNameFor(path)}</span>
+                  <span className="tool-stats">{path}</span>
+                </label>
+              )
+            })}
+          </div>
+        )}
         {rows.map((row, index) => (
           <div className="tool-row" key={row.dacPath}>
             <TextInput
@@ -196,7 +251,7 @@ export function DacsimTool({ project }: ToolProps) {
               placeholder="192.168.254.21"
               onChange={(e) => setRow(index, { remoteIp: e.target.value })}
             />
-            <Button onClick={() => removeRow(index)}>✕</Button>
+            <Button onClick={() => toggleEntry(row.dacPath)}>✕</Button>
           </div>
         ))}
         {rows.length > 0 && (
@@ -223,7 +278,6 @@ export function DacsimTool({ project }: ToolProps) {
               <Button variant="primary" disabled={!rowsReady || busy || converting} onClick={stageFromForm}>
                 Stage schemes
               </Button>
-              {formProject && <span className="tool-stats">from {formProject}</span>}
             </div>
           </>
         )}
