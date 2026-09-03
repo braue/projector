@@ -49,14 +49,29 @@ export function DacsimTool({ project }: ToolProps) {
   const input = useRef<HTMLInputElement>(null)
 
   // The from-project form: picked DAC entries with their few settings; the
-  // backend writes settings.json from these.
+  // backend writes settings.json from these. Tools are global, so the DAC
+  // entries name their own source project — the only constraint is that one
+  // staged bundle draws from one project.
   const [rows, setRows] = useState<SchemeRow[]>([])
+  const [formProject, setFormProject] = useState<string | null>(null)
   const [master, setMaster] = useState({ folder: 'SIM Master', ip: '', defaultLoad: '10' })
 
-  const addRow = (dacPath: string) => {
-    setRows((current) => current.some((row) => row.dacPath === dacPath)
-      ? current
-      : [...current, { schemeName: schemeNameFor(dacPath), dacPath, dacIps: '', remoteIp: '' }])
+  const addRow = (dacPath: string, fromProject: string) => {
+    if (rows.length && formProject && fromProject !== formProject) {
+      setError(`Schemes must all come from one project — remove the ${formProject} rows first`)
+      return
+    }
+    setError(null)
+    setFormProject(fromProject)
+    if (!rows.some((row) => row.dacPath === dacPath)) {
+      setRows([...rows, { schemeName: schemeNameFor(dacPath), dacPath, dacIps: '', remoteIp: '' }])
+    }
+  }
+
+  const removeRow = (index: number) => {
+    const next = rows.filter((_, i) => i !== index)
+    setRows(next)
+    if (!next.length) setFormProject(null)
   }
 
   const setRow = (index: number, patch: Partial<SchemeRow>) =>
@@ -110,7 +125,7 @@ export function DacsimTool({ project }: ToolProps) {
 
   const uploadZip = (file: File) => stage(() => uploadDacsimBundle(file))
 
-  const stageFromForm = () => stage(() => stageDacsimFromProject(project, {
+  const stageFromForm = () => stage(() => stageDacsimFromProject(formProject ?? project, {
     schemes: rows.map((row) => ({
       schemeName: row.schemeName.trim(),
       dacPath: row.dacPath,
@@ -151,10 +166,10 @@ export function DacsimTool({ project }: ToolProps) {
         </div>
       </div>
       <div className="tool-scroll">
-        <SectionHeader title="Schemes from this project" />
+        <SectionHeader title="Schemes from a project" />
         <div className="preview-subtitle">
-          Pick each DAC export (an RTAC entry in {project} › Files), fill in
-          the addressing, and settings.json is generated for you.
+          Pick each DAC export (an RTAC entry in one of your projects), fill
+          in the addressing, and settings.json is generated for you.
         </div>
         <ProjectFilePick
           project={project}
@@ -181,9 +196,7 @@ export function DacsimTool({ project }: ToolProps) {
               placeholder="192.168.254.21"
               onChange={(e) => setRow(index, { remoteIp: e.target.value })}
             />
-            <Button onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
-              ✕
-            </Button>
+            <Button onClick={() => removeRow(index)}>✕</Button>
           </div>
         ))}
         {rows.length > 0 && (
@@ -210,6 +223,7 @@ export function DacsimTool({ project }: ToolProps) {
               <Button variant="primary" disabled={!rowsReady || busy || converting} onClick={stageFromForm}>
                 Stage schemes
               </Button>
+              {formProject && <span className="tool-stats">from {formProject}</span>}
             </div>
           </>
         )}
@@ -242,7 +256,7 @@ export function DacsimTool({ project }: ToolProps) {
         <ProjectFilePick
           project={project}
           extensions={['.zip']}
-          onPick={(path) => stage(() => importDacsimProjectBundle(project, path))}
+          onPick={(path, fromProject) => stage(() => importDacsimProjectBundle(fromProject, path))}
           disabled={busy || converting}
         />
         <div className="tool-row">

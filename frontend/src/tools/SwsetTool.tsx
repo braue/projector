@@ -254,7 +254,7 @@ export function SwsetTool({ project }: ToolProps) {
         <ProjectFilePick
           project={project}
           extensions={['.xml']}
-          onPick={(path) => load(() => parseSwsetProjectFile(project, path))}
+          onPick={(path, fromProject) => load(() => parseSwsetProjectFile(fromProject, path))}
           disabled={busy}
         />
 

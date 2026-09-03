@@ -34,8 +34,8 @@ export function HmiTesterTool({ project }: ToolProps) {
   }
 
   const analyze = (file: File) => run(file.name, () => analyzeHmi(file))
-  const analyzeProjectFile = (path: string) =>
-    run(path.split('/').pop() ?? path, () => analyzeHmiProjectFile(project, path))
+  const analyzeProjectFile = (path: string, fromProject: string) =>
+    run(path.split('/').pop() ?? path, () => analyzeHmiProjectFile(fromProject, path))
 
   return (
     <>

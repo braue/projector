@@ -192,7 +192,7 @@ export function QuicksetTool({ project }: ToolProps) {
         <ProjectFilePick
           project={project}
           extensions={['.zip']}
-          onPick={(path) => openSource(() => importQuicksetProjectConfigs(project, path))}
+          onPick={(path, fromProject) => openSource(() => importQuicksetProjectConfigs(fromProject, path))}
           disabled={busy}
         />
         <div className="tool-col">
