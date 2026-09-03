@@ -214,6 +214,11 @@ class FilesService {
             // does not survive copies between machines.
             uploadedAt: record?.at ?? (Math.round(info.birthtimeMs || info.mtimeMs) || null),
             note: record?.note ?? null,
+            // The AcRTAC database project this entry mirrors, when known
+            // (recorded by database downloads and successful imports) — what
+            // "Open in AcRTAC" and retries use instead of guessing from the
+            // (renameable, sanitized) entry name.
+            database: record?.database ?? null,
             // The live bytes no longer match the recorded version: the file
             // was edited in place (Excel, an external tool) — the working
             // copy has uncommitted changes.
@@ -253,8 +258,13 @@ class FilesService {
   // Store uploaded files into `dirPath` ('' = root), each stamped with the
   // shared version note. A name already present becomes a NEW VERSION of
   // that entry: the previous bytes are archived, never overwritten.
-  upload(dirPath, files, note) {
+  // `versionOf` (one file only) names the existing entry the upload
+  // supersedes even when the names differ — see #place.
+  upload(dirPath, files, note, versionOf = null) {
     const trimmedNote = requireNote(note);
+    if (versionOf && files.length !== 1) {
+      throw httpError(400, 'a new version is exactly one file');
+    }
     return this.#serialized(async () => {
       const added = [];
       for (const file of files) {
@@ -263,7 +273,7 @@ class FilesService {
         const write = (target) => (file.buffer !== undefined
           ? writeFile(target, file.buffer)
           : copyFile(file.path, target));
-        added.push(await this.#place(dirPath, cleanName(file.originalname), trimmedNote, write));
+        added.push(await this.#place(dirPath, cleanName(file.originalname), trimmedNote, write, { versionOf }));
       }
       return { added };
     });
@@ -280,55 +290,95 @@ class FilesService {
     return this.#serialized(() => this.#place(dirPath, cleanName(name), trimmedNote, writer, options));
   }
 
-  async #place(dirPath, name, note, writer, { directory = false } = {}) {
+  // `versionOf` names an EXISTING entry this arrival supersedes when the
+  // arrival carries a DIFFERENT name: the entry follows what its newest
+  // version is called — the old name leaves the tree and the history rides
+  // to the new name (like renameEntry, in the same stroke as the arrival).
+  // `database` records which AcRTAC database project the entry mirrors
+  // (carried forward across later arrivals that don't name one).
+  async #place(dirPath, name, note, writer, { directory = false, versionOf = null, database = null } = {}) {
     assertMutable(dirPath);
     const dir = this.#resolve(dirPath);
     if (!(await statOrNull(dir))?.isDirectory()) {
       throw httpError(404, `no such folder: ${dirPath || '/'}`);
     }
     const records = await this.#loadRecords(dir, { forWrite: true });
+    // The name the superseded version lives under (usually the arrival's own).
+    const previousName = versionOf ? cleanName(versionOf) : name;
+    const renaming = previousName !== name;
     const live = path.join(dir, name);
-    const previous = await statOrNull(live);
+    const previous = await statOrNull(path.join(dir, previousName));
+    if (renaming) {
+      if (!previous) throw httpError(404, `no such entry: ${versionOf}`);
+      // On a case-insensitive filesystem (Windows, the shipped target) a
+      // case-only rename resolves `live` to the very file being superseded:
+      // that IS the rename happening, not a collision. Same-inode is the
+      // test; where inodes aren't reported, name-case equality stands in.
+      const clash = await statOrNull(live);
+      const sameFile = clash && (clash.ino && previous.ino
+        ? clash.ino === previous.ino && clash.dev === previous.dev
+        : previousName.toLowerCase() === name.toLowerCase());
+      if (clash && !sameFile) throw httpError(409, `already exists: ${name}`);
+    }
     // Versions stack same-shaped things only. A file arriving under the name
     // of an existing FOLDER (or a folder under a file's name) is a mistake —
     // archiving the folder would bury its whole subtree behind a version row
     // that cannot even open.
     if (previous && previous.isDirectory() !== directory) {
       throw httpError(409, previous.isDirectory()
-        ? `a folder is named that: ${name}`
-        : `a file is named that: ${name}`);
+        ? `a folder is named that: ${previousName}`
+        : `a file is named that: ${previousName}`);
     }
     let archived = null;
     if (previous) {
-      const record = records[name]
+      const record = records[previousName]
         ?? { at: Math.round(previous.birthtimeMs || previous.mtimeMs) || null, note: null, history: [] };
+      delete records[previousName];
       records[name] = record;
       record.history ??= [];
-      archived = await this.#archive(dir, name, record);
+      archived = await this.#archive(dir, previousName, record);
     }
     try {
       await writer(live);
     } catch (err) {
       // The write failed AFTER the live entry moved into the archive: put it
-      // back. A failed arrival must never cost the version that was there.
+      // back under ITS name. A failed arrival must never cost the version
+      // that was there.
       if (archived) {
         await rm(live, { recursive: true, force: true }).catch(() => {});
+        // Whatever happens to the bytes, the record must end up keyed under
+        // the OLD name — the one whose bytes exist (live again after a
+        // successful restore, or still in the archive after a failed one).
+        // Keyed under the never-written new name it would reference nothing
+        // and the entry would vanish from the tree.
         try {
-          await rename(path.join(dir, ARCHIVE_DIR, archived.storedName), live);
+          await rename(path.join(dir, ARCHIVE_DIR, archived.storedName), path.join(dir, previousName));
           records[name].history.pop();
+          if (renaming) {
+            records[previousName] = records[name];
+            delete records[name];
+          }
         } catch {
           // Restore failed too — persist the record so the archived bytes at
           // least stay referenced for recovery instead of orphaned.
+          if (renaming) {
+            records[previousName] = records[name];
+            delete records[name];
+          }
           await this.#saveRecords(dir, records).catch(() => {});
         }
       }
       throw err;
     }
     const placed = await statOrNull(live);
+    // The database link survives arrivals that don't carry one (a re-upload
+    // of an export still mirrors the same AcRTAC project).
+    const mirrors = database ?? records[name]?.database ?? null;
     records[name] = {
       at: Date.now(),
       note,
       history: records[name]?.history ?? [],
+      ...(mirrors ? { database: mirrors } : {}),
       // For files, the stat of the bytes as committed — an in-place edit
       // (Excel saving over the working copy) is detected by divergence
       // from this.
@@ -345,6 +395,12 @@ class FilesService {
       }
     } else {
       await rm(path.join(dir, COMMITTED_DIR, name), { force: true }).catch(() => {});
+    }
+    if (renaming) {
+      // The old name's committed copy backed a version now in the archive,
+      // and caches holding the old path must hear it is gone.
+      await rm(path.join(dir, COMMITTED_DIR, previousName), { force: true }).catch(() => {});
+      this.#changed(dirPath ? `${dirPath}/${previousName}` : previousName);
     }
     await this.#saveRecords(dir, records);
     const treePath = dirPath ? `${dirPath}/${name}` : name;
@@ -367,6 +423,25 @@ class FilesService {
     const entry = { storedName, at: record.at ?? null, note: record.note ?? null };
     record.history.push(entry);
     return entry;
+  }
+
+  /** Record which AcRTAC database project an entry mirrors — called after a
+   *  successful "Import to AcRTAC", whose chosen name becomes the entry's
+   *  database identity from then on. */
+  recordDatabase(relPath, database) {
+    return this.#serialized(async () => {
+      assertMutable(relPath);
+      const absolute = this.#resolve(relPath);
+      const info = await statOrNull(absolute);
+      if (!info) throw httpError(404, `no such entry: ${relPath}`);
+      const dir = path.dirname(absolute);
+      const name = path.basename(absolute);
+      const records = await this.#loadRecords(dir, { forWrite: true });
+      const record = records[name]
+        ??= { at: Math.round(info.birthtimeMs || info.mtimeMs) || null, note: null, history: [] };
+      record.database = String(database);
+      await this.#saveRecords(dir, records);
+    });
   }
 
   createFolder(dirPath, name) {

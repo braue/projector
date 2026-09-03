@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   createFileFolder,
@@ -11,6 +11,7 @@ import {
   renameFileEntry,
   revealFileEntry,
   saveTextFile,
+  startAcrtacOpen,
   startRtacExport,
   uploadFiles,
   uploadRtacFolder,
@@ -18,6 +19,7 @@ import {
 import { errorMessage } from '../lib/errors'
 import { formatDay, formatStamp, formatWhen } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
+import { useToolJob } from '../lib/useToolJob'
 import type { ArtifactKindName, FileNode, FileVersion, RtacExportStatus } from '../types'
 import { AcrtacImportModal } from './AcrtacImportModal'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
@@ -40,7 +42,8 @@ import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 //   click            select (artifact → Inspect, .txt → editor, else info)
 //   ctrl/cmd+click   hold a SECOND selection (versions count as files here);
 //                    right-click either held row for the Compare option
-//   double-click     open with the OS default app (files)
+//   double-click     open with the OS default app (files); an RTAC entry
+//                    opens its database project in the AcSELerator RTAC GUI
 //   right-click      the context menu for whatever is under the cursor
 //   drag row         move into a folder (or the root background)
 //   drop OS files    upload into that folder — the version-note dialog runs
@@ -160,11 +163,45 @@ export function refLabel(tree: FileNode[] | null, path: string): string {
   return displayName(path)
 }
 
+// Which folders are open rides sessionStorage per project: switching panes
+// or projects doesn't re-collapse an exploration mid-session — only a fresh
+// app start does (folders start collapsed at launch).
+const expandedKey = (project: string) => `projector.tree-expanded:${project}`
+
+function loadExpanded(project: string): Set<string> {
+  try {
+    const raw = JSON.parse(sessionStorage.getItem(expandedKey(project)) ?? '[]')
+    return new Set(Array.isArray(raw) ? raw.filter((p) => typeof p === 'string') : [])
+  } catch {
+    return new Set()
+  }
+}
+
+const extOf = (name: string) => (/\.[^.]+$/.exec(name)?.[0] ?? '').toLowerCase()
+
+/** The picked "Add new version…" file, its name normalized against the
+ *  entry it supersedes — or the refusal message. A browser/Explorer
+ *  duplicate suffix (" (1)", " - Copy") never renames the entry, and an
+ *  extension change is refused as a mispick: the entry's artifact TYPE is
+ *  its extension, and flipping it would strand Inspect/Compare. */
+function stageVersionFile(file: File, entryName: string): File | string {
+  if (extOf(file.name) !== extOf(entryName)) {
+    return `${file.name} is a different file type than ${entryName} — a new version keeps the `
+      + `entry's type. Rename the entry first if the change is deliberate.`
+  }
+  const undup = file.name.replace(/(?: \(\d+\)| - Copy(?: \(\d+\))?)(\.[^.]+)?$/i, '$1')
+  if (undup.toLowerCase() === entryName.toLowerCase() && file.name !== entryName) {
+    return new File([file], entryName, { type: file.type })
+  }
+  return file
+}
+
 type PendingBatch =
   | { kind: 'files'; dir: string; files: File[] }
   | { kind: 'rtac-folder'; dir: string; files: File[]; names: string[] }
-  /** "Add new version…": the picked file lands under the ENTRY's name,
-   *  whatever the picked file happens to be called on disk. */
+  /** "Add new version…": the picked file supersedes the entry named
+   *  `entryName` — and the entry takes the PICKED FILE's name (versions
+   *  follow what their newest arrival is called). */
   | { kind: 'version'; dir: string; entryName: string; file: File }
   /** "Record edits as new version…": commit a working copy's in-place
    *  edits (the bytes are already there — only the note travels). */
@@ -209,7 +246,21 @@ export function ProjectTree({
   const [renaming, setRenaming] = useState<string | null>(null)
   const [creatingIn, setCreatingIn] = useState<string | null>(null)
   const [notingIn, setNotingIn] = useState<string | null>(null)
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  // Folders start collapsed at launch; see loadExpanded for the lifetime.
+  const [expanded, setExpanded] = useState<Set<string>>(() => loadExpanded(project))
+  const expandedFor = useRef(project)
+  if (expandedFor.current !== project) {
+    // Project switched without a remount: swap in that project's set.
+    expandedFor.current = project
+    setExpanded(loadExpanded(project))
+  }
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(expandedKey(project), JSON.stringify([...expanded]))
+    } catch {
+      // Persistence is best-effort; expansion still works for this render.
+    }
+  }, [project, expanded])
   const [openVersions, setOpenVersions] = useState<Set<string>>(new Set())
   const [pending, setPending] = useState<PendingBatch | null>(null)
   const [noteBusy, setNoteBusy] = useState(false)
@@ -217,7 +268,11 @@ export function ProjectTree({
   // The AcRTAC browser, opened at a destination folder — optionally aimed
   // at an existing entry as its next version (null = closed).
   const [dbState, setDbState] = useState<{ dir: string; versionOf?: string } | null>(null)
-  const [importTarget, setImportTarget] = useState<{ path: string; name: string } | null>(null)
+  const [importTarget, setImportTarget] = useState<{
+    path: string
+    name: string
+    database: string | null
+  } | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number; target: MenuTarget } | null>(null)
   const { width, startResize } = useSidebarWidth()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -245,6 +300,77 @@ export function ProjectTree({
     return next
   }
 
+  // Anything that PUTS something into a folder opens the path to it, so the
+  // result is on screen. Called on SUCCESS (an upload that lands, an export
+  // that completes, a move) — not on intent, so a cancelled dialog doesn't
+  // leave folders open. The inline create forms are the exception: they
+  // render inside the folder, which must be open for them to show at all.
+  const revealDir = (dir: string) => {
+    if (!dir) return
+    setExpanded((current) => {
+      const next = new Set(current)
+      let acc = ''
+      for (const part of dir.split('/')) {
+        acc = acc ? `${acc}/${part}` : part
+        next.add(acc)
+      }
+      return next
+    })
+  }
+
+  // A finished AcRTAC download leaves the pending list having landed its
+  // entry in a possibly-collapsed folder — reveal where it went, and when
+  // the download superseded (renamed) an entry the selection pointed at,
+  // follow the rename instead of blanking on the stale path. Only rows last
+  // seen 'exporting' landed; an 'error' row leaves by being dismissed.
+  const knownExports = useRef<Map<string, { status: string; into: string | null }>>(new Map())
+  useEffect(() => {
+    const current = new Map(exports.map((entry) => [
+      entry.path,
+      { status: entry.status, into: entry.into ?? null },
+    ]))
+    for (const [exportPath, known] of knownExports.current) {
+      if (current.has(exportPath) || known.status !== 'exporting') continue
+      const dir = exportPath.split('/').slice(0, -1).join('/')
+      revealDir(dir)
+      if (known.into) {
+        const oldPath = dir ? `${dir}/${known.into}` : known.into
+        if (selected === oldPath) onSelect(exportPath)
+      }
+    }
+    knownExports.current = current
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exports])
+
+  // --- open in AcRTAC ----------------------------------------------------------
+
+  // Double-click an RTAC entry: open its database project in the AcSELerator
+  // RTAC GUI — the recorded database name when the entry has one (set by
+  // downloads and imports), the entry's own name as the fallback. Needs the
+  // machine with the database — elsewhere the job fails with a clear
+  // message, shown in the tree's error strip.
+  const [acrtacOpening, setAcrtacOpening] = useState<string | null>(null)
+  const acrtacOpenJob = useToolJob(
+    () => setAcrtacOpening(null),
+    (message) => {
+      setAcrtacOpening(null)
+      setError(message)
+    },
+  )
+  const openInAcrtac = async (node: FileLeaf) => {
+    if (acrtacOpening !== null) return
+    const name = node.database ?? node.name.replace(/\.rtac$/i, '')
+    setError(null)
+    setAcrtacOpening(name)
+    try {
+      const { job } = await startAcrtacOpen(name)
+      acrtacOpenJob.start(job)
+    } catch (err) {
+      setAcrtacOpening(null)
+      setError(errorMessage(err))
+    }
+  }
+
   // --- intake ----------------------------------------------------------------
 
   const stageUpload = (files: File[], dir: string) => {
@@ -269,14 +395,24 @@ export function ProjectTree({
       if (pending.kind === 'files') {
         await uploadFiles(project, pending.dir, pending.files, note)
       } else if (pending.kind === 'version') {
-        await uploadFiles(project, pending.dir, [
-          new File([pending.file], pending.entryName, { type: pending.file.type }),
-        ], note)
+        // The entry FOLLOWS the new version's name: the picked file lands
+        // under its own name, superseding (and renaming) the entry.
+        const { added } = await uploadFiles(project, pending.dir, [pending.file], note, pending.entryName)
+        const oldPath = pending.dir ? `${pending.dir}/${pending.entryName}` : pending.entryName
+        if (added[0] && added[0] !== oldPath) {
+          // Selection and the open-versions accordion follow the rename —
+          // otherwise the right pane silently blanks on a stale path.
+          if (selected === oldPath) onSelect(added[0])
+          setOpenVersions((current) => (current.has(oldPath)
+            ? new Set([...current].map((p) => (p === oldPath ? added[0] : p)))
+            : current))
+        }
       } else if (pending.kind === 'edit') {
         await recordFileEdit(project, pending.path, note)
       } else {
         await uploadRtacFolder(project, pending.dir, pending.files, note)
       }
+      revealDir(pending.dir)
       setPending(null)
       setNoteError(null)
       onReload()
@@ -301,7 +437,7 @@ export function ProjectTree({
       }))
     }
     if (pending.kind === 'version') {
-      return [{ name: pending.entryName, isNewVersion: true }]
+      return [{ name: pending.file.name, isNewVersion: true }]
     }
     if (pending.kind === 'edit') {
       return [{ name: pending.name, isNewVersion: true }]
@@ -359,8 +495,20 @@ export function ProjectTree({
     },
     { label: 'Download from AcRTAC…', onClick: () => setDbState({ dir }) },
     { separator: true },
-    { label: 'New note', onClick: () => setNotingIn(dir) },
-    { label: 'New folder', onClick: () => setCreatingIn(dir) },
+    {
+      label: 'New note',
+      onClick: () => {
+        revealDir(dir)
+        setNotingIn(dir)
+      },
+    },
+    {
+      label: 'New folder',
+      onClick: () => {
+        revealDir(dir)
+        setCreatingIn(dir)
+      },
+    },
     { separator: true },
     {
       label: 'Show in file explorer',
@@ -461,11 +609,14 @@ export function ProjectTree({
       // copy into the AcRTAC database.
       ...(node.kind === 'rtac'
         ? [{
+            label: 'Open in AcRTAC',
+            onClick: () => openInAcrtac(node),
+          }, {
             label: 'New version from AcRTAC…',
             onClick: () => setDbState({ dir: nodeDir, versionOf: node.name }),
           }, {
             label: 'Import to AcRTAC…',
-            onClick: () => setImportTarget({ path: node.path, name: node.name }),
+            onClick: () => setImportTarget({ path: node.path, name: node.name, database: node.database }),
           }]
         : [{
             label: 'Add new version…',
@@ -489,7 +640,12 @@ export function ProjectTree({
     setDropTarget(null)
     const entry = e.dataTransfer.getData(ENTRY_MIME)
     if (entry) {
-      if (entry !== dir) act(() => moveFileEntry(project, entry, dir))
+      if (entry !== dir) {
+        act(async () => {
+          await moveFileEntry(project, entry, dir)
+          revealDir(dir)
+        })
+      }
       return
     }
     stageUpload([...e.dataTransfer.files], dir)
@@ -608,6 +764,13 @@ export function ProjectTree({
     </>
   )
 
+  // Double-click on an entry row: plain files open with the OS default app;
+  // an RTAC entry opens its database project in the AcSELerator RTAC GUI.
+  const leafDoubleClick = (node: FileLeaf) =>
+    node.kind === null ? () => act(() => openFileEntry(project, node.path))
+    : node.kind === 'rtac' ? () => openInAcrtac(node)
+    : undefined
+
   const renderLeaf = (node: FileLeaf, depth: number) => {
     const versionsOpen = openVersions.has(node.path)
     const currentVersion = node.versions.length + 1
@@ -629,9 +792,7 @@ export function ProjectTree({
               node.note ?? undefined,
             ].filter(Boolean).join('\n')}
             onClick={(e) => select(e, node.path)}
-            onDoubleClick={node.kind === null
-              ? () => act(() => openFileEntry(project, node.path))
-              : undefined}
+            onDoubleClick={leafDoubleClick(node)}
             onContextMenu={(e) => openMenu(e, { type: 'leaf', node })}
           >
             {node.kind ? (
@@ -684,9 +845,7 @@ export function ProjectTree({
                 `${node.name} v${currentVersion} (current)${node.uploadedAt ? ` — ${formatWhen(node.uploadedAt)}` : ''}`,
                 node.note ?? undefined,
               ].filter(Boolean).join('\n'),
-              onDoubleClick: node.kind === null
-                ? () => act(() => openFileEntry(project, node.path))
-                : undefined,
+              onDoubleClick: leafDoubleClick(node),
               onContextMenu: (e) => openMenu(e, { type: 'leaf', node }),
             })}
             {node.versions.map((version, index) => renderVersion(node, version, index, depth))}
@@ -699,7 +858,7 @@ export function ProjectTree({
   const renderNode = (node: FileNode, depth: number): React.ReactNode => {
     if (node.type !== 'folder') return renderLeaf(node, depth)
 
-    const open = !collapsed.has(node.path)
+    const open = expanded.has(node.path)
     return (
       <div key={node.path} className="tree-entry">
         {renaming === node.path ? renameForm(node) : (
@@ -719,7 +878,7 @@ export function ProjectTree({
             onClick={(e) => {
               if (e.ctrlKey || e.metaKey) return
               onSelect(node.path)
-              setCollapsed((current) => toggleSet(current, node.path))
+              setExpanded((current) => toggleSet(current, node.path))
             }}
             onContextMenu={(e) => openMenu(e, { type: 'dir', dir: node.path, node })}
           >
@@ -754,14 +913,13 @@ export function ProjectTree({
             title="Retry this download"
             onClick={() => {
               const dir = entry.path.split('/').slice(0, -1).join('/')
-              const entryName = entry.path.split('/').pop() ?? entry.path
               // The status row carries the real database name; the path is
               // only a fallback (a renamed/sanitized entry cannot reproduce
-              // it). `into` keeps the retry landing on the SAME entry.
+              // it). `into` keeps the retry superseding the SAME entry.
               const database = entry.database ?? displayName(entry.path).replace(/\.rtac$/i, '')
               act(async () => {
                 await dismissRtacError(project, entry.path)
-                await startRtacExport(project, dir, database, entry.note, entryName)
+                await startRtacExport(project, dir, database, entry.note, entry.into ?? undefined)
                 onExportsChanged()
               })
             }}
@@ -809,8 +967,14 @@ export function ProjectTree({
             const file = e.target.files?.[0]
             const target = versionTarget.current
             if (file && target) {
-              setNoteError(null)
-              setPending({ kind: 'version', dir: target.dir, entryName: target.entryName, file })
+              const staged = stageVersionFile(file, target.entryName)
+              if (typeof staged === 'string') {
+                setError(staged)
+              } else {
+                setError(null)
+                setNoteError(null)
+                setPending({ kind: 'version', dir: target.dir, entryName: target.entryName, file: staged })
+              }
             }
             e.target.value = ''
           }}
@@ -830,6 +994,15 @@ export function ProjectTree({
         />
         {intakeForms('', null)}
         <div className="files-tree">
+          {acrtacOpening !== null && (
+            <div
+              className="tree-row file-row export-row"
+              title={acrtacOpenJob.job?.log.at(-1) ?? `Opening ${acrtacOpening} in AcSELerator RTAC…`}
+            >
+              <Spinner />
+              <span className="tree-name">Opening {acrtacOpening} in AcRTAC…</span>
+            </div>
+          )}
           {exportRows}
           {tree?.map((node) => renderNode(node, 0))}
         </div>
@@ -876,6 +1049,7 @@ export function ProjectTree({
           project={project}
           path={importTarget.path}
           entryName={importTarget.name}
+          database={importTarget.database}
           onClose={() => setImportTarget(null)}
         />
       )}

@@ -31,12 +31,16 @@ function fileRoutes(resolve) {
   });
 
   // Multipart field "files"; "dir" names the target folder ('' = root);
-  // "note" is the mandatory version note shared by the batch.
+  // "note" is the mandatory version note shared by the batch. "versionOf"
+  // (single-file batches) names the existing entry the upload supersedes —
+  // the entry takes the uploaded file's name, history riding along.
   router.post('/upload', upload.array('files'), async (req, res) => {
     try {
       if (!req.files?.length) throw httpError(400, 'multipart field "files" required');
       const { files } = await resolve(req);
-      res.status(201).json(await files.upload(req.body?.dir ?? '', req.files, req.body?.note));
+      res.status(201).json(
+        await files.upload(req.body?.dir ?? '', req.files, req.body?.note, req.body?.versionOf || null),
+      );
     } finally {
       await Promise.all((req.files ?? []).map(
         (file) => rm(file.path, { force: true }).catch(() => {}),

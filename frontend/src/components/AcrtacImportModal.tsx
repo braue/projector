@@ -16,16 +16,19 @@ export function AcrtacImportModal({
   project,
   path,
   entryName,
+  database = null,
   onClose,
 }: {
   project: string
   /** Tree path of the .rtac entry to import. */
   path: string
-  /** The entry's display name — seeds the database-project name. */
+  /** The entry's display name — the name fallback. */
   entryName: string
+  /** The database project the entry mirrors, when known — the name seed. */
+  database?: string | null
   onClose: () => void
 }) {
-  const [name, setName] = useState(entryName.replace(/\.rtac$/i, ''))
+  const [name, setName] = useState(database ?? entryName.replace(/\.rtac$/i, ''))
   const [deviceType, setDeviceType] = useState('')
   const [firmware, setFirmware] = useState('')
   const [error, setError] = useState<string | null>(null)

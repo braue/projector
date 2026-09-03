@@ -542,33 +542,58 @@ class ArtifactsService {
    * old bytes archive with their note). The export writes into a hidden
    * temp folder first, so a half-written export can never look ready.
    *
-   * `into` targets an EXISTING entry by name instead — "new version from
-   * AcRTAC" on a renamed export, where the database name and the entry name
-   * no longer match.
+   * `into` names an EXISTING entry this download supersedes — "new version
+   * from AcRTAC". The entry always ends up named after the DATABASE project:
+   * when `into` carries a different name, the arrival renames the entry and
+   * its history rides along (files.placeEntry's versionOf).
    */
-  startExport(dirPath, displayName, note, into = null) {
+  async startExport(dirPath, displayName, note, into = null) {
     const trimmedNote = requireNote(note);
     if (!this.catalog.names.includes(displayName)) {
       throw httpError(404, `unknown RTAC project: ${displayName}`);
     }
-    const entryName = into
+    const entryName = `${displayName.replace(INVALID_NAME, '_')}.rtac`;
+    const versionOf = into && String(into) !== entryName
       ? String(into).replace(INVALID_NAME, '_')
-      : `${displayName.replace(INVALID_NAME, '_')}.rtac`;
-    if (!RTAC_SUFFIX.test(entryName)) {
+      : null;
+    if (versionOf && !RTAC_SUFFIX.test(versionOf)) {
       throw httpError(400, `not an RTAC entry: ${into}`);
     }
     const treePath = dirPath ? `${dirPath}/${entryName}` : entryName;
     if (this.#pendingExports.get(treePath)?.status === 'exporting') {
       throw httpError(409, `already exporting: ${treePath}`);
     }
+    if (versionOf) {
+      // A doomed rename must fail HERE, not after the multi-minute export:
+      // the superseded entry must exist, and the database-derived name must
+      // be free — unless it differs from the old name only by case, which
+      // resolves to the same entry on the shipped (Windows) filesystem and
+      // is the rename itself, not a collision (files.#place agrees).
+      const supersededPath = dirPath ? `${dirPath}/${versionOf}` : versionOf;
+      await this.files.identify(supersededPath);
+      if (versionOf.toLowerCase() !== entryName.toLowerCase()
+        && await this.files.identify(treePath).then(() => true, () => false)) {
+        throw httpError(409, `already exists: ${entryName} — the download would rename ${versionOf} onto it`);
+      }
+      // Two concurrent downloads superseding the SAME entry key differently
+      // here (by database name) but collide at placement — refuse the second.
+      for (const [pending, state] of this.#pendingExports) {
+        const pendingDir = pending.includes('/') ? pending.slice(0, pending.lastIndexOf('/')) : '';
+        if (state.status === 'exporting' && state.into === versionOf && pendingDir === dirPath) {
+          throw httpError(409, `already exporting a new version of ${versionOf}`);
+        }
+      }
+    }
     // `database` rides the state so a failed export can RETRY with the real
     // database name — the tree path alone cannot reproduce it (the entry may
-    // be renamed, and invalid characters were sanitized away).
+    // be renamed, and invalid characters were sanitized away). `into` rides
+    // for the same reason: the retry must still supersede the same entry.
     this.#pendingExports.set(treePath, {
       status: 'exporting',
       at: Date.now(),
       note: trimmedNote,
       database: displayName,
+      into: versionOf,
     });
 
     // Fire-and-forget: the request returns 202 and the sidebar polls
@@ -580,7 +605,7 @@ class ArtifactsService {
         await this.catalog.client.exportXml({ name: displayName, directory: staging });
         await this.files.placeEntry(dirPath, entryName, trimmedNote, async (target) => {
           await rename(staging, target);
-        }, { directory: true });
+        }, { directory: true, versionOf, database: displayName });
         this.invalidate(treePath);
         this.#pendingExports.delete(treePath);
       } catch (err) {
@@ -589,6 +614,7 @@ class ArtifactsService {
           at: Date.now(),
           note: trimmedNote,
           database: displayName,
+          into: versionOf,
           error: err?.message ?? String(err),
         });
       } finally {

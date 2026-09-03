@@ -153,13 +153,18 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(await tools.dacsim.generate(files, payload));
   });
 
-  // Import to AcRTAC — the project tree's generic action on an RTAC entry:
-  // { project, path, name, deviceType, firmware } in, a pollable job out.
+  // The project tree's generic AcRTAC actions on an RTAC entry, each a
+  // pollable job. Import: { project, path, name, deviceType, firmware }.
+  // Open: { name } — launch the AcSELerator RTAC GUI on that database
+  // project (double-click; no project files involved).
   router.post('/acrtac/import', async (req, res) => {
     const { project, ...payload } = req.body ?? {};
     if (!project) throw httpError(400, 'project required');
     const files = (await projects.bundle(project)).files;
-    res.status(202).json(await tools.acrtacImport.start(files, payload));
+    res.status(202).json(await tools.acrtac.import(files, payload));
+  });
+  router.post('/acrtac/open', (req, res) => {
+    res.status(202).json(tools.acrtac.open(req.body ?? {}));
   });
 
   // Drawing Generator: part number in, configured drawings + AutoCAD bundle

@@ -3,7 +3,7 @@
 // with its mandatory note instead of unique-ifying or overwriting.
 
 import assert from 'node:assert/strict';
-import { mkdtemp, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -96,6 +96,93 @@ test('files: a same-name upload stacks as a new version, old bytes archived', as
     // Deleting the file deletes its history with it.
     await files.removeEntry('Specs/device spec.pdf');
     assert.deepEqual(await readdir(path.join(tmp, 'files', 'Specs', '.versions')), []);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('files: a versionOf arrival renames the entry to the new version\'s name', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+
+    // The entry follows what its newest version is called: uploading
+    // "spec_r2.pdf" as a new version of "spec.pdf" renames the entry, the
+    // superseded bytes stacking underneath as usual.
+    await files.upload('', [asUpload('spec.pdf', 'v1-bytes')], 'first draft');
+    const added = await files.upload('', [asUpload('spec_r2.pdf', 'v2-bytes-longer')], 'revised', 'spec.pdf');
+    assert.deepEqual(added.added, ['spec_r2.pdf']);
+
+    const tree = await files.tree();
+    assert.deepEqual(tree.map((node) => node.name), ['spec_r2.pdf']);
+    const [node] = tree;
+    assert.equal(node.note, 'revised');
+    assert.equal(node.versions.length, 1);
+    assert.equal(node.versions[0].note, 'first draft');
+    assert.equal((await files.read(node.versions[0].path)).toString(), 'v1-bytes');
+    assert.equal((await files.read('spec_r2.pdf')).toString(), 'v2-bytes-longer');
+
+    // versionOf equal to the arrival's own name is plain stacking.
+    await files.upload('', [asUpload('spec_r2.pdf', 'v3')], 'again', 'spec_r2.pdf');
+    assert.equal((await files.tree())[0].versions.length, 2);
+
+    // Guards: the superseded entry must exist; the new name must be free;
+    // shapes must match; a batch cannot claim to version one entry.
+    await files.upload('', [asUpload('other.pdf', 'x')], 'n');
+    await assert.rejects(
+      () => files.upload('', [asUpload('new.pdf', 'x')], 'n', 'ghost.pdf'),
+      /no such entry/,
+    );
+    await assert.rejects(
+      () => files.upload('', [asUpload('other.pdf', 'x')], 'n', 'spec_r2.pdf'),
+      /already exists/,
+    );
+    assert.throws(
+      () => files.upload('', [asUpload('a.pdf', 'x'), asUpload('b.pdf', 'x')], 'n', 'spec_r2.pdf'),
+      /exactly one file/,
+    );
+
+    // A directory entry renames the same way (the RTAC "new version from
+    // AcRTAC" path, where the database name replaces the entry name).
+    await files.placeEntry('', 'Old Name.rtac', 'first pull', async (target) => {
+      await mkdir(target, { recursive: true });
+      await writeFile(path.join(target, 'Devices.xml'), '<GVL/>');
+    }, { directory: true });
+    await files.placeEntry('', 'Feeder 9.rtac', 'repull', async (target) => {
+      await mkdir(target, { recursive: true });
+      await writeFile(path.join(target, 'Devices.xml'), '<GVL2/>');
+    }, { directory: true, versionOf: 'Old Name.rtac', database: 'Feeder 9' });
+    const annotate = (name, isDirectory) => (isDirectory && name.endsWith('.rtac') ? 'rtac' : null);
+    const names = (await files.tree(annotate)).map((node) => node.name);
+    assert.ok(names.includes('Feeder 9.rtac') && !names.includes('Old Name.rtac'));
+    const rtac = (await files.tree(annotate)).find((node) => node.name === 'Feeder 9.rtac');
+    assert.equal(rtac.versions.length, 1);
+    assert.equal(rtac.versions[0].note, 'first pull');
+    // The database link records on arrival and survives arrivals without one.
+    assert.equal(rtac.database, 'Feeder 9');
+    await files.placeEntry('', 'Feeder 9.rtac', 'repull again', async (target) => {
+      await mkdir(target, { recursive: true });
+      await writeFile(path.join(target, 'Devices.xml'), '<GVL3/>');
+    }, { directory: true });
+    const restacked = (await files.tree(annotate)).find((node) => node.name === 'Feeder 9.rtac');
+    assert.equal(restacked.database, 'Feeder 9');
+    // recordDatabase (a successful Import to AcRTAC) sets the link directly.
+    await files.recordDatabase('spec_r2.pdf', 'Feeder 9 Spec');
+    assert.equal((await files.tree()).find((node) => node.name === 'spec_r2.pdf').database, 'Feeder 9 Spec');
+
+    // A failed renaming arrival restores the superseded entry under ITS name.
+    await assert.rejects(
+      () => files.placeEntry('', 'newer.pdf', 'doomed', () => {
+        throw new Error('disk full');
+      }, { versionOf: 'spec_r2.pdf' }),
+      /disk full/,
+    );
+    const after = await files.tree();
+    const restored = after.find((node) => node.name === 'spec_r2.pdf');
+    assert.ok(restored && !after.some((node) => node.name === 'newer.pdf'));
+    assert.equal(restored.versions.length, 2);
+    assert.equal((await files.read('spec_r2.pdf')).toString(), 'v3');
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

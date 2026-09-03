@@ -23,6 +23,9 @@ export interface RtacExportStatus {
   /** The AcRTAC database this export pulls from — retry needs the REAL name
    *  (the tree path may be renamed or sanitized away from it). */
   database?: string
+  /** The existing entry this export supersedes ("new version from AcRTAC"
+   *  onto a differently-named entry) — retry must supersede the same one. */
+  into?: string | null
   error?: string
 }
 
@@ -290,6 +293,9 @@ export type FileNode =
       uploadedAt: number | null
       /** The version note — what this version changed. Null predates notes. */
       note: string | null
+      /** The AcRTAC database project this entry mirrors, when known
+       *  (recorded by database downloads and successful imports). */
+      database: string | null
       /** The live bytes no longer match the recorded version — the working
        *  copy was edited in place (Excel, an external tool) and awaits
        *  "record as new version" or "discard". */

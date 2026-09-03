@@ -91,28 +91,26 @@ function bridgePath(scriptName) {
  * bridge's narration channel — `onStderrLine` streams it (into a job log);
  * its tail is kept either way to shape a failure via bridgeMessage, with
  * `explain` passed through for per-feature wording.
+ *
+ * `settleOnExit`: for a bridge that deliberately leaves a GRANDCHILD running
+ * (acrtac_open.py's GUI). The grandchild inherits the stdio pipes and holds
+ * them open, so 'close' — which waits for every piped fd — never fires;
+ * 'exit' fires when the bridge itself ends. Its final stdout gets a beat to
+ * drain, then the call settles on what arrived.
  */
-function runStdinBridge(script, request, { onStderrLine, explain } = {}) {
+function runStdinBridge(script, request, { onStderrLine, explain, settleOnExit = false } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
     let stdout = '';
+    let settled = false;
     const lastLines = [];
     const timer = setTimeout(() => {
       child.kill();
     }, BRIDGE_TIMEOUT_MS);
     const fail = (err) => reject(new Error(bridgeMessage(err, lastLines.join('\n'), explain)));
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    createInterface({ input: child.stderr }).on('line', (line) => {
-      if (!line.trim()) return;
-      onStderrLine?.(line);
-      lastLines.push(line);
-      if (lastLines.length > 30) lastLines.shift();
-    });
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      fail(err);
-    });
-    child.on('close', (code, signal) => {
+    const finish = (code, signal) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       if (code !== 0 || signal) {
         fail({ killed: Boolean(signal), code });
@@ -123,7 +121,29 @@ function runStdinBridge(script, request, { onStderrLine, explain } = {}) {
       } catch {
         reject(new Error(`${script} returned non-JSON output: ${stdout.slice(0, 200)}`));
       }
+    };
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    createInterface({ input: child.stderr }).on('line', (line) => {
+      if (!line.trim()) return;
+      onStderrLine?.(line);
+      lastLines.push(line);
+      if (lastLines.length > 30) lastLines.shift();
     });
+    child.on('error', (err) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fail(err);
+    });
+    child.on('close', finish);
+    if (settleOnExit) {
+      child.on('exit', (code, signal) => setTimeout(() => {
+        finish(code, signal);
+        // The grandchild keeps the pipes open forever; let go of our ends.
+        child.stdout.destroy();
+        child.stderr.destroy();
+      }, 300));
+    }
     child.stdin.end(JSON.stringify(request));
   });
 }

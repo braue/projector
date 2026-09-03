@@ -193,10 +193,14 @@ export function uploadFiles(
   dir: string,
   files: File[],
   note: string,
+  /** Existing entry this (single-file) upload supersedes — the entry takes
+   *  the uploaded file's name, its history riding along. */
+  versionOf?: string,
 ): Promise<{ added: string[] }> {
   const form = new FormData()
   form.append('dir', dir)
   form.append('note', note)
+  if (versionOf) form.append('versionOf', versionOf)
   for (const file of files) form.append('files', file)
   return send(`${base(project)}/files/upload`, 'POST', form)
 }
@@ -396,7 +400,7 @@ export function generateDacsim(project: string, payload: {
   return send('/api/tools/dacsim/generate', 'POST', { project, ...payload })
 }
 
-// --- Import to AcRTAC (the project tree's action on an RTAC entry) --------------
+// --- AcRTAC actions (the project tree's actions on an RTAC entry) ---------------
 
 /** Import one RTAC tree entry into the AcRTAC database, as a pollable job. */
 export function startAcrtacImport(project: string, payload: {
@@ -408,6 +412,12 @@ export function startAcrtacImport(project: string, payload: {
   firmware: string
 }): Promise<{ job: string }> {
   return send('/api/tools/acrtac/import', 'POST', { project, ...payload })
+}
+
+/** Launch the AcSELerator RTAC GUI on the database project called `name`,
+ *  as a pollable job (double-click on an RTAC tree entry). */
+export function startAcrtacOpen(name: string): Promise<{ job: string }> {
+  return send('/api/tools/acrtac/open', 'POST', { name })
 }
 
 // --- SWSET (switch settings editor) --------------------------------------------

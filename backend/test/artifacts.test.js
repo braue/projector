@@ -3,7 +3,7 @@
 // bounded model cache.
 
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -172,6 +172,60 @@ test('the model cache is bounded and re-keyed by content', async () => {
     // The first one was evicted; touching it parses again and still answers.
     const item = await artifacts.item(`${names[0]}::FEEDER_1`, 'G');
     assert.equal(item.settings.TID, 'ONE');
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('rtac export: a doomed versionOf rename fails before the export runs', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-artifacts-'));
+  try {
+    const xml = (name) => `<?xml version="1.0"?><SettingPage><Name>${name}</Name></SettingPage>`;
+    const exportCalls = [];
+    const catalog = {
+      names: ['Feeder 9'],
+      error: null,
+      // A fake database export: land one XML in the staging directory.
+      client: {
+        exportXml: async ({ name, directory }) => {
+          exportCalls.push(name);
+          await mkdir(path.join(directory, 'SEL_RTAC'), { recursive: true });
+          await writeFile(path.join(directory, 'SEL_RTAC', 'Devices.xml'), xml('fresh'));
+        },
+      },
+    };
+    const { files, artifacts } = await makeBundle(tmp, { catalog });
+    await artifacts.uploadFolder('', [
+      { path: 'Old Name/SEL_RTAC/Devices.xml', buffer: Buffer.from(xml('old')) },
+      { path: 'Feeder 9/SEL_RTAC/Devices.xml', buffer: Buffer.from(xml('clash')) },
+    ], 'seed');
+
+    // The download would rename Old Name.rtac onto the already-existing
+    // Feeder 9.rtac — refused up front, before exportXml ever runs.
+    await assert.rejects(
+      () => artifacts.startExport('', 'Feeder 9', 'n', 'Old Name.rtac'),
+      /already exists: Feeder 9\.rtac/,
+    );
+    // A versionOf target that is not there fails up front too.
+    await assert.rejects(
+      () => artifacts.startExport('', 'Feeder 9', 'n', 'ghost.rtac'),
+      /no such entry/,
+    );
+    assert.equal(exportCalls.length, 0);
+
+    // The happy versionOf path records which database the entry mirrors.
+    await files.removeEntry('Feeder 9.rtac');
+    await artifacts.startExport('', 'Feeder 9', 'pull', 'Old Name.rtac');
+    // Fire-and-forget: wait for the pending export to settle.
+    for (let i = 0; i < 100 && artifacts.exportStatus().length; i += 1) {
+      await new Promise((resolveTick) => setTimeout(resolveTick, 20));
+    }
+    assert.deepEqual(artifacts.exportStatus(), []);
+    assert.equal(exportCalls.length, 1);
+    const tree = await files.tree((name, isDir) => artifacts.kindOf(name, isDir));
+    assert.deepEqual(tree.map((node) => node.name), ['Feeder 9.rtac']);
+    assert.equal(tree[0].database, 'Feeder 9');
+    assert.equal(tree[0].versions.length, 1);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

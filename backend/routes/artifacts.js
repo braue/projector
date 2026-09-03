@@ -82,7 +82,7 @@ function artifactRoutes(resolve, catalog) {
   router.post('/rtac/export', async (req, res) => {
     const { dir = '', name, note, into } = req.body ?? {};
     if (typeof name !== 'string' || !name) throw httpError(400, 'name required');
-    res.status(202).json((await resolve(req)).startExport(
+    res.status(202).json(await (await resolve(req)).startExport(
       String(dir),
       name,
       note,

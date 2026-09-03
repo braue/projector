@@ -10,7 +10,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { FilesService } from '../services/files.js';
-import { AcrtacImportService } from '../services/tools/acrtacImport.js';
+import { AcrtacService } from '../services/tools/acrtac.js';
 import { DacsimService } from '../services/tools/dacsim.js';
 import { JobRegistry } from '../services/tools/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
@@ -114,17 +114,19 @@ test('acrtac import: request validation before any bridge spawn', async () => {
     }, { directory: true });
     await files.upload('', [{ originalname: 'notes.txt', buffer: Buffer.from('x') }], 'n');
 
-    const importer = new AcrtacImportService({ jobs: new JobRegistry() });
+    const acrtac = new AcrtacService({ jobs: new JobRegistry() });
     const base = { path: 'Feeder 9.rtac', name: 'Feeder 9', deviceType: '3555', firmware: 'R151' };
 
-    await assert.rejects(() => importer.start(files, { ...base, name: ' ' }), /name is required/);
-    await assert.rejects(() => importer.start(files, { ...base, deviceType: '' }), /device type is required/);
-    await assert.rejects(() => importer.start(files, { ...base, firmware: '' }), /firmware is required/);
-    await assert.rejects(() => importer.start(files, { ...base, path: 'nope.rtac' }), /no such entry/);
+    await assert.rejects(() => acrtac.import(files, { ...base, name: ' ' }), /name is required/);
+    await assert.rejects(() => acrtac.import(files, { ...base, deviceType: '' }), /device type is required/);
+    await assert.rejects(() => acrtac.import(files, { ...base, firmware: '' }), /firmware is required/);
+    await assert.rejects(() => acrtac.import(files, { ...base, path: 'nope.rtac' }), /no such entry/);
     await assert.rejects(
-      () => importer.start(files, { ...base, path: 'notes.txt' }),
+      () => acrtac.import(files, { ...base, path: 'notes.txt' }),
       /not an RTAC export folder/,
     );
+    // Open in AcRTAC validates before spawning anything, too.
+    assert.throws(() => acrtac.open({ name: '  ' }), /name is required/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

@@ -95,7 +95,8 @@ export function RtacDatabaseModal({
           {versionOf ? (
             <>
               Select the database project to pull as the <b>next version of{' '}
-              {versionOf}</b> — the copy you have is kept underneath.
+              {versionOf}</b> — the copy you have is kept underneath, and the
+              entry takes the database project's name.
             </>
           ) : (
             <>

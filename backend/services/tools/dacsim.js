@@ -8,7 +8,7 @@
 // generated simulator folders land back in the SOURCE PROJECT's tree as
 // versioned .rtac entries under "DAC SIM Converter/". Getting one into the
 // AcRTAC database is the tree's generic "Import to AcRTAC" action
-// (services/tools/acrtacImport.js), not part of this pipeline.
+// (services/tools/acrtac.js), not part of this pipeline.
 
 import { cp, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
