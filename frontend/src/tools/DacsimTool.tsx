@@ -157,7 +157,7 @@ export function DacsimTool({ project }: ToolProps) {
               ]}
               rows={bundle.schemes.map((scheme, i) => ({
                 id: `${scheme.schemeName}:${i}`,
-                cells: scheme,
+                cells: { ...scheme },
               }))}
             />
             <div className="tool-row">
