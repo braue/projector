@@ -444,6 +444,15 @@ button.ui-section-header:hover { color: var(--ink); }
 .modal-error { margin: 10px 14px 0; padding: 8px 11px; border-radius: 8px; background: var(--bad-tint); color: var(--bad-ink); font-size: 12.5px; }
 .modal-filter { padding: 10px 14px 0; }
 .modal-filter .ui-input { width: 100%; }
+.modal-filter .ui-labeled { width: 100%; }
+.modal-filter .ui-select { flex: 1; }
+/* A tool job log inside a modal (AcRTAC import): the Tools pane supplies
+ * its gutters there; here it aligns with the modal's own 14px ones, with
+ * breathing room off the fields above. */
+.modal-card .tool-joblog { margin: 12px 14px 2px; }
+/* Mid-modal success line (import finished) — modal-sub's chrome without its
+ * section border. */
+.modal-status { margin: 12px 14px 2px; font-size: 12.5px; color: var(--ok-ink); }
 .modal-list { flex: 1; min-height: 120px; overflow-y: auto; padding: 6px 0; }
 .modal-row { display: flex; align-items: center; gap: 9px; padding: 6px 14px; cursor: pointer; }
 .modal-row:hover { background: var(--fill); }

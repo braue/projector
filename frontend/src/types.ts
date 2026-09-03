@@ -383,8 +383,6 @@ export interface DacsimResult {
   masterFolder: string
   files: number
   reports: ToolReport[]
-  /** Tree paths of the simulator entries placed in the source project. */
-  placed: string[]
 }
 
 // --- SWSET (switch settings editor) --------------------------------------------

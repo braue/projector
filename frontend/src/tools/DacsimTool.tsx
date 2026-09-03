@@ -1,18 +1,20 @@
 // DAC SIM Converter — build simulator (Remote IO + SIM Master) projects from
 // DAC exports already in a project: the chosen project's RTAC entries list
 // as a check-off roster, each checked DAC grows its addressing fields, and
-// settings.json is generated server-side. One GENERATE runs the whole
-// pipeline as a job: convert (the converter's own narration is the log) and
-// land the simulator projects back in the project's tree under
-// "DAC SIM Converter/". Importing one into the AcRTAC database is the
-// project tree's generic "Import to AcRTAC" right-click action.
+// settings.json is generated server-side. GENERATE converts as a job (the
+// converter's own narration is the log); nothing lands in the project until
+// the explicit "Save to <project>" button places the simulator entries
+// under "DAC SIM Converter/" in the project the run was configured from —
+// the ZIP is a plain download. Importing one into the AcRTAC database is
+// the project tree's generic "Import to AcRTAC" right-click action.
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   generateDacsim,
   listFiles,
   listProjects,
+  saveDacsimRun,
 } from '../api'
 import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
@@ -61,14 +63,30 @@ export function DacsimTool({ project }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<DacsimResult | null>(null)
   const { job, running: generating, start } = useToolJob(
-    (settled) => {
-      setResult(settled as DacsimResult)
-      // The job placed entries in a project's tree behind the sidebar's
-      // back — let the app refresh it.
-      window.dispatchEvent(new Event(FILES_CHANGED_EVENT))
-    },
+    (settled) => setResult(settled as DacsimResult),
     setError,
   )
+  // "Save to project": lands the run's simulators in the project the run
+  // was CONFIGURED from — captured at generate, immune to later switching.
+  const generatedFrom = useRef('')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState<string[] | null>(null)
+
+  const saveRun = async () => {
+    if (!result) return
+    setSaving(true)
+    setError(null)
+    try {
+      const { placed } = await saveDacsimRun(generatedFrom.current, result.run)
+      setSaved(placed)
+      // Entries landed in a project's tree behind the sidebar's back.
+      window.dispatchEvent(new Event(FILES_CHANGED_EVENT))
+    } catch (err) {
+      setError(errorMessage(err))
+    } finally {
+      setSaving(false)
+    }
+  }
 
   // The form: the chosen project's RTAC entries as a roster — the user
   // checks which ones are DACs, each checked one grows its addressing and
@@ -131,6 +149,8 @@ export function DacsimTool({ project }: ToolProps) {
   const generate = async () => {
     setError(null)
     setResult(null)
+    setSaved(null)
+    generatedFrom.current = formProject
     try {
       const { job: id } = await generateDacsim(formProject, {
         schemes: rows.map((row) => ({
@@ -253,14 +273,20 @@ export function DacsimTool({ project }: ToolProps) {
         )}
 
         {result && (
-          <>
-            {result.placed.length > 0 && (
-              <div className="tool-stats">
-                Added to the project: {result.placed.join(', ')}
-              </div>
-            )}
-            <RunOutputs tool="dacsim" run={result.run} reports={result.reports} />
-          </>
+          <RunOutputs tool="dacsim" run={result.run} reports={result.reports} downloadOnly>
+            <div className="tool-row">
+              <Button
+                variant="primary"
+                disabled={saving || saved !== null}
+                onClick={saveRun}
+              >
+                {saving ? <Spinner /> : saved ? 'Saved' : `Save to ${generatedFrom.current}`}
+              </Button>
+              {saved && (
+                <span className="tool-stats">Added: {saved.join(', ')}</span>
+              )}
+            </div>
+          </RunOutputs>
         )}
       </div>
     </>

@@ -400,6 +400,12 @@ export function generateDacsim(project: string, payload: {
   return send('/api/tools/dacsim/generate', 'POST', { project, ...payload })
 }
 
+/** Land a finished run's simulator projects in the project's tree — the
+ *  explicit "Save to project" click (nothing lands at generate time). */
+export function saveDacsimRun(project: string, run: string): Promise<{ placed: string[] }> {
+  return send(`/api/tools/dacsim/${encodeURIComponent(run)}/save`, 'POST', { project })
+}
+
 // --- AcRTAC actions (the project tree's actions on an RTAC entry) ---------------
 
 /** Import one RTAC tree entry into the AcRTAC database, as a pollable job. */

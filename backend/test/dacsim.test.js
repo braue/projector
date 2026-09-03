@@ -114,6 +114,49 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
   }
 });
 
+test('dacsim: save lands a run\'s simulator projects as versioned entries', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-dacsim-'));
+  try {
+    const workspace = new ToolsWorkspace({ dataDir: path.join(tmp, 'tools-home') });
+    await workspace.init();
+    const dacsim = new DacsimService({ workspace, jobs: new JobRegistry() });
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+
+    // A finished run: settings.json plus the converter's outputs — and the
+    // staged DAC input, which must NOT be saved.
+    const { runId, dir } = await workspace.createRun('dacsim');
+    await writeFile(path.join(dir, 'settings.json'), JSON.stringify([{
+      schemeName: 'Feeder_9',
+      dac: { subFolder: 'DAC Feeder_9' },
+      remote: { subFolder: 'Feeder_9_REMOTE' },
+      logic: { subFolder: 'SIM Master' },
+    }]));
+    for (const name of ['Feeder_9_REMOTE', 'SIM Master', 'DAC Feeder_9']) {
+      await mkdir(path.join(dir, name, 'SEL_RTAC'), { recursive: true });
+      await writeFile(path.join(dir, name, 'SEL_RTAC', 'Devices.xml'), '<GVL/>');
+    }
+
+    const { placed } = await dacsim.save(files, runId);
+    assert.deepEqual(placed, [
+      'DAC SIM Converter/Feeder_9_REMOTE.rtac',
+      'DAC SIM Converter/SIM Master.rtac',
+    ]);
+    const folder = (await files.tree(rtacAnnotate))
+      .find((node) => node.name === 'DAC SIM Converter');
+    assert.deepEqual(folder.children.map((node) => node.name),
+      ['Feeder_9_REMOTE.rtac', 'SIM Master.rtac']);
+
+    // Saving the same run again stacks versions rather than erroring.
+    await dacsim.save(files, runId);
+    const again = (await files.tree(rtacAnnotate))
+      .find((node) => node.name === 'DAC SIM Converter');
+    assert.equal(again.children[0].versions.length, 1);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('acrtac import: request validation before any bridge spawn', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-acrtacimp-'));
   try {

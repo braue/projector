@@ -1,7 +1,9 @@
 // The output strip every tool ends with: each file a run produced, with the
 // two ways out — a browser download, and a copy into a chosen project's
 // Files store (the "Save to project…" dropdown saves on pick). Same shape as
-// the drawing generator's outputs.
+// the drawing generator's outputs. `downloadOnly` drops the save path for
+// tools whose files are transport, not project material (dacsim's ZIP —
+// its saving happens through the tool's own Save button).
 
 import { useEffect, useState, type ReactNode } from 'react'
 
@@ -15,6 +17,7 @@ export function RunOutputs({
   run,
   reports,
   count,
+  downloadOnly = false,
   children,
 }: {
   tool: string
@@ -22,6 +25,8 @@ export function RunOutputs({
   reports: ToolReport[]
   /** Override the header count when `children` add rows of their own. */
   count?: number
+  /** Report rows get only the Download button, no save-to-project. */
+  downloadOnly?: boolean
   /** Extra rows a tool appends after the report rows (e.g. dwgen's Open). */
   children?: ReactNode
 }) {
@@ -54,15 +59,17 @@ export function RunOutputs({
           </LinkButton>
           {/* Picking a project saves immediately; value stays pinned to the
               placeholder so it reads (and re-fires) like a button. */}
-          <Select
-            value=""
-            variant="action"
-            placeholder="Save to project…"
-            options={projects}
-            onChange={(target) => {
-              if (target) saveToProject(report, target)
-            }}
-          />
+          {!downloadOnly && (
+            <Select
+              value=""
+              variant="action"
+              placeholder="Save to project…"
+              options={projects}
+              onChange={(target) => {
+                if (target) saveToProject(report, target)
+              }}
+            />
+          )}
         </div>
       ))}
       {children}

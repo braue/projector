@@ -106,6 +106,7 @@ export function Select({
   options,
   placeholder,
   variant = 'default',
+  disabled = false,
 }: {
   label?: string
   value: string
@@ -114,10 +115,12 @@ export function Select({
   placeholder?: string
   /** 'action' sizes the select to its text, for use as a pick-to-act button. */
   variant?: 'default' | 'action'
+  disabled?: boolean
 }) {
   return withLabel(label, (
     <select
       value={value}
+      disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
       className={variant === 'action' ? 'ui-select ui-select-action' : 'ui-select'}
     >

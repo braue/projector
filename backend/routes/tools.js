@@ -143,14 +143,20 @@ function toolsRoutes(tools, projects) {
   });
 
   // DAC SIM Converter: DAC exports picked from a project's tree plus form
-  // fields in (settings.json is generated server-side); one job converts,
-  // lands the simulator projects back in the project's tree, and imports
-  // them into AcRTAC.
+  // fields in (settings.json is generated server-side); one job converts.
+  // Nothing lands in the project until the explicit save call places the
+  // run's simulator projects into the tree.
   router.post('/dacsim/generate', async (req, res) => {
     const { project, ...payload } = req.body ?? {};
     if (!project) throw httpError(400, 'project required');
     const files = (await projects.bundle(project)).files;
     res.status(202).json(await tools.dacsim.generate(files, payload));
+  });
+  router.post('/dacsim/:run/save', async (req, res) => {
+    const { project } = req.body ?? {};
+    if (!project) throw httpError(400, 'project required');
+    const files = (await projects.bundle(project)).files;
+    res.status(201).json(await tools.dacsim.save(files, req.params.run));
   });
 
   // The project tree's generic AcRTAC actions on an RTAC entry, each a

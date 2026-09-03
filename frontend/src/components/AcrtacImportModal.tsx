@@ -10,7 +10,14 @@ import { useState } from 'react'
 import { startAcrtacImport } from '../api'
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
-import { Button, Modal, Spinner, TextInput } from './ui'
+import { Button, Modal, Select, Spinner, TextInput } from './ui'
+
+/** The hardware types selacrtac's importxml accepts, per the SEL acrtac
+ *  submodule docs (bare model numbers, doc order). */
+const DEVICE_TYPES = ['3530', '2241', '3505', '3532', '3354', '3351', '3332', '1102', '3555']
+
+/** Firmware is the revision label: R + number ("R151"), per the same docs. */
+const FIRMWARE = /^R\d+$/i
 
 export function AcrtacImportModal({
   project,
@@ -39,7 +46,8 @@ export function AcrtacImportModal({
     setError,
   )
 
-  const ready = Boolean(name.trim() && deviceType.trim() && firmware.trim())
+  const firmwareOk = FIRMWARE.test(firmware.trim())
+  const ready = Boolean(name.trim() && deviceType && firmwareOk)
     && !running && imported === null
 
   const begin = async () => {
@@ -48,8 +56,8 @@ export function AcrtacImportModal({
       const { job: id } = await startAcrtacImport(project, {
         path,
         name: name.trim(),
-        deviceType: deviceType.trim(),
-        firmware: firmware.trim(),
+        deviceType,
+        firmware: firmware.trim().toUpperCase(),
       })
       start(id)
     } catch (err) {
@@ -83,8 +91,22 @@ export function AcrtacImportModal({
         Import this RTAC export into the AcRTAC database as a new project.
       </div>
       {field('Name in AcRTAC', name, setName, 'Database project name')}
-      {field('Device type', deviceType, setDeviceType, '3555')}
+      <div className="modal-filter">
+        <Select
+          label="Device type"
+          value={deviceType}
+          placeholder="RTAC model…"
+          disabled={running || imported !== null}
+          options={DEVICE_TYPES}
+          onChange={setDeviceType}
+        />
+      </div>
       {field('Firmware', firmware, setFirmware, 'R151')}
+      {firmware.trim() !== '' && !firmwareOk && (
+        <div className="modal-error">
+          Firmware is the revision label — an R followed by the number, e.g. R151.
+        </div>
+      )}
       {job && job.log.length > 0 && imported === null && (
         <div className="tool-joblog">
           {job.log.slice(-6).map((line, i) => (
@@ -94,7 +116,7 @@ export function AcrtacImportModal({
       )}
       {error && <div className="modal-error">{error}</div>}
       {imported !== null && (
-        <div className="modal-sub">✓ Imported into AcRTAC as <b>{imported}</b>.</div>
+        <div className="modal-status">✓ Imported into AcRTAC as <b>{imported}</b>.</div>
       )}
       <div className="modal-foot">
         <Button onClick={onClose} disabled={running}>
