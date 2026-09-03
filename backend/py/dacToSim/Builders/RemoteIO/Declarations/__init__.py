@@ -1,0 +1,1 @@
+from dacToSim.DataModel.Project.Declarations import buildDeviceDeclaration

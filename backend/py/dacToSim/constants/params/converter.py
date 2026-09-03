@@ -1,0 +1,5 @@
+LOCAL_IO = 'localIoMap'
+LOGIC = 'logic'
+REDUNDANT = 'redundant'
+DEFAULT_LOAD = 'defaultLoad'
+IP_ADDR = 'ipAddr'

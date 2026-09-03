@@ -1,0 +1,1 @@
+from .devDec import template as devDecTemplate

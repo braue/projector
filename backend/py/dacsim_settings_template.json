@@ -1,0 +1,42 @@
+[
+  {
+    "schemeName": "DAC1",
+    "subSimId": "Sim1",
+    "dac": {
+      "subFolder": "DAC 1",
+      "ipAddr": ["192.168.199.21", "192.168.199.121"]
+    },
+    "remote": {
+      "subFolder": "SIM 1",
+      "ipAddr": "192.168.254.21"
+    },
+    "logic": {
+      "subFolder": "SIM Master",
+      "ipAddr": "192.168.254.11"
+    },
+    "nameConversions": [],
+    "parameters": {
+      "defaultLoad": 10
+    }
+  },
+  {
+    "schemeName": "DAC2",
+    "subSimId": "Sim2",
+    "dac": {
+      "subFolder": "DAC 2",
+      "ipAddr": ["192.168.199.22", "192.168.199.122"]
+    },
+    "remote": {
+      "subFolder": "SIM 2",
+      "ipAddr": "192.168.254.22"
+    },
+    "logic": {
+      "subFolder": "SIM Master",
+      "ipAddr": "192.168.254.11"
+    },
+    "nameConversions": [],
+    "parameters": {
+      "defaultLoad": 10
+    }
+  }
+]

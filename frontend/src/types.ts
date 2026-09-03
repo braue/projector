@@ -369,6 +369,34 @@ export interface QuicksetExtract {
   reports: ToolReport[]
 }
 
+// --- DAC SIM Converter ----------------------------------------------------------
+
+/** One scheme a bundle's settings.json declares. */
+export interface DacsimScheme {
+  schemeName: string
+  dacFolder: string
+  remoteFolder: string
+  logicFolder: string
+}
+
+/** A staged DAC export bundle (ZIP of settings.json + DAC folders), ready to
+ *  convert. */
+export interface DacsimBundle {
+  run: string
+  schemes: DacsimScheme[]
+}
+
+/** The conversion job's result payload. */
+export interface DacsimResult {
+  run: string
+  schemes: string[]
+  dacProjects: string[]
+  remoteProjects: number
+  masterFolder: string
+  files: number
+  reports: ToolReport[]
+}
+
 // --- SWSET (switch settings editor) --------------------------------------------
 
 export interface SwsetField {

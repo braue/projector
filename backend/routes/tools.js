@@ -141,6 +141,20 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(await tools.rtacExport.startExport(req.body ?? {}));
   });
 
+  // DAC SIM Converter: a ZIP of the DAC export bundle (settings.json beside
+  // the DAC folders) in, generated simulator projects out, as a job.
+  router.get('/dacsim/settings-template', async (_req, res) => {
+    res.type('application/json')
+      .set('Content-Disposition', 'attachment; filename="settings.json"')
+      .send(await tools.dacsim.settingsTemplate());
+  });
+  router.post('/dacsim/upload', upload.single('file'), async (req, res) => {
+    res.status(201).json(await tools.dacsim.uploadBundle(await resolveInput(req)));
+  });
+  router.post('/dacsim/:run/convert', async (req, res) => {
+    res.status(202).json(await tools.dacsim.startConvert(req.params.run));
+  });
+
   // Drawing Generator: part number in, configured drawings + AutoCAD bundle
   // out. open-dwg launches local AutoCAD on one bundled drawing with its
   // layer script — the on-demand DWG pass.

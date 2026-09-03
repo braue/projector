@@ -3,6 +3,7 @@ import type {
   ArtifactProfile,
   CompareItem,
   CompareTree,
+  DacsimBundle,
   DwgenResult,
   FileNode,
   HmiReport,
@@ -389,6 +390,24 @@ export function extractQuicksetSettings(
   return send(`/api/tools/quickset/${encodeURIComponent(run)}/extract`, 'POST', { settings })
 }
 
+// --- DAC SIM Converter ----------------------------------------------------------
+
+/** Stage the DAC export bundle ZIP (settings.json beside the DAC folders) as
+ * a new run; the response lists the schemes settings.json declares. */
+export function uploadDacsimBundle(file: File): Promise<DacsimBundle> {
+  const form = new FormData()
+  form.append('file', file)
+  return send('/api/tools/dacsim/upload', 'POST', form)
+}
+
+/** Start the conversion job over a staged bundle run. */
+export function startDacsimConvert(run: string): Promise<{ job: string; run: string }> {
+  return send(`/api/tools/dacsim/${encodeURIComponent(run)}/convert`, 'POST')
+}
+
+/** The starter settings.json, served as a download. */
+export const DACSIM_TEMPLATE_URL = '/api/tools/dacsim/settings-template'
+
 // --- SWSET (switch settings editor) --------------------------------------------
 
 /** Parse a switch Configuration XML into the editable model. */
@@ -454,4 +473,8 @@ export function parseSwsetProjectFile(project: string, path: string): Promise<Sw
 
 export function importQuicksetProjectConfigs(project: string, path: string): Promise<{ run: string }> {
   return send('/api/tools/quickset/upload', 'POST', { project, path })
+}
+
+export function importDacsimProjectBundle(project: string, path: string): Promise<DacsimBundle> {
+  return send('/api/tools/dacsim/upload', 'POST', { project, path })
 }

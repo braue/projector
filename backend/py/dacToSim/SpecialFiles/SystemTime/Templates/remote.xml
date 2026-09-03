@@ -1,0 +1,1513 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RTACModule>
+  <SystemTimeControl>
+    <ExportSource>
+      <Schema>35</Schema>
+      <DeviceMOT>3530</DeviceMOT>
+    </ExportSource>
+    <SettingPages>
+      <SettingPage>
+        <Name>SystemTime</Name>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Demodulated_IRIG_B_Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Enable_Global_UTC</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Value</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_UTC_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Enable_System_Time_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>60</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Start_WeekOfMonth</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>Second</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Start_DayOfWeek</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>Sunday</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Start_Month</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>March</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Start_Time</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>02:00</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Stop_WeekOfMonth</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>First</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Stop_DayOfWeek</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>Sunday</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Stop_Month</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>November</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_System_Time_DST_Stop_Time</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>02:00</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_DNP_Failure_Timeout</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>10800</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_i870_Failure_Timeout</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>10800</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Enable_PTP_Power_Profile</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_PTP_Transport</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>UDP</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_PTP_Domain</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_PTP_Path_Delay_Mechanism</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>P2P</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_PTP_Interface_1</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>None</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Set_PTP_Interface_2</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>None</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+        <Row>
+          <Setting enabled="false">
+            <Column>Setting</Column>
+            <Value>Apply_System_Time_UTC_Offset_Globally</Value>
+          </Setting>
+          <Setting>
+            <Column>Value</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value />
+          </Setting>
+        </Row>
+      </SettingPage>
+      <SettingPage>
+        <Name>POU Pin Settings</Name>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>DNP_Time_In_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>DNP_Time_Out_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>EN</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_DNP_Time_In</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>FALSE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_DNP_Time_In_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_DNP_Time_Out</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_DNP_Time_Out_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_i870_Time_In</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>FALSE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_i870_Time_In_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_i870_Time_Out</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_i870_Time_Out_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_IRIG_B_Time_In</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_IRIG_B_Time_In_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_IRIG_B_Time_Out</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_IRIG_B_Time_Out_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_NTP_Time_In</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_NTP_Time_Out</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_PTP_Time_In</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Enable_System_Time_DST_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>TRUE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>ENO</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value>FALSE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Force_System_Time_Source</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeSource_t</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>i870_Time_In_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>i870_Time_Out_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Invalid_Function_Block_Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value>FALSE</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>IRIG_B_Time_In_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>IRIG_B_Time_Out_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>NTP_Time_In_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>NTP_Time_Out_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>PTP_Time_In_Value</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_DNP_Time_In_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>INT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_DNP_Time_In_Source_Priority</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>USINT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>4</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_DNP_Time_Out_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>INT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_i870_Time_In_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>INT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_i870_Time_In_Source_Priority</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>USINT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>5</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_i870_Time_Out_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>INT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_IRIG_B_Time_In_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>INT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_IRIG_B_Time_In_Source_Priority</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>USINT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>1</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_IRIG_B_Time_Out_Offset</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>INT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_NTP_Time_In_Source_Priority</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>USINT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>3</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_NTP_Time_Server_1_IP</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>STRING</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>192.168.254.11</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_NTP_Time_Server_2_IP</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>STRING</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0.0.0.0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_NTP_Time_Server_3_IP</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>STRING</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>0.0.0.0</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_PTP_Time_In_Source_Priority</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>USINT</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value>2</Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_System_Date</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>DATE</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>False</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Set_System_Time</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Input</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>TOD</Value>
+          </Setting>
+          <Setting>
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>System_Time</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>timeStamp_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>System_Time_DateAndTime</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>DT</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Leap_Second_Added</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>LeapSecondKind_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Next_DST</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>dateTime_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Next_ST</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>dateTime_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Source_Ident</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>STRING(255)</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Sync_Applied</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>ClockSyncKind_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Sync_Locked</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>ClockSyncLockingKind_t</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Visible</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Name</Column>
+            <Value>Time_Sync_Outside_Slew_Threshold</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Type</Column>
+            <Value>Output</Value>
+          </Setting>
+          <Setting>
+            <Column>Pin Point Type</Column>
+            <Value>BOOL</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Default Value</Column>
+            <Value>FALSE</Value>
+          </Setting>
+        </Row>
+      </SettingPage>
+    </SettingPages>
+  </SystemTimeControl>
+</RTACModule>

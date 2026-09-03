@@ -5,6 +5,7 @@
 
 import type { ComponentType } from 'react'
 
+import { DacsimTool } from './DacsimTool'
 import { DwgenTool } from './DwgenTool'
 import { HmiTesterTool } from './HmiTesterTool'
 import { QuicksetTool } from './QuicksetTool'
@@ -74,5 +75,11 @@ export const TOOLS: ToolDef[] = [
     label: 'Drawing Generator',
     blurb: 'Configured connection drawings from an SEL part number',
     component: DwgenTool,
+  },
+  {
+    id: 'dacsim',
+    label: 'DAC SIM Converter',
+    blurb: 'Build simulator projects from an exported DAC project bundle',
+    component: DacsimTool,
   },
 ]
