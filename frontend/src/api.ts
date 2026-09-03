@@ -393,12 +393,11 @@ export function extractQuicksetSettings(
 // --- DAC SIM Converter ----------------------------------------------------------
 
 /** Stage a conversion run: DAC exports picked from a project's tree plus
- * form fields; the backend writes settings.json itself. */
+ * form fields; the backend writes settings.json itself. `masterIp` is one
+ * address for the whole run. */
 export function stageDacsimFromProject(project: string, payload: {
   schemes: { schemeName: string; dacPath: string; dacIps: string[]; remoteIp: string }[]
-  masterFolder: string
   masterIp: string
-  defaultLoad: number
 }): Promise<DacsimBundle> {
   return send('/api/tools/dacsim/from-project', 'POST', { project, ...payload })
 }

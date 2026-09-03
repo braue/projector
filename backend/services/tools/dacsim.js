@@ -55,14 +55,6 @@ function requireIp(value, label) {
   return ip;
 }
 
-function cleanFolder(value, fallback) {
-  const name = String(value ?? '').trim() || fallback;
-  if (!/^[A-Za-z0-9 _.-]+$/.test(name)) {
-    throw httpError(400, `folder name must be letters, digits, spaces, _ - . : ${name}`);
-  }
-  return name;
-}
-
 /** Run the converter over `dir`, streaming its narration into `log`. */
 function runConvertBridge(dir, log) {
   return new Promise((resolve, reject) => {
@@ -112,14 +104,18 @@ class DacsimService {
    * nobody hand-authors it.
    *
    * payload: { schemes: [{ schemeName, dacPath, dacIps[], remoteIp }],
-   *            masterFolder?, masterIp, defaultLoad? }
+   *            masterIp }
+   *
+   * masterIp is ONE address for the whole run — settings.json repeats it
+   * per scheme because the format demands it, not because it varies. The
+   * master folder is always "SIM Master" and defaultLoad is always 1.
    */
   async stageFromProject(files, payload) {
     const schemes = Array.isArray(payload?.schemes) ? payload.schemes : [];
     if (!schemes.length) throw httpError(400, 'add at least one scheme');
-    const masterFolder = cleanFolder(payload?.masterFolder, 'SIM Master');
+    const masterFolder = 'SIM Master';
     const masterIp = requireIp(payload?.masterIp, 'master IP');
-    const defaultLoad = Number(payload?.defaultLoad) || 10;
+    const defaultLoad = 1;
 
     const staged = schemes.map((scheme, index) => {
       const schemeName = String(scheme?.schemeName ?? '').trim();

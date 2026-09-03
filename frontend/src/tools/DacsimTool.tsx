@@ -63,7 +63,9 @@ export function DacsimTool({ project }: ToolProps) {
   const [formProject, setFormProject] = useState(project)
   const [rtacEntries, setRtacEntries] = useState<string[] | null>(null)
   const [rows, setRows] = useState<SchemeRow[]>([])
-  const [master, setMaster] = useState({ folder: 'SIM Master', ip: '', defaultLoad: '10' })
+  // One master IP for the whole run (settings.json repeats it per scheme
+  // because the format demands it, not because it varies).
+  const [masterIp, setMasterIp] = useState('')
 
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {})
@@ -102,7 +104,7 @@ export function DacsimTool({ project }: ToolProps) {
 
   const rowsReady = rows.length > 0
     && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIp.trim())
-    && master.ip.trim() !== ''
+    && masterIp.trim() !== ''
 
   // Poll the conversion job until it settles.
   useEffect(() => {
@@ -153,9 +155,7 @@ export function DacsimTool({ project }: ToolProps) {
       dacIps: row.dacIps.split(/[\s,;]+/).filter(Boolean),
       remoteIp: row.remoteIp.trim(),
     })),
-    masterFolder: master.folder.trim() || 'SIM Master',
-    masterIp: master.ip.trim(),
-    defaultLoad: Number(master.defaultLoad) || 10,
+    masterIp: masterIp.trim(),
   }))
 
   const convert = async () => {
@@ -233,7 +233,7 @@ export function DacsimTool({ project }: ToolProps) {
               onChange={(e) => setRow(index, { schemeName: e.target.value })}
             />
             <TextInput
-              label={index === 0 ? 'DAC IPs (comma-separated)' : undefined}
+              label={index === 0 ? 'DAC IPs' : undefined}
               value={row.dacIps}
               placeholder="192.168.199.21, 192.168.199.121"
               onChange={(e) => setRow(index, { dacIps: e.target.value })}
@@ -251,20 +251,10 @@ export function DacsimTool({ project }: ToolProps) {
           <>
             <div className="tool-row">
               <TextInput
-                label="Master folder"
-                value={master.folder}
-                onChange={(e) => setMaster((m) => ({ ...m, folder: e.target.value }))}
-              />
-              <TextInput
                 label="Master IP"
-                value={master.ip}
+                value={masterIp}
                 placeholder="192.168.254.11"
-                onChange={(e) => setMaster((m) => ({ ...m, ip: e.target.value }))}
-              />
-              <TextInput
-                label="Default load"
-                value={master.defaultLoad}
-                onChange={(e) => setMaster((m) => ({ ...m, defaultLoad: e.target.value }))}
+                onChange={(e) => setMasterIp(e.target.value)}
               />
             </div>
             <div className="tool-row">

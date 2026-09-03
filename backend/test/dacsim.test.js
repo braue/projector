@@ -85,7 +85,7 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     );
     assert.equal(settings[0].subSimId, 'Sim1');
     assert.deepEqual(settings[0].dac.ipAddr, ['192.168.199.21']);
-    assert.equal(settings[0].parameters.defaultLoad, 10);
+    assert.equal(settings[0].parameters.defaultLoad, 1);
     assert.equal(settings[0].dacPath, undefined);
   } finally {
     await rm(tmp, { recursive: true, force: true });
