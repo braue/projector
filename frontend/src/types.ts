@@ -379,8 +379,8 @@ export interface DacsimScheme {
   logicFolder: string
 }
 
-/** A staged DAC export bundle (ZIP of settings.json + DAC folders), ready to
- *  convert. */
+/** A staged conversion run: the picked DAC exports plus the generated
+ *  settings.json, ready to convert. */
 export interface DacsimBundle {
   run: string
   schemes: DacsimScheme[]

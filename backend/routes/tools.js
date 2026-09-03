@@ -141,18 +141,9 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(await tools.rtacExport.startExport(req.body ?? {}));
   });
 
-  // DAC SIM Converter: a ZIP of the DAC export bundle (settings.json beside
-  // the DAC folders) in, generated simulator projects out, as a job.
-  router.get('/dacsim/settings-template', async (_req, res) => {
-    res.type('application/json')
-      .set('Content-Disposition', 'attachment; filename="settings.json"')
-      .send(await tools.dacsim.settingsTemplate());
-  });
-  router.post('/dacsim/upload', upload.single('file'), async (req, res) => {
-    res.status(201).json(await tools.dacsim.uploadBundle(await resolveInput(req)));
-  });
-  // The projector-native path: DAC exports picked from a project's tree plus
-  // form fields; settings.json is generated server-side.
+  // DAC SIM Converter: DAC exports picked from a project's tree plus form
+  // fields in (settings.json is generated server-side), simulator projects
+  // out, as a job.
   router.post('/dacsim/from-project', async (req, res) => {
     const { project, ...payload } = req.body ?? {};
     if (!project) throw httpError(400, 'project required');

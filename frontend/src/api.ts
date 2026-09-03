@@ -392,16 +392,8 @@ export function extractQuicksetSettings(
 
 // --- DAC SIM Converter ----------------------------------------------------------
 
-/** Stage the DAC export bundle ZIP (settings.json beside the DAC folders) as
- * a new run; the response lists the schemes settings.json declares. */
-export function uploadDacsimBundle(file: File): Promise<DacsimBundle> {
-  const form = new FormData()
-  form.append('file', file)
-  return send('/api/tools/dacsim/upload', 'POST', form)
-}
-
-/** The projector-native staging: DAC exports picked from the project's tree
- * plus form fields; the backend writes settings.json itself. */
+/** Stage a conversion run: DAC exports picked from a project's tree plus
+ * form fields; the backend writes settings.json itself. */
 export function stageDacsimFromProject(project: string, payload: {
   schemes: { schemeName: string; dacPath: string; dacIps: string[]; remoteIp: string }[]
   masterFolder: string
@@ -411,13 +403,10 @@ export function stageDacsimFromProject(project: string, payload: {
   return send('/api/tools/dacsim/from-project', 'POST', { project, ...payload })
 }
 
-/** Start the conversion job over a staged bundle run. */
+/** Start the conversion job over a staged run. */
 export function startDacsimConvert(run: string): Promise<{ job: string; run: string }> {
   return send(`/api/tools/dacsim/${encodeURIComponent(run)}/convert`, 'POST')
 }
-
-/** The starter settings.json, served as a download. */
-export const DACSIM_TEMPLATE_URL = '/api/tools/dacsim/settings-template'
 
 // --- SWSET (switch settings editor) --------------------------------------------
 
@@ -486,6 +475,3 @@ export function importQuicksetProjectConfigs(project: string, path: string): Pro
   return send('/api/tools/quickset/upload', 'POST', { project, path })
 }
 
-export function importDacsimProjectBundle(project: string, path: string): Promise<DacsimBundle> {
-  return send('/api/tools/dacsim/upload', 'POST', { project, path })
-}

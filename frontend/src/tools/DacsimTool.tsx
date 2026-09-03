@@ -1,26 +1,23 @@
 // DAC SIM Converter — build simulator (Remote IO + SIM Master) projects from
-// an exported DAC bundle: a ZIP holding settings.json beside the "DAC 1",
-// "SIM 1", … folders. Staging shows the schemes settings.json declares;
-// Convert runs as a job with the converter's own narration as the log, and
-// the generated simulator folders land in the run as a ZIP for download /
-// save-to-project. Importing the results into AcRTAC stays an AcRTAC step.
+// DAC exports already in a project: the chosen project's RTAC entries list
+// as a check-off roster, each checked DAC grows its addressing fields, and
+// settings.json is generated server-side. Convert runs as a job with the
+// converter's own narration as the log, and the generated simulator folders
+// land in the run as a ZIP for download / save-to-project. Importing the
+// results into AcRTAC stays an AcRTAC step.
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
-  DACSIM_TEMPLATE_URL,
   fetchToolJob,
-  importDacsimProjectBundle,
   listFiles,
   listProjects,
   stageDacsimFromProject,
   startDacsimConvert,
-  uploadDacsimBundle,
 } from '../api'
-import { Button, DataTable, LinkButton, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { Button, DataTable, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { DacsimBundle, DacsimResult, FileNode, ToolJob } from '../types'
-import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 
@@ -57,7 +54,6 @@ export function DacsimTool({ project }: ToolProps) {
   const [job, setJob] = useState<ToolJob | null>(null)
   const [result, setResult] = useState<DacsimResult | null>(null)
   const [busy, setBusy] = useState(false)
-  const input = useRef<HTMLInputElement>(null)
 
   // The from-project form: the chosen project's RTAC entries as a roster —
   // the user checks which ones are DACs, each checked one grows its
@@ -150,8 +146,6 @@ export function DacsimTool({ project }: ToolProps) {
     }
   }
 
-  const uploadZip = (file: File) => stage(() => uploadDacsimBundle(file))
-
   const stageFromForm = () => stage(() => stageDacsimFromProject(formProject, {
     schemes: rows.map((row) => ({
       schemeName: row.schemeName.trim(),
@@ -187,9 +181,8 @@ export function DacsimTool({ project }: ToolProps) {
           {(busy || converting) && <Spinner />}
         </div>
         <div className="preview-subtitle">
-          Build simulator projects (Remote IO boxes and the SIM Master) from an
-          exported DAC bundle — the folder of DAC project XML exports with its
-          settings.json — ready to import into AcRTAC.
+          Build simulator projects (Remote IO boxes and the SIM Master) from
+          DAC exports already in a project, ready to import into AcRTAC.
         </div>
       </div>
       <div className="tool-scroll">
@@ -281,43 +274,6 @@ export function DacsimTool({ project }: ToolProps) {
             </div>
           </>
         )}
-
-        <SectionHeader title="Or a bundle ZIP" />
-        <input
-          ref={input}
-          type="file"
-          accept=".zip"
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) uploadZip(file)
-            e.target.value = ''
-          }}
-        />
-        <button
-          className="drop-zone as-button"
-          onClick={() => input.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault()
-            const file = e.dataTransfer.files[0]
-            if (file) uploadZip(file)
-          }}
-        >
-          <b>Drop the DAC export bundle ZIP here</b>
-          or click to browse — settings.json beside the DAC export folders
-        </button>
-        <ProjectFilePick
-          project={project}
-          extensions={['.zip']}
-          onPick={(path, fromProject) => stage(() => importDacsimProjectBundle(fromProject, path))}
-          disabled={busy || converting}
-        />
-        <div className="tool-row">
-          <LinkButton href={DACSIM_TEMPLATE_URL} download>
-            Starter settings.json
-          </LinkButton>
-        </div>
 
         {error && <div className="tool-error">{error}</div>}
 

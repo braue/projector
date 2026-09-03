@@ -1,29 +1,30 @@
 // DAC SIM Converter — build simulator (Remote IO + SIM Master) projects from
-// a folder of exported DAC project XML plus its settings.json, ported from
-// the standalone DACSIMCONVERT app. The vendored dacToSim package does the
-// conversion in py/dacsim_convert.py, headless: prompts auto-skip (the
-// package scaffolds its own warning notes), progress streams into the job
-// log, and the generated SIM folders land in the run beside the inputs —
-// zipped for download / save-to-project. Importing the results into AcRTAC
-// stays with AcRTAC itself (the converter's optional import needs selacrtac
-// and versioned type/firmware choices better made in the database UI).
+// DAC exports already in a project's tree, ported from the standalone
+// DACSIMCONVERT app. Staging copies the picked .rtac entries into a run and
+// generates settings.json from the form fields (nobody hand-authors it);
+// the vendored dacToSim package then does the conversion in
+// py/dacsim_convert.py, headless: prompts auto-skip (the package scaffolds
+// its own warning notes), progress streams into the job log, and the
+// generated SIM folders land in the run beside the inputs — zipped for
+// download / save-to-project. Importing the results into AcRTAC stays with
+// AcRTAC itself (the converter's optional import needs selacrtac and
+// versioned type/firmware choices better made in the database UI).
 
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { cp, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
 import { bridgeMessage, bridgePath, PYTHON } from '../../lib/acrtac/pythonClient.js';
 
 const SCRIPT = 'dacsim_convert.py';
-const TEMPLATE = 'dacsim_settings_template.json';
 const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
 const ZIP_NAME = 'sim projects.zip';
 
-/** The scheme list from a bundle's settings.json — the converter's own
- *  Python validation is authoritative; this is the cheap Node-side read the
- *  upload response and output-zip selection are built from. */
+/** The scheme list from a run's settings.json — the converter's own Python
+ *  validation is authoritative; this is the cheap Node-side read the staging
+ *  response and output-zip selection are built from. */
 function parseSchemes(text) {
   let data;
   try {
@@ -104,51 +105,11 @@ class DacsimService {
     this.jobs = jobs;
   }
 
-  /** The starter settings.json, for the UI's download link. */
-  async settingsTemplate() {
-    return readFile(bridgePath(TEMPLATE), 'utf8');
-  }
-
   /**
-   * Stage 1: a ZIP of the DAC export bundle — the folder holding
-   * settings.json beside the "DAC 1", "SIM 1", … subfolders — becomes a new
-   * run. A single wrapping top folder (how archivers export a directory) is
-   * stripped.
-   */
-  async uploadBundle(upload) {
-    const { unzipSync } = await import('fflate');
-    let entries;
-    try {
-      entries = unzipSync(new Uint8Array(upload.buffer));
-    } catch {
-      throw httpError(400, 'not a readable ZIP file');
-    }
-    const paths = Object.keys(entries).filter((p) => !p.endsWith('/'));
-    if (!paths.length) throw httpError(400, 'the ZIP is empty');
-    const tops = new Set(paths.map((p) => p.split('/')[0]));
-    const strip = tops.size === 1 && paths.every((p) => p.includes('/')) ? 1 : 0;
-    const stripped = new Map(paths
-      .map((entryPath) => [entryPath.split('/').slice(strip).join('/'), entryPath])
-      .filter(([rel]) => rel));
-    if (!stripped.has('settings.json')) {
-      throw httpError(400, 'the ZIP must hold settings.json beside the DAC export folders');
-    }
-    const schemes = parseSchemes(Buffer.from(entries[stripped.get('settings.json')]).toString('utf8'));
-
-    const { runId, dir } = await this.workspace.createRun('dacsim');
-    for (const [rel, entryPath] of stripped) {
-      const target = path.join(dir, ...rel.split('/'));
-      await mkdir(path.dirname(target), { recursive: true });
-      await writeFile(target, entries[entryPath]);
-    }
-    return { run: runId, schemes };
-  }
-
-  /**
-   * The projector-native stage 1: DAC exports already living in a project's
+   * Stage 1: DAC exports already living in a project's
    * tree (`.rtac` entries — the same AcRTAC XML-export shape) are copied
    * into a new run and settings.json is written FROM the form fields, so
-   * nobody hand-authors it. Same staged-bundle response as the ZIP path.
+   * nobody hand-authors it.
    *
    * payload: { schemes: [{ schemeName, dacPath, dacIps[], remoteIp }],
    *            masterFolder?, masterIp, defaultLoad? }
