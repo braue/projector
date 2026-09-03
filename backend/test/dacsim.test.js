@@ -26,8 +26,13 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     const files = new FilesService({ dataDir: tmp });
     await files.init();
     await files.placeEntry('', 'Feeder 9.rtac', 'from AcRTAC', async (target) => {
-      await mkdir(path.join(target, 'SEL_RTAC'), { recursive: true });
-      await writeFile(path.join(target, 'SEL_RTAC', 'Devices.xml'), '<Devices/>');
+      await mkdir(path.join(target, 'SEL_RTAC', 'DAC'), { recursive: true });
+      await writeFile(path.join(target, 'SEL_RTAC', 'DAC', 'DeviceDeclarations.xml'), '<GVL/>');
+    }, { directory: true });
+    // An export NOT organized per the converter's DAC convention.
+    await files.placeEntry('', 'loose.rtac', 'from AcRTAC', async (target) => {
+      await mkdir(path.join(target, 'SEL_RTAC', 'User_Logic'), { recursive: true });
+      await writeFile(path.join(target, 'SEL_RTAC', 'User_Logic', 'DeviceDeclarations.xml'), '<GVL/>');
     }, { directory: true });
     await files.upload('', [{ originalname: 'notes.txt', buffer: Buffer.from('x') }], 'n');
 
@@ -61,6 +66,14 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
       }),
       /not a DAC export folder/,
     );
+    // The converter's folder convention is checked up front, not mid-job.
+    await assert.rejects(
+      () => dacsim.stageFromProject(files, {
+        ...base,
+        schemes: [{ ...base.schemes[0], dacPath: 'loose.rtac' }],
+      }),
+      /not organized for the converter/,
+    );
 
     // generate() additionally demands the AcRTAC import targeting — per
     // scheme and for the master — BEFORE staging anything.
@@ -89,7 +102,7 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     }]);
     const staged = await workspace.listFiles('dacsim', bundle.run);
     assert.deepEqual(staged.map((file) => file.path), [
-      'DAC Feeder 9/SEL_RTAC/Devices.xml',
+      'DAC Feeder 9/SEL_RTAC/DAC/DeviceDeclarations.xml',
       'settings.json',
     ]);
     const settings = JSON.parse(

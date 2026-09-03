@@ -14,11 +14,11 @@
 
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { cp, readdir, writeFile } from 'node:fs/promises';
+import { cp, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
-import { bridgeMessage, bridgePath, PYTHON } from '../../lib/acrtac/pythonClient.js';
+import { bridgePath, PYTHON } from '../../lib/acrtac/pythonClient.js';
 
 const CONVERT_SCRIPT = 'dacsim_convert.py';
 const IMPORT_SCRIPT = 'acrtac_import.py';
@@ -65,6 +65,21 @@ function requireField(value, label) {
   return text;
 }
 
+/** A readable one-liner for a failed bridge: the traceback's LAST line is
+ *  the actual Python error ("FileNotFoundError: …"); the full traceback is
+ *  already in the job log. */
+function bridgeFailure(script, err, lastLines) {
+  if (err?.killed) return `${script} timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`;
+  if (err?.code === 'ENOENT') {
+    return 'Python was not found on PATH — install Python 3.12+ to run the DAC SIM Converter.';
+  }
+  if (/No module named ['"]?selacrtac/.test(lastLines.join('\n'))) {
+    return 'Python is installed but the selacrtac package is missing, so projects cannot be imported into AcRTAC.';
+  }
+  const last = [...lastLines].reverse().find((line) => /^\S.*\S/.test(line));
+  return last ?? `${script} failed with no error output`;
+}
+
 /** Run a python bridge with `request` on stdin, streaming its stderr
  *  narration into `log`; resolves the JSON document from stdout. */
 function runBridge(script, request, log) {
@@ -80,16 +95,16 @@ function runBridge(script, request, log) {
       if (!line.trim()) return;
       log(line);
       lastLines.push(line);
-      if (lastLines.length > 20) lastLines.shift();
+      if (lastLines.length > 30) lastLines.shift();
     });
     child.on('error', (err) => {
       clearTimeout(timer);
-      reject(new Error(bridgeMessage(err, lastLines.join('\n'))));
+      reject(new Error(bridgeFailure(script, err, lastLines)));
     });
     child.on('close', (code, signal) => {
       clearTimeout(timer);
       if (code !== 0 || signal) {
-        reject(new Error(bridgeMessage({ killed: Boolean(signal), code }, lastLines.join('\n'))));
+        reject(new Error(bridgeFailure(script, { killed: Boolean(signal), code }, lastLines)));
         return;
       }
       try {
@@ -152,12 +167,23 @@ class DacsimService {
     });
 
     // Resolve every DAC entry BEFORE creating the run, so a bad pick fails
-    // clean instead of leaving a half-staged run.
+    // clean instead of leaving a half-staged run. The converter demands the
+    // DAC folder convention (documentation/folderPaths.md in DACSIMCONVERT):
+    // the DAC's own logic under SEL_RTAC/DAC/ — check its anchor file up
+    // front so a mis-organized export reads as a form error, not a
+    // traceback minutes into the job.
     const sources = [];
     for (const scheme of staged) {
       const { absolute, isDirectory } = await files.identify(scheme.dacPath);
       if (!isDirectory) {
         throw httpError(400, `${scheme.schemeName}: ${scheme.dacPath} is not a DAC export folder`);
+      }
+      const anchor = path.join(absolute, 'SEL_RTAC', 'DAC', 'DeviceDeclarations.xml');
+      if (!(await stat(anchor).catch(() => null))?.isFile()) {
+        throw httpError(400,
+          `${scheme.schemeName}: ${scheme.dacPath} is not organized for the converter — it needs `
+          + 'its DAC logic (AreaMap.xml, DeviceDeclarations.xml, Initializations/) under '
+          + 'SEL_RTAC/DAC/. Reorganize the DAC project and re-export it.');
       }
       sources.push(absolute);
     }
