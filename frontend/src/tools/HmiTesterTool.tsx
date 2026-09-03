@@ -44,10 +44,6 @@ export function HmiTesterTool({ project }: ToolProps) {
           <h2>HMI Tag Tester</h2>
           {busy && <Spinner />}
         </div>
-        <div className="preview-subtitle">
-          Audits a Diagram Builder HMI project for tags that were never imported
-          (dead on the HMI) and tags assigned more than once.
-        </div>
       </div>
       <div className="tool-scroll">
         <input

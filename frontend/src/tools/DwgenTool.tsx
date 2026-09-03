@@ -76,12 +76,6 @@ export function DwgenTool({ seek }: ToolProps) {
           {busy && <Spinner />}
           {result && <span className="tool-stats">{result.product ?? result.model}</span>}
         </div>
-        <div className="preview-subtitle">
-          Enter an ordered part number (MOT) — the matching master configuration
-          drawing gets its layers switched to that exact configuration. Open as
-          DWG launches AutoCAD on the same drawing with the same layer switch;
-          the run also includes the script bundle for other machines.
-        </div>
       </div>
       <div className="tool-scroll">
         <div className="tool-col">

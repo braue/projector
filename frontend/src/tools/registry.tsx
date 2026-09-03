@@ -34,52 +34,15 @@ export interface ToolProps {
 export interface ToolDef {
   id: string
   label: string
-  /** One-line description shown in the rail and the tool's empty state. */
-  blurb: string
   component: ComponentType<ToolProps>
 }
 
 export const TOOLS: ToolDef[] = [
-  {
-    id: 'hmi',
-    label: 'HMI Tag Tester',
-    blurb: 'Audit a Diagram Builder HMI project for bad and duplicate tags',
-    component: HmiTesterTool,
-  },
-  {
-    id: 'terminal',
-    label: 'SEL Terminal',
-    blurb: 'ASCII terminal to a relay over telnet or a serial-to-Ethernet converter',
-    component: SelTerminalTool,
-  },
-  {
-    id: 'swset',
-    label: 'Switch Settings',
-    blurb: 'Edit SEL managed-switch configuration XML in a form',
-    component: SwsetTool,
-  },
-  {
-    id: 'quickset',
-    label: 'QuickSet Extract',
-    blurb: 'Dump a QuickSet database and extract settings across a relay fleet',
-    component: QuicksetTool,
-  },
-  {
-    id: 'rtac-export',
-    label: 'RTAC Exporter',
-    blurb: 'Bulk-export AcRTAC database projects as XML or EXP',
-    component: RtacExportTool,
-  },
-  {
-    id: 'dwgen',
-    label: 'Drawing Generator',
-    blurb: 'Configured connection drawings from an SEL part number',
-    component: DwgenTool,
-  },
-  {
-    id: 'dacsim',
-    label: 'DAC SIM Converter',
-    blurb: 'Build simulator projects from an exported DAC project bundle',
-    component: DacsimTool,
-  },
+  { id: 'hmi', label: 'HMI Tag Tester', component: HmiTesterTool },
+  { id: 'terminal', label: 'SEL Terminal', component: SelTerminalTool },
+  { id: 'swset', label: 'Switch Settings', component: SwsetTool },
+  { id: 'quickset', label: 'QuickSet Extract', component: QuicksetTool },
+  { id: 'rtac-export', label: 'RTAC Exporter', component: RtacExportTool },
+  { id: 'dwgen', label: 'Drawing Generator', component: DwgenTool },
+  { id: 'dacsim', label: 'DAC SIM Converter', component: DacsimTool },
 ]

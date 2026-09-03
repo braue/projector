@@ -243,11 +243,6 @@ export function SelTerminalTool({ project }: ToolProps) {
           <h2>SEL Terminal</h2>
           <span className={`tool-conn-status is-${status}`}>{STATUS_LABEL[status]}</span>
         </div>
-        <div className="preview-subtitle">
-          ASCII session to a relay — telnet, or raw TCP for serial-to-Ethernet
-          converters. Log in at the prompt (ACC/2AC); the relay's own no-echo
-          keeps passwords off the screen. Ctrl+X aborts a streaming report.
-        </div>
       </div>
       <div className="tool-fill">
         <div className="tool-row">

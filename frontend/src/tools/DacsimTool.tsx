@@ -184,19 +184,9 @@ export function DacsimTool({ project }: ToolProps) {
           <h2>DAC SIM Converter</h2>
           {generating && <Spinner />}
         </div>
-        <div className="preview-subtitle">
-          Build simulator projects (Remote IO boxes and the SIM Master) from
-          DAC exports already in a project, ready to import into AcRTAC.
-        </div>
       </div>
       <div className="tool-scroll">
-        <SectionHeader title="Schemes from a project" />
-        <div className="preview-subtitle">
-          Every RTAC export in the chosen project is listed — check the ones
-          that are DACs and fill in each one's addressing and AcRTAC device.
-          Generate converts, adds the simulator projects to the project under
-          "DAC SIM Converter", and imports them into AcRTAC.
-        </div>
+        <SectionHeader title="Schemes" />
         <div className="tool-row">
           <Select
             label="Project"

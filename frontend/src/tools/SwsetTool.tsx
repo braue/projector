@@ -221,10 +221,6 @@ export function SwsetTool({ project }: ToolProps) {
           {busy && <Spinner />}
           {model && <span className="tool-stats">{model.deviceType} · {model.fid}</span>}
         </div>
-        <div className="preview-subtitle">
-          Edit an SEL-273x managed-switch configuration in place — upload the
-          device XML, change what you need, generate the updated XML.
-        </div>
       </div>
       <div className="tool-scroll">
         <input

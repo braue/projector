@@ -116,10 +116,6 @@ export function RtacExportTool(_props: ToolProps) {
           <h2>RTAC Exporter</h2>
           {(busy || exporting) && <Spinner />}
         </div>
-        <div className="preview-subtitle">
-          Bulk-export projects from the local AcRTAC database as XML folders or
-          .exp files.
-        </div>
       </div>
       <div className="tool-scroll">
         <div className="tool-row">

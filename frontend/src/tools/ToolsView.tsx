@@ -38,7 +38,6 @@ export function ToolsView({ project, seek }: { project: string; seek?: ToolSeek 
                     ? 'project-entry status-ready selected'
                     : 'project-entry status-ready'
                 }
-                title={tool.blurb}
                 onClick={() => open(tool.id)}
               >
                 <span className="project-name">{tool.label}</span>

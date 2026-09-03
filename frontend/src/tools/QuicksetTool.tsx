@@ -157,11 +157,6 @@ export function QuicksetTool({ project }: ToolProps) {
           <h2>QuickSet Extract</h2>
           {(busy || dumping) && <Spinner />}
         </div>
-        <div className="preview-subtitle">
-          Pull every device's settings out of an AcSELerator QuickSet database
-          (or an exported-configs ZIP), inventory the fleet, and extract chosen
-          settings into one table.
-        </div>
       </div>
       <div className="tool-scroll">
         <SectionHeader title="Source" />
