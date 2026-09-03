@@ -17,8 +17,14 @@
 // per folder carry this, both invisible to the tree:
 //
 //   .versions/          the archived bytes of every superseded version
-//   .versions.json      { [liveName]: { at, note, history: [
-//                           { storedName, at, note }, ...oldest-first ] } }
+//   .versions.json      { [liveName]: { at, note, database?, history: [
+//                           { storedName, name, at, note, database? },
+//                           ...oldest-first ] } }
+//
+// `name` is the identity a version lived under when it was current (a
+// later arrival may rename the entry); `database` is the AcRTAC project it
+// mirrored, when known. Sidecars from before those fields backfill `name`
+// on load from the stored name's stamp prefix.
 //
 // Every version carries a mandatory NOTE — the one-line account of what it
 // changed — and a timestamp; both ride the sidecar, because file mtimes do
@@ -39,7 +45,7 @@ import path from 'node:path';
 import { httpError, resolveWithin } from '../lib/http.js';
 import { statOrNull, INVALID_NAME } from '../lib/fs.js';
 import { openWithOs, revealWithOs } from '../lib/openWithOs.js';
-import { uniqueName } from '../lib/names.js';
+import { shedArchiveStamp, uniqueName } from '../lib/names.js';
 import { treeOrder } from '../lib/tree.js';
 
 const SIDECAR = '.versions.json';
@@ -141,7 +147,18 @@ class FilesService {
   async #loadRecords(dir, { forWrite = false } = {}) {
     try {
       const parsed = JSON.parse(await readFile(path.join(dir, SIDECAR), 'utf8'));
-      return parsed && typeof parsed === 'object' ? parsed : {};
+      const records = parsed && typeof parsed === 'object' ? parsed : {};
+      // Every in-memory history entry carries `name` — sidecars from before
+      // names were recorded backfill here, once, from the stored name's
+      // stamp prefix (the next save persists it).
+      for (const record of Object.values(records)) {
+        for (const entry of Array.isArray(record?.history) ? record.history : []) {
+          if (entry && typeof entry.storedName === 'string') {
+            entry.name ??= shedArchiveStamp(entry.storedName);
+          }
+        }
+      }
+      return records;
     } catch (err) {
       if (err?.code === 'ENOENT') return {};
       if (!forWrite) {
@@ -224,7 +241,7 @@ class FilesService {
             // copy has uncommitted changes.
             edited: Boolean(!isDirectory && record?.stat
               && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size)),
-            versions: await this.#versionNodes(dir, relPath, record),
+            versions: await this.#versionNodes(dir, relPath, record, annotate),
           };
         }));
       return nodes.filter(Boolean).sort(treeOrder);
@@ -233,9 +250,10 @@ class FilesService {
   }
 
   /** The archived versions of one live entry, newest first, each addressable
-   *  by its real relative path. An archived entry missing on disk (deleted
-   *  by hand) is skipped rather than breaking the whole tree. */
-  async #versionNodes(dir, relPath, record) {
+   *  by its real relative path and carrying the identity it lived under —
+   *  name, kind, database. An archived entry missing on disk (deleted by
+   *  hand) is skipped rather than breaking the whole tree. */
+  async #versionNodes(dir, relPath, record, annotate) {
     if (!record?.history?.length) return [];
     const parentRel = path.dirname(relPath) === '.' ? '' : path.dirname(relPath);
     const nodes = await Promise.all([...record.history].reverse().map(async (entry) => {
@@ -245,6 +263,11 @@ class FilesService {
         path: parentRel
           ? `${parentRel}/${ARCHIVE_DIR}/${entry.storedName}`
           : `${ARCHIVE_DIR}/${entry.storedName}`,
+        name: entry.name,
+        // Kinded by the version's OWN name — the entry's present name may
+        // describe different bytes (renamed since).
+        kind: annotate(entry.name, info.isDirectory()),
+        database: entry.database ?? null,
         size: info.isDirectory() ? null : info.size,
         at: entry.at ?? null,
         note: entry.note ?? null,
@@ -420,7 +443,17 @@ class FilesService {
     const taken = new Set(await readdir(archiveDir));
     const storedName = uniqueName(`${record.at ?? Date.now()}-${name}`, (candidate) => taken.has(candidate));
     await rename(source ?? path.join(dir, name), path.join(archiveDir, storedName));
-    const entry = { storedName, at: record.at ?? null, note: record.note ?? null };
+    // `name` (and `database`, when known) keep the identity this version
+    // lived under when it was current — a later arrival may rename the
+    // entry, but the old version still answers to (and re-imports under)
+    // its own name.
+    const entry = {
+      storedName,
+      name,
+      ...(record.database ? { database: record.database } : {}),
+      at: record.at ?? null,
+      note: record.note ?? null,
+    };
     record.history.push(entry);
     return entry;
   }

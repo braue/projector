@@ -9,7 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { FilesService } from '../services/files.js';
-import { asUpload } from './helpers/bundle.js';
+import { asUpload, rtacAnnotate } from './helpers/bundle.js';
 
 test('files: upload, folders, rename, move, delete round-trip', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
@@ -120,6 +120,8 @@ test('files: a versionOf arrival renames the entry to the new version\'s name', 
     assert.equal(node.note, 'revised');
     assert.equal(node.versions.length, 1);
     assert.equal(node.versions[0].note, 'first draft');
+    // The archived version keeps the name it was uploaded with.
+    assert.equal(node.versions[0].name, 'spec.pdf');
     assert.equal((await files.read(node.versions[0].path)).toString(), 'v1-bytes');
     assert.equal((await files.read('spec_r2.pdf')).toString(), 'v2-bytes-longer');
 
@@ -153,20 +155,27 @@ test('files: a versionOf arrival renames the entry to the new version\'s name', 
       await mkdir(target, { recursive: true });
       await writeFile(path.join(target, 'Devices.xml'), '<GVL2/>');
     }, { directory: true, versionOf: 'Old Name.rtac', database: 'Feeder 9' });
-    const annotate = (name, isDirectory) => (isDirectory && name.endsWith('.rtac') ? 'rtac' : null);
-    const names = (await files.tree(annotate)).map((node) => node.name);
-    assert.ok(names.includes('Feeder 9.rtac') && !names.includes('Old Name.rtac'));
-    const rtac = (await files.tree(annotate)).find((node) => node.name === 'Feeder 9.rtac');
+    const listed = await files.tree(rtacAnnotate);
+    assert.ok(listed.some((node) => node.name === 'Feeder 9.rtac')
+      && !listed.some((node) => node.name === 'Old Name.rtac'));
+    const rtac = listed.find((node) => node.name === 'Feeder 9.rtac');
     assert.equal(rtac.versions.length, 1);
     assert.equal(rtac.versions[0].note, 'first pull');
-    // The database link records on arrival and survives arrivals without one.
+    // The archived version keeps its whole identity: name, kind, database
+    // (none was recorded when it arrived).
+    assert.equal(rtac.versions[0].name, 'Old Name.rtac');
+    assert.equal(rtac.versions[0].kind, 'rtac');
+    assert.equal(rtac.versions[0].database, null);
+    // The database link records on arrival, survives arrivals without one,
+    // and snapshots into the version it supersedes.
     assert.equal(rtac.database, 'Feeder 9');
     await files.placeEntry('', 'Feeder 9.rtac', 'repull again', async (target) => {
       await mkdir(target, { recursive: true });
       await writeFile(path.join(target, 'Devices.xml'), '<GVL3/>');
     }, { directory: true });
-    const restacked = (await files.tree(annotate)).find((node) => node.name === 'Feeder 9.rtac');
+    const restacked = (await files.tree(rtacAnnotate)).find((node) => node.name === 'Feeder 9.rtac');
     assert.equal(restacked.database, 'Feeder 9');
+    assert.equal(restacked.versions[0].database, 'Feeder 9');
     // recordDatabase (a successful Import to AcRTAC) sets the link directly.
     await files.recordDatabase('spec_r2.pdf', 'Feeder 9 Spec');
     assert.equal((await files.tree()).find((node) => node.name === 'spec_r2.pdf').database, 'Feeder 9 Spec');

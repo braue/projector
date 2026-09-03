@@ -9,4 +9,11 @@ function uniqueName(base, isUsed) {
   return candidate;
 }
 
-export { uniqueName };
+/** An archived version's stored name (`<stamp>-<name>`, written by
+ *  files.#archive) with the stamp shed — THE decoder for that format, so
+ *  the shape lives in one place. */
+function shedArchiveStamp(storedName) {
+  return storedName.replace(/^\d{10,}-/, '');
+}
+
+export { uniqueName, shedArchiveStamp };

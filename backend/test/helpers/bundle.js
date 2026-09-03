@@ -27,4 +27,8 @@ async function makeBundle(projectDir, { catalog } = {}) {
 
 const asUpload = (name, content) => ({ originalname: name, buffer: Buffer.from(content) });
 
-export { asUpload, makeBundle };
+/** The rtac-directory annotator FilesService-only tests hand to tree() —
+ *  matching ArtifactsService.kindOf's built-in rtac detection. */
+const rtacAnnotate = (name, isDirectory) => (isDirectory && /\.rtac$/i.test(name) ? 'rtac' : null);
+
+export { asUpload, makeBundle, rtacAnnotate };

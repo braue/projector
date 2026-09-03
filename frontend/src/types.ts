@@ -274,6 +274,13 @@ export interface FileVersion {
   /** Real store path of the archived bytes ("dir/.versions/169…-name.rdb") —
    *  readable, openable, and inspectable like any entry. */
   path: string
+  /** The name this version lived under when it was current — an entry
+   *  renamed by a later arrival keeps its old identity here. */
+  name: string
+  /** Kinded by the version's own name, not the entry's present one. */
+  kind: ArtifactKindName | null
+  /** The AcRTAC database project this version mirrored, when known. */
+  database: string | null
   size: number | null
   at: number | null
   note: string | null

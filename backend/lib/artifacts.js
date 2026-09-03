@@ -43,6 +43,7 @@ import { modelSignature } from './compare.js';
 import { INVALID_NAME } from './fs.js';
 import { httpError } from './http.js';
 import { itemSummary } from './inspect.js';
+import { shedArchiveStamp } from './names.js';
 import { parseRtacModule } from './parsers/rtac/parseModule.js';
 import { buildProject, moduleBaseName } from './parsers/rtac/project.js';
 import { foldTree } from './tree.js';
@@ -75,7 +76,7 @@ function splitArtifactRef(ref) {
 /** What to call an artifact on screen: its entry name, with the archive
  *  stamp an old version's stored name carries shed. */
 function entryLabel(treePath) {
-  return path.basename(treePath).replace(/^\d{10,}-/, '');
+  return shedArchiveStamp(path.basename(treePath));
 }
 
 function requireNote(note) {

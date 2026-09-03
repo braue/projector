@@ -14,6 +14,7 @@ import { AcrtacService } from '../services/tools/acrtac.js';
 import { DacsimService } from '../services/tools/dacsim.js';
 import { JobRegistry } from '../services/tools/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
+import { rtacAnnotate } from './helpers/bundle.js';
 
 test('dacsim: from-project staging copies picked DAC exports and writes settings.json', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-dacsim-'));
@@ -127,6 +128,32 @@ test('acrtac import: request validation before any bridge spawn', async () => {
     );
     // Open in AcRTAC validates before spawning anything, too.
     assert.throws(() => acrtac.open({ name: '  ' }), /name is required/);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('acrtac import: an archived version imports by its .versions/ path', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-acrtacimp-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+    const pull = (note) => files.placeEntry('', 'Feeder 9.rtac', note, async (target) => {
+      await mkdir(path.join(target, 'SEL_RTAC'), { recursive: true });
+      await writeFile(path.join(target, 'SEL_RTAC', 'Devices.xml'), '<GVL/>');
+    }, { directory: true });
+    await pull('first pull');
+    await pull('repull');
+
+    const entry = (await files.tree(rtacAnnotate)).find((node) => node.name === 'Feeder 9.rtac');
+    const acrtac = new AcrtacService({ jobs: new JobRegistry() });
+    const archived = await acrtac.import(files, {
+      path: entry.versions[0].path,
+      name: 'Feeder 9',
+      deviceType: '3555',
+      firmware: 'R151',
+    });
+    assert.ok(archived.job);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

@@ -155,7 +155,9 @@ export function refLabel(tree: FileNode[] | null, path: string): string {
   const leaf = tree ? findLeafFor(tree, path) : null
   if (leaf && leaf.path !== path) {
     const index = leaf.versions.findIndex((version) => version.path === path)
-    if (index >= 0) return `${leaf.name} v${leaf.versions.length - index}`
+    // An archived version answers to ITS name — the entry may have been
+    // renamed by a later arrival.
+    if (index >= 0) return `${leaf.versions[index].name} v${leaf.versions.length - index}`
   }
   if (leaf && leaf.path === path && leaf.versions.length) {
     return `${leaf.name} v${leaf.versions.length + 1}`
@@ -535,6 +537,13 @@ export function ProjectTree({
     }]
   }
 
+  /** The Import-to-AcRTAC item — the live entry and its archived versions
+   *  share it, each importing under its own identity. */
+  const importItem = (path: string, name: string, database: string | null): ContextMenuItem => ({
+    label: 'Import to AcRTAC…',
+    onClick: () => setImportTarget({ path, name, database }),
+  })
+
   const menuItems = (target: MenuTarget): ContextMenuItem[] => {
     if (target.type === 'dir') {
       const items = dirItems(target.dir)
@@ -561,6 +570,11 @@ export function ProjectTree({
               label: 'Open with default app',
               onClick: () => act(() => openFileEntry(project, version.path)),
             }]
+          : []),
+        // An archived RTAC version imports too — under the identity IT
+        // carried, not whatever the entry is called today.
+        ...(version.kind === 'rtac'
+          ? [importItem(version.path, version.name, version.database)]
           : []),
         {
           label: 'Show in file explorer',
@@ -614,10 +628,8 @@ export function ProjectTree({
           }, {
             label: 'New version from AcRTAC…',
             onClick: () => setDbState({ dir: nodeDir, versionOf: node.name }),
-          }, {
-            label: 'Import to AcRTAC…',
-            onClick: () => setImportTarget({ path: node.path, name: node.name, database: node.database }),
-          }]
+          },
+          importItem(node.path, node.name, node.database)]
         : [{
             label: 'Add new version…',
             onClick: () => {
@@ -687,6 +699,9 @@ export function ProjectTree({
     current?: boolean
     at: number | null
     note: string | null
+    /** The name this version lived under — shown when it differs from the
+     *  entry's current name (a later arrival renamed the entry). */
+    wasNamed?: string
     title: string
     depth: number
     onDoubleClick?: () => void
@@ -703,19 +718,32 @@ export function ProjectTree({
     >
       <span className={opts.current ? 'version-badge current' : 'version-badge'}>{opts.label}</span>
       {opts.at !== null && <span className="row-stamp">{formatStamp(opts.at)}</span>}
-      <span className="row-note">{opts.note ?? '—'}</span>
+      <span className="row-note">
+        {opts.wasNamed ? (
+          <>
+            <span className="version-was">{opts.wasNamed}</span>
+            {opts.note ? ` — ${opts.note}` : ''}
+          </>
+        ) : (opts.note ?? '—')}
+      </span>
     </button>
   )
 
   const renderVersion = (leaf: FileLeaf, version: FileVersion, index: number, depth: number) => {
     const label = `v${leaf.versions.length - index}`
+    const renamed = version.name !== leaf.name
     return versionRow({
       path: version.path,
       label,
       at: version.at,
       note: version.note,
+      wasNamed: renamed ? version.name : undefined,
       depth,
-      title: `${leaf.name} ${label}${version.at ? ` — ${formatWhen(version.at)}` : ''}${version.note ? `\n${version.note}` : ''}`,
+      title: [
+        `${leaf.name} ${label}${version.at ? ` — ${formatWhen(version.at)}` : ''}`,
+        renamed ? `was named ${version.name}` : undefined,
+        version.note ?? undefined,
+      ].filter(Boolean).join('\n'),
       onDoubleClick: version.size !== null
         ? () => act(() => openFileEntry(project, version.path))
         : undefined,
