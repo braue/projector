@@ -62,8 +62,20 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
       /not a DAC export folder/,
     );
 
-    // Convert refuses an unknown run before spawning anything.
-    await assert.rejects(() => dacsim.startConvert('nope'), /no such run/);
+    // generate() additionally demands the AcRTAC import targeting — per
+    // scheme and for the master — BEFORE staging anything.
+    await assert.rejects(
+      () => dacsim.generate(files, { ...base, masterDeviceType: '3555', masterFirmware: 'R151' }),
+      /scheme 1: device type is required/,
+    );
+    await assert.rejects(
+      () => dacsim.generate(files, {
+        ...base,
+        schemes: [{ ...base.schemes[0], deviceType: '3530', firmware: 'R151' }],
+        masterDeviceType: '3555',
+      }),
+      /master firmware is required/,
+    );
 
     // The good case: DAC bytes copied under the generated subFolder, and the
     // written settings.json round-trips through the same validator the ZIP

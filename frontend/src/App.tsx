@@ -30,6 +30,7 @@ const AtlasView = lazy(() =>
 import { Button, TextInput } from './components/ui'
 import { ToolsView } from './tools/ToolsView'
 import { errorMessage } from './lib/errors'
+import { FILES_CHANGED_EVENT } from './lib/filesChanged'
 import { formatSize, formatStamp, formatWhen } from './lib/format'
 import type { FileNode, RtacExportStatus } from './types'
 
@@ -119,11 +120,17 @@ export default function App() {
   // Coming back to the app — from Excel, the file manager, anywhere an
   // entry's working copy may have been edited in place — is the moment to
   // re-check the tree, so "edited" flags appear without a manual action.
+  // Tools that change project files (the DAC SIM Converter placing its
+  // generated entries) announce it with the same effect.
   useEffect(() => {
     if (!project) return
     const onFocus = () => loadTree()
     window.addEventListener('focus', onFocus)
-    return () => window.removeEventListener('focus', onFocus)
+    window.addEventListener(FILES_CHANGED_EVENT, onFocus)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener(FILES_CHANGED_EVENT, onFocus)
+    }
   }, [project, loadTree])
 
   // Poll while any AcRTAC export is in flight so spinners resolve on their

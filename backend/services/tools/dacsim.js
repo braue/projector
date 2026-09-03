@@ -1,26 +1,30 @@
 // DAC SIM Converter — build simulator (Remote IO + SIM Master) projects from
 // DAC exports already in a project's tree, ported from the standalone
-// DACSIMCONVERT app. Staging copies the picked .rtac entries into a run and
-// generates settings.json from the form fields (nobody hand-authors it);
-// the vendored dacToSim package then does the conversion in
-// py/dacsim_convert.py, headless: prompts auto-skip (the package scaffolds
-// its own warning notes), progress streams into the job log, and the
-// generated SIM folders land in the run beside the inputs — zipped for
-// download / save-to-project. Importing the results into AcRTAC stays with
-// AcRTAC itself (the converter's optional import needs selacrtac and
-// versioned type/firmware choices better made in the database UI).
+// DACSIMCONVERT app. One Generate does the whole pipeline: staging copies
+// the picked .rtac entries into a run and generates settings.json from the
+// form fields (nobody hand-authors it); the vendored dacToSim package
+// converts in py/dacsim_convert.py, headless (prompts auto-skip onto the
+// package's own warning scaffolds, narration streams into the job log); the
+// generated simulator folders land back in the SOURCE PROJECT's tree as
+// versioned .rtac entries under "DAC SIM Converter/"; and each one imports
+// into the AcRTAC database via py/acrtac_import.py with the user's device
+// type + firmware (per scheme for remotes, one pair for the master).
+// Import failures never cost the run — the outputs are already safe in the
+// project — they land in the result for the UI to show.
 
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { cp, readFile, writeFile } from 'node:fs/promises';
+import { cp, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
 import { bridgeMessage, bridgePath, PYTHON } from '../../lib/acrtac/pythonClient.js';
 
-const SCRIPT = 'dacsim_convert.py';
+const CONVERT_SCRIPT = 'dacsim_convert.py';
+const IMPORT_SCRIPT = 'acrtac_import.py';
 const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
 const ZIP_NAME = 'sim projects.zip';
+const PROJECT_FOLDER = 'DAC SIM Converter';
 
 /** The scheme list from a run's settings.json — the converter's own Python
  *  validation is authoritative; this is the cheap Node-side read the staging
@@ -55,10 +59,17 @@ function requireIp(value, label) {
   return ip;
 }
 
-/** Run the converter over `dir`, streaming its narration into `log`. */
-function runConvertBridge(dir, log) {
+function requireField(value, label) {
+  const text = String(value ?? '').trim();
+  if (!text) throw httpError(400, `${label} is required`);
+  return text;
+}
+
+/** Run a python bridge with `request` on stdin, streaming its stderr
+ *  narration into `log`; resolves the JSON document from stdout. */
+function runBridge(script, request, log) {
   return new Promise((resolve, reject) => {
-    const child = spawn(PYTHON, [bridgePath(SCRIPT)], { windowsHide: true });
+    const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
     let stdout = '';
     const lastLines = [];
     const timer = setTimeout(() => {
@@ -84,10 +95,10 @@ function runConvertBridge(dir, log) {
       try {
         resolve(JSON.parse(stdout));
       } catch {
-        reject(new Error(`dacsim bridge returned non-JSON output: ${stdout.slice(0, 200)}`));
+        reject(new Error(`${script} returned non-JSON output: ${stdout.slice(0, 200)}`));
       }
     });
-    child.stdin.end(JSON.stringify({ root: dir }));
+    child.stdin.end(JSON.stringify(request));
   });
 }
 
@@ -164,37 +175,108 @@ class DacsimService {
     return { run: runId, schemes: parseSchemes(JSON.stringify(settings)) };
   }
 
-  /** Stage 2 as a job: run the converter over the bundle; the generated SIM
-   *  folders join the run, zipped for download / save-to-project. */
-  async startConvert(runId) {
-    const dir = await this.workspace.runDir('dacsim', runId);
-    const schemes = parseSchemes(await readFile(path.join(dir, 'settings.json'), 'utf8'));
-    const workspace = this.workspace;
-    const job = this.jobs.start(`DAC SIM convert: ${schemes.length} scheme(s)`, async (handle) => {
-      handle.log(`Converting ${schemes.length} scheme(s)…`);
-      const result = await runConvertBridge(dir, handle.log);
+  /**
+   * The whole pipeline as one job: stage, convert, land the generated
+   * simulator projects back in the source project's tree (versioned .rtac
+   * entries under "DAC SIM Converter/"), and import each into the AcRTAC
+   * database with the user's device type + firmware.
+   *
+   * payload adds to staging: per scheme { deviceType, firmware }, plus
+   * { masterDeviceType, masterFirmware } for the one master project.
+   */
+  async generate(files, payload) {
+    const schemes = Array.isArray(payload?.schemes) ? payload.schemes : [];
+    // Import targeting validates BEFORE any staging or job.
+    const importsByPrefix = schemes.map((scheme, index) => ({
+      prefix: `SIM ${String(scheme?.schemeName ?? '').trim()}`,
+      deviceType: requireField(scheme?.deviceType, `scheme ${index + 1}: device type`),
+      firmware: requireField(scheme?.firmware, `scheme ${index + 1}: firmware`),
+    }));
+    const master = {
+      deviceType: requireField(payload?.masterDeviceType, 'master device type'),
+      firmware: requireField(payload?.masterFirmware, 'master firmware'),
+    };
 
-      // Zip just the GENERATED simulator folders (remote + master) — the DAC
-      // inputs came from the user and are still in the run for reference.
-      // Prefix-matched on the top folder: a large scheme can split into
-      // "SIM 1", "SIM 1_2", … simulators.
-      const simPrefixes = [...new Set(schemes
+    const { run: runId, schemes: staged } = await this.stageFromProject(files, payload);
+    const dir = await this.workspace.runDir('dacsim', runId);
+    const workspace = this.workspace;
+    const masterFolder = staged[0].logicFolder;
+
+    const job = this.jobs.start(`DAC SIM generate: ${staged.length} scheme(s)`, async (handle) => {
+      handle.log(`Converting ${staged.length} scheme(s)…`);
+      const result = await runBridge(CONVERT_SCRIPT, { root: dir }, handle.log);
+
+      // The GENERATED simulator folders (remote + master) — the DAC inputs
+      // came from the project and stay in the run only for reference.
+      // Prefix-matched: a large scheme can split into "SIM X", "SIM X_2", …
+      const simPrefixes = [...new Set(staged
         .flatMap((scheme) => [scheme.remoteFolder, scheme.logicFolder]))];
-      const files = (await workspace.listFiles('dacsim', runId)).filter(({ path: rel }) => {
-        const top = rel.split('/')[0];
-        return simPrefixes.some((prefix) => top.startsWith(prefix));
-      });
+      const simDirs = (await readdir(dir, { withFileTypes: true }))
+        .filter((entry) => entry.isDirectory()
+          && simPrefixes.some((prefix) => entry.name.startsWith(prefix)))
+        .map((entry) => entry.name)
+        .sort();
+
+      // ZIP for download / save-to-project.
+      const outputs = (await workspace.listFiles('dacsim', runId)).filter(({ path: rel }) =>
+        simDirs.includes(rel.split('/')[0]));
       const reports = [];
-      if (files.length) {
+      if (outputs.length) {
         const { zipSync } = await import('fflate');
         const zipEntries = {};
-        for (const file of files) {
+        for (const file of outputs) {
           zipEntries[file.path] = new Uint8Array(await workspace.readFile('dacsim', runId, file.path));
         }
         await writeFile(path.join(dir, ZIP_NAME), zipSync(zipEntries));
-        reports.push({ path: ZIP_NAME, label: `Simulator projects ZIP (${files.length} files)` });
+        reports.push({ path: ZIP_NAME, label: `Simulator projects ZIP (${outputs.length} files)` });
       }
-      return { run: runId, ...result, files: files.length, reports };
+
+      // Land each simulator in the source project as a versioned .rtac
+      // entry under one top-level folder the user can rearrange from.
+      await files.createFolder('', PROJECT_FOLDER).catch((err) => {
+        if (err?.status !== 409) throw err;
+      });
+      const note = `generated by DAC SIM Converter (run ${runId})`;
+      const placed = [];
+      for (const simDir of simDirs) {
+        const entryName = `${simDir}.rtac`;
+        await files.placeEntry(PROJECT_FOLDER, entryName, note, async (target) => {
+          await cp(path.join(dir, simDir), target, { recursive: true });
+        }, { directory: true });
+        placed.push(`${PROJECT_FOLDER}/${entryName}`);
+        handle.log(`Placed ${PROJECT_FOLDER}/${entryName}`);
+      }
+
+      // Import into AcRTAC: the master gets its one device/firmware pair,
+      // every other sim folder inherits its scheme's. Failures are reported,
+      // never fatal — the projects are already safe in the tree.
+      const stamp = new Date().toISOString().slice(0, 19).replace('T', ' ').replaceAll(':', '');
+      const items = simDirs.map((simDir) => {
+        const target = simDir.startsWith(masterFolder)
+          ? master
+          : importsByPrefix.find(({ prefix }) => simDir.startsWith(prefix));
+        return target && {
+          path: path.join(dir, simDir),
+          name: `${simDir} ${stamp}`,
+          type: target.deviceType,
+          version: target.firmware,
+        };
+      }).filter(Boolean);
+      let imports = null;
+      let importError = null;
+      try {
+        handle.log(`Importing ${items.length} project(s) into AcRTAC…`);
+        const response = await runBridge(IMPORT_SCRIPT, { items }, handle.log);
+        imports = response.results;
+        for (const entry of imports) {
+          handle.log(entry.success ? `✓ ${entry.name}` : `✕ ${entry.name}: ${entry.error}`);
+        }
+      } catch (err) {
+        importError = err?.message ?? String(err);
+        handle.log(`AcRTAC import failed: ${importError}`);
+      }
+
+      return { run: runId, ...result, files: outputs.length, reports, placed, imports, importError };
     });
     return { job: job.id, run: runId };
   }

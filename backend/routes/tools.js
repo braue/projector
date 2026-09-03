@@ -142,16 +142,14 @@ function toolsRoutes(tools, projects) {
   });
 
   // DAC SIM Converter: DAC exports picked from a project's tree plus form
-  // fields in (settings.json is generated server-side), simulator projects
-  // out, as a job.
-  router.post('/dacsim/from-project', async (req, res) => {
+  // fields in (settings.json is generated server-side); one job converts,
+  // lands the simulator projects back in the project's tree, and imports
+  // them into AcRTAC.
+  router.post('/dacsim/generate', async (req, res) => {
     const { project, ...payload } = req.body ?? {};
     if (!project) throw httpError(400, 'project required');
     const files = (await projects.bundle(project)).files;
-    res.status(201).json(await tools.dacsim.stageFromProject(files, payload));
-  });
-  router.post('/dacsim/:run/convert', async (req, res) => {
-    res.status(202).json(await tools.dacsim.startConvert(req.params.run));
+    res.status(202).json(await tools.dacsim.generate(files, payload));
   });
 
   // Drawing Generator: part number in, configured drawings + AutoCAD bundle

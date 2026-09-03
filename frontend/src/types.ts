@@ -371,22 +371,7 @@ export interface QuicksetExtract {
 
 // --- DAC SIM Converter ----------------------------------------------------------
 
-/** One scheme a bundle's settings.json declares. */
-export interface DacsimScheme {
-  schemeName: string
-  dacFolder: string
-  remoteFolder: string
-  logicFolder: string
-}
-
-/** A staged conversion run: the picked DAC exports plus the generated
- *  settings.json, ready to convert. */
-export interface DacsimBundle {
-  run: string
-  schemes: DacsimScheme[]
-}
-
-/** The conversion job's result payload. */
+/** The generate job's result payload. */
 export interface DacsimResult {
   run: string
   schemes: string[]
@@ -395,6 +380,12 @@ export interface DacsimResult {
   masterFolder: string
   files: number
   reports: ToolReport[]
+  /** Tree paths of the simulator entries placed in the source project. */
+  placed: string[]
+  /** Per-project AcRTAC import outcomes; null when the bridge never ran. */
+  imports: { name: string; success: boolean; error?: string }[] | null
+  /** Whole-bridge import failure (no selacrtac, login refused), or null. */
+  importError: string | null
 }
 
 // --- SWSET (switch settings editor) --------------------------------------------

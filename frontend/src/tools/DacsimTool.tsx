@@ -1,23 +1,24 @@
 // DAC SIM Converter — build simulator (Remote IO + SIM Master) projects from
 // DAC exports already in a project: the chosen project's RTAC entries list
-// as a check-off roster, each checked DAC grows its addressing fields, and
-// settings.json is generated server-side. Convert runs as a job with the
-// converter's own narration as the log, and the generated simulator folders
-// land in the run as a ZIP for download / save-to-project. Importing the
-// results into AcRTAC stays an AcRTAC step.
+// as a check-off roster, each checked DAC grows its addressing + device
+// fields, and settings.json is generated server-side. One GENERATE runs the
+// whole pipeline as a job: convert (the converter's own narration is the
+// log), land the simulator projects back in the project's tree under
+// "DAC SIM Converter/", and import each into AcRTAC with the given device
+// type + firmware.
 
 import { useEffect, useState } from 'react'
 
 import {
   fetchToolJob,
+  generateDacsim,
   listFiles,
   listProjects,
-  stageDacsimFromProject,
-  startDacsimConvert,
 } from '../api'
-import { Button, DataTable, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { Button, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import type { DacsimBundle, DacsimResult, FileNode, ToolJob } from '../types'
+import { FILES_CHANGED_EVENT } from '../lib/filesChanged'
+import type { DacsimResult, FileNode, ToolJob } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 
@@ -27,9 +28,13 @@ const POLL_MS = 1200
 interface SchemeRow {
   schemeName: string
   dacPath: string
-  /** Comma/space separated in the field; split on stage. */
+  /** Comma/space separated in the field; split on generate. */
   dacIps: string
   remoteIp: string
+  /** AcRTAC hardware type for this scheme's Remote IO import (3555, 3530…). */
+  deviceType: string
+  /** AcRTAC firmware revision for the import ("R151"). */
+  firmware: string
 }
 
 /** "Station A/Feeder 1.rtac" -> "Feeder 1" — the default scheme name. */
@@ -49,23 +54,22 @@ function rtacPaths(nodes: FileNode[], out: string[] = []): string[] {
 
 export function DacsimTool({ project }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
-  const [bundle, setBundle] = useState<DacsimBundle | null>(null)
   const [jobId, setJobId] = useState<string | null>(null)
   const [job, setJob] = useState<ToolJob | null>(null)
   const [result, setResult] = useState<DacsimResult | null>(null)
-  const [busy, setBusy] = useState(false)
 
-  // The from-project form: the chosen project's RTAC entries as a roster —
-  // the user checks which ones are DACs, each checked one grows its
-  // addressing fields, and the backend writes settings.json from them.
+  // The form: the chosen project's RTAC entries as a roster — the user
+  // checks which ones are DACs, each checked one grows its addressing and
+  // device fields, and the backend writes settings.json from them.
   // Tools are global: the open project is only the dropdown's start value.
   const [projects, setProjects] = useState<string[]>([])
   const [formProject, setFormProject] = useState(project)
   const [rtacEntries, setRtacEntries] = useState<string[] | null>(null)
   const [rows, setRows] = useState<SchemeRow[]>([])
-  // One master IP for the whole run (settings.json repeats it per scheme
-  // because the format demands it, not because it varies).
-  const [masterIp, setMasterIp] = useState('')
+  // ONE master IP + device/firmware for the whole run (settings.json
+  // repeats the IP per scheme because the format demands it; the device
+  // pair targets the single SIM Master import).
+  const [master, setMaster] = useState({ ip: '', deviceType: '', firmware: '' })
 
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {})
@@ -96,15 +100,23 @@ export function DacsimTool({ project }: ToolProps) {
     setError(null)
     setRows((current) => current.some((row) => row.dacPath === dacPath)
       ? current.filter((row) => row.dacPath !== dacPath)
-      : [...current, { schemeName: schemeNameFor(dacPath), dacPath, dacIps: '', remoteIp: '' }])
+      : [...current, {
+          schemeName: schemeNameFor(dacPath),
+          dacPath,
+          dacIps: '',
+          remoteIp: '',
+          deviceType: '',
+          firmware: '',
+        }])
   }
 
   const setRow = (index: number, patch: Partial<SchemeRow>) =>
     setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
 
   const rowsReady = rows.length > 0
-    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIp.trim())
-    && masterIp.trim() !== ''
+    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim()
+      && row.remoteIp.trim() && row.deviceType.trim() && row.firmware.trim())
+    && master.ip.trim() !== '' && master.deviceType.trim() !== '' && master.firmware.trim() !== ''
 
   // Poll the conversion job until it settles.
   useEffect(() => {
@@ -119,7 +131,12 @@ export function DacsimTool({ project }: ToolProps) {
           window.setTimeout(tick, POLL_MS)
         } else {
           setJobId(null)
-          if (state.status === 'done') setResult(state.result as DacsimResult)
+          if (state.status === 'done') {
+            setResult(state.result as DacsimResult)
+            // The job placed entries in a project's tree behind the
+            // sidebar's back — let the app refresh it.
+            window.dispatchEvent(new Event(FILES_CHANGED_EVENT))
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -134,51 +151,38 @@ export function DacsimTool({ project }: ToolProps) {
     }
   }, [jobId])
 
-  const stage = async (request: () => Promise<DacsimBundle>) => {
-    setError(null)
-    setResult(null)
-    setJob(null)
-    setBusy(true)
-    try {
-      setBundle(await request())
-    } catch (err) {
-      setError(errorMessage(err))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const stageFromForm = () => stage(() => stageDacsimFromProject(formProject, {
-    schemes: rows.map((row) => ({
-      schemeName: row.schemeName.trim(),
-      dacPath: row.dacPath,
-      dacIps: row.dacIps.split(/[\s,;]+/).filter(Boolean),
-      remoteIp: row.remoteIp.trim(),
-    })),
-    masterIp: masterIp.trim(),
-  }))
-
-  const convert = async () => {
-    if (!bundle) return
+  const generate = async () => {
     setError(null)
     setResult(null)
     setJob(null)
     try {
-      const { job: id } = await startDacsimConvert(bundle.run)
+      const { job: id } = await generateDacsim(formProject, {
+        schemes: rows.map((row) => ({
+          schemeName: row.schemeName.trim(),
+          dacPath: row.dacPath,
+          dacIps: row.dacIps.split(/[\s,;]+/).filter(Boolean),
+          remoteIp: row.remoteIp.trim(),
+          deviceType: row.deviceType.trim(),
+          firmware: row.firmware.trim(),
+        })),
+        masterIp: master.ip.trim(),
+        masterDeviceType: master.deviceType.trim(),
+        masterFirmware: master.firmware.trim(),
+      })
       setJobId(id)
     } catch (err) {
       setError(errorMessage(err))
     }
   }
 
-  const converting = jobId !== null
+  const generating = jobId !== null
 
   return (
     <>
       <div className="preview-header">
         <div className="preview-title-row">
           <h2>DAC SIM Converter</h2>
-          {(busy || converting) && <Spinner />}
+          {generating && <Spinner />}
         </div>
         <div className="preview-subtitle">
           Build simulator projects (Remote IO boxes and the SIM Master) from
@@ -189,8 +193,9 @@ export function DacsimTool({ project }: ToolProps) {
         <SectionHeader title="Schemes from a project" />
         <div className="preview-subtitle">
           Every RTAC export in the chosen project is listed — check the ones
-          that are DACs, fill in each one's addressing, and settings.json is
-          generated for you.
+          that are DACs and fill in each one's addressing and AcRTAC device.
+          Generate converts, adds the simulator projects to the project under
+          "DAC SIM Converter", and imports them into AcRTAC.
         </div>
         <div className="tool-row">
           <Select
@@ -215,7 +220,7 @@ export function DacsimTool({ project }: ToolProps) {
                   <input
                     type="checkbox"
                     checked={checked}
-                    disabled={busy || converting}
+                    disabled={generating}
                     onChange={() => toggleEntry(path)}
                   />
                   <span className="dacsim-entry-name">{schemeNameFor(path)}</span>
@@ -244,6 +249,18 @@ export function DacsimTool({ project }: ToolProps) {
               placeholder="192.168.254.21"
               onChange={(e) => setRow(index, { remoteIp: e.target.value })}
             />
+            <TextInput
+              label={index === 0 ? 'Device' : undefined}
+              value={row.deviceType}
+              placeholder="3555"
+              onChange={(e) => setRow(index, { deviceType: e.target.value })}
+            />
+            <TextInput
+              label={index === 0 ? 'Firmware' : undefined}
+              value={row.firmware}
+              placeholder="R151"
+              onChange={(e) => setRow(index, { firmware: e.target.value })}
+            />
             <Button onClick={() => toggleEntry(row.dacPath)}>✕</Button>
           </div>
         ))}
@@ -252,40 +269,26 @@ export function DacsimTool({ project }: ToolProps) {
             <div className="tool-row">
               <TextInput
                 label="Master IP"
-                value={masterIp}
+                value={master.ip}
                 placeholder="192.168.254.11"
-                onChange={(e) => setMasterIp(e.target.value)}
+                onChange={(e) => setMaster((m) => ({ ...m, ip: e.target.value }))}
+              />
+              <TextInput
+                label="Master device"
+                value={master.deviceType}
+                placeholder="3555"
+                onChange={(e) => setMaster((m) => ({ ...m, deviceType: e.target.value }))}
+              />
+              <TextInput
+                label="Master firmware"
+                value={master.firmware}
+                placeholder="R151"
+                onChange={(e) => setMaster((m) => ({ ...m, firmware: e.target.value }))}
               />
             </div>
             <div className="tool-row">
-              <Button variant="primary" disabled={!rowsReady || busy || converting} onClick={stageFromForm}>
-                Stage schemes
-              </Button>
-            </div>
-          </>
-        )}
-
-        {error && <div className="tool-error">{error}</div>}
-
-        {bundle && (
-          <>
-            <SectionHeader title="Schemes" />
-            <DataTable
-              maxHeight="240px"
-              columns={[
-                { key: 'schemeName', label: 'Scheme' },
-                { key: 'dacFolder', label: 'DAC folder' },
-                { key: 'remoteFolder', label: 'Remote IO folder' },
-                { key: 'logicFolder', label: 'Master folder' },
-              ]}
-              rows={bundle.schemes.map((scheme, i) => ({
-                id: `${scheme.schemeName}:${i}`,
-                cells: { ...scheme },
-              }))}
-            />
-            <div className="tool-row">
-              <Button variant="primary" disabled={converting} onClick={convert}>
-                Convert
+              <Button variant="primary" disabled={!rowsReady || generating} onClick={generate}>
+                Generate
               </Button>
               {result && (
                 <span className="tool-stats">
@@ -297,6 +300,8 @@ export function DacsimTool({ project }: ToolProps) {
           </>
         )}
 
+        {error && <div className="tool-error">{error}</div>}
+
         {job && (
           <div className="tool-joblog">
             {job.status === 'error' && <div className="tool-error">{job.error}</div>}
@@ -307,7 +312,26 @@ export function DacsimTool({ project }: ToolProps) {
         )}
 
         {result && (
-          <RunOutputs tool="dacsim" run={result.run} reports={result.reports} />
+          <>
+            {result.placed.length > 0 && (
+              <div className="tool-stats">
+                Added to the project: {result.placed.join(', ')}
+              </div>
+            )}
+            {result.importError !== null && (
+              <div className="tool-error">AcRTAC import: {result.importError}</div>
+            )}
+            {result.imports?.map((entry) => (
+              <div
+                key={entry.name}
+                className={entry.success ? 'tool-status' : 'tool-error'}
+              >
+                {entry.success ? '✓' : '✕'} AcRTAC: {entry.name}
+                {entry.error ? ` — ${entry.error}` : ''}
+              </div>
+            ))}
+            <RunOutputs tool="dacsim" run={result.run} reports={result.reports} />
+          </>
         )}
       </div>
     </>

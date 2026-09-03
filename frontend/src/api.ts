@@ -3,7 +3,6 @@ import type {
   ArtifactProfile,
   CompareItem,
   CompareTree,
-  DacsimBundle,
   DwgenResult,
   FileNode,
   HmiReport,
@@ -392,19 +391,24 @@ export function extractQuicksetSettings(
 
 // --- DAC SIM Converter ----------------------------------------------------------
 
-/** Stage a conversion run: DAC exports picked from a project's tree plus
- * form fields; the backend writes settings.json itself. `masterIp` is one
- * address for the whole run. */
-export function stageDacsimFromProject(project: string, payload: {
-  schemes: { schemeName: string; dacPath: string; dacIps: string[]; remoteIp: string }[]
+/** The whole pipeline as one job: stage the picked DAC exports (settings.json
+ * is generated server-side), convert, land the simulator projects back in
+ * the project's tree, and import them into AcRTAC. `masterIp` and the master
+ * device/firmware are one set for the whole run. */
+export function generateDacsim(project: string, payload: {
+  schemes: {
+    schemeName: string
+    dacPath: string
+    dacIps: string[]
+    remoteIp: string
+    deviceType: string
+    firmware: string
+  }[]
   masterIp: string
-}): Promise<DacsimBundle> {
-  return send('/api/tools/dacsim/from-project', 'POST', { project, ...payload })
-}
-
-/** Start the conversion job over a staged run. */
-export function startDacsimConvert(run: string): Promise<{ job: string; run: string }> {
-  return send(`/api/tools/dacsim/${encodeURIComponent(run)}/convert`, 'POST')
+  masterDeviceType: string
+  masterFirmware: string
+}): Promise<{ job: string; run: string }> {
+  return send('/api/tools/dacsim/generate', 'POST', { project, ...payload })
 }
 
 // --- SWSET (switch settings editor) --------------------------------------------
