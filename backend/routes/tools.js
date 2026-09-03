@@ -151,6 +151,14 @@ function toolsRoutes(tools, projects) {
   router.post('/dacsim/upload', upload.single('file'), async (req, res) => {
     res.status(201).json(await tools.dacsim.uploadBundle(await resolveInput(req)));
   });
+  // The projector-native path: DAC exports picked from a project's tree plus
+  // form fields; settings.json is generated server-side.
+  router.post('/dacsim/from-project', async (req, res) => {
+    const { project, ...payload } = req.body ?? {};
+    if (!project) throw httpError(400, 'project required');
+    const files = (await projects.bundle(project)).files;
+    res.status(201).json(await tools.dacsim.stageFromProject(files, payload));
+  });
   router.post('/dacsim/:run/convert', async (req, res) => {
     res.status(202).json(await tools.dacsim.startConvert(req.params.run));
   });

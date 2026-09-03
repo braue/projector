@@ -11,10 +11,11 @@ import {
   DACSIM_TEMPLATE_URL,
   fetchToolJob,
   importDacsimProjectBundle,
+  stageDacsimFromProject,
   startDacsimConvert,
   uploadDacsimBundle,
 } from '../api'
-import { Button, DataTable, LinkButton, SectionHeader, Spinner } from '../components/ui'
+import { Button, DataTable, LinkButton, SectionHeader, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { DacsimBundle, DacsimResult, ToolJob } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
@@ -22,6 +23,21 @@ import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 
 const POLL_MS = 1200
+
+/** One scheme row of the from-project form. */
+interface SchemeRow {
+  schemeName: string
+  dacPath: string
+  /** Comma/space separated in the field; split on stage. */
+  dacIps: string
+  remoteIp: string
+}
+
+/** "Station A/Feeder 1.rtac" -> "Feeder 1" — the default scheme name. */
+function schemeNameFor(path: string): string {
+  const base = path.split('/').pop() ?? path
+  return base.replace(/\.rtac$/i, '').replace(/[^A-Za-z0-9 _.-]/g, '_')
+}
 
 export function DacsimTool({ project }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +47,24 @@ export function DacsimTool({ project }: ToolProps) {
   const [result, setResult] = useState<DacsimResult | null>(null)
   const [busy, setBusy] = useState(false)
   const input = useRef<HTMLInputElement>(null)
+
+  // The from-project form: picked DAC entries with their few settings; the
+  // backend writes settings.json from these.
+  const [rows, setRows] = useState<SchemeRow[]>([])
+  const [master, setMaster] = useState({ folder: 'SIM Master', ip: '', defaultLoad: '10' })
+
+  const addRow = (dacPath: string) => {
+    setRows((current) => current.some((row) => row.dacPath === dacPath)
+      ? current
+      : [...current, { schemeName: schemeNameFor(dacPath), dacPath, dacIps: '', remoteIp: '' }])
+  }
+
+  const setRow = (index: number, patch: Partial<SchemeRow>) =>
+    setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
+
+  const rowsReady = rows.length > 0
+    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIp.trim())
+    && master.ip.trim() !== ''
 
   // Poll the conversion job until it settles.
   useEffect(() => {
@@ -76,6 +110,18 @@ export function DacsimTool({ project }: ToolProps) {
 
   const uploadZip = (file: File) => stage(() => uploadDacsimBundle(file))
 
+  const stageFromForm = () => stage(() => stageDacsimFromProject(project, {
+    schemes: rows.map((row) => ({
+      schemeName: row.schemeName.trim(),
+      dacPath: row.dacPath,
+      dacIps: row.dacIps.split(/[\s,;]+/).filter(Boolean),
+      remoteIp: row.remoteIp.trim(),
+    })),
+    masterFolder: master.folder.trim() || 'SIM Master',
+    masterIp: master.ip.trim(),
+    defaultLoad: Number(master.defaultLoad) || 10,
+  }))
+
   const convert = async () => {
     if (!bundle) return
     setError(null)
@@ -105,7 +151,70 @@ export function DacsimTool({ project }: ToolProps) {
         </div>
       </div>
       <div className="tool-scroll">
-        <SectionHeader title="Bundle" />
+        <SectionHeader title="Schemes from this project" />
+        <div className="preview-subtitle">
+          Pick each DAC export (an RTAC entry in {project} › Files), fill in
+          the addressing, and settings.json is generated for you.
+        </div>
+        <ProjectFilePick
+          project={project}
+          extensions={['.rtac']}
+          onPick={addRow}
+          disabled={busy || converting}
+        />
+        {rows.map((row, index) => (
+          <div className="tool-row" key={row.dacPath}>
+            <TextInput
+              label={index === 0 ? 'Scheme' : undefined}
+              value={row.schemeName}
+              onChange={(e) => setRow(index, { schemeName: e.target.value })}
+            />
+            <TextInput
+              label={index === 0 ? 'DAC IPs (comma-separated)' : undefined}
+              value={row.dacIps}
+              placeholder="192.168.199.21, 192.168.199.121"
+              onChange={(e) => setRow(index, { dacIps: e.target.value })}
+            />
+            <TextInput
+              label={index === 0 ? 'Remote IO IP' : undefined}
+              value={row.remoteIp}
+              placeholder="192.168.254.21"
+              onChange={(e) => setRow(index, { remoteIp: e.target.value })}
+            />
+            <Button onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
+              ✕
+            </Button>
+          </div>
+        ))}
+        {rows.length > 0 && (
+          <>
+            <div className="tool-row">
+              <TextInput
+                label="Master folder"
+                value={master.folder}
+                onChange={(e) => setMaster((m) => ({ ...m, folder: e.target.value }))}
+              />
+              <TextInput
+                label="Master IP"
+                value={master.ip}
+                placeholder="192.168.254.11"
+                onChange={(e) => setMaster((m) => ({ ...m, ip: e.target.value }))}
+              />
+              <TextInput
+                label="Default load"
+                value={master.defaultLoad}
+                onChange={(e) => setMaster((m) => ({ ...m, defaultLoad: e.target.value }))}
+              />
+            </div>
+            <div className="tool-row">
+              <Button variant="primary" disabled={!rowsReady || busy || converting} onClick={stageFromForm}>
+                Stage schemes
+              </Button>
+            </div>
+          </>
+        )}
+
+        <SectionHeader title="Or a bundle ZIP" />
         <input
           ref={input}
           type="file"

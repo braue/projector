@@ -400,6 +400,17 @@ export function uploadDacsimBundle(file: File): Promise<DacsimBundle> {
   return send('/api/tools/dacsim/upload', 'POST', form)
 }
 
+/** The projector-native staging: DAC exports picked from the project's tree
+ * plus form fields; the backend writes settings.json itself. */
+export function stageDacsimFromProject(project: string, payload: {
+  schemes: { schemeName: string; dacPath: string; dacIps: string[]; remoteIp: string }[]
+  masterFolder: string
+  masterIp: string
+  defaultLoad: number
+}): Promise<DacsimBundle> {
+  return send('/api/tools/dacsim/from-project', 'POST', { project, ...payload })
+}
+
 /** Start the conversion job over a staged bundle run. */
 export function startDacsimConvert(run: string): Promise<{ job: string; run: string }> {
   return send(`/api/tools/dacsim/${encodeURIComponent(run)}/convert`, 'POST')

@@ -10,7 +10,7 @@
 
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
@@ -46,6 +46,20 @@ function parseSchemes(text) {
     }
     return scheme;
   });
+}
+
+function requireIp(value, label) {
+  const ip = String(value ?? '').trim();
+  if (!ip) throw httpError(400, `${label} is required`);
+  return ip;
+}
+
+function cleanFolder(value, fallback) {
+  const name = String(value ?? '').trim() || fallback;
+  if (!/^[A-Za-z0-9 _.-]+$/.test(name)) {
+    throw httpError(400, `folder name must be letters, digits, spaces, _ - . : ${name}`);
+  }
+  return name;
 }
 
 /** Run the converter over `dir`, streaming its narration into `log`. */
@@ -128,6 +142,69 @@ class DacsimService {
       await writeFile(target, entries[entryPath]);
     }
     return { run: runId, schemes };
+  }
+
+  /**
+   * The projector-native stage 1: DAC exports already living in a project's
+   * tree (`.rtac` entries — the same AcRTAC XML-export shape) are copied
+   * into a new run and settings.json is written FROM the form fields, so
+   * nobody hand-authors it. Same staged-bundle response as the ZIP path.
+   *
+   * payload: { schemes: [{ schemeName, dacPath, dacIps[], remoteIp }],
+   *            masterFolder?, masterIp, defaultLoad? }
+   */
+  async stageFromProject(files, payload) {
+    const schemes = Array.isArray(payload?.schemes) ? payload.schemes : [];
+    if (!schemes.length) throw httpError(400, 'add at least one scheme');
+    const masterFolder = cleanFolder(payload?.masterFolder, 'SIM Master');
+    const masterIp = requireIp(payload?.masterIp, 'master IP');
+    const defaultLoad = Number(payload?.defaultLoad) || 10;
+
+    const staged = schemes.map((scheme, index) => {
+      const schemeName = String(scheme?.schemeName ?? '').trim();
+      if (!/^[A-Za-z0-9 _.-]+$/.test(schemeName)) {
+        throw httpError(400, `scheme ${index + 1}: name must be letters, digits, spaces, _ - .`);
+      }
+      const dacIps = (Array.isArray(scheme?.dacIps) ? scheme.dacIps : [])
+        .map((ip) => String(ip).trim()).filter(Boolean);
+      if (!dacIps.length) throw httpError(400, `${schemeName}: at least one DAC IP is required`);
+      if (!String(scheme?.dacPath ?? '').trim()) {
+        throw httpError(400, `${schemeName}: pick the DAC export entry`);
+      }
+      return {
+        schemeName,
+        subSimId: `Sim${index + 1}`,
+        dacPath: String(scheme?.dacPath ?? ''),
+        dac: { subFolder: `DAC ${schemeName}`, ipAddr: dacIps },
+        remote: { subFolder: `SIM ${schemeName}`, ipAddr: requireIp(scheme?.remoteIp, `${schemeName}: remote IP`) },
+        logic: { subFolder: masterFolder, ipAddr: masterIp },
+        nameConversions: [],
+        parameters: { defaultLoad },
+      };
+    });
+
+    // Resolve every DAC entry BEFORE creating the run, so a bad pick fails
+    // clean instead of leaving a half-staged run.
+    const sources = [];
+    for (const scheme of staged) {
+      const { absolute, isDirectory } = await files.identify(scheme.dacPath);
+      if (!isDirectory) {
+        throw httpError(400, `${scheme.schemeName}: ${scheme.dacPath} is not a DAC export folder`);
+      }
+      sources.push(absolute);
+    }
+
+    const { runId, dir } = await this.workspace.createRun('dacsim');
+    for (const [index, scheme] of staged.entries()) {
+      await cp(sources[index], path.join(dir, scheme.dac.subFolder), {
+        recursive: true,
+        // Never drag store bookkeeping (.versions etc.) into the bundle.
+        filter: (source) => !path.basename(source).startsWith('.'),
+      });
+    }
+    const settings = staged.map(({ dacPath, ...scheme }) => scheme);
+    await writeFile(path.join(dir, 'settings.json'), JSON.stringify(settings, null, 2));
+    return { run: runId, schemes: parseSchemes(JSON.stringify(settings)) };
   }
 
   /** Stage 2 as a job: run the converter over the bundle; the generated SIM
