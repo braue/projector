@@ -67,6 +67,19 @@ function fileRoutes(resolve) {
     res.json({ ok: true });
   });
 
+  // The working-copy pair: an entry the OS edited in place either commits
+  // as a new version (mandatory note; the pre-edit snapshot archives as the
+  // superseded version) or restores from its snapshot.
+  router.post('/record-edit', async (req, res) => {
+    await (await resolve(req)).files.recordEdit(req.body?.path, req.body?.note);
+    res.status(201).json({ ok: true });
+  });
+
+  router.post('/discard-edit', async (req, res) => {
+    await (await resolve(req)).files.discardEdit(req.body?.path);
+    res.json({ ok: true });
+  });
+
   // Show an entry (or the root, path '') in the OS file manager.
   router.post('/reveal', async (req, res) => {
     await (await resolve(req)).files.reveal(req.body?.path ?? '');

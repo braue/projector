@@ -3,9 +3,11 @@ import { useMemo, useRef, useState } from 'react'
 import {
   createFileFolder,
   deleteFileEntry,
+  discardFileEdit,
   dismissRtacError,
   moveFileEntry,
   openFileEntry,
+  recordFileEdit,
   renameFileEntry,
   revealFileEntry,
   saveTextFile,
@@ -163,6 +165,9 @@ type PendingBatch =
   /** "Add new version…": the picked file lands under the ENTRY's name,
    *  whatever the picked file happens to be called on disk. */
   | { kind: 'version'; dir: string; entryName: string; file: File }
+  /** "Record edits as new version…": commit a working copy's in-place
+   *  edits (the bytes are already there — only the note travels). */
+  | { kind: 'edit'; dir: string; path: string; name: string }
 
 /** What was under the cursor when the menu opened. */
 type MenuTarget =
@@ -265,6 +270,8 @@ export function ProjectTree({
         await uploadFiles(project, pending.dir, [
           new File([pending.file], pending.entryName, { type: pending.file.type }),
         ], note)
+      } else if (pending.kind === 'edit') {
+        await recordFileEdit(project, pending.path, note)
       } else {
         await uploadRtacFolder(project, pending.dir, pending.files, note)
       }
@@ -293,6 +300,9 @@ export function ProjectTree({
     }
     if (pending.kind === 'version') {
       return [{ name: pending.entryName, isNewVersion: true }]
+    }
+    if (pending.kind === 'edit') {
+      return [{ name: pending.name, isNewVersion: true }]
     }
     return pending.names.map((name) => ({
       name: `${name}.rtac`,
@@ -393,7 +403,15 @@ export function ProjectTree({
       const { version } = target
       return [
         ...comparePairItems(version.path),
-        { label: 'Open with default app', onClick: () => act(() => openFileEntry(project, version.path)) },
+        // An archived version of a directory artifact (size null) is a
+        // FOLDER — the OS-open endpoint serves files only, so it gets
+        // "show in explorer" alone.
+        ...(version.size !== null
+          ? [{
+              label: 'Open with default app',
+              onClick: () => act(() => openFileEntry(project, version.path)),
+            }]
+          : []),
         {
           label: 'Show in file explorer',
           onClick: () => act(() => revealFileEntry(project, version.path)),
@@ -414,6 +432,27 @@ export function ProjectTree({
         label: 'Show in file explorer',
         onClick: () => act(() => revealFileEntry(project, node.path)),
       },
+      // A working copy edited in place (Excel over the live file) commits
+      // as a new version — the pre-edit snapshot archives — or restores.
+      ...(node.edited
+        ? [
+            {
+              label: 'Record edits as new version…',
+              onClick: () => {
+                setNoteError(null)
+                setPending({ kind: 'edit', dir: nodeDir, path: node.path, name: node.name })
+              },
+            },
+            {
+              label: 'Discard on-disk edits',
+              danger: true,
+              onClick: () => {
+                if (!window.confirm(`Discard the on-disk edits to "${node.name}" and restore the recorded version?`)) return
+                act(() => discardFileEdit(project, node.path))
+              },
+            },
+          ]
+        : []),
       // Versioning an RTAC export means pulling it from the database again
       // (or re-uploading the folder); single-file entries get a direct
       // file-picker path.
@@ -487,7 +526,9 @@ export function ProjectTree({
         style={{ paddingLeft: `${10 + (depth + 1) * 14}px` }}
         title={`${leaf.name} ${label}${version.at ? ` — ${formatWhen(version.at)}` : ''}${version.note ? `\n${version.note}` : ''}`}
         onClick={(e) => select(e, version.path)}
-        onDoubleClick={() => act(() => openFileEntry(project, version.path))}
+        onDoubleClick={version.size !== null
+          ? () => act(() => openFileEntry(project, version.path))
+          : undefined}
         onContextMenu={(e) => openMenu(e, { type: 'version', leaf, version })}
       >
         <span className="version-badge">{label}</span>
@@ -542,6 +583,14 @@ export function ProjectTree({
               <FileIcon />
             )}
             <span className="tree-name">{node.name}</span>
+            {node.edited && (
+              <span
+                className="edited-badge"
+                title="Edited on disk since its recorded version — right-click to record or discard"
+              >
+                edited
+              </span>
+            )}
             {node.versions.length > 0 && (
               <span
                 className={versionsOpen ? 'version-count on' : 'version-count'}
@@ -675,10 +724,14 @@ export function ProjectTree({
             title="Retry this download"
             onClick={() => {
               const dir = entry.path.split('/').slice(0, -1).join('/')
-              const name = displayName(entry.path).replace(/\.rtac$/i, '')
+              const entryName = entry.path.split('/').pop() ?? entry.path
+              // The status row carries the real database name; the path is
+              // only a fallback (a renamed/sanitized entry cannot reproduce
+              // it). `into` keeps the retry landing on the SAME entry.
+              const database = entry.database ?? displayName(entry.path).replace(/\.rtac$/i, '')
               act(async () => {
                 await dismissRtacError(project, entry.path)
-                await startRtacExport(project, dir, name, entry.note)
+                await startRtacExport(project, dir, database, entry.note, entryName)
                 onExportsChanged()
               })
             }}
@@ -786,6 +839,7 @@ export function ProjectTree({
         <VersionNoteModal
           title={pending.kind === 'files' ? 'Add files'
             : pending.kind === 'version' ? `New version of ${pending.entryName}`
+            : pending.kind === 'edit' ? `Record edits to ${pending.name}`
             : 'Add RTAC export'}
           destination={pending.dir}
           items={pendingItems}

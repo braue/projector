@@ -116,6 +116,16 @@ export default function App() {
     loadExports()
   }, [project, loadTree, loadExports])
 
+  // Coming back to the app — from Excel, the file manager, anywhere an
+  // entry's working copy may have been edited in place — is the moment to
+  // re-check the tree, so "edited" flags appear without a manual action.
+  useEffect(() => {
+    if (!project) return
+    const onFocus = () => loadTree()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [project, loadTree])
+
   // Poll while any AcRTAC export is in flight so spinners resolve on their
   // own; a download that finishes (drops out of the status list) means the
   // tree gained an entry.

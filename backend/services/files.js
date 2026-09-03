@@ -33,7 +33,7 @@
 // which is exactly why read/open do NOT filter dot-segments while tree()
 // hides them.
 
-import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError, resolveWithin } from '../lib/http.js';
@@ -46,6 +46,14 @@ const INVALID_NAME = /[<>:"/\\|?*\x00-\x1f]/g;
 
 const SIDECAR = '.versions.json';
 const ARCHIVE_DIR = '.versions';
+// The committed copy — for FILES, `.committed/<name>` holds the bytes of the
+// entry's CURRENT version as they arrived. The live file is the WORKING COPY
+// (an Excel save edits it in place), so this hidden copy is what lets
+// "record those edits as a new version" archive the bytes the edit replaced
+// — even for edits made entirely outside the app — and "discard" restore
+// them. Refreshed on every arrival; directories never need one (an RTAC
+// export only ever changes by a whole new arrival, never an in-place edit).
+const COMMITTED_DIR = '.committed';
 
 function cleanName(raw) {
   const name = String(raw ?? '').replace(INVALID_NAME, '').trim();
@@ -60,6 +68,18 @@ function requireNote(note) {
   const trimmed = typeof note === 'string' ? note.trim() : '';
   if (!trimmed) throw httpError(400, 'a version note is required');
   return trimmed;
+}
+
+/** Mutations may not reach into the store's own dot-namespace: renaming the
+ *  sidecar, rewriting archived bytes, or moving something INTO `.versions/`
+ *  would corrupt history. Reads deliberately still address archived paths. */
+function assertMutable(relPath) {
+  const segments = String(relPath ?? '').split('/');
+  // '.'/'..' are resolveWithin's problem (escape), not this guard's — and a
+  // path cannot reach a dot-entry without naming it in a literal segment.
+  if (segments.some((segment) => segment.startsWith('.') && segment !== '.' && segment !== '..')) {
+    throw httpError(400, `the version archive is read-only: ${relPath}`);
+  }
 }
 
 class FilesService {
@@ -125,14 +145,20 @@ class FilesService {
   // --- the sidecar -----------------------------------------------------------
 
   /** One directory's version records. Only a missing sidecar means "no
-   *  versions here" — a corrupt one must fail the request, because the next
-   *  save would overwrite every note and history pointer in the folder. */
-  async #loadRecords(dir) {
+   *  versions here". A corrupt one fails a WRITE (`forWrite`) — the next
+   *  save would overwrite every note and history pointer in the folder —
+   *  but READS degrade to "no records": one hand-mangled sidecar must not
+   *  take the whole tree (and every artifact in the folder) down. */
+  async #loadRecords(dir, { forWrite = false } = {}) {
     try {
       const parsed = JSON.parse(await readFile(path.join(dir, SIDECAR), 'utf8'));
       return parsed && typeof parsed === 'object' ? parsed : {};
     } catch (err) {
       if (err?.code === 'ENOENT') return {};
+      if (!forWrite) {
+        console.warn(`skipping unreadable version records in ${dir}: ${err?.message ?? err}`);
+        return {};
+      }
       throw httpError(500, `could not read version records: ${err?.message ?? err}`);
     }
   }
@@ -182,7 +208,11 @@ class FilesService {
               children: await walk(path.join(dir, entry.name), relPath),
             };
           }
-          const info = await stat(path.join(dir, entry.name));
+          // Null-safe: a dangling symlink, or an entry deleted between the
+          // readdir and this stat, drops from the listing instead of failing
+          // the entire tree.
+          const info = await this.#statOrNull(path.join(dir, entry.name));
+          if (!info) return null;
           const record = records[entry.name];
           return {
             type: 'file',
@@ -195,10 +225,15 @@ class FilesService {
             // does not survive copies between machines.
             uploadedAt: record?.at ?? (Math.round(info.birthtimeMs || info.mtimeMs) || null),
             note: record?.note ?? null,
+            // The live bytes no longer match the recorded version: the file
+            // was edited in place (Excel, an external tool) — the working
+            // copy has uncommitted changes.
+            edited: Boolean(!isDirectory && record?.stat
+              && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size)),
             versions: await this.#versionNodes(dir, relPath, record),
           };
         }));
-      return nodes.sort(treeOrder);
+      return nodes.filter(Boolean).sort(treeOrder);
     };
     return walk(this.root, '');
   }
@@ -248,51 +283,101 @@ class FilesService {
    * the new one, record the note. The seam the RTAC export/upload flows
    * share with plain uploads.
    */
-  placeEntry(dirPath, name, note, writer) {
+  placeEntry(dirPath, name, note, writer, options) {
     const trimmedNote = requireNote(note);
-    return this.#serialized(() => this.#place(dirPath, cleanName(name), trimmedNote, writer));
+    return this.#serialized(() => this.#place(dirPath, cleanName(name), trimmedNote, writer, options));
   }
 
-  async #place(dirPath, name, note, writer) {
+  async #place(dirPath, name, note, writer, { directory = false } = {}) {
+    assertMutable(dirPath);
     const dir = this.#resolve(dirPath);
     if (!(await this.#statOrNull(dir))?.isDirectory()) {
       throw httpError(404, `no such folder: ${dirPath || '/'}`);
     }
-    const records = await this.#loadRecords(dir);
+    const records = await this.#loadRecords(dir, { forWrite: true });
     const live = path.join(dir, name);
     const previous = await this.#statOrNull(live);
+    // Versions stack same-shaped things only. A file arriving under the name
+    // of an existing FOLDER (or a folder under a file's name) is a mistake —
+    // archiving the folder would bury its whole subtree behind a version row
+    // that cannot even open.
+    if (previous && previous.isDirectory() !== directory) {
+      throw httpError(409, previous.isDirectory()
+        ? `a folder is named that: ${name}`
+        : `a file is named that: ${name}`);
+    }
+    let archived = null;
     if (previous) {
       const record = records[name]
         ?? { at: Math.round(previous.birthtimeMs || previous.mtimeMs) || null, note: null, history: [] };
       records[name] = record;
       record.history ??= [];
-      await this.#archive(dir, name, record);
+      archived = await this.#archive(dir, name, record);
     }
-    await writer(live);
+    try {
+      await writer(live);
+    } catch (err) {
+      // The write failed AFTER the live entry moved into the archive: put it
+      // back. A failed arrival must never cost the version that was there.
+      if (archived) {
+        await rm(live, { recursive: true, force: true }).catch(() => {});
+        try {
+          await rename(path.join(dir, ARCHIVE_DIR, archived.storedName), live);
+          records[name].history.pop();
+        } catch {
+          // Restore failed too — persist the record so the archived bytes at
+          // least stay referenced for recovery instead of orphaned.
+          await this.#saveRecords(dir, records).catch(() => {});
+        }
+      }
+      throw err;
+    }
+    const placed = await this.#statOrNull(live);
     records[name] = {
       at: Date.now(),
       note,
       history: records[name]?.history ?? [],
+      // For files, the stat of the bytes as committed — an in-place edit
+      // (Excel saving over the working copy) is detected by divergence
+      // from this.
+      ...(placed?.isFile() ? { stat: { mtimeMs: placed.mtimeMs, size: placed.size } } : {}),
     };
+    if (placed?.isFile()) {
+      // Refresh the committed copy to back the NEW current version. Best
+      // effort: a failed copy degrades edit protection, not the arrival.
+      try {
+        await mkdir(path.join(dir, COMMITTED_DIR), { recursive: true });
+        await copyFile(live, path.join(dir, COMMITTED_DIR, name));
+      } catch (err) {
+        console.warn(`could not keep a committed copy of ${name}: ${err?.message ?? err}`);
+      }
+    } else {
+      await rm(path.join(dir, COMMITTED_DIR, name), { force: true }).catch(() => {});
+    }
     await this.#saveRecords(dir, records);
     this.#changed(dirPath ? `${dirPath}/${name}` : name);
   }
 
-  /** Move the live copy of `name` into the archive and append it to the
-   *  record's history. The stored name is prefixed with the version's own
-   *  timestamp so archives sort chronologically on disk and never collide
-   *  across versions of one name. */
-  async #archive(dir, name, record) {
+  /** Move the superseded version of `name` — the live copy, or `source`
+   *  when its bytes live elsewhere (a pre-edit snapshot) — into the archive
+   *  and append it to the record's history; returns the history entry. The
+   *  stored name is prefixed with the version's own timestamp so archives
+   *  sort chronologically on disk and never collide across versions of one
+   *  name. */
+  async #archive(dir, name, record, source = null) {
     const archiveDir = path.join(dir, ARCHIVE_DIR);
     await mkdir(archiveDir, { recursive: true });
     const taken = new Set(await readdir(archiveDir));
     const storedName = uniqueName(`${record.at ?? Date.now()}-${name}`, (candidate) => taken.has(candidate));
-    await rename(path.join(dir, name), path.join(archiveDir, storedName));
-    record.history.push({ storedName, at: record.at ?? null, note: record.note ?? null });
+    await rename(source ?? path.join(dir, name), path.join(archiveDir, storedName));
+    const entry = { storedName, at: record.at ?? null, note: record.note ?? null };
+    record.history.push(entry);
+    return entry;
   }
 
   createFolder(dirPath, name) {
     return this.#serialized(async () => {
+      assertMutable(dirPath);
       const parent = this.#resolve(dirPath);
       const folder = path.join(parent, cleanName(name));
       this.#resolve(path.relative(this.root, folder));
@@ -303,6 +388,7 @@ class FilesService {
 
   renameEntry(relPath, nextName) {
     return this.#serialized(async () => {
+      assertMutable(relPath);
       const from = this.#resolve(relPath);
       if (from === this.root) throw httpError(400, 'cannot rename the root');
       if (!(await this.#statOrNull(from))) throw httpError(404, `no such entry: ${relPath}`);
@@ -314,13 +400,15 @@ class FilesService {
       // An entry's versions follow its name; the archived bytes stay put
       // (they are addressed through the record, not through the live name).
       const dir = path.dirname(from);
-      const records = await this.#loadRecords(dir);
+      const records = await this.#loadRecords(dir, { forWrite: true });
       const previousName = path.basename(from);
       if (records[previousName]) {
         records[cleaned] = records[previousName];
         delete records[previousName];
         await this.#saveRecords(dir, records);
       }
+      // The committed copy follows the name too.
+      await this.#moveCommitted(dir, previousName, dir, cleaned);
       this.#changed(relPath);
     });
   }
@@ -328,6 +416,8 @@ class FilesService {
   // Move a file or folder into another folder ('' = root).
   moveEntry(relPath, toDir) {
     return this.#serialized(async () => {
+      assertMutable(relPath);
+      assertMutable(toDir);
       const from = this.#resolve(relPath);
       if (from === this.root) throw httpError(400, 'cannot move the root');
       const info = await this.#statOrNull(from);
@@ -353,18 +443,28 @@ class FilesService {
       // to the UI but are still directories — their versions ride the
       // record like a file's.)
       await this.#moveRecord(path.dirname(from), target, name);
+      await this.#moveCommitted(path.dirname(from), name, target, name);
       this.#changed(relPath);
     });
+  }
+
+  /** Carry one entry's committed copy between directories/names (no-op when
+   *  there is none). */
+  async #moveCommitted(fromDir, fromName, toDir, toName) {
+    const from = path.join(fromDir, COMMITTED_DIR, fromName);
+    if (!(await this.#statOrNull(from))) return;
+    await mkdir(path.join(toDir, COMMITTED_DIR), { recursive: true });
+    await rename(from, path.join(toDir, COMMITTED_DIR, toName));
   }
 
   /** Carry one entry's version record — and its archived bytes — from one
    *  directory's bookkeeping to another's. */
   async #moveRecord(fromDir, toDir, name) {
     if (fromDir === toDir) return;
-    const fromRecords = await this.#loadRecords(fromDir);
+    const fromRecords = await this.#loadRecords(fromDir, { forWrite: true });
     const record = fromRecords[name];
     if (!record) return;
-    const toRecords = await this.#loadRecords(toDir);
+    const toRecords = await this.#loadRecords(toDir, { forWrite: true });
     if (record.history?.length) {
       const archiveDir = path.join(toDir, ARCHIVE_DIR);
       await mkdir(archiveDir, { recursive: true });
@@ -387,6 +487,7 @@ class FilesService {
 
   removeEntry(relPath) {
     return this.#serialized(async () => {
+      assertMutable(relPath);
       const absolute = this.#resolve(relPath);
       if (absolute === this.root) throw httpError(400, 'cannot delete the root');
       const info = await this.#statOrNull(absolute);
@@ -395,7 +496,7 @@ class FilesService {
       // Deleting an entry deletes its history with it — the versions were
       // versions OF the thing just removed.
       const dir = path.dirname(absolute);
-      const records = await this.#loadRecords(dir);
+      const records = await this.#loadRecords(dir, { forWrite: true });
       const record = records[path.basename(absolute)];
       if (record) {
         for (const entry of record.history ?? []) {
@@ -404,6 +505,7 @@ class FilesService {
         delete records[path.basename(absolute)];
         await this.#saveRecords(dir, records);
       }
+      await rm(path.join(dir, COMMITTED_DIR, path.basename(absolute)), { force: true }).catch(() => {});
       this.#changed(relPath);
     });
   }
@@ -434,14 +536,39 @@ class FilesService {
   writeText(relPath, text) {
     if (typeof text !== 'string') throw httpError(400, 'text must be a string');
     return this.#serialized(async () => {
+      // Archived bytes are immutable — the editor's read-only rendering of a
+      // version is a promise this write path has to keep.
+      assertMutable(relPath);
       const absolute = this.#resolve(relPath);
-      cleanName(path.basename(absolute));
+      const base = path.basename(absolute);
+      // ENFORCE the name rule, not just sanitize: a stripped-and-different
+      // name means the caller asked for characters no entry may carry (':'
+      // would collide with the "path::profile" ref separator).
+      if (cleanName(base) !== base) throw httpError(400, `invalid name: ${base}`);
       const existing = await this.#statOrNull(absolute);
       if (existing?.isDirectory()) throw httpError(409, `a folder is named that: ${relPath}`);
       if (!(await this.#statOrNull(path.dirname(absolute)))?.isDirectory()) {
         throw httpError(404, 'no such folder');
       }
       await writeFile(absolute, text);
+      // The built-in editor IS the app: its save updates the recorded stat
+      // AND the committed copy — in-place text edits deliberately mutate the
+      // current version rather than making a new one, so the committed state
+      // moves with them and a note never flags as "edited outside".
+      // (Read-mode load: a corrupt sidecar has no record to refresh, and
+      // must not be clobbered by saving over it.)
+      const dir = path.dirname(absolute);
+      const records = await this.#loadRecords(dir);
+      const record = records[base];
+      if (record) {
+        const info = await stat(absolute);
+        record.stat = { mtimeMs: info.mtimeMs, size: info.size };
+        const committed = path.join(dir, COMMITTED_DIR, base);
+        if (await this.#statOrNull(committed)) {
+          await copyFile(absolute, committed).catch(() => {});
+        }
+        await this.#saveRecords(dir, records);
+      }
       this.#changed(relPath);
     });
   }
@@ -449,11 +576,128 @@ class FilesService {
   // Hand the file to the OS default app. Loopback deployment makes this the
   // user's own machine; the path is store-confined by #resolve. Archived
   // versions open too — their paths point into `.versions/`.
+  //
+  // The live file is the WORKING COPY: the default app edits it in place
+  // (that is what makes open honest). Its committed bytes already sit in
+  // `.committed/` from the arrival; opening backfills one for entries that
+  // predate committed copies (dropped in by hand, or before the feature).
   async open(relPath) {
     const absolute = this.#resolve(relPath);
     const info = await this.#statOrNull(absolute);
     if (!info?.isFile()) throw httpError(404, `no such file: ${relPath}`);
+    await this.ensureCommittedCopy(relPath);
     openWithOs(absolute);
+  }
+
+  /**
+   * Backfill the committed copy for a live file that predates them: its
+   * current bytes become the recorded state, so in-place edits can be
+   * detected, recorded, and discarded. Skipped when a copy already exists,
+   * when the file has already diverged (the copy would capture edits, not
+   * the committed state), and for archived paths (history is immutable,
+   * never a working copy). Best-effort on a degraded (corrupt-sidecar)
+   * folder: never blocks open.
+   */
+  ensureCommittedCopy(relPath) {
+    const segments = String(relPath ?? '').split('/');
+    if (segments.some((segment) => segment.startsWith('.'))) return Promise.resolve();
+    return this.#serialized(async () => {
+      const absolute = this.#resolve(relPath);
+      const info = await this.#statOrNull(absolute);
+      if (!info?.isFile()) return;
+      const dir = path.dirname(absolute);
+      const name = path.basename(absolute);
+      let records;
+      try {
+        records = await this.#loadRecords(dir, { forWrite: true });
+      } catch {
+        return; // Degraded folder — open still works, just unprotected.
+      }
+      const record = records[name]
+        ??= { at: Math.round(info.birthtimeMs || info.mtimeMs) || null, note: null, history: [] };
+      const diverged = record.stat
+        && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size);
+      if (diverged) return;
+      const committed = path.join(dir, COMMITTED_DIR, name);
+      if (!(await this.#statOrNull(committed))) {
+        await mkdir(path.join(dir, COMMITTED_DIR), { recursive: true });
+        await copyFile(absolute, committed);
+      }
+      if (!record.stat) {
+        record.stat = { mtimeMs: info.mtimeMs, size: info.size };
+        await this.#saveRecords(dir, records);
+      }
+    });
+  }
+
+  /**
+   * Commit a working copy's in-place edits as a NEW VERSION: the committed
+   * copy (when one exists — only entries that predate committed copies lack
+   * one) archives as the superseded version, the live bytes become the
+   * current version under the mandatory note, and a fresh committed copy
+   * backs them.
+   */
+  recordEdit(relPath, note) {
+    const trimmedNote = requireNote(note);
+    return this.#serialized(async () => {
+      assertMutable(relPath);
+      const absolute = this.#resolve(relPath);
+      const info = await this.#statOrNull(absolute);
+      if (!info?.isFile()) throw httpError(404, `no such file: ${relPath}`);
+      const dir = path.dirname(absolute);
+      const name = path.basename(absolute);
+      const records = await this.#loadRecords(dir, { forWrite: true });
+      const record = records[name];
+      const diverged = record?.stat
+        && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size);
+      if (!diverged) throw httpError(409, `no on-disk edits to record: ${relPath}`);
+      record.history ??= [];
+      const committed = path.join(dir, COMMITTED_DIR, name);
+      if (await this.#statOrNull(committed)) {
+        await this.#archive(dir, name, record, committed);
+      }
+      records[name] = {
+        at: Date.now(),
+        note: trimmedNote,
+        history: record.history,
+        stat: { mtimeMs: info.mtimeMs, size: info.size },
+      };
+      try {
+        await mkdir(path.join(dir, COMMITTED_DIR), { recursive: true });
+        await copyFile(absolute, committed);
+      } catch (err) {
+        console.warn(`could not keep a committed copy of ${name}: ${err?.message ?? err}`);
+      }
+      await this.#saveRecords(dir, records);
+      this.#changed(relPath);
+    });
+  }
+
+  /** Throw away a working copy's in-place edits: restore the committed copy
+   *  over the live file — the checkout to recordEdit's commit. The copy
+   *  stays put, still backing the current version. */
+  discardEdit(relPath) {
+    return this.#serialized(async () => {
+      assertMutable(relPath);
+      const absolute = this.#resolve(relPath);
+      const dir = path.dirname(absolute);
+      const name = path.basename(absolute);
+      const committed = path.join(dir, COMMITTED_DIR, name);
+      if (!(await this.#statOrNull(committed))) {
+        throw httpError(404, `no committed copy to restore: ${relPath}`);
+      }
+      await copyFile(committed, absolute);
+      // The restore is a fresh write: re-record the stat so the entry reads
+      // clean again.
+      const records = await this.#loadRecords(dir, { forWrite: true });
+      const record = records[name];
+      if (record) {
+        const info = await stat(absolute);
+        record.stat = { mtimeMs: info.mtimeMs, size: info.size };
+        await this.#saveRecords(dir, records);
+      }
+      this.#changed(relPath);
+    });
   }
 
   // Show an entry in the OS file manager ('' = the store root) — the real

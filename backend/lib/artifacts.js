@@ -36,7 +36,7 @@
 //     XML and the growing model at once.
 
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { modelSignature } from './compare.js';
@@ -368,8 +368,13 @@ class ArtifactsService {
   // is LRU: Map iteration is insertion order, and every hit re-inserts.
   #cache = new Map();
   // treePath being exported from AcRTAC right now, or holding a failure the
-  // UI should show: relDir/name.rtac -> { status, at, note, error? }.
+  // UI should show: relDir/name.rtac -> { status, at, note, database, error? }.
   #pendingExports = new Map();
+  // In-flight parses per weight class. Evicting a cache entry cannot stop a
+  // parse already running, so ADMISSION is what actually bounds concurrent
+  // parse memory: a second heavy compare queues behind the first instead of
+  // quadrupling the gigabyte-scale models in flight.
+  #parseSlots = new Map();
 
   constructor({ files, catalog, projectDir }) {
     this.files = files;
@@ -424,7 +429,7 @@ class ArtifactsService {
     }
     this.#cache.delete(treePath);
 
-    const promise = isDirectory
+    const promise = this.#withParseSlot(kind.weight, () => isDirectory
       ? kind.parseDir(absolute)
       : (async () => {
         const buffer = await readFile(absolute);
@@ -436,7 +441,7 @@ class ArtifactsService {
         }
         kind.validate?.(model);
         return { model, hash: createHash('sha1').update(buffer).digest('hex') };
-      })();
+      })());
 
     this.#cache.set(treePath, { key, weight: kind.weight, promise });
     promise.catch(() => {
@@ -445,6 +450,26 @@ class ArtifactsService {
     });
     this.#evict(kind.weight);
     return promise;
+  }
+
+  /** Run one parse, holding a per-weight slot: at most CACHE_CAP[weight]
+   *  parses of that class run at once, everything else waits its turn. The
+   *  waiting promise sits in the cache, so concurrent requests still share
+   *  one parse. */
+  async #withParseSlot(weight, work) {
+    const cap = CACHE_CAP[weight] ?? CACHE_CAP.light;
+    let slot = this.#parseSlots.get(weight);
+    if (!slot) this.#parseSlots.set(weight, (slot = { active: 0, waiters: [] }));
+    while (slot.active >= cap) {
+      await new Promise((resolve) => slot.waiters.push(resolve));
+    }
+    slot.active += 1;
+    try {
+      return await work();
+    } finally {
+      slot.active -= 1;
+      slot.waiters.shift()?.();
+    }
   }
 
   #evict(weight) {
@@ -539,7 +564,15 @@ class ArtifactsService {
     if (this.#pendingExports.get(treePath)?.status === 'exporting') {
       throw httpError(409, `already exporting: ${treePath}`);
     }
-    this.#pendingExports.set(treePath, { status: 'exporting', at: Date.now(), note: trimmedNote });
+    // `database` rides the state so a failed export can RETRY with the real
+    // database name — the tree path alone cannot reproduce it (the entry may
+    // be renamed, and invalid characters were sanitized away).
+    this.#pendingExports.set(treePath, {
+      status: 'exporting',
+      at: Date.now(),
+      note: trimmedNote,
+      database: displayName,
+    });
 
     // Fire-and-forget: the request returns 202 and the sidebar polls
     // exportStatus(). Failures land as 'error' rather than throwing.
@@ -550,7 +583,7 @@ class ArtifactsService {
         await this.catalog.client.exportXml({ name: displayName, directory: staging });
         await this.files.placeEntry(dirPath, entryName, trimmedNote, async (target) => {
           await rename(staging, target);
-        });
+        }, { directory: true });
         this.invalidate(treePath);
         this.#pendingExports.delete(treePath);
       } catch (err) {
@@ -558,6 +591,7 @@ class ArtifactsService {
           status: 'error',
           at: Date.now(),
           note: trimmedNote,
+          database: displayName,
           error: err?.message ?? String(err),
         });
       } finally {
@@ -571,7 +605,10 @@ class ArtifactsService {
   /**
    * An exported folder uploaded straight from disk — the no-database path.
    * Files arrive with folder-relative paths ("Export1/SEL_RTAC/Devices.xml");
-   * the top segment names the export. Same versioning as a download.
+   * the top segment names the export. Same versioning as a download. Each
+   * file carries either `buffer` (bytes in hand) or `source` (a temp file on
+   * disk) — the route streams big uploads through temp files so a 500 MB
+   * export never sits in main-process memory whole.
    */
   async uploadFolder(dirPath, files, note) {
     const trimmedNote = requireNote(note);
@@ -583,7 +620,7 @@ class ArtifactsService {
       if (segments.length < 2 || !EXPORTABLE.test(segments[segments.length - 1])) continue;
       const [name, ...rest] = segments;
       if (!groups.has(name)) groups.set(name, []);
-      groups.get(name).push({ rest, buffer: file.buffer });
+      groups.get(name).push({ rest, buffer: file.buffer ?? null, source: file.source ?? null });
     }
     if (!groups.size) {
       throw httpError(400, 'no .xml files found — upload the exported RTAC project folder itself');
@@ -597,9 +634,10 @@ class ArtifactsService {
         for (const entry of entries) {
           const file = path.join(target, ...entry.rest);
           await mkdir(path.dirname(file), { recursive: true });
-          await writeFile(file, entry.buffer);
+          if (entry.buffer) await writeFile(file, entry.buffer);
+          else await copyFile(entry.source, file);
         }
-      });
+      }, { directory: true });
       this.invalidate(treePath);
       added.push({ path: treePath, files: entries.length });
     }

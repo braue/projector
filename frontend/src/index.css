@@ -1090,6 +1090,14 @@ button.ui-section-header:hover { color: var(--ink); }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
+/* A working copy with uncommitted in-place edits (Excel saved over the live
+ * file). Warn family — same tone as diff "edited". */
+.edited-badge {
+  flex: none; padding: 1px 7px; border-radius: 999px;
+  background: var(--warn-tint); color: var(--warn-ink);
+  font-size: 10px; font-weight: 650; letter-spacing: 0.02em;
+}
+
 /* The vN badge doubles as the version-accordion toggle. */
 .version-count {
   flex: none; padding: 1px 7px; border-radius: 999px; background: var(--fill);

@@ -3,7 +3,7 @@
 // with its mandatory note instead of unique-ifying or overwriting.
 
 import assert from 'node:assert/strict';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -101,6 +101,176 @@ test('files: a same-name upload stacks as a new version, old bytes archived', as
   }
 });
 
+test('files: a failed arrival can never cost the version that was there', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+
+    await files.upload('', [asUpload('spec.pdf', 'v1-bytes')], 'first');
+
+    // The writer fails AFTER the live entry was archived: the entry must be
+    // restored, its history unchanged — not vanish with orphaned archives.
+    await assert.rejects(
+      () => files.placeEntry('', 'spec.pdf', 'doomed', () => {
+        throw new Error('disk full');
+      }),
+      /disk full/,
+    );
+    const [node] = await files.tree();
+    assert.equal(node.name, 'spec.pdf');
+    assert.equal(node.note, 'first');
+    assert.equal(node.versions.length, 0);
+    assert.equal((await files.read('spec.pdf')).toString(), 'v1-bytes');
+
+    // A FILE arriving under an existing FOLDER's name must refuse, not bury
+    // the folder's subtree in the archive (and vice versa).
+    await files.createFolder('', 'reports');
+    await assert.rejects(
+      () => files.upload('', [asUpload('reports', 'not-a-folder')], 'oops'),
+      /a folder is named that/,
+    );
+    await assert.rejects(
+      () => files.placeEntry('', 'spec.pdf', 'oops', () => {}, { directory: true }),
+      /a file is named that/,
+    );
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('files: the version archive is read-only to mutations', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+
+    await files.upload('', [asUpload('log.txt', 'v1')], 'first');
+    await files.upload('', [asUpload('log.txt', 'v2')], 'second');
+    const [node] = await files.tree();
+    const archived = node.versions[0].path;
+
+    // Archived bytes and the sidecar are history: no rename, delete, move,
+    // in-place edit, or placement may touch the dot-namespace...
+    await assert.rejects(() => files.renameEntry('.versions.json', 'x.json'), /read-only/);
+    await assert.rejects(() => files.renameEntry(archived, 'x.txt'), /read-only/);
+    await assert.rejects(() => files.removeEntry(archived), /read-only/);
+    await assert.rejects(() => files.moveEntry(archived, ''), /read-only/);
+    await assert.rejects(() => files.moveEntry('log.txt', '.versions'), /read-only/);
+    await assert.rejects(() => files.writeText(archived, 'rewritten'), /read-only/);
+    await assert.rejects(() => files.createFolder('.versions', 'x'), /read-only/);
+    await assert.rejects(() => files.upload('.versions', [asUpload('x.txt', 'x')], 'n'), /read-only/);
+
+    // ...while reads still address it.
+    assert.equal((await files.read(archived)).toString(), 'v1');
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('files: the live entry is a working copy — in-place edits record or discard', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+    await files.upload('', [asUpload('sheet.xlsx', 'v1-bytes')], 'first');
+    let [node] = await files.tree();
+    assert.equal(node.edited, false);
+
+    // Excel (or anything at all — no app-open required) saves over the live
+    // file: the entry flags as edited, and the committed copy made at
+    // arrival still holds the committed bytes.
+    await writeFile(path.join(tmp, 'files', 'sheet.xlsx'), 'v1-bytes-edited-in-place');
+    ;[node] = await files.tree();
+    assert.equal(node.edited, true);
+
+    // Committing archives the PRE-EDIT bytes as the superseded version.
+    assert.throws(() => files.recordEdit('sheet.xlsx', ''), /version note/);
+    await files.recordEdit('sheet.xlsx', 'updated ratings in excel');
+    ;[node] = await files.tree();
+    assert.equal(node.edited, false);
+    assert.equal(node.note, 'updated ratings in excel');
+    assert.equal(node.versions.length, 1);
+    assert.equal((await files.read(node.versions[0].path)).toString(), 'v1-bytes');
+    assert.equal((await files.read('sheet.xlsx')).toString(), 'v1-bytes-edited-in-place');
+    await assert.rejects(() => files.recordEdit('sheet.xlsx', 'again'), /no on-disk edits/);
+
+    // Discard restores the committed copy — the checkout to recordEdit's
+    // commit — and can run again after another edit (the copy stays put).
+    await writeFile(path.join(tmp, 'files', 'sheet.xlsx'), 'scribbles');
+    ;[node] = await files.tree();
+    assert.equal(node.edited, true);
+    await files.discardEdit('sheet.xlsx');
+    ;[node] = await files.tree();
+    assert.equal(node.edited, false);
+    assert.equal((await files.read('sheet.xlsx')).toString(), 'v1-bytes-edited-in-place');
+    assert.equal(node.versions.length, 1);
+    await writeFile(path.join(tmp, 'files', 'sheet.xlsx'), 'more scribbles');
+    await files.discardEdit('sheet.xlsx');
+    assert.equal((await files.read('sheet.xlsx')).toString(), 'v1-bytes-edited-in-place');
+
+    // A NEW ARRIVAL refreshes the committed copy to the new version.
+    await files.upload('', [asUpload('sheet.xlsx', 'v3-bytes')], 'third');
+    await writeFile(path.join(tmp, 'files', 'sheet.xlsx'), 'v3-edited');
+    await files.discardEdit('sheet.xlsx');
+    assert.equal((await files.read('sheet.xlsx')).toString(), 'v3-bytes');
+
+    // A file dropped in by hand predates committed copies: opening from the
+    // app backfills one, and edits then record with their pre-edit bytes.
+    await writeFile(path.join(tmp, 'files', 'stray.csv'), 'stray-v1');
+    await files.ensureCommittedCopy('stray.csv');
+    await writeFile(path.join(tmp, 'files', 'stray.csv'), 'stray-v1-edited');
+    const stray = (await files.tree()).find((entry) => entry.name === 'stray.csv');
+    assert.equal(stray.edited, true);
+    await files.recordEdit('stray.csv', 'first recorded change');
+    const strayAfter = (await files.tree()).find((entry) => entry.name === 'stray.csv');
+    assert.equal(strayAfter.versions.length, 1);
+    assert.equal((await files.read(strayAfter.versions[0].path)).toString(), 'stray-v1');
+
+    // The built-in text editor is exempt: its in-place saves are not edits —
+    // they MOVE the committed state, so a later OS edit archives the
+    // editor's latest bytes, not the original arrival.
+    await files.upload('', [asUpload('notes.txt', 'day one')], 'notes');
+    await files.writeText('notes.txt', 'day one\nday two');
+    let noteNode = (await files.tree()).find((entry) => entry.name === 'notes.txt');
+    assert.equal(noteNode.edited, false);
+    await writeFile(path.join(tmp, 'files', 'notes.txt'), 'scribbled outside');
+    await files.recordEdit('notes.txt', 'outside edit');
+    noteNode = (await files.tree()).find((entry) => entry.name === 'notes.txt');
+    assert.equal((await files.read(noteNode.versions[0].path)).toString(), 'day one\nday two');
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('files: one bad entry or sidecar degrades, never takes the tree down', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+    await files.upload('', [asUpload('spec.pdf', 'bytes')], 'first');
+
+    // A dangling symlink (the store is a real OS-visible folder) lists as
+    // nothing rather than failing the walk.
+    await symlink(path.join(tmp, 'gone.pdf'), path.join(tmp, 'files', 'linked.pdf'));
+    let tree = await files.tree();
+    assert.deepEqual(tree.map((node) => node.name), ['spec.pdf']);
+
+    // A corrupt sidecar degrades READS to "no records"...
+    await writeFile(path.join(tmp, 'files', '.versions.json'), '{truncated');
+    tree = await files.tree();
+    assert.equal(tree[0].name, 'spec.pdf');
+    assert.equal(tree[0].note, null);
+    // ...but fails WRITES, which would overwrite every record in it.
+    await assert.rejects(
+      () => files.upload('', [asUpload('spec.pdf', 'v2')], 'second'),
+      /version records/,
+    );
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('files: text read/save for the notes editor; saves do not version', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
   try {
@@ -119,6 +289,9 @@ test('files: text read/save for the notes editor; saves do not version', async (
     await assert.rejects(() => files.writeText('nope/x.txt', 'y'), /no such folder/);
     await assert.rejects(() => files.writeText('../outside.txt', 'y'), /invalid file path/);
     assert.throws(() => files.writeText('x.txt', 42), /must be a string/);
+    // The name rule is ENFORCED here, not sanitized: ':' would collide with
+    // the "path::profile" ref separator.
+    await assert.rejects(() => files.writeText('a::b.txt', 'y'), /invalid name/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

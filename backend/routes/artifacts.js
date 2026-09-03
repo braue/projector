@@ -4,6 +4,9 @@
 // travel as ?ref= / ?path= / body fields, never as route params.
 // `resolve(req)` supplies the project's { artifacts } bundle slice.
 
+import { rm } from 'node:fs/promises';
+import os from 'node:os';
+
 import { Router } from 'express';
 import multer from 'multer';
 
@@ -13,8 +16,13 @@ const MAX_RTAC_UPLOAD_BYTES = 64 * 1024 * 1024;
 
 function artifactRoutes(resolve, catalog) {
   const router = Router({ mergeParams: true });
+  // Disk storage, not memory: an exported project folder runs to hundreds of
+  // MB across thousands of files, and this backend shares the Electron main
+  // process — buffering a whole export in RAM is the OOM the parse cache
+  // exists to prevent. Files land in the OS temp dir and are removed after
+  // the store copies them into place.
   const upload = multer({
-    storage: multer.memoryStorage(),
+    storage: multer.diskStorage({ destination: os.tmpdir() }),
     limits: { fileSize: MAX_RTAC_UPLOAD_BYTES, files: 5000 },
   });
 
@@ -98,22 +106,30 @@ function artifactRoutes(resolve, catalog) {
   // JSON field, index-aligned with the files. "dir" and "note" ride the
   // same form.
   router.post('/rtac/upload', upload.array('files'), async (req, res) => {
-    if (!req.files?.length) throw httpError(400, 'multipart field "files" required');
-    let paths;
     try {
-      paths = JSON.parse(req.body?.paths ?? '');
-    } catch {
-      paths = null;
+      if (!req.files?.length) throw httpError(400, 'multipart field "files" required');
+      let paths;
+      try {
+        paths = JSON.parse(req.body?.paths ?? '');
+      } catch {
+        paths = null;
+      }
+      if (!Array.isArray(paths) || paths.length !== req.files.length) {
+        throw httpError(400, 'field "paths" must list one folder-relative path per file');
+      }
+      const artifacts = await resolve(req);
+      res.status(201).json(await artifacts.uploadFolder(
+        String(req.body?.dir ?? ''),
+        req.files.map((file, index) => ({ path: paths[index], source: file.path })),
+        req.body?.note,
+      ));
+    } finally {
+      // The temp files are copies now (or the request failed) — either way
+      // they are done.
+      await Promise.all((req.files ?? []).map(
+        (file) => rm(file.path, { force: true }).catch(() => {}),
+      ));
     }
-    if (!Array.isArray(paths) || paths.length !== req.files.length) {
-      throw httpError(400, 'field "paths" must list one folder-relative path per file');
-    }
-    const artifacts = await resolve(req);
-    res.status(201).json(await artifacts.uploadFolder(
-      String(req.body?.dir ?? ''),
-      req.files.map((file, index) => ({ path: paths[index], buffer: file.buffer })),
-      req.body?.note,
-    ));
   });
 
   return router;

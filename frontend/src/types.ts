@@ -20,6 +20,9 @@ export interface RtacExportStatus {
   status: 'exporting' | 'error'
   at: number
   note: string
+  /** The AcRTAC database this export pulls from — retry needs the REAL name
+   *  (the tree path may be renamed or sanitized away from it). */
+  database?: string
   error?: string
 }
 
@@ -287,6 +290,10 @@ export type FileNode =
       uploadedAt: number | null
       /** The version note — what this version changed. Null predates notes. */
       note: string | null
+      /** The live bytes no longer match the recorded version — the working
+       *  copy was edited in place (Excel, an external tool) and awaits
+       *  "record as new version" or "discard". */
+      edited: boolean
       versions: FileVersion[]
     }
 

@@ -228,6 +228,18 @@ export function revealFileEntry(project: string, path: string): Promise<unknown>
   return send(`${base(project)}/files/reveal`, 'POST', { path })
 }
 
+/** Commit a working copy's in-place edits (Excel saving over the live file)
+ * as a NEW VERSION — the pre-edit snapshot archives as the superseded
+ * version, under the mandatory note. */
+export function recordFileEdit(project: string, path: string, note: string): Promise<unknown> {
+  return send(`${base(project)}/files/record-edit`, 'POST', { path, note })
+}
+
+/** Throw the in-place edits away: restore the pre-edit snapshot. */
+export function discardFileEdit(project: string, path: string): Promise<unknown> {
+  return send(`${base(project)}/files/discard-edit`, 'POST', { path })
+}
+
 /** A text file's content, for the built-in editor. */
 export async function readTextFile(project: string, path: string): Promise<string> {
   return (await get<{ text: string }>(`${base(project)}/files/text?path=${encodeURIComponent(path)}`)).text
