@@ -346,17 +346,6 @@ export function Tag({
   return <span className={`ui-tag ui-tag-${tone}`}>{children}</span>
 }
 
-/** Inline chip for a single listed value (added/removed points). */
-export function Chip({
-  tone,
-  children,
-}: {
-  tone: 'added' | 'removed'
-  children: ReactNode
-}) {
-  return <span className={`ui-chip ui-chip-${tone}`}>{children}</span>
-}
-
 // --- structure ---------------------------------------------------------------
 
 /**

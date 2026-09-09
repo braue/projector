@@ -119,7 +119,7 @@ test('an unrelated replaced row reads as removed + added, not changed', () => {
   ]);
 });
 
-test('diffItems reports settings, points, and code changes', () => {
+test('diffItems reports settings, point tables, and code changes', () => {
   const original = {
     settings: { 'Baud Rate': '9600', 'Data Bits': '8', Gone: 'x' },
     points: [
@@ -148,12 +148,28 @@ test('diffItems reports settings, points, and code changes', () => {
   assert.equal(byKey.New.status, 'added');
   assert.equal(byKey['Data Bits'], undefined);
 
-  assert.deepEqual(diff.points.added, [{ page: 'Binary Inputs', tag: 'BI_02' }]);
-  assert.deepEqual(diff.points.removed, [{ page: 'Binary Inputs', tag: 'BI_01' }]);
-  assert.equal(diff.points.changed.length, 1);
-  assert.deepEqual(diff.points.changed[0].fields, [
-    { column: 'Enable', original: 'True', updated: 'False' },
-  ]);
+  // Point maps diff as TABLES, through the same machinery as generic pages:
+  // one entry per point page, carrying its columns and its merged change list.
+  assert.deepEqual(diff.points, [{
+    name: 'Binary Inputs',
+    status: 'changed',
+    rows: 2,
+    columns: ['Tag Name', 'Enable'],
+    keyColumns: ['Tag Name'],
+    changes: [
+      {
+        kind: 'changed',
+        index: 0,
+        label: 'BI_00',
+        original: { 'Tag Name': 'BI_00', Enable: 'True' },
+        updated: { 'Tag Name': 'BI_00', Enable: 'False' },
+        fields: ['Enable'],
+        hidden: [],
+      },
+      { kind: 'removed', index: 1, row: { 'Tag Name': 'BI_01', Enable: 'True' } },
+      { kind: 'added', index: 1, row: { 'Tag Name': 'BI_02', Enable: 'True' } },
+    ],
+  }]);
 
   // The single-column row shares nothing between sides, so it reads as a
   // replacement, not an edit.
@@ -162,6 +178,7 @@ test('diffItems reports settings, points, and code changes', () => {
     status: 'changed',
     rows: 1,
     columns: ['X'],
+    keyColumns: ['X'],
     changes: [
       { kind: 'removed', index: 0, row: { X: '1' } },
       { kind: 'added', index: 0, row: { X: '2' } },
@@ -169,6 +186,87 @@ test('diffItems reports settings, points, and code changes', () => {
   }]);
   assert.equal(diff.code.interface, null); // unchanged part stays out of the diff
   assert.match(diff.code.implementation.updated, /new;/);
+});
+
+// A DNP point: the address column is named on the point, the whole export row
+// rides along as `raw` — exactly what layer 2 produces.
+const dnpPoint = (page, number, tag, cls = '1') => ({
+  page,
+  tagName: tag,
+  addressColumn: 'Point Number',
+  raw: { 'Point Number': String(number), 'Tag Name': tag, Class: cls },
+});
+
+test("a shared map that arrives whole is a TABLE of its points, not a count", () => {
+  const diff = diffItems(
+    { settings: {}, points: [], pages: [] },
+    {
+      settings: {},
+      points: [],
+      // The map hangs off the server connection; it diffs with the item's own
+      // points, the same merge Inspect renders.
+      sharedMap: {
+        points: [
+          dnpPoint('Binary Inputs', 0, 'BRK_1_OPEN'),
+          dnpPoint('Binary Inputs', 1, 'BRK_1_CLOSED'),
+          dnpPoint('Binary Inputs', 2, 'BRK_2_OPEN'),
+        ],
+      },
+      pages: [],
+    },
+  );
+
+  assert.equal(diff.points.length, 1);
+  const [map] = diff.points;
+  assert.equal(map.name, 'Binary Inputs');
+  assert.equal(map.status, 'added');
+  // Every point is a row carrying its content — the reviewer reads the map,
+  // not "+3".
+  assert.equal(map.changes.length, 3);
+  assert.deepEqual(map.changes[0], {
+    kind: 'added',
+    index: 0,
+    row: { 'Point Number': '0', 'Tag Name': 'BRK_1_OPEN', Class: '1' },
+  });
+  assert.deepEqual(map.columns, ['Point Number', 'Tag Name', 'Class']);
+  assert.deepEqual(map.keyColumns, ['Point Number', 'Tag Name']);
+});
+
+test('a point address survives contiguous numbering, and a renumber is not an edit', () => {
+  // Inserting a point renumbers every point below it. Those rows MOVED — the
+  // diff must not call them edited — but the addresses still have to show:
+  // the DNP index is what the master references.
+  const diff = diffItems(
+    {
+      settings: {},
+      points: [
+        dnpPoint('Analog Inputs', 0, 'MW_1'),
+        dnpPoint('Analog Inputs', 1, 'MVAR_1'),
+        dnpPoint('Analog Inputs', 2, 'FREQ'),
+      ],
+      pages: [],
+    },
+    {
+      settings: {},
+      points: [
+        dnpPoint('Analog Inputs', 0, 'MW_1'),
+        dnpPoint('Analog Inputs', 1, 'MW_2'),
+        dnpPoint('Analog Inputs', 2, 'MVAR_1'),
+        dnpPoint('Analog Inputs', 3, 'FREQ'),
+      ],
+      pages: [],
+    },
+  );
+
+  const [map] = diff.points;
+  assert.ok(map.columns.includes('Point Number'));
+  assert.deepEqual(map.changes, [
+    {
+      kind: 'added',
+      index: 1,
+      row: { 'Point Number': '1', 'Tag Name': 'MW_2', Class: '1' },
+    },
+  ]);
 });
 
 test('generic page diff pinpoints rows and fields', () => {

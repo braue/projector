@@ -1,17 +1,17 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
-import type { CompareItem, FileStatus, PointFieldDiff } from '../types'
+import type { CompareItem, FileStatus, PageDiff } from '../types'
 import { lineDiff, type DiffLine } from '../lib/lineDiff'
 import { ST_START, tokenizeLine, type StToken } from '../lib/st'
 import { Preview } from './Preview'
 import { StText } from './StText'
-import { Chip, DataTable, SectionHeader, Tag, type TableRow } from './ui'
+import { Button, DataTable, SectionHeader, Tag, type TableRow } from './ui'
 
 // Right pane in compare mode. An added or removed file renders its full
 // preview under a status banner — the diff of everything-vs-nothing is just
 // the thing itself. An edited file renders the structured diff: settings
-// rows, point-level changes, page tables that moved, and a line diff of any
-// logic source.
+// rows, the tables that changed (point maps and setting pages alike), and a
+// line diff of any logic source.
 //
 // The tables carry no maxHeight on purpose: cells wrap whole values (a
 // changed page row runs hundreds of characters), so a short inner window
@@ -48,102 +48,34 @@ function SettingsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   )
 }
 
-// Point maps: added/removed identities as chips, changed rows flattened to
-// one table row per field (a point row is identified by its tag name, so the
-// column-level view stays readable there).
-function RowDiffSection({
-  title,
-  idLabel,
-  added,
-  removed,
-  changed,
-}: {
-  title: string
-  /** Header of the identity column: "Tag" for points. */
-  idLabel: string
-  added: string[]
-  removed: string[]
-  changed: { page: string; id: string; fields: PointFieldDiff[] }[]
-}) {
-  if (!added.length && !removed.length && !changed.length) return null
+// Every changed table — a point map (a DNP shared map, an Analog Inputs page)
+// and a generic page (Tag Processor and friends) alike: one REAL table per
+// page, its own columns as headers, one row per added/removed row, and a
+// was/now row pair per changed row. Point maps used to render as a wall of
+// "+ page · tag" chips, which said a thousand points arrived and nothing
+// about what they were; AcSELerator shows a shared map as a table, and so
+// does this.
 
-  const changedRows: TableRow[] = changed.flatMap((entry, i) =>
-    entry.fields.map((field, j) => ({
-      id: `${i}:${j}`,
-      tone: 'edited' as const,
-      cells: {
-        page: entry.page,
-        id: entry.id,
-        column: field.column,
-        original: field.original ?? '—',
-        updated: field.updated ?? '—',
-      },
-      titles: { original: field.original ?? '', updated: field.updated ?? '' },
-    })),
-  )
+// A whole shared map can arrive at once, and committing thousands of rows in
+// one render stalls the pane — the same cap Inspect puts on big sheets.
+const DIFF_ROW_CAP = 500
 
-  return (
-    <section>
-      <SectionHeader
-        title={title}
-        count={`+${added.length} −${removed.length} ~${changed.length}`}
-      />
-      {(added.length > 0 || removed.length > 0) && (
-        <div className="point-lists">
-          {added.map((label, i) => (
-            <Chip key={`a${i}`} tone="added">+ {label}</Chip>
-          ))}
-          {removed.map((label, i) => (
-            <Chip key={`r${i}`} tone="removed">− {label}</Chip>
-          ))}
-        </div>
-      )}
-      {changedRows.length > 0 && (
-        <DataTable
-          columns={[
-            { key: 'page', label: 'Page' },
-            { key: 'id', label: idLabel },
-            { key: 'column', label: 'Column' },
-            { key: 'original', label: 'Original' },
-            { key: 'updated', label: 'New' },
-          ]}
-          rows={changedRows}
-        />
-      )}
-    </section>
-  )
-}
-
-function PointsDiffSection({ diff }: { diff: CompareItem['diff'] }) {
-  const { added, removed, changed } = diff.points
-  return (
-    <RowDiffSection
-      title="Point Changes"
-      idLabel="Tag"
-      added={added.map((point) => `${point.page} · ${point.tag ?? ''}`)}
-      removed={removed.map((point) => `${point.page} · ${point.tag ?? ''}`)}
-      changed={changed.map((point) => ({ page: point.page, id: point.tag ?? '', fields: point.fields }))}
-    />
-  )
-}
-
-// Generic page tables (Tag Processor and friends): one REAL table per
-// changed page — its own columns as headers, one row per added/removed row,
-// and a was/now row pair per changed row. Run-on "Col = value · …" strings
-// were unreadable at 15 columns.
-function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] }) {
+function PageDiffTable({ page, label }: { page: PageDiff; label: string }) {
   // The backend's `changes` list arrives pre-merged and pre-sorted by row
   // position, with edits already split into displayed `fields` and hidden
   // noise-column edits — this component only styles it.
   //
   // Added/removed rows show their content (the content IS the edit);
-  // changed pairs show only the identity cell and the edited cells, with
-  // hidden edits in the trailing "Other edits" cell. Memoized: ancestors
-  // re-render at pointer-move frequency during rail drags, and a
-  // 2000-change table must not rebuild per frame.
-  const columns = page.columns ?? []
-  const { rows, anyHidden } = useMemo(() => {
+  // changed pairs show the identity cells (`keyColumns` — the row's name and
+  // its protocol address) and the edited cells, with hidden edits in the
+  // trailing "Other edits" cell. Memoized: ancestors re-render at
+  // pointer-move frequency during rail drags, and a 2000-change table must
+  // not rebuild per frame.
+  const [showAll, setShowAll] = useState(false)
+  const { columns, rows, anyHidden, capRows } = useMemo(() => {
+    const columns = page.columns ?? []
     const changes = page.changes ?? []
+    const keys = new Set(page.keyColumns ?? [])
     const hidden = changes.some((entry) => entry.hidden?.length)
     const hiddenText = (entry: (typeof changes)[number]) =>
       (entry.hidden ?? [])
@@ -165,7 +97,7 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
       const pick = (row: Record<string, string>) =>
         Object.fromEntries(columns.map((column) => [
           column,
-          visible.has(column) || row[column] === entry.label ? row[column] ?? '' : '',
+          visible.has(column) || keys.has(column) ? row[column] ?? '' : '',
         ]))
       return [
         {
@@ -184,13 +116,23 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
         },
       ]
     })
-    return { rows: built, anyHidden: hidden }
+
+    // Where the cap falls, counted in CHANGES so a was/now pair is never cut
+    // in half.
+    let cap = 0
+    for (const entry of changes) {
+      if (cap >= DIFF_ROW_CAP) break
+      cap += entry.kind === 'changed' ? 2 : 1
+    }
+    return { columns, rows: built, anyHidden: hidden, capRows: cap }
   }, [page])
+
+  const capped = !showAll && rows.length > capRows
 
   return (
     <section>
       <SectionHeader
-        title={`Table · ${page.name}`}
+        title={`${label} · ${page.name}`}
         count={(['added', 'removed', 'changed'] as const)
           .map((kind, i) => `${'+−~'[i]}${(page.changes ?? []).filter((entry) => entry.kind === kind).length}`)
           .join(' ')}
@@ -201,21 +143,29 @@ function PageDiffTable({ page }: { page: CompareItem['diff']['pages'][number] })
           ...columns.map((column) => ({ key: column, label: column })),
           ...(anyHidden ? [{ key: '__other', label: 'Other edits' }] : []),
         ]}
-        rows={rows}
+        rows={capped ? rows.slice(0, capRows) : rows}
       />
+      {capped && (
+        <Button onClick={() => setShowAll(true)}>Show all {rows.length} rows</Button>
+      )}
     </section>
   )
 }
 
-function PagesDiffSection({ diff }: { diff: CompareItem['diff'] }) {
-  // 'changed' pages carry row detail; added/removed/reordered pages read as
-  // one line in Extras.
-  const pages = diff.pages.filter((page) => page.status === 'changed')
-  if (!pages.length) return null
+// Point maps first, then the generic pages — a connection's own tables read
+// before its plumbing. Every page the backend gave row detail for renders as
+// a table, whether it was edited or arrived whole; a page with no detail
+// (rows merely reordered) reads as one line in Extras.
+function TablesDiffSection({ diff }: { diff: CompareItem['diff'] }) {
+  const tables = [
+    ...diff.points.map((page) => ({ page, label: 'Points' })),
+    ...diff.pages.map((page) => ({ page, label: 'Table' })),
+  ].filter((entry) => entry.page.changes?.length)
+  if (!tables.length) return null
   return (
     <>
-      {pages.map((page) => (
-        <PageDiffTable key={page.name} page={page} />
+      {tables.map(({ page, label }) => (
+        <PageDiffTable key={`${label}:${page.name}`} page={page} label={label} />
       ))}
     </>
   )
@@ -314,15 +264,18 @@ function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
 }
 
 function ExtrasSection({ diff }: { diff: CompareItem['diff'] }) {
-  const coarsePages = diff.pages.filter((page) => page.status !== 'changed')
+  const coarsePages = [
+    ...diff.points.map((page) => ({ page, label: 'Point map' })),
+    ...diff.pages.map((page) => ({ page, label: 'Page' })),
+  ].filter((entry) => !entry.page.changes?.length)
   if (!coarsePages.length && !diff.otherFields.length) return null
   return (
     <section>
       <SectionHeader title="Other Changes" />
       <ul className="file-list">
-        {coarsePages.map((page) => (
-          <li key={page.name}>
-            Page <span className="mono">{page.name}</span>{' '}
+        {coarsePages.map(({ page, label }) => (
+          <li key={`${label}:${page.name}`}>
+            {label} <span className="mono">{page.name}</span>{' '}
             {page.status === 'reordered' ? 'rows reordered' : page.status} ({page.rows} rows)
           </li>
         ))}
@@ -362,9 +315,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
 
   const empty =
     !diff.settings.length &&
-    !diff.points.added.length &&
-    !diff.points.removed.length &&
-    !diff.points.changed.length &&
+    !diff.points.length &&
     !diff.pages.length &&
     !diff.code &&
     !diff.graphicalLogic &&
@@ -393,8 +344,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
           ) : (
             <>
               <SettingsDiffSection diff={diff} />
-              <PointsDiffSection diff={diff} />
-              <PagesDiffSection diff={diff} />
+              <TablesDiffSection diff={diff} />
               <CodeDiffSection diff={diff} />
               <GraphicalLogicSection diff={diff} />
               <ExtrasSection diff={diff} />

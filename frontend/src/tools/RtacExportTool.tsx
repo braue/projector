@@ -30,7 +30,7 @@ export function RtacExportTool(_props: ToolProps) {
   const [projects, setProjects] = useState<string[] | null>(null)
   const [filter, setFilter] = useState('')
   const [picked, setPicked] = useState<Set<string>>(new Set())
-  const [format, setFormat] = useState<'xml' | 'exp'>('xml')
+  const [format, setFormat] = useState<'xml' | 'exp'>('exp')
 
   const [outcome, setOutcome] = useState<ExportOutcome | null>(null)
   const { job, running: exporting, start } = useToolJob(

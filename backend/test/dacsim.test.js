@@ -139,18 +139,18 @@ test('dacsim: save lands a run\'s simulator projects as versioned entries', asyn
 
     const { placed } = await dacsim.save(files, runId);
     assert.deepEqual(placed, [
-      'DAC SIM Converter/Feeder_9_REMOTE.rtac',
-      'DAC SIM Converter/SIM Master.rtac',
+      'DAC SIM/Feeder_9_REMOTE.rtac',
+      'DAC SIM/SIM Master.rtac',
     ]);
     const folder = (await files.tree(rtacAnnotate))
-      .find((node) => node.name === 'DAC SIM Converter');
+      .find((node) => node.name === 'DAC SIM');
     assert.deepEqual(folder.children.map((node) => node.name),
       ['Feeder_9_REMOTE.rtac', 'SIM Master.rtac']);
 
     // Saving the same run again stacks versions rather than erroring.
     await dacsim.save(files, runId);
     const again = (await files.tree(rtacAnnotate))
-      .find((node) => node.name === 'DAC SIM Converter');
+      .find((node) => node.name === 'DAC SIM');
     assert.equal(again.children[0].versions.length, 1);
   } finally {
     await rm(tmp, { recursive: true, force: true });

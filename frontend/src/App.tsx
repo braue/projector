@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   createProject,
@@ -58,6 +58,12 @@ export default function App() {
   // context menu — the compare pair being viewed.
   const [selected, setSelected] = useState<string | null>(null)
   const [secondary, setSecondary] = useState<string | null>(null)
+  // The file-tree filter, opened with Ctrl+F and living in the topbar beside
+  // the project it filters. Closing clears it — a narrowed tree with no
+  // visible box to explain it is a trap.
+  const [filter, setFilter] = useState('')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filterInput = useRef<HTMLInputElement>(null)
   const [comparePair, setComparePair] = useState<{ original: string; updated: string } | null>(null)
 
   const loadTree = useCallback(async () => {
@@ -132,6 +138,38 @@ export default function App() {
       window.removeEventListener(FILES_CHANGED_EVENT, onFocus)
     }
   }, [project, loadTree])
+
+  // Ctrl+F opens the tree filter — but only in the project itself; the atlas
+  // binds the same key for find-in-page, and it owns the screen when it is up.
+  const projectMode = !atlasOpen && !toolsOpen
+  const closeFilter = useCallback(() => {
+    setFilterOpen(false)
+    setFilter('')
+  }, [])
+
+  useEffect(() => {
+    if (!projectMode) return
+    function onKey(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault()
+        setFilterOpen(true)
+        // Already open: put the cursor back in it, term selected to type over.
+        filterInput.current?.focus()
+        filterInput.current?.select()
+      } else if (e.key === 'Escape' && filterOpen) {
+        closeFilter()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [projectMode, filterOpen, closeFilter])
+
+  /* Opening hands the keyboard straight to the box. */
+  useEffect(() => {
+    if (!filterOpen) return
+    filterInput.current?.focus()
+    filterInput.current?.select()
+  }, [filterOpen])
 
   // Poll while any AcRTAC export is in flight so spinners resolve on their
   // own; a download that finishes (drops out of the status list) means the
@@ -228,7 +266,7 @@ export default function App() {
         {/* Top-left: the project — the only control on that side. It goes
             away while a takeover pane is up, since nothing on screen is
             scoped to a project then. */}
-        {!atlasOpen && !toolsOpen && (
+        {projectMode && (
           <ProjectSwitcher
             current={project}
             projects={projects}
@@ -237,6 +275,27 @@ export default function App() {
             onRename={handleRenameProject}
             onDelete={handleDeleteProject}
           />
+        )}
+        {projectMode && filterOpen && (
+          <div className="tree-filter">
+            <TextInput
+              ref={filterInput}
+              className="ui-input tree-filter-input"
+              placeholder="Filter files…"
+              value={filter}
+              spellCheck={false}
+              onChange={(e) => setFilter(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault()
+                  closeFilter()
+                }
+              }}
+            />
+            <button className="tree-filter-clear" title="Clear filter (Esc)" onClick={closeFilter}>
+              ✕
+            </button>
+          </div>
         )}
         <span className="topbar-info" />
         {/* Top-right: the machine-global panes, holding the corner so their
@@ -269,11 +328,12 @@ export default function App() {
       </header>
 
       <div className="app">
-        {!atlasOpen && !toolsOpen && (
+        {projectMode && (
           <>
             <ProjectTree
               project={project}
               tree={tree}
+              filter={filterOpen ? filter : ''}
               treeError={treeError}
               exports={exports}
               selected={selected}

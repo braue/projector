@@ -124,7 +124,12 @@ button { font: inherit; color: inherit; }
 .ui-segmented.fill .ui-segment { flex: 1; padding: 4px 0; text-align: center; }
 
 .ui-labeled { display: flex; align-items: center; gap: 8px; }
-.ui-label { width: 56px; flex: none; font-size: 12px; font-weight: 600; color: var(--muted); }
+/* Labels size to their text (never wrapping mid-phrase — "From project"),
+   with a floor so short ones still line up as a column. */
+.ui-label {
+  min-width: 56px; flex: none; white-space: nowrap;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+}
 .ui-select {
   flex: 1; min-width: 0; height: 28px; font: inherit; font-size: 13px; color: var(--ink);
   border: 1px solid var(--border); border-radius: 7px; background: var(--card); outline: none; padding: 0 6px;
@@ -162,9 +167,6 @@ button { font: inherit; color: inherit; }
 .ui-tag-removed { color: var(--bad-ink); background: var(--bad-tint); }
 .ui-tag-edited { color: var(--warn-ink); background: var(--warn-tint); }
 
-.ui-chip { font-family: var(--font-mono); font-size: 11.5px; padding: 2px 8px; border-radius: 7px; }
-.ui-chip-added { color: var(--ok-ink); background: var(--ok-tint); }
-.ui-chip-removed { color: var(--bad-ink); background: var(--bad-tint); }
 
 .ui-section { border-bottom: 1px solid var(--border-soft); }
 .ui-section-header {
@@ -277,7 +279,7 @@ button.ui-section-header:hover { color: var(--ink); }
    The shared .ui-labeled row layout keeps label and control side by side; a
    wider label column makes the stack line up. */
 .tool-col { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
-.tool-col .ui-label { width: 128px; }
+.tool-col .ui-label { min-width: 128px; }
 .tool-col .ui-input { width: auto; flex: 1; max-width: 360px; }
 .tool-col .ui-select { max-width: 360px; }
 .tool-stats { font-size: 13px; color: var(--muted); }
@@ -304,6 +306,19 @@ button.ui-section-header:hover { color: var(--ink); }
 .dacsim-entry.on { background: var(--accent-tint); }
 .dacsim-entry input { accent-color: var(--accent); }
 .dacsim-entry-name { font-weight: 550; }
+/* The addressing fields for the checked DACs: one grid so every scheme's
+   fields line up under a single header row (Button/TextInput cells are
+   direct grid children — the per-scheme wrappers are Fragments). */
+.dacsim-schemes {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(150px, 1.4fr) minmax(120px, 1fr) auto;
+  gap: 8px 10px;
+  align-items: center;
+}
+.dacsim-schemes .dacsim-col { font-size: 12px; font-weight: 600; color: var(--muted); }
+.dacsim-schemes .ui-input { width: 100%; min-width: 0; }
+.dacsim-master { display: flex; flex-direction: column; gap: 8px; }
 
 /* Tools that fill the pane (the terminal) instead of scrolling a form. */
 .tool-fill {
@@ -605,8 +620,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .banner-added { background: var(--ok-tint); color: var(--ok-ink); }
 .banner-removed { background: var(--bad-tint); color: var(--bad-ink); }
 
-.point-lists { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 16px; }
-
 .code-diff { padding: 0; }
 .diff-line { padding: 0 16px; white-space: pre; }
 .diff-sign { display: inline-block; width: 14px; color: var(--muted); }
@@ -756,8 +769,11 @@ button.ui-section-header:hover { color: var(--ink); }
 .findings-panel > :last-child { margin-bottom: 12px; }
 
 /* project switcher — the ws- prefix predates the workspace→project rename */
-:is(.ws-switch, .todo-switch) { position: relative; }
-.ws-trigger { color: var(--ink); }
+/* flex: none — a long project name must not let the topbar squeeze the
+   trigger until the name wraps onto a second line. */
+:is(.ws-switch, .todo-switch) { position: relative; flex: none; }
+.ws-trigger { color: var(--ink); max-width: 340px; }
+.ws-current { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ws-caret { font-size: 10px; color: var(--muted); }
 /* Both topbar dropdowns — the project switcher and the todo list — are the
    same kind of surface: right-anchored under their own trigger, at the right
@@ -768,7 +784,11 @@ button.ui-section-header:hover { color: var(--ink); }
   background: var(--card); border: 1px solid var(--border);
   border-radius: 11px; box-shadow: var(--shadow-menu);
 }
-.ws-menu { min-width: 200px; padding: 5px; }
+/* An absolutely positioned menu shrink-to-fits inside its (button-width)
+   containing block, so without max-content every name past ~200px wrapped.
+   It now sizes to the longest row, and only a truly runaway name ellipses. */
+.ws-menu { min-width: 200px; width: max-content; max-width: 420px; padding: 5px; }
+.ws-item-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ws-item {
   display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 10px;
   border: 0; border-radius: 7px; background: none; font-size: 13px;
@@ -964,7 +984,7 @@ button.ui-section-header:hover { color: var(--ink); }
    the 56px side label, which they overflowed straight across the control.
    Stack the label above its control instead. */
 .connect-dialog .ui-labeled { flex-direction: column; align-items: stretch; gap: 4px; }
-.connect-dialog .ui-label { width: auto; overflow-wrap: anywhere; }
+.connect-dialog .ui-label { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 .connect-dialog .ui-input { width: 100%; }
 
 /* --- crash screen ----------------------------------------------------------- */
@@ -1053,6 +1073,17 @@ button.ui-section-header:hover { color: var(--ink); }
 /* The project switcher moved to the top-left corner; its menu opens under
  * its left edge rather than hugging the (now distant) right one. */
 .ws-switch .ws-menu { right: auto; left: 0; }
+
+/* The file-tree filter (Ctrl+F), sitting beside the project it narrows. */
+.tree-filter { display: flex; align-items: center; gap: 6px; flex: none; }
+.tree-filter-input { width: 220px; height: 27px; }
+.tree-filter-clear {
+  width: 26px; height: 26px; flex: none; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 7px; background: var(--card);
+  color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.tree-filter-clear:hover { background: var(--fill); color: var(--ink); }
+.tree-empty { padding: 10px 16px; font-size: 13px; color: var(--muted); }
 
 /* The right-click menu — the sidebar's whole command surface, so the rows
  * sit over clean empty space. Floating surface: 14px feel, menu shadow. */

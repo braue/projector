@@ -10,10 +10,15 @@
 //   changes matter.
 //
 //   The detailed diff of one item works on the same parsed model: settings
-//   keys, points keyed by page + tag name, page tables, logic source.
+//   keys, tables (point maps and generic setting pages alike), logic source.
 //   Anything the model carries that changed but isn't one of those shows up
 //   by field name, so a new extractor's output is at worst reported coarsely,
 //   never dropped.
+//
+//   Point maps are NOT a second kind of diff. A DNP shared map is a table, and
+//   AcSELerator shows it as one, so it goes through the very same row diff as
+//   the Tag Processor — same pairing rules, same column policy, same output
+//   shape. The two lists stay separate only so the UI can title them.
 
 import { normalizeEol } from './eol.js';
 
@@ -72,41 +77,6 @@ function diffSettings(a = {}, b = {}) {
     else if (a[key] !== b[key]) out.push({ key, original: a[key], updated: b[key], status: 'changed' });
   }
   return out;
-}
-
-// A point's identity within an item: its page plus its tag name (falling back
-// to its position for pages whose rows carry no name).
-function pointKey(point, index) {
-  return `${point.page}\u0000${point.tagName ?? `#${index}`}`;
-}
-
-function indexPoints(points) {
-  const map = new Map();
-  points.forEach((point, index) => map.set(pointKey(point, index), point));
-  return map;
-}
-
-function diffPoints(aPoints = [], bPoints = []) {
-  const a = indexPoints(aPoints);
-  const b = indexPoints(bPoints);
-  const added = [];
-  const removed = [];
-  const changed = [];
-
-  for (const [key, bPoint] of b) {
-    const aPoint = a.get(key);
-    if (!aPoint) {
-      added.push({ page: bPoint.page, tag: bPoint.tagName });
-      continue;
-    }
-    const fields = rowFields(aPoint.raw, bPoint.raw);
-    if (fields.length) changed.push({ page: bPoint.page, tag: bPoint.tagName, fields });
-  }
-  for (const [key, aPoint] of a) {
-    if (!b.has(key)) removed.push({ page: aPoint.page, tag: aPoint.tagName });
-  }
-
-  return { added, removed, changed };
 }
 
 const NUMERIC_VALUE = /^-?\d+(?:\.\d+)?$/;
@@ -231,6 +201,13 @@ function diffPageRows(aPage, bPage) {
   const columns = [...new Set([...(aPage.columns ?? []), ...(bPage.columns ?? [])])];
   const label = labelColumn(aPage, bPage, columns);
   const orderish = orderColumns(aPage, bPage, columns);
+  // Columns a page DECLARES too important to hide, even when their values look
+  // like row positions: a point's protocol address (DNP index, Modbus
+  // register, Mirrored Bits bit) is numbered contiguously in a fresh map, but
+  // it is the thing the far end references — dropping it the way SolveOrder is
+  // dropped would leave a shared-map diff with no addresses in it. They still
+  // count as order columns for PAIRING, so a renumber is a move, not an edit.
+  const keep = new Set([...(aPage.keepColumns ?? []), ...(bPage.keepColumns ?? [])]);
   // Field differences that mean the row was EDITED — order-column shifts are
   // the row moving, which the row-number-agnostic diff must not report.
   const editedFields = (a, b) => rowFields(a, b).filter((field) => !orderish.has(field.column));
@@ -331,9 +308,14 @@ function diffPageRows(aPage, bPage) {
   ];
   const usedColumns = columns.filter(
     (column) => !hiddenPageColumn(column)
-      && !orderish.has(column)
+      && (keep.has(column) || !orderish.has(column))
       && diffRows.some((row) => row[column] != null && row[column] !== ''),
   );
+
+  // The cells that say WHICH row a was/now pair is about — the identity column
+  // plus any kept address column. A changed row renders only its edited cells,
+  // so without these it would be a line of blanks with two values in it.
+  const keyColumns = usedColumns.filter((column) => column === label || keep.has(column));
 
   // ONE merged change list, pre-sorted by row position (removed → changed →
   // added on ties), with each changed entry's edits split into displayed
@@ -361,8 +343,47 @@ function diffPageRows(aPage, bPage) {
     ...allAdded.map((entry) => ({ kind: 'added', index: entry.index, row: entry.row })),
   ].sort((a, b) => a.index - b.index || RANK[a.kind] - RANK[b.kind]);
 
-  return { columns: usedColumns, changes };
+  return { columns: usedColumns, keyColumns, changes };
 }
+
+// Layer 2 lifts point rows OUT of their setting page into one flat `points`
+// list, each point keeping its page name and its whole `raw` row — so the
+// tables are reassembled here to be diffed. Pages come back in first-seen
+// order with the columns the export wrote, in its order (the parser builds
+// each raw row's keys that way), which is what Inspect renders too: same
+// grouping, same columns, same order, whether you are browsing or comparing.
+// A server's shared map merges into the connection's pages by page name,
+// exactly as it does in Inspect.
+function pointPages(points = []) {
+  const pages = new Map();
+  for (const point of points) {
+    let entry = pages.get(point.page);
+    if (!entry) {
+      // A tag list runs to 10k+ points; the seen-set keeps column recovery
+      // linear instead of scanning the column list once per cell.
+      entry = { page: { name: point.page, columns: [], rows: [], keepColumns: [] }, seen: new Set() };
+      pages.set(point.page, entry);
+    }
+    const { page, seen } = entry;
+    for (const column of Object.keys(point.raw ?? {})) {
+      if (!seen.has(column)) {
+        seen.add(column);
+        page.columns.push(column);
+      }
+    }
+    if (point.addressColumn && !page.keepColumns.includes(point.addressColumn)) {
+      page.keepColumns.push(point.addressColumn);
+    }
+    page.rows.push(point.raw ?? {});
+  }
+  return [...pages.values()].map((entry) => entry.page);
+}
+
+// A page present on only ONE side still diffs — against an EMPTY page, so
+// each of its rows is reported with its content. A shared map that arrives
+// whole is the case that matters: "Point map Binary Inputs added (1194 rows)"
+// is a count, and what the reviewer needs is the points.
+const emptyLike = (page) => ({ columns: [], rows: [], keepColumns: page.keepColumns ?? [] });
 
 function diffPages(aPages = [], bPages = []) {
   const byName = (pages) => new Map(pages.map((page) => [page.name, page]));
@@ -371,8 +392,10 @@ function diffPages(aPages = [], bPages = []) {
   const out = [];
   for (const [name, bPage] of b) {
     const aPage = a.get(name);
-    if (!aPage) out.push({ name, status: 'added', rows: bPage.rows.length });
-    else if (JSON.stringify(aPage.rows) !== JSON.stringify(bPage.rows)) {
+    if (!aPage) {
+      const rowDiff = diffPageRows(emptyLike(bPage), bPage);
+      out.push({ name, status: 'added', rows: bPage.rows.length, ...rowDiff });
+    } else if (JSON.stringify(aPage.rows) !== JSON.stringify(bPage.rows)) {
       const rowDiff = diffPageRows(aPage, bPage);
       const hasDetail = rowDiff.changes.length;
       // Same rows in a different order (or key-order noise): state it as data
@@ -383,7 +406,10 @@ function diffPages(aPages = [], bPages = []) {
     }
   }
   for (const [name, aPage] of a) {
-    if (!b.has(name)) out.push({ name, status: 'removed', rows: aPage.rows.length });
+    if (!b.has(name)) {
+      const rowDiff = diffPageRows(aPage, emptyLike(aPage));
+      out.push({ name, status: 'removed', rows: aPage.rows.length, ...rowDiff });
+    }
   }
   return out;
 }
@@ -452,9 +478,11 @@ function diffItems(original, updated) {
   const derived = original?.derivedSettings || updated?.derivedSettings;
   return {
     settings: derived ? [] : diffSettings(original?.settings, updated?.settings),
-    points: diffPoints(
-      [...(original?.points ?? []), ...(original?.sharedMap?.points ?? [])],
-      [...(updated?.points ?? []), ...(updated?.sharedMap?.points ?? [])],
+    // `points` and `pages` carry the SAME entry shape — one renderer draws
+    // both — and stay separate lists only so each can be titled for what it is.
+    points: diffPages(
+      pointPages([...(original?.points ?? []), ...(original?.sharedMap?.points ?? [])]),
+      pointPages([...(updated?.points ?? []), ...(updated?.sharedMap?.points ?? [])]),
     ),
     pages: diffPages(original?.pages, updated?.pages),
     code: diffCode(original, updated),

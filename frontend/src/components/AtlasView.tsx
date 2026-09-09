@@ -11,6 +11,7 @@ import {
   groupLabel,
 } from '../atlas/content'
 import type { Doc } from '../atlas/content'
+import { clearFind, focusHit, markFind } from '../atlas/findInDoc'
 import { search, highlightParts } from '../atlas/search'
 import { selOpen, selStatus, selText } from '../atlas/selDocs'
 import type { SelStatus, SelTextGroup } from '../atlas/selDocs'
@@ -34,7 +35,8 @@ import '../atlas/atlas.css'
    Adding a token to the skin means adding its name to this list. */
 const SKIN_TOKENS = [
   'card', 'bg', 'ink', 'muted', 'border', 'border-soft', 'fill',
-  'accent', 'accent-tint', 'bad', 'bad-tint', 'warn', 'warn-tint', 'font-mono',
+  'accent', 'accent-tint', 'bad', 'bad-tint', 'warn', 'warn-tint', 'warn-line',
+  'font-mono',
 ]
 
 function skinTokens(): string {
@@ -115,6 +117,12 @@ const DOC_SKIN = `<style id="atlas-skin">@media screen {
   .seealso a:hover { background: var(--fill); text-decoration: none; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
+  /* Find-in-page hits (findInDoc.ts marks them inside this document). */
+  mark.atl-find-hit {
+    background: var(--warn-tint); color: var(--ink); border-radius: 3px;
+    box-shadow: inset 0 0 0 1px var(--warn-line);
+  }
+  mark.atl-find-hit.on { background: var(--warn); box-shadow: none; }
 }</style>
 <script>
 document.addEventListener('click', function (e) {
@@ -125,6 +133,14 @@ document.addEventListener('click', function (e) {
   if (href.slice(0, 6) === 'atlas:') {
     e.preventDefault()
     parent.postMessage({ atlasNavigate: href.slice(6) }, '*')
+  }
+})
+document.addEventListener('keydown', function (e) {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+    e.preventDefault()
+    parent.postMessage({ atlasFind: 'open' }, '*')
+  } else if (e.key === 'Escape') {
+    parent.postMessage({ atlasFind: 'close' }, '*')
   }
 })
 </script>`
@@ -395,7 +411,7 @@ export function AtlasView({ active = true }: { active?: boolean }) {
 
       <main className="atl-content">
         {selected ? (
-          <AtlasDocView doc={selected} prev={prev} next={next} onSelect={go} />
+          <AtlasDocView doc={selected} prev={prev} next={next} onSelect={go} active={active} />
         ) : (
           /* Only reachable when the build embeds no documents at all — the
              atlas content repo was not beside the checkout at build time. */
@@ -489,8 +505,9 @@ function AtlasDocView(props: {
   prev: Doc | null
   next: Doc | null
   onSelect: (id: string) => void
+  active: boolean
 }) {
-  const { doc, prev, next, onSelect } = props
+  const { doc, prev, next, onSelect, active } = props
   const [headings, setHeadings] = useState<Heading[]>([])
   const frameRef = useRef<HTMLIFrameElement>(null)
   const articleRef = useRef<HTMLElement>(null)
@@ -500,18 +517,119 @@ function AtlasDocView(props: {
   )
   const srcDoc = useMemo(() => (doc.kind === 'html' ? injectSkin(doc.raw) : ''), [doc.kind, doc.raw])
 
+  // --- find in page (Ctrl+F) --------------------------------------------------
+  // The sidebar search finds DOCUMENTS; this finds words inside the one you
+  // are reading. HTML guides live in an iframe, so the bar drives the frame's
+  // document through findInDoc.ts rather than relying on the browser's.
+  const [findOpen, setFindOpen] = useState(false)
+  const [find, setFind] = useState('')
+  const [hits, setHits] = useState<HTMLElement[]>([])
+  const [hitAt, setHitAt] = useState(0)
+  const [docPainted, setDocPainted] = useState(0)
+  const findRef = useRef<HTMLInputElement>(null)
+  const findTerm = useDebounced(find.trim(), 120)
+
+  /* Whichever element holds this doc's text — frame body or rendered prose. */
+  const findRoot = useCallback(
+    (): HTMLElement | null => (doc.kind === 'html'
+      ? frameRef.current?.contentDocument?.body ?? null
+      : articleRef.current),
+    [doc.kind],
+  )
+
+  const openFind = useCallback(() => {
+    setFindOpen(true)
+    // Opening while ALREADY open (Ctrl+F twice) doesn't re-run the mount
+    // effect below, so grab the field here too.
+    findRef.current?.focus()
+    findRef.current?.select()
+  }, [])
+
+  const closeFind = useCallback(() => setFindOpen(false), [])
+
+  /* Opening hands over the keyboard with the last term selected, so it types
+     over — the way every find bar behaves. */
+  useEffect(() => {
+    if (!findOpen) return
+    findRef.current?.focus()
+    findRef.current?.select()
+  }, [findOpen])
+
+  /* Marking is a side effect on someone else's DOM, so it runs from one
+     place: open + term + document identity in, marks out. */
+  useEffect(() => {
+    const root = findRoot()
+    if (!root) return
+    if (!findOpen || !findTerm) {
+      clearFind(root)
+      setHits([])
+      setHitAt(0)
+      return
+    }
+    const found = markFind(root, findTerm)
+    setHits(found)
+    setHitAt(0)
+    if (found.length) focusHit(found, 0)
+    return () => clearFind(root)
+  }, [findOpen, findTerm, findRoot, doc.id, docPainted])
+
+  const step = (delta: number) => {
+    if (!hits.length) return
+    const next = (hitAt + delta + hits.length) % hits.length
+    setHitAt(next)
+    focusHit(hits, next)
+  }
+
+  /* Ctrl+F from the shell. The same keystroke landing INSIDE the iframe
+     arrives as a message instead (DOC_SKIN forwards it). */
+  useEffect(() => {
+    if (!active) return
+    function onKey(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault()
+        openFind()
+      } else if (e.key === 'Escape' && findOpen) {
+        // Escape closes the bar wherever the focus sits — in the field, on
+        // the step buttons, or back in the page.
+        closeFind()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active, openFind, closeFind, findOpen])
+
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      const which = (e.data as { atlasFind?: string } | null)?.atlasFind
+      if (which === 'open') openFind()
+      else if (which === 'close') closeFind()
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [openFind, closeFind])
+
+  /* Markdown is written into the article by hand instead of through
+     dangerouslySetInnerHTML: React rewrites that subtree on EVERY render of
+     this component, which would strip find-in-page's <mark>s the moment the
+     hit count landed in state. Owning the innerHTML ourselves keeps the
+     rendered prose stable between doc changes. */
   useEffect(() => {
     setHeadings([])
     if (doc.kind !== 'md') return
     const a = articleRef.current
     if (!a) return
+    a.innerHTML = html
     setHeadings([...a.querySelectorAll('h2')].map((el) => ({ text: headingText(el), el })))
+    setDocPainted((n) => n + 1)
   }, [doc.id, doc.kind, html])
 
   function collectFrameHeadings() {
     const d = frameRef.current?.contentDocument
     if (!d) return
     setHeadings([...d.querySelectorAll('h2')].map((el) => ({ text: headingText(el), el })))
+    // A new page is a new document: whatever find had marked is gone with
+    // the old one, so the search has to run again against this one.
+    setDocPainted((n) => n + 1)
   }
 
   /* atlas: links inside rendered markdown */
@@ -531,6 +649,39 @@ function AtlasDocView(props: {
         <span className="atl-docbar-cat">{breadcrumb(doc)}</span>
         <span className="atl-docbar-title">{doc.title}</span>
       </div>
+      {findOpen && (
+        <div className="atl-find">
+          <input
+            ref={findRef}
+            className="ui-input atl-find-input"
+            placeholder="Find in page…"
+            value={find}
+            spellCheck={false}
+            onChange={(e) => setFind(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                step(e.shiftKey ? -1 : 1)
+              } else if (e.key === 'Escape') {
+                e.preventDefault()
+                closeFind()
+              }
+            }}
+          />
+          <span className="atl-find-count">
+            {findTerm ? (hits.length ? `${hitAt + 1}/${hits.length}` : 'none') : ''}
+          </span>
+          <button className="atl-find-btn" title="Previous (Shift+Enter)" onClick={() => step(-1)}>
+            ↑
+          </button>
+          <button className="atl-find-btn" title="Next (Enter)" onClick={() => step(1)}>
+            ↓
+          </button>
+          <button className="atl-find-btn" title="Close (Esc)" onClick={closeFind}>
+            ✕
+          </button>
+        </div>
+      )}
       <div className="atl-doc-body">
         <div className="atl-doc-scroll">
           {doc.kind === 'html' ? (
@@ -542,12 +693,8 @@ function AtlasDocView(props: {
               onLoad={collectFrameHeadings}
             />
           ) : (
-            <article
-              className="atl-prose"
-              ref={articleRef}
-              onClick={onArticleClick}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            /* Content comes from the effect above, not from React. */
+            <article className="atl-prose" ref={articleRef} onClick={onArticleClick} />
           )}
           <PrevNext prev={prev} next={next} onSelect={onSelect} />
         </div>

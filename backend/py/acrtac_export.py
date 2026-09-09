@@ -4,7 +4,7 @@ The Tools pane's RTAC Exporter (ported from the standalone RTAC EXPORTER
 FastAPI app). Takes its whole request as a single JSON document on STDIN:
 
     {"command": "list"}
-    {"command": "export", "projects": [...], "format": "xml"|"exp",
+    {"command": "export", "projects": [...], "format": "exp"|"xml",
      "directory": ..., "projectPassword": null}
 
 Prints one JSON document on stdout; errors go to stderr with a non-zero exit.
@@ -29,11 +29,7 @@ def cmd_export(cli, request):
     results = []
     for name in request["projects"]:
         try:
-            if request.get("format") == "exp":
-                out = root / f"{name}.exp"
-                wait_on(cli.exportexp(name=name, file=os.fspath(out), clean=False, verbose=False))
-                output = out.name
-            else:
+            if request.get("format") == "xml":
                 outdir = root / name
                 outdir.mkdir(parents=True, exist_ok=True)
                 wait_on(cli.exportxml(
@@ -42,6 +38,10 @@ def cmd_export(cli, request):
                     project_password=request.get("projectPassword"),
                 ))
                 output = outdir.name
+            else:
+                out = root / f"{name}.exp"
+                wait_on(cli.exportexp(name=name, file=os.fspath(out), clean=False, verbose=False))
+                output = out.name
             results.append({"project": name, "success": True, "output": output})
         except Exception as exc:
             results.append({"project": name, "success": False, "error": str(exc)})

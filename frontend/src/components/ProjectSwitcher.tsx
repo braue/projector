@@ -49,8 +49,8 @@ export function ProjectSwitcher({
 
   return (
     <div className="ws-switch" ref={wrap}>
-      <button className="topbar-button ws-trigger" onClick={() => setOpen(!open)} title="Switch project">
-        <span>{current}</span>
+      <button className="topbar-button ws-trigger" onClick={() => setOpen(!open)} title={current}>
+        <span className="ws-current">{current}</span>
         <span className="ws-caret">▾</span>
       </button>
       {open && (
@@ -76,7 +76,7 @@ export function ProjectSwitcher({
                   setOpen(false)
                 }}
               >
-                {ws}
+                <span className="ws-item-name">{ws}</span>
                 {ws === current && <span className="ws-check">✓</span>}
                 <RowAction kind="rename" title={`Rename project ${ws}`} onClick={() => setRenaming(ws)} />
                 <RowAction

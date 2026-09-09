@@ -27,7 +27,7 @@ class RtacExportService {
     if (!Array.isArray(projects) || projects.length === 0) {
       throw httpError(400, 'pick at least one project');
     }
-    const exportFormat = format === 'exp' ? 'exp' : 'xml';
+    const exportFormat = format === 'xml' ? 'xml' : 'exp';
     const { runId, dir } = await this.workspace.createRun('rtac-export');
     const workspace = this.workspace;
     const job = this.jobs.start(`RTAC export: ${projects.length} project(s)`, async (handle) => {

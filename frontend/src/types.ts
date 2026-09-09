@@ -158,44 +158,43 @@ export interface SettingDiff {
   status: 'added' | 'removed' | 'changed'
 }
 
-export interface PointFieldDiff {
-  column: string
-  original: string | null
-  updated: string | null
+/** One table's diff. Point maps (a DNP shared map) and generic setting pages
+ * (the Tag Processor) are the same thing to the diff and to the renderer —
+ * `ItemDiff` keeps two lists of these only so each can be titled. */
+export interface PageDiff {
+  name: string
+  /** 'reordered' = same rows, different order — no row-level detail. */
+  status: 'added' | 'removed' | 'changed' | 'reordered'
+  rows: number
+  /** Row-level detail, present on changed pages: whole row OBJECTS plus
+   * the columns those rows use, so the UI renders real tables. */
+  columns?: string[]
+  /** The cells that identify a row — the identity column plus any address
+   * column. Rendered on every changed row alongside its edited cells. */
+  keyColumns?: string[]
+  /** ONE merged change list, pre-sorted by row position (removed →
+   * changed → added on ties) — the backend owns ordering and the split
+   * of edits into displayed `fields` vs `hidden` (noise-column) edits.
+   * `index` is the 0-based row position in the entry's own side. */
+  changes?: {
+    kind: 'added' | 'removed' | 'changed'
+    index: number
+    /** added/removed entries */
+    row?: Record<string, string>
+    /** changed entries */
+    label?: string
+    original?: Record<string, string>
+    updated?: Record<string, string>
+    fields?: string[]
+    hidden?: { column: string; original: string | null; updated: string | null }[]
+  }[]
 }
 
 export interface ItemDiff {
   settings: SettingDiff[]
-  points: {
-    added: { page: string; tag: string | null }[]
-    removed: { page: string; tag: string | null }[]
-    changed: { page: string; tag: string | null; fields: PointFieldDiff[] }[]
-  }
-  pages: {
-    name: string
-    /** 'reordered' = same rows, different order — no row-level detail. */
-    status: 'added' | 'removed' | 'changed' | 'reordered'
-    rows: number
-    /** Row-level detail, present on changed pages: whole row OBJECTS plus
-     * the columns those rows use, so the UI renders real tables. */
-    columns?: string[]
-    /** ONE merged change list, pre-sorted by row position (removed →
-     * changed → added on ties) — the backend owns ordering and the split
-     * of edits into displayed `fields` vs `hidden` (noise-column) edits.
-     * `index` is the 0-based row position in the entry's own side. */
-    changes?: {
-      kind: 'added' | 'removed' | 'changed'
-      index: number
-      /** added/removed entries */
-      row?: Record<string, string>
-      /** changed entries */
-      label?: string
-      original?: Record<string, string>
-      updated?: Record<string, string>
-      fields?: string[]
-      hidden?: { column: string; original: string | null; updated: string | null }[]
-    }[]
-  }[]
+  /** Point maps, one entry per page (Binary Inputs, Analog Inputs, ...). */
+  points: PageDiff[]
+  pages: PageDiff[]
   code: {
     interface: { original: string | null; updated: string | null } | null
     implementation: { original: string | null; updated: string | null } | null

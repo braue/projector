@@ -4,11 +4,11 @@
 // settings.json is generated server-side. GENERATE converts as a job (the
 // converter's own narration is the log); nothing lands in the project until
 // the explicit "Save to <project>" button places the simulator entries
-// under "DAC SIM Converter/" in the project the run was configured from —
+// under "DAC SIM/" in the project the run was configured from —
 // the ZIP is a plain download. Importing one into the AcRTAC database is
 // the project tree's generic "Import to AcRTAC" right-click action.
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 import {
   generateDacsim,
@@ -48,6 +48,24 @@ function schemeNameFor(path: string): string {
     .replace(/^[^A-Za-z]+/, '')
     .replace(/_+$/, '')
     || 'Scheme'
+}
+
+/** Lab addressing every simulator run starts from: the first scheme's DAC
+ *  sits at 192.168.199.21 with its Remote IO at 192.168.254.21, and each
+ *  further scheme takes the next host in both ranges (.22, .23, …). The
+ *  master is one address for the whole run. All three stay editable. */
+const DAC_IP_PREFIX = '192.168.199.'
+const REMOTE_IP_PREFIX = '192.168.254.'
+const FIRST_HOST = 21
+const MASTER_IP = '192.168.254.11'
+
+/** The lowest host octet no row holds yet, so unchecking a scheme frees its
+ *  address for the next one instead of handing out a duplicate. */
+function nextHost(rows: SchemeRow[]): number {
+  const used = new Set(rows.map((row) => row.dacIps.trim()))
+  let host = FIRST_HOST
+  while (used.has(`${DAC_IP_PREFIX}${host}`)) host += 1
+  return host
 }
 
 /** Every RTAC export entry in a project tree (the candidates for DACs). */
@@ -98,7 +116,7 @@ export function DacsimTool({ project }: ToolProps) {
   const [rows, setRows] = useState<SchemeRow[]>([])
   // ONE master IP for the whole run (settings.json repeats it per scheme
   // because the format demands it).
-  const [masterIp, setMasterIp] = useState('')
+  const [masterIp, setMasterIp] = useState(MASTER_IP)
 
   useEffect(() => {
     listProjects().then(setProjects).catch(() => {})
@@ -127,14 +145,18 @@ export function DacsimTool({ project }: ToolProps) {
 
   const toggleEntry = (dacPath: string) => {
     setError(null)
-    setRows((current) => current.some((row) => row.dacPath === dacPath)
-      ? current.filter((row) => row.dacPath !== dacPath)
-      : [...current, {
-          schemeName: schemeNameFor(dacPath),
-          dacPath,
-          dacIps: '',
-          remoteIp: '',
-        }])
+    setRows((current) => {
+      if (current.some((row) => row.dacPath === dacPath)) {
+        return current.filter((row) => row.dacPath !== dacPath)
+      }
+      const host = nextHost(current)
+      return [...current, {
+        schemeName: schemeNameFor(dacPath),
+        dacPath,
+        dacIps: `${DAC_IP_PREFIX}${host}`,
+        remoteIp: `${REMOTE_IP_PREFIX}${host}`,
+      }]
+    })
   }
 
   const setRow = (index: number, patch: Partial<SchemeRow>) =>
@@ -166,6 +188,12 @@ export function DacsimTool({ project }: ToolProps) {
       setError(errorMessage(err))
     }
   }
+
+  const saveButton = (
+    <Button variant="primary" disabled={saving || saved !== null} onClick={saveRun}>
+      {saving ? <Spinner /> : saved ? 'Saved' : `Save to ${generatedFrom.current}`}
+    </Button>
+  )
 
   return (
     <>
@@ -209,33 +237,45 @@ export function DacsimTool({ project }: ToolProps) {
             })}
           </div>
         )}
-        {rows.map((row, index) => (
-          <div className="tool-row" key={row.dacPath}>
-            <TextInput
-              label={index === 0 ? 'Scheme' : undefined}
-              value={row.schemeName}
-              onChange={(e) => setRow(index, { schemeName: e.target.value })}
-            />
-            <TextInput
-              label={index === 0 ? 'DAC IPs' : undefined}
-              value={row.dacIps}
-              placeholder="192.168.199.21, 192.168.199.121"
-              onChange={(e) => setRow(index, { dacIps: e.target.value })}
-            />
-            <TextInput
-              label={index === 0 ? 'Remote IO IP' : undefined}
-              value={row.remoteIp}
-              placeholder="192.168.254.21"
-              onChange={(e) => setRow(index, { remoteIp: e.target.value })}
-            />
-            <Button onClick={() => toggleEntry(row.dacPath)}>✕</Button>
+        {rows.length > 0 && (
+          // One grid for every scheme, so the columns line up: the names sit
+          // in a header row rather than inline on the first row, which used
+          // to shift its fields sideways past all the others.
+          <div className="dacsim-schemes">
+            <span className="dacsim-col">Scheme</span>
+            <span className="dacsim-col">DAC IPs</span>
+            <span className="dacsim-col">Remote IO IP</span>
+            <span />
+            {rows.map((row, index) => (
+              <Fragment key={row.dacPath}>
+                <TextInput
+                  value={row.schemeName}
+                  onChange={(e) => setRow(index, { schemeName: e.target.value })}
+                />
+                <TextInput
+                  value={row.dacIps}
+                  placeholder="192.168.199.21, 192.168.199.121"
+                  onChange={(e) => setRow(index, { dacIps: e.target.value })}
+                />
+                <TextInput
+                  value={row.remoteIp}
+                  placeholder="192.168.254.21"
+                  onChange={(e) => setRow(index, { remoteIp: e.target.value })}
+                />
+                <Button title={`Remove ${row.schemeName}`} onClick={() => toggleEntry(row.dacPath)}>
+                  ✕
+                </Button>
+              </Fragment>
+            ))}
           </div>
-        ))}
+        )}
         {rows.length > 0 && (
           <>
-            <div className="tool-row">
+            {/* One master for the run — labelled above the field like the
+                scheme columns, so it doesn't sit inset from them. */}
+            <div className="dacsim-master">
+              <span className="dacsim-col">Master IP</span>
               <TextInput
-                label="Master IP"
                 value={masterIp}
                 placeholder="192.168.254.11"
                 onChange={(e) => setMasterIp(e.target.value)}
@@ -273,19 +313,22 @@ export function DacsimTool({ project }: ToolProps) {
         )}
 
         {result && (
-          <RunOutputs tool="dacsim" run={result.run} reports={result.reports} downloadOnly>
-            <div className="tool-row">
-              <Button
-                variant="primary"
-                disabled={saving || saved !== null}
-                onClick={saveRun}
-              >
-                {saving ? <Spinner /> : saved ? 'Saved' : `Save to ${generatedFrom.current}`}
-              </Button>
-              {saved && (
+          // Save rides in the ZIP's own row next to Download, the way the
+          // other tools' save-to-project sits. With no ZIP to show (zipping
+          // produced nothing) it falls back to a row of its own.
+          <RunOutputs
+            tool="dacsim"
+            run={result.run}
+            reports={result.reports}
+            downloadOnly
+            rowActions={() => saveButton}
+          >
+            {result.reports.length === 0 && <div className="tool-row">{saveButton}</div>}
+            {saved && (
+              <div className="tool-row">
                 <span className="tool-stats">Added: {saved.join(', ')}</span>
-              )}
-            </div>
+              </div>
+            )}
           </RunOutputs>
         )}
       </div>

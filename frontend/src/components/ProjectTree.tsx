@@ -142,6 +142,23 @@ export function isTextFile(name: string): boolean {
   return /\.(txt|md)$/i.test(name)
 }
 
+/** The tree narrowed to what matches: a leaf by its own name, a folder by
+ *  holding a match — or by its own name, which keeps its whole subtree, since
+ *  naming a folder means asking for what is in it. */
+function filterTree(nodes: FileNode[], needle: string): FileNode[] {
+  const out: FileNode[] = []
+  for (const node of nodes) {
+    const self = node.name.toLowerCase().includes(needle)
+    if (node.type !== 'folder' || self) {
+      if (self) out.push(node)
+      continue
+    }
+    const children = filterTree(node.children, needle)
+    if (children.length) out.push({ ...node, children })
+  }
+  return out
+}
+
 /** Display name for a ref/path — the entry name, with archive stamps shed. */
 export function displayName(path: string): string {
   const base = path.split('/').pop() ?? path
@@ -218,6 +235,7 @@ type MenuTarget =
 export function ProjectTree({
   project,
   tree,
+  filter,
   treeError,
   exports,
   selected,
@@ -230,6 +248,9 @@ export function ProjectTree({
 }: {
   project: string
   tree: FileNode[] | null
+  /** The topbar's filter box. Narrows what the tree SHOWS; every other use
+   *  of the tree (upload collisions, compare labels) still sees all of it. */
+  filter: string
   treeError: string | null
   exports: RtacExportStatus[]
   selected: string | null
@@ -790,6 +811,13 @@ export function ProjectTree({
     : node.kind === 'rtac' ? () => openInAcrtac(node)
     : undefined
 
+  const filterTerm = filter.trim().toLowerCase()
+  const filtering = filterTerm !== ''
+  const shown = useMemo(
+    () => (filtering && tree ? filterTree(tree, filterTerm) : tree),
+    [tree, filterTerm, filtering],
+  )
+
   const renderLeaf = (node: FileLeaf, depth: number) => {
     const versionsOpen = openVersions.has(node.path)
     const currentVersion = node.versions.length + 1
@@ -877,7 +905,10 @@ export function ProjectTree({
   const renderNode = (node: FileNode, depth: number): React.ReactNode => {
     if (node.type !== 'folder') return renderLeaf(node, depth)
 
-    const open = expanded.has(node.path)
+    // Filtering opens everything it kept: a hit three folders down is no
+    // use behind a closed chevron. The remembered open set is untouched, so
+    // clearing the filter restores the tree the way it was left.
+    const open = filtering || expanded.has(node.path)
     return (
       <div key={node.path} className="tree-entry">
         {renaming === node.path ? renameForm(node) : (
@@ -1013,6 +1044,13 @@ export function ProjectTree({
         />
         {intakeForms('', null)}
         <div className="files-tree">
+          {shown?.map((node) => renderNode(node, 0))}
+          {filtering && shown?.length === 0 && (
+            <div className="tree-empty">No entries match “{filter.trim()}”</div>
+          )}
+          {/* AcRTAC status rows sit BELOW the tree: appearing at the top
+              shifted every entry down a row the moment a job started. */}
+          {exportRows}
           {acrtacOpening !== null && (
             <div
               className="tree-row file-row export-row"
@@ -1022,8 +1060,6 @@ export function ProjectTree({
               <span className="tree-name">Opening {acrtacOpening} in AcRTAC…</span>
             </div>
           )}
-          {exportRows}
-          {tree?.map((node) => renderNode(node, 0))}
         </div>
         {(error ?? treeError) && (
           <div className="list-error">

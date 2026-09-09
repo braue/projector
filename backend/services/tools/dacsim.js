@@ -8,7 +8,7 @@
 // NOTHING lands in the project automatically: the generated simulator
 // folders stay in the run — downloadable as a ZIP — until the explicit
 // "Save to project" click (save()) lands them as versioned .rtac entries
-// under "DAC SIM Converter/". Getting one into the AcRTAC database is the
+// under "DAC SIM/". Getting one into the AcRTAC database is the
 // tree's generic "Import to AcRTAC" action (services/tools/acrtac.js),
 // not part of this pipeline.
 
@@ -20,7 +20,7 @@ import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const CONVERT_SCRIPT = 'dacsim_convert.py';
 const ZIP_NAME = 'sim projects.zip';
-const PROJECT_FOLDER = 'DAC SIM Converter';
+const PROJECT_FOLDER = 'DAC SIM';
 
 /** This tool's own wording for the failure classes runStdinBridge shapes. */
 const EXPLAIN = {
