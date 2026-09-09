@@ -5,18 +5,24 @@ import { lineDiff, type DiffLine } from '../lib/lineDiff'
 import { ST_START, tokenizeLine, type StToken } from '../lib/st'
 import { Preview } from './Preview'
 import { StText } from './StText'
-import { Button, DataTable, SectionHeader, Tag, type TableRow } from './ui'
+import { Button, DataTable, SectionHeader, Tabbed, Tag, type TableRow } from './ui'
 
 // Right pane in compare mode. An added or removed file renders its full
 // preview under a status banner — the diff of everything-vs-nothing is just
-// the thing itself. An edited file renders the structured diff: settings
-// rows, the tables that changed (point maps and setting pages alike), and a
-// line diff of any logic source.
+// the thing itself. An edited file renders the structured diff, laid out
+// exactly like Inspect's Browse pane: the narrative sections (settings rows,
+// logic source, extras) scroll in the upper region, and every table that
+// changed is a sheet in a tab strip below them.
 //
-// The tables carry no maxHeight on purpose: cells wrap whole values (a
-// changed page row runs hundreds of characters), so a short inner window
-// would show a row and a half at a time. The pane scrolls as ONE region
-// instead — sticky table headers still track it.
+// The tab strip is the point, not decoration. A tag list's categories —
+// Binary Inputs, Analog Inputs, Binary Outputs — are what you are reading
+// the diff to tell apart; stacked end to end they blur into one scroll, so
+// they get the same tabs here that Inspect gives them.
+//
+// The tables carry no maxHeight: cells wrap whole values (a changed page row
+// runs hundreds of characters), so a short inner window would show a row and
+// a half at a time. The active sheet owns the lower region and scrolls it —
+// sticky table headers still track it.
 
 const STATUS_LABEL: Record<FileStatus, string> = {
   added: 'Added',
@@ -130,7 +136,9 @@ function PageDiffTable({ page, label }: { page: PageDiff; label: string }) {
   const capped = !showAll && rows.length > capRows
 
   return (
-    <section>
+    // sheet-pane: this table IS the lower region — header pinned, viewport
+    // taking the rest — rather than one more block in a stack.
+    <section className="sheet-pane">
       <SectionHeader
         title={`${label} · ${page.name}`}
         count={(['added', 'removed', 'changed'] as const)
@@ -153,22 +161,24 @@ function PageDiffTable({ page, label }: { page: PageDiff; label: string }) {
 }
 
 // Point maps first, then the generic pages — a connection's own tables read
-// before its plumbing. Every page the backend gave row detail for renders as
-// a table, whether it was edited or arrived whole; a page with no detail
-// (rows merely reordered) reads as one line in Extras.
-function TablesDiffSection({ diff }: { diff: CompareItem['diff'] }) {
-  const tables = [
+// before its plumbing. Every page the backend gave row detail for becomes a
+// sheet, whether it was edited or arrived whole; a page with no detail (rows
+// merely reordered) reads as one line in Extras instead.
+function changedTables(diff: CompareItem['diff']) {
+  return [
     ...diff.points.map((page) => ({ page, label: 'Points' })),
     ...diff.pages.map((page) => ({ page, label: 'Table' })),
-  ].filter((entry) => entry.page.changes?.length)
-  if (!tables.length) return null
-  return (
-    <>
-      {tables.map(({ page, label }) => (
-        <PageDiffTable key={`${label}:${page.name}`} page={page} label={label} />
-      ))}
-    </>
-  )
+  ]
+    .filter((entry) => entry.page.changes?.length)
+    .map(({ page, label }) => ({
+      key: `${label}:${page.name}`,
+      // The tab reads as the category (Analog Inputs); the sheet's own
+      // header below it says which kind of table that is, and its +−~ split.
+      label: page.name,
+      count: page.changes?.length ?? 0,
+      page,
+      kind: label,
+    }))
 }
 
 const GRAPHICAL_LOGIC_COPY: Record<string, string> = {
@@ -264,9 +274,11 @@ function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
 }
 
 function ExtrasSection({ diff }: { diff: CompareItem['diff'] }) {
+  // Named exactly as the sheets above name them — a table the reader saw
+  // called "Points · Binary Inputs" there must not be a "Point map" here.
   const coarsePages = [
-    ...diff.points.map((page) => ({ page, label: 'Point map' })),
-    ...diff.pages.map((page) => ({ page, label: 'Page' })),
+    ...diff.points.map((page) => ({ page, label: 'Points' })),
+    ...diff.pages.map((page) => ({ page, label: 'Table' })),
   ].filter((entry) => !entry.page.changes?.length)
   if (!coarsePages.length && !diff.otherFields.length) return null
   return (
@@ -275,7 +287,7 @@ function ExtrasSection({ diff }: { diff: CompareItem['diff'] }) {
       <ul className="file-list">
         {coarsePages.map(({ page, label }) => (
           <li key={`${label}:${page.name}`}>
-            {label} <span className="mono">{page.name}</span>{' '}
+            {label} · <span className="mono">{page.name}</span>{' — '}
             {page.status === 'reordered' ? 'rows reordered' : page.status} ({page.rows} rows)
           </li>
         ))}
@@ -292,6 +304,9 @@ function ExtrasSection({ diff }: { diff: CompareItem['diff'] }) {
 export function DiffPreview({ compare }: { compare: CompareItem }) {
   const { status, original, updated, diff, file } = compare
   const item = updated ?? original
+  // Before the early returns: the sheets decide the pane's layout, and hooks
+  // cannot hide behind a branch.
+  const tables = useMemo(() => changedTables(diff), [diff])
 
   if (!item) return null
 
@@ -332,7 +347,9 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
           <span className="mono">{file}</span>
         </div>
       </header>
-      <div className="preview-scroll no-sheets">
+      {/* Same two-region layout as Browse: sections above, the tabbed sheet
+          below. Without sheets the whole pane is one scroll instead. */}
+      <div className={tables.length ? 'preview-scroll' : 'preview-scroll no-sheets'}>
         <div className="preview-sections">
           {status === 'unchanged' ? (
             <p className="section-note">Identical in both projects.</p>
@@ -344,13 +361,17 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
           ) : (
             <>
               <SettingsDiffSection diff={diff} />
-              <TablesDiffSection diff={diff} />
               <CodeDiffSection diff={diff} />
               <GraphicalLogicSection diff={diff} />
               <ExtrasSection diff={diff} />
             </>
           )}
         </div>
+        {status !== 'unchanged' && tables.length > 0 && (
+          <Tabbed panes={tables}>
+            {(pane) => <PageDiffTable key={pane.key} page={pane.page} label={pane.kind} />}
+          </Tabbed>
+        )}
       </div>
     </main>
   )

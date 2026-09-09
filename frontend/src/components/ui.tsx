@@ -150,15 +150,22 @@ export function TextInput({
  * Inline name form for list rows (create / rename): autofocused input, Enter
  * commits the trimmed value, Escape cancels. Owns its value and shows the
  * error a rejected onCommit throws — callers keep only an "editing" marker.
+ *
+ * `suffix` is a tail the typist may not touch (a file's extension): it sits
+ * beside the field, greyed and unfocusable, and is appended to what onCommit
+ * receives — the field edits the name, never the type.
  */
 export function InlineNameForm({
   initial = '',
   placeholder,
+  suffix = '',
   onCommit,
   onCancel,
 }: {
   initial?: string
   placeholder: string
+  /** Immutable tail shown after the field and appended on commit. */
+  suffix?: string
   onCommit: (value: string) => Promise<void> | void
   onCancel: () => void
 }) {
@@ -176,7 +183,7 @@ export function InlineNameForm({
     if (!trimmed || pending || done.current) return
     setPending(true)
     try {
-      await onCommit(trimmed)
+      await onCommit(trimmed + suffix)
       done.current = true
     } catch (err) {
       setError(errorMessage(err))
@@ -197,21 +204,24 @@ export function InlineNameForm({
 
   return (
     <div className="side-form">
-      <TextInput
-        autoFocus
-        value={value}
-        placeholder={placeholder}
-        disabled={pending}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={blur}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') commit()
-          if (e.key === 'Escape') {
-            done.current = true
-            onCancel()
-          }
-        }}
-      />
+      <div className="side-form-field">
+        <TextInput
+          autoFocus
+          value={value}
+          placeholder={placeholder}
+          disabled={pending}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={blur}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit()
+            if (e.key === 'Escape') {
+              done.current = true
+              onCancel()
+            }
+          }}
+        />
+        {suffix && <span className="side-form-suffix" title="The extension stays with the file">{suffix}</span>}
+      </div>
       {error && <div className="side-form-error">{error}</div>}
     </div>
   )
@@ -420,6 +430,45 @@ export function TabBar({
         </button>
       ))}
     </div>
+  )
+}
+
+/**
+ * A tab strip over ONE pane at a time — the app's single answer to "several
+ * tables, one screen": Inspect's setting-page sheets and Compare's changed
+ * tables both use it, so a Binary Inputs / Analog Inputs / Binary Outputs
+ * split reads the same whether you are browsing a tag list or diffing one.
+ * Owns the active key, falling back to the first pane whenever the panes
+ * change out from under it. The strip is skipped when a lone pane leaves no
+ * choice to make.
+ *
+ * Panes render as SIBLINGS of the strip (this returns a fragment, not a
+ * wrapper) so the surrounding flex column can hand the active table the rest
+ * of the pane, with the strip pinned above it.
+ */
+export function Tabbed<T extends { key: string; label: string; count?: number }>({
+  panes,
+  children,
+}: {
+  panes: T[]
+  children: (pane: T) => ReactNode
+}) {
+  const [activeKey, setActiveKey] = useState<string | null>(null)
+  const active = panes.find((pane) => pane.key === activeKey) ?? panes[0] ?? null
+
+  if (!active) return null
+
+  return (
+    <>
+      {panes.length > 1 && (
+        <TabBar
+          tabs={panes.map(({ key, label, count }) => ({ key, label, count }))}
+          activeKey={active.key}
+          onSelect={setActiveKey}
+        />
+      )}
+      {children(active)}
+    </>
   )
 }
 

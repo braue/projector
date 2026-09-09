@@ -198,6 +198,14 @@ function loadExpanded(project: string): Set<string> {
 
 const extOf = (name: string) => (/\.[^.]+$/.exec(name)?.[0] ?? '').toLowerCase()
 
+/** A file name's extension AS WRITTEN (case kept — it is going back into the
+ *  name), or '' when it carries none. Only a short all-alphanumeric tail
+ *  holding at least one letter counts, so "Feeder Rev 2.1" has no extension
+ *  to protect and renames whole. The backend enforces the same rule. */
+export function nameExtension(name: string): string {
+  return /\.(?=[^.]*[A-Za-z])[A-Za-z0-9]{1,10}$/.exec(name)?.[0] ?? ''
+}
+
 /** The picked "Add new version…" file, its name normalized against the
  *  entry it supersedes — or the refusal message. A browser/Explorer
  *  duplicate suffix (" (1)", " - Copy") never renames the entry, and an
@@ -764,18 +772,26 @@ export function ProjectTree({
   }
 
   // The rename form both entry shapes (leaf and folder) swap in for their row.
-  const renameForm = (node: { path: string; name: string }) => (
-    <InlineNameForm
-      initial={node.name}
-      placeholder="New name — Enter to rename"
-      onCommit={async (value) => {
-        await renameFileEntry(project, node.path, value)
-        setRenaming(null)
-        onReload()
-      }}
-      onCancel={() => setRenaming(null)}
-    />
-  )
+  // A file's extension is its TYPE — Inspect and Compare choose their parser
+  // from it, and a new version is refused outright when it differs — so the
+  // field holds the name alone and the extension rides along beside it,
+  // untypable. Folders (and extensionless files) edit whole.
+  const renameForm = (node: { path: string; name: string }, isFile: boolean) => {
+    const ext = isFile ? nameExtension(node.name) : ''
+    return (
+      <InlineNameForm
+        initial={ext ? node.name.slice(0, -ext.length) : node.name}
+        suffix={ext}
+        placeholder="New name — Enter to rename"
+        onCommit={async (value) => {
+          await renameFileEntry(project, node.path, value)
+          setRenaming(null)
+          onReload()
+        }}
+        onCancel={() => setRenaming(null)}
+      />
+    )
+  }
 
   // The create-folder / create-note forms rendered under whichever dir the
   // context menu opened them for — the root and every folder share these.
@@ -825,7 +841,7 @@ export function ProjectTree({
     const stamp = node.uploadedAt !== null ? formatDay(node.uploadedAt) : ''
     return (
       <div key={node.path} className="tree-entry">
-        {renaming === node.path ? renameForm(node) : (
+        {renaming === node.path ? renameForm(node, true) : (
           <button
             draggable
             onDragStart={(e) => {
@@ -911,7 +927,7 @@ export function ProjectTree({
     const open = filtering || expanded.has(node.path)
     return (
       <div key={node.path} className="tree-entry">
-        {renaming === node.path ? renameForm(node) : (
+        {renaming === node.path ? renameForm(node, false) : (
           <button
             draggable
             onDragStart={(e) => {

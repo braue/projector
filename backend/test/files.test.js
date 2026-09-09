@@ -53,6 +53,35 @@ test('files: upload, folders, rename, move, delete round-trip', async () => {
   }
 });
 
+test('files: a rename keeps the file\'s extension', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+
+    await files.upload('', [asUpload('feeder_1.rdb', 'bytes')], 'initial');
+    await files.createFolder('', 'Reports');
+    await files.upload('', [asUpload('Feeder Rev 2.1', 'bytes')], 'initial');
+
+    // The type may not be swapped, dropped, or given to an entry that has none.
+    await assert.rejects(() => files.renameEntry('feeder_1.rdb', 'feeder_1.xml'), /keeps the .rdb/);
+    await assert.rejects(() => files.renameEntry('feeder_1.rdb', 'feeder_1'), /keeps the .rdb/);
+    // The name still renames, extension untouched — and case-only changes pass.
+    await files.renameEntry('feeder_1.rdb', 'feeder_2.RDB');
+    // Folders have no type to keep, and neither does a name whose tail is a
+    // bare number rather than an extension.
+    await files.renameEntry('Reports', 'Reports.2026');
+    await files.renameEntry('Feeder Rev 2.1', 'Feeder Rev 3');
+
+    assert.deepEqual(
+      (await files.tree()).map((node) => node.name).sort(),
+      ['Feeder Rev 3', 'Reports.2026', 'feeder_2.RDB'],
+    );
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('files: a same-name upload stacks as a new version, old bytes archived', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
   try {

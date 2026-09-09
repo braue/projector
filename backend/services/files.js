@@ -68,6 +68,13 @@ function cleanName(raw) {
   return name;
 }
 
+/** A file's extension, lowercased, or '' when the name carries none. Only a
+ *  short all-alphanumeric tail holding at least one LETTER counts, so a name
+ *  ending in a bare number ("Feeder Rev 2.1") has no extension to protect. */
+function extensionOf(name) {
+  return (/\.(?=[^.]*[A-Za-z])[A-Za-z0-9]{1,10}$/.exec(String(name ?? ''))?.[0] ?? '').toLowerCase();
+}
+
 function requireNote(note) {
   const trimmed = typeof note === 'string' ? note.trim() : '';
   if (!trimmed) throw httpError(400, 'a version note is required');
@@ -493,8 +500,18 @@ class FilesService {
       assertMutable(relPath);
       const from = this.#resolve(relPath);
       if (from === this.root) throw httpError(400, 'cannot rename the root');
-      if (!(await statOrNull(from))) throw httpError(404, `no such entry: ${relPath}`);
+      const info = await statOrNull(from);
+      if (!info) throw httpError(404, `no such entry: ${relPath}`);
       const cleaned = cleanName(nextName);
+      // A rename edits the NAME, never the type. A file's extension is what
+      // says what it IS — Inspect and Compare pick their parser from it, and
+      // a new version is already refused when its extension differs — so
+      // renaming .rdb to .xml would silently strand the entry and its whole
+      // history. Folders and extensionless files have no type to keep.
+      const previousExt = extensionOf(path.basename(from));
+      if (!info.isDirectory() && previousExt && extensionOf(cleaned) !== previousExt) {
+        throw httpError(400, `a rename keeps the ${previousExt} extension: ${nextName}`);
+      }
       const to = path.join(path.dirname(from), cleaned);
       if (to === from) return;
       if (await statOrNull(to)) throw httpError(409, `already exists: ${nextName}`);

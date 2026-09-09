@@ -1,13 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react'
 
 import { tokenizeBlock } from '../lib/st'
-import type { LayoutItem, Point, ProjectItem, SettingPage } from '../types'
+import type { LayoutItem, Point, ProjectItem } from '../types'
 import { StText } from './StText'
 import {
   Button,
   CollapsibleSection,
   DataTable,
-  TabBar,
+  Tabbed,
   Tag,
   TextInput,
   type TableRow,
@@ -16,16 +16,14 @@ import {
 // Browse mode's right pane, modeled on Volture's RTAC item window: every item
 // is "settings, points, and whatever pages are left", so one renderer handles
 // all kinds and only the framing differs. Flattened config settings sit
-// pinned at the top behind a filter; every tabular page — point maps (shared
-// map included), then generic pages — is a sheet in a tab strip, rendered
-// with the raw columns the export wrote, in its order. Kind-specific
-// structure (ST source, EtherCAT topology, extension metadata, navigator
-// layout) appears as sections above the sheets.
-
-// The auto-generated pin list of a connection's protocol function block.
-// Every connection has one and it describes the RTAC's own plumbing, not the
-// project, so it is parsed but never shown.
-const HIDDEN_PAGES = new Set(['POU Pin Settings'])
+// pinned at the top behind a filter; EVERY tabular page the parser found —
+// point maps (shared map included), then generic pages, the auto-generated
+// POU pin list among them — is a sheet in a tab strip, rendered with the raw
+// columns the export wrote, in its order. Nothing parsed is withheld here:
+// Compare diffs every page, and a page you cannot open in Browse is one you
+// cannot check when the diff names it. Kind-specific structure (ST source,
+// EtherCAT topology, extension metadata, navigator layout) appears as
+// sections above the sheets.
 
 // --- header -----------------------------------------------------------------
 
@@ -201,39 +199,23 @@ function SheetTable({ sheet: s, maxHeight }: { sheet: Sheet; maxHeight?: string 
   )
 }
 
-// Every sheet an item renders: its point pages plus its non-hidden generic
-// pages — the single source for "does this item have tabular content".
+// Every sheet an item renders: its point pages plus its generic pages — the
+// single source for "does this item have tabular content".
 function buildSheets(item: ProjectItem): Sheet[] {
   const points = [...item.points, ...(item.sharedMap?.points ?? [])]
-  // Nothing makes page names unique within a module, so position is part of
-  // the key — two identically named pages must both be reachable.
-  const pages = item.pages
-    .map((page, index) => ({ page, index }))
-    .filter(({ page }: { page: SettingPage }) => !HIDDEN_PAGES.has(page.name))
   return [
     ...pointSheets(points),
-    ...pages.map(({ page, index }) => sheet(`page:${index}`, page.name, page.columns, page.rows)),
+    // Nothing makes page names unique within a module, so position is part of
+    // the key — two identically named pages must both be reachable.
+    ...item.pages.map((page, index) => sheet(`page:${index}`, page.name, page.columns, page.rows)),
   ]
 }
 
 function Sheets({ sheets }: { sheets: Sheet[] }) {
-  const [activeKey, setActiveKey] = useState<string | null>(null)
-  const active = sheets.find((s) => s.key === activeKey) ?? sheets[0] ?? null
-
-  if (!active) return null
-
   return (
-    <>
-      {/* Only worth a strip when there is a choice to make. */}
-      {sheets.length > 1 && (
-        <TabBar
-          tabs={sheets.map((s) => ({ key: s.key, label: s.label, count: s.rows.length }))}
-          activeKey={active.key}
-          onSelect={setActiveKey}
-        />
-      )}
-      <SheetTable key={active.key} sheet={active} />
-    </>
+    <Tabbed panes={sheets.map((s) => ({ key: s.key, label: s.label, count: s.rows.length, sheet: s }))}>
+      {(pane) => <SheetTable key={pane.key} sheet={pane.sheet} />}
+    </Tabbed>
   )
 }
 
