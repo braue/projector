@@ -157,6 +157,14 @@ test('files service: read guards match the store rules', async () => {
     assert.equal((await files.read('switch.xml')).toString(), '<x/>');
     await assert.rejects(() => files.read('missing.xml'), /no such file/);
     await assert.rejects(() => files.read('../outside'), /invalid file path/);
+
+    // rawPath (the preview pane's PDF endpoint) resolves a live file, but
+    // 404s a directory or a miss and refuses an escape — same guards as read.
+    assert.equal(await files.rawPath('switch.xml'), path.join(tmp, 'files', 'switch.xml'));
+    await files.createFolder('', 'Reports');
+    await assert.rejects(() => files.rawPath('Reports'), /no such file/);
+    await assert.rejects(() => files.rawPath('missing.pdf'), /no such file/);
+    await assert.rejects(() => files.rawPath('../outside'), /invalid file path/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

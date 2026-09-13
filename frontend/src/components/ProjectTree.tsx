@@ -142,6 +142,11 @@ export function isTextFile(name: string): boolean {
   return /\.(txt|md)$/i.test(name)
 }
 
+/** Rendered in the preview pane by Chromium's built-in PDF viewer. */
+export function isPdfFile(name: string): boolean {
+  return /\.pdf$/i.test(name)
+}
+
 /** The tree narrowed to what matches: a leaf by its own name, a folder by
  *  holding a match — or by its own name, which keeps its whole subtree, since
  *  naming a folder means asking for what is in it. */

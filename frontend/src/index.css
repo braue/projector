@@ -320,6 +320,43 @@ button.ui-section-header:hover { color: var(--ink); }
 .dacsim-schemes .ui-input { width: 100%; min-width: 0; }
 .dacsim-master { display: flex; flex-direction: column; gap: 8px; }
 
+/* DAC Init Builder — project params row, per-device cards/grids. Labelled
+   fields stack their caption above the input so the wide forms stay legible. */
+.dacinit-params { flex-wrap: wrap; align-items: flex-end; }
+.dacinit-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.dacinit-field > span { font-size: 12px; font-weight: 600; color: var(--muted); }
+.dacinit-field .ui-input { width: 100%; min-width: 90px; }
+.dacinit-field.dacinit-grow { flex: 1; }
+.dacinit-check { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; white-space: nowrap; }
+.dacinit-card {
+  align-self: stretch; display: flex; flex-direction: column; gap: 8px;
+  padding: 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--panel);
+}
+.dacinit-card-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.dacinit-sources {
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr) 52px); gap: 6px;
+}
+.dacinit-sources .ui-input { width: 100%; min-width: 0; }
+.dacinit-grid {
+  align-self: stretch; display: grid; gap: 8px 10px; align-items: center;
+}
+.dacinit-grid .dacinit-col { font-size: 12px; font-weight: 600; color: var(--muted); }
+.dacinit-grid .ui-input { width: 100%; min-width: 0; }
+.dacinit-xfmr { grid-template-columns: 1fr 1fr 1fr 1.4fr auto; }
+.dacinit-fb { grid-template-columns: 1fr 1fr 1.4fr auto auto auto; }
+.dacinit-cell-check { display: flex; justify-content: center; }
+/* Identifiers the project already uses: an amber card, checked by default,
+   whose button re-runs the generate with those names overwritten. */
+.dacinit-conflicts {
+  align-self: stretch; display: flex; flex-direction: column; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--warn-line); border-radius: 9px;
+  background: var(--warn-tint);
+}
+.dacinit-conflicts-head { font-size: 13px; color: var(--warn-ink); }
+.dacinit-conflicts-list { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.dacinit-conflicts-list .dacinit-check { font-family: var(--font-mono); }
+.dacinit-conflicts-where { font-family: inherit; color: var(--muted); }
+
 /* Tools that fill the pane (the terminal) instead of scrolling a form. */
 .tool-fill {
   flex: 1; min-height: 0; padding: 16px;
@@ -661,6 +698,8 @@ button.ui-section-header:hover { color: var(--ink); }
 .preview-subtitle .mono { font-size: 11px; }
 
 .preview-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+/* The PDF pane: Chromium's own viewer fills the scroll region. */
+.pdf-frame { flex: 1; width: 100%; border: 0; }
 .preview-sections { flex: none; max-height: 55%; overflow-y: auto; }
 /* Browse keeps overflow hidden so its sheet table owns the lower scroll
  * region. Every OTHER pane (search results, diffs) puts its content straight

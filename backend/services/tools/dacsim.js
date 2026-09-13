@@ -15,6 +15,7 @@
 import { cp, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { copyEntry } from '../../lib/fs.js';
 import { httpError } from '../../lib/http.js';
 import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
@@ -137,11 +138,7 @@ class DacsimService {
 
     const { runId, dir } = await this.workspace.createRun('dacsim');
     for (const [index, scheme] of staged.entries()) {
-      await cp(sources[index], path.join(dir, scheme.dac.subFolder), {
-        recursive: true,
-        // Never drag store bookkeeping (.versions etc.) into the bundle.
-        filter: (source) => !path.basename(source).startsWith('.'),
-      });
+      await copyEntry(sources[index], path.join(dir, scheme.dac.subFolder));
     }
     const settings = staged.map(({ dacPath, ...scheme }) => scheme);
     await writeFile(path.join(dir, 'settings.json'), JSON.stringify(settings, null, 2));

@@ -79,6 +79,18 @@ function fileRoutes(resolve) {
     res.json({ ok: true });
   });
 
+  // Raw file bytes for the preview pane's in-app viewers (the PDF viewer).
+  // Streamed with a Content-Type from the extension so Chromium renders it
+  // inline; dotfiles are allowed because archived versions live under
+  // `.versions/`. The whole app shares one loopback origin, so an <iframe>
+  // pointing here is same-origin — no CORS, no CSP to satisfy.
+  router.get('/raw', async (req, res, next) => {
+    const absolute = await (await resolve(req)).files.rawPath(requireQuery(req, 'path'));
+    res.sendFile(absolute, { dotfiles: 'allow' }, (err) => {
+      if (err && !res.headersSent) next(err);
+    });
+  });
+
   router.post('/open', async (req, res) => {
     await (await resolve(req)).files.open(req.body?.path);
     res.json({ ok: true });

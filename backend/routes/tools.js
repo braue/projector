@@ -159,6 +159,24 @@ function toolsRoutes(tools, projects) {
     res.status(201).json(await tools.dacsim.save(files, req.params.run));
   });
 
+  // CLECO DAC Inits: generate device init blocks into a run-local copy of a
+  // DAC .rtac ({ project, path, params, reclosers, transformers,
+  // feedersBreakers, overwrite }); identifiers already used in the project come
+  // back as `conflicts` and are only rewritten when named in `overwrite`. Save
+  // lands the run as a new version of that same entry.
+  router.post('/dacinit/generate', async (req, res) => {
+    const { project, ...payload } = req.body ?? {};
+    if (!project) throw httpError(400, 'project required');
+    const files = (await projects.bundle(project)).files;
+    res.status(202).json(await tools.dacinit.generate(files, payload));
+  });
+  router.post('/dacinit/:run/save', async (req, res) => {
+    const { project } = req.body ?? {};
+    if (!project) throw httpError(400, 'project required');
+    const files = (await projects.bundle(project)).files;
+    res.status(201).json(await tools.dacinit.save(files, req.params.run));
+  });
+
   // The project tree's generic AcRTAC actions on an RTAC entry, each a
   // pollable job. Import: { project, path, name, deviceType, firmware }.
   // Open: { name } — launch the AcSELerator RTAC GUI on that database

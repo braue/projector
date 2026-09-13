@@ -248,6 +248,11 @@ export async function readTextFile(project: string, path: string): Promise<strin
   return (await get<{ text: string }>(`${base(project)}/files/text?path=${encodeURIComponent(path)}`)).text
 }
 
+/** Same-origin URL for a file's raw bytes, for the preview pane's PDF viewer. */
+export function fileRawUrl(project: string, path: string): string {
+  return `${base(project)}/files/raw?path=${encodeURIComponent(path)}`
+}
+
 /** Save a text file in place (creates it when new). Not a version. */
 export function saveTextFile(project: string, path: string, text: string): Promise<unknown> {
   return send(`${base(project)}/files/text`, 'PUT', { path, text })
@@ -404,6 +409,28 @@ export function generateDacsim(project: string, payload: {
  *  explicit "Save to project" click (nothing lands at generate time). */
 export function saveDacsimRun(project: string, run: string): Promise<{ placed: string[] }> {
   return send(`/api/tools/dacsim/${encodeURIComponent(run)}/save`, 'POST', { project })
+}
+
+// --- CLECO DAC Inits ----------------------------------------------------------
+
+/** Generate device init blocks into a run-local copy of a DAC .rtac project.
+ *  Nothing lands in the tree until saveDacInitRun. */
+export function generateDacInit(project: string, payload: {
+  path: string
+  params: Record<string, string>
+  reclosers: unknown[]
+  transformers: unknown[]
+  feedersBreakers: unknown[]
+  /** Identifiers already in the project whose init blocks should be
+   *  regenerated in place; anything left out is reported as a conflict. */
+  overwrite: string[]
+}): Promise<{ job: string; run: string }> {
+  return send('/api/tools/dacinit/generate', 'POST', { project, ...payload })
+}
+
+/** Land the run's modified project as a new version of the source .rtac entry. */
+export function saveDacInitRun(project: string, run: string): Promise<{ placed: string; note: string }> {
+  return send(`/api/tools/dacinit/${encodeURIComponent(run)}/save`, 'POST', { project })
 }
 
 // --- AcRTAC actions (the project tree's actions on an RTAC entry) ---------------

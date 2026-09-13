@@ -5,6 +5,7 @@
 
 import type { ComponentType } from 'react'
 
+import { DacInitTool } from './DacInitTool'
 import { DacsimTool } from './DacsimTool'
 import { DwgenTool } from './DwgenTool'
 import { HmiTesterTool } from './HmiTesterTool'
@@ -34,4 +35,5 @@ export const TOOLS: ToolDef[] = [
   { id: 'rtac-export', label: 'RTAC Exporter', component: RtacExportTool },
   { id: 'dwgen', label: 'Drawing Generator', component: DwgenTool },
   { id: 'dacsim', label: 'DAC SIM Converter', component: DacsimTool },
+  { id: 'dacinit', label: 'CLECO DAC Inits', component: DacInitTool },
 ]

@@ -9,15 +9,7 @@ import { useEffect, useState } from 'react'
 import { listFiles, listProjects } from '../api'
 import { Select } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import type { FileNode } from '../types'
-
-function flattenFiles(nodes: FileNode[], out: string[] = []): string[] {
-  for (const node of nodes) {
-    if (node.type === 'folder') flattenFiles(node.children, out)
-    else out.push(node.path)
-  }
-  return out
-}
+import { leaves } from '../lib/fileNodes'
 
 export function ProjectFilePick({
   project,
@@ -42,9 +34,9 @@ export function ProjectFilePick({
     if (!selected) return
     listFiles(selected)
       .then((tree) => {
-        setPaths(flattenFiles(tree).filter((p) =>
-          extensions.some((ext) => p.toLowerCase().endsWith(ext)),
-        ))
+        setPaths(leaves(tree)
+          .map((node) => node.path)
+          .filter((p) => extensions.some((ext) => p.toLowerCase().endsWith(ext))))
         setError(null)
       })
       .catch((err) => setError(errorMessage(err)))

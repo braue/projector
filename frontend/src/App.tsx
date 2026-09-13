@@ -11,10 +11,12 @@ import {
 } from './api'
 import { CompareView } from './components/CompareView'
 import { InspectView } from './components/InspectView'
+import { PdfView } from './components/PdfView'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
 import {
   ProjectTree,
   findLeafFor,
+  isPdfFile,
   isTextFile,
   refLabel,
   type FileLeaf,
@@ -360,6 +362,13 @@ export default function App() {
                 path={selected}
                 kind={selectedLeaf.kind}
                 title={refLabel(tree, selected)}
+              />
+            ) : selected && selectedLeaf && isPdfFile(selectedLeaf.name) ? (
+              <PdfView
+                key={`${project}:${selected}`}
+                project={project}
+                path={selected}
+                name={refLabel(tree, selected)}
               />
             ) : selected && selectedLeaf && isTextFile(selectedLeaf.name) ? (
               <TextFileView

@@ -2,6 +2,7 @@
 // the server wires a single object and each new tool is one line here.
 
 import { AcrtacService } from './acrtac.js';
+import { DacInitService } from './dacinit.js';
 import { DacsimService } from './dacsim.js';
 import { DwgenService } from './dwgen.js';
 import { HmiTesterService } from './hmiTester.js';
@@ -25,8 +26,9 @@ async function createTools({ dataDir }) {
   const rtacExport = new RtacExportService({ workspace, jobs });
   const dwgen = new DwgenService({ workspace, jobs, settings });
   const dacsim = new DacsimService({ workspace, jobs });
+  const dacinit = new DacInitService({ workspace, jobs });
   const acrtac = new AcrtacService({ jobs });
-  return { workspace, settings, jobs, hmi, terminal, quickset, swset, rtacExport, dwgen, dacsim, acrtac };
+  return { workspace, settings, jobs, hmi, terminal, quickset, swset, rtacExport, dwgen, dacsim, dacinit, acrtac };
 }
 
 export { createTools };

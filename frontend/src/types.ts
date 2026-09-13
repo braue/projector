@@ -384,6 +384,30 @@ export interface DacsimResult {
   reports: ToolReport[]
 }
 
+/** An identifier the project already uses, and the Init_* POU(s) it sits in. */
+export interface DacInitConflict {
+  name: string
+  where: string[]
+}
+
+/** A CLECO DAC Inits run: what it wrote into each Init_* POU, what it left
+ *  alone, and the note the saved version would carry. */
+export interface DacInitResult {
+  run: string
+  entryName: string
+  /** How many devices the run actually wrote; 0 means there is nothing to save. */
+  changed: number
+  /** Newly appended init blocks, by device kind. */
+  added: Record<string, string[]>
+  /** Devices whose existing init block was regenerated in place, by kind. */
+  replaced: Record<string, string[]>
+  declarations: { added: string[]; skipped: string[] }
+  /** Already-used identifiers left untouched — offer these for overwrite. */
+  conflicts: DacInitConflict[]
+  note: string
+  reports: ToolReport[]
+}
+
 // --- SWSET (switch settings editor) --------------------------------------------
 
 export interface SwsetField {

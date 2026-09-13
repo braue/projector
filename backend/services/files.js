@@ -634,16 +634,27 @@ class FilesService {
   // One file's content — how the Tools pane sources an input from the
   // project instead of a fresh upload.
   async read(relPath) {
-    const absolute = this.#resolve(relPath);
-    if (!(await statOrNull(absolute))?.isFile()) {
-      throw httpError(404, `no such file: ${relPath}`);
-    }
-    return readFile(absolute);
+    return readFile(await this.rawPath(relPath));
   }
 
   /** A text file's content, for the built-in editor. */
   async readText(relPath) {
     return (await this.read(relPath)).toString('utf8');
+  }
+
+  /**
+   * The absolute path of one file, for streaming its raw bytes to the
+   * preview pane (the PDF viewer). Resolves within the project like every
+   * other path and 404s a missing file or a directory; the caller streams
+   * it (an archived version lives under `.versions/`, so the sender must
+   * allow dotfiles).
+   */
+  async rawPath(relPath) {
+    const absolute = this.#resolve(relPath);
+    if (!(await statOrNull(absolute))?.isFile()) {
+      throw httpError(404, `no such file: ${relPath}`);
+    }
+    return absolute;
   }
 
   /**

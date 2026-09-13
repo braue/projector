@@ -18,9 +18,10 @@ import {
 } from '../api'
 import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
+import { rtacPaths } from '../lib/fileNodes'
 import { FILES_CHANGED_EVENT } from '../lib/filesChanged'
 import { useToolJob } from '../lib/useToolJob'
-import type { DacsimResult, FileNode } from '../types'
+import type { DacsimResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 
@@ -66,15 +67,6 @@ function nextHost(rows: SchemeRow[]): number {
   let host = FIRST_HOST
   while (used.has(`${DAC_IP_PREFIX}${host}`)) host += 1
   return host
-}
-
-/** Every RTAC export entry in a project tree (the candidates for DACs). */
-function rtacPaths(nodes: FileNode[], out: string[] = []): string[] {
-  for (const node of nodes) {
-    if (node.type === 'folder') rtacPaths(node.children, out)
-    else if (node.kind === 'rtac') out.push(node.path)
-  }
-  return out
 }
 
 export function DacsimTool({ project }: ToolProps) {
