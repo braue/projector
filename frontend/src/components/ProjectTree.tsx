@@ -21,7 +21,7 @@ import { formatDay, formatStamp, formatWhen } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import { useToolJob } from '../lib/useToolJob'
 import type { ArtifactKindName, FileNode, FileVersion, RtacExportStatus } from '../types'
-import { AcrtacImportModal } from './AcrtacImportModal'
+import { AcrtacImportModal, AcrtacImportRow } from './AcrtacImportModal'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { ContextMenu, InlineNameForm, Spinner, type ContextMenuItem } from './ui'
 import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
@@ -309,6 +309,14 @@ export function ProjectTree({
     name: string
     database: string | null
   } | null>(null)
+  // Imports under way, oldest first — the dialog hands each job over and
+  // closes, and the row below the tree carries it the rest of the way. The
+  // project rides along so switching projects hides (never cancels) them.
+  const [imports, setImports] = useState<{
+    id: string
+    name: string
+    project: string
+  }[]>([])
   const [menu, setMenu] = useState<{ x: number; y: number; target: MenuTarget } | null>(null)
   const { width, startResize } = useSidebarWidth()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -406,6 +414,10 @@ export function ProjectTree({
       setError(errorMessage(err))
     }
   }
+
+  /** Drop a settled import's row; the job itself is already over. */
+  const finishImport = (id: string) =>
+    setImports((current) => current.filter((entry) => entry.id !== id))
 
   // --- intake ----------------------------------------------------------------
 
@@ -1081,6 +1093,23 @@ export function ProjectTree({
               <span className="tree-name">Opening {acrtacOpening} in AcRTAC…</span>
             </div>
           )}
+          {imports.filter((entry) => entry.project === project).map((entry) => (
+            <AcrtacImportRow
+              key={entry.id}
+              job={entry.id}
+              name={entry.name}
+              onDone={() => {
+                finishImport(entry.id)
+                // The entry now records the database project it mirrors —
+                // reload so "Open in AcRTAC" and the row agree with it.
+                onReload()
+              }}
+              onError={(message) => {
+                finishImport(entry.id)
+                setError(message)
+              }}
+            />
+          ))}
         </div>
         {(error ?? treeError) && (
           <div className="list-error">
@@ -1126,6 +1155,10 @@ export function ProjectTree({
           path={importTarget.path}
           entryName={importTarget.name}
           database={importTarget.database}
+          onStarted={(id, name) => {
+            setError(null)
+            setImports((current) => [...current, { id, name, project }])
+          }}
           onClose={() => setImportTarget(null)}
         />
       )}
