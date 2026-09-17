@@ -239,6 +239,21 @@ export interface AggregateResult {
   rows: AggregateRow[]
 }
 
+// --- virtual machines ----------------------------------------------------------
+
+/** One RDP card. The password is stored and served in cleartext by design —
+ *  these are lab/simulator boxes and the tool's whole point is a silent
+ *  connect (see backend/services/tools/vms.js). */
+export interface Vm {
+  id: string
+  name: string
+  /** What the RDP client dials: an IP or host name, optionally with :port. */
+  host: string
+  username: string
+  password: string
+  notes?: string
+}
+
 // --- search -------------------------------------------------------------------
 
 export interface SearchMatch {

@@ -191,6 +191,26 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(tools.acrtac.open(req.body ?? {}));
   });
 
+  // Virtual Machines: the RDP cards. The store holds passwords in cleartext
+  // by design (lab boxes — see services/tools/vms.js), so list() returns them
+  // to the card that edits them. connect launches the session and returns as
+  // soon as the client is running; the window outlives the request.
+  router.get('/vms', async (_req, res) => {
+    res.json(await tools.vms.list());
+  });
+  router.post('/vms', async (req, res) => {
+    res.status(201).json(await tools.vms.save(req.body ?? {}));
+  });
+  router.patch('/vms/:id', async (req, res) => {
+    res.json(await tools.vms.save({ ...req.body, id: req.params.id }));
+  });
+  router.delete('/vms/:id', async (req, res) => {
+    res.json(await tools.vms.remove(req.params.id));
+  });
+  router.post('/vms/:id/connect', async (req, res) => {
+    res.status(202).json(await tools.vms.connect(req.params.id));
+  });
+
   // Drawing Generator: part number in, configured drawings + AutoCAD bundle
   // out. open-dwg launches local AutoCAD on one bundled drawing with its
   // layer script — the on-demand DWG pass.
