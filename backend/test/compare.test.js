@@ -502,3 +502,30 @@ test('diffItems handles added and removed items (one side null)', () => {
   const removed = diffItems(item, null);
   assert.equal(removed.settings[0].status, 'removed');
 });
+
+test('a changed project description diffs as text, not as a named field', () => {
+  const projectInfo = (description) => `<?xml version="1.0"?>
+<RTACModule>
+  <ProjectInfo>
+    <ExportSource><Schema>35</Schema></ExportSource>
+    <Description><![CDATA[${description}]]></Description>
+  </ProjectInfo>
+</RTACModule>`;
+  const item = (description) =>
+    parseRtacProject([{ file: 'Project Info.xml', xml: projectInfo(description) }]).items[0];
+
+  const a = item('Test 1:\n\tExpected results:\n\t\t- Normal reconfiguration');
+  const b = item('Test 1:\n\tExpected results:\n\t\t- Normal reconfiguration\n\nTest 2:\n\tDG behavior');
+
+  const diff = diffItems(a, b);
+  assert.deepEqual(diff.description, { original: a.description, updated: b.description });
+  // The text diff replaces the bare "field description changed" line.
+  assert.ok(!diff.otherFields.includes('description'));
+
+  // CRLF is how Windows writes the same note — not an edit.
+  const crlf = item('Test 1:\r\n\tExpected results:\r\n\t\t- Normal reconfiguration');
+  assert.equal(diffItems(a, crlf).description, null);
+
+  // An unchanged description contributes no diff at all.
+  assert.equal(diffItems(a, item(a.description)).description, null);
+});

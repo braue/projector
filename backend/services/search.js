@@ -44,6 +44,15 @@ function matchItem(item, needle, limit) {
 
   if (hit(item.name)) found('object name', item.name);
 
+  // The project description (and a custom application's) is free prose the
+  // engineer wrote — matched by line, like source, so a hit reads as the line
+  // it came from rather than as the whole note.
+  if (item.description) {
+    item.description.split('\n').forEach((line, index) => {
+      if (hit(line)) found(`description · line ${index + 1}`, line.trim());
+    });
+  }
+
   for (const [key, value] of Object.entries(item.settings ?? {})) {
     if (hit(key) || hit(value)) found(key, `${key} = ${value}`);
   }

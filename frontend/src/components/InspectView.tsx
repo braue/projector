@@ -7,7 +7,7 @@ import { AggregateView } from './AggregateView'
 import { FileTree, TreePane } from './FileTree'
 import { Preview } from './Preview'
 import { SearchView } from './SearchView'
-import { SegmentedControl, Select } from './ui'
+import { CollapsibleSection, SegmentedControl, Select } from './ui'
 
 // Inspect — the default face of a clicked settings artifact (live or an
 // archived version; a version path is an artifact like any other). RTAC
@@ -123,6 +123,16 @@ export function InspectView({
             ) : (
               <main className="preview">
                 {itemError && <div className="pane-message">{itemError}</div>}
+                {/* Nothing picked yet: the project's own note is the thing
+                    worth reading first — test procedures and expected
+                    outcomes the engineer wrote into the export. */}
+                {!itemError && tree?.description && (
+                  <div className="preview-sections">
+                    <CollapsibleSection title="Project Description">
+                      <p className="section-note prose-note">{tree.description}</p>
+                    </CollapsibleSection>
+                  </div>
+                )}
               </main>
             )}
           </>

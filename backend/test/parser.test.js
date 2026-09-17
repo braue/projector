@@ -126,6 +126,27 @@ test('read-in items flatten their XML body into settings', () => {
   assert.equal(item.settings['schema/global_keep_alive · probes'], '5');
 });
 
+test('the project description is lifted to the project', () => {
+  const project = parseRtacProject([{
+    file: 'Project Info.xml',
+    xml: wrap(`<ProjectInfo>
+      <ExportSource><Devices><Device><Schema>35</Schema><DeviceMOT>3532</DeviceMOT></Device></Devices></ExportSource>
+      <Description><![CDATA[Test 1:
+	Function Tested:
+		- Connector splits load when capacity limited.]]></Description>
+    </ProjectInfo>`),
+  }]);
+  const [item] = project.items;
+  assert.equal(item.kind, 'ProjectInfo');
+  assert.equal(item.category, 'meta');
+  // Verbatim — the indentation IS the structure of the engineer's note.
+  assert.equal(
+    item.description,
+    'Test 1:\n\tFunction Tested:\n\t\t- Connector splits load when capacity limited.',
+  );
+  assert.equal(project.description, item.description);
+});
+
 test('the main controller surfaces its task table', () => {
   const { items } = parseRtacProject([{
     file: 'System/Main Controller.xml',

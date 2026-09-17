@@ -200,12 +200,17 @@ function buildProject(modules) {
   linkSharedMaps(items);
 
   let projectName = null;
+  let description = null;
   let schema = null;
   let deviceMOT = null;
   for (const item of items) {
     schema ??= item.schema;
     deviceMOT ??= item.deviceMOT;
     if (item.kind === 'NavigatorLayout' && item.name) projectName = item.name;
+    // The ProjectInfo file's <Description> is the engineer's own note on the
+    // project — test procedures, expected outcomes. It belongs to the PROJECT,
+    // not to one file buried at the bottom of the tree, so lift it here.
+    if (item.kind === 'ProjectInfo' && item.description) description ??= item.description;
   }
 
   const connections = items.filter((item) => item.category === 'connection');
@@ -213,6 +218,7 @@ function buildProject(modules) {
 
   return {
     name: projectName,
+    description,
     schema,
     deviceMOT,
     summary: {

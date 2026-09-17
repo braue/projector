@@ -438,11 +438,24 @@ function diffCode(original, updated) {
   return any ? out : null;
 }
 
+// The project's own note (ProjectInfo <Description>, a custom application's
+// blurb) is prose an engineer wrote — test procedures, expected outcomes — so
+// it diffs as TEXT, line by line, the way logic source does. Naming it in
+// "Other Changes" instead would say a description changed while hiding which
+// test was added.
+function diffDescription(original, updated) {
+  const norm = (text) => (text == null ? null : normalizeEol(text));
+  const a = norm(original?.description ?? null);
+  const b = norm(updated?.description ?? null);
+  if ((a ?? '') === (b ?? '')) return null;
+  return { original: a, updated: b };
+}
+
 // Model fields already covered by the dedicated diffs above, or derived from
 // them, or identity — everything else that differs is reported by name.
 const COVERED_FIELDS = new Set([
   'id', 'file', 'settings', 'derivedSettings', 'points', 'pointCount', 'pages',
-  'settingPages', 'code', 'sharedMap', 'sharedMapRef', 'endpoint',
+  'settingPages', 'code', 'description', 'sharedMap', 'sharedMapRef', 'endpoint',
   'archivedContentHash', 'hasArchivedContent',
 ]);
 
@@ -486,6 +499,7 @@ function diffItems(original, updated) {
     ),
     pages: diffPages(original?.pages, updated?.pages),
     code: diffCode(original, updated),
+    description: diffDescription(original, updated),
     graphicalLogic: diffGraphicalLogic(original, updated),
     otherFields: diffOtherFields(original ?? {}, updated ?? {}),
   };

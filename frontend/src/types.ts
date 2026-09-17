@@ -74,6 +74,8 @@ export interface ProjectSummary {
 
 export interface ProjectTree {
   name: string
+  /** The project's own note (RTAC ProjectInfo <Description>), verbatim. */
+  description?: string | null
   schema: string | null
   /** Display name of the device, e.g. "SEL-3555" or "SEL-735". */
   deviceLabel: string | null
@@ -199,6 +201,8 @@ export interface ItemDiff {
     interface: { original: string | null; updated: string | null } | null
     implementation: { original: string | null; updated: string | null } | null
   } | null
+  /** The item's prose note (ProjectInfo description), diffed as text. */
+  description: { original: string | null; updated: string | null } | null
   /** Graphical (CFC/LD) logic body — only its fingerprint is modeled, so the
    * diff can say that it changed, never what. */
   graphicalLogic: 'added' | 'removed' | 'changed' | null

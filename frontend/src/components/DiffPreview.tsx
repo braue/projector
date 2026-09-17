@@ -261,6 +261,36 @@ function CodePartDiff({
   )
 }
 
+// The project's own note, diffed as prose: the same line gutter as the logic
+// source, minus the ST tokenizer — this is English, and highlighting it as
+// code would paint arbitrary words as keywords. `pre-wrap` keeps the note's
+// indentation (the engineer's test-procedure structure) while still wrapping
+// long lines, since prose has no column budget the way source does.
+function DescriptionDiffSection({ diff }: { diff: CompareItem['diff'] }) {
+  const part = diff.description
+  const lines = useMemo(
+    () => (part ? lineDiff(part.original ?? '', part.updated ?? '') : []),
+    [part],
+  )
+  if (!part) return null
+  return (
+    <section>
+      <SectionHeader title="Description" />
+      <pre className="code code-diff code-prose">
+        {lines.map((line, i) => (
+          <div key={i} className={`diff-line diff-${line.kind}`}>
+            <span className="diff-ln">{line.kind === 'del' ? line.oldNo : line.newNo}</span>
+            <span className="diff-sign">
+              {line.kind === 'add' ? '+' : line.kind === 'del' ? '−' : ' '}
+            </span>
+            <span className="diff-text">{line.text}</span>
+          </div>
+        ))}
+      </pre>
+    </section>
+  )
+}
+
 function CodeDiffSection({ diff }: { diff: CompareItem['diff'] }) {
   if (!diff.code) return null
   return (
@@ -333,6 +363,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
     !diff.points.length &&
     !diff.pages.length &&
     !diff.code &&
+    !diff.description &&
     !diff.graphicalLogic &&
     !diff.otherFields.length
 
@@ -361,6 +392,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
           ) : (
             <>
               <SettingsDiffSection diff={diff} />
+              <DescriptionDiffSection diff={diff} />
               <CodeDiffSection diff={diff} />
               <GraphicalLogicSection diff={diff} />
               <ExtrasSection diff={diff} />

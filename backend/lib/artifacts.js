@@ -276,6 +276,7 @@ class RtacKind extends ArtifactKind {
     const { model } = await this.artifacts.entry(treePath);
     return {
       name: entryLabel(treePath).replace(RTAC_SUFFIX, ''),
+      description: model.description ?? null,
       schema: model.schema,
       deviceLabel: model.deviceMOT ? `SEL-${model.deviceMOT}` : null,
       summary: model.summary,

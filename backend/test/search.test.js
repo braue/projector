@@ -86,3 +86,27 @@ test('a page-row hit reports the whole row, once per row', async () => {
     text: 'Destination = SEL_451.BR1 · Source = SEL_451.MV01',
   }]);
 });
+
+test('the project description is searchable, one hit per line', async () => {
+  const search = new SearchService({
+    load: async () => ({
+      label: 'fake',
+      entries: [{
+        path: 'Project Info.xml',
+        name: 'Project Info',
+        item: {
+          kindLabel: 'Project Info',
+          category: 'meta',
+          description: 'Test 2:\n\tEvent:\n\t\tTest Ride Through Fault\n\tExpected results:\n\t\t- DG behavior',
+        },
+      }],
+    }),
+  });
+
+  const result = await search.search('r', 'ride through');
+  assert.equal(result.totalMatches, 1);
+  assert.deepEqual(result.results[0].matches, [{
+    location: 'description · line 3',
+    text: 'Test Ride Through Fault',
+  }]);
+});

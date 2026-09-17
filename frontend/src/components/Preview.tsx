@@ -265,7 +265,7 @@ export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNod
 
           {item.description && (
             <CollapsibleSection title="Description">
-              <p className="section-note">{item.description}</p>
+              <p className="section-note prose-note">{item.description}</p>
             </CollapsibleSection>
           )}
 
