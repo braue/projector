@@ -228,6 +228,19 @@ test('vms: .rdp directives and the credential key a port is stripped from', () =
   // No password ever goes in the file — Credential Manager holds it.
   assert.ok(!/password/i.test(file));
 
+  // The consent dialog an unsigned .rdp raises lists what the file asks to
+  // redirect, so the file asks for nothing that would appear on it. Each of
+  // these defaults to ON and has to be turned off by name.
+  for (const off of [
+    'redirectprinters:i:0', 'redirectcomports:i:0', 'redirectsmartcards:i:0',
+    'redirectwebauthn:i:0', 'redirectlocation:i:0', 'drivestoredirect:s:',
+    'devicestoredirect:s:', 'usbdevicestoredirect:s:', 'camerastoredirect:s:',
+  ]) {
+    assert.ok(file.includes(off), `expected ${off}`);
+  }
+  // Clipboard is the one redirection worth keeping.
+  assert.ok(file.includes('redirectclipboard:i:1'));
+
   // Without a user name there is nothing saved to find, so mstsc must ask.
   assert.ok(rdpFile({ address: '10.0.0.5', username: '' }).includes('prompt for credentials:i:1'));
 

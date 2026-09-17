@@ -176,7 +176,12 @@ export function VmsTool({ active }: ToolProps) {
     setStatus(null)
     try {
       const result = await connectVm(vm.id)
-      setStatus({ id: vm.id, text: `Opened ${result.address} with ${result.client}.` })
+      setStatus({
+        id: vm.id,
+        // A client that closed on its own says so here rather than leaving the
+        // card claiming a session that is not on screen.
+        text: result.note ?? `Opened ${result.address} with ${result.client}.`,
+      })
     } catch (err) {
       setStatus({ id: vm.id, text: errorMessage(err) })
     } finally {

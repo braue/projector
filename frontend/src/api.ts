@@ -525,7 +525,17 @@ export function deleteVm(id: string): Promise<{ removed: string }> {
 
 /** Open the RDP session. Resolves once the client is running, not when the
  *  window closes. */
-export function connectVm(id: string): Promise<{ launched: string; client: string; address: string }> {
+export function connectVm(id: string): Promise<{
+  launched: string
+  client: string
+  address: string
+  /** The generated .rdp, when there is one to point at. */
+  file: string | null
+  /** The launched client's process id, where the platform reports one. */
+  pid?: number | null
+  /** Set when the client closed immediately without an error code. */
+  note: string | null
+}> {
   return send(`/api/tools/vms/${encodeURIComponent(id)}/connect`, 'POST')
 }
 
