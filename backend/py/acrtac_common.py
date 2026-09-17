@@ -13,6 +13,36 @@ import sys
 from selacrtac.acrtac import AcRTAC
 
 
+def cli_name(name):
+    r"""Quote a project name for selacrtac's command builder.
+
+    selacrtac interpolates the project name into the AcRtacCmd.exe command
+    line as a bare positional argument -- it quotes `file` and not `name` --
+    so a name containing a space arrives as several arguments and the CLI
+    rejects the extras:
+
+        AcRtacCmd.exe ExportEXP --alias pyE9CNX --file "C:\...\plain.exp" 033314.000.00_Cloud HQ_LC2_...
+        exportexp:2:syntax error
+
+    Quoting it here is what the library should be doing. Confirmed on
+    AcRTAC 2026-09: the same export passes with the name quoted and fails
+    without it, while a name with no spaces passes either way. `clean=True`
+    does not help -- it leaves the name untouched.
+
+    EXPORTEXP ONLY. exportxml builds `--name "<name>" "<directory>"` and
+    quotes both itself, so it handles spaced names as they come and needs
+    nothing from here (verified on the same project, same session: it passes
+    either way, and a pre-quoted name reaches it as the same command string).
+
+    Names that already carry a double quote are left alone: there is no
+    correct wrapping for them, and none has ever been seen in a database.
+    """
+    text = str(name)
+    if " " not in text or '"' in text:
+        return text
+    return f'"{text}"'
+
+
 def wait_on(job):
     # login() hands back a waitable job; other calls may too, and the work
     # must finish before the session tears the CLI process down.
