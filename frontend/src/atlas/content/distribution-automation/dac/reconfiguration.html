@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Reconfiguration &amp; Switching</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DAC,reconfiguration,solution,scenarios,transfer depth,closed transition,open transition,sectionalizing,restoration,CapacityLimit">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Reconfiguration DAC — How It Decides (atlas)amp; Switching (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Reconfiguration &amp; Switching</h1>
+  <p>The scheme-wide solver — switch eligibility, scenario ranking in order, and the rules governing every open and close</p>
+  <div class="chips"><span>3 switch roles</span><span>TransferDepth</span><span>10 ranked criteria</span><span>open · SG · close</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Scenarios are generated <strong>fewest-operations-first</strong>. A solution that re-energizes all affected load with everything under <em>normal</em> limits ends the search.</li>
+<li>Eligibility differs by role: <strong>Bypass</strong> disqualifies a sectionalizing switch, <strong>Out of Service</strong> disqualifies a restoration switch, <strong>InhibitControl</strong> disqualifies both.</li>
+<li>Any scenario that permanently parallels two sources, or uses an unavailable source, is rejected.</li>
+<li>Execution order is always <strong>opens → settings groups → closes</strong>.</li>
+<li>Closed transition requires <strong>matching source groups</strong>.</li>
+<li>If the Open of a closed-transition pair fails, the DAC re-opens the switch it just closed.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Idle</h2>
+<p>Scheme-wide, not per feeder. It monitors for confirmed events and confirmed RTN commands from any feeder, and moves to Analyze when one or more feeders have reported a confirmation <strong>and all feeders are in the Idle step</strong> of their own sequences.</p>
+<p>Concurrent events across several feeders are therefore solved as one problem.</p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Analyze — switch roles</h2>
+<div class="fig"><svg viewBox="0 0 700 158" xmlns="http://www.w3.org/2000/svg">
+  <line x1="40" y1="52" x2="660" y2="52" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="60" cy="52" r="7" fill="#1a1a22"/><text x="60" y="38" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <circle cx="190" cy="52" r="7" fill="#1a1a22"/><text x="190" y="38" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <circle cx="330" cy="52" r="7" fill="#fff" stroke="#d63a3a" stroke-width="2"/><text x="330" y="38" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">R2</text>
+  <circle cx="470" cy="52" r="7" fill="#fff" stroke="#d7930a" stroke-width="2"/><text x="470" y="38" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle">R3</text>
+  <circle cx="610" cy="52" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="610" y="38" font-size="8" font-weight="600" fill="#10a37f" text-anchor="middle">R4 (NO)</text>
+
+  <path d="M240,52 L285,52" stroke="#d63a3a" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+  <text x="262" y="70" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle">faulted zone</text>
+
+  <rect x="285" y="88" width="105" height="46" rx="5" fill="#fff" stroke="#d63a3a" stroke-width="1.25"/>
+  <text x="337" y="103" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">Isolation</text>
+  <text x="337" y="115" font-size="7.2" fill="#6e7180" text-anchor="middle">borders the event</text>
+  <text x="337" y="126" font-size="7.2" fill="#6e7180" text-anchor="middle">opened at confirm</text>
+
+  <rect x="418" y="88" width="105" height="46" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+  <text x="470" y="103" font-size="8.4" font-weight="600" fill="#9c6d06" text-anchor="middle">Sectionalizing</text>
+  <text x="470" y="115" font-size="7.2" fill="#6e7180" text-anchor="middle">closed, downstream</text>
+  <text x="470" y="126" font-size="7.2" fill="#6e7180" text-anchor="middle">splits the lost load</text>
+
+  <rect x="556" y="88" width="108" height="46" rx="5" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="610" y="103" font-size="8.4" font-weight="600" fill="#10a37f" text-anchor="middle">Restoration</text>
+  <text x="610" y="115" font-size="7.2" fill="#6e7180" text-anchor="middle">open, adjacent</text>
+  <text x="610" y="126" font-size="7.2" fill="#6e7180" text-anchor="middle">brings the alternate in</text>
+
+  <path d="M330,60 V86" stroke="#d63a3a" stroke-width="1" stroke-dasharray="3 2"/>
+  <path d="M470,60 V86" stroke="#d7930a" stroke-width="1" stroke-dasharray="3 2"/>
+  <path d="M610,60 V86" stroke="#10a37f" stroke-width="1" stroke-dasharray="3 2"/>
+</svg></div>
+<p class="figcap">The three roles. One device can be a candidate for more than one role across scenarios.</p>
+
+<table>
+<tr><th style="width:18%">Role</th><th style="width:42%">Qualifying devices</th><th>Disqualified by</th></tr>
+<tr>
+<td><strong>Isolation</strong></td>
+<td>Identified in the <em>event</em> sequence and reported in. All switches adjacent to a permanent fault. All switches adjacent to an open phase if the DAC is set to isolate open-phase conditions.</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Sectionalizing</strong></td>
+<td>All <strong>closed</strong> switching devices in the affected network: every closed switch downstream of a permanent fault or open phase, and every closed switch in an overloaded feeder.</td>
+<td><code>Bypass</code> or <code>InhibitControl</code></td>
+</tr>
+<tr>
+<td><strong>Restoration</strong></td>
+<td>All <strong>open</strong> switching devices: every open switch downstream of a permanent fault or open phase, and every open switch adjacent to an overloaded feeder.</td>
+<td><code>OutOfService</code> or <code>InhibitControl</code></td>
+</tr>
+</table>
+<p>Isolation switches appear in every scenario the solver builds.</p>
+
+<h3>Transfer depth</h3>
+<p><code>TransferDepth</code> on <code>DA_MANAGER_AR</code> sets how many layers of neighbouring feeders are considered.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a"><b>0</b><span><strong>No restoration.</strong> No feeders are considered.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>1</b><span>Tie points of the local feeder to its neighbours only.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>2 — recommended</b><span>Local ties plus the ties of one layer of neighbours. Allows rebalancing that frees capacity for stranded load.</span></div>
+</div>
+<p>Higher depth increases solve time. Set 2 except where the number of switches involved is small.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Scenario generation and ranking</h2>
+<p>Scenarios open and close combinations of eligible switches, generated and evaluated <strong>fewest-operations-first</strong>. Each is checked for validity, then ranked.</p>
+
+<h3>Rejected</h3>
+<ul>
+<li>Scenarios involving <strong>unavailable sources</strong>.</li>
+<li>Scenarios that <strong>permanently connect multiple sources in parallel</strong>.</li>
+<li>With load shedding disabled: scenarios that <strong>shed energized zones the triggering event did not de-energize</strong>.</li>
+</ul>
+
+<h3>Ranked, in this order</h3>
+<ol>
+<li>Minimize overload above <strong>temporary</strong> limits.</li>
+<li>Minimize load left <strong>de-energized</strong>.</li>
+<li>Minimize overload above <strong>normal</strong> limits.</li>
+<li>Minimize the maximum load restored by any <strong>one</strong> feeder above Level 1 but below Level 2 voltage.</li>
+<li>Minimize the <strong>total</strong> load restored by feeders above Level 1 but below Level 2 voltage.</li>
+<li>Minimize <strong>switching operations</strong>.</li>
+<li>Minimize the maximum load restored by any one <strong>nonpreferred source</strong>.</li>
+<li>Minimize the <strong>total</strong> load restored by nonpreferred sources.</li>
+<li><strong>Bias toward the normal source</strong>, if no overload above normal limits results.</li>
+<li>Minimize the worst-case <strong>capacity margin below normal limits</strong>.</li>
+</ol>
+<div class="callout"><strong>Nonpreferred source</strong> = a <code>DA_CONNECTOR</code>, or a circuit fed by a <code>DA_BUS</code> with events in progress on a neighbouring DAC. The DAC will sectionalize more than capacity alone requires to avoid using one.</div>
+<div class="callout"><strong>Voltage levels.</strong> Level 1 is live but sagging; Level 2 is fit to restore from. <code>AllowSelectLevel1 = FALSE</code> — a Level 1 feeder cannot be chosen. <code>AllowRestoreLevel1 = FALSE</code> — it can be chosen, but restoration waits for Level 2. See <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>.</div>
+
+<div class="keyfact"><strong>Early exit.</strong> Beyond criterion 6 the solver already favours fewer operations by generating simple scenarios first. When it finds a solution that re-energizes all affected load with every component below its normal capacity limit, it selects that solution and evaluates no more complex scenario. If no such solution exists it continues and takes the best available — which may be partial restoration or no action.</div>
+
+<h3>When it cannot restore everything</h3>
+<p>The <strong>CapacityLimit</strong> alarm is set on <code>DA_MANAGER_AR</code> and on the <code>DA_CIRCUIT</code> of the original event feeder. The alarm gives no reason — only that the system lacks capacity to respond completely.</p>
+<p>For an RTN command, no complete solution means the sequence <strong>aborts to Idle</strong> and sets CapacityLimit. RTN is all-or-nothing — see <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Reconfiguration step</h2>
+<p>The solution is a list of switches to open, switches to close, and settings groups to confirm. The step fails if it exceeds <code>ReconfigurationTimeLimit</code> (default <strong>120 s</strong>) and returns to Idle.</p>
+<table>
+<tr><th style="width:36%">Failure cause</th><th>Alarm on <code>DA_MANAGER_AR</code> and the event feeder's <code>DA_CIRCUIT</code></th></tr>
+<tr><td>An abnormal condition appeared</td><td><strong>AbnormalCondition</strong></td></tr>
+<tr><td>A commanded device did not respond correctly</td><td><strong>CommandFailure</strong></td></tr>
+<tr><td>Insufficient voltage</td><td><strong>VoltageLimit</strong></td></tr>
+</table>
+
+<h3>Switches to open</h3>
+<ul>
+<li><strong>Isolation switches open immediately.</strong></li>
+<li>Switches to open that are <strong>downstream of an isolation switch</strong> open immediately. This covers some or all sectionalizing switches.</li>
+<li>Switches to open for <strong>load transfer</strong> — not downstream of an isolation switch:
+  <ul>
+    <li>closed transition <strong>not</strong> enabled → <strong>open immediately</strong>;</li>
+    <li>closed transition enabled → <strong>stay closed</strong> until the sourcing and receiving feeders are temporarily paralleled.</li>
+  </ul>
+</li>
+</ul>
+<p>The DAC waits for status indication from each device confirming the operation.</p>
+
+<h3>Settings groups</h3>
+<p>Before any close, the DAC determines which feeder each switching device on the impacted feeders will be fed from after reconfiguration, compares that against the configured associations and the device's current group, and sends the change where they differ. It waits for confirmation from every such device before proceeding. See <a href="atlas:distribution-automation/dac/settings-groups.html">Settings Group Changes</a>.</p>
+
+<h3>Switches to close</h3>
+<p><strong>Open transition</strong> — the DAC closes a switch when all of these hold:</p>
+<ul>
+<li><strong>No continuity</strong> from this switch to any switch-to-open that has not yet opened.</li>
+<li><strong>Only one source</strong> connected, on one side.</li>
+<li><strong>No switching operation in progress</strong> on either side.</li>
+<li><strong>Live voltage on at least one side.</strong></li>
+</ul>
+<p><strong>Closed transition</strong> — the DAC closes if the above hold, or if all of these hold:</p>
+<ul>
+<li><strong>Two sources</strong> connected, one each side, with the <strong>same phase relationship and same SourceGroup</strong>.</li>
+<li><strong>No switches-to-open on one side, and one or none on the other.</strong></li>
+<li><strong>No switching operation in progress</strong> on either side.</li>
+<li><strong>Live voltage on at least one side.</strong></li>
+</ul>
+
+<div class="keyfact"><strong>Closed-transition pairing.</strong> The DAC identifies the switch-to-open paired with the switch-to-close and sends the Open <strong>as soon as the closed status is detected</strong> from the switch it closed — not on a timer. If that Open fails, the DAC sends an <strong>Open to the switch it just closed</strong>. Command failure here is declared using <code>UpdateTimeLimit</code>.</div>
+
+<p>Once the solution is executed the sequence returns to Idle.</p>
+<div class="callout"><strong><code>CloseDelay</code></strong> (default 0 s) delays a close command between queueing and sending. Set it non-zero on high-speed comms where isolation steps report <em>opened</em> before the mechanism has finished moving.</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Worked example — sectionalizing across two alternates</h2>
+<p>Fault between CB A and R1 on Circuit A. CB A trips to lockout. Three zones of 100 A each are de-energized and unfaulted — 300 A. Circuit B has 250 A margin, Circuit C has 150 A. Neither can take 300 A.</p>
+<div class="fig"><svg viewBox="0 0 700 176" xmlns="http://www.w3.org/2000/svg">
+  <line x1="40" y1="46" x2="620" y2="46" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="55" cy="46" r="7" fill="#fff" stroke="#d63a3a" stroke-width="2"/><text x="55" y="32" font-size="8" fill="#d63a3a" text-anchor="middle">CB A · LO</text>
+  <path d="M75,46 L105,46" stroke="#d63a3a" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+  <circle cx="125" cy="46" r="7" fill="#fff" stroke="#d63a3a" stroke-width="2"/><text x="125" y="32" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <circle cx="265" cy="46" r="7" fill="#1a1a22"/><text x="265" y="32" font-size="8" fill="#6e7180" text-anchor="middle">R2</text>
+  <circle cx="405" cy="46" r="7" fill="#fff" stroke="#d7930a" stroke-width="2"/><text x="405" y="32" font-size="8" fill="#9c6d06" text-anchor="middle">R3</text>
+  <circle cx="545" cy="46" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="545" y="32" font-size="8" fill="#10a37f" text-anchor="middle">R5 → Ckt C</text>
+  <circle cx="335" cy="88" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="335" y="106" font-size="8" fill="#10a37f" text-anchor="middle">R4 → Ckt B</text>
+  <path d="M335,81 V46" stroke="#c9ccd8" stroke-width="1.5"/>
+  <text x="195" y="62" font-size="7.6" fill="#6e7180" text-anchor="middle">100 A</text>
+  <text x="300" y="62" font-size="7.6" fill="#6e7180" text-anchor="middle">100 A</text>
+  <text x="475" y="62" font-size="7.6" fill="#6e7180" text-anchor="middle">100 A</text>
+  <text x="640" y="42" font-size="7.6" fill="#10a37f">C: 150 A</text>
+  <text x="640" y="53" font-size="7.6" fill="#10a37f">B: 250 A</text>
+
+  <!-- The execution below, in time: normal feeder, fault, isolate, restore from
+       C, restore from B. Every step and every number comes from the ordered
+       list under this figure — the animation IS that list, run once per loop.
+       One 14 s master timeline; keyTimes are fractions of it. -->
+  <g class="animlayer">
+    <!-- normal: CB A carries all three zones -->
+    <path d="M62,46 H545" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="483" stroke-dashoffset="483" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.015;0.10;0.125;1" dur="14s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="483;0;0;0" keyTimes="0;0.055;0.10;1" dur="14s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.05;0.065;0.10;0.12;1" dur="14s" repeatCount="indefinite"/>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M62,46 H545" dur="2.4s" repeatCount="indefinite"/></circle>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M62,46 H545" dur="2.4s" begin="0.8s" repeatCount="indefinite"/></circle>
+    </g>
+
+    <!-- the fault, and the lockout that follows it -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0.25;1;0.3;0;0" keyTimes="0;0.10;0.112;0.126;0.14;0.155;0.185;1" dur="14s" repeatCount="indefinite"/>
+      <path d="M75,46 L105,46" stroke="#d63a3a" stroke-width="7" stroke-linecap="round"/>
+      <path d="M95,18 L80,44 L89,44 L82,68 L101,40 L91,40 L99,18 Z" fill="#d63a3a"/>
+    </g>
+    <circle cx="55" cy="46" r="11" fill="none" stroke="#d63a3a" stroke-width="1.6" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0;0.9;0;0" keyTimes="0;0.115;0.13;0.15;0.17;0.20;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- 1 — isolation and sectionalizing switches open together -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.205;0.235;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <rect x="116" y="41" width="18" height="10" fill="#ffffff"/>
+      <circle cx="125" cy="46" r="7" fill="#ffffff" stroke="#d63a3a" stroke-width="2"/>
+      <text x="125" y="72" font-size="7.2" font-weight="600" fill="#d63a3a" text-anchor="middle">open</text>
+      <rect x="396" y="41" width="18" height="10" fill="#ffffff"/>
+      <circle cx="405" cy="46" r="7" fill="#ffffff" stroke="#d7930a" stroke-width="2"/>
+      <text x="405" y="72" font-size="7.2" font-weight="600" fill="#9c6d06" text-anchor="middle">open</text>
+    </g>
+
+    <!-- 2 — R3 confirmed open, R5 closes: Circuit C picks up one zone -->
+    <circle cx="545" cy="46" r="7" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.35;0.375;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M620,46 H405" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="215" stroke-dashoffset="215" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.375;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="215;215;0;0" keyTimes="0;0.375;0.46;1" dur="14s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.46;0.48;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M620,46 H408" dur="2.6s" repeatCount="indefinite"/></circle>
+    </g>
+    <text x="468" y="18" font-size="7.8" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.40;0.43;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      100 A &#8592; Circuit C
+    </text>
+
+    <!-- 3 — both confirmed open, R4 closes: Circuit B picks up the other two -->
+    <circle cx="335" cy="88" r="7" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.53;0.555;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M335,84 V46" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="38" stroke-dashoffset="38" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.54;0.555;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="38;38;0;0" keyTimes="0;0.555;0.585;1" dur="14s" repeatCount="indefinite"/>
+    </path>
+    <path d="M335,46 H127" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="208" stroke-dashoffset="208" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.58;0.595;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="208;208;0;0" keyTimes="0;0.595;0.675;1" dur="14s" repeatCount="indefinite"/>
+    </path>
+    <path d="M335,46 H403" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="68" stroke-dashoffset="68" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.58;0.595;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="68;68;0;0" keyTimes="0;0.595;0.64;1" dur="14s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.675;0.695;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M335,84 V46 H129" dur="2.8s" repeatCount="indefinite"/></circle>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M335,84 V46 H403" dur="2.8s" begin="0.6s" repeatCount="indefinite"/></circle>
+    </g>
+    <text x="214" y="120" font-size="7.8" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.60;0.63;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      200 A &#8592; Circuit B
+    </text>
+
+    <!-- what stays dead: the isolated faulted zone -->
+    <text x="90" y="72" font-size="7.2" font-weight="600" fill="#8a8e9b" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.73;0.76;0.94;0.97;1" dur="14s" repeatCount="indefinite"/>
+      isolated
+    </text>
+
+    <!-- the running commentary -->
+    <g font-size="8.6" text-anchor="middle">
+      <text x="350" y="152" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.095;0.115;1" dur="14s" repeatCount="indefinite"/>
+        Normal — CB A carries all three zones, 300 A
+      </text>
+      <text x="350" y="152" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.115;0.135;0.195;0.215;1" dur="14s" repeatCount="indefinite"/>
+        Fault CB A&#8211;R1 · CB A trips to lockout · 300 A de-energized
+      </text>
+      <text x="350" y="152" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.215;0.24;0.34;0.355;1" dur="14s" repeatCount="indefinite"/>
+        <tspan font-weight="700">1</tspan> · Open R1 and R3 — simultaneously
+      </text>
+      <text x="350" y="152" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.355;0.375;0.52;0.535;1" dur="14s" repeatCount="indefinite"/>
+        <tspan font-weight="700">2</tspan> · R3 confirmed open &#8594; close R5 · 100 A to Circuit C
+      </text>
+      <text x="350" y="152" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.535;0.555;0.72;0.735;1" dur="14s" repeatCount="indefinite"/>
+        <tspan font-weight="700">3</tspan> · R1 and R3 confirmed open &#8594; close R4 · 200 A to Circuit B
+      </text>
+      <text x="350" y="152" fill="#10a37f" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.735;0.76;0.94;0.965;1" dur="14s" repeatCount="indefinite"/>
+        300 A restored · nothing above normal capacity · faulted zone isolated
+      </text>
+    </g>
+
+    <!-- where we are in the loop -->
+    <line x1="140" y1="164" x2="560" y2="164" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round"/>
+    <line x1="140" y1="164" x2="560" y2="164" stroke="#10a37f" stroke-width="2" stroke-linecap="round"
+          stroke-dasharray="420" stroke-dashoffset="420">
+      <animate attributeName="stroke-dashoffset" values="420;0" keyTimes="0;1" dur="14s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">The execution below, played out: fault, lockout, isolate, then each alternate picking up what it can carry.<span class="print-note"> ▶ Animated in the HTML edition.</span></p>
+<p>R1 is the isolation switch, R3 the sectionalizing switch, R4 and R5 the restoration switches. Execution:</p>
+<ol>
+<li>Open <strong>R1 and R3 simultaneously</strong>.</li>
+<li><strong>R3</strong> confirmed open → close <strong>R5</strong>. 100 A to Circuit C.</li>
+<li><strong>R3 and R1</strong> both confirmed open → close <strong>R4</strong>. 200 A to Circuit B.</li>
+<li>R4 and R5 confirmed closed → sequence complete. 300 A restored, no capacity limit exceeded.</li>
+</ol>
+<p>R5 closes as soon as its own precondition is met, without waiting for R1. The close rule is per-switch continuity to unopened switches-to-open, not a global barrier.</p>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/settings-groups.html">Settings Group Changes</a>
+  <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>
+  <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>
+  <a href="atlas:distribution-automation/dac/device-behaviors.html">Device Behavior Modifiers</a>
+</div>
+
+</body>
+</html>

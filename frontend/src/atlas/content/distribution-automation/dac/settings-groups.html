@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Settings Group Changes</title>
+<meta name="atlas-order" content="110">
+<meta name="atlas-tags" content="DAC,settings group,SG1,SG6,coordination,source association,closed transition,open transition,ordering">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Settings Group Changes (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Settings Group Changes</h1>
+  <p>Which device gets which group, when the command is sent relative to the closes, and the one case that inverts</p>
+  <div class="chips"><span>source → group</span><span>before the closes</span><span>closed-transition inverts it</span><span>max 6 sources</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>The DAC associates <strong>each source with a settings group, per breaker or recloser</strong>.</li>
+<li>Settings group changes happen <strong>at the start of reconfiguration, before switches are closed</strong>.</li>
+<li><strong>Open devices:</strong> the group is changed <strong>before</strong> the device is closed.</li>
+<li><strong>Closed devices:</strong> the group is changed <strong>after</strong> close operations for <strong>closed-transition</strong> transfers between feeders, and <strong>before</strong> close operations for <strong>open-transition / de-energized</strong> transfers.</li>
+<li>A device with <strong>no group configured for the source it will end up on</strong> requires no change. It is left as it is.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Configuring the association</h2>
+<p>Each recloser and breaker exposes <strong>SG1–SG6 Sources</strong>, filled with <strong>device names from the Breakers tab</strong>.</p>
+<ul>
+<li>One settings group may serve several sources: device names separated by a <strong>comma and a space</strong> — <code>Bkr1, Bkr2</code>.</li>
+<li>A single recloser may reference <strong>at most six sources in total</strong> across all its SG entries.</li>
+<li>A source with no entry means no change is required for that device when fed from there.</li>
+</ul>
+<div class="callout">Blank is not an error and produces no warning. A device with a missing association is left in whatever group it is in after the transfer.</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>How the DAC decides what to send</h2>
+<ol>
+<li>From the <strong>switches to close</strong> in the selected solution, determine for <strong>each switching device on the impacted feeders</strong> which feeder it will be fed from <strong>once reconfiguration is complete</strong>.</li>
+<li>Compare against the <strong>configured associations</strong> and each device's <strong>current settings group</strong>.</li>
+<li>Where they differ, send the <strong>settings group selection command</strong>.</li>
+<li>Wait for the <strong>status indication from each device</strong> confirming the change completed.</li>
+<li>Once all required changes have occurred, <strong>proceed to the switches to close</strong>.</li>
+</ol>
+<p>The step runs inside the Reconfiguration step and is bounded by <code>ReconfigurationTimeLimit</code> (default 120 s). See <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>The ordering rule</h2>
+<p>Stated identically in the manual under permanent fault, open phase, overload and RTN.</p>
+
+<div class="fig"><svg viewBox="0 0 700 196" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="20" font-size="9" font-weight="600" fill="#1a1a22">Device is OPEN and will be closed</text>
+  <rect x="20" y="28" width="150" height="30" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="95" y="47" font-size="8.6" font-weight="600" fill="#5468c4" text-anchor="middle">change settings group</text>
+  <path d="M172,43 H208 M204,39 L210,43 L204,47" fill="none" stroke="#6e7180" stroke-width="1.25"/>
+  <rect x="212" y="28" width="110" height="30" rx="5" fill="#1a1a22"/>
+  <text x="267" y="47" font-size="8.6" font-weight="600" fill="#fff" text-anchor="middle">close</text>
+  <text x="340" y="47" font-size="8" fill="#6e7180">always this order</text>
+
+  <text x="20" y="84" font-size="9" font-weight="600" fill="#1a1a22">Device is CLOSED — open-transition / de-energized transfer</text>
+  <rect x="20" y="92" width="150" height="30" rx="5" fill="#fff" stroke="#5468c4" stroke-width="1.4"/>
+  <text x="95" y="111" font-size="8.6" font-weight="600" fill="#5468c4" text-anchor="middle">change settings group</text>
+  <path d="M172,107 H208 M204,103 L210,107 L204,111" fill="none" stroke="#6e7180" stroke-width="1.25"/>
+  <rect x="212" y="92" width="110" height="30" rx="5" fill="#1a1a22"/>
+  <text x="267" y="111" font-size="8.6" font-weight="600" fill="#fff" text-anchor="middle">close operations</text>
+
+  <text x="20" y="148" font-size="9" font-weight="600" fill="#1a1a22">Device is CLOSED — closed-transition transfer between feeders</text>
+  <rect x="20" y="156" width="110" height="30" rx="5" fill="#1a1a22"/>
+  <text x="75" y="175" font-size="8.6" font-weight="600" fill="#fff" text-anchor="middle">close operations</text>
+  <path d="M132,171 H168 M164,167 L170,171 L164,175" fill="none" stroke="#d7930a" stroke-width="1.4"/>
+  <rect x="172" y="156" width="150" height="30" rx="5" fill="#fff" stroke="#d7930a" stroke-width="1.4"/>
+  <text x="247" y="175" font-size="8.6" font-weight="600" fill="#9c6d06" text-anchor="middle">change settings group</text>
+  <text x="340" y="175" font-size="8" font-weight="600" fill="#9c6d06">the one case that inverts</text>
+</svg></div>
+<p class="figcap">Only an already-closed device in a closed-transition transfer receives its group change after the closes.</p>
+
+<p>In a closed transition the device carries load through the parallel, so its coordination cannot change until the new source arrangement exists. In an open-transition or de-energized transfer the device is re-sourced through a dead interval, so the group changes while nothing is flowing.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Interactions</h2>
+<table>
+<tr><th style="width:32%">Situation</th><th>Behavior</th></tr>
+<tr><td><strong>RTN</strong></td><td>Groups are changed for the devices the RTN moves. <strong>Protection devices not transferred are left in their existing settings groups even if those are non-standard.</strong></td></tr>
+<tr><td><strong>Settings-group-only RTN</strong></td><td>Changes <strong>only</strong> protection settings groups, operating <strong>no</strong> switching device. Configured on the Settings tab. See <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>.</td></tr>
+<tr><td><strong>Across a DAC interconnection</strong></td><td>An interconnection zone is <strong>always treated as the same source for settings-group coordination</strong>, regardless of the actual remote source.</td></tr>
+<tr><td><strong>Switch Mode</strong></td><td>A recloser in a settings group that disables protection-element tripping is in switch mode. The DAC then <strong>ignores that device's reclosing-disabled indication</strong>. See <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</td></tr>
+<tr><td><strong>Substation modeled</strong></td><td>Source group is inherited from the active transformer. The breaker's own source group must still be set to its normal value.</td></tr>
+</table>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>
+  <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>
+  <a href="atlas:distribution-automation/dac/permanent-fault.html">Permanent Fault &amp; Miscoordination</a>
+  <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC</a>
+</div>
+
+</body>
+</html>

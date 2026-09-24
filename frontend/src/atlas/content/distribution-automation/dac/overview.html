@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Overview &amp; Scope</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DAC,FLISR,AR,DFO,scope,protocols,inhibit,bypass,out of service,terminology">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Overview DAC — How It Decides (atlas)amp; Scope (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Overview &amp; Scope</h1>
+  <p>What the DAC is, the three sequences, the six triggers, and the vocabulary the other pages use</p>
+  <div class="chips"><span>AR ≠ DFO</span><span>3 sequences</span><span>6 triggers</span><span>Inhibit · Bypass · OOS</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>The DAC is an RTAC running the SEL ES DA library. Its function is <strong>automatic reconfiguration (AR)</strong> — FLISR.</li>
+<li><strong>DFO (volt/VAR) is a separate, separately licensed function.</strong> Nothing on these pages applies to it.</li>
+<li>Protection acts first. The DAC acts after protection finishes, at automation speed.</li>
+<li>Three sequences: <strong>event</strong> and <strong>RTN</strong> run per feeder and only confirm; <strong>reconfiguration</strong> is scheme-wide and is the only one that solves and switches.</li>
+<li>The network is modeled as zones grouped into radial feeders. One source per zone, unless loops are explicitly configured.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What makes the DAC move</h2>
+<p>Six triggers. Five are events detected from field data. One is an operator command.</p>
+<table>
+<tr><th style="width:23%">Trigger</th><th style="width:37%">Recognized by</th><th>Response</th></tr>
+<tr><td><strong>Permanent fault</strong><br><span class="tag">always on</span></td><td>Fault indication on the feeder plus a trip to lockout upstream</td><td>Isolate the faulted zone. Restore unfaulted zones from the normal source and from alternates.</td></tr>
+<tr><td><strong>Miscoordination</strong><br><span class="tag">optional</span></td><td>A device locks out with a fault indication while a device further downstream also indicates fault</td><td>Isolate at the correct point. Close the over-tripped device back in.</td></tr>
+<tr><td><strong>Open phase</strong><br><span class="tag">optional</span></td><td>Loss-of-voltage indications, no fault current on the feeder, sustained past the confirmation delay</td><td>Isolate or keep feeding the affected zone, per setting. Restore downstream zones from alternates.</td></tr>
+<tr><td><strong>Loss of source</strong><br><span class="tag">optional</span></td><td>All PTs on a feeder dead</td><td>Open the feeder breaker or most upstream device. Restore all sections from alternates.</td></tr>
+<tr><td><strong>Overload</strong><br><span class="tag">optional</span></td><td>Current above a configured capacity for a configured confirmation time</td><td>Transfer load to adjacent feeders. Shed only if enabled and transfer failed.</td></tr>
+<tr><td><strong>Source event</strong><br><span class="tag">optional</span></td><td>The <code>SourceEvent</code> input asserted by substation protection — bus fault, bank lockout, breaker failure</td><td>Isolate the feeder from its source. Restore it from alternates.</td></tr>
+<tr><td><strong>RTN command</strong><br><span class="tag">operator</span></td><td>A SCADA or HMI Return-to-Normal control, per feeder or scheme-wide</td><td>Return the feeder to its normal topology and settings groups.</td></tr>
+</table>
+<div class="callout"><strong>A breaker that opens with no fault indication is a manual operation. It starts nothing.</strong> This is also how intrinsic underfrequency load shed support works — see <a href="atlas:distribution-automation/dac/source-events.html">Source Events &amp; Underfrequency</a>.</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>The three sequences</h2>
+<div class="flow">
+  <div class="stage"><b>Event sequence</b><span>Per feeder. Idle → Update → Analyze. Detects and confirms an event. Opens isolation switches on confirmation.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>RTN sequence</b><span>Per feeder. Idle → Update → Analyze. Confirms an RTN command and names the minimum switch set.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Reconfiguration</b><span>Scheme-wide. Idle → Analyze → Reconfiguration. Generates scenarios, ranks them, executes the winner.</span></div>
+</div>
+<p>The first two switch nothing except the immediate isolation opens. Each hands a confirmed result to the reconfiguration sequence and returns to Idle. Reconfiguration starts only when every feeder's own sequence is in Idle.</p>
+<p><a href="atlas:distribution-automation/dac/event-sequence.html">Event Sequence</a> · <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a> · <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a></p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Vocabulary that changes behavior</h2>
+<p>Three SCADA-applied device states. All three remove the device from AR calculations and stop the DAC commanding it. They differ in what the topology model assumes about its position.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #5468c4"><b>Inhibit</b><span>Use the reported open/closed status for topology. Ignore the device for everything else. Not eligible as a sectionalizing or restoration switch.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Bypass</b><span>Assume <strong>closed</strong> regardless of reported status. Not eligible as a sectionalizing switch.</span></div>
+  <div style="border-left:4px solid #d63a3a"><b>Out of service</b><span>Assume <strong>open</strong> regardless of reported status. Not eligible as a restoration switch.</span></div>
+</div>
+<div class="callout"><strong>An abnormal condition is never declared on a bypassed or out-of-service device. Overloads are never detected on one.</strong> Inhibit carries no such exemption.</div>
+<table>
+<tr><th style="width:26%">Term</th><th>Meaning</th></tr>
+<tr><td><strong>Scheme</strong></td><td>Every feeder one controller has authority over.</td></tr>
+<tr><td><strong>Feeder / circuit</strong></td><td>One source feeding zones through closed devices. Named for its originating breaker. <code>DA_CIRCUIT</code>.</td></tr>
+<tr><td><strong>Armed</strong></td><td>Scheme enabled and feeder not excluded. Only armed feeders detect events.</td></tr>
+<tr><td><strong>Zone</strong></td><td>A section of network separable by operating switching devices.</td></tr>
+<tr><td><strong>Field device</strong></td><td>Any switching device outside the substation with comms. Need not be fault-interrupting or load-break capable.</td></tr>
+<tr><td><strong>Recloser / breaker</strong></td><td>Detects fault current and can interrupt it.</td></tr>
+<tr><td><strong>Switch</strong></td><td>Detects fault current, cannot interrupt it.</td></tr>
+<tr><td><strong>Virtual breaker</strong></td><td>A feeder breaker modeled electrically with no comms. Statuses are inferred. Requires a Lockout Period setting.</td></tr>
+<tr><td><strong>Source group</strong></td><td>Positive integer per source. Matching groups may be paralleled; non-matching may not. Inherited from the active transformer if the substation is modeled.</td></tr>
+<tr><td><strong>Transfer depth</strong></td><td>Layers of neighbouring feeders the solver may use. 0 = no restoration. Set to 2.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">4</span>Protocols and commands</h2>
+<p>DNP3: unsolicited messages on status change, plus a periodic integrity poll (<code>IntegrityPeriod</code>, default 300 s) to confirm each device is alive. Other protocols work if they use the same data types — SEL Fast Message, IEC 61850 MMS.</p>
+<p>The DAC sends these command types and no others:</p>
+<div class="crob">
+  <div class="hot"><b>Open</b><span>isolate, sectionalize, shed</span></div>
+  <div class="hot"><b>Close</b><span>restore, correct miscoordination</span></div>
+  <div><b>Reset</b><span>clear fault latches</span></div>
+  <div><b>Settings group</b><span>re-coordinate for the new source</span></div>
+  <div class="dim"><b>Enable/Disable<br>Permissive · Auto/Manual</b><span>only when interfaced to external schemes</span></div>
+</div>
+<p><strong>All switching commands are three-phase</strong>, including to single-phase-lockout devices and in response to single-phase events.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Limits</h2>
+<ul>
+<li>The DAC operates <strong>feeder breakers and downstream devices only</strong>. It never controls transformer mains or bus ties, even when modeled.</li>
+<li>It is not protection and not anti-islanding. A DG point of interconnection must disconnect itself.</li>
+<li>It <strong>cannot command a DG point of interconnection to close</strong> — only to block or permit closing.</li>
+<li>It does not build an operator HMI. It provides a commissioning HMI and SCADA reporting.</li>
+<li>Sustained parallel operation requires both feeders and every device between them to be configured as loop objects.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">6</span>Functions in the library</h2>
+<div class="twocol">
+<div>
+<h3>Detection</h3>
+<ul>
+<li>Permanent fault, with or without miscoordination</li>
+<li>Open phase — broken jumper, hanging conductor</li>
+<li>Loss of source; substation dead bus</li>
+<li>Two configurable stages of overload</li>
+<li>Voltage discrepancy</li>
+<li>Abnormal conditions — hot-line tags, supervisory disabled, non-reclose, control failures, comms failures</li>
+<li>Multiple concurrent and sequential faults</li>
+</ul>
+</div>
+<div>
+<h3>Action</h3>
+<ul>
+<li>Isolation of faulted zones; restoration of unfaulted zones</li>
+<li>Sectionalizing and restoration from multiple sources</li>
+<li>Alternative feed selection on capacity and voltage</li>
+<li>Overload mitigation by transfer, and prioritized shed</li>
+<li>Operator-triggered RTN, per feeder or scheme-wide</li>
+<li>Automatic disabling under underfrequency load shed</li>
+<li>Distributed controller collaboration; redundant controller management</li>
+<li>Looped feeder operation; spare breaker and transfer bus support</li>
+</ul>
+</div>
+</div>
+</section>
+
+<div class="footnote">
+<strong>Sources.</strong> SEL ES <em>Distribution Automation Controller Operation Manual</em>, date code 20250626 (rev 7, DA_Library V4.10.4) — behavior. <em>DAC Extension User Development Guide</em> rev 3, 20221220 — configuration, settings names and defaults, SCADA point tables. A third document, the <em>Reference Guide</em>, lists every input and output of every DA Adapter block. Where the two disagree on a default, the OM's behavior text is taken as authoritative and the UDG's setting name given alongside.
+</div>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/feeder-states.html">Feeder States, Arming &amp; Reset</a>
+  <a href="atlas:distribution-automation/dac/event-sequence.html">Event Sequence</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/timers-settings.html">Timers &amp; Settings Reference</a>
+</div>
+
+</body>
+</html>

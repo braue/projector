@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Device Behavior Modifiers</title>
+<meta name="atlas-order" content="120">
+<meta name="atlas-tags" content="DAC,load break,single-phase lockout,gang lockout,non-fault interrupting,pseudo breaker,predictive breaker,spare breaker,virtual breaker,prefer-closed">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Device Behavior Modifiers (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Device Behavior Modifiers</h1>
+  <p>Device properties that change what the DAC will do — load-break capability, single-phase lockout, non-interrupting switches, unseen breakers, spares</p>
+  <div class="chips"><span>load-break gate</span><span>prefer-closed vs prefer-open</span><span>pseudo breakers</span><span>spares</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>All reclosers are load-break capable.</strong> Only switches can be marked otherwise.</li>
+<li>A load-break incapable device is <strong>never opened while connected to a known source</strong>. It becomes eligible when its surroundings are disconnected from every known source.</li>
+<li>Default is <strong>prefer-closed</strong>: a device with mixed phase statuses is modeled as <strong>closed</strong>. Only a configured single-phase-lockout device uses <strong>prefer-open</strong>.</li>
+<li><strong>Every switching command the DAC sends is three-phase</strong>, in every configuration and for every event.</li>
+<li>Fault-interrupting capability is not required for inclusion. Remote control and fault reporting are.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Load-break incapable switches</h2>
+<p>Set per switch (<strong>Load Break Capable</strong> = False). Reclosers have no such setting.</p>
+<div class="keyfact"><strong>The DAC will never open a device that is not rated load-break capable while it is connected to a known source.</strong> It will consider the device eligible if the surrounding area is disconnected from all known sources. This applies to three-phase energization and to single- or two-pole energization from single-phase operate devices.</div>
+<table>
+<tr><th style="width:38%">Usable for</th><th>Answer</th></tr>
+<tr><td>Isolation point for an <strong>upstream fault</strong></td><td><strong>Yes</strong> — the area is already dead.</td></tr>
+<tr><td>Isolation point for a <strong>miscoordination</strong> that tripped upstream protection</td><td><strong>Yes.</strong></td></tr>
+<tr><td>Any <strong>closed-transition</strong> operation</td><td><strong>No.</strong></td></tr>
+<tr><td><strong>Load rebalancing</strong></td><td><strong>No.</strong></td></tr>
+<tr><td><strong>Return to normal</strong></td><td><strong>No.</strong></td></tr>
+</table>
+
+<h3>The three-step sequence</h3>
+<p>Where the event will drop the customers anyway — open-phase isolation downstream of such a device — the DAC will consider:</p>
+<div class="flow">
+  <div class="stage"><b>1 · Isolate wider</b><span>Open a <strong>load-break capable</strong> device further upstream, de-energizing the section.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · Open the incapable device</b><span>Now unloaded, it can be operated.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Close back</b><span>Re-close the upstream device to restore the non-event zone.</span></div>
+</div>
+<div class="warn"><strong>A sequence requiring extra switching purely to de-energize such a device, open it, and re-energize it is not considered.</strong> Example: a normal open point that is not load-break capable and is presently closed. <strong>The DAC will not perform the RTN, even if open-transition operations are allowed.</strong></div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Single-phase operate devices</h2>
+<p><strong>Lockout Mode</strong> on each recloser:</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>Gang Lockout</b><span>The device always performs ganged lockout.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Single-Phase Lockout</b><span>The device is eligible to lock out individual phases.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Dynamic</b><span>The device changes between both modes. The <strong>Dynamic Single-Phase Lockout Mode</strong> data point must be mapped so the DAC can read the current mode.</span></div>
+</div>
+
+<h3>Prefer-closed and prefer-open</h3>
+<p><strong>Default — prefer-closed.</strong> A device with a discrepancy in its individual phase statuses is modeled as <strong>closed</strong>, because it can energize downstream load. The DAC generates switching decisions using three-phase behavior only and will not attempt individual-phase commands.</p>
+<p><strong>Configured as single-phase lockout — prefer-open during idle times.</strong> A single or two phases tripping to lockout results in the system considering the device <strong>opened and locked out</strong>, which allows AR operations to start.</p>
+<div class="keyfact"><strong>Commands are confirmed against all three phases.</strong> When the DAC sends a control to a single-phase operating device, it confirms all three phases align with the command before considering it successful.</div>
+
+<h3>Response behavior</h3>
+<ul>
+<li>In response to a single- or two-phase event the DAC sends <strong>only three-phase open or close commands</strong>. If the initiating event is a miscoordination, the correction produces <strong>full three-phase isolation of the faulted zone</strong> even though the protection operation was single- or two-phase.</li>
+<li>Despite prefer-open, the system <strong>tracks partially energized zones</strong> to prevent damage to load-break incapable switches.</li>
+<li>Pole status discrepancy is <strong>ignored</strong> for a device configured for single-phase operation. On a ganged device it is logged to the SOE and is not an abnormal condition.</li>
+</ul>
+
+<h3>RTN first step</h3>
+<p>Once a complete return sequence is determined, the DAC's <strong>first operation is to three-phase close every device with one or two phases open</strong>, putting the system into the prefer-closed model the RTN plan was built against. The normal RTN sequence follows.</p>
+<div class="warn"><strong>Exception at a connector.</strong> A partially energized zone at a <code>DA_DAC_INTERCONNECT</code> location may have its energized phases <strong>temporarily dropped during an RTN</strong>, even with closed-transition-only RTN configured. Configure the devices bordering an interconnection point for <strong>gang lockout</strong>.</div>
+<div class="callout"><b>Field note —</b> <strong>single-phase lockout behaves like an open phase without isolate</strong>: it opens the next downstream recloser and restores from the alternate.</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Non-fault-interrupting devices</h2>
+<p>Any device may be included as long as it has <strong>remote control</strong> and <strong>fault reporting</strong>. Motor-operated switches qualify. Reclosers may be configured to act as switches while in specific settings groups.</p>
+<table>
+<tr><th style="width:26%">Term</th><th>Meaning</th></tr>
+<tr><td><strong>Recloser / breaker</strong></td><td>Detects fault current and can interrupt it.</td></tr>
+<tr><td><strong>Switch</strong></td><td>Detects fault current, cannot interrupt it.</td></tr>
+<tr><td><strong>Switch Mode</strong></td><td>A device that can interrupt but is currently configured not to. Model as a recloser and map the Switch Mode status.</td></tr>
+</table>
+<div class="callout"><strong>Their presence changes the reporting, not the algorithm.</strong> A fault downstream of a non-interrupting switch produces a fault indication there and a trip to lockout at the next upstream device — the signature of a miscoordination. The DAC operates accordingly, including operating the non-interrupting device, but <strong>reports these as permanent fault events that did not miscoordinate</strong>.</div>
+<p>Miscoordination handling is <strong>automatically enabled for any non-fault-breaking switches</strong>, regardless of the scheme-level miscoordination setting.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Breakers the DAC cannot see</h2>
+
+<h3>Virtual breakers</h3>
+<p>A feeder breaker modeled electrically with no DNP session — Data Source set to the reserved keyword <code>[Virtual]</code>. <strong>Every feeder must originate with a feeder breaker.</strong> The <strong>Lockout Period</strong> setting defines how long the area downstream must be de-energized before the DAC considers the device locked out. Ignored for physical breakers.</p>
+
+<h3>Predictive breaker modeling — pseudo breakers</h3>
+<p><code>DA_PSEUDO_BKR</code> predicts a substation breaker's position, overcurrent pickup and lockout status from the <strong>first downstream device</strong>:</p>
+<ol>
+<li>The breaker is <strong>assumed closed</strong> unless one of the following applies.</li>
+<li>It is assumed to have a <strong>fault indication asserted</strong> if the first downstream device reports a fault indication.</li>
+<li>It is assumed <strong>open</strong> if it has a fault indication <em>and</em> the first downstream device reports <strong>dead source-facing voltage</strong>.</li>
+<li>It is assumed <strong>locked out</strong> if the condition in rule 3 persists for the configured breaker lockout period.</li>
+</ol>
+<p>Purpose: support miscoordination between the breaker and the first downstream device. Without it, protective overreach from a non-communicating device produces simultaneous fault indications plus loss of source voltage, which results in <strong>no operation from the DAC</strong>.</p>
+<div class="warn"><strong>Do not combine with shot-counting schemes.</strong> With sectionalizers or similar devices driven to lockout <em>during</em> a breaker open period prior to lockout, <strong>the DAC may perform additional isolation</strong> from the assumed breaker-open status.</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Spare breakers</h2>
+<p>For substation transfer-bus arrangements. Each breaker may specify <strong>one other breaker as its spare</strong>, and one device may be the spare for <strong>multiple</strong> primaries. An operator control <strong>replaces the primary device with the spare in the topology model</strong>, so AR continues when a primary is out of service.</p>
+<ul>
+<li>While a spare is swapped in, the feeder's operational targets attach to <strong>the spare's</strong> indications.</li>
+<li>The system supports <strong>one spare swapped in for multiple primaries simultaneously</strong>.</li>
+</ul>
+<div class="callout"><strong>Feeder breakers modeled purely as spares still count toward the feeder count used for licensing.</strong></div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Related behaviors</h2>
+<ul>
+<li><strong>Protection failure (breaker failure)</strong> — response depends on whether an event is in progress; during an event the device is temporarily treated as bypassed. Table on <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</li>
+<li><strong>Inhibit / Bypass / Out of Service</strong> — definitions on <a href="atlas:distribution-automation/dac/overview.html">Overview &amp; Scope</a>; effect on switch eligibility on <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>.</li>
+</ul>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>
+  <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>
+</div>
+
+</body>
+</html>

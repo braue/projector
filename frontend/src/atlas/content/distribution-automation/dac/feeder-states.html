@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Feeder States, Arming &amp; Reset</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC,armed,unarmed,initialize,enable,disable,exclude,include,reset,non-normal,setpoint retention">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Feeder States, Arming DAC — How It Decides (atlas)amp; Reset (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Feeder States, Arming &amp; Reset</h1>
+  <p>The three feeder states, what arms a feeder, what Reset clears, and what non-normal configuration affects</p>
+  <div class="chips"><span>3 states</span><span>Enable + not Exclude</span><span>Reset ≠ abort</span><span>non-normal</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>Armed = scheme Enabled AND feeder not Excluded.</strong> All feeders are included by default.</li>
+<li>Only an armed feeder detects events. An unarmed feeder is also unavailable as an alternate source.</li>
+<li><strong>Reset is a target reset, not an abort.</strong> It clears latched indications and forces a poll.</li>
+<li>Reset is ignored while any event is being operated on anywhere in the system.</li>
+<li><strong>The only way to abort an event in progress is to disable the DAC.</strong></li>
+<li>Non-normal configuration affects return to normal only. It does not alter the response to any event.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The three states</h2>
+<p>Every feeder is in one of three states at all times.</p>
+
+<div class="fig"><svg viewBox="0 0 700 216" xmlns="http://www.w3.org/2000/svg">
+  <text x="60" y="22" font-size="8" fill="#a9adb8" text-anchor="middle">controller startup</text>
+  <path d="M60,28 V44 M56,40 L60,46 L64,40" fill="none" stroke="#a9adb8" stroke-width="1.1"/>
+  <rect x="10" y="48" width="100" height="40" rx="6" fill="#fff" stroke="#a9adb8" stroke-width="1.25"/>
+  <text x="60" y="66" font-size="10.5" font-weight="600" fill="#6e7180" text-anchor="middle">Initialize</text>
+  <text x="60" y="79" font-size="7.4" fill="#a9adb8" text-anchor="middle">clear variables, learn</text>
+  <text x="60" y="88" font-size="7.4" fill="#a9adb8" text-anchor="middle">normal arrangement</text>
+
+  <path d="M110,68 H176 M172,64 L178,68 L172,72" fill="none" stroke="#6e7180" stroke-width="1.25"/>
+  <text x="143" y="62" font-size="7.4" fill="#6e7180" text-anchor="middle">initialized</text>
+
+  <rect x="180" y="48" width="110" height="40" rx="6" fill="#fff" stroke="#a9adb8" stroke-width="1.25"/>
+  <text x="235" y="66" font-size="10.5" font-weight="600" fill="#6e7180" text-anchor="middle">Unarmed</text>
+  <text x="235" y="79" font-size="7.4" fill="#a9adb8" text-anchor="middle">watching the scheme state</text>
+
+  <path d="M290,60 H392 M388,56 L394,60 L388,64" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+  <text x="341" y="53" font-size="7.6" font-weight="600" fill="#10a37f" text-anchor="middle">Enable AND not Exclude</text>
+  <path d="M392,80 H294 M298,76 L292,80 L298,84" fill="none" stroke="#d63a3a" stroke-width="1.4"/>
+  <text x="343" y="94" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle">Exclude OR scheme Disabled</text>
+
+  <rect x="396" y="48" width="118" height="40" rx="6" fill="#1a1a22"/>
+  <text x="455" y="66" font-size="10.5" font-weight="600" fill="#fff" text-anchor="middle">Armed</text>
+  <text x="455" y="79" font-size="7.4" fill="#c9ccd8" text-anchor="middle">events detected here only</text>
+
+  <path d="M455,88 C455,132 200,142 60,96 M62,102 L58,94 L68,95" fill="none" stroke="#a9adb8" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="270" y="140" font-size="7.6" fill="#6e7180" text-anchor="middle">Reset AND no AR in progress → Initialize</text>
+  <path d="M235,88 C235,116 150,120 62,98" fill="none" stroke="#a9adb8" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="150" y="118" font-size="7.6" fill="#6e7180" text-anchor="middle">Reset</text>
+
+  <rect x="540" y="48" width="150" height="82" rx="6" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="552" y="63" font-size="8" font-weight="600" fill="#1a1a22">While Armed the feeder is:</text>
+  <text x="552" y="78" font-size="7.6" fill="#6e7180">· eligible to raise an event</text>
+  <text x="552" y="90" font-size="7.6" fill="#6e7180">· eligible as an alternate source</text>
+  <text x="552" y="102" font-size="7.6" fill="#6e7180">· integrity-polled on interval</text>
+  <text x="552" y="114" font-size="7.6" fill="#6e7180">· watched for abnormals</text>
+  <text x="552" y="126" font-size="7.6" fill="#6e7180">· watched for overload</text>
+
+  <!-- 13 s: startup into Unarmed, arming, what Armed buys you, then the two
+       ways back out — Exclude (or the scheme disabling) and Reset. -->
+  <g class="animlayer">
+    <rect x="10" y="48" width="100" height="40" rx="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0.10;0.10;0;0;0.10;0.10;0;0" keyTimes="0;0.02;0.11;0.14;0.915;0.93;0.97;0.99;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="180" y="48" width="110" height="40" rx="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.10;0.10;0;0;0.10;0.10;0;0" keyTimes="0;0.14;0.17;0.26;0.29;0.79;0.81;0.885;0.915;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="396" y="48" width="118" height="40" rx="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.35;0.35;0;0" keyTimes="0;0.31;0.34;0.75;0.78;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- initialized -->
+    <circle r="4.4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.30;0.325;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M60,68 H235" keyPoints="0;0;1;1" keyTimes="0;0.11;0.15;1"/>
+    </circle>
+    <!-- Enable AND not Exclude: the arming transition -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.255;0.275;0.32;0.35;1" dur="13s" repeatCount="indefinite"/>
+      <path d="M290,60 H392 M388,56 L394,60 L388,64" fill="none" stroke="#10a37f" stroke-width="2.6"/>
+    </g>
+    <circle r="4.4" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.275;0.325;0.34;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M292,60 H390" keyPoints="0;0;1;1" keyTimes="0;0.275;0.325;1"/>
+    </circle>
+
+    <!-- what Armed actually buys, one line at a time -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.34;0.36;0.755;0.78;1" dur="13s" repeatCount="indefinite"/>
+      <rect x="540" y="48" width="150" height="82" rx="6" fill="none" stroke="#10a37f" stroke-width="1.4"/>
+    </g>
+    <circle cx="546" cy="75" r="2.2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.39;0.405;0.755;0.78;1" dur="13s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="546" cy="87" r="2.2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.455;0.47;0.755;0.78;1" dur="13s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="546" cy="99" r="2.2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.535;0.755;0.78;1" dur="13s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="546" cy="111" r="2.2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.585;0.60;0.755;0.78;1" dur="13s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="546" cy="123" r="2.2" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.65;0.665;0.755;0.78;1" dur="13s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Exclude (or the scheme going Disabled) drops it straight back -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.755;0.775;0.83;0.855;1" dur="13s" repeatCount="indefinite"/>
+      <path d="M392,80 H294 M298,76 L292,80 L298,84" fill="none" stroke="#d63a3a" stroke-width="2.6"/>
+    </g>
+    <circle r="4.4" fill="#d63a3a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.76;0.775;0.825;0.84;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M390,80 H294" keyPoints="0;0;1;1" keyTimes="0;0.775;0.825;1"/>
+    </circle>
+
+    <!-- Reset sends it back to Initialize -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.875;0.895;0.96;0.985;1" dur="13s" repeatCount="indefinite"/>
+      <path d="M235,88 C235,116 150,120 62,98" fill="none" stroke="#a9adb8" stroke-width="2"/>
+      <rect x="126" y="110" width="50" height="11" fill="#ffffff"/>
+      <text x="150" y="118" font-size="7.6" font-weight="600" fill="#6e7180" text-anchor="middle">Reset</text>
+    </g>
+    <circle r="4.4" fill="#a9adb8" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.885;0.90;0.955;0.97;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M235,88 C235,116 150,120 62,98" keyPoints="0;0;1;1" keyTimes="0;0.90;0.955;1"/>
+    </circle>
+
+    <g font-size="8.6" text-anchor="middle">
+      <text x="350" y="192" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.125;0.15;1" dur="13s" repeatCount="indefinite"/>
+        Controller startup — clear variables, learn the normal arrangement
+      </text>
+      <text x="350" y="192" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.15;0.175;0.255;0.275;1" dur="13s" repeatCount="indefinite"/>
+        Unarmed — watching the scheme state, detecting nothing
+      </text>
+      <text x="350" y="192" fill="#10a37f" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.275;0.30;0.36;0.38;1" dur="13s" repeatCount="indefinite"/>
+        Enable AND not Exclude &#8594; Armed
+      </text>
+      <text x="350" y="192" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.40;0.74;0.76;1" dur="13s" repeatCount="indefinite"/>
+        Armed — and only now is the feeder any of the five things on the right
+      </text>
+      <text x="350" y="192" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.76;0.785;0.855;0.875;1" dur="13s" repeatCount="indefinite"/>
+        Exclude, or the scheme disabled &#8594; straight back to Unarmed
+      </text>
+      <text x="350" y="192" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.875;0.90;0.96;0.985;1" dur="13s" repeatCount="indefinite"/>
+        Reset &#8594; Initialize, and the normal arrangement is learned again
+      </text>
+    </g>
+
+    <line x1="140" y1="204" x2="560" y2="204" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round"/>
+    <line x1="140" y1="204" x2="560" y2="204" stroke="#10a37f" stroke-width="2" stroke-linecap="round"
+          stroke-dasharray="420" stroke-dashoffset="420">
+      <animate attributeName="stroke-dashoffset" values="420;0" keyTimes="0;1" dur="13s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">Feeder state machine. Reset from Armed is honoured only when no AR sequence is in progress.<span class="print-note"> ▶ Animated in the HTML edition: startup, arming, and both ways back out.</span></p>
+
+<div class="card latch">
+<h3>Initialize</h3>
+<p style="margin-bottom:4px"><strong>Entered:</strong> at controller power-up, or on a scheme Reset issued while all feeders in the scheme are idle.</p>
+<p style="margin-bottom:4px"><strong>Does:</strong> resets internal variables and alarm conditions; evaluates the configuration of the distribution system to determine the normal operating arrangement.</p>
+<p style="margin-bottom:0"><strong>Exits to:</strong> Unarmed, once initialized.</p>
+</div>
+<div class="card latch">
+<h3>Unarmed</h3>
+<p style="margin-bottom:4px"><strong>Entered:</strong> after initialization; on an Exclude command; when the scheme is disabled.</p>
+<p style="margin-bottom:4px"><strong>Does:</strong> monitors the scheme state.</p>
+<p style="margin-bottom:0"><strong>Exits to:</strong> Armed when the scheme is enabled and the feeder is not excluded. Initialize on a Reset command.</p>
+</div>
+<div class="card teal">
+<h3>Armed</h3>
+<p style="margin-bottom:4px"><strong>Entered:</strong> when the operator enables the system and the feeder is not excluded.</p>
+<p style="margin-bottom:4px"><strong>Does:</strong> monitors for an undervoltage, fault, or overload indication from any recloser control, switch control, feeder relay or other IED on the feeder. An indication starts the <a href="atlas:distribution-automation/dac/event-sequence.html">event sequence</a>.</p>
+<p style="margin-bottom:0"><strong>Exits to:</strong> Unarmed if the scheme is disabled or the feeder excluded. Initialize on a Reset with no AR sequence in progress.</p>
+</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Arming and exclusion</h2>
+<p>Scheme enable/disable is one operator control. Feeder include/exclude is one control per feeder. Both are SCADA points — <code>DAC_EnableDisableCommand</code>, <code>Feeder_&lt;Bkr&gt;_ExcludeIncludeCommand</code>.</p>
+<div class="keyfact"><strong>Excluding a feeder does two things.</strong> It stops the DAC acting on events on that feeder, and it removes the feeder as an alternate source for its neighbours. Exclusion is listed as a disqualifier for restoration.</div>
+<p>An abnormal feeder is disqualified the same way — see <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Reset</h2>
+<p>Reset controls are SCADA points modeled on a relay's Target Reset. One per feeder, plus one system-wide.</p>
+<table>
+<tr><th style="width:44%">System Reset</th><th>Feeder Reset</th></tr>
+<tr>
+<td>Resets <strong>system-level</strong> event indicators — Permanent Fault Event, Event Failed due to Abnormal Status, and similar</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Resets <strong>feeder-level</strong> event indicators for <strong>all</strong> feeders — Feeder operated due to Permanent Fault, Feeder Reconfigured, and similar</td>
+<td>Resets feeder-level event indicators</td>
+</tr>
+<tr>
+<td>Resets <strong>Command Failure</strong> and <strong>Close-onto-Fault</strong> statuses and <strong>Opened to Isolate Open Phase</strong> targets on <strong>all</strong> devices</td>
+<td>Resets the same three, <strong>only on devices within the normal extent of the feeder</strong></td>
+</tr>
+<tr>
+<td>Triggers an update poll of every device in the system</td>
+<td>Triggers an update poll of devices within the normal extent of the feeder</td>
+</tr>
+</table>
+<div class="warn"><strong>Feeder Reset does not reach devices beyond the feeder's normal tie points.</strong> After a restoration the feeder is extended past those ties, so the devices that just operated are not reset. Use the system Reset, or reset the feeder that normally owns them.</div>
+<div class="keyfact"><strong>Command Failure and Close-onto-Fault clear only by a scheme or feeder Reset.</strong> Both latch. Neither clears when the field condition clears.</div>
+<p><strong>Reset is ignored if an event is currently being operated on anywhere in the system.</strong> To stop a sequence in flight, disable the DAC.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Non-normal configuration</h2>
+<p>Every switching device is designated NC or NO at setup. A feeder is in a <strong>non-normal configuration</strong> if the present state of any device on it differs from its designated normal state. One NC recloser open, or one NO tie closed, is sufficient.</p>
+<p>A feeder is also non-normal if the configured normal states produce a loop between radial sources — no NO point separating two sources. Deliberate loops must be configured as loop objects; see <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>.</p>
+<div class="callout"><strong>Non-normal configuration is used only for return to normal.</strong> It does not gate, delay or alter automatic reconfiguration. A non-normal feeder answers events from present topology.</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>What survives a restart</h2>
+<p>By default every SCADA-controlled status resets to its default when the RTAC restarts, reboots, or has a new settings file applied. The <strong>Setpoint Retention</strong> setting (DAC Extension → Settings tab) carries across:</p>
+<ul>
+<li>Per-device <strong>Out of Service</strong>, <strong>Bypass</strong>, <strong>Inhibit</strong></li>
+<li>Per-feeder <strong>Exclude</strong></li>
+</ul>
+<div class="keyfact"><strong>System Enabled is never retained</strong>, with or without the setting. After any restart the scheme must be enabled by a SCADA control.</div>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/event-sequence.html">Event Sequence</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+</div>
+
+</body>
+</html>

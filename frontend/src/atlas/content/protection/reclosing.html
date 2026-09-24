@@ -379,7 +379,7 @@
   <li><strong>Settings changes bite mid-sequence.</strong> Any settings or group change drives the shot counter to last shot and loads <code>79RSLD</code>; if timing an open interval, the relay goes straight to lockout. Don't push settings mid-storm.</li>
   <li><strong>Units differ by platform.</strong> 751/751A open intervals/reset times are in <em>seconds</em> (0–3000, 0 = defeated); 351RS/651R in <em>cycles</em> (OFF, 12–999999, OFF = defeated). A "300" copied across is 5 minutes on one, 5 seconds on the other.</li>
   <li><strong>Underfrequency and reclosing don't mix.</strong> Load-shed trips should drive lockout (<code>79DTL := TRIP AND 81D1T</code>; factory behavior on the 351RS) — reclosing shed load defeats the shed.</li>
-  <li><strong>DAC interaction.</strong> Automation keys on 79LO and operation counts; hot line tag, reclose-disable, and fast-curve toggles all change what the scheme sees. Read the DAC pages (how-it-decides, operating-it) before changing shot counts on a DAC feeder.</li>
+  <li><strong>DAC interaction.</strong> Automation keys on 79LO and operation counts; hot line tag, reclose-disable, and fast-curve toggles all change what the scheme sees. Read the DAC pages (Permanent Fault &amp; Miscoordination, Abnormal Conditions) before changing shot counts on a DAC feeder.</li>
   <li><strong>No built-in 79?</strong> AG9405 builds full recloser functions (single-shot, two-shot, single-shot/two-breaker) purely from SELOGIC in the SEL-321; AG9903 is the pattern book for switch-selected high-speed vs delayed reclosing with hot-bus/dead-line and sync supervision on the SEL-351.</li>
   <li><strong>Testing:</strong> watch <code>TARGET</code> for shot/state bits, <code>OPTMN</code>/<code>RSTMN</code> for which timer is running, and remember 79DTL's 1-second dropout when pulse-testing lockout conditions.</li>
 </ul>
@@ -390,7 +390,7 @@
   <b>Next</b>
   <a href="atlas:protection/coordination-tcc.html">Coordination &amp; TCC Curves</a>
   <a href="atlas:protection/sync-check-closing.html">Synchronism Check &amp; Closing</a>
-  <a href="atlas:distribution-automation/dac/how-it-decides.html">DAC &mdash; How It Decides</a>
+  <a href="atlas:distribution-automation/dac/permanent-fault.html">DAC &mdash; Permanent Fault &amp; Miscoordination</a>
   <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
   <a href="atlas:fundamentals/faults-and-fault-current.html">Faults &amp; Fault Current</a>
 </div>

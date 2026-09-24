@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Open Phase &amp; Loss of Source</title>
+<meta name="atlas-order" content="80">
+<meta name="atlas-tags" content="DAC,open phase,broken jumper,dead bus,loss of source,LOS,isolate open phase,feed open phase,PT coverage,OpenPhaseConfirmTime">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Open Phase DAC — How It Decides (atlas)amp; Loss of Source (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Open Phase &amp; Loss of Source</h1>
+  <p>Broken jumpers, dead buses and lost sources — detection prerequisites, the fault-current block, and the two isolation modes</p>
+  <div class="chips"><span>no FI allowed</span><span>60 s confirm</span><span>Feed vs Isolate</span><span>search runs from the source</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>A fault current indication anywhere on the feeder stops open-phase evaluation.</strong> Voltage may be dragged down by the fault, so the DAC will not read it.</li>
+<li>Detection searches <strong>from the substation outward</strong>. Fault location searches from the far end inward.</li>
+<li>The DAC must first have seen <strong>healthy voltage on every PT on the feeder</strong> before it will call an open phase.</li>
+<li><strong>Open-phase detection is always delayed</strong> (default 60 s) for upstream reclosing and external switching. Open-phase sequences run longer than permanent-fault sequences.</li>
+<li><strong>Feed</strong> mode opens one switch, and only if it can restore what is beyond it. <strong>Isolate</strong> mode opens every bordering switch unconditionally.</li>
+</ul>
+</div>
+<div class="callout"><b>Field note —</b> <strong>open phase with isolate is essentially a fault.</strong> <strong>Open phase without isolate opens the next downstream recloser and restores from the alternate.</strong> <strong>Single-phase lockout behaves like open phase without isolate.</strong></div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What counts as an open phase</h2>
+<p>Broken jumpers, hanging conductors, high-impedance opens, and dead-bus conditions. <strong>A loss of substation voltage, such as from a transmission outage, is treated as an open-phase condition.</strong></p>
+<p>Live/dead status comes from <strong>analog voltage values</strong> compared against percentages of nominal, or from <strong>binary live/dead statuses</strong> computed in the end device. Either or both may be used, with <strong>no change to the underlying behavior</strong>. The indication <strong>must be non-latching</strong>.</p>
+<table>
+<tr><th style="width:34%">Setting</th><th>Effect</th></tr>
+<tr><td><strong>Disabled</strong></td><td>No open-phase detection. Loss-of-source detection can still be enabled separately.</td></tr>
+<tr><td><strong>Enabled — Feed Open Phase</strong></td><td>Detection on. The affected zone is left energized where possible.</td></tr>
+<tr><td><strong>Enabled — Isolate Open Phase</strong></td><td>Detection on. The affected zone is fully isolated.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>Prerequisites, in order</h2>
+<div class="flow">
+  <div class="stage"><b>1 · Healthy history</b><span>All PTs on the feeder must have shown <strong>healthy voltage</strong> for either <strong>half the open-phase confirmation time</strong> or the <strong>full event detect time</strong>, whichever is shorter. Half the 60 s default = 30 s.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>2 · No fault current</b><span>A fault indication <strong>anywhere on the feeder</strong> blocks evaluation for open phase and dead bus.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>3 · Sustained indication</b><span>Voltage indications must show a possible open phase for <code>EventDetectTime</code> (default 10 s) before the event sequence starts.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>4 · Confirmation delay</b><span><code>OpenPhaseConfirmTime</code>, default <strong>60 s</strong>, inside the Analyze step.</span></div>
+</div>
+
+<div class="keyfact"><strong>A permanent open-phase condition that triggers a fault indication at inception but never drives reclosing to lockout produces no DAC operation.</strong> The fault indication blocks open-phase logic; no lockout ever confirms a fault.</div>
+
+<p><code>AnalyzeTimeLimit</code> must exceed <code>OpenPhaseConfirmTime</code>, or open-phase detection cannot complete before Analyze times out.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Locating the zone</h2>
+<p>With no fault indications present, the feeder is evaluated <strong>zone by zone starting at the substation feeder breaker</strong>. When a measurement reports dead, every measurement point downstream is checked to confirm it is also dead. The first device reading dead while its upstream neighbour reads live bounds the affected zone.</p>
+<div class="fig"><svg viewBox="0 0 700 158" xmlns="http://www.w3.org/2000/svg">
+  <line x1="50" y1="52" x2="640" y2="52" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="70" cy="52" r="7" fill="#1a1a22"/><text x="70" y="36" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <text x="70" y="26" font-size="7.6" font-weight="600" fill="#10a37f" text-anchor="middle">live</text>
+  <path d="M110,52 L210,52" stroke="#d63a3a" stroke-width="6" stroke-linecap="round" opacity="0.3"/>
+  <text x="160" y="72" font-size="7.8" font-weight="600" fill="#d63a3a" text-anchor="middle">broken jumper</text>
+  <circle cx="250" cy="52" r="7" fill="#1a1a22"/><text x="250" y="36" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <text x="250" y="26" font-size="7.6" font-weight="600" fill="#d7930a" text-anchor="middle">UV</text>
+  <circle cx="440" cy="52" r="7" fill="#1a1a22"/><text x="440" y="36" font-size="8" fill="#6e7180" text-anchor="middle">R2</text>
+  <text x="440" y="26" font-size="7.6" font-weight="600" fill="#d7930a" text-anchor="middle">UV</text>
+  <circle cx="620" cy="52" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="620" y="36" font-size="8" fill="#10a37f" text-anchor="middle">R3 (NO)</text>
+  <text x="620" y="26" font-size="7.6" font-weight="600" fill="#d7930a" text-anchor="middle">UV</text>
+  <text x="380" y="92" font-size="7.8" fill="#6e7180" text-anchor="middle">search runs left to right: CB A live, R1 dead → zone CB A–R1, all downstream points confirmed dead</text>
+
+  <!-- 11 s: the jumper parts, the feeder below it goes dead, and the search
+       walks out from the breaker until a dead reading follows a live one.
+       Left to right, exactly as the paragraph above describes it. -->
+  <g class="animlayer">
+    <!-- healthy feeder, then the break -->
+    <path d="M78,52 H612" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" values="0;0.85;0.85;0;0" keyTimes="0;0.02;0.10;0.13;1" dur="11s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.02;0.04;0.10;0.12;1" dur="11s" repeatCount="indefinite"/>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M78,52 H612" dur="2.4s" repeatCount="indefinite"/></circle>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0.3;1;0;0" keyTimes="0;0.105;0.12;0.14;0.16;0.20;1" dur="11s" repeatCount="indefinite"/>
+      <path d="M110,52 L210,52" stroke="#d63a3a" stroke-width="7" stroke-linecap="round"/>
+      <path d="M166,22 L151,48 L160,48 L153,72 L172,44 L162,44 L170,22 Z" fill="#d63a3a"/>
+    </g>
+    <!-- CB A stays live: the break is downstream of it -->
+    <path d="M78,52 H108" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.15;0.18;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- the undervoltage readings arrive, nearest first -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.18;0.21;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      <rect x="236" y="17" width="28" height="12" rx="3" fill="none" stroke="#d7930a" stroke-width="1"/>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.25;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      <rect x="426" y="17" width="28" height="12" rx="3" fill="none" stroke="#d7930a" stroke-width="1"/>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.26;0.29;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      <rect x="606" y="17" width="28" height="12" rx="3" fill="none" stroke="#d7930a" stroke-width="1"/>
+    </g>
+
+    <!-- the search: a reading taken at each point, in order -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.385;0.90;0.93;1" dur="11s" repeatCount="indefinite"/>
+      <line x1="70" y1="36" x2="70" y2="68" stroke="#10a37f" stroke-width="1.4" opacity="0.55">
+        <animate attributeName="x1" values="70;70;250;250;440;440;620;620" keyTimes="0;0.06;0.20;0.42;0.56;0.74;0.86;1" dur="11s" repeatCount="indefinite"/>
+        <animate attributeName="x2" values="70;70;250;250;440;440;620;620" keyTimes="0;0.06;0.20;0.42;0.56;0.74;0.86;1" dur="11s" repeatCount="indefinite"/>
+      </line>
+    </g>
+    <text x="70" y="82" font-size="7.4" font-weight="600" fill="#10a37f" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.38;0.40;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      live &#10003;
+    </text>
+    <text x="250" y="82" font-size="7.4" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.49;0.51;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      dead
+    </text>
+    <text x="440" y="82" font-size="7.4" fill="#8a8e9b" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.64;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      dead &#10003;
+    </text>
+    <text x="620" y="82" font-size="7.4" fill="#8a8e9b" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.76;0.78;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      dead &#10003;
+    </text>
+
+    <!-- live above, dead below: that boundary is the zone -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.82;0.85;0.94;0.97;1" dur="11s" repeatCount="indefinite"/>
+      <path d="M70,61 V67 H250 V61" fill="none" stroke="#d63a3a" stroke-width="1.6"/>
+    </g>
+
+    <g font-size="8.6" text-anchor="middle">
+      <text x="350" y="132" fill="#10a37f" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.095;0.115;1" dur="11s" repeatCount="indefinite"/>
+        A healthy feeder — every measurement point reads live
+      </text>
+      <text x="350" y="132" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.115;0.135;0.20;0.22;1" dur="11s" repeatCount="indefinite"/>
+        A jumper parts between CB A and R1 — no fault current, no indication
+      </text>
+      <text x="350" y="132" fill="#9c6d06" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.245;0.34;0.36;1" dur="11s" repeatCount="indefinite"/>
+        Undervoltage reported at R1, R2 and R3 — the breaker still reads live
+      </text>
+      <text x="350" y="132" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.36;0.385;0.60;0.62;1" dur="11s" repeatCount="indefinite"/>
+        The search starts at the substation breaker and walks outward
+      </text>
+      <text x="350" y="132" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.645;0.815;0.835;1" dur="11s" repeatCount="indefinite"/>
+        Every point downstream of the first dead reading is confirmed dead
+      </text>
+      <text x="350" y="132" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.835;0.86;0.94;0.965;1" dur="11s" repeatCount="indefinite"/>
+        Dead below live at R1 &#8594; affected zone CB A&#8211;R1
+      </text>
+    </g>
+
+    <line x1="140" y1="144" x2="560" y2="144" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round"/>
+    <line x1="140" y1="144" x2="560" y2="144" stroke="#10a37f" stroke-width="2" stroke-linecap="round"
+          stroke-dasharray="420" stroke-dashoffset="420">
+      <animate attributeName="stroke-dashoffset" values="420;0" keyTimes="0;1" dur="11s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">Broken jumper between CB A and R1.<span class="print-note"> ▶ Animated in the HTML edition: the break, the undervoltage reports, then the left-to-right search.</span></p>
+
+<h3>Substation dead bus</h3>
+<p>Same logic, same suppression by fault current. When every point including the feeder breaker reads dead, <strong>the zone upstream of the substation breaker is the affected zone</strong>.</p>
+
+<h3>Live below dead</h3>
+<p>Live voltage reported downstream of dead indications for an extended period is treated as a <strong>voltage discrepancy</strong>. The DAC <strong>ceases monitoring for open-phase conditions on that feeder</strong> until the issue resolves and healthy voltages are reported on all PTs for half the open-phase confirmation time. See <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</p>
+
+<h3>Incomplete PT coverage</h3>
+<p>Where the device bounding the downstream edge of a zone is closed and has <strong>no three-phase voltage sensing</strong>, an open phase upstream of it is indistinguishable from one downstream. The DAC <strong>merges the two zones into a single extended zone</strong>.</p>
+<div class="callout">In the extended zone the PT-less device is <strong>bypassed in the electrical model</strong> for locating the event. It is <strong>still monitored for abnormal conditions</strong>. <strong>The removal carries into the isolation step</strong> — the isolation zone becomes the extended zone, so isolation occurs at devices further out than the one-line suggests.</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Isolation — the two modes</h2>
+
+<div class="card pulse">
+<h3>Isolate Open Phase DISABLED — "Feed Open Phase"</h3>
+<p style="margin-bottom:4px">For feeders where most load is single-phase and a zone with an open phase can still safely feed customers.</p>
+<p style="margin-bottom:4px">The DAC evaluates whether any zones <strong>downstream</strong> of the break could be restored by a three-phase source:</p>
+<ul style="margin-bottom:4px">
+<li><strong>Alternate available</strong> → open the switch <strong>immediately downstream</strong> of the affected zone, de-energizing the downstream zones for restoration from the alternate.</li>
+<li><strong>No alternate available</strong> → <strong>do not open</strong>. Energized load stays on one or two phases.</li>
+</ul>
+<p style="margin-bottom:0">If the affected zone branches to several downstream paths, the analysis runs <strong>per branch</strong>.</p>
+</div>
+
+<div class="card pair">
+<h3>Isolate Open Phase ENABLED</h3>
+<p style="margin-bottom:4px">For feeders where three-phase loads are common.</p>
+<p style="margin-bottom:4px">The DAC identifies <strong>every device bordering the affected zone</strong> and opens <strong>all of them, upstream and downstream, regardless of whether any alternative feed exists</strong>. Branching zones are fully isolated.</p>
+<p style="margin-bottom:0">The zone is cut out on both sides, then whatever is beyond it is restored if possible.</p>
+</div>
+
+<p>Devices opened this way carry an <strong>Opened to Isolate Open Phase</strong> target, cleared by a scheme or feeder Reset.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Restoration</h2>
+<p>Identical to the permanent-fault case. An alternative feeder is available only if: <strong>no abnormal conditions</strong>; <strong>not excluded</strong>; <strong>all</strong> voltage sensing shows live; <strong>enough unused capacity</strong> for the load picked up. Insufficient capacity on a single alternate sends the solver to <strong>sectionalizing solutions</strong>.</p>
+<p>Settings groups are evaluated against the resulting topology — see <a href="atlas:distribution-automation/dac/settings-groups.html">Settings Group Changes</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>Loss of source</h2>
+<p>The whole-feeder case of the same voltage logic: <strong>loss of three-phase voltage at all modeled devices of a feeder</strong>, from a substation or transmission event.</p>
+<table>
+<tr><th style="width:26%">Aspect</th><th>Behavior</th></tr>
+<tr><td><strong>Trigger</strong></td><td>All PTs along the feeder report dead voltage for a user-specified time.</td></tr>
+<tr><td><strong>Outcome</strong></td><td><strong>Open the feeder breaker</strong>, or the most upstream device <em>excluding bus or transformer mains</em>. Restore all sections from alternates.</td></tr>
+<tr><td><strong>Enabling</strong></td><td>Enabled automatically whenever open-phase detection is enabled. Otherwise <code>EnableLossOfSourceDetection</code> (default <strong>TRUE</strong>).</td></tr>
+</table>
+<div class="keyfact"><strong>Without the substation modeled, loss of voltage at the breakers is always read as a loss-of-source event.</strong> With main breaker status and bank/bus lockout status monitored, the DAC distinguishes a <strong>manual operation</strong> (no AR) from a <strong>protection operation</strong> (AR).</div>
+<p>The <code>SourceEvent</code> input is the explicit way to report an upstream event — see <a href="atlas:distribution-automation/dac/source-events.html">Source Events &amp; Underfrequency</a>.</p>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/source-events.html">Source Events &amp; Underfrequency</a>
+  <a href="atlas:distribution-automation/dac/permanent-fault.html">Permanent Fault &amp; Miscoordination</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/timers-settings.html">Timers &amp; Settings Reference</a>
+</div>
+
+</body>
+</html>

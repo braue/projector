@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Operator Q&amp;A &amp; Troubleshooting</title>
+<meta name="atlas-order" content="170">
+<meta name="atlas-tags" content="DAC,troubleshooting,edge cases,operator,why didn't it operate,concurrent faults,storm,manual switching,reboot,abort">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Operator QDAC — How It Decides (atlas)amp;A DAC — How It Decides (atlas)amp; Troubleshooting (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Operator Q&amp;A &amp; Troubleshooting</h1>
+  <p>Control-room questions answered from the manual, plus the checklists for "why didn't it operate" and "why did only part come back"</p>
+  <div class="chips"><span>edge cases</span><span>checklists</span><span>absence of mechanism, flagged</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Sourcing</h2>
+<div class="card teal" style="background:#fafbfc">
+<p style="margin-bottom:6px">Each answer is built from explicit manual statements — event and RTN acceptance conditions, sequence exits, the UFLS manual-operation rule, the definition of a feeder, Initialize behavior — and links to the page carrying the rule.</p>
+<p style="margin-bottom:0">Where a behavior is the <strong>absence of a described mechanism</strong> — resuming after a reboot, rolling back after an abort — the entry says so. Confirm those two with <code>dac_support@selinc.com</code> before stating them to a customer.</p>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Events on top of events</h2>
+<table>
+<tr><th style="width:36%">Question</th><th>Behavior</th></tr>
+<tr>
+<td><strong>A second fault hits while the first sequence is still executing.</strong></td>
+<td>New events are detected in every step, and "new event" is an explicit exit from the Reconfiguration step. The system re-evaluates and solves all confirmed events together. Sequential and concurrent faults are a listed capability. <strong>Two things abort outright mid-sequence:</strong> close-onto-fault, and directional fault discrepancy. See <a href="atlas:distribution-automation/dac/event-sequence.html">Event Sequence</a>.</td>
+</tr>
+<tr>
+<td><strong>Two feeders fault at once.</strong></td>
+<td>Reconfiguration waits until every feeder's event sequence is idle, then evaluates all confirmed events in one solution pass. Shared alternates are allocated by the criteria ladder, not first-come. See <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>.</td>
+</tr>
+<tr>
+<td><strong>An overload rides through a fault event.</strong></td>
+<td>The fault wins. Overload monitoring runs only when there is no fault or open-phase condition on the feeder and no abnormal conditions. The overload is acted on afterwards, when its system-wide confirm timer expires. See <a href="atlas:distribution-automation/dac/overload.html">Overload</a>.</td>
+</tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>Human actions</h2>
+<table>
+<tr><th style="width:36%">Question</th><th>Behavior</th></tr>
+<tr>
+<td><strong>Dispatch manually opens a modeled breaker or switch. Will the DAC restore around it?</strong></td>
+<td><strong>No.</strong> A device operating without a fault indication is a manual operation. No DA event. The area downstream of a modeled open device is not part of any feeder — a feeder is a source feeding zones through closed devices — so no open-phase pattern exists on the energized side. AR continues on the new present topology. See <a href="atlas:distribution-automation/dac/source-events.html">Source Events &amp; Underfrequency</a>.</td>
+</tr>
+<tr>
+<td><strong>Planned upstream or transmission switching kills station voltage.</strong></td>
+<td><strong>That is an event.</strong> Loss of substation voltage is an open-phase (dead-bus) condition. Once the ~60 s confirmation time expires the DAC moves feeders to alternates. The 10 s detect delay only rides through brief transients. <strong>Disable the scheme or exclude the feeders before planned upstream outages.</strong> See <a href="atlas:distribution-automation/dac/open-phase.html">Open Phase &amp; Loss of Source</a>.</td>
+</tr>
+<tr>
+<td><strong>A hot-line tag goes on mid-event.</strong></td>
+<td>Three outcomes. <strong>Event feeder, before confirmation:</strong> sequence aborts to Idle with Abnormal Failure alarms. <strong>Candidate alternate, during Update or Analyze:</strong> that feeder is dropped from solution consideration. <strong>During execution:</strong> the sequence can abort on AbnormalCondition when the reconfiguration time limit expires. See <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</td>
+</tr>
+<tr>
+<td><strong>Can I RTN with the scheme disabled?</strong></td>
+<td><strong>No.</strong> RTN requires the feeder Armed, no events ongoing anywhere, no abnormals on the present or normal configuration, and RTN enabled. See <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>.</td>
+</tr>
+<tr>
+<td><strong>Operator disables the DAC to abort a sequence. Then what?</strong></td>
+<td>The sequence stops. That is the designed abort, and the only one. <strong>No rollback of executed switching is described.</strong> Whatever opened or closed stays that way. Cleanup is manual, or RTN once re-enabled and healthy.</td>
+</tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">3</span>DAC behavior</h2>
+<table>
+<tr><th style="width:36%">Question</th><th>Behavior</th></tr>
+<tr>
+<td><strong>Will FLISR ever reclose the device that locked out?</strong></td>
+<td><strong>Only when it locked out upstream of the true fault</strong> — miscoordination correction. <strong>It never re-energizes the faulted zone.</strong> See <a href="atlas:distribution-automation/dac/permanent-fault.html">Permanent Fault &amp; Miscoordination</a>.</td>
+</tr>
+<tr>
+<td><strong>The DAC reboots mid-event, or while off-normal.</strong></td>
+<td>Feeders come up in Initialize: internal variables and alarm conditions reset, configuration re-evaluated, everything re-polled. <strong>No mechanism for resuming a half-executed sequence is described.</strong> Expect the system as-switched with targets rebuilt from live data. Finish by manual switching or RTN. <code>DAC_Enabled</code> is never retained across a restart. See <a href="atlas:distribution-automation/dac/feeder-states.html">Feeder States, Arming &amp; Reset</a>.</td>
+</tr>
+<tr>
+<td><strong>The deepest device never reports its fault indication.</strong></td>
+<td>Two cases. <strong>Comm-failed:</strong> the feeder is abnormal and the event is blocked. <strong>Online but the FI logic does not assert:</strong> the DAC locates the zone below the deepest FI it can see — one zone too far upstream, and isolation lands wrong. The design assumption is FIs asserting on pickup at every device that saw fault current.</td>
+</tr>
+<tr>
+<td><strong>Back-to-back events with no Reset in between.</strong></td>
+<td>Reset is ignored while any event is being operated on anywhere in the system. Latched Command Failure and Close-onto-Fault statuses persist until a Reset lands. A <em>feeder</em> Reset only reaches devices within that feeder's normal extent, which after a restoration is not where the operated devices are.</td>
+</tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">4</span>"Why didn't it operate?"</h2>
+<ol>
+<li>Is the scheme <strong>enabled</strong>? <code>DAC_Enabled</code> is never retained across a restart.</li>
+<li>Is the feeder <strong>Armed</strong>? Check <code>Feeder_&lt;Bkr&gt;_ExcludedByUnderfrequency</code>.</li>
+<li>Is there an <strong>abnormal tag anywhere on the feeder</strong>? Check <code>Feeder_&lt;Bkr&gt;_Abnormal</code>, then the device points.</li>
+<li><strong>Did anything lock out?</strong> No lockout = no permanent fault, regardless of fault indications.</li>
+<li>Open phase: <strong>was a fault indication blocking it?</strong> Any FI on the feeder suppresses open-phase evaluation. Is <strong>voltage discrepancy detection off</strong>, leaving open-phase detection disabled on a feeder with a suspect PT?</li>
+<li>Did <strong>Update or Analyze time out</strong>? <code>_UpdateTimeout</code> on the event feeder stops everything. <code>_AnalyzeTimeout</code> means the event was not characterized — check <code>AnalyzeTimeLimit</code> &gt; <code>OpenPhaseConfirmTime</code>.</li>
+<li>RTN only: <strong>scope</strong>. Would completing the return need a device on a feeder that was not commanded, or drop load? Then no switching occurs.</li>
+</ol>
+</section>
+
+<section>
+<h2><span class="num">5</span>"Why did only part come back?"</h2>
+<ul>
+<li><strong><code>CapacityLimit</code></strong> gives no reason. Check <strong>margins</strong> (the minimum along the whole path back to the source, transformer included), <strong>Level 1 voltage gates</strong> (<code>AllowSelectLevel1</code> / <code>AllowRestoreLevel1</code>), <strong>nonpreferred-source penalties</strong> across a connector, and <strong>abnormal neighbours</strong> that removed an alternate.</li>
+<li><strong>The event report has the scenario detail. The alarm does not.</strong> Pair it with the pre-event report: a PT reading dead for a week does not appear in the SOE.</li>
+<li><strong>After any event the system stays off-normal until an RTN.</strong> RTN will not act unless it can do the whole job.</li>
+</ul>
+<div class="callout">Load transfer and overload mitigation are <strong>not supported at or across interconnection zones</strong>, and <strong>transfer depth resets</strong> at a connector. Stranded load near a control-area boundary is often this, not capacity.</div>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+  <a href="atlas:distribution-automation/dac/reports-soe.html">Reports, SOE &amp; Commissioning HMI</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>
+</div>
+
+</body>
+</html>

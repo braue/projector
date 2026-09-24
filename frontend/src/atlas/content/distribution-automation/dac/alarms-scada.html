@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Alarms &amp; SCADA Points</title>
+<meta name="atlas-order" content="140">
+<meta name="atlas-tags" content="DAC,SCADA,DNP,points,alarms,tag names,CapacityLimit,AbnormalFail,VoltageLimit,CommandFail,mapping">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Alarms DAC — How It Decides (atlas)amp; SCADA Points (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Alarms &amp; SCADA Points</h1>
+  <p>Every DAC-generated status and control, what asserts it, and what a combination of them means</p>
+  <div class="chips"><span>DAC_ · Feeder_ · Device_</span><span>SPS · MV · DNPC</span><span>why it failed</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>How mapping works</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Points are claimed by <strong>naming tags in the SCADA DNP server map</strong> to match a hard-coded template. The map is named on the DAC Extension <strong>Settings tab</strong>.</li>
+<li><strong>Every status and control is optional.</strong> Name the tag to get the point.</li>
+<li>Three prefixes: <code>DAC_</code> for system-wide, <code>Feeder_&lt;BreakerName&gt;_</code> for per-feeder, <code>Device_&lt;DeviceName&gt;_</code> for per-device.</li>
+<li><strong>Physical breakers, reclosers and switches support the same device-level set.</strong> Virtual breakers do not.</li>
+<li>After changing tag names in the SCADA map without touching extension settings, set <strong>Re-generate Configuration = True</strong> to force a re-parse.</li>
+</ul>
+</div>
+<p><strong>Tag types:</strong> <code>SPS</code> single-point status · <code>MV</code> measured value · <code>DNPC</code> DNP control.</p>
+</section>
+
+<section>
+<h2><span class="num">1</span>System-wide — <code>DAC_</code></h2>
+<h3>State and event type</h3>
+<table>
+<tr><th style="width:38%">Point</th><th>Meaning</th></tr>
+<tr><td><code>DAC_Enabled</code> <span class="tag">SPS</span></td><td>Scheme enabled. <strong>Never retained across a restart</strong> — always re-asserted by SCADA.</td></tr>
+<tr><td><code>DAC_EventDetected</code> <span class="tag">SPS</span></td><td>An event has been detected.</td></tr>
+<tr><td><code>DAC_EventConfirmed</code> <span class="tag">SPS</span></td><td>An event has been confirmed. Isolation may already have been sent.</td></tr>
+<tr><td><code>DAC_PermanentFault</code> <span class="tag">SPS</span></td><td>Permanent fault detected.</td></tr>
+<tr><td><code>DAC_Miscoordination</code> <span class="tag">SPS</span></td><td>Miscoordination detected.</td></tr>
+<tr><td><code>DAC_OpenPhase</code> <span class="tag">SPS</span></td><td>Open phase detected.</td></tr>
+<tr><td><code>DAC_Loop</code> <span class="tag">SPS</span></td><td>A loop condition exists — two feeders paralleled beyond <code>LoopConfirmTime</code>.</td></tr>
+<tr><td><code>DAC_ReturnDetected</code> <span class="tag">SPS</span></td><td>An RTN command was detected.</td></tr>
+</table>
+
+<h3>Sequence position</h3>
+<table>
+<tr><th style="width:38%">Point</th><th>Meaning</th></tr>
+<tr><td><code>DAC_UpdateStep</code> / <code>DAC_UpdateStepTimeout</code> <span class="tag">SPS</span></td><td>Update step in progress / timed out. A timeout on the <em>event</em> feeder stops the operation.</td></tr>
+<tr><td><code>DAC_AnalyzeStep</code> / <code>DAC_AnalyzeStepTimeout</code> <span class="tag">SPS</span></td><td>Analyze step in progress / timed out. Timeout = the nature of the event could not be determined.</td></tr>
+<tr><td><code>DAC_ReconfigureStep</code> / <code>DAC_ReconfigureStepTimeout</code> <span class="tag">SPS</span></td><td>Reconfiguration in progress / exceeded <code>ReconfigurationTimeLimit</code>.</td></tr>
+<tr><td><code>DAC_EventDuration</code> <span class="tag">MV</span></td><td>Event duration in seconds.</td></tr>
+</table>
+
+<h3>Overload and shed</h3>
+<table>
+<tr><th style="width:38%">Point</th><th>Meaning</th></tr>
+<tr><td><code>DAC_OverloadWarning</code> <span class="tag">SPS</span></td><td>An overload is <strong>detected</strong>. Fires long before any action, and from V2.10.1 even when mitigation is disabled.</td></tr>
+<tr><td><code>DAC_Overload</code> <span class="tag">SPS</span></td><td>Overload event <strong>confirmed</strong>.</td></tr>
+<tr><td><code>DAC_OverloadSeconds</code> <span class="tag">MV</span></td><td>Seconds before the overload event is confirmed.</td></tr>
+<tr><td><code>DAC_ShedWarning</code> <span class="tag">SPS</span></td><td>Load shed warning. Operators can switch manually, shed manually, or disable the DAC.</td></tr>
+<tr><td><code>DAC_ShedSeconds</code> <span class="tag">MV</span></td><td>Seconds before a load shed event is confirmed.</td></tr>
+<tr><td><code>DAC_LoadShed</code> <span class="tag">SPS</span></td><td>Load shed confirmed.</td></tr>
+</table>
+
+<h3>Why it failed — the four</h3>
+<table>
+<tr><th style="width:38%">Point</th><th>Meaning</th></tr>
+<tr><td><code>DAC_CapacityLimit</code> <span class="tag">SPS</span></td><td>Restoration failed due to a <strong>capacity limit</strong>. No specific cause is given. For RTN it also covers voltage, transition type and load-break-incapable NO points.</td></tr>
+<tr><td><code>DAC_AbnormalCondition</code> <span class="tag">SPS</span></td><td>Restoration failed due to an <strong>abnormal condition</strong>.</td></tr>
+<tr><td><code>DAC_VoltageLimit</code> <span class="tag">SPS</span></td><td>Restoration failed due to a <strong>voltage limit</strong>.</td></tr>
+<tr><td><code>DAC_CommandFailure</code> <span class="tag">SPS</span></td><td>Restoration failed due to a <strong>command failure</strong>.</td></tr>
+</table>
+
+<h3>Controls</h3>
+<table>
+<tr><th style="width:38%">Point</th><th>Operation</th></tr>
+<tr><td><code>DAC_EnableDisableCommand</code> <span class="tag">DNPC</span></td><td><strong>operClose enables, operTrip disables.</strong></td></tr>
+<tr><td><code>DAC_EnableCommand</code> / <code>DAC_DisableCommand</code> <span class="tag">DNPC</span></td><td>Separate points for the same two actions.</td></tr>
+<tr><td><code>DAC_ResetCommand</code> <span class="tag">DNPC</span></td><td><strong>operPulse resets.</strong> Ignored while any event is being operated on anywhere in the system.</td></tr>
+<tr><td><code>DAC_ReturnNormalCommand</code> <span class="tag">DNPC</span></td><td>Scheme RTN — equivalent to an RTN on every feeder.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>Per feeder — <code>Feeder_&lt;BreakerName&gt;_</code></h2>
+<p>The breaker name is the device that originates the feeder. Many points mirror the system-wide set per feeder.</p>
+<table>
+<tr><th style="width:42%">Point</th><th>Meaning</th></tr>
+<tr><td><code>_Armed</code></td><td>Feeder automation is enabled — scheme enabled and this feeder not excluded.</td></tr>
+<tr><td><code>_Ready</code></td><td>Feeder is ready for automation.</td></tr>
+<tr><td><code>_Abnormal</code></td><td>Feeder is in an abnormal state. <strong>An abnormal state prohibits automation operations.</strong></td></tr>
+<tr><td><code>_Excluded</code></td><td>Feeder is excluded from automation. Also unavailable as an alternate source for neighbours.</td></tr>
+<tr><td><code>_ExcludedByUnderfrequency</code></td><td>Feeder is currently being excluded by an interfaced <strong>underfrequency load-shed scheme</strong>.</td></tr>
+<tr><td><code>_Loop</code></td><td>Feeder is abnormal <strong>due to an electrical loop condition</strong>.</td></tr>
+<tr><td><code>_EventConfirmed</code></td><td>Feeder has an active event occurring.</td></tr>
+<tr><td><code>_PermanentFault</code></td><td>A fault-type event occurred on this feeder.</td></tr>
+<tr><td><code>_OpenPhase</code></td><td>An open-phase-type event occurred.</td></tr>
+<tr><td><code>_Miscoordination</code></td><td>An event involving a miscoordination occurred.</td></tr>
+<tr><td><code>_LossofSource</code></td><td>A loss-of-source-type event occurred.</td></tr>
+<tr><td><code>_SourceEvent</code></td><td>A source event occurred — upstream protection asserted <code>SourceEvent</code>.</td></tr>
+<tr><td><code>_Update</code> / <code>_UpdateTimeout</code></td><td>In the Update step / timed out there.</td></tr>
+<tr><td><code>_Analyze</code> / <code>_AnalyzeTimeout</code></td><td>In the Analyze step / timed out there.</td></tr>
+<tr><td><code>_ReconfigurationStarted</code></td><td>Feeder has started reconfiguration.</td></tr>
+<tr><td><code>_ReconfigurationComplete</code></td><td>Feeder has completed reconfiguration.</td></tr>
+<tr><td><code>_RestorationFail</code></td><td>Feeder failed reconfiguration.</td></tr>
+<tr><td><code>_ReturnToNormal</code></td><td>Feeder is returning to its normal configuration.</td></tr>
+<tr><td><code>_CapacityLimit</code></td><td>Failed restoration due to a capacity limit.</td></tr>
+<tr><td><code>_AbnormalFail</code></td><td>Failed restoration due to an abnormal condition.</td></tr>
+<tr><td><code>_CommandFail</code></td><td>Failed restoration due to a command failure.</td></tr>
+<tr><td><code>_VoltageLimit</code></td><td>Failed restoration due to a voltage limit.</td></tr>
+<tr><td><code>_ExcludeIncludeCommand</code> <span class="tag">DNPC</span></td><td><strong>operClose excludes, operTrip includes.</strong></td></tr>
+<tr><td><code>_ExcludeCommand</code> / <code>_IncludeCommand</code> <span class="tag">DNPC</span></td><td><strong>operPulse</strong> on each.</td></tr>
+<tr><td><code>_ReturnNormalCommand</code> <span class="tag">DNPC</span></td><td><strong>operPulse</strong> initiates a feeder RTN. Pushes open points to this feeder's normal extents only.</td></tr>
+</table>
+<div class="callout"><code>_Abnormal</code> = the feeder is abnormal now. <code>_AbnormalFail</code> = an abnormal condition caused a restoration to fail. The same distinction applies to Capacity, Voltage and Command.</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Per device — <code>Device_&lt;DeviceName&gt;_</code></h2>
+<p>These are either conditions interpreted from relay statuses, or states that exist only between SCADA and the DAC.</p>
+<table>
+<tr><th style="width:42%">Point</th><th>Meaning</th></tr>
+<tr><td><code>_Abnormal</code></td><td>The DAC currently observes an abnormal condition on this device.</td></tr>
+<tr><td><code>_CommunicationAlarm</code></td><td>The DAC currently observes a communication problem with this device.</td></tr>
+<tr><td><code>_CommandTimeout</code></td><td>Reconfiguration issued commands to this device that <strong>timed out</strong>.</td></tr>
+<tr><td><code>_ControlInhibited</code></td><td>Control of this device by feeder automation is inhibited.</td></tr>
+<tr><td><code>_Bypassed</code></td><td>Automation considers this device <strong>bypassed</strong> — assumed closed — and will not control it.</td></tr>
+<tr><td><code>_OutOfService</code></td><td>Automation considers this device <strong>open and out of service</strong> and will not control it.</td></tr>
+<tr><td><code>_InhibitApplyRemoveCommand</code> <span class="tag">DNPC</span></td><td><strong>operClose inhibits, operTrip includes.</strong></td></tr>
+<tr><td><code>_InhibitApplyCommand</code> / <code>_InhibitRemoveCommand</code> <span class="tag">DNPC</span></td><td><strong>operPulse</strong> each way.</td></tr>
+<tr><td><code>_BypassApplyRemoveCommand</code> <span class="tag">DNPC</span></td><td><strong>operClose applies, operTrip removes.</strong></td></tr>
+<tr><td><code>_BypassApplyCommand</code> / <code>_BypassRemoveCommand</code> <span class="tag">DNPC</span></td><td><strong>operPulse</strong> each way.</td></tr>
+<tr><td><code>_OutOfServiceApplyRemoveCommand</code> <span class="tag">DNPC</span></td><td><strong>operClose applies, operTrip removes.</strong></td></tr>
+<tr><td><code>_OutOfServiceApplyCommand</code> / <code>_OutOfServiceRemoveCommand</code> <span class="tag">DNPC</span></td><td><strong>operPulse</strong> each way.</td></tr>
+</table>
+<p>Semantics of Inhibit / Bypass / Out of Service are on <a href="atlas:distribution-automation/dac/overview.html">Overview &amp; Scope</a>; their effect on switch eligibility on <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Reading a combination back</h2>
+<table>
+<tr><th style="width:42%">What you see</th><th>What it means</th></tr>
+<tr><td><code>EventDetected</code>, then nothing — no <code>EventConfirmed</code></td><td>Analyze determined the condition cleared without intervention. Usually successful reclosing.</td></tr>
+<tr><td><code>_UpdateTimeout</code> on the event feeder</td><td>A device on the event feeder did not answer. <strong>Nothing was attempted.</strong></td></tr>
+<tr><td><code>_AnalyzeTimeout</code></td><td>The nature of the event was not determined within <code>AnalyzeTimeLimit</code>. Check <code>AnalyzeTimeLimit</code> &gt; <code>OpenPhaseConfirmTime</code>.</td></tr>
+<tr><td><code>_AbnormalFail</code> + a device <code>_Abnormal</code></td><td>A device blocked the whole feeder. The device point names it.</td></tr>
+<tr><td><code>_CapacityLimit</code> after an event</td><td>No scenario restored everything. Partial or no restoration was the best available.</td></tr>
+<tr><td><code>_CapacityLimit</code> after an RTN, no switching at all</td><td>Scope, capacity, voltage, source-group mismatch with open transition disabled, or a load-break-incapable NO point. See <a href="atlas:distribution-automation/dac/rtn.html">Return to Normal</a>.</td></tr>
+<tr><td><code>_CommandFail</code> + device <code>_CommandTimeout</code></td><td>A device did not respond to a control after three retries. <strong>Latched. A Reset is required to clear it.</strong></td></tr>
+<tr><td>Nothing at all, scheme quiet after a reboot</td><td><code>DAC_Enabled</code> is false. It is never retained across a restart.</td></tr>
+<tr><td>Nothing at all, feeders look fine</td><td>Check <code>_ExcludedByUnderfrequency</code>.</td></tr>
+</table>
+<div class="callout"><strong>The SOE shows the sequence. The event report gives the reason.</strong> The SOE does not include an explanation of AR operations, loads lost or restored, or the reason for a failure. See <a href="atlas:distribution-automation/dac/reports-soe.html">Reports, SOE &amp; Commissioning HMI</a>.</div>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/reports-soe.html">Reports, SOE &amp; Commissioning HMI</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/timers-settings.html">Timers &amp; Settings Reference</a>
+  <a href="atlas:data-protocols/dnp3/on-the-rtac.html">DNP3 on the RTAC</a>
+</div>
+
+</body>
+</html>

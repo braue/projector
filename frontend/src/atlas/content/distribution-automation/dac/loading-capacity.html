@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Loading, Capacity &amp; Voltage</title>
+<meta name="atlas-order" content="100">
+<meta name="atlas-tags" content="DAC,loading,load calculation,capacity,margin,transformer,voltage levels,dead voltage,Level 1,Level 2,AllowRestoreLevel1,VoltageDeadband">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Loading, Capacity DAC — How It Decides (atlas)amp; Voltage (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Loading, Capacity &amp; Voltage</h1>
+  <p>Where load numbers come from, when they are frozen, how margin is computed, and what the three voltage levels gate</p>
+  <div class="chips"><span>In − Out</span><span>memorized at sequence start</span><span>margin = path minimum</span><span>dead · L1 · L2</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Zone load is arithmetic: current in minus the sum of the currents out.</li>
+<li><strong>Load values are memorized at the start of the event or RTN sequence.</strong> The solver uses the memorized values.</li>
+<li><strong>Margin is the minimum along the whole path back to the source</strong>, transformer included.</li>
+<li>The load model assumes <strong>power flows from the source downstream</strong>. Significant DG must be modeled explicitly.</li>
+<li>Voltage has three bands. <strong>Level 1 is live but sagging. Only Level 2 is unconditionally fit to restore from.</strong></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Calculating zone load</h2>
+<p>Current is measured at breakers, reclosers and switches and reported to the DAC. Measurements are <strong>checked for valid ranges</strong> and passed through a <strong>low-pass filter</strong> to smooth quick load changes and communications glitches.</p>
+<div class="fig"><svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg">
+  <line x1="60" y1="46" x2="440" y2="46" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="80" cy="46" r="7" fill="#1a1a22"/><text x="80" y="32" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <text x="80" y="66" font-size="8.4" font-weight="600" fill="#1a1a22" text-anchor="middle">400 A</text>
+  <circle cx="420" cy="46" r="7" fill="#1a1a22"/><text x="420" y="32" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <text x="420" y="66" font-size="8.4" font-weight="600" fill="#1a1a22" text-anchor="middle">150 A</text>
+  <line x1="250" y1="46" x2="250" y2="94" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="250" cy="94" r="7" fill="#1a1a22"/><text x="285" y="97" font-size="8" fill="#6e7180">R2</text>
+  <text x="250" y="116" font-size="8.4" font-weight="600" fill="#1a1a22" text-anchor="middle">100 A</text>
+  <rect x="470" y="30" width="210" height="46" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="575" y="48" font-size="9" font-weight="600" fill="#10a37f" text-anchor="middle">Load = In − Out</text>
+  <text x="575" y="64" font-size="9" fill="#1a1a22" text-anchor="middle">400 − (150 + 100) = 150 A</text>
+</svg></div>
+
+<div class="keyfact"><strong>Memorization.</strong> The DAC memorizes the calculated load on <strong>all components</strong> in the distribution network <strong>at the start of a Feeder Event Sequence or a Feeder Return-to-Normal Sequence</strong>, and uses those values when evaluating scenarios. A zone de-energized by the event would otherwise read as zero load.</div>
+
+<div class="warn"><strong>The calculation assumes all load flows from the circuit source downstream.</strong> Where that does not hold — high distributed generation penetration — additional data is required for the DAC to calculate load flow and present zone load correctly. See the DG section of <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>.</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Transformer loading</h2>
+<p><strong>Transformers are the only devices for which current measurements are optional.</strong></p>
+<table>
+<tr><th style="width:36%">Measurements provided?</th><th>What the DAC uses</th></tr>
+<tr><td><strong>Yes</strong></td><td>The reported transformer current. Includes load on <strong>unmonitored</strong> feeders.</td></tr>
+<tr><td><strong>No</strong></td><td>The <strong>sum of the current measured at all first downstream devices modeled as fed from the transformer</strong> — typically its feeder breakers. Load on non-automated feeders is invisible.</td></tr>
+</table>
+<div class="callout">In a station mixing automated and non-automated feeders, the summed estimate under-reports by the amount on the non-automated feeders.</div>
+
+<h3>Parallel transformers</h3>
+<p>Total capacity at a bus is <strong>the capacity of the smallest transformer multiplied by the number of transformers in parallel</strong>. A 50 MVA in parallel with a 40 MVA gives <strong>80 MVA</strong>.</p>
+<p>Bus <strong>margin</strong> = calculated capacity of the connected transformers minus their present current. Station breaker statuses are monitored so the calculation follows the actual bus arrangement.</p>
+<p>Blocks: <code>DA_SUB_TRANSFORMER</code>, <code>DA_SUB_MAIN</code> (transformer→bus breaker), <code>DA_SUB_TIE</code> (bus→bus breaker), <code>DA_SUB_BUS</code>, <code>DA_FDR</code>. Pre-combined: <code>DA_XFMR_MAIN_BUS</code>, <code>DA_FDR_BKR</code>.</p>
+<div class="callout"><strong>The DAC never controls transformer mains or bus ties.</strong> Substation modeling adds information and constraints, not control.</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Capacity and margin</h2>
+<table>
+<tr><th style="width:30%">Setting</th><th>Meaning</th></tr>
+<tr><td><strong>Capacity (A)</strong></td><td>Maximum load before <strong>Level 1</strong> overload. The DAC keeps devices below this while restoring.</td></tr>
+<tr><td><strong>Temporary Capacity (A)</strong></td><td>Maximum load before <strong>Level 2</strong> overload, and the ceiling the DAC will load the device to after any non-overload event.</td></tr>
+</table>
+<p>Capacity must be ≤ Temporary Capacity. Both may be constants or <code>REAL</code> variables for seasonal ratings.</p>
+<div class="keyfact"><strong>Margin.</strong> Looking into a circuit at an open tie point, margin = capacity − measurement, evaluated as the <strong>minimum of all equipment and conductor margins along the feeder from that point back to the source</strong>, including the connected transformer if modeled.</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Voltage levels</h2>
+<div class="crob">
+  <div class="dim"><b>Dead</b><span>below Dead Voltage Percent</span></div>
+  <div><b>Live, Level 1</b><span>live but depressed / sagging</span></div>
+  <div class="hot"><b>Live, Level 2</b><span>fit to restore from</span></div>
+</div>
+<table>
+<tr><th style="width:30%">Setting</th><th>Meaning</th></tr>
+<tr><td><strong>Nominal Voltage</strong></td><td>System nominal, in <strong>volts line-to-line</strong>.</td></tr>
+<tr><td><strong>Dead Voltage Percent</strong></td><td>Maximum reading, as % of nominal, for a line to count as fully de-energized. <strong>Typically around 20%</strong>, to accommodate PT noise on a dead line.</td></tr>
+<tr><td><strong>Live Voltage Percent, Level 1</strong></td><td>Minimum reading for "live but depressed, not suitable for restoration". Set to the regulatory customer-voltage requirement. Set equal to Level 2 to disable sag monitoring.</td></tr>
+<tr><td><strong>Live Voltage Percent, Level 2</strong></td><td>Minimum reading for "live and eligible as a restoration source". Must be ≥ Level 1.</td></tr>
+<tr><td><code>VoltageDeadband</code></td><td>Hysteresis band as % of nominal for transitions between levels. Default <strong>2%</strong>.</td></tr>
+</table>
+
+<h3>The two Level 1 switches on <code>DA_CIRCUIT</code></h3>
+<div class="grid3">
+  <div style="border-left:4px solid #5468c4"><b>AllowSelectLevel1 = FALSE</b><span>The feeder <strong>cannot be chosen</strong> unless it has Level 2 voltage or higher.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>AllowRestoreLevel1 = FALSE</b><span>The feeder is <strong>only used to restore load</strong> once it has Level 2 voltage or higher.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Select TRUE + Restore FALSE</b><span>A solution <strong>may be generated</strong> using a depressed feeder, but <strong>restoration waits until that feeder reaches Level 2</strong>.</span></div>
+</div>
+<p>Two ranking criteria limit depressed-feeder use: minimize the maximum load restored by any one Level 1 feeder, then minimize the total load restored by Level 1 feeders. See <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>.</p>
+
+<div class="callout"><b>Field note —</b> <strong>the load on the segment being restored is not a condition of restoring it.</strong> A de-energized unfaulted zone is restored whether it measures 300 A or 0 A. Its load matters only as the capacity demand placed on the alternate. The four alternate-feed criteria are: <strong>voltage present</strong> on the alternate; alternate <strong>not abnormal</strong>; the transfer <strong>does not overload</strong> any device or transformer; alternate <strong>not excluded</strong>. None of them test the restored zone.</div>
+
+<div class="warn"><code>DAC_VoltageLimit</code> and <code>Feeder_&lt;Bkr&gt;_VoltageLimit</code> mean restoration failed due to a voltage limit. <code>CapacityLimit</code> means no scenario restored everything. They are different alarms.</div>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/overload.html">Overload, Transfer &amp; Load Shed</a>
+  <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>
+  <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>
+  <a href="atlas:distribution-automation/dac/timers-settings.html">Timers &amp; Settings Reference</a>
+</div>
+
+</body>
+</html>

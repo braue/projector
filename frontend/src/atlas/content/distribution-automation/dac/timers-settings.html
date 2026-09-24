@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Timers &amp; Settings Reference</title>
+<meta name="atlas-order" content="150">
+<meta name="atlas-tags" content="DAC,settings,timers,defaults,IntegrityPeriod,UpdateTimeLimit,AnalyzeTimeLimit,OpenPhaseConfirmTime,EventDetectTime,MinimumUpdateTime,ShedTime,VoltageDeadband">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Timers DAC — How It Decides (atlas)amp; Settings Reference (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Timers &amp; Settings Reference</h1>
+  <p>Every setting that changes behavior — default, location, what it gates, and the constraints between them</p>
+  <div class="chips"><span>defaults</span><span>extension vs ST</span><span>ordering constraints</span><span>per-device</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Where settings live</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>DAC Extension → Settings tab</strong> — voltage levels, which detections are enabled, overload times, RTN mode, setpoint retention, SCADA map.</li>
+<li><strong>Device sub-pages</strong> — per-device: normal status, capacities, source group, lockout mode, settings-group associations, load-break capability, PT locations.</li>
+<li><strong>Structured Text, as <code>Scheme.&lt;Behavior&gt; := value;</code></strong> — advanced options the extension does not surface. Create a blank ST program in a project that already has a DAC extension.</li>
+</ul>
+</div>
+<div class="warn">The autocomplete assistant offers <strong>additional</strong> <code>Scheme.</code> options beyond those documented below. <strong>Do not modify them.</strong> They may conflict with what the extension has configured.</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Advanced system options — Structured Text</h2>
+<p>Syntax: <code>Scheme.VoltageDeadband := 3;</code></p>
+<table>
+<tr><th style="width:25%">Parameter</th><th style="width:11%">Type</th><th style="width:11%">Default</th><th>What it gates</th></tr>
+<tr><td><code>IntegrityPeriod</code></td><td>TIME</td><td><strong>300 s</strong></td><td>Time between integrity polls of connected end devices. Also the window for the "offline for an entire integrity period" comms-failure test.</td></tr>
+<tr><td><code>VoltageDeadband</code></td><td>LREAL</td><td><strong>2</strong></td><td>Voltage hysteresis band, as a % of nominal, for transitions between voltage levels.</td></tr>
+<tr><td><code>UpdateTimeLimit</code></td><td>TIME</td><td><strong>120 s</strong></td><td>Maximum time in the Update step before advancing. <strong>Also declares command failures</strong> during closed-transition operations.</td></tr>
+<tr><td><code>AnalyzeTimeLimit</code></td><td>TIME</td><td><strong>120 s</strong></td><td>Maximum time in the Analyze step before a sequence failure. The maximum time to confirm an event. <strong>Must be greater than <code>OpenPhaseConfirmTime</code></strong> or open-phase detection cannot work.</td></tr>
+<tr><td><code>ReconfigTimeLimit</code><br><span class="tag">OM calls it ReconfigurationTimeLimit</span></td><td>TIME</td><td><strong>120 s</strong></td><td>Maximum time in the Reconfiguration step before a sequence failure is declared.</td></tr>
+<tr><td><code>EventDetectTime</code></td><td>TIME</td><td><strong>10 s</strong></td><td>How long an <strong>open-phase or overload</strong> condition must be present before the event sequence starts.</td></tr>
+<tr><td><code>OpenPhaseConfirmTime</code></td><td>TIME</td><td><strong>60 s</strong></td><td>Delay when confirming a broken jumper or dead-bus condition. Allows voltage to be restored by external means. <strong>Half this value</strong> is the healthy-voltage window required before open-phase detection is permitted.</td></tr>
+<tr><td><code>LoopConfirmTime</code></td><td>TIME</td><td><strong>60 s</strong></td><td>How long two feeders may be operated in parallel before a Loop alarm is declared.</td></tr>
+<tr><td><code>MinimumUpdateTime</code></td><td>TIME</td><td><strong>10 s</strong></td><td>Minimum time in the Update step. For devices that go straight to lockout — high-set overcurrent, underground systems — so field readings settle.</td></tr>
+<tr><td><code>EnableLossOfSourceDetection</code></td><td>BOOL</td><td><strong>TRUE</strong></td><td>Enables loss-of-source detection. <strong>Ignored if open-phase detection is enabled</strong>, which enables LOS automatically.</td></tr>
+<tr><td><code>EnableVoltageDiscrepancy</code></td><td>BOOL</td><td><strong>FALSE</strong></td><td>Enables voltage discrepancy detection. Off by default; see <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a> for what off costs.</td></tr>
+<tr><td><code>CloseDelay</code></td><td>TIME</td><td><strong>0 s</strong></td><td>Delay between a close command being queued and sent. Set non-zero on high-speed comms where isolation steps report opened before the mechanism finishes moving.</td></tr>
+<tr><td><code>BlockCloseMode</code></td><td>enum</td><td><strong>BlockCloseDisabled</strong></td><td><code>BlockCloseDisabled</code> · <code>AllClosedTransition</code> · <code>DifferentSourceGroups</code>. See <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>.</td></tr>
+<tr><td><code>SettingsVersion</code></td><td>REAL</td><td><strong>1.0</strong></td><td>Version tracker for system settings. <strong>A mismatch between primary and backup disables automatic failover</strong> in a redundant pair.</td></tr>
+</table>
+<p>Two timers referenced by the OM do not appear in this table: <strong><code>OverloadConfirmTime1</code> / <code>OverloadConfirmTime2</code></strong> (extension: Overload Detection Time 1/2) and <strong><code>ShedTime</code></strong>.</p>
+</section>
+
+<section>
+<h2><span class="num">2</span>DAC Extension — Settings tab</h2>
+<table>
+<tr><th style="width:30%">Setting</th><th>Effect</th></tr>
+<tr><td><strong>Nominal Voltage</strong></td><td>System nominal, in <strong>volts line-to-line</strong>.</td></tr>
+<tr><td><strong>Dead Voltage Percent</strong></td><td>Maximum % of nominal for a line to count as fully de-energized. <strong>Typically ~20%</strong>, to accommodate PT noise on a dead line.</td></tr>
+<tr><td><strong>Live Voltage Percent, Level 1</strong></td><td>Minimum % for "live but depressed, not suitable for restoration". Must be ≤ Level 2. Set equal to Level 2 to disable sag monitoring.</td></tr>
+<tr><td><strong>Live Voltage Percent, Level 2</strong></td><td>Minimum % for "live and eligible as a restoration source".</td></tr>
+<tr><td><strong>Miscoordination Detection</strong></td><td>Enable/disable. <strong>Automatically enabled for any non-fault-breaking switches in the system regardless of this setting.</strong></td></tr>
+<tr><td><strong>Open Phase Detection Mode</strong></td><td>Disabled · <strong>Enabled – Feed Open Phase</strong> (leave the zone energized where possible) · <strong>Enabled – Isolate Open Phase</strong> (fully isolate). Enabling also enables loss-of-source detection.</td></tr>
+<tr><td><strong>Overload Detection</strong></td><td>Enable/disable overload mitigation. Load shed may only be enabled if this is.</td></tr>
+<tr><td><strong>Overload Detection Time 1</strong></td><td>Seconds a device must report loading above <strong>Capacity</strong> before mitigation occurs. Ignored if Overload Detection is disabled.</td></tr>
+<tr><td><strong>Overload Detection Time 2</strong></td><td>Seconds above <strong>Temporary Capacity</strong> before mitigation occurs. Ignored if Overload Detection is disabled.</td></tr>
+<tr><td><strong>Return Mode</strong></td><td>Whether <strong>open-transition</strong> operations are allowed during a SCADA-triggered RTN. Also selects the settings-group-only variant.</td></tr>
+<tr><td><strong>Setpoint Retention</strong></td><td>Whether device Out of Service / Bypass / Inhibit and feeder Exclude survive a power cycle or settings update. <strong>Never covers System Enabled.</strong></td></tr>
+<tr><td><strong>SCADA DNP Map</strong></td><td>Name of the DNP server map parsed for SCADA reporting tags.</td></tr>
+<tr><td><strong>Re-generate Configuration</strong></td><td>Set True to force a re-parse after changing SCADA map tag names without touching extension settings.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">3</span>Per-device settings that change behavior</h2>
+<table>
+<tr><th style="width:26%">Setting</th><th style="width:16%">Applies to</th><th>Effect</th></tr>
+<tr><td><strong>Normal Status</strong></td><td>all switching devices</td><td>NC or NO. Defines the normal topology used for <strong>RTN</strong>. Minor influence on preferred switching orders.</td></tr>
+<tr><td><strong>Capacity (A)</strong></td><td>all</td><td>Level 1 overload threshold. Constant or <code>REAL</code> variable for seasonal ratings. Must be ≤ Temporary Capacity.</td></tr>
+<tr><td><strong>Temporary Capacity (A)</strong></td><td>all</td><td>Level 2 threshold. The ceiling the DAC will load the device to after a non-overload event.</td></tr>
+<tr><td><strong>Source Group</strong></td><td>breakers</td><td>Positive integer. <strong>Matching groups transfer closed-transition; non-matching transfer open-transition.</strong> If the substation is modeled the value is inherited from the active transformer, but this setting must still hold the normal source group.</td></tr>
+<tr><td><strong>Lockout Period (s)</strong></td><td><strong>virtual</strong> breakers</td><td>How long the area downstream must be de-energized before the device counts as locked out. Estimates when reclosing finished. Ignored on physical breakers.</td></tr>
+<tr><td><strong>Lockout Mode</strong></td><td>reclosers</td><td>Gang Lockout · Single-Phase Lockout · Dynamic. Dynamic additionally requires the <strong>Dynamic Single-Phase Lockout Mode</strong> data point mapped.</td></tr>
+<tr><td><strong>SG1–SG6 Sources</strong></td><td>reclosers, breakers</td><td>Breaker device names, comma-and-space separated for multiple sources per group. <strong>Max six sources across all entries per device.</strong> Blank = no change required from that source.</td></tr>
+<tr><td><strong>Load Break Capable</strong></td><td>switches</td><td>False = the DAC opens it <strong>only</strong> when it is de-energized from both sides. Reclosers are always capable.</td></tr>
+<tr><td><strong>Source/Load Side PT Location</strong>, <strong>PT 1/PT 2 Location</strong></td><td>all</td><td>Which template voltages to read per side. <strong>Choose None where no valid three-phase PT set exists.</strong> Incomplete PT coverage merges zones for open-phase detection.</td></tr>
+<tr><td><strong>Bus ID / Node</strong></td><td>all</td><td>Builds the electrical topology. Shared node names link devices electrically. No spaces, commas, hyphens, periods or semicolons.</td></tr>
+<tr><td><strong>Data Source / Shared Data Source</strong></td><td>all</td><td>The DNP client session, and whether it is a concentrator. Shared sources prepend <code>Device_&lt;Name&gt;_</code> to expected tag names, <strong>except breaker bus voltages</strong>, which keep the bare template tag name because they are shared between devices.</td></tr>
+<tr><td><strong>[Virtual]</strong> as Data Source</td><td>breakers</td><td>Marks a breaker the DAC cannot communicate with. Statuses are inferred.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">4</span>Constraints between settings</h2>
+<div class="grid3">
+  <div style="border-left:4px solid #d63a3a"><b>AnalyzeTimeLimit &gt; OpenPhaseConfirmTime</b><span>Otherwise Analyze times out before an open phase can be confirmed. Defaults satisfy this (120 s vs 60 s).</span></div>
+  <div style="border-left:4px solid #d63a3a"><b>ShedTime &gt; OverloadConfirmTime2</b><span>Otherwise the DAC sheds before attempting a load transfer, and operators get no warning window.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Capacity ≤ Temporary Capacity</b><span>Per device. Level 1 must be the lower threshold.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Live Level 1 ≤ Live Level 2</b><span>Set equal to disable sag monitoring.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Load shed requires transfer</b><span>Load shed may be enabled only if overload load transfer is enabled.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Open phase implies LOS</b><span>Enabling open-phase detection enables loss-of-source detection and makes <code>EnableLossOfSourceDetection</code> irrelevant.</span></div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Which timer bites, and when</h2>
+<table>
+<tr><th style="width:30%">Symptom</th><th>Timer to look at</th></tr>
+<tr><td>Open-phase events never confirm</td><td><code>AnalyzeTimeLimit</code> vs <code>OpenPhaseConfirmTime</code>.</td></tr>
+<tr><td>Sequences run ~10 s longer than expected on fast trips</td><td><code>MinimumUpdateTime</code>. Expected.</td></tr>
+<tr><td>Update times out on a device that is alive</td><td><code>UpdateTimeLimit</code>, and the <code>IntegrityPeriod</code> that feeds the offline test.</td></tr>
+<tr><td>Closed-transition Opens declared failed too early</td><td><code>UpdateTimeLimit</code>. It declares command failure here, not the reconfiguration limit.</td></tr>
+<tr><td>Closes sent before mechanisms have finished opening</td><td><code>CloseDelay</code>.</td></tr>
+<tr><td>Reconfiguration aborts part-way</td><td><code>ReconfigTimeLimit</code>, then the abnormal, command-failure and voltage alarms.</td></tr>
+<tr><td>Overload acted on areas only briefly overloaded</td><td>The overload timers are <strong>system-wide</strong>. Expected behavior. See <a href="atlas:distribution-automation/dac/overload.html">Overload</a>.</td></tr>
+</table>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/event-sequence.html">Event Sequence</a>
+  <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+  <a href="atlas:distribution-automation/dac/reports-soe.html">Reports, SOE &amp; Commissioning HMI</a>
+</div>
+
+</body>
+</html>

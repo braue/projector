@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Abnormal Conditions</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="DAC,abnormal,hot-line tag,nonreclose,local,comms failure,command failure,close onto fault,voltage discrepancy,pole discrepancy,protection failure">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Abnormal Conditions (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Abnormal Conditions</h1>
+  <p>Every condition that makes a device abnormal, what each costs, which latch, and how far the effect spreads</p>
+  <div class="chips"><span>1 device = whole feeder</span><span>latched vs self-clearing</span><span>bypass/OOS exempt</span><span>blocks RTN</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>One abnormal device makes the entire feeder abnormal.</strong></li>
+<li><strong>An abnormal condition is never declared on a device that is bypassed or out of service.</strong></li>
+<li>An abnormal feeder <strong>still participates in the Update phase</strong>, but is excluded from switching-order generation if the abnormal status still applies after the update completes.</li>
+<li>A feeder that becomes abnormal <strong>during</strong> Update or Analyze is excluded the same way.</li>
+<li>Abnormal on the <strong>event</strong> feeder aborts the sequence. Abnormal on a <strong>neighbour</strong> removes that neighbour as a restoration option.</li>
+</ul>
+</div>
+<div class="callout"><b>Field note —</b> abnormals attach to whatever feeder the device is in; feeder boundaries come from the configuration. <strong>Live voltage is not required</strong> for an abnormal to take effect. <strong>An open point affects the feeders on both sides of it.</strong></div>
+</section>
+
+<section>
+<h2><span class="num">1</span>What being abnormal costs</h2>
+<table>
+<tr><th style="width:36%">Situation</th><th>Effect</th></tr>
+<tr><td>Abnormal found during <strong>Analyze</strong> on the event feeder</td><td>Sequence aborts to Idle. <strong>Abnormal Failure</strong> alarms at feeder and scheme level.</td></tr>
+<tr><td>Abnormal on a <strong>candidate alternate feeder</strong></td><td>That feeder is unavailable for restoration. First item on the alternate-feed availability checklist.</td></tr>
+<tr><td>Abnormal on the <strong>present or normal</strong> configuration when an RTN is issued</td><td>The RTN command is not accepted, or aborts in Analyze.</td></tr>
+<tr><td>Abnormal on a feeder at any time</td><td><strong>Overload monitoring on that feeder stops.</strong> Overload detection requires the feeder armed, no abnormals, and no fault or open-phase condition.</td></tr>
+<tr><td>Abnormal appearing during <strong>Reconfiguration</strong></td><td>The step can time out. <strong>AbnormalCondition</strong> set on <code>DA_MANAGER_AR</code> and the event feeder's <code>DA_CIRCUIT</code>.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">2</span>The conditions</h2>
+<p>Each marks the device abnormal, and therefore the feeder abnormal. Which are enabled is configured per device; the DAC monitors only what is mapped.</p>
+
+<div class="card latch">
+<h3>Hot-line tag</h3>
+<p style="margin-bottom:4px">Applied at the local control pushbutton or from the dispatch centre via SCADA. The method of application is irrelevant to the DAC; it reads the indication. Self-clearing.</p>
+</div>
+
+<div class="card latch">
+<h3>Reclosing disabled (non-reclose)</h3>
+<p style="margin-bottom:4px">A recloser or breaker in non-reclose mode, locally or by SCADA. Self-clearing.</p>
+<div class="callout" style="margin:6px 0 0"><strong>Switch Mode exception.</strong> For a device with an optional Switch Mode — a recloser in a settings group that disables element-based tripping — enabling switch mode makes the system <strong>ignore</strong> the reclosing-disabled indication.</div>
+</div>
+
+<div class="card latch">
+<h3>Remote control disabled (device in local)</h3>
+<p style="margin-bottom:4px">Supervisory/SCADA control disabled at the device. Self-clearing.</p>
+</div>
+
+<div class="card pulse">
+<h3>Communications failure</h3>
+<p style="margin-bottom:4px">Declared if <strong>any one</strong> of these holds:</p>
+<ul style="margin-bottom:6px">
+<li>the device has been <strong>offline for an entire integrity period</strong> — no response to any poll request;</li>
+<li>the device has <strong>not responded to an update poll or its retries within the update time limit</strong>;</li>
+<li>the device <strong>has not been successfully polled since the DAC started</strong>.</li>
+</ul>
+<p style="margin-bottom:4px"><strong>Clears on three consecutive successful responses.</strong> Through an intermediate RTU, it clears on <strong>three unique watchdog values</strong> for the end device — message counts between the RTU and the device.</p>
+<p style="margin-bottom:0">UDG threshold: a device reporting communication failure <strong>for five minutes</strong>, or for the duration of an event requiring an update poll of it, gets the communications alarm. Where a remote watchdog counter and a local message-received counter are both configured, the <strong>remote watchdog takes preference</strong>. Where a watchdog and an offline indicator are both configured, <strong>both must agree</strong> the device is healthy.</p>
+</div>
+
+<div class="card pair">
+<h3>Command failure <span class="tag" style="float:right">latched</span></h3>
+<p style="margin-bottom:4px">A command was sent and the expected feedback did not arrive in a reasonable time — comms or mechanism. The DAC <strong>retries the control up to three times</strong>, then waits for feedback for the <strong>reconfiguration time-limit period</strong> after the command was sent.</p>
+<p style="margin-bottom:4px"><strong>Latched. Cleared only by a scheme or feeder Reset.</strong></p>
+<div class="keyfact" style="margin:6px 0 0">If the failed command was the <strong>Open half of a closed-transition operation</strong>, two circuits are left in parallel. The DAC sends an <strong>Open to the switch it just closed</strong>.</div>
+</div>
+
+<div class="card latch">
+<h3>Device diagnostic failure</h3>
+<p style="margin-bottom:4px">Any IED self-diagnostic alarm the DAC is mapped to monitor. Follows the device's indication.</p>
+</div>
+
+<div class="card pair">
+<h3>Close-onto-fault <span class="tag" style="float:right">latched</span></h3>
+<p style="margin-bottom:4px">Inferred by the DAC, not reported by the device. After a Close command, declared if:</p>
+<ul style="margin-bottom:6px">
+<li>the device, <strong>or a device upstream of it</strong>, reports a <strong>new fault indication within a short period</strong>; or</li>
+<li>the device <strong>closes and then opens again while an existing fault indication is maintained</strong>.</li>
+</ul>
+<div class="keyfact" style="margin:0 0 6px"><strong>Immediately aborts any DA sequence in progress.</strong></div>
+<p style="margin-bottom:0"><strong>Latched. Cleared only by a scheme or feeder Reset.</strong></p>
+</div>
+
+<div class="card pulse">
+<h3>Voltage discrepancy <span class="tag" style="float:right">optional · self-clearing</span></h3>
+<p style="margin-bottom:4px">Four detection conditions:</p>
+<ul style="margin-bottom:6px">
+<li><strong>Across a device:</strong> one side of a closed device live, the other dead.</li>
+<li><strong>Within a feeder:</strong> an upstream device dead, a downstream device live.</li>
+<li><strong>Within a looped feeder:</strong> a device dead with a source in <em>both</em> directions.</li>
+<li><strong>Unknown source:</strong> a device not-dead with <em>no</em> source in either direction.</li>
+</ul>
+<p style="margin-bottom:4px"><strong>Detection enabled</strong> (<code>EnableVoltageDiscrepancy</code>, default <strong>FALSE</strong>): the alarm raises if a condition persists for an entire update time limit — UDG quotes 60 s — and <strong>clears automatically</strong> when the condition clears. The device and feeder are abnormal.</p>
+<div class="warn" style="margin:6px 0 0"><strong>Detection disabled:</strong> no abnormal and no alarm, but on that feeder <strong>open-phase detection is disabled</strong> and <strong>the feeder is not considered a viable source</strong>. It still detects and operates on permanent faults.</div>
+</div>
+
+<div class="card" style="border-left-color:#8a8e9b">
+<h3>Pole status discrepancy <span class="tag" style="float:right">not abnormal</span></h3>
+<p style="margin-bottom:4px">A ganged three-phase device reporting single- or two-phase open/closed status — mechanical failure, or a mismatch between intended and actual settings. The DAC <strong>logs it in the SOE</strong> and takes no other action. <strong>Ignored entirely</strong> for a device configured for single-phase operation.</p>
+</div>
+
+<div class="card pair">
+<h3>Directional fault discrepancy <span class="tag" style="float:right">loop systems</span></h3>
+<p style="margin-bottom:4px">Loop arrangements require directional fault indications at every device. A device reporting fault indications <strong>in both directions</strong> implies faulty fault-indicator logic or hardware, or an evolved event that cannot be located.</p>
+<div class="keyfact" style="margin:0"><strong>Marks the device abnormal and immediately aborts any DA sequence in progress.</strong></div>
+</div>
+
+<div class="card ser">
+<h3>Protection failure (breaker failure) <span class="tag" style="float:right">context-dependent</span></h3>
+<p style="margin-bottom:4px">A relay detected a fault, attempted to trip, and the mechanism did not operate. Gang or individual phase — the DAC treats both identically. The relay's 50BF-style logic must <strong>latch</strong> and report it; the reset condition is the relay's business.</p>
+<table style="margin:4px 0 0">
+<tr><th style="width:34%">When reported</th><th>Behavior</th></tr>
+<tr><td><strong>No event in progress</strong><br>e.g. maintenance testing</td><td>Abnormal condition on the device, making the feeder abnormal. <strong>Latched until the protection failure status from the relay deasserts.</strong></td></tr>
+<tr><td><strong>During an event the DAC would act on</strong></td><td>The DAC <strong>delays</strong> marking the device and feeder abnormal, and <strong>temporarily treats the device as bypassed</strong> for the event. FLISR proceeds without using the failed device. <strong>After</strong> the event the device is marked abnormal.</td></tr>
+<tr><td><strong>Caused by DAC controls</strong></td><td><strong>Abnormal Failure</strong> of the sequence plus <strong>Command Failure</strong> on the device. <strong>No additional switching occurs.</strong> Afterwards the device is marked abnormal.</td></tr>
+</table>
+<p style="margin:6px 0 0">Without explicit protection-failure reporting this status sequence is <strong>indistinguishable from a miscoordination</strong> and is answered as one.</p>
+</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Clearing</h2>
+<table>
+<tr><th style="width:42%">Condition</th><th>Clears on</th></tr>
+<tr><td>Hot-line tag · reclosing disabled · remote control disabled · device diagnostic</td><td>The device's own indication.</td></tr>
+<tr><td>Communications failure</td><td>Three consecutive successful responses, or three unique watchdog values via an RTU.</td></tr>
+<tr><td><strong>Command failure</strong></td><td><strong>Scheme or feeder Reset only.</strong></td></tr>
+<tr><td><strong>Close-onto-fault</strong></td><td><strong>Scheme or feeder Reset only.</strong></td></tr>
+<tr><td>Voltage discrepancy</td><td>The initiating condition clearing.</td></tr>
+<tr><td>Protection failure</td><td>The relay's protection-failure status deasserting.</td></tr>
+</table>
+<div class="warn"><strong>A feeder Reset clears Command Failure, Close-onto-Fault and Opened-to-Isolate-Open-Phase only on devices within that feeder's normal extent.</strong> After a restoration the feeder is extended past its normal ties, so devices out there are not reset. Use the system Reset. See <a href="atlas:distribution-automation/dac/feeder-states.html">Feeder States, Arming &amp; Reset</a>.</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Points</h2>
+<table>
+<tr><th style="width:44%">Point</th><th>Meaning</th></tr>
+<tr><td><code>Device_&lt;Dev&gt;_Abnormal</code></td><td>The DAC currently observes an abnormal condition on this device.</td></tr>
+<tr><td><code>Device_&lt;Dev&gt;_CommunicationAlarm</code></td><td>A communications problem with this device now.</td></tr>
+<tr><td><code>Device_&lt;Dev&gt;_CommandTimeout</code></td><td>Reconfiguration issued commands to this device that timed out.</td></tr>
+<tr><td><code>Feeder_&lt;Bkr&gt;_Abnormal</code></td><td>This feeder is abnormal. Automation operations are prohibited on it.</td></tr>
+<tr><td><code>Feeder_&lt;Bkr&gt;_AbnormalFail</code></td><td>This feeder failed a restoration because of an abnormal condition.</td></tr>
+<tr><td><code>DAC_AbnormalCondition</code></td><td>Scheme level: restoration failed due to an abnormal condition.</td></tr>
+</table>
+<p><code>gv_Alarm_Buffer</code> emails a notification naming devices in abnormal states after a user-specified time. See <a href="atlas:distribution-automation/dac/reports-soe.html">Reports, SOE &amp; Commissioning HMI</a>.</p>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/feeder-states.html">Feeder States, Arming &amp; Reset</a>
+  <a href="atlas:distribution-automation/dac/event-sequence.html">Event Sequence</a>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+  <a href="atlas:distribution-automation/dac/device-behaviors.html">Device Behavior Modifiers</a>
+</div>
+
+</body>
+</html>

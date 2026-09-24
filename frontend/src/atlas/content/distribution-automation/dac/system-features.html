@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — System-Level Optional Features</title>
+<meta name="atlas-order" content="130">
+<meta name="atlas-tags" content="DAC,AFS,automatic transfer switch,DA_DAC_INTERCONNECT,connector,distributed generation,loop feeders,redundancy,block close,permissive,dynamic station">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — System-Level Optional Features (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — System-Level Optional Features</h1>
+  <p>Alternate feed service, transfer switches, connectors, DG, loop feeders, redundancy, block close, external permissives</p>
+  <div class="chips"><span>extension support varies</span><span>connectors</span><span>loops</span><span>hot-backup</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Support caveats</h2>
+<div class="warn" style="margin-top:0">Several features are <strong>not supported in the DAC Extension</strong> and must be configured in library code — marked below. Some are additionally <strong>advanced-users format</strong>: no front end, limited or no built-in logging. SEL's position is that these should be implemented only with in-depth assistance from SEL Engineering Services.</div>
+<p>None of these features cause system events. They change how reconfiguration calculates, or how switching is carried out.</p>
+</section>
+
+<section>
+<h2><span class="num">1</span>Alternate Feed Service recloser <span class="tag">not in Extension</span> <span class="tag">advanced</span></h2>
+<p>Prevents sudden extreme overloads when an external system switches a large customer load onto a feeder the DAC does not monitor. A dedicated recloser sits on the feed to the AFS customer; the customer's system decides when to transfer onto it.</p>
+<table>
+<tr><th style="width:26%">Condition</th><th>DAC action</th></tr>
+<tr><td>Feeder <strong>not in its normal configuration</strong>, no load flowing through the AFS recloser, feeder capacity <strong>insufficient</strong> for the anticipated customer load</td><td><strong>Open</strong> the AFS recloser.</td></tr>
+<tr><td>Available feeder capacity <strong>sufficient</strong> for the anticipated customer load, <em>and</em> voltage above the <strong>Level 1</strong> threshold <strong>at all measurement locations</strong></td><td><strong>Close</strong> the AFS recloser.</td></tr>
+</table>
+<p>The comparison is margin against the load the external transfer switch could move. <strong>Temporary margin</strong> for the open decision, <strong>normal margin</strong> for the close decision. The DAC can operate the AFS recloser only if its feeder is <strong>Armed</strong> with <strong>no abnormal conditions</strong>.</p>
+<h3>Automatic operation is suspended when</h3>
+<ul>
+<li>An <strong>event is being processed</strong> on the connected feeder. The DAC will not close. Automatic operation resumes after the event.</li>
+<li>The recloser is open and <strong>fault current has been detected</strong>. <strong>Manual close required</strong> to return to automatic operation.</li>
+<li>The recloser is open when an <strong>abnormal condition clears</strong> from it. <strong>Manual close required.</strong></li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">2</span>Automatic transfer switch <span class="tag">not in Extension</span> <span class="tag">advanced</span></h2>
+<p>Modeled as <strong>two switches with a load between them</strong>, typically one open and one closed. Automatic/Manual refers to the <strong>local control mode</strong>: in Automatic the local transfer logic may operate the switch; in Manual it is blocked.</p>
+<p>The DAC can select the transfer switch for isolation and restoration, but the local logic transfers faster. The DAC normally recognizes the load has been accommodated locally and restores other stranded loads.</p>
+<table>
+<tr><th style="width:44%">Transferring the load onto a feeder would</th><th>DAC commands local logic to</th></tr>
+<tr><td>exceed <strong>temporary</strong> capacity limits anywhere on the feeder or transformer</td><td><strong>Manual</strong>.</td></tr>
+<tr><td><strong>not</strong> exceed <strong>normal</strong> capacity limits anywhere on the feeder or transformer</td><td><strong>Automatic</strong>.</td></tr>
+<tr><td>move load onto a feeder <strong>experiencing an event</strong></td><td><strong>Manual</strong>.</td></tr>
+</table>
+<p>To prevent the DAC returning the switch to Automatic, do not map the Automatic command from the transfer switch function block.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Distributed controller functionality — connectors <span class="tag">not in Extension</span></h2>
+<p><code>DA_DAC_INTERCONNECT</code> pairs one controller's edge with another's. Each block pairs with exactly one block in another controller. <strong>A DAC may have at most fifteen.</strong> SEL guidance is to perform as much automation as possible on a single DAC.</p>
+<p>Paired blocks share: connection ID, alternative feed availability, available capacity, present loading, abnormal conditions, fault indications, dead-line/live-line indications, poll requests.</p>
+<p>A DAC considers sources in its own area and in directly connected remote areas, but <strong>gives preference to local sources</strong>. This can cause it to <strong>sectionalize more than capacity alone requires</strong>.</p>
+
+<h3>Best practices, in priority order</h3>
+<ol>
+<li><strong>Minimize the number of connectors.</strong></li>
+<li><strong>Do not place a connector at a line segment touching more than two switching devices</strong> — no three-way or larger interconnection zones.</li>
+<li>Place connectors <strong>near the end of the feeder in the normal configuration</strong>; ideally one side touches a normally open device. Secondary to rule 2.</li>
+<li>Avoid more than <strong>one connector per feeder</strong> in the normal configuration.</li>
+<li>Avoid placing a connector at a line segment touching <strong>single-phase operate devices</strong>.</li>
+</ol>
+
+<h3>Limitations</h3>
+<ul>
+<li>Both DA systems must use <strong>exactly the same versions</strong> of the DA and Adapter libraries.</li>
+<li><strong>Transfer depth calculations reset at the interconnection zone.</strong></li>
+<li><strong>RTN is supported only if the normal open point is immediately adjacent to the connector.</strong> Otherwise RTN may produce no operations and must be done manually.</li>
+<li><strong>Load transfer and overload mitigation are not supported at or across interconnection zones.</strong></li>
+<li>The interconnection zone is <strong>always treated as the same source for settings-group coordination</strong>.</li>
+<li><strong>Two or more interconnections between the same two feeders</strong> produce incorrect available-capacity calculations and may prevent restoration near capacity limits.</li>
+</ul>
+<div class="callout"><strong>In logs.</strong> SCADA reporting from a connector indicates only whether the remote system is eligible as a restoration source. In SOE and event logs the connector is modeled as a <strong>feeder source, a load-break capable "Source Switch", and a load-break capable "Load Switch" in series</strong>.</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Distributed generation <span class="tag">not in Extension</span></h2>
+<div class="warn"><strong>The DAC is an automation-speed system and does not provide isolation or anti-islanding controls for distributed generation.</strong> DG automatic disconnection and anti-islanding must be performed by protection devices.</div>
+<p>A DG connection is modeled as a <strong>point-of-interconnection recloser serving as a radial tap</strong>. The DG may supply power, consume it, or alternate. The POI is <strong>assumed</strong> to disconnect itself on loss of utility feed and not to reconnect or form an island.</p>
+
+<h3>Unmodeled</h3>
+<p>DG changes the effective load of its zone, so the DAC <strong>underestimates the actual zone load</strong> for restoration. Acceptable where the DG component is small or ampacity ratings are sufficiently overbuilt.</p>
+
+<h3>Modeled</h3>
+<p>Requirements:</p>
+<ul>
+<li><strong>All reclosers along the feeder should report real power with signs</strong> to indicate direction.</li>
+<li>The POI <strong>must disconnect itself automatically</strong> if an event interrupts service at the point of interconnection. The DAC sends open commands if it does not, but these are not at protection speeds.</li>
+</ul>
+<p>Functionality gained:</p>
+<ul>
+<li>Zone loading calculated <strong>taking power flow direction into account</strong>, including whether the POI is supplying or consuming.</li>
+<li>Restoration sequences computed <strong>assuming DG sources stay disconnected</strong> and offset no loading.</li>
+<li>Optional <strong>close-block / close-permissive</strong> commands to the POI. The DAC applies a close-block if the POI is <strong>not connected to a utility source</strong>, or is connected to a feeder marked <strong>ineligible</strong> for that DG.</li>
+</ul>
+<div class="keyfact"><strong>The DAC cannot command a DG point of interconnection to close.</strong> Only to block or permit.</div>
+</section>
+
+<section>
+<h2><span class="num">5</span>Loop feeder arrangements <span class="tag">not in Extension</span></h2>
+<p>Loop objects are initialized with <code>InitLoop</code> and <code>InitPowDir</code>. Sustained loop operation is permitted between feeders modeled with loop-configured feeder objects, <strong>only if every switching object between the circuit objects is also loop capable</strong>. Non-loop switching objects may be used on radial sections branching off the loop.</p>
+<p>Loop-configured switching objects require <strong>two directional fault indication inputs</strong>, and use the <strong>sign of the real power input</strong> to determine flow direction.</p>
+<div class="twocol">
+<div>
+<h3>Will do, on a valid loop</h3>
+<ol>
+<li>Identify line segments that experienced a permanent fault.</li>
+<li>Isolate them.</li>
+<li>Restore unfaulted segments left de-energized.</li>
+<li>Respond to miscoordination by isolating and restoring.</li>
+<li>Allow loop operation of <strong>up to three</strong> user-designated loop circuits, only if every device between the sources is designated for loop operation.</li>
+<li>Allow loop operation but <strong>never automatically create new loops</strong>.</li>
+<li>Allow automatic restoration from valid paralleled sources, <strong>only if no new loops are created</strong>.</li>
+<li>Generate overload alarms <strong>only</strong> for equipment or line sections with sources connected on <strong>both</strong> sides.</li>
+<li>Alarm on devices reporting fault indications in <strong>both</strong> directions.</li>
+</ol>
+</div>
+<div>
+<h3>Will not do</h3>
+<ol>
+<li><strong>No open-phase detection</strong> on line sections with sources on both sides.</li>
+<li><strong>No loss-of-source detection</strong> on a source if a loop exists to another source.</li>
+<li><strong>No overload mitigation</strong> for looped feeders.</li>
+<li><strong>No operator-triggered RTN</strong> for feeders in normal loop configurations.</li>
+</ol>
+<h3>Assumptions</h3>
+<ol>
+<li>Loop circuits have capacity equal to the <strong>sum of the capacity available from all directions</strong>.</li>
+<li>Additional load is <strong>split between connected sources in proportion to the pre-event split</strong>.</li>
+</ol>
+<p><code>LoopConfirmTime</code> (default 60 s) sets how long two feeders may be paralleled before a Loop alarm is declared.</p>
+</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Redundant controller management <span class="tag">SEL support recommended</span></h2>
+<p>A hot-backup pair running <strong>identical RTAC programs</strong>. <code>InitRedundancy</code> carries the primary and secondary IP addresses; each RTAC must hold one of the two.</p>
+<ul>
+<li><strong>Both controllers poll all data servers continually.</strong> Servers and concentrators need a <strong>unique server session per controller</strong> so DNP events reach both.</li>
+<li><strong>Feeder exclusions and device out-of-service statuses are automatically synchronized.</strong> Controls need only be sent to one system, either one.</li>
+<li>Only one system is active at a time. The backup keeps polling for a faster transition.</li>
+</ul>
+<h3>Choosing the active controller</h3>
+<div class="grid3">
+  <div style="border-left:4px solid #5468c4"><b>RTU voting</b><span>The data concentrators track how many devices each controller is polling and report which has higher communication availability. The higher one becomes active.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>SCADA watchdog</b><span>Heartbeat pulses or communication status from SCADA. SCADA must address only one system at a time. The most recently addressed system is active.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>Forced active</b><span>SCADA controls force primary or secondary active. While forced, the automatic methods are bypassed.</span></div>
+</div>
+<div class="keyfact"><strong>A difference in <code>SettingsVersion</code> between primary and backup disables automatic failover.</strong></div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Block close <span class="tag">not in Extension</span></h2>
+<p>Works with logic in local switch IEDs so system topology can tell devices lacking local synchronism check whether they may close. Breaker, recloser and switch blocks carry <strong>BlockClose</strong> and <strong>EnableClose</strong> outputs and a <strong>CloseBlocked</strong> input. BlockClose is <strong>pulsed until CloseBlocked asserts</strong>; EnableClose is <strong>pulsed until CloseBlocked deasserts</strong>.</p>
+<div class="keyfact"><strong>This feature is functional even when the DA scheme is disabled.</strong></div>
+<table>
+<tr><th style="width:32%"><code>BlockCloseMode</code></th><th>Behavior</th></tr>
+<tr><td><strong>BlockCloseDisabled</strong> <span class="tag">default</span></td><td>Block close commands are not used even if configured.</td></tr>
+<tr><td><strong>AllClosedTransition</strong></td><td>Sends block-close to any open device with a <strong>source on both sides</strong>. Blocks all closed-transition operations.</td></tr>
+<tr><td><strong>DifferentSourceGroups</strong></td><td>Sends block-close only where the sources on both sides are <strong>ineligible for closed transitions</strong>.</td></tr>
+</table>
+<p>Distinct from the DG close-block in section 4.</p>
+</section>
+
+<section>
+<h2><span class="num">8</span>External control system permissives <span class="tag">not in Extension</span></h2>
+<p>The DAC can <strong>request permission from an external system before executing a reconfiguration</strong> — for volt/VAR systems designed to work only in the normal configuration.</p>
+<ul>
+<li><strong><code>RequestPermissive</code></strong> (feeder output) — sends the request, commonly to command a voltage control system into a specific mode such as disabling voltage reduction.</li>
+<li><strong><code>Permissive</code></strong> (feeder input) — monitors the external system's state. <strong>If not configured, the feature is ignored.</strong></li>
+</ul>
+<p>Typical case: a feeder has capacity to re-energize stranded load but is held at reduced voltage. RequestPermissive disables the voltage reduction; Permissive confirms; restoration proceeds.</p>
+</section>
+
+<section>
+<h2><span class="num">9</span>Dynamic station arrangement</h2>
+<p>Substation bus arrangement changes are tracked through the substation model. Capacity arithmetic, the parallel-transformer rule, margin calculation and the block set are on <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>.</p>
+<p>Underfrequency load-shed interfacing is on <a href="atlas:distribution-automation/dac/source-events.html">Source Events &amp; Underfrequency</a>.</p>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/device-behaviors.html">Device Behavior Modifiers</a>
+  <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>
+  <a href="atlas:distribution-automation/dac/reports-soe.html">Reports, SOE &amp; Commissioning HMI</a>
+  <a href="atlas:distribution-equipment/der-interconnection.html">DER Interconnection</a>
+</div>
+
+</body>
+</html>

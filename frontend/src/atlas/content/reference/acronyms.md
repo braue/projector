@@ -56,7 +56,7 @@ One line each. Where a term deserves a page, the page is linked.
 
 | Term | Meaning |
 |---|---|
-| **DAC** | Distribution Automation Controller — see [how the DAC decides](atlas:distribution-automation/dac/how-it-decides.html) |
+| **DAC** | Distribution Automation Controller — see [the DAC overview](atlas:distribution-automation/dac/overview.html) |
 | **DAN / SAN** | Dual- / single-attached node (IEC 62439-3, PRP/HSR) |
 | **DC** | Direct current; in a substation, the station battery system |
 | **DCB** | Directional comparison blocking (pilot scheme) |

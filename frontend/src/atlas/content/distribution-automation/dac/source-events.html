@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Source Events &amp; Underfrequency</title>
+<meta name="atlas-order" content="85">
+<meta name="atlas-tags" content="DAC,source event,bus fault,transformer lockout,breaker failure,IsolateBreakerZone,underfrequency,UFLS,81U,ExcludedByUnderfrequency">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Source Events DAC — How It Decides (atlas)amp; Underfrequency (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Source Events &amp; Underfrequency</h1>
+  <p>The SourceEvent input, the breaker-zone option, and the underfrequency statuses that block DA operation</p>
+  <div class="chips"><span>per-feeder input</span><span>breaker zone option</span><span>UF blocks everything</span><span>no restoration</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>A <strong>source event</strong> is answered as a permanent fault located <em>upstream</em> of the feeder: isolate the feeder from its source, sectionalize, restore from alternates.</li>
+<li>The input is <strong>per feeder</strong>. A substation may drive each feeder separately or reuse one point for all.</li>
+<li>A source event asserting <strong>within a short time of the feeder breaker opening</strong> is credited with causing that operation. Sectionalization and restoration still occur.</li>
+<li>An <strong>underfrequency trip</strong> means the de-energization was intentional. <strong>No restoration occurs.</strong></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Source events</h2>
+<p><code>DA_CIRCUIT</code> carries a <strong><code>SourceEvent</code></strong> input for conditions upstream of the feeder that require it to be restored by other sources. Asserting it means: isolate this feeder from its source.</p>
+<p>Common sources: <strong>station bus lockout</strong>, <strong>station transformer fault/lockout</strong>, breaker failure schemes.</p>
+
+<h3>Response</h3>
+<ol>
+<li>Open switches to <strong>isolate the source event from the feeder</strong>, typically by opening the feeder breaker.</li>
+<li><strong>Sectionalize</strong> the de-energized load if necessary.</li>
+<li><strong>Restore</strong> the de-energized load from alternate sources, subject to the usual availability and capacity rules.</li>
+</ol>
+
+<div class="callout"><strong>Coincidence rule.</strong> If the source event triggers within a short time period of the feeder breaker opening, the DAC considers the breaker operation to have been caused by the source event and still performs sectionalization and restoration.</div>
+
+<h3>Isolating the breaker zone</h3>
+<p>The feeder device definition carries an option to <strong>extend the isolated zone to include the breaker zone</strong> in response to system source events (<code>IsolateBreakerZone</code>). Isolation then uses the next switching device on the feeder instead of the feeder breaker.</p>
+<div class="fig"><svg viewBox="0 0 700 122" xmlns="http://www.w3.org/2000/svg">
+  <rect x="30" y="30" width="86" height="46" rx="5" fill="#fff" stroke="#d63a3a" stroke-width="1.5"/>
+  <text x="73" y="49" font-size="8.4" font-weight="600" fill="#d63a3a" text-anchor="middle">station bus</text>
+  <text x="73" y="63" font-size="7.6" fill="#6e7180" text-anchor="middle">lockout</text>
+  <line x1="116" y1="53" x2="640" y2="53" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="200" cy="53" r="7" fill="#1a1a22"/><text x="200" y="38" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <circle cx="370" cy="53" r="7" fill="#1a1a22"/><text x="370" y="38" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <circle cx="540" cy="53" r="7" fill="#1a1a22"/><text x="540" y="38" font-size="8" fill="#6e7180" text-anchor="middle">R2</text>
+  <rect x="150" y="82" width="110" height="28" rx="4" fill="#fff" stroke="#a9adb8" stroke-width="1"/>
+  <text x="205" y="94" font-size="7.6" font-weight="600" fill="#6e7180" text-anchor="middle">default: open CB A</text>
+  <text x="205" y="105" font-size="7.4" fill="#a9adb8" text-anchor="middle">breaker zone stays with feeder</text>
+  <rect x="300" y="82" width="140" height="28" rx="4" fill="#fff" stroke="#d7930a" stroke-width="1.25"/>
+  <text x="370" y="94" font-size="7.6" font-weight="600" fill="#9c6d06" text-anchor="middle">IsolateBreakerZone: open R1</text>
+  <text x="370" y="105" font-size="7.4" fill="#a9adb8" text-anchor="middle">breaker zone goes with the bus</text>
+  <path d="M200,60 V80" stroke="#a9adb8" stroke-width="1" stroke-dasharray="3 2"/>
+  <path d="M370,60 V80" stroke="#d7930a" stroke-width="1" stroke-dasharray="3 2"/>
+</svg></div>
+<p class="figcap">Adapter V2.10.3 fixed a defect where this option could fail to isolate the breaker zone for certain upstream events.</p>
+<p>Point: <code>Feeder_&lt;Bkr&gt;_SourceEvent</code>.</p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Underfrequency trip</h2>
+<div class="keyfact"><strong>Definition.</strong> A loss-of-voltage or isolation event is considered an underfrequency trip if the <strong>underfrequency pickup asserts for the most upstream device monitored by the system, prior to or at the same time as the event.</strong> The breaker trip and resulting de-energization are <strong>ignored</strong>. <strong>No restoration occurs.</strong></div>
+
+<div class="callout"><b>Field note —</b> in practice this is a <strong>rising-edge UF latch on the breaker/device coinciding with a loss of source</strong>. <b>Open question:</b> the effect of a UF assertion coinciding with other event types — permanent fault, overload — is not documented and not confirmed in the field. The manual describes only the loss-of-voltage / isolation case.</div>
+
+<h3>Enabling</h3>
+<p>Map the <strong>Underfrequency Pickup</strong> data point in the Template tab for the <strong>most upstream monitored device</strong> on a feeder.</p>
+<p><strong>If the behavior is not wanted, do not map the point.</strong> There is no separate disable.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Underfrequency load-shed schemes</h2>
+
+<div class="card teal">
+<h3>Case 1 — UFLS operates a modeled feeder breaker</h3>
+<p style="margin-bottom:4px"><strong>Intrinsically supported. No configuration.</strong> The breaker operates <strong>without an overcurrent fault indication</strong>, so the DAC reads it as a <strong>manual operation</strong>. No DA event, no DA operation.</p>
+</div>
+
+<div class="card pulse">
+<h3>Case 2 — UFLS operates a device the DAC cannot see</h3>
+<p style="margin-bottom:4px">An unmodeled low-side or high-side main, or an unmodeled substation. The discrete <strong>underfrequency input on every modeled device</strong> handles this.</p>
+<p style="margin-bottom:4px">If the underfrequency status of the <strong>most upstream modeled device</strong> asserts, <strong>all conditions that may trigger a DA event are ignored for a brief time</strong>. An assertion shortly before or after a loss of voltage results in the open-phase condition being ignored.</p>
+<p style="margin-bottom:0"><strong>Driving the status:</strong> <strong>coordinated underfrequency elements</strong> — recloser 81U elements with no protection function, coordinated with an unmonitored upstream UFLS breaker — or <strong>transfer-trip-style reporting</strong>, passing the status from the UFLS device to a device included in the DAC for reporting only.</p>
+</div>
+
+<p><code>Feeder_&lt;Bkr&gt;_ExcludedByUnderfrequency</code> reports that a feeder is being excluded by an interfaced underfrequency load-shed scheme.</p>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/open-phase.html">Open Phase &amp; Loss of Source</a>
+  <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+  <a href="atlas:protection/frequency-load-shedding.html">Frequency &amp; Load Shedding</a>
+</div>
+
+</body>
+</html>

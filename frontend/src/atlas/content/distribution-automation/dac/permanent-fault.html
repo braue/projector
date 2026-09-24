@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Permanent Fault &amp; Miscoordination</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="DAC,permanent fault,fault indication,lockout,miscoordination,isolation,restoration,deepest FI,alternate feed">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Permanent Fault DAC — How It Decides (atlas)amp; Miscoordination (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Permanent Fault &amp; Miscoordination</h1>
+  <p>How the faulted zone is located, what miscoordination detection changes, and the four conditions an alternate feed must meet</p>
+  <div class="chips"><span>always enabled</span><span>deepest FI + upstream LO</span><span>reclosing goes first</span><span>4 restoration criteria</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>Permanent fault detection is always enabled and cannot be disabled.</strong></li>
+<li><strong>The deepest fault indication names the zone. An upstream lockout confirms it is permanent.</strong> Two signals, two jobs.</li>
+<li>Devices between the deepest fault indication and the head of the feeder are <strong>not required</strong> to report fault indications. This supports coordination where a deep fault is below the pickup of upstream devices.</li>
+<li><strong>No lockout, no permanent fault.</strong> The sequence returns to Idle.</li>
+<li>With miscoordination detection on, the <strong>deepest fault indication still names the zone</strong>, even when it is not the device that locked out.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Locating the zone</h2>
+<p>Detection runs in the <strong>Analyze</strong> step, on fault current indications and lockout indications from devices on the feeder. The feeder is evaluated <strong>zone by zone, starting at the point farthest from the source</strong>.</p>
+<div class="fig"><svg viewBox="0 0 700 158" xmlns="http://www.w3.org/2000/svg">
+  <line x1="50" y1="52" x2="640" y2="52" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="70" cy="52" r="7" fill="#1a1a22"/><text x="70" y="36" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <text x="70" y="26" font-size="7.6" font-weight="600" fill="#d7930a" text-anchor="middle">FI</text>
+  <circle cx="250" cy="52" r="7" fill="#1a1a22"/><text x="250" y="36" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <text x="250" y="26" font-size="7.6" font-weight="600" fill="#d7930a" text-anchor="middle">FI ← deepest</text>
+  <circle cx="440" cy="52" r="7" fill="#1a1a22"/><text x="440" y="36" font-size="8" fill="#6e7180" text-anchor="middle">R2</text>
+  <text x="440" y="26" font-size="7.6" fill="#a9adb8" text-anchor="middle">no FI</text>
+  <circle cx="620" cy="52" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="620" y="36" font-size="8" fill="#10a37f" text-anchor="middle">R3 (NO)</text>
+  <path d="M290,52 L400,52" stroke="#d63a3a" stroke-width="6" stroke-linecap="round" opacity="0.3"/>
+  <text x="345" y="74" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">affected zone: R1 → R2</text>
+  <text x="345" y="90" font-size="7.6" fill="#6e7180" text-anchor="middle">R2→R3 evaluated first (no FI), then R1→R2 — fault found, search stops</text>
+  <text x="152" y="70" font-size="7.6" fill="#a9adb8" text-anchor="middle">saw fault current,</text>
+  <text x="152" y="80" font-size="7.6" fill="#a9adb8" text-anchor="middle">not deepest</text>
+
+  <!-- 12 s: fault current flows, every device that saw it flags, the breaker
+       locks out, and the search walks in from the far end until a flag stops
+       it. The order of the two search steps is the order in the text. -->
+  <g class="animlayer">
+    <!-- fault current, source to fault -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.30;0.33;1" dur="12s" repeatCount="indefinite"/>
+      <path d="M78,52 H330" fill="none" stroke="#d63a3a" stroke-width="2.6" stroke-linecap="round" opacity="0.5"/>
+      <circle r="2.8" fill="#d63a3a"><animateMotion path="M78,52 H330" dur="1.5s" repeatCount="indefinite"/></circle>
+      <circle r="2.8" fill="#d63a3a"><animateMotion path="M78,52 H330" dur="1.5s" begin="0.5s" repeatCount="indefinite"/></circle>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;0.3;1;0.3;0;0" keyTimes="0;0.03;0.055;0.08;0.105;0.14;1" dur="12s" repeatCount="indefinite"/>
+      <path d="M290,52 L400,52" stroke="#d63a3a" stroke-width="7" stroke-linecap="round"/>
+      <path d="M352,20 L337,46 L346,46 L339,70 L358,42 L348,42 L356,20 Z" fill="#d63a3a"/>
+    </g>
+
+    <!-- the devices that saw it flag; the one that did not stays quiet -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.16;0.19;0.93;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="56" y="17" width="28" height="12" rx="3" fill="none" stroke="#d7930a" stroke-width="1"/>
+      <rect x="214" y="17" width="74" height="12" rx="3" fill="none" stroke="#d7930a" stroke-width="1"/>
+    </g>
+
+    <!-- lockout: the sequence will not call it permanent before this -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.33;0.36;0.93;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="61" y="47" width="18" height="10" fill="#ffffff"/>
+      <circle cx="70" cy="52" r="7" fill="#ffffff" stroke="#d63a3a" stroke-width="2"/>
+      <text x="70" y="70" font-size="7.2" font-weight="600" fill="#d63a3a" text-anchor="middle">lockout</text>
+    </g>
+
+    <!-- search step 1: the far zone, rejected -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.485;0.60;0.625;1" dur="12s" repeatCount="indefinite"/>
+      <path d="M440,61 V67 H620 V61" fill="none" stroke="#a9adb8" stroke-width="1.4"/>
+      <rect x="470" y="72" width="120" height="12" fill="#ffffff"/>
+      <text x="530" y="81" font-size="7.4" font-weight="600" fill="#8a8e9b" text-anchor="middle">R2&#8211;R3 · no indication</text>
+    </g>
+
+    <!-- search step 2: the deepest indication names the zone -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.64;0.665;0.93;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <path d="M250,61 V67 H440 V61" fill="none" stroke="#d63a3a" stroke-width="1.6"/>
+      <path d="M258,52 H432" stroke="#d63a3a" stroke-width="5" stroke-linecap="round" opacity="0.14"/>
+    </g>
+    <circle cx="250" cy="52" r="11" fill="none" stroke="#d7930a" stroke-width="1.6" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.95;0;0.95;0;0.95;0" keyTimes="0;0.645;0.665;0.685;0.705;0.725;0.745;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+
+    <g font-size="8.6" text-anchor="middle">
+      <text x="350" y="132" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.15;0.17;1" dur="12s" repeatCount="indefinite"/>
+        Fault between R1 and R2 — fault current flows from the source to it
+      </text>
+      <text x="350" y="132" fill="#9c6d06" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.17;0.195;0.31;0.33;1" dur="12s" repeatCount="indefinite"/>
+        Every device that saw the current flags — CB A and R1. R2 never saw it.
+      </text>
+      <text x="350" y="132" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.33;0.355;0.44;0.46;1" dur="12s" repeatCount="indefinite"/>
+        Lockout arrives — reclosing did not clear it, so the fault is permanent
+      </text>
+      <text x="350" y="132" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.485;0.60;0.625;1" dur="12s" repeatCount="indefinite"/>
+        Evaluate R2&#8211;R3 first — no fault indication, so the fault is not there
+      </text>
+      <text x="350" y="132" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.625;0.65;0.93;0.96;1" dur="12s" repeatCount="indefinite"/>
+        R1 flagged and R2 did not &#8594; zone R1&#8211;R2. The search stops here.
+      </text>
+    </g>
+
+    <line x1="140" y1="144" x2="560" y2="144" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round"/>
+    <line x1="140" y1="144" x2="560" y2="144" stroke="#10a37f" stroke-width="2" stroke-linecap="round"
+          stroke-dasharray="420" stroke-dashoffset="420">
+      <animate attributeName="stroke-dashoffset" values="420;0" keyTimes="0;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">The fault indication farthest from the source identifies the affected zone.<span class="print-note"> ▶ Animated in the HTML edition: the current, the flags, the lockout, then the search.</span></p>
+<p>Once the zone is identified, the DAC <strong>waits for a lockout indication</strong> before calling the fault permanent. This gives local reclosers and breakers their chance to clear a temporary fault. If reclosing succeeds, no lockout arrives and the sequence returns to Idle.</p>
+<p>If the fault is permanent, an upstream breaker or recloser clears it and goes to Lockout. With correct coordination that is the device immediately upstream of the faulted zone.</p>
+</section>
+
+<section>
+<h2><span class="num">2</span>The fault indication bit</h2>
+<p>Zone location is only as good as the fault indications. Requirements:</p>
+<ul>
+<li><strong>Assert on fault current pickup, not on operation</strong> — 51-element timing. This allows miscoordination to be corrected, and lets non-fault-interrupting and non-load-break switches contribute.</li>
+<li><strong>Do not assert on ground overcurrent alone</strong> unless a protection operation occurred because of it. An upstream single-phase fault unbalances the remaining phases downstream. Use the neutral element's <em>operate</em>, or supervise it by relay operation.</li>
+<li><strong>Do not assert on inrush or cold-load pickup.</strong> A <strong>12-cycle restrain on pickup</strong> filters inrush; <strong>torque control</strong> of the fault pickups handles cold load.</li>
+<li><strong>Latched and momentarily-asserted indications are both supported</strong>, provided DNP events are configured so the assertion is reported. Latching is a per-device setting.</li>
+</ul>
+<div class="callout"><strong>Recommended SELogic shape (UDG):</strong> latch the fault trigger, feed it through a variable timer with a <strong>120 s pickup-to-dropout</strong> so the status self-resets after about two minutes, and expose a <strong>remote bit the DAC can use to reset it early</strong>.</div>
+<div class="callout"><strong>A fault indication anywhere on the feeder suppresses open-phase and dead-bus evaluation entirely.</strong> See <a href="atlas:distribution-automation/dac/open-phase.html">Open Phase &amp; Loss of Source</a>.</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Miscoordination</h2>
+<p>The device that locks out is not always the one immediately upstream of the fault. Miscoordination detection is an option. With it enabled, the DAC uses the <strong>most downstream fault indication to locate the event</strong>, regardless of which device locked out.</p>
+<div class="fig"><svg viewBox="0 0 700 112" xmlns="http://www.w3.org/2000/svg">
+  <line x1="50" y1="48" x2="640" y2="48" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="70" cy="48" r="7" fill="#fff" stroke="#d63a3a" stroke-width="2"/>
+  <text x="70" y="32" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <text x="70" y="22" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle">FI · LO</text>
+  <circle cx="250" cy="48" r="7" fill="#1a1a22"/>
+  <text x="250" y="32" font-size="8" fill="#6e7180" text-anchor="middle">R1</text>
+  <text x="250" y="22" font-size="7.6" font-weight="600" fill="#d7930a" text-anchor="middle">FI, did not trip</text>
+  <circle cx="440" cy="48" r="7" fill="#1a1a22"/><text x="440" y="32" font-size="8" fill="#6e7180" text-anchor="middle">R2</text>
+  <circle cx="620" cy="48" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="620" y="32" font-size="8" fill="#10a37f" text-anchor="middle">R3 (NO)</text>
+  <path d="M290,48 L400,48" stroke="#d63a3a" stroke-width="6" stroke-linecap="round" opacity="0.3"/>
+  <text x="345" y="70" font-size="8" font-weight="600" fill="#d63a3a" text-anchor="middle">affected zone still R1 → R2</text>
+  <text x="160" y="88" font-size="7.8" fill="#6e7180" text-anchor="middle">zone CB A → R1 was dropped wrongly</text>
+  <text x="160" y="99" font-size="7.8" font-weight="600" fill="#10a37f" text-anchor="middle">→ restore it from the normal source</text>
+</svg></div>
+<p class="figcap">CB A over-tripped. The deepest fault indication (R1) still names the zone correctly.</p>
+
+<div class="keyfact"><strong>Multiple lockouts.</strong> On the <strong>first lockout indication</strong> the DAC forces an update poll of every device on the event feeder, so all lockouts are seen and considered. The zone is still located by the deepest fault indication.</div>
+
+<h3>Effect on isolation</h3>
+<table>
+<tr><th style="width:38%">Miscoordination detection</th><th>Switches opened to isolate</th></tr>
+<tr><td><strong>Off</strong></td><td>All switches <strong>downstream</strong> of the affected zone.</td></tr>
+<tr><td><strong>On</strong></td><td>All switches downstream, <strong>plus the switch immediately upstream of the affected zone</strong>, commanded open if it did not already operate on protection. The over-tripped device upstream can then be closed back in.</td></tr>
+</table>
+<div class="callout"><strong>Non-fault-interrupting devices produce this pattern normally.</strong> A fault downstream of a switch that cannot interrupt gives a fault indication at the switch and a trip to lockout at the next upstream device — the definition of a miscoordination. The DAC operates accordingly, but <strong>reports these as permanent fault events that did not miscoordinate</strong>, because protection behaved as intended. The switching order matches miscoordination correction; the logs do not say so.</div>
+</section>
+
+<section>
+<h2><span class="num">4</span>Restoration</h2>
+<p>An alternative feeder is <strong>available</strong> only if all four hold:</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>1 · No abnormal conditions</b><span>Nothing abnormal anywhere on the alternative feeder. See <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>2 · Not excluded</b><span>The <code>Exclude</code> input of its <code>DA_CIRCUIT</code> is not asserted.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>3 · Live everywhere</b><span><strong>All</strong> voltage sensing on the alternative feeder shows live indication.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>4 · Enough margin</b><span>Enough unused capacity for the load served on the zone to be restored.</span></div>
+</div>
+<div class="callout"><b>Field note —</b> <strong>restoration does not care whether the zone being restored carries load.</strong> Restoration targets <strong>zones</strong>, not amperage. A de-energized unfaulted zone measuring 0 A is restored like any other. Zone load enters only through criterion 4, as the capacity the alternate must cover — so a zero-load zone satisfies it trivially.</div>
+<p>Restoration comes from an <strong>alternative feed</strong> across a normally-open tie, or — in the miscoordination case — from the <strong>normal source</strong>, by closing the over-tripped device back in. Both occur in the same solution.</p>
+<p>If one alternate cannot take everything, the DAC evaluates <strong>sectionalizing solutions</strong>, splitting the de-energized zones across several alternates. Worked example on <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>.</p>
+<p>Settings groups are evaluated against the new topology and changed where an association exists — see <a href="atlas:distribution-automation/dac/settings-groups.html">Settings Group Changes</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Cases that resemble a permanent fault</h2>
+<table>
+<tr><th style="width:32%">Case</th><th>Behavior</th></tr>
+<tr><td><strong>Breaker the DAC cannot talk to</strong></td><td>A <code>DA_PSEUDO_BKR</code> predicts its position, fault indication and lockout from the first downstream device, so overreach onto that recloser can still be corrected. Without it, simultaneous fault indications plus loss of source produce <strong>no operation</strong>. See <a href="atlas:distribution-automation/dac/device-behaviors.html">Device Behavior Modifiers</a>.</td></tr>
+<tr><td><strong>Protection failure (breaker failure)</strong></td><td>Without explicit protection-failure reporting this is indistinguishable from a miscoordination and is answered as one. With reporting, the failed device is treated as temporarily bypassed for the event. See <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>.</td></tr>
+<tr><td><strong>Event upstream of the feeder</strong></td><td>A source event is answered as a permanent fault located upstream of the feeder. See <a href="atlas:distribution-automation/dac/source-events.html">Source Events &amp; Underfrequency</a>.</td></tr>
+<tr><td><strong>Open phase that drew fault current</strong></td><td>A permanent open-phase condition that triggers a fault indication at inception but never drives reclosing to lockout produces <strong>no DAC operation</strong>. The fault indication blocks open-phase logic; no lockout ever confirms a fault.</td></tr>
+</table>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/open-phase.html">Open Phase &amp; Loss of Source</a>
+  <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>
+  <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>
+  <a href="atlas:protection/reclosing.html">Reclosing (79)</a>
+  <a href="atlas:distribution-equipment/fault-indicators.html">Fault Indicators &amp; Sensors</a>
+</div>
+
+</body>
+</html>

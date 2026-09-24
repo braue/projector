@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Overload, Transfer &amp; Load Shed</title>
+<meta name="atlas-order" content="90">
+<meta name="atlas-tags" content="DAC,overload,Level 1,Level 2,capacity,temporary capacity,load transfer,load shed,ShedTime,DA_LOAD,priority">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Overload, Transfer DAC — How It Decides (atlas)amp; Load Shed (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Overload, Transfer &amp; Load Shed</h1>
+  <p>Two levels, two system-wide timers, how load is transferred, and the conditions under which the DAC sheds</p>
+  <div class="chips"><span>Level 1 · Level 2</span><span>system-wide timers</span><span>max filtered phase</span><span>shed not recommended</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>Overload detection runs <strong>only from the Idle step</strong>, and only when the scheme is enabled, the feeder armed, <strong>no abnormals</strong> on the feeder, and <strong>no fault or open-phase condition</strong> detected on it.</li>
+<li>The logic uses the <strong>maximum of the three filtered phase currents</strong>.</li>
+<li><strong>The two overload timers are system-wide, not per device.</strong></li>
+<li>The event sequence starts only when there is <strong>less than 60 seconds left</strong> on the confirmation timer.</li>
+<li>Load shed requires transfer enabled, Level 2 confirmed, the transfer solution failed, and its own longer timer. <strong>SEL does not recommend enabling it.</strong></li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Detection</h2>
+<p>Three inputs: <strong>measured current flows</strong>, <strong>equipment and conductor capacity limits</strong>, <strong>overload confirmation times</strong>.</p>
+<p>Measured currents pass through a <strong>low-pass filter</strong> that smooths step changes and jitter. The logic compares the <strong>maximum of the three filtered phase currents</strong> against the two configured limits.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #d7930a"><b>Level 1 — above Capacity</b><span>Above the device's <strong>normal</strong> capacity. The limit the DAC keeps everything below when restoring.</span></div>
+  <div style="border-left:4px solid #d63a3a"><b>Level 2 — above Temporary Capacity</b><span>Above the device's <strong>temporary</strong> capacity. After any non-overload event, the most load the DAC will put on the device.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Never detected on</b><span>Equipment that is <strong>bypassed</strong> or <strong>out of service</strong>. Capacity values may be constants or <code>REAL</code> variables for seasonal ratings.</span></div>
+</div>
+<p><strong>Detected</strong> once the condition has been present for <code>EventDetectTime</code>. <strong>Confirmed</strong> once detected for <code>OverloadConfirmTime1</code> (Level 1) or <code>OverloadConfirmTime2</code> (Level 2).</p>
+
+<div class="warn"><strong>The two overload level timers are used for the entire system.</strong> Any area overloaded when the system overload timer expires <strong>will be operated on</strong>, even if it had not been individually overloaded for the confirmation time.</div>
+
+<h3>Sequence timing</h3>
+<p>Confirmation times are often long — a 12-hour emergency rating on a transformer. The DAC does not start the event sequence on detection. It:</p>
+<ol>
+<li>asserts a <strong>warning alarm</strong> for the feeder immediately;</li>
+<li>enters the <strong>Update</strong> step when there is <strong>less than 60 seconds left</strong> before the confirmation timer expires;</li>
+<li>moves to <strong>Analyze</strong> once the update completes;</li>
+<li><strong>confirms</strong> the overload in Analyze if it is still present after the confirmation time has expired.</li>
+</ol>
+<p>Every feeder overloaded <strong>at the moment of confirmation</strong> becomes an event feeder for the mitigation.</p>
+<div class="callout">From adapter V2.10.1 the <strong>Feeder Overload Warning</strong> point reports overloading even when overload mitigation is disabled.</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Load transfer</h2>
+<p>The network is evaluated for alternates using the standard <a href="atlas:distribution-automation/dac/reconfiguration.html">reconfiguration</a> ranking. <strong>Closed-transition switching is attempted wherever possible</strong>; otherwise open-transition operations are considered.</p>
+
+<div class="keyfact"><strong>Margin.</strong> Looking into the alternate circuit at the open tie point, margin = <strong>capacity − measurement</strong>, taken as the <strong>minimum of all equipment and conductor margins along that feeder from the tie point back to its source</strong>, <strong>including the connected transformer if modeled</strong>. The limiting element can be any apparatus or conductor along the path.</div>
+
+<div class="fig"><svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
+  <text x="26" y="34" font-size="8.4" font-weight="600" fill="#6e7180">Circuit A</text>
+  <line x1="90" y1="44" x2="560" y2="44" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="105" cy="44" r="7" fill="#1a1a22"/><text x="105" y="30" font-size="8" fill="#6e7180" text-anchor="middle">CB A</text>
+  <circle cx="250" cy="44" r="7" fill="#fff" stroke="#d7930a" stroke-width="2"/><text x="250" y="28" font-size="8" font-weight="600" fill="#9c6d06" text-anchor="middle">R1 · OL</text>
+  <text x="250" y="66" font-size="7.4" fill="#9c6d06" text-anchor="middle">cap 600 A · meas 625 A</text>
+  <circle cx="420" cy="44" r="7" fill="#1a1a22"/><text x="420" y="30" font-size="8" fill="#6e7180" text-anchor="middle">R2</text>
+  <text x="490" y="34" font-size="7.6" fill="#6e7180" text-anchor="middle">load 50 A</text>
+  <circle cx="560" cy="44" r="7" fill="#fff" stroke="#10a37f" stroke-width="2"/><text x="560" y="30" font-size="8" fill="#10a37f" text-anchor="middle">R3 (NO)</text>
+  <line x1="560" y1="44" x2="560" y2="102" stroke="#c9ccd8" stroke-width="1.5"/>
+  <text x="26" y="118" font-size="8.4" font-weight="600" fill="#6e7180">Circuit B</text>
+  <line x1="90" y1="102" x2="620" y2="102" stroke="#c9ccd8" stroke-width="1.5"/>
+  <circle cx="105" cy="102" r="7" fill="#1a1a22"/><text x="105" y="122" font-size="8" fill="#6e7180" text-anchor="middle">CB B</text>
+  <text x="330" y="122" font-size="7.8" font-weight="600" fill="#10a37f" text-anchor="middle">margin looking in at R3 = 100 A → transfer the 50 A zone</text>
+
+  <!-- 12 s: the overload, then the transfer in the order the text gives —
+       close R3 first, and send R2's Open the moment R3 reports closed. -->
+  <g class="animlayer">
+    <!-- Circuit A carrying more than it should -->
+    <path d="M113,44 H552" fill="none" stroke="#d7930a" stroke-width="3" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" values="0;0.8;0.8;0.8;0;0" keyTimes="0;0.02;0.30;0.56;0.60;1" dur="12s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0.9;0.9;0;0" keyTimes="0;0.04;0.56;0.60;1" dur="12s" repeatCount="indefinite"/>
+      <circle r="2.6" fill="#d7930a"><animateMotion path="M113,44 H552" dur="2.2s" repeatCount="indefinite"/></circle>
+      <circle r="2.6" fill="#d7930a"><animateMotion path="M113,44 H552" dur="2.2s" begin="0.7s" repeatCount="indefinite"/></circle>
+    </g>
+    <circle cx="250" cy="44" r="11" fill="none" stroke="#d7930a" stroke-width="1.6" opacity="0">
+      <animate attributeName="opacity" values="0;0.9;0;0.9;0;0.9;0;0" keyTimes="0;0.03;0.055;0.08;0.105;0.13;0.155;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <text x="250" y="78" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.03;0.56;0.60;1" dur="12s" repeatCount="indefinite"/>
+      25 A over
+    </text>
+
+    <!-- close R3 first: the alternate is connected before anything opens -->
+    <circle cx="560" cy="44" r="7" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.29;0.315;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M560,102 V44" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="58" stroke-dashoffset="58" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.30;0.32;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="58;58;0;0" keyTimes="0;0.32;0.39;1" dur="12s" repeatCount="indefinite"/>
+    </path>
+    <path d="M113,102 H558" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.8;0.8;0;0" keyTimes="0;0.30;0.33;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- R2 opens the moment R3 reports closed -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.485;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="411" y="39" width="18" height="10" fill="#ffffff"/>
+      <circle cx="420" cy="44" r="7" fill="#ffffff" stroke="#d7930a" stroke-width="2"/>
+      <text x="420" y="64" font-size="7.2" font-weight="600" fill="#9c6d06" text-anchor="middle">open</text>
+    </g>
+
+    <!-- the transferred zone, now fed the other way -->
+    <path d="M552,44 H428" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="124" stroke-dashoffset="124" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.52;0.545;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="124;124;0;0" keyTimes="0;0.545;0.63;1" dur="12s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;0.9;0.9;0;0" keyTimes="0;0.63;0.66;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <circle r="2.6" fill="#10a37f"><animateMotion path="M113,102 H560 V44 H430" dur="3.4s" repeatCount="indefinite"/></circle>
+    </g>
+
+    <!-- Circuit A back under its limit -->
+    <path d="M113,44 H412" fill="none" stroke="#10a37f" stroke-width="3" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.85;0.85;0;0" keyTimes="0;0.60;0.63;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+    </path>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.66;0.69;0.94;0.97;1" dur="12s" repeatCount="indefinite"/>
+      <rect x="196" y="58" width="108" height="12" fill="#ffffff"/>
+      <text x="250" y="67" font-size="7.6" font-weight="600" fill="#10a37f" text-anchor="middle">cap 600 A · meas 575 A</text>
+    </g>
+
+    <g font-size="8.6" text-anchor="middle">
+      <text x="350" y="152" fill="#9c6d06" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.27;0.29;1" dur="12s" repeatCount="indefinite"/>
+        R1 measures 625 A against a 600 A capacity — 25 A of overload
+      </text>
+      <text x="350" y="152" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.29;0.315;0.44;0.46;1" dur="12s" repeatCount="indefinite"/>
+        Close R3 first — Circuit B has 100 A of margin looking in at the tie
+      </text>
+      <text x="350" y="152" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.485;0.60;0.62;1" dur="12s" repeatCount="indefinite"/>
+        Open R2 as soon as R3&#8217;s closed status is seen — not on a timer
+      </text>
+      <text x="350" y="152" fill="#10a37f" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.62;0.645;0.94;0.965;1" dur="12s" repeatCount="indefinite"/>
+        The 50 A zone is fed from Circuit B · R1 back under capacity at 575 A
+      </text>
+    </g>
+
+    <line x1="140" y1="166" x2="560" y2="166" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round"/>
+    <line x1="140" y1="166" x2="560" y2="166" stroke="#10a37f" stroke-width="2" stroke-linecap="round"
+          stroke-dasharray="420" stroke-dashoffset="420">
+      <animate attributeName="stroke-dashoffset" values="420;0" keyTimes="0;1" dur="12s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">25 A overload at R1. A 50 A zone downstream of R2 is transferable. Circuit B has 100 A margin.<span class="print-note"> ▶ Animated in the HTML edition: close R3, then open R2 on its closed status.</span></p>
+
+<p>Execution: <strong>close R3 first</strong>, then send the Open to R2 <strong>as soon as R3's closed status is seen</strong>. If that Open fails, the DAC <strong>re-opens R3</strong>. Command failure is declared using <code>UpdateTimeLimit</code>.</p>
+<p>Settings groups are changed for the new topology — see <a href="atlas:distribution-automation/dac/settings-groups.html">Settings Group Changes</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>Load shed</h2>
+<div class="warn"><strong>SEL does not recommend enabling or using the load shed behavior.</strong> The stated position is that operators or other human personnel should be responsible for decisions to shed customer load.</div>
+
+<p>Load shed may only be enabled if <strong>overload load transfer is also enabled</strong>. It applies only when a <strong>Level 2</strong> overload is confirmed <em>and</em> a load transfer solution failed to mitigate it.</p>
+
+<div class="flow">
+  <div class="stage"><b>OverloadConfirmTime2 expires</b><span>Level 2 confirmed. Transfer attempted.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>Transfer fails</b><span>The DAC reports an <strong>Overload Warning</strong>. Operators can switch manually, shed manually, or disable the DAC.</span></div>
+  <div class="arr">→</div>
+  <div class="stage"><b>ShedTime expires</b><span>Load-shed solutions are evaluated. <code>ShedTime</code> must be set <strong>longer than</strong> <code>OverloadConfirmTime2</code>.</span></div>
+</div>
+<p>The DAC <strong>sheds the minimum load possible</strong> to bring loading below temporary limits.</p>
+
+<div class="keyfact"><strong>Source-group exception.</strong> The DAC never performs a <em>closed</em>-transition operation between circuits in different source groups. With <strong>no closed-transition alternatives and load shedding enabled</strong>, it <strong>will</strong> perform an <strong>open</strong>-transition transfer to a circuit in a different source group, to reduce the size of the outage a load shed would cause.</div>
+
+<h3>Priority</h3>
+<p>Priority is assigned with the <code>DA_LOAD</code> function block and considered when choosing what to shed. <strong>Smaller priority numbers indicate greater importance.</strong></p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Points</h2>
+<table>
+<tr><th style="width:40%">Point</th><th>Meaning</th></tr>
+<tr><td><code>DAC_OverloadWarning</code></td><td>An overload is detected. Fires long before any action, and even when mitigation is disabled (V2.10.1+).</td></tr>
+<tr><td><code>DAC_Overload</code></td><td>Overload event <strong>confirmed</strong>. Mitigation underway.</td></tr>
+<tr><td><code>DAC_OverloadSeconds</code></td><td>Seconds remaining before the overload event is confirmed.</td></tr>
+<tr><td><code>DAC_ShedWarning</code></td><td>Load shed warning.</td></tr>
+<tr><td><code>DAC_ShedSeconds</code></td><td>Seconds before a load shed event is confirmed.</td></tr>
+<tr><td><code>DAC_LoadShed</code></td><td>Load shed confirmed.</td></tr>
+</table>
+<p>For feeders in <strong>loop configurations</strong> the DAC attempts no overload mitigation, and generates overload alarms only for equipment or line sections with sources connected on both sides. See <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>.</p>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/loading-capacity.html">Loading, Capacity &amp; Voltage</a>
+  <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>
+  <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+</div>
+
+</body>
+</html>

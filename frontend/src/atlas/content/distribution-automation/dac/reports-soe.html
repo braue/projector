@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Reports, SOE &amp; Commissioning HMI</title>
+<meta name="atlas-order" content="160">
+<meta name="atlas-tags" content="DAC,event report,SOE,sequence of events,pre-event report,email,commissioning HMI,simulation mode,timestamps">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Reports, SOE DAC — How It Decides (atlas)amp; Commissioning HMI (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Reports, SOE &amp; Commissioning HMI</h1>
+  <p>The four records the DAC produces, what each contains, and what simulation mode decouples</p>
+  <div class="chips"><span>SOE shows, report explains</span><span>pre-event every minute</span><span>DAC clock, not field</span><span>simulation mode</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li><strong>The SOE shows what happened. The event report gives the reason.</strong> The SOE contains no explanation of AR operations, no loads lost or restored, and no reason for a failure.</li>
+<li><strong>SOE timestamps are the DAC's internal clock</strong>, taken when the data point updated inside the DA logic — not the field device's timestamp. Do not use the SOE for protection element analysis.</li>
+<li>The <strong>pre-event report</strong> is the only record of what was already true before the event.</li>
+<li><strong>Simulation mode stops polling and stops all commands to the physical device.</strong> AR-generated controls toggle the simulated statuses.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>Event reports</h2>
+<p>Generated automatically for each reconfiguration, <strong>successful or unsuccessful</strong>. Contains which zones were affected, what load was lost and restored, and why a restoration was incomplete.</p>
+<div class="callout">Content varies by adapter library version. Later versions added diagnostics for <strong>capacity-limited</strong> events, an indication of <strong>why devices were opened in open-phase events</strong>, reporting of <strong>relevant substation transformers</strong>, and better lost-load calculation for bus faults, switchgear faults and permanently looped systems.</div>
+</section>
+
+<section>
+<h2><span class="num">2</span>Sequence of events</h2>
+<p>The DA system logs <strong>all status changes from field or substation devices that impact AR functionality</strong>, plus <strong>all DA-generated statuses</strong>.</p>
+<ul>
+<li>At least the most recent <strong>30,000 events</strong> are stored, replaced oldest-first.</li>
+<li>Downloadable as <strong>CSV</strong> from the RTAC web interface — log in, then <strong>SOE</strong> in the navigation menu.</li>
+<li>The most recent <strong>100</strong> events display by default. Column headers sort; Filter options are above the table.</li>
+</ul>
+<p>Logged: device communications statuses, open/close commands and statuses, fault and event indicators, abnormal status indicators, AR operational stages — anything eligible for SCADA reporting.</p>
+
+<h3>The four columns</h3>
+<table>
+<tr><th style="width:22%">Column</th><th>Behavior</th></tr>
+<tr><td><strong>Time Stamp</strong></td><td>The time the data point was updated <strong>within the DA logic, by the DAC's internal clock</strong>. Not the field device's timestamp. This prevents unsynchronized device clocks confusing the log. <strong>The DA SOE must not be used for in-depth protection element analysis.</strong> It gives a synchronized system-wide view.</td></tr>
+<tr><td><strong>Category</strong></td><td><strong>Security</strong> (RTAC cybersecurity logs) · <strong>Field Status</strong> (statuses read from field devices) · <strong>DA Status</strong> (statuses describing DA processes) · <strong>DA Command</strong> (commands issued by the DAC).</td></tr>
+<tr><td><strong>Tag Name</strong></td><td>Brief description of the status.</td></tr>
+<tr><td><strong>Message</strong></td><td>Explanation of the change to that tag.</td></tr>
+</table>
+<div class="callout"><strong>Connectors in the SOE.</strong> A <code>DA_DAC_INTERCONNECT</code> appears as a feeder source, a load-break capable <strong>"Source Switch"</strong>, and a load-break capable <strong>"Load Switch"</strong> in series. These names are a connector, not real plant.</div>
+</section>
+
+<section>
+<h2><span class="num">3</span>Pre-event reports</h2>
+<p><strong>Every minute</strong> the DAC writes a temporary log of all statuses of all devices. When an event trigger occurs, <strong>the last log written before the trigger</strong> becomes the pre-event report — a CSV of the system's condition immediately beforehand.</p>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>All statuses prior to the event</b><span>The SOE records <em>changes</em>. A status steady for weeks does not appear in it. This exposes conditions such as a <strong>dead or blown PT</strong> reading dead voltage since before the event.</span></div>
+  <div style="border-left:4px solid #10a37f"><b>Loading conditions prior to the event</b><span>Approximate loading in the run-up. Shows which areas were tight where capacity restrictions shaped the outcome.</span></div>
+</div>
+<p>Pre-event report, SOE and event report together give what was true before, what happened, and why.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>Email reports</h2>
+<p>Four email types are available through the emailer function blocks. Three are commonly used.</p>
+<table>
+<tr><th style="width:30%">Enable</th><th>Produces</th></tr>
+<tr><td><code>gv_EmailEventReport</code></td><td>An email after <strong>each successful or unsuccessful reconfiguration</strong>, with the <strong>event report attached</strong>.</td></tr>
+<tr><td><code>gv_FeederState_Buffer</code></td><td>A notification after each reconfiguration summarizing the feeders involved and the cause. <strong>Not recommended if event report emails are enabled</strong>; the same information is in the report.</td></tr>
+<tr><td><code>gv_Alarm_Buffer</code></td><td>A notification when one or more devices <strong>remain abnormal for a user-specified time</strong>, naming the devices blocking DA operation.</td></tr>
+</table>
+<p>Server configuration and test-send hooks (<code>SendTest</code>) are in the emailer program. See the UDG's Email Configuration section.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Commissioning HMI</h2>
+<div class="warn"><strong>A maintenance and commissioning tool, not for long-term or daily use.</strong> For a permanent HMI, license the RTAC for HMI and build graphics in AcSELerator Diagram Builder, or build the operator interface on the SCADA system from the DAC's reporting.</div>
+<p>Requires no additional code, no additional statuses, and no RTAC HMI license. It is a <strong>visual display of the values already in each device's <code>InputData</code> and <code>OutputData</code></strong>.</p>
+
+<h3>Simulation mode</h3>
+<p>Decouples a modeled device from communications with the physical device.</p>
+<ol>
+<li>The device <strong>stops polling</strong> the physical device and <strong>sends it no commands</strong>.</li>
+<li><strong>All statuses latch at the value reported when simulation mode was entered.</strong></li>
+<li>Statuses may be toggled from the HMI controls.</li>
+<li><strong>Controls generated by AR operations toggle the simulated status as a manual toggle would</strong>, so the device displays the operations that would have occurred without operating real plant.</li>
+</ol>
+<div class="callout">Fixed in adapter V2.9.4: devices left in commissioning mode could cause <strong>load duplication</strong> and produce solutions with <strong>false overloads</strong>.</div>
+</section>
+
+<section>
+<h2><span class="num">6</span>Library version</h2>
+<p>The OM carries a revision log per adapter library version. Behavior changes:</p>
+<ul>
+<li><strong>V2.10.4</strong> — fixes for non-gang reclosers with one or two poles open potentially <strong>closing into energized circuits</strong>, blocking RTN, or letting RTN switch <strong>beyond its allowed boundaries</strong>. Improved SOE logging of feeders adjacent to devices.</li>
+<li><strong>V2.10.3</strong> — fixes <code>IsolateBreakerZone</code> failing to isolate the breaker zone for certain upstream events.</li>
+<li><strong>V2.10.1</strong> — Feeder Overload Warning reports even when overload mitigation is disabled.</li>
+<li><strong>V2.10.0</strong> — where initial conditions would have the DAC both open and close the same device (opening for breaker-zone isolation while closing for miscoordination correction), <strong>the DAC now prefers opening</strong>. Improved fault-latch reset for back-to-back events.</li>
+<li><strong>V2.9.2</strong> — fixes fault pickup latching indefinitely when a device detects a fault then becomes electrically isolated by a non-event condition such as manual switching.</li>
+</ul>
+<div class="callout">Both controllers in a distributed pair must run <strong>exactly the same</strong> DA and Adapter library versions. See <a href="atlas:distribution-automation/dac/system-features.html">System-Level Optional Features</a>.</div>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/alarms-scada.html">Alarms &amp; SCADA Points</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:rtac-automation/rtac-platform.html">RTAC Platform</a>
+  <a href="atlas:relays-devices/ser-soe.html">SER &amp; SOE</a>
+</div>
+
+</body>
+</html>

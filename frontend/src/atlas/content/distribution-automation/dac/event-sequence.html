@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC — Event Sequence</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC,event sequence,idle,update,analyze,timeout,integrity poll,isolation,MinimumUpdateTime">
+<style>
+  @page {
+    size: letter;
+    margin: 0.55in 0.6in 0.7in 0.6in;
+    @bottom-left { content: "DAC — Event Sequence (atlas)"; font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+    @bottom-right { content: counter(page) " / " counter(pages); font-family: "Segoe UI", sans-serif; font-size: 7.5pt; color: #a9adb8; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #1a1a22; background: #ffffff; }
+  code, .mono { font-family: "Consolas", "Cascadia Mono", monospace; font-size: 0.93em; }
+  code { background: #f2f3f5; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+
+  .masthead { background: #fafbfc; border: 1px solid #e5e7eb; color: #1a1a22; border-radius: 10px; padding: 20px 24px 16px; margin-bottom: 16px; }
+  .masthead h1 { font-size: 21pt; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .masthead p { color: #6e7180; font-size: 10pt; margin-bottom: 10px; }
+  .chips span { display: inline-block; border: 1px solid #e5e7eb; background: #f2f3f5; color: #6e7180; border-radius: 20px; padding: 1px 10px; font-family: Consolas, monospace; font-size: 8pt; margin-right: 5px; }
+
+  h2 { font-size: 12.5pt; color: #1a1a22; margin: 15px 0 7px; display: flex; align-items: center; gap: 7px; }
+  h2 .num { background: #10a37f; color: #fff; border-radius: 4px; font-size: 8.5pt; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10pt; color: #454956; margin: 9px 0 4px; }
+  p { margin-bottom: 6px; }
+  ul { margin: 0 0 7px 16px; }
+  li { margin-bottom: 3.5px; }
+  strong { color: #1a1a22; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+  th { text-align: left; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; border-bottom: 1.5px solid #10a37f; padding: 3px 7px 3px 0; }
+  td { padding: 4px 7px 4px 0; border-bottom: 0.75px solid #e5e7eb; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .card { border: 1.25px solid #e5e7eb; border-left-width: 4px; border-radius: 6px; padding: 9px 13px; margin-bottom: 9px; page-break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+  .card.latch { border-left-color: #5468c4; } .card.latch h3 { color: #5468c4; }
+  .card.pulse { border-left-color: #d7930a; } .card.pulse h3 { color: #9c6d06; }
+  .card.pair  { border-left-color: #d63a3a; } .card.pair  h3 { color: #d63a3a; }
+  .card.teal  { border-left-color: #10a37f; }
+  .card .hexref { float: right; font-family: Consolas, monospace; font-size: 8pt; color: #8a8e9b; }
+
+  .callout { background: #e7f6f1; border-left: 4px solid #10a37f; border-radius: 4px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .warn { background: #fdf3e7; border-left-color: #d7930a; }
+  .keyfact { background: #fbeeee; border-left-color: #d63a3a; }
+
+  .crob { display: flex; gap: 4px; margin: 8px 0; }
+  .crob div { border: 1.25px solid #d0d3da; border-radius: 5px; padding: 5px 4px; text-align: center; flex: 1; }
+  .crob div b { display: block; font-size: 8.6pt; color: #1a1a22; }
+  .crob div span { font-size: 7.4pt; color: #8a8e9b; }
+  .crob div.hot { background: #1a1a22; }
+  .crob div.hot b, .crob div.hot span { color: #fff; }
+  .crob div.dim { background: #f2f3f5; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0; }
+  .flow .stage { border: 1.25px solid #d0d3da; border-radius: 6px; padding: 7px 9px; flex: 1; background: #fff; }
+  .flow .stage b { display: block; font-size: 8.6pt; color: #1a1a22; margin-bottom: 2px; }
+  .flow .stage span { font-size: 7.8pt; color: #6e7180; line-height: 1.3; display: block; }
+  .flow .arr { align-self: center; padding: 0 5px; color: #10a37f; font-weight: bold; font-size: 11pt; }
+
+  .twocol { display: flex; gap: 16px; }
+  .twocol > div { flex: 1; }
+
+  section { page-break-inside: auto; }
+  .keep { page-break-inside: avoid; }
+
+  .footnote { font-size: 7.8pt; color: #8a8e9b; margin-top: 10px; border-top: 0.75px solid #e5e7eb; padding-top: 5px; }
+
+  .fig { margin: 8px 0 4px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .fig text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .figcap { font-size: 7.8pt; color: #8a8e9b; margin: 2px 0 8px; }
+  .print-note { display: none; }
+  @media print {
+    .animlayer { display: none !important; }
+    .print-note { display: inline; }
+  }
+
+    .card.eve  { border-left-color: #d7930a; } .card.eve h3 { color: #9c6d06; }
+    .card.ser  { border-left-color: #5468c4; } .card.ser h3 { color: #5468c4; }
+  .filecards { display: flex; gap: 10px; margin: 8px 0; }
+  .filecards > div { flex: 1; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .filecards b { font-family: Consolas, monospace; font-size: 8.5pt; display: block; margin-bottom: 3px; }
+  .filecards span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .filecards .cfg { border-left: 4px solid #10a37f; } .filecards .cfg b { color: #10a37f; }
+  .filecards .dat { border-left: 4px solid #d7930a; } .filecards .dat b { color: #9c6d06; }
+  .filecards .hdr { border-left: 4px solid #5468c4; } .filecards .hdr b { color: #5468c4; }
+
+  .seealso { margin-top: 14px; border-top: 0.75px solid #e5e7eb; padding-top: 8px; }
+  .seealso b { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.5px; color: #6e7180; display: block; margin-bottom: 4px; }
+  .seealso a { display: inline-block; border: 1px solid #e5e7eb; background: #fafbfc; border-radius: 20px; padding: 2px 11px; font-size: 8.2pt; color: #10a37f; text-decoration: none; margin: 0 5px 5px 0; }
+  @media print { .seealso { display: none; } }
+
+  ol { margin: 0 0 7px 18px; }
+  .grid3 { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .grid3 > div { flex: 1 1 30%; border: 1.25px solid #e5e7eb; border-radius: 6px; padding: 8px 11px; }
+  .grid3 b { display: block; font-size: 8.6pt; margin-bottom: 3px; }
+  .grid3 span { font-size: 8.2pt; color: #6e7180; display: block; line-height: 1.35; }
+  .tag { display: inline-block; font-family: Consolas, monospace; font-size: 7.6pt; border: 1px solid #e5e7eb; background: #f2f3f5; border-radius: 3px; padding: 0 4px; color: #6e7180; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>DAC — Event Sequence</h1>
+  <p>Idle → Update → Analyze — what each step does, which devices are polled, every exit back to Idle</p>
+  <div class="chips"><span>Idle · Update · Analyze</span><span>armed only</span><span>poll scope = depth</span><span>isolate on confirm</span></div>
+</div>
+
+<section class="keep">
+<h2 style="margin-top:2px"><span class="num" style="background:#1a1a22">☰</span>Core facts</h2>
+<div class="card teal" style="background:#fafbfc">
+<ul style="margin-bottom:2px">
+<li>New events are detected only on <strong>Armed</strong> feeders, but can be detected during <strong>any</strong> step — Idle, Update or Analyze.</li>
+<li>The Update step has a <strong>minimum duration as well as a limit</strong>.</li>
+<li>An abnormal condition found in Analyze aborts the sequence and sets Abnormal Failure at feeder and scheme level.</li>
+<li><strong>Isolation switches open on event confirmation, in Analyze, before any solution exists</strong> — for permanent fault and miscoordination only.</li>
+<li>This sequence restores nothing. It confirms, isolates, and hands off to <a href="atlas:distribution-automation/dac/reconfiguration.html">reconfiguration</a>.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2><span class="num">1</span>The sequence</h2>
+<div class="fig"><svg viewBox="0 0 700 186" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="38" width="120" height="42" rx="6" fill="#fff" stroke="#a9adb8" stroke-width="1.25"/>
+  <text x="80" y="56" font-size="10.5" font-weight="600" fill="#6e7180" text-anchor="middle">Idle</text>
+  <text x="80" y="69" font-size="7.4" fill="#a9adb8" text-anchor="middle">integrity poll · watch</text>
+
+  <path d="M140,59 H206 M202,55 L208,59 L202,63" fill="none" stroke="#d63a3a" stroke-width="1.4"/>
+  <text x="173" y="52" font-size="7.6" font-weight="600" fill="#d63a3a" text-anchor="middle">new event</text>
+
+  <rect x="210" y="38" width="140" height="42" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="280" y="56" font-size="10.5" font-weight="600" fill="#10a37f" text-anchor="middle">Update</text>
+  <text x="280" y="69" font-size="7.4" fill="#a9adb8" text-anchor="middle">poll everything in scope</text>
+
+  <path d="M350,59 H416 M412,55 L418,59 L412,63" fill="none" stroke="#6e7180" stroke-width="1.25"/>
+  <text x="383" y="52" font-size="7.4" fill="#6e7180" text-anchor="middle">poll done</text>
+
+  <rect x="420" y="38" width="140" height="42" rx="6" fill="#fff" stroke="#10a37f" stroke-width="1.25"/>
+  <text x="490" y="56" font-size="10.5" font-weight="600" fill="#10a37f" text-anchor="middle">Analyze</text>
+  <text x="490" y="69" font-size="7.4" fill="#a9adb8" text-anchor="middle">confirm · name the zone</text>
+
+  <path d="M560,59 H626 M622,55 L628,59 L622,63" fill="none" stroke="#1a1a22" stroke-width="1.4"/>
+  <rect x="630" y="38" width="58" height="42" rx="6" fill="#1a1a22"/>
+  <text x="659" y="56" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">Recon-</text>
+  <text x="659" y="68" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">figure</text>
+
+  <text x="490" y="22" font-size="7.8" font-weight="600" fill="#d63a3a" text-anchor="middle">isolation opens are sent here</text>
+  <path d="M470,26 C474,30 478,32 484,36 M479,33 L486,38 L485,31" fill="none" stroke="#d63a3a" stroke-width="0.9"/>
+
+  <path d="M490,80 C486,116 200,124 80,82" fill="none" stroke="#a9adb8" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="290" y="122" font-size="7.6" fill="#6e7180" text-anchor="middle">cleared · abnormal · analyze timeout → Idle</text>
+  <path d="M280,80 C276,100 160,104 82,80" fill="none" stroke="#a9adb8" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="180" y="100" font-size="7.6" fill="#6e7180" text-anchor="middle">update timeout → Idle</text>
+
+  <!-- Two passes of the same sequence on one 13 s timeline: the first runs
+       through to reconfiguration, the second times out in Update and drops
+       back to Idle — the two outcomes the sections below describe.
+       Each token walks one simple path, so its keyPoints are exact
+       fractions of that path's own length and nothing has to be guessed. -->
+  <g class="animlayer">
+    <!-- the step holding the token, lit -->
+    <rect x="20" y="38" width="120" height="42" rx="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0.10;0.10;0;0;0.10;0.10;0;0" keyTimes="0;0.02;0.145;0.175;0.545;0.56;0.625;0.655;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="210" y="38" width="140" height="42" rx="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.10;0.10;0;0;0.10;0.10;0;0" keyTimes="0;0.17;0.19;0.30;0.335;0.645;0.665;0.80;0.83;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="420" y="38" width="140" height="42" rx="6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;0.10;0.10;0;0" keyTimes="0;0.335;0.355;0.44;0.475;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- new event on an armed feeder: the only way out of Idle -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0;0;1;1;0;0" keyTimes="0;0.115;0.135;0.165;0.195;0.60;0.615;0.63;0.655;0.685;1" dur="13s" repeatCount="indefinite"/>
+      <path d="M140,59 H206 M202,55 L208,59 L202,63" fill="none" stroke="#d63a3a" stroke-width="2.4"/>
+    </g>
+
+    <!-- pass 1: Idle → Update → Analyze → hand-off -->
+    <circle r="4.6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.50;0.525;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M80,59 H280 H490 H659"
+        keyPoints="0;0;0.3454;0.3454;0.7081;0.7081;1;1"
+        keyTimes="0;0.13;0.17;0.30;0.335;0.44;0.47;1"/>
+    </circle>
+
+    <!-- isolation opens, in Analyze, before any solution exists: the note the
+         figure already carries, pulsed at the moment it applies -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0.35;1;0.35;1;0;0" keyTimes="0;0.35;0.37;0.385;0.40;0.415;0.43;0.46;1" dur="13s" repeatCount="indefinite"/>
+      <rect x="396" y="12" width="188" height="15" rx="4" fill="none" stroke="#d63a3a" stroke-width="1"/>
+    </g>
+
+    <!-- hand-off to the scheme-wide sequence -->
+    <rect x="630" y="38" width="58" height="42" rx="6" fill="none" stroke="#10a37f" stroke-width="2.2" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.455;0.475;0.505;0.525;1" dur="13s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- pass 2: out to Update, where a device never answers -->
+    <circle r="4.6" fill="#10a37f" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.545;0.56;0.80;0.815;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M80,59 H280" keyPoints="0;0;1;1" keyTimes="0;0.61;0.65;1"/>
+    </circle>
+    <circle r="4.6" fill="#d7930a" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.80;0.815;0.875;0.895;1" dur="13s" repeatCount="indefinite"/>
+      <animateMotion dur="13s" repeatCount="indefinite" calcMode="linear"
+        path="M280,80 C276,100 160,104 82,80" keyPoints="0;0;1;1" keyTimes="0;0.81;0.875;1"/>
+    </circle>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.785;0.805;0.885;0.91;1" dur="13s" repeatCount="indefinite"/>
+      <path d="M280,80 C276,100 160,104 82,80" fill="none" stroke="#d7930a" stroke-width="2"/>
+      <rect x="126" y="92" width="108" height="11" fill="#ffffff"/>
+      <text x="180" y="100" font-size="7.6" font-weight="600" fill="#9c6d06" text-anchor="middle">update timeout &#8594; Idle</text>
+    </g>
+
+    <g font-size="8.6" text-anchor="middle">
+      <text x="350" y="160" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.11;0.13;1" dur="13s" repeatCount="indefinite"/>
+        Idle — integrity polls, abnormal watch, new-event watch
+      </text>
+      <text x="350" y="160" fill="#d63a3a" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.13;0.15;0.165;0.185;1" dur="13s" repeatCount="indefinite"/>
+        New event — detected on armed feeders only
+      </text>
+      <text x="350" y="160" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.185;0.205;0.30;0.325;1" dur="13s" repeatCount="indefinite"/>
+        Update — poll everything in scope · a minimum duration as well as a limit
+      </text>
+      <text x="350" y="160" fill="#1a1a22" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.325;0.345;0.44;0.46;1" dur="13s" repeatCount="indefinite"/>
+        Analyze — confirm the event, name the zone, open the isolation switches
+      </text>
+      <text x="350" y="160" fill="#10a37f" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.46;0.48;0.505;0.53;1" dur="13s" repeatCount="indefinite"/>
+        Confirmed &#8594; hand off to reconfiguration, and straight back to Idle
+      </text>
+      <text x="350" y="160" fill="#6e7180" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.545;0.565;0.775;0.795;1" dur="13s" repeatCount="indefinite"/>
+        Second pass — another event on the same feeder
+      </text>
+      <text x="350" y="160" fill="#9c6d06" font-weight="600" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.795;0.815;0.90;0.93;1" dur="13s" repeatCount="indefinite"/>
+        A device never answers &#8594; update timeout &#8594; Idle, nothing switched
+      </text>
+    </g>
+
+    <line x1="140" y1="172" x2="560" y2="172" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round"/>
+    <line x1="140" y1="172" x2="560" y2="172" stroke="#10a37f" stroke-width="2" stroke-linecap="round"
+          stroke-dasharray="420" stroke-dashoffset="420">
+      <animate attributeName="stroke-dashoffset" values="420;0" keyTimes="0;1" dur="13s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg></div>
+<p class="figcap">Per-feeder event sequence. Confirmation goes to the scheme-wide reconfiguration sequence; this sequence returns to Idle immediately.<span class="print-note"> ▶ Animated in the HTML edition: one pass through to reconfiguration, one that times out in Update.</span></p>
+</section>
+
+<section>
+<h2><span class="num">2</span>Idle step</h2>
+<p>The sequence is forced to Idle whenever the feeder is not armed. Armed and idle, it runs three jobs on interval: <strong>integrity polls</strong>, <strong>abnormal condition monitoring</strong>, and <strong>new event monitoring</strong>. Overload detection also runs only here — see <a href="atlas:distribution-automation/dac/overload.html">Overload</a>.</p>
+<h3>Returns to Idle when</h3>
+<ul>
+<li>Analyze determines the event <strong>cleared without intervention</strong> — reclosing cleared a temporary fault.</li>
+<li>An <strong>abnormal condition</strong> is detected during Analyze.</li>
+<li>Event confirmation is not received <strong>within the analyze timeout</strong>.</li>
+<li>The reconfiguration operations triggered by the event <strong>complete</strong>.</li>
+<li>A device on the event feeder <strong>times out during Update</strong>.</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="num">3</span>Update step</h2>
+<p>Entered on a new event on an armed feeder. It completes an integrity poll of all related devices, so later decisions rest on current data, and it identifies unresponsive devices.</p>
+
+<h3>Devices polled</h3>
+<ul>
+<li>Devices on the <strong>event feeder</strong>.</li>
+<li>Devices on <strong>adjacent feeders</strong>, and on feeders adjacent to those — governed by the system <strong>transfer depth</strong>.</li>
+</ul>
+<p>Not the whole scheme. On a large scheme this is a fraction of the devices.</p>
+
+<h3>Duration</h3>
+<div class="grid3">
+  <div style="border-left:4px solid #10a37f"><b>MinimumUpdateTime — 10 s</b><span>Floor. The step waits this long even if all polls return instantly. It exists for devices that trip <strong>straight to lockout</strong> — high-set overcurrent, underground systems — so field readings settle.</span></div>
+  <div style="border-left:4px solid #d7930a"><b>UpdateTimeLimit — 120 s</b><span>Ceiling. The step ends when all related devices have answered and the minimum time has passed, or when this limit is exceeded.</span></div>
+  <div style="border-left:4px solid #5468c4"><b>Effect</b><span>For most event types the confirmation item — a lockout, or the open-phase delay — takes longer than the minimum update time, so the floor has no effect.</span></div>
+</div>
+
+<h3>Timeout behavior depends on device location</h3>
+<table>
+<tr><th style="width:30%">Device that timed out</th><th>Result</th></tr>
+<tr><td><strong>On the event feeder</strong></td><td>Sequence returns to Idle. <strong>Update Timeout</strong> alarm asserts. Nothing is attempted.</td></tr>
+<tr><td><strong>On an adjacent feeder</strong></td><td>Sequence proceeds to Analyze. That feeder is marked <strong>abnormal</strong> from the communications alarm and is excluded from every solution. The event is still acted on.</td></tr>
+</table>
+</section>
+
+<section>
+<h2><span class="num">4</span>Analyze step</h2>
+<p>Runs when Update completes. It determines whether a permanent fault has occurred, an open-phase condition exists, or a persistent overload exists.</p>
+<table>
+<tr><th style="width:34%">Finding</th><th>Result</th></tr>
+<tr><td><strong>Abnormal condition on the feeder</strong></td><td>Sequence aborts to Idle. <strong>Abnormal Failure</strong> alarms set at feeder and scheme level.</td></tr>
+<tr><td><strong>Event condition no longer exists</strong></td><td>Sequence returns to Idle. No alarm.</td></tr>
+<tr><td><strong>Nature of the event cannot be determined</strong></td><td>Step exceeds <code>AnalyzeTimeLimit</code> (default 120 s), returns to Idle, sets <strong>Analyze Timeout</strong>.</td></tr>
+<tr><td><strong>Event confirmed</strong></td><td>Affected sections identified and reported to reconfiguration. Isolation switches commanded open immediately. Sequence returns to Idle.</td></tr>
+</table>
+
+<h3>Affected sections can be</h3>
+<ul>
+<li>Zones <strong>downstream</strong> of a fault or open-phase condition.</li>
+<li>Zones <strong>upstream</strong> of a fault, dropped by a miscoordinated trip.</li>
+<li>Zones containing <strong>overloaded equipment</strong>.</li>
+</ul>
+<p>For a permanent fault the step also names the switches to open for isolation, and any upstream switches to close to correct a miscoordination.</p>
+
+<div class="keyfact"><strong>Isolation is sent before the solution exists.</strong> For permanent fault and miscoordination, the DAC sends Open commands to the isolation switches as soon as the event is confirmed in Analyze. Those switches appear in every candidate scenario, so they are sent early. Isolation opens therefore appear in the SOE ahead of any solution.</div>
+<p>Open-phase isolation is not unconditional — whether the affected zone is isolated is a setting. See <a href="atlas:distribution-automation/dac/open-phase.html">Open Phase &amp; Loss of Source</a>.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Events during events</h2>
+<ul>
+<li>A new event detected during <strong>Idle, Update or Analyze</strong> re-enters Update so the new condition is polled in.</li>
+<li>On the <strong>first lockout indication</strong>, the DAC forces an update poll of every device on the event feeder, so multiple lockouts are seen and considered. See <a href="atlas:distribution-automation/dac/permanent-fault.html">Permanent Fault &amp; Miscoordination</a>.</li>
+<li>Reconfiguration starts only when <strong>all</strong> feeders' sequences are in Idle. Simultaneous events are solved together.</li>
+<li>A <strong>close-onto-fault</strong> detection or a <strong>directional fault discrepancy</strong> immediately aborts any DA sequence in progress.</li>
+</ul>
+</section>
+
+<div class="seealso">
+  <b>Next</b>
+  <a href="atlas:distribution-automation/dac/reconfiguration.html">Reconfiguration &amp; Switching</a>
+  <a href="atlas:distribution-automation/dac/permanent-fault.html">Permanent Fault &amp; Miscoordination</a>
+  <a href="atlas:distribution-automation/dac/abnormals.html">Abnormal Conditions</a>
+  <a href="atlas:distribution-automation/dac/timers-settings.html">Timers &amp; Settings Reference</a>
+</div>
+
+</body>
+</html>
