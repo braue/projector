@@ -294,44 +294,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .tool-status { font-size: 12px; color: var(--ok-ink); }
 .ui-link-button { text-decoration: none; display: inline-flex; align-items: center; }
 
-/* Virtual Machines: a card per lab box. The grid fills the pane width and
-   reflows; every card is the same height so a row of them reads as a shelf. */
-.vm-grid {
-  align-self: stretch; display: grid; gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-}
-.vm-card {
-  display: flex; flex-direction: column; gap: 8px; padding: 12px 14px;
-  border: 1px solid var(--border); border-radius: 8px; background: var(--card);
-  text-align: left; font: inherit; color: inherit;
-}
-/* Double-click connects, so the whole card reads as one target. */
-.vm-card:not(.is-editing):not(.vm-card-add):hover { border-color: var(--accent); }
-.vm-card-head { display: flex; align-items: center; gap: 8px; }
-.vm-card-name { font-size: 14px; font-weight: 600; }
-.vm-card-fields {
-  display: grid; grid-template-columns: auto 1fr; gap: 3px 10px;
-  margin: 0; font-size: 12px;
-}
-.vm-card-fields dt { color: var(--muted); }
-.vm-card-fields dd { margin: 0; display: flex; align-items: baseline; gap: 6px; min-width: 0; }
-.vm-reveal {
-  border: 0; padding: 0; background: none; font-size: 11px;
-  color: var(--accent); cursor: pointer;
-}
-.vm-card-status { font-size: 12px; color: var(--muted); }
-.vm-card-actions { display: flex; gap: 6px; margin-top: auto; padding-top: 4px; }
-.vm-card.is-editing { gap: 6px; }
-.vm-card.is-editing .ui-label { min-width: 74px; }
-.vm-card.is-editing .ui-input { width: auto; flex: 1; min-width: 0; }
-/* The add tile: a dashed slot the same size as a card. */
-.vm-card-add {
-  align-items: center; justify-content: center; gap: 4px; min-height: 148px;
-  border-style: dashed; color: var(--muted); cursor: pointer;
-}
-.vm-card-add:hover { border-color: var(--accent); color: var(--accent); }
-.vm-add-plus { font-size: 20px; line-height: 1; }
-
 /* DAC SIM Converter: the project's RTAC exports as a check-off roster —
    checked entries are the DACs and grow addressing fields below. */
 .dacsim-roster { gap: 2px; max-height: 220px; overflow-y: auto; }

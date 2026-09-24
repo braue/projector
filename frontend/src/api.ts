@@ -18,7 +18,6 @@ import type {
   SwsetModel,
   Todo,
   ToolJob,
-  Vm,
 } from './types'
 
 // Every endpoint speaks JSON, including failures: { error } with a status.
@@ -519,40 +518,6 @@ export function generateDwgen(args: { partNumber: string; model?: string }): Pro
 /** Launch local AutoCAD on a run's bundled drawing with its layer script. */
 export function openDwgenDwg(args: { run: string; stem: string }): Promise<{ ok: boolean; configured: string }> {
   return send('/api/tools/dwgen/open-dwg', 'POST', args)
-}
-
-// --- Virtual Machines -----------------------------------------------------------
-
-export async function fetchVms(): Promise<Vm[]> {
-  return (await get<{ vms: Vm[] }>('/api/tools/vms')).vms
-}
-
-/** Create a card (no id) or update one in place. */
-export function saveVm(card: Omit<Vm, 'id'> & { id?: string }): Promise<Vm> {
-  const { id, ...fields } = card
-  return id
-    ? send(`/api/tools/vms/${encodeURIComponent(id)}`, 'PATCH', fields)
-    : send('/api/tools/vms', 'POST', fields)
-}
-
-export function deleteVm(id: string): Promise<{ removed: string }> {
-  return send(`/api/tools/vms/${encodeURIComponent(id)}`, 'DELETE')
-}
-
-/** Open the RDP session. Resolves once the client is running, not when the
- *  window closes. */
-export function connectVm(id: string): Promise<{
-  launched: string
-  client: string
-  address: string
-  /** The generated .rdp, when there is one to point at. */
-  file: string | null
-  /** The launched client's process id, where the platform reports one. */
-  pid?: number | null
-  /** Set when the client closed immediately without an error code. */
-  note: string | null
-}> {
-  return send(`/api/tools/vms/${encodeURIComponent(id)}/connect`, 'POST')
 }
 
 // --- tool inputs from project Files --------------------------------------------

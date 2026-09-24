@@ -9,7 +9,6 @@ import test from 'node:test';
 
 import { JobRegistry } from '../services/tools/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
-import { VmsService, rdpFile, withoutPort } from '../services/tools/vms.js';
 
 const settled = (job) =>
   new Promise((resolve) => {
@@ -169,82 +168,4 @@ test('files service: read guards match the store rules', async () => {
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
-});
-
-test('vms: the card store, and the .rdp a connect writes', async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-vms-'));
-  try {
-    const vms = new VmsService({ dataDir: tmp });
-    assert.deepEqual((await vms.list()).vms, []);
-
-    const created = await vms.save({
-      name: 'SIM RTAC 1',
-      host: '10.0.0.5',
-      username: 'Administrator',
-      password: 'lab pass',
-    });
-    assert.match(created.id, /^[0-9a-f]{8}$/);
-    // Cleartext by design — the card edits what it stores.
-    assert.equal(created.password, 'lab pass');
-
-    // An id that exists updates in place rather than adding a second card.
-    const edited = await vms.save({ ...created, host: '10.0.0.6' });
-    assert.equal(edited.id, created.id);
-    assert.equal((await vms.list()).vms.length, 1);
-    assert.equal((await vms.list()).vms[0].host, '10.0.0.6');
-
-    // The two fields a connect cannot do without are required; a miss is a 400.
-    await assert.rejects(() => vms.save({ host: '10.0.0.7' }), /name is required/);
-    await assert.rejects(() => vms.save({ name: 'x' }), /address is required/);
-    await assert.rejects(() => vms.save({ id: 'nope', name: 'x', host: 'y' }), /no such VM/);
-    await assert.rejects(() => vms.connect('nope'), /no such VM/);
-    await assert.rejects(() => vms.remove('nope'), /no such VM/);
-
-    // A newline in a field must not forge a second .rdp directive.
-    const dirty = await vms.save({ name: 'Odd', host: '10.0.0.8\npassword 51:b:00', username: 'u' });
-    assert.equal(dirty.host, '10.0.0.8password 51:b:00');
-
-    // A password is stored byte for byte: trailing spaces are characters.
-    const spaced = await vms.save({ name: 'Spaced', host: '10.0.0.9', password: 'two words ' });
-    assert.equal(spaced.password, 'two words ');
-    await vms.remove(spaced.id);
-
-    await vms.remove(created.id);
-    await vms.remove(dirty.id);
-    assert.deepEqual((await vms.list()).vms, []);
-  } finally {
-    await rm(tmp, { recursive: true, force: true });
-  }
-});
-
-test('vms: .rdp directives and the credential key a port is stripped from', () => {
-  const file = rdpFile({ address: '10.0.0.5', username: 'Administrator' });
-  assert.match(file, /^full address:s:10\.0\.0\.5\r\n/);
-  assert.ok(file.includes('username:s:Administrator'));
-  // A saved credential is only reached when mstsc is told not to ask.
-  assert.ok(file.includes('prompt for credentials:i:0'));
-  // A lab VM's self-signed certificate must not raise the identity prompt.
-  assert.ok(file.includes('authentication level:i:0'));
-  // No password ever goes in the file — Credential Manager holds it.
-  assert.ok(!/password/i.test(file));
-
-  // The consent dialog an unsigned .rdp raises lists what the file asks to
-  // redirect, so the file asks for nothing that would appear on it. Each of
-  // these defaults to ON and has to be turned off by name.
-  for (const off of [
-    'redirectprinters:i:0', 'redirectcomports:i:0', 'redirectsmartcards:i:0',
-    'redirectwebauthn:i:0', 'redirectlocation:i:0', 'drivestoredirect:s:',
-    'devicestoredirect:s:', 'usbdevicestoredirect:s:', 'camerastoredirect:s:',
-  ]) {
-    assert.ok(file.includes(off), `expected ${off}`);
-  }
-  // Clipboard is the one redirection worth keeping.
-  assert.ok(file.includes('redirectclipboard:i:1'));
-
-  // Without a user name there is nothing saved to find, so mstsc must ask.
-  assert.ok(rdpFile({ address: '10.0.0.5', username: '' }).includes('prompt for credentials:i:1'));
-
-  assert.equal(withoutPort('10.0.0.9:3390'), '10.0.0.9');
-  assert.equal(withoutPort('vm-sim1:3389'), 'vm-sim1');
-  assert.equal(withoutPort('10.0.0.9'), null);
 });

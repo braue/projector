@@ -13,7 +13,6 @@ import { SelTerminalService } from './selTerminal.js';
 import { SwsetService } from './swset/index.js';
 import { ToolSettings } from './settings.js';
 import { ToolsWorkspace } from './workspace.js';
-import { VmsService } from './vms.js';
 
 async function createTools({ dataDir }) {
   const workspace = new ToolsWorkspace({ dataDir });
@@ -29,10 +28,9 @@ async function createTools({ dataDir }) {
   const dacsim = new DacsimService({ workspace, jobs });
   const dacinit = new DacInitService({ workspace, jobs });
   const acrtac = new AcrtacService({ jobs });
-  const vms = new VmsService({ dataDir });
   return {
     workspace, settings, jobs, hmi, terminal, quickset, swset, rtacExport,
-    dwgen, dacsim, dacinit, acrtac, vms,
+    dwgen, dacsim, dacinit, acrtac,
   };
 }
 
