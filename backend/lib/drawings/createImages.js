@@ -16,7 +16,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { PDFDocument, PDFArray, PDFName } from 'pdf-lib';
-import { PDFiumLibrary } from '@hyzyla/pdfium';
 import { Jimp, JimpMime } from 'jimp';
 
 import {
@@ -25,6 +24,7 @@ import {
   selectBestRule as pickBestRule,
   selectLayerOption,
 } from '../selPartNumberRules.js';
+import { pdfium } from '../pdfium.js';
 import { loadDeviceMetadata, SEL_DEVICES_DIR } from './deviceMetadata.js';
 
 const PDF_RENDER_SCALE = 150 / 72;
@@ -157,13 +157,6 @@ async function configurePdfLayers(pdfBytes, enabledLayers) {
   defaultConfig.set(PDFName.of('OFF'), offLayers);
 
   return document.save({ useObjectStreams: false });
-}
-
-// One PDFium WASM instance for the process — init is not cheap, and every
-// rendered view needs it.
-let pdfiumLibrary = null;
-function pdfium() {
-  return (pdfiumLibrary ??= PDFiumLibrary.init());
 }
 
 /** Rasterize one page; the page size (PDF points) rides along so the crop

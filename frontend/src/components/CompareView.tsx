@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { fetchCompareItem, fetchCompareTree } from '../api'
 import { useFetch } from '../lib/useFetch'
 import { DiffPreview } from './DiffPreview'
 import { TreePane, TreeRows } from './FileTree'
+import { FindBar, useFindInPage } from './FindBar'
 import { Button } from './ui'
 
 // Compare — two same-kind artifacts (or two versions of one), entered from
 // the tree: ⇆ on a version row compares it against the current version, and
 // ctrl+click picks any second artifact. The union item tree shows added/
 // removed/edited tints; click a row for the structured diff.
+//
+// Ctrl+F finds words in the diff on screen — a setting name in a long table
+// of changed rows, an object in the union tree.
 
 export function CompareView({
   project,
@@ -26,6 +30,12 @@ export function CompareView({
   onClear: () => void
 }) {
   const [selected, setSelected] = useState<string | null>(null)
+  // The find root wraps the two panes without becoming a box of its own
+  // (display: contents), so the bar can float over them from the outside
+  // and never find its own count.
+  const panesRef = useRef<HTMLDivElement>(null)
+  const getRoot = useCallback(() => panesRef.current, [])
+  const find = useFindInPage({ getRoot })
 
   // A new pair means the old item selection belongs to a diff that no longer
   // exists.
@@ -48,48 +58,61 @@ export function CompareView({
   const manyFolders = (tree?.tree ?? []).filter((node) => node.type === 'folder').length > 3
 
   return (
-    <>
-      <TreePane
-        header={
-          <>
-            <div className="tree-title">{tree?.updated.name ?? updated.label}</div>
-            <div className="tree-subtitle">vs {tree?.original.name ?? original.label} (original)</div>
-            <div className="compare-actions">
-              <Button onClick={onSwap} title="Swap which side counts as original">⇆ Swap</Button>
-              <Button onClick={onClear} title="Stop comparing">Done</Button>
-            </div>
-          </>
-        }
-        footer={
-          tree ? (
-            <span className="compare-legend">
-              <span className="legend legend-added">{tree.summary.added} added</span>
-              <span className="legend legend-removed">{tree.summary.removed} removed</span>
-              <span className="legend legend-edited">{tree.summary.edited} modified</span>
-              <span className="legend">{tree.summary.unchanged} unchanged</span>
-            </span>
-          ) : undefined
-        }
-      >
-        {tree ? (
-          <TreeRows
-            nodes={tree.tree}
-            selected={selected}
-            onSelect={setSelected}
-            defaultOpen={!manyFolders}
-          />
-        ) : (
-          <div className="pane-message">{treeError ?? 'Comparing…'}</div>
-        )}
-      </TreePane>
-
-      {compareItem ? (
-        <DiffPreview compare={compareItem} />
-      ) : (
-        <main className="preview">
-          {itemError && <div className="pane-message">{itemError}</div>}
-        </main>
+    <div className="compare-panes">
+      {find.open && (
+        <FindBar
+          inputRef={find.inputRef}
+          term={find.term}
+          onTerm={find.setTerm}
+          count={find.count}
+          onStep={find.step}
+          onClose={find.closeFind}
+          placeholder="Find in this comparison…"
+        />
       )}
-    </>
+      <div className="find-scope" ref={panesRef}>
+        <TreePane
+          header={
+            <>
+              <div className="tree-title">{tree?.updated.name ?? updated.label}</div>
+              <div className="tree-subtitle">vs {tree?.original.name ?? original.label} (original)</div>
+              <div className="compare-actions">
+                <Button onClick={onSwap} title="Swap which side counts as original">⇆ Swap</Button>
+                <Button onClick={onClear} title="Stop comparing">Done</Button>
+              </div>
+            </>
+          }
+          footer={
+            tree ? (
+              <span className="compare-legend">
+                <span className="legend legend-added">{tree.summary.added} added</span>
+                <span className="legend legend-removed">{tree.summary.removed} removed</span>
+                <span className="legend legend-edited">{tree.summary.edited} modified</span>
+                <span className="legend">{tree.summary.unchanged} unchanged</span>
+              </span>
+            ) : undefined
+          }
+        >
+          {tree ? (
+            <TreeRows
+              nodes={tree.tree}
+              selected={selected}
+              onSelect={setSelected}
+              defaultOpen={!manyFolders}
+            />
+          ) : (
+            <div className="pane-message">{treeError ?? 'Comparing…'}</div>
+          )}
+        </TreePane>
+
+        {compareItem ? (
+          <DiffPreview compare={compareItem} />
+        ) : (
+          <main className="preview">
+            {itemError && <div className="pane-message">{itemError}</div>}
+          </main>
+        )}
+      </div>
+    </div>
   )
 }

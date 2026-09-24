@@ -68,7 +68,10 @@ function CodeBlock({ source }: { source: string }) {
     <pre className="code code-numbered">
       {lines.map((tokens, i) => (
         <div key={i} className="code-line">
-          <span className="code-ln">{i + 1}</span>
+          {/* The gutter is scenery: not text the reader reads, and not text
+              find-in-page should hit — searching "3" must not light up every
+              line number. aria-hidden says both at once. */}
+          <span className="code-ln" aria-hidden>{i + 1}</span>
           <span className="code-text">
             <StText tokens={tokens} />
           </span>

@@ -11,6 +11,7 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { httpError, requireQuery } from '../lib/http.js';
+import { searchPdf, warmPdf } from '../services/pdfText.js';
 
 const MAX_UPLOAD_BYTES = 256 * 1024 * 1024;
 
@@ -89,6 +90,17 @@ function fileRoutes(resolve) {
     res.sendFile(absolute, { dotfiles: 'allow' }, (err) => {
       if (err && !res.headersSent) next(err);
     });
+  });
+
+  // Find-in-PDF for the embedded viewer, which has no find of its own. The
+  // answer is page numbers with the line each hit sits in; the viewer jumps
+  // by reloading at `#page=N`. `q` omitted just reads the document (the bar
+  // warms it on open, so the first keystroke does not wait on extraction).
+  router.get('/pdf-search', async (req, res) => {
+    const absolute = await (await resolve(req)).files.rawPath(requireQuery(req, 'path'));
+    if (!/\.pdf$/i.test(absolute)) throw httpError(400, 'not a PDF');
+    const query = typeof req.query.q === 'string' ? req.query.q : '';
+    res.json(query.trim() ? await searchPdf(absolute, query) : await warmPdf(absolute));
   });
 
   router.post('/open', async (req, res) => {

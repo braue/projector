@@ -25,6 +25,23 @@ history. Old versions open, inspect, and compare like anything else.
 - **Ctrl+click** a second artifact of the same kind → compare those two.
 - **Drag** rows between folders; **drop** OS files anywhere to add them.
 
+## Finding things
+
+**Ctrl+F** searches whatever you are reading, in place:
+
+- **Atlas page** — words in the open guide, highlighted, `Enter` /
+  `Shift+Enter` to step. Matches run across markup and line breaks, so a
+  phrase half of which is bold still matches.
+- **Inspect / Compare** — words in the panes on screen (settings tree,
+  settings, sheets, diff rows). What is off screen it cannot see, so the bar
+  offers **whole artifact**, which hands the term to Inspect's Search.
+- **PDF** — the embedded viewer has no find of its own, so the backend reads
+  the document's text and answers with **pages**: every hit listed with the
+  line it sits in, click one and the viewer goes there.
+
+**Ctrl+Shift+F** always filters the file tree (and plain **Ctrl+F** does too
+whenever the pane on the right has no find of its own).
+
 ## Running
 
 - Dev: `npm run dev` in `backend/` and `frontend/` (Vite proxies `/api`).

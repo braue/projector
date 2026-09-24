@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { searchArtifact } from '../api'
 import { errorMessage } from '../lib/errors'
@@ -18,32 +18,50 @@ export function SearchView({
   project,
   refId,
   onOpen,
+  initialQuery,
 }: {
   project: string
   /** The artifact ref being searched ("<path>" or "<path>::<profile>"). */
   refId: string
   /** Open a hit in Browse: select its item. */
   onOpen: (path: string) => void
+  /** Escalated here from find-in-page: the term, already run on arrival. */
+  initialQuery?: string
 }) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery ?? '')
   const [results, setResults] = useState<SearchResults | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [running, setRunning] = useState(false)
 
-  const run = async () => {
-    const trimmed = query.trim()
-    if (!trimmed || running) return
-    setRunning(true)
-    setError(null)
-    try {
-      setResults(await searchArtifact(project, refId, trimmed))
-    } catch (err) {
-      setError(errorMessage(err))
-      setResults(null)
-    } finally {
-      setRunning(false)
-    }
+  const search = useCallback(
+    async (term: string) => {
+      const trimmed = term.trim()
+      if (!trimmed) return
+      setRunning(true)
+      setError(null)
+      try {
+        setResults(await searchArtifact(project, refId, trimmed))
+      } catch (err) {
+        setError(errorMessage(err))
+        setResults(null)
+      } finally {
+        setRunning(false)
+      }
+    },
+    [project, refId],
+  )
+
+  const run = () => {
+    if (!running) search(query)
   }
+
+  /* Arriving with a term means the user already asked for it in the find
+     bar; making them press Enter again would be asking twice. Mount only —
+     editing the box afterwards is an ordinary search. */
+  useEffect(() => {
+    if (initialQuery?.trim()) search(initialQuery)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const message = error
     ?? (results && results.results.length === 0 ? `No matches for "${results.query}".` : null)

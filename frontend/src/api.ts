@@ -6,6 +6,7 @@ import type {
   DwgenResult,
   FileNode,
   HmiReport,
+  PdfSearchResult,
   ProjectItem,
   ProjectTree,
   QuicksetExtract,
@@ -252,6 +253,21 @@ export async function readTextFile(project: string, path: string): Promise<strin
 /** Same-origin URL for a file's raw bytes, for the preview pane's PDF viewer. */
 export function fileRawUrl(project: string, path: string): string {
   return `${base(project)}/files/raw?path=${encodeURIComponent(path)}`
+}
+
+/**
+ * Find a string inside a PDF — the embedded viewer has no find of its own,
+ * so the backend reads the document's text and answers with pages. An empty
+ * query just reads it, which is how the find bar warms a big document before
+ * the first keystroke.
+ */
+export function searchPdfFile(
+  project: string,
+  path: string,
+  query: string,
+): Promise<PdfSearchResult> {
+  const params = new URLSearchParams({ path, q: query })
+  return get(`${base(project)}/files/pdf-search?${params}`)
 }
 
 /** Save a text file in place (creates it when new). Not a version. */

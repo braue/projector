@@ -1,14 +1,21 @@
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { fetchArtifactItem, fetchArtifactProfiles, fetchArtifactTree } from '../api'
 import { useFetch } from '../lib/useFetch'
 import type { ArtifactKindName } from '../types'
 import { AggregateView } from './AggregateView'
 import { FileTree, TreePane } from './FileTree'
+import { FindBar, useFindInPage } from './FindBar'
 import { Preview } from './Preview'
 import { SearchView } from './SearchView'
 import { CollapsibleSection, SegmentedControl, Select } from './ui'
 
+// Ctrl+F finds words in what the panes are SHOWING — the settings tree, the
+// open item's settings and sheets. What is not on screen (a collapsed
+// section, another sheet's tab, another object entirely) it cannot see, so
+// the bar carries the escalation to Search, which asks the backend about the
+// whole artifact with the term already typed.
+//
 // Inspect — the default face of a clicked settings artifact (live or an
 // archived version; a version path is an artifact like any other). RTAC
 // exports inspect whole; multi-profile artifacts (RDB relays, SCD IEDs) get
@@ -35,6 +42,16 @@ export function InspectView({
   const [sub, setSub] = useState<InspectSub>('browse')
   const [profileRef, setProfileRef] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
+  // Escalated find terms arrive at Search through this, not through the bar's
+  // own state: Search owns its query once it has it.
+  const [searchSeed, setSearchSeed] = useState<string | null>(null)
+
+  // The find root is the PANES, not the whole column: the bar floats inside
+  // the column, and a bar that finds its own words is a bar that counts
+  // itself.
+  const panesRef = useRef<HTMLDivElement>(null)
+  const getRoot = useCallback(() => panesRef.current, [])
+  const find = useFindInPage({ getRoot })
 
   const isRtac = kind === 'rtac'
   const { data: profiles, error: profilesError } = useFetch(
@@ -62,8 +79,32 @@ export function InspectView({
     { keepStale: true },
   )
 
+  const escalate = () => {
+    setSearchSeed(find.term.trim())
+    setSub('search')
+    find.closeFind()
+  }
+
   return (
     <div className="inspect-column">
+      {find.open && (
+        <FindBar
+          inputRef={find.inputRef}
+          term={find.term}
+          onTerm={find.setTerm}
+          count={find.count}
+          onStep={find.step}
+          onClose={find.closeFind}
+          placeholder="Find in this view…"
+          actions={
+            sub !== 'search' && find.term.trim() ? (
+              <button className="find-more" onClick={escalate} title="Search every object in the artifact">
+                whole artifact
+              </button>
+            ) : null
+          }
+        />
+      )}
       <div className="inspect-bar">
         <span className="inspect-title" title={path}>{title}</span>
         <SegmentedControl
@@ -90,12 +131,13 @@ export function InspectView({
         )}
       </div>
 
-      <div className="inspect-panes">
+      <div className="inspect-panes" ref={panesRef}>
         {sub === 'search' && ref ? (
           <SearchView
-            key={`${project}:${ref}`}
+            key={`${project}:${ref}:${searchSeed ?? ''}`}
             project={project}
             refId={ref}
+            initialQuery={searchSeed ?? undefined}
             onOpen={(itemPath) => {
               setSelectedItem(itemPath)
               setSub('browse')

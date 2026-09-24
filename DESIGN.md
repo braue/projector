@@ -104,7 +104,17 @@ components/InspectView.tsx   header bar (title · Browse/Aggregate/Search ·
 components/CompareView.tsx   union tree + DiffPreview for two refs
 components/TextFileView.tsx  the notes editor (checkbox overlay, list markers)
 components/VersionNoteModal  the mandatory what-changed dialog
+components/FindBar.tsx       the one find bar + the DOM find hook every
+                             readable pane uses (lib/findInPage.ts is the
+                             engine: flattened-text matching, CSS Custom
+                             Highlight painting, no DOM mutation)
 ```
+
+Ctrl+F belongs to the pane being read (atlas page, inspection, comparison,
+PDF); the file-tree filter keeps it when that pane has no find, and answers
+to Ctrl+Shift+F always. PDFs are the odd one out — Chromium's viewer cannot
+be highlighted into, so `services/pdfText.js` reads the text with PDFium and
+the bar lists page hits, moving the viewer by reloading it at `#page=N`.
 
 Selection model in App: `selected` (path, live or version) + `compareTo`
 (the original side). ⇆ on a version row compares it to the live entry;

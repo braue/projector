@@ -282,6 +282,29 @@ export interface SearchResults {
   truncated: boolean
 }
 
+// --- find in a PDF ---------------------------------------------------------------
+
+/** One hit inside a PDF: the page it is on, and the line it sits in split so
+ *  the term can be highlighted without finding it a second time. */
+export interface PdfMatch {
+  /** 1-based, the number the viewer's own page box shows. */
+  page: number
+  before: string
+  match: string
+  after: string
+}
+
+export interface PdfSearchResult {
+  /** The document's page count — known even when nothing matched. */
+  pages: number
+  /** False for a scanned document: images of paper, with nothing to find. */
+  hasText: boolean
+  matches: PdfMatch[]
+  /** Every occurrence, including those past the listing cap. */
+  total: number
+  truncated: boolean
+}
+
 // --- the project tree -----------------------------------------------------------
 
 /** Which settings-artifact family an entry belongs to (null = a plain file). */

@@ -11,11 +11,11 @@ import {
   groupLabel,
 } from '../atlas/content'
 import type { Doc } from '../atlas/content'
-import { clearFind, focusHit, markFind } from '../atlas/findInDoc'
 import { search, highlightParts } from '../atlas/search'
 import { selOpen, selStatus, selText } from '../atlas/selDocs'
 import type { SelStatus, SelTextGroup } from '../atlas/selDocs'
 import { useDebounced } from '../lib/useDebounced'
+import { FindBar, useFindInPage } from './FindBar'
 import '../atlas/atlas.css'
 
 // Atlas mode — the field-knowledge library (src/atlas/content/, in this
@@ -117,12 +117,11 @@ const DOC_SKIN = `<style id="atlas-skin">@media screen {
   .seealso a:hover { background: var(--fill); text-decoration: none; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
-  /* Find-in-page hits (findInDoc.ts marks them inside this document). */
-  mark.atl-find-hit {
-    background: var(--warn-tint); color: var(--ink); border-radius: 3px;
-    box-shadow: inset 0 0 0 1px var(--warn-line);
-  }
-  mark.atl-find-hit.on { background: var(--warn); box-shadow: none; }
+  /* Find-in-page hits. The shell's bar drives this document through
+     lib/findInPage.ts, and a highlight registry is per-document — so the
+     names it paints with have to be styled in here as well. */
+  ::highlight(pj-find) { background: var(--warn-tint); color: var(--ink); }
+  ::highlight(pj-find-on) { background: var(--warn); color: var(--ink); }
 }</style>
 <script>
 document.addEventListener('click', function (e) {
@@ -136,7 +135,7 @@ document.addEventListener('click', function (e) {
   }
 })
 document.addEventListener('keydown', function (e) {
-  if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'f' || e.key === 'F')) {
     e.preventDefault()
     parent.postMessage({ atlasFind: 'open' }, '*')
   } else if (e.key === 'Escape') {
@@ -520,14 +519,9 @@ function AtlasDocView(props: {
   // --- find in page (Ctrl+F) --------------------------------------------------
   // The sidebar search finds DOCUMENTS; this finds words inside the one you
   // are reading. HTML guides live in an iframe, so the bar drives the frame's
-  // document through findInDoc.ts rather than relying on the browser's.
-  const [findOpen, setFindOpen] = useState(false)
-  const [find, setFind] = useState('')
-  const [hits, setHits] = useState<HTMLElement[]>([])
-  const [hitAt, setHitAt] = useState(0)
-  const [docPainted, setDocPainted] = useState(0)
-  const findRef = useRef<HTMLInputElement>(null)
-  const findTerm = useDebounced(find.trim(), 120)
+  // document — the shared engine takes the root it is given, wherever it
+  // lives. `painted` tells it the document underneath was replaced.
+  const [painted, setPainted] = useState(0)
 
   /* Whichever element holds this doc's text — frame body or rendered prose. */
   const findRoot = useCallback(
@@ -537,67 +531,11 @@ function AtlasDocView(props: {
     [doc.kind],
   )
 
-  const openFind = useCallback(() => {
-    setFindOpen(true)
-    // Opening while ALREADY open (Ctrl+F twice) doesn't re-run the mount
-    // effect below, so grab the field here too.
-    findRef.current?.focus()
-    findRef.current?.select()
-  }, [])
+  const find = useFindInPage({ getRoot: findRoot, active, epoch: painted })
+  const { openFind, closeFind } = find
 
-  const closeFind = useCallback(() => setFindOpen(false), [])
-
-  /* Opening hands over the keyboard with the last term selected, so it types
-     over — the way every find bar behaves. */
-  useEffect(() => {
-    if (!findOpen) return
-    findRef.current?.focus()
-    findRef.current?.select()
-  }, [findOpen])
-
-  /* Marking is a side effect on someone else's DOM, so it runs from one
-     place: open + term + document identity in, marks out. */
-  useEffect(() => {
-    const root = findRoot()
-    if (!root) return
-    if (!findOpen || !findTerm) {
-      clearFind(root)
-      setHits([])
-      setHitAt(0)
-      return
-    }
-    const found = markFind(root, findTerm)
-    setHits(found)
-    setHitAt(0)
-    if (found.length) focusHit(found, 0)
-    return () => clearFind(root)
-  }, [findOpen, findTerm, findRoot, doc.id, docPainted])
-
-  const step = (delta: number) => {
-    if (!hits.length) return
-    const next = (hitAt + delta + hits.length) % hits.length
-    setHitAt(next)
-    focusHit(hits, next)
-  }
-
-  /* Ctrl+F from the shell. The same keystroke landing INSIDE the iframe
-     arrives as a message instead (DOC_SKIN forwards it). */
-  useEffect(() => {
-    if (!active) return
-    function onKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
-        e.preventDefault()
-        openFind()
-      } else if (e.key === 'Escape' && findOpen) {
-        // Escape closes the bar wherever the focus sits — in the field, on
-        // the step buttons, or back in the page.
-        closeFind()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [active, openFind, closeFind, findOpen])
-
+  /* Ctrl+F landing INSIDE the iframe arrives as a message instead — the
+     shell's own keydown listener never sees it (DOC_SKIN forwards it). */
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       const which = (e.data as { atlasFind?: string } | null)?.atlasFind
@@ -610,9 +548,9 @@ function AtlasDocView(props: {
 
   /* Markdown is written into the article by hand instead of through
      dangerouslySetInnerHTML: React rewrites that subtree on EVERY render of
-     this component, which would strip find-in-page's <mark>s the moment the
-     hit count landed in state. Owning the innerHTML ourselves keeps the
-     rendered prose stable between doc changes. */
+     this component, and re-rendered prose is prose whose nodes find-in-page's
+     ranges no longer point at. Owning the innerHTML ourselves keeps the
+     rendered document stable between doc changes. */
   useEffect(() => {
     setHeadings([])
     if (doc.kind !== 'md') return
@@ -620,16 +558,16 @@ function AtlasDocView(props: {
     if (!a) return
     a.innerHTML = html
     setHeadings([...a.querySelectorAll('h2')].map((el) => ({ text: headingText(el), el })))
-    setDocPainted((n) => n + 1)
+    setPainted((n) => n + 1)
   }, [doc.id, doc.kind, html])
 
   function collectFrameHeadings() {
     const d = frameRef.current?.contentDocument
     if (!d) return
     setHeadings([...d.querySelectorAll('h2')].map((el) => ({ text: headingText(el), el })))
-    // A new page is a new document: whatever find had marked is gone with
+    // A new page is a new document: whatever find had matched is gone with
     // the old one, so the search has to run again against this one.
-    setDocPainted((n) => n + 1)
+    setPainted((n) => n + 1)
   }
 
   /* atlas: links inside rendered markdown */
@@ -649,38 +587,15 @@ function AtlasDocView(props: {
         <span className="atl-docbar-cat">{breadcrumb(doc)}</span>
         <span className="atl-docbar-title">{doc.title}</span>
       </div>
-      {findOpen && (
-        <div className="atl-find">
-          <input
-            ref={findRef}
-            className="ui-input atl-find-input"
-            placeholder="Find in page…"
-            value={find}
-            spellCheck={false}
-            onChange={(e) => setFind(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                step(e.shiftKey ? -1 : 1)
-              } else if (e.key === 'Escape') {
-                e.preventDefault()
-                closeFind()
-              }
-            }}
-          />
-          <span className="atl-find-count">
-            {findTerm ? (hits.length ? `${hitAt + 1}/${hits.length}` : 'none') : ''}
-          </span>
-          <button className="atl-find-btn" title="Previous (Shift+Enter)" onClick={() => step(-1)}>
-            ↑
-          </button>
-          <button className="atl-find-btn" title="Next (Enter)" onClick={() => step(1)}>
-            ↓
-          </button>
-          <button className="atl-find-btn" title="Close (Esc)" onClick={closeFind}>
-            ✕
-          </button>
-        </div>
+      {find.open && (
+        <FindBar
+          inputRef={find.inputRef}
+          term={find.term}
+          onTerm={find.setTerm}
+          count={find.count}
+          onStep={find.step}
+          onClose={find.closeFind}
+        />
       )}
       <div className="atl-doc-body">
         <div className="atl-doc-scroll">
