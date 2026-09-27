@@ -1,0 +1,245 @@
+{
+   "module"   : "vlans",
+   "title"    : "VLAN Settings",
+   "entry"    : "vlan_settings.sel",
+   "task"     : "VLAN View",
+   "task_key" : "list_vlans",
+   "subnav"   : [
+                   {"name":"VLAN View",
+                    "task_key":"list_vlans",
+                    "target":"vlan_settings.sel"},
+
+                   {"name":"Port View",
+                    "task_key":"list_ports",
+                    "target":"port_view.sel"}
+                ],
+   "layout"   : [
+      {  
+         "type": "display-grid",
+         "id"  : "vlan-vid-grid",
+         "classes": "dg-xlarge",
+         "layout": [ 
+            [  
+               { "width": 12, "id": "vlan-settings-grid", "classes": "nudge" }
+            ]             
+         ]
+      }
+   ],  
+   "members"  : [
+       
+       {
+         "type"   :"form",
+         "inputs" :[
+          {
+                "type": "settings-grid",
+                "containedBy": [ "vlan-settings-grid" ],
+                "record_equality_function": "jMOD.modules.vlan.isRowEqual",
+                "record_id_parser": "jMOD.modules.vlan.processFoldedRowIds",
+                "record_id_validator": "jMOD.modules.vlan.idExistsInRange",
+                "record_id_index": 0,
+                "large_record_prompt": "Which VLAN would you like to edit?",
+                "only_commit_diffs": true,
+                "readonly": false,
+                "headers":
+                [
+                   {
+                     "title" : "VID",
+                     "tooltip": "The VLAN Identifier (VID) identifies the VLAN in 802.1Q tagged frames."
+                   },
+                   {
+                     "title" : "VLAN Name",
+                     "tooltip":"The VLAN Name provides a user-defined description of the VLAN."
+                   },
+                   {
+                     "title" : "Tagged Ports",
+                     "tooltip":"Adding a tagged port for a VLAN allows packets tagged with that VLAN ID to be sent to or received from a VLAN-aware device or another switch on that port. Ports can be configured as tagged for particular VLAN IDs as well as ranges of IDs."
+                   },
+                   {
+                     "title" : "Untagged Ports",
+                     "tooltip":"Adding an untagged port for a VLAN makes that VLAN ID the default for otherwise-untagged traffic on that port.  Untagged packets inbound will be tagged with that VLAN ID, and packets outbound for that VLAN ID will have the tag removed and will be sent untagged. Every port on the switch must be an untagged port for exactly one VLAN ID, by default VLAN 1."
+                   }
+                ],
+                "template": [
+                     { "type" : "text",
+                        "id"  : "VL_VID_ST",
+                        "width": 8,
+                        "maxlength": 4
+                     },
+                     { "type" : "text",
+                        "id"  : "VL_NAME_ST",
+                        "width": 20,
+                        "maxlength": 128
+                     },
+                     { "type" : "text",
+                        "id"  : "VL_TAGGED_PORTS_ST",
+                        "width": 30,
+                        "maxlength": 1024
+                     },
+                     { "type" : "untaggedPorts",
+                        "id"  : "VL_UNTAGGED_PORTS_ST",
+                        "width": 30,
+                        "maxlength": 1024
+                      }
+                ],
+                "ids" : [
+                  { "name" : "VL_VID_ST" }
+                ],
+                "data":
+                [
+                                        
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 1
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "1", "readonly":true},
+                             {"value" : "RTAC Network 1, default 1-8"},
+                             {"value" : ""},
+                             {"value" : "20-24"}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 2
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "2", "readonly":true},
+                             {"value" : "RTAC Network 2, default 9-12"},
+                             {"value" : ""},
+                             {"value" : ""}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 3
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "3", "readonly":true},
+                             {"value" : "RTAC Network 3, default 13-16"},
+                             {"value" : ""},
+                             {"value" : ""}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 4
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "4", "readonly":true},
+                             {"value" : "RTAC Network 4, default 17-20"},
+                             {"value" : ""},
+                             {"value" : ""}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 7
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "7", "readonly":true},
+                             {"value" : "Andrew"},
+                             {"value" : ""},
+                             {"value" : ""}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 13
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "13", "readonly":true},
+                             {"value" : "Deen"},
+                             {"value" : ""},
+                             {"value" : ""}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 14
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "14", "readonly":true},
+                             {"value" : "Noah"},
+                             {"value" : ""},
+                             {"value" : "1-5,19"}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 15
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "15", "readonly":true},
+                             {"value" : "Noah 2"},
+                             {"value" : ""},
+                             {"value" : ""}
+                         ]
+                      }
+                      
+                                        ,
+                      {
+                         "ids" : [
+                            { "name" : "VL_VID_ST",
+                              "value": 16
+                            }
+                         ],
+                         "input" :
+                         [
+                             {"value" : "16", "readonly":true},
+                             {"value" : "Noah 3"},
+                             {"value" : ""},
+                             {"value" : "6-18"}
+                         ]
+                      }
+                      
+                  
+                ],
+                "max"    :4094,
+                "min"    :1,
+                "id"     :"vlans"
+             }
+            ]
+            ,"n_page" : { "target": "vlan_view_save.sel", "text": "Submit" }
+            
+         }
+                          
+      ]
+}

@@ -13,6 +13,7 @@ import { QuicksetTool } from './QuicksetTool'
 import { RtacExportTool } from './RtacExportTool'
 import { SelTerminalTool } from './SelTerminalTool'
 import { SwsetTool } from './SwsetTool'
+import { VlanDeployTool } from './VlanDeployTool'
 
 /** Every tool component gets the current project (for save-to-project) and
  *  whether it is the visible tool (opened tools stay mounted while hidden). */
@@ -33,6 +34,7 @@ export const TOOLS: ToolDef[] = [
   { id: 'swset', label: 'Switch Settings', component: SwsetTool },
   { id: 'quickset', label: 'QuickSet Extract', component: QuicksetTool },
   { id: 'rtac-export', label: 'RTAC Exporter', component: RtacExportTool },
+  { id: 'vlan-deploy', label: 'RTAC VLAN Deploy', component: VlanDeployTool },
   { id: 'dwgen', label: 'Drawing Generator', component: DwgenTool },
   { id: 'dacsim', label: 'DAC SIM Converter', component: DacsimTool },
   { id: 'dacinit', label: 'CLECO DAC Inits', component: DacInitTool },

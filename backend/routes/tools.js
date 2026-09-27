@@ -142,6 +142,13 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(await tools.rtacExport.startExport(req.body ?? {}));
   });
 
+  // RTAC VLAN Deploy: the whole bench in one request, one job (Ethernet 2
+  // IPs → switch VLAN → sequential uploads). Its project dropdown uses the
+  // RTAC Exporter's /rtac-export/projects listing above.
+  router.post('/vlan-deploy/start', async (req, res) => {
+    res.status(202).json(tools.vlanDeploy.start(req.body ?? {}));
+  });
+
   // DAC SIM Converter: DAC exports picked from a project's tree plus form
   // fields in (settings.json is generated server-side); one job converts.
   // Nothing lands in the project until the explicit save call places the

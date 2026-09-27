@@ -13,6 +13,7 @@ import { SelTerminalService } from './selTerminal.js';
 import { SwsetService } from './swset/index.js';
 import { ToolSettings } from './settings.js';
 import { ToolsWorkspace } from './workspace.js';
+import { VlanDeployService } from './vlanDeploy.js';
 
 async function createTools({ dataDir }) {
   const workspace = new ToolsWorkspace({ dataDir });
@@ -28,9 +29,10 @@ async function createTools({ dataDir }) {
   const dacsim = new DacsimService({ workspace, jobs });
   const dacinit = new DacInitService({ workspace, jobs });
   const acrtac = new AcrtacService({ jobs });
+  const vlanDeploy = new VlanDeployService({ jobs });
   return {
     workspace, settings, jobs, hmi, terminal, quickset, swset, rtacExport,
-    dwgen, dacsim, dacinit, acrtac,
+    dwgen, dacsim, dacinit, acrtac, vlanDeploy,
   };
 }
 

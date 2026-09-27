@@ -504,6 +504,25 @@ export function startRtacExportJob(args: {
   return send('/api/tools/rtac-export/export', 'POST', args)
 }
 
+// --- RTAC VLAN Deploy ---------------------------------------------------------
+
+export interface VlanDeployRtac {
+  networkIp: string
+  vlanIp: string
+  port: string
+  project: string
+}
+
+/** Start the deploy job (Eth_02 IPs → switch VLAN → uploads); poll the job id.
+ *  The project dropdown uses listRtacExportProjects. */
+export function startVlanDeployJob(args: {
+  switchIp: string
+  vlan: string
+  rtacs: VlanDeployRtac[]
+}): Promise<{ job: string }> {
+  return send('/api/tools/vlan-deploy/start', 'POST', args)
+}
+
 // --- DWGEN (drawing generator) -------------------------------------------------
 
 export async function fetchDwgenModels(): Promise<string[]> {

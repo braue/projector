@@ -31,10 +31,10 @@ const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
  * default AcRTAC-panel phrasing doesn't fit (the DAC SIM converter names its
  * own feature): { timeout, python, script, selacrtac }.
  */
-function bridgeMessage(err, stderr, explain = {}) {
+function bridgeMessage(err, stderr, explain = {}, timeoutMs = BRIDGE_TIMEOUT_MS) {
   if (err.killed) {
     return explain.timeout
-      ?? `Python bridge timed out after ${BRIDGE_TIMEOUT_MS / 60000} minutes`;
+      ?? `Python bridge timed out after ${Math.round(timeoutMs / 60000)} minutes`;
   }
   const text = String(stderr ?? '');
   if (err.code === 'ENOENT') {
@@ -92,13 +92,18 @@ function bridgePath(scriptName) {
  * its tail is kept either way to shape a failure via bridgeMessage, with
  * `explain` passed through for per-feature wording.
  *
+ * `timeoutMs`: kill the bridge after this long (default 30 minutes) — for a
+ * bridge whose work scales with its request, like a run of device uploads.
+ *
  * `settleOnExit`: for a bridge that deliberately leaves a GRANDCHILD running
  * (acrtac_open.py's GUI). The grandchild inherits the stdio pipes and holds
  * them open, so 'close' — which waits for every piped fd — never fires;
  * 'exit' fires when the bridge itself ends. Its final stdout gets a beat to
  * drain, then the call settles on what arrived.
  */
-function runStdinBridge(script, request, { onStderrLine, explain, settleOnExit = false } = {}) {
+function runStdinBridge(script, request, {
+  onStderrLine, explain, settleOnExit = false, timeoutMs = BRIDGE_TIMEOUT_MS,
+} = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
     let stdout = '';
@@ -106,8 +111,8 @@ function runStdinBridge(script, request, { onStderrLine, explain, settleOnExit =
     const lastLines = [];
     const timer = setTimeout(() => {
       child.kill();
-    }, BRIDGE_TIMEOUT_MS);
-    const fail = (err) => reject(new Error(bridgeMessage(err, lastLines.join('\n'), explain)));
+    }, timeoutMs);
+    const fail = (err) => reject(new Error(bridgeMessage(err, lastLines.join('\n'), explain, timeoutMs)));
     const finish = (code, signal) => {
       if (settled) return;
       settled = true;

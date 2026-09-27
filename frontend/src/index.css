@@ -320,6 +320,26 @@ button.ui-section-header:hover { color: var(--ink); }
 .dacsim-schemes .ui-input { width: 100%; min-width: 0; }
 .dacsim-master { display: flex; flex-direction: column; gap: 8px; }
 
+/* RTAC VLAN Deploy: one grid for every RTAC row, and one for the results. */
+.vlandeploy-grid {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(140px, 1.2fr) minmax(60px, 0.5fr) minmax(160px, 2fr) auto;
+  gap: 8px 10px;
+  align-items: center;
+}
+.vlandeploy-grid .ui-input, .vlandeploy-grid .ui-select { width: 100%; min-width: 0; max-width: none; }
+.vlandeploy-results {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(120px, 1fr);
+  gap: 4px 10px;
+  font-size: 13px;
+}
+.vlandeploy-col { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.vlandeploy-ok { color: var(--ok-ink); }
+.vlandeploy-bad { color: var(--bad-ink); }
+
 /* DAC Init Builder — project params row, per-device cards/grids. Labelled
    fields stack their caption above the input so the wide forms stay legible. */
 .dacinit-params { flex-wrap: wrap; align-items: flex-end; }

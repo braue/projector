@@ -1,0 +1,668 @@
+
+
+  
+
+
+
+
+
+
+
+
+
+
+<span id="content_header">
+   <span id="content_header_text">Network Settings</span>
+</span>
+
+<input type="button" class="action_button" value="List Interface Settings" onclick="sendAjaxGetRequest('ethernet.sel', updateContentPane)"/>
+<input type="button" class="action_button" value="Edit Global Settings" onclick="sendAjaxGetRequest('edit_global_settings.sel', updateContentPane)"/>
+<br />
+
+<span id='user_feedback'>
+  
+</span>
+
+
+
+
+
+<input type="hidden" name="network_interface_id" id="network_interface_id" value="1" />
+
+<input type="hidden" name="is_axion" id="is_axion" value="f" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table class="form">
+   <thead>
+      <tr>
+         <th colspan="3">
+            <span class="form_header">
+               <span class="form_header_text">
+                  
+                    
+                  <span id="device_name" style='font-weight:bold;'>Interface Eth_02 Settings</span>
+               </span>
+            </span>
+         </th>
+      </tr>
+   </thead>
+   <tbody>
+   <tr>
+         <td style="width:300px;">
+          MAC Address: 00:30:a7:42:69:73
+         </td>
+         <td style="width:300px;"> </td>
+         <td></td>
+         <tr>
+                <td colspan="2">
+                      <input name="ethercat" style="border-style:none;" id="ethercat" type="checkbox" onclick="logicControllerEthernet();"
+                         
+                         
+                      /> 
+                     
+                      <label for="ethercat" class="bold"> Enable EtherCAT</label>
+                      <br/>
+                      <br/>
+                      <span class="subtext" id="ethercat_msg_gateway">
+                         Note: This interface is set as the default gateway for this device.<br/>
+                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                         Please change this configuration before enabling EtherCAT on this interface.
+                      </span>
+                      <span class="subtext" id="ethercat_msg_enable">Note: Enabling this option will dedicate this interface to the EtherCAT protocol.</span>
+                   </td>
+                
+                <td></td>
+             </tr>
+         
+      </tr>
+      <tbody id="options">
+         <td colspan="2">
+         <h3 class="title">Options</h3>
+         <td></td>
+         <tr>
+            <td>
+               <input id="enable_nic"
+                        name="interface_enabled"
+                        style='border-style:none;'
+                        type="checkbox"
+                        onclick="logicControllerEthernet();"
+                        checked 
+                         
+                 >
+                 <label for="enable_nic" class="bold"> Enable IPv4 </label>
+               
+               </br>
+               </br>
+               <input id="ipv6_enable_nic"
+                         name="ipv6_enable_nic"
+                         style='border-style:none;'
+                         type="checkbox"
+                         onclick="logicControllerEthernet();"
+                         
+                          
+                  >
+                  <label for="ipv6_enable_nic" class="bold"> Enable IPv6 </label>
+                
+               </br>
+               </br>
+
+               
+
+               
+            </td>
+            <td style="width:300px;">
+               
+                  
+                  <input id="bonded"
+                         name="bonded"
+                         type="checkbox"
+                         onclick="logicControllerEthernet();"
+                         
+                          
+                  >
+                  <input type="hidden" name="allow_bonding" id="allow_bonding" value="true"  />
+                  
+                  <label for="bonded" class="bold"> Enable Bonding</label>
+               
+               </br>
+               </br>
+               
+                  
+                  <input id="bridged"
+                         name="bridged"
+                         type="checkbox"
+                         onclick="logicControllerEthernet();"
+                           
+                           
+                         
+                  />
+                  <input type="hidden" name="allow_bridge" id="allow_bridge" value="true">
+                  
+                  <label for="bridged" class="bold"> Enable Bridge</label>
+                     
+               
+               </br>
+               </br>
+               
+                  
+                  <input id="prp_paired"
+                         name="prp_paired"
+                         type="checkbox"
+                         onclick="logicControllerEthernet();"
+                         
+                         
+                  />
+                  <input type="hidden" name="allow_prp_pairing" id="allow_prp_pairing" value="true"  />
+                  
+                  <label for="prp_paired" class="bold"> Enable PRP Pairing</label>
+               
+            </td>
+            <td></td>
+         </tr>
+      </tbody>
+      
+      
+        <tbody id="bonding_settings">
+            
+
+  
+
+
+
+
+
+
+
+
+<tr>
+   <td colspan="2">
+      <h3 class="title">Bonding</h3>
+   </td>
+   <td></td>
+</tr>
+
+<tr>
+   <td>
+   <label for="secondary_interface_id" class="bold">Bond this interface to:</label><br/>
+    <select id="secondary_interface_id" name="secondary_interface_id" onchange=""  >
+    
+    
+          <option value="0"> Eth_01 </option>
+          <option value="5"> Eth_03 </option>
+          <option value="6"> Eth_04 </option>
+          <option value="2"> Eth_F </option>
+    
+    </select>
+
+   </td>
+   <td>
+   <label for="bonding_mode" class="bold">Bonding Mode:</label><br/>
+    <select id="bonding_mode" onchange="toggleBonded();"  >
+       <option value="1"
+         selected 
+       >Backup</option>
+       <option value="4"
+         
+       >Aggregate</option>
+    </select>
+   </td>
+   <td></td>
+</tr>
+<tr>
+   <td>
+   <label for="bonding_link_frequency" class="bold">Link Frequency:</label><br/>
+    <input type="text" name="bonding_link_frequency" id="bonding_link_frequency" onchange="toggleBonded();" size="5" maxlength="5" value="1"  />
+   </td>
+   <td>
+    <label for="bonding_downdelay" class="bold">Down Delay:</label><br/>
+    <input type="text" name="bonding_downdelay" id="bonding_downdelay" size="5" maxlength="2" value="1"  />
+   </td>
+   <td></td>
+</tr>
+
+
+
+         </tbody>
+         <tbody id="bridging_settings">
+            
+
+  
+
+
+
+
+
+
+
+
+
+<tr>
+   <td colspan="2">
+      <h3 class="title">Bridging</h3>
+   </td>
+   <td></td>
+</tr>
+
+
+<tr>
+  <td>
+      <input type="checkbox" name="enable_stp" id="enable_stp"
+         checked 
+         disabled 
+      />
+      <label for="enable_stp" class="bold"> Enable STP</label>
+      <br/>
+      <br/>
+   </td>
+   <td></td>
+   <td></td>
+</tr>
+<tr>
+      <td>
+               <input type="checkbox" name="bridge_interface_id_0" id="bridge_interface_id_0" value="0"
+         
+         disabled 
+         />
+         <label for="bridge_interface_id_0" class="bold">Eth_01</label>
+         <br/>
+         <br/>
+               <input type="checkbox" name="bridge_interface_id_1" id="bridge_interface_id_1" value="5"
+         
+         disabled 
+         />
+         <label for="bridge_interface_id_1" class="bold">Eth_03</label>
+         <br/>
+         <br/>
+               <input type="checkbox" name="bridge_interface_id_2" id="bridge_interface_id_2" value="6"
+         
+         disabled 
+         />
+         <label for="bridge_interface_id_2" class="bold">Eth_04</label>
+         <br/>
+         <br/>
+               <input type="checkbox" name="bridge_interface_id_3" id="bridge_interface_id_3" value="2"
+         
+         disabled 
+         />
+         <label for="bridge_interface_id_3" class="bold">Eth_F</label>
+         <br/>
+         <br/>
+      
+      </td>
+      <td></td>
+      <td></td>
+   </tr>
+   
+
+
+
+
+         </tbody>
+         <tbody id="prp_settings">
+            
+
+  
+
+
+
+
+
+
+
+
+
+<tr>
+   <td colspan="2">
+      <h3 class="title">PRP Pairing</h3>
+   </td>
+   <td></td>
+</tr>
+
+
+<tr>
+   <td>
+   <label for="prp_secondary_interface_id" class="bold">Pair this interface to:</label><br/>
+      <select id="prp_secondary_interface_id" name="prp_secondary_interface_id" onchange=""  >
+      
+      
+      
+              <option value="0"> Eth_01 </option>
+              <option value="5"> Eth_03 </option>
+              <option value="6"> Eth_04 </option>
+              <option value="2"> Eth_F </option>
+      
+      </select>
+      
+      (LAN B)
+   </td>
+   <td></td>
+   <td></td>
+</tr>
+<tr>
+   <td>
+   <label for="prp_destination" class="bold">Supervisor Frame Destination Address LSB:</label><br/>
+     <input type="text" name="prp_destination" id="prp_destination" onchange="togglePRPpaired();" size="3" maxlength="3" value="0"  />
+   </td>
+   <td>
+   <label for="prp_interval" class="bold">Supervisor Frame Interval (sec):</label><br/>
+     <input type="text" name="prp_interval" id="prp_interval" onchange="togglePRPpaired();" size="2" maxlength="2" value="2"  />
+   </td>
+   <td></td>
+</tr>
+<tr>
+   <td>
+   <label for="prp_timeout" class="bold">Entry Timeout (msec):</label><br/>
+     <input type="text" name="prp_timeout" id="prp_timeout" onchange="togglePRPpaired();" size="5" maxlength="5" value="500"  />
+   <td></td>
+   <td></td>
+</tr>
+
+
+
+         </tbody>
+        
+      
+      <tbody id="ipv4_settings">
+        
+        
+        
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+      <td colspan="2">
+         <h3 class="title">
+            IPv4 Address Settings
+         </h3>
+      </td>
+      <td></td>
+   </tr>
+   <tr>
+      
+
+  
+
+
+
+
+
+
+
+
+
+
+   <tr>
+      <td>
+         <input id="web_access"
+                name="web_access"
+                style='border-style:none;'
+                type="checkbox"
+                onclick="logicControllerEthernet();"
+                checked 
+                 
+         >
+         <label for="web_access" class="bold"> Enable Web Access</label>
+         <span style="padding-left: 6px;"/>
+         <img id="web_access_icon" src="images/web_access.svg" style="height:2em;" hidden="true">
+      </td>
+      <td>
+         <input id="ping"
+                name="ping"
+                style='border-style:none;'
+                type="checkbox"
+                onclick="logicControllerEthernet();"
+                checked
+                 
+         >
+         <label for="ping" class="bold"> Enable Ping</label>
+         <span style="padding-left: 6px;"/>
+         <img id="ping_icon" src="images/ping.svg" style="height:2em;" hidden="true">
+      </td>
+      <td></td>
+   </tr>
+   <tr>
+      <td>
+         <input id="odbc_access"
+                name="odbc_access"
+                style='border-style:none;'
+                type="checkbox"
+                onclick="logicControllerEthernet();"
+                checked 
+                 
+         >
+         <label for="odbc_access" class="bold"> Enable Database Access</label>
+         <span style="padding-left: 6px;"/>
+         <img id="odbc_access_icon" src="images/database_access.svg" style="height:2em;" hidden="true">
+      </td>
+      <td>
+         <input name="Ipv4Dhcp"
+                      type="checkbox"
+                      id="Ipv4Dhcp"
+                      style='border-style:none;'
+                      onclick="logicControllerEthernet();"
+                      
+               >
+         
+         
+         <label for="Ipv4Dhcp" class="bold">Enable DHCP</label>
+      </td>
+      <td></td>
+   </tr>
+
+   </tr>
+   <tr>
+      <td>
+         <label for="ipv4_address1" class="bold">IP Address</label>
+         <br/>
+         <input name="ipv4_address1" id="ipv4_address1" type="textbox" maxlength="15"  >/
+            <input name="ipv4_address5" id="ipv4_address5" size="3" type="number" min="1" max="32"  >
+            <script language="text/javascript">
+               var tempIP  = "192.168.10.2/24";
+               var IPSplit = tempIP.split("/");
+               try {
+                  document.getElementById("ipv4_address1").value = IPSplit[0];
+                  document.getElementById("ipv4_address5").value = IPSplit[1];
+               }
+               catch(e) {}
+            </script>
+         
+      </td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td>
+         <label for="gateway" class="bold">Default Gateway</label>
+         <br/>
+         <input type="text"
+                id="gateway"
+                name="gateway"
+                value=""
+                oninput="logicControllerEthernet();"
+                  
+                
+         >
+      </td>
+      <td>
+         <input name="primary_gw"
+                style='border-style:none;'
+                id="primary_gw"
+                type="checkbox"
+                
+                  onclick="logicControllerEthernet();"
+                
+                
+         >
+         <label for="primary_gw" class="bold"> Primary Gateway</label>
+      </td>
+      <td></td>
+   </tr>
+
+      </tbody>
+      <tbody id="ipv6_settings">
+        
+
+  
+
+
+
+
+
+
+
+
+
+<tr>
+      <td colspan="2">
+         <h3 class="title">
+            IPv6 Address Settings
+         </h3>
+      </td>
+      <td></td>
+   </tr>
+   <tr>
+      
+
+  
+
+
+
+
+
+
+
+
+
+<tr>
+      <td>
+         <input id="ipv6_web_access"
+                name="ipv6_web_access"
+                style='border-style:none;'
+                type="checkbox"
+                onclick="logicControllerEthernet();"
+                checked 
+                 
+         >
+         <label for="ipv6_web_access" class="bold"> Enable Web Access</label>
+         <span style="padding-left: 6px;"/>
+         <img id="web_access_icon_ipv6" src="images/web_access.svg" style="height:2em;" hidden="true">
+      </td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td>
+         <input id="ipv6_odbc_access"
+                name="ipv6_odbc_access"
+                style='border-style:none;'
+                type="checkbox"
+                onclick="logicControllerEthernet();"
+                checked 
+                 
+         >
+         <label for="ipv6_odbc_access" class="bold"> Enable Database Access</label>
+         <span style="padding-left: 6px;"/>
+         <img id="odbc_access_icon_ipv6" src="images/database_access.svg" style="height:2em;" hidden="true">
+      </td>
+      <td></td>
+      <td></td>
+   </tr>
+
+
+   </tr>
+   <tr>
+      <td style="white-space: nowrap;">
+         <label for="ipv6_address" class="bold">IP Address:</label>
+         <br/>
+         <input name="ipv6_address" id="ipv6_address" type="textbox" maxlength="39"  >/
+            <input name="ipv6_network_prefix" id="ipv6_network_prefix" size="3" type="number" min="1" max="128"  >
+            <script language="text/javascript">
+               var tempIP  = "fd26:1f17:bb93:2::1/64";
+               var IPSplit = tempIP.split('/');
+               try {
+                  document.getElementById("ipv6_address").value = IPSplit[0];
+                  if(!IPSplit[1]) {
+                     IPSplit[1] = "128";
+                  }
+                  document.getElementById("ipv6_network_prefix").value = IPSplit[1];
+               } catch(e) {}
+            </script>
+         
+      </td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td>
+         <label for="ipv6_gateway" class="bold">Default Gateway:</label>
+         <br/>
+         <input type="text"
+                id="ipv6_gateway"
+                name="ipv6_gateway"
+                value=""
+                oninput="logicControllerEthernet();"
+         >
+      </td>
+      <td>
+         <input name="ipv6_primary_gw"
+                style='border-style:none;'
+                id="ipv6_primary_gw"
+                type="checkbox"
+                
+         >
+         <label for="ipv6_primary_gw" class="bold"> Primary Gateway</label>
+      </td>
+      <td></td>
+   </tr>
+
+        
+      </tbody>
+
+      <tr>
+               <td class="form_buttons" colspan="2">
+                  <input type="submit" class="action_button" value="Submit" id="submitter" name="submitter" onclick="submitEthernetSettings();" />
+                  <input type="button" class="action_button" value="Cancel" id="Cancel" name="Cancel" onclick="sendAjaxGetRequest('ethernet.sel', updateContentPane)">
+               </td>
+               <td></td>
+            </tr>
+         
+      
+   
+   </tbody>
+</table>
+<script type='text/javascript'>
+         toggleBonded();
+         toggleBridged();
+         togglePRPpaired();
+      logicControllerEthernet();
+      
+      </script>
+   
+
+
+
