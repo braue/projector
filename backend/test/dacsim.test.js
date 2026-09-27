@@ -44,7 +44,7 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
         schemeName: 'Feeder_9',
         dacPath: 'Feeder 9.rtac',
         dacIps: ['192.168.199.21'],
-        remoteIp: '192.168.254.21',
+        remoteIps: ['192.168.254.21'],
       }],
     };
 
@@ -70,6 +70,13 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
         schemes: [{ ...base.schemes[0], dacIps: [] }],
       }),
       /DAC IP is required/,
+    );
+    await assert.rejects(
+      () => dacsim.stageFromProject(files, {
+        ...base,
+        schemes: [{ ...base.schemes[0], remoteIps: [' '] }],
+      }),
+      /remote IP is required/,
     );
     await assert.rejects(
       () => dacsim.stageFromProject(files, {
@@ -107,8 +114,19 @@ test('dacsim: from-project staging copies picked DAC exports and writes settings
     );
     assert.equal(settings[0].subSimId, 'Sim1');
     assert.deepEqual(settings[0].dac.ipAddr, ['192.168.199.21']);
+    // One remote address stays a string; several become a list.
+    assert.equal(settings[0].remote.ipAddr, '192.168.254.21');
     assert.equal(settings[0].parameters.defaultLoad, 1);
     assert.equal(settings[0].dacPath, undefined);
+
+    const multi = await dacsim.stageFromProject(files, {
+      ...base,
+      schemes: [{ ...base.schemes[0], remoteIps: ['192.168.254.21', '192.168.254.121'] }],
+    });
+    const multiSettings = JSON.parse(
+      (await workspace.readFile('dacsim', multi.run, 'settings.json')).toString(),
+    );
+    assert.deepEqual(multiSettings[0].remote.ipAddr, ['192.168.254.21', '192.168.254.121']);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
@@ -169,15 +187,23 @@ test('acrtac import: request validation before any bridge spawn', async () => {
     await files.upload('', [{ originalname: 'notes.txt', buffer: Buffer.from('x') }], 'n');
 
     const acrtac = new AcrtacService({ jobs: new JobRegistry() });
-    const base = { path: 'Feeder 9.rtac', name: 'Feeder 9', deviceType: '3555', firmware: 'R151' };
+    const item = { path: 'Feeder 9.rtac', name: 'Feeder 9' };
+    const base = { items: [item], deviceType: '3555', firmware: 'R151' };
+    const withItem = (patch) => ({ ...base, items: [{ ...item, ...patch }] });
 
-    await assert.rejects(() => acrtac.import(files, { ...base, name: ' ' }), /name is required/);
+    await assert.rejects(() => acrtac.import(files, { ...base, items: [] }), /at least one RTAC entry/);
+    await assert.rejects(() => acrtac.import(files, withItem({ name: ' ' })), /name is required/);
     await assert.rejects(() => acrtac.import(files, { ...base, deviceType: '' }), /device type is required/);
     await assert.rejects(() => acrtac.import(files, { ...base, firmware: '' }), /firmware is required/);
-    await assert.rejects(() => acrtac.import(files, { ...base, path: 'nope.rtac' }), /no such entry/);
+    await assert.rejects(() => acrtac.import(files, withItem({ path: 'nope.rtac' })), /no such entry/);
     await assert.rejects(
-      () => acrtac.import(files, { ...base, path: 'notes.txt' }),
+      () => acrtac.import(files, withItem({ path: 'notes.txt' })),
       /not an RTAC export folder/,
+    );
+    // A batch can't create the same database project twice.
+    await assert.rejects(
+      () => acrtac.import(files, { ...base, items: [item, { ...item, name: 'feeder 9' }] }),
+      /both be called/,
     );
     // Open in AcRTAC validates before spawning anything, too.
     assert.throws(() => acrtac.open({ name: '  ' }), /name is required/);
@@ -201,8 +227,7 @@ test('acrtac import: an archived version imports by its .versions/ path', async 
     const entry = (await files.tree(rtacAnnotate)).find((node) => node.name === 'Feeder 9.rtac');
     const acrtac = new AcrtacService({ jobs: new JobRegistry() });
     const archived = await acrtac.import(files, {
-      path: entry.versions[0].path,
-      name: 'Feeder 9',
+      items: [{ path: entry.versions[0].path, name: 'Feeder 9' }],
       deviceType: '3555',
       firmware: 'R151',
     });

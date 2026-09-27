@@ -61,6 +61,11 @@ function requireIp(value, label) {
   return ip;
 }
 
+/** A form's address list: trimmed, blanks dropped (not an array = none). */
+function ipList(value) {
+  return (Array.isArray(value) ? value : []).map((ip) => String(ip).trim()).filter(Boolean);
+}
+
 class DacsimService {
   constructor({ workspace, jobs }) {
     this.workspace = workspace;
@@ -73,7 +78,7 @@ class DacsimService {
    * into a new run and settings.json is written FROM the form fields, so
    * nobody hand-authors it.
    *
-   * payload: { schemes: [{ schemeName, dacPath, dacIps[], remoteIp }],
+   * payload: { schemes: [{ schemeName, dacPath, dacIps[], remoteIps[] }],
    *            masterIp }
    *
    * masterIp is ONE address for the whole run — settings.json repeats it
@@ -96,9 +101,13 @@ class DacsimService {
         throw httpError(400, `scheme ${index + 1}: the name becomes an RTAC variable — `
           + 'use letters, digits, and underscores, starting with a letter (e.g. Feeder_9)');
       }
-      const dacIps = (Array.isArray(scheme?.dacIps) ? scheme.dacIps : [])
-        .map((ip) => String(ip).trim()).filter(Boolean);
+      const dacIps = ipList(scheme?.dacIps);
       if (!dacIps.length) throw httpError(400, `${schemeName}: at least one DAC IP is required`);
+      // A large scheme splits across several Remote IO projects, one address
+      // each (the engine indexes the list per split) — one address stays a
+      // plain string, several become a list like dac.ipAddr.
+      const remoteIps = ipList(scheme?.remoteIps);
+      if (!remoteIps.length) throw httpError(400, `${schemeName}: at least one remote IP is required`);
       if (!String(scheme?.dacPath ?? '').trim()) {
         throw httpError(400, `${schemeName}: pick the DAC export entry`);
       }
@@ -107,7 +116,7 @@ class DacsimService {
         subSimId: `Sim${index + 1}`,
         dacPath: String(scheme?.dacPath ?? ''),
         dac: { subFolder: `DAC ${schemeName}`, ipAddr: dacIps },
-        remote: { subFolder: `${schemeName}_REMOTE`, ipAddr: requireIp(scheme?.remoteIp, `${schemeName}: remote IP`) },
+        remote: { subFolder: `${schemeName}_REMOTE`, ipAddr: remoteIps.length === 1 ? remoteIps[0] : remoteIps },
         logic: { subFolder: masterFolder, ipAddr: masterIp },
         nameConversions: [],
         parameters: { defaultLoad },

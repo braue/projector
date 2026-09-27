@@ -1,10 +1,12 @@
-// Import to AcRTAC — the dialog behind the tree's right-click action on an
-// RTAC entry. Asks what the database project should be called and which
-// device type + firmware the import targets, then hands the job to the tree
-// and closes: the import runs in the background like an AcRTAC download,
-// narrating into a status row under the tree. Needs the machine with the
-// RTAC database (Python + selacrtac) — elsewhere the job fails with a clear
-// message, shown in the tree's error strip.
+// Import to AcRTAC — the dialog behind the tree's right-click action on one
+// RTAC entry or a multi-selection of them. Asks what each database project
+// should be called and which device type + firmware the batch targets, then
+// hands the job to the tree and closes: the import runs in the background
+// like an AcRTAC download, narrating into a status row under the tree. A
+// batch is ONE job — the bridge imports in order through a single AcRTAC
+// session. Needs the machine with the RTAC database (Python + selacrtac) —
+// elsewhere the job fails with a clear message, shown in the tree's error
+// strip.
 
 import { useEffect, useState } from 'react'
 
@@ -12,6 +14,7 @@ import { startAcrtacImport } from '../api'
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
 import { Button, Modal, Select, Spinner, TextInput } from './ui'
+import { databaseName } from '../lib/fileNodes'
 
 /** The hardware types selacrtac's importxml accepts, per the SEL acrtac
  *  submodule docs (bare model numbers, doc order). */
@@ -20,27 +23,30 @@ const DEVICE_TYPES = ['3530', '2241', '3505', '3532', '3354', '3351', '3332', '1
 /** Firmware is the revision label: R + number ("R151"), per the same docs. */
 const FIRMWARE = /^R\d+$/i
 
+/** One entry to import. */
+export interface AcrtacImportTarget {
+  /** Tree path of the .rtac entry (or an archived version of one). */
+  path: string
+  /** The entry's display name — the name fallback. */
+  name: string
+  /** The database project the entry mirrors, when known — the name seed. */
+  database: string | null
+}
+
 export function AcrtacImportModal({
   project,
-  path,
-  entryName,
-  database = null,
+  targets,
   onStarted,
   onClose,
 }: {
   project: string
-  /** Tree path of the .rtac entry to import. */
-  path: string
-  /** The entry's display name — the name fallback. */
-  entryName: string
-  /** The database project the entry mirrors, when known — the name seed. */
-  database?: string | null
+  targets: AcrtacImportTarget[]
   /** Called with the started job once the import is under way; the tree
    *  watches it from here on. */
-  onStarted: (job: string, name: string) => void
+  onStarted: (job: string, label: string) => void
   onClose: () => void
 }) {
-  const [name, setName] = useState(database ?? entryName.replace(/\.rtac$/i, ''))
+  const [names, setNames] = useState(() => targets.map(databaseName))
   const [deviceType, setDeviceType] = useState('')
   const [firmware, setFirmware] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -48,26 +54,32 @@ export function AcrtacImportModal({
   // itself outlives this dialog.
   const [starting, setStarting] = useState(false)
 
+  const single = targets.length === 1
+  const trimmed = names.map((name) => name.trim())
+  const lowered = trimmed.map((name) => name.toLowerCase())
+  const duplicate = trimmed.find((name, index) => name && lowered.indexOf(name.toLowerCase()) !== index)
   const firmwareOk = FIRMWARE.test(firmware.trim())
-  const ready = Boolean(name.trim() && deviceType && firmwareOk) && !starting
+  const ready = trimmed.every(Boolean) && !duplicate && Boolean(deviceType && firmwareOk) && !starting
 
   const begin = async () => {
     setError(null)
     setStarting(true)
     try {
       const { job } = await startAcrtacImport(project, {
-        path,
-        name: name.trim(),
+        items: targets.map((target, index) => ({ path: target.path, name: trimmed[index] })),
         deviceType,
         firmware: firmware.trim().toUpperCase(),
       })
-      onStarted(job, name.trim())
+      onStarted(job, single ? trimmed[0] : `${targets.length} projects`)
       onClose()
     } catch (err) {
       setError(errorMessage(err))
       setStarting(false)
     }
   }
+
+  const setName = (index: number, value: string) =>
+    setNames((current) => current.map((name, i) => (i === index ? value : name)))
 
   const field = (
     label: string,
@@ -90,12 +102,34 @@ export function AcrtacImportModal({
   )
 
   return (
-    <Modal title={`Import to AcRTAC — ${entryName}`} onClose={onClose}>
+    <Modal
+      title={single ? `Import to AcRTAC — ${targets[0].name}` : `Import ${targets.length} to AcRTAC`}
+      onClose={onClose}
+    >
       <div className="modal-sub">
-        Import this RTAC export into the AcRTAC database as a new project. The
-        import runs in the background — you can keep working while it does.
+        {single
+          ? 'Import this RTAC export into the AcRTAC database as a new project.'
+          : 'Import these RTAC exports into the AcRTAC database, one new project each, all on the same hardware.'}
+        {' '}The import runs in the background — you can keep working while it does.
       </div>
-      {field('Name in AcRTAC', name, setName, 'Database project name')}
+      {single ? field('Name in AcRTAC', names[0], (value) => setName(0, value), 'Database project name') : (
+        <div className="modal-list">
+          {targets.map((target, index) => (
+            <div key={target.path} className="modal-row acrtac-import-row">
+              <span className="modal-name mono" title={target.path}>{target.name}</span>
+              <TextInput
+                value={names[index]}
+                placeholder="Name in AcRTAC"
+                disabled={starting}
+                onChange={(e) => setName(index, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {duplicate && (
+        <div className="modal-error">Two imports are both named {duplicate} — each needs its own AcRTAC name.</div>
+      )}
       <div className="modal-filter">
         <Select
           label="Device type"
@@ -116,7 +150,7 @@ export function AcrtacImportModal({
       <div className="modal-foot">
         <Button onClick={onClose} disabled={starting}>Cancel</Button>
         <Button variant="primary" disabled={!ready} onClick={begin}>
-          {starting ? <Spinner /> : 'Import'}
+          {starting ? <Spinner /> : single ? 'Import' : `Import ${targets.length}`}
         </Button>
       </div>
     </Modal>
@@ -134,7 +168,7 @@ export function AcrtacImportRow({
   onDone,
   onError,
 }: {
-  /** The database project name the import is creating. */
+  /** What the import is creating — a project name, or "3 projects". */
   name: string
   /** Job id from startAcrtacImport. */
   job: string

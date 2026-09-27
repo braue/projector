@@ -31,35 +31,68 @@ class AcrtacService {
   }
 
   /**
-   * Import one tree entry into the AcRTAC database, as a job.
-   * payload: { path, name, deviceType, firmware } — `name` is what the
-   * database project will be called.
+   * Import tree entries into the AcRTAC database, as ONE job — the bridge
+   * runs them in order through a single AcRTAC session, so a batch never
+   * races itself for the database.
+   * payload: { items: [{ path, name }], deviceType, firmware } — each `name`
+   * is what that database project will be called; the hardware applies to
+   * the whole batch.
    */
   async import(files, payload) {
-    const name = requireField(payload?.name, 'name');
     const deviceType = requireField(payload?.deviceType, 'device type');
     const firmware = requireField(payload?.firmware, 'firmware');
-    const treePath = requireField(payload?.path, 'path');
-    const { absolute, isDirectory } = await files.identify(treePath);
-    if (!isDirectory) {
-      throw httpError(400, `${treePath} is not an RTAC export folder`);
+    const raw = Array.isArray(payload?.items) ? payload.items : [];
+    if (!raw.length) throw httpError(400, 'pick at least one RTAC entry to import');
+
+    const items = [];
+    const names = new Set();
+    for (const item of raw) {
+      const name = requireField(item?.name, 'name');
+      const treePath = requireField(item?.path, 'path');
+      if (names.has(name.toLowerCase())) {
+        throw httpError(400, `two imports would both be called ${name} in AcRTAC`);
+      }
+      names.add(name.toLowerCase());
+      const { absolute, isDirectory } = await files.identify(treePath);
+      if (!isDirectory) {
+        throw httpError(400, `${treePath} is not an RTAC export folder`);
+      }
+      items.push({ treePath, absolute, name });
     }
 
-    const job = this.jobs.start(`AcRTAC import: ${name}`, async (handle) => {
-      handle.log(`Importing ${name} into AcRTAC as ${deviceType} ${firmware}…`);
+    const label = items.length === 1 ? items[0].name : `${items.length} projects`;
+    const job = this.jobs.start(`AcRTAC import: ${label}`, async (handle) => {
+      handle.log(`Importing ${label} into AcRTAC as ${deviceType} ${firmware}…`);
       const { results } = await runStdinBridge(IMPORT_SCRIPT, {
-        items: [{ path: absolute, name, type: deviceType, version: firmware }],
+        items: items.map((item) => ({
+          path: item.absolute,
+          name: item.name,
+          type: deviceType,
+          version: firmware,
+        })),
       }, { onStderrLine: handle.log, explain: EXPLAIN });
-      const outcome = results?.[0];
-      if (!outcome?.success) {
-        throw new Error(outcome?.error ?? 'AcRTAC reported no result for the import');
+      const failed = [];
+      for (const [index, item] of items.entries()) {
+        const outcome = results?.[index];
+        if (!outcome?.success) {
+          const reason = outcome?.error ?? 'AcRTAC reported no result';
+          handle.log(`✗ ${item.name}: ${reason}`);
+          failed.push(items.length === 1 ? reason : `${item.name}: ${reason}`);
+          continue;
+        }
+        handle.log(`✓ ${item.name}`);
+        // The entry now mirrors database project `name` — record it so "Open
+        // in AcRTAC" stops guessing from the (renameable) entry name. Best
+        // effort: the import itself already succeeded.
+        await files.recordDatabase(item.treePath, item.name).catch(() => {});
       }
-      handle.log(`✓ ${name}`);
-      // The entry now mirrors database project `name` — record it so "Open
-      // in AcRTAC" stops guessing from the (renameable) entry name. Best
-      // effort: the import itself already succeeded.
-      await files.recordDatabase(treePath, name).catch(() => {});
-      return { name };
+      if (failed.length) {
+        const done = items.length - failed.length;
+        throw new Error(items.length === 1
+          ? failed[0]
+          : `${done} of ${items.length} imported — failed: ${failed.join('; ')}`);
+      }
+      return { names: items.map((item) => item.name) };
     });
     return { job: job.id };
   }

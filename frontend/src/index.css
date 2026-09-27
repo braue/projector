@@ -1304,7 +1304,13 @@ button.ui-section-header:hover { color: var(--ink); }
 /* The second held selection (ctrl+click) — right-click either held row to
  * compare the two. Same quiet fill as the primary selection; being held is
  * enough, no outline. */
-.tree-row.compare-mark { background: var(--fill); }
+.tree-row.held { background: var(--fill); }
+
+/* Batch Import to AcRTAC: entry name left, its AcRTAC name editable right. */
+.acrtac-import-row { cursor: default; }
+.acrtac-import-row:hover { background: none; }
+.acrtac-import-row .modal-name { flex: 1; }
+.acrtac-import-row .ui-input { flex: 1; min-width: 0; }
 
 /* In-flight / failed AcRTAC downloads overlaid at the top of the tree. */
 .export-row { color: var(--ghost-soft); cursor: default; }

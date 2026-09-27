@@ -55,11 +55,13 @@ export default function App() {
   const [tree, setTree] = useState<FileNode[] | null>(null)
   const [treeError, setTreeError] = useState<string | null>(null)
   const [exports, setExports] = useState<RtacExportStatus[]>([])
-  // Selection: the path being worked on (live entry or archived version), a
-  // SECOND path picked with ctrl+click, and — only once asked for from the
-  // context menu — the compare pair being viewed.
+  // Selection: the path being worked on (live entry or archived version) —
+  // the one the right pane shows — plus any further rows HELD alongside it
+  // with ctrl/shift+click (bulk actions act on all of them; two held of one
+  // kind offer Compare), and — only once asked for from the context menu —
+  // the compare pair being viewed.
   const [selected, setSelected] = useState<string | null>(null)
-  const [secondary, setSecondary] = useState<string | null>(null)
+  const [held, setHeld] = useState<string[]>([])
   // The file-tree filter, opened with Ctrl+Shift+F (and with Ctrl+F when the
   // pane on the right has no find of its own) and living in the topbar beside
   // the project it filters. Closing clears it — a narrowed tree with no
@@ -119,7 +121,7 @@ export default function App() {
     setTreeError(null)
     setExports([])
     setSelected(null)
-    setSecondary(null)
+    setHeld([])
     setComparePair(null)
     if (!project) return
     loadTree()
@@ -248,23 +250,35 @@ export default function App() {
     [refreshProjects],
   )
 
-  // A plain click is a fresh single selection — any second pick and any
-  // open comparison follow the click away.
+  // A plain click is a fresh single selection — anything held and any open
+  // comparison follow the click away.
   const handleSelect = useCallback((path: string | null) => {
     setSelected(path)
-    setSecondary(null)
+    setHeld([])
     setComparePair(null)
   }, [])
 
-  // Ctrl/cmd-click: pick (or unpick) the SECOND selection. Comparing itself
-  // is asked for from the context menu once two rows are held.
-  const handleToggleSecondary = useCallback((path: string) => {
+  // Ctrl/cmd-click: hold (or let go of) one more row. Letting go of the
+  // selected row itself hands the right pane to the next held one.
+  const handleToggleHeld = useCallback((path: string) => {
     setComparePair(null)
-    setSecondary((current) => {
-      if (current === path) return null
-      return path
-    })
-  }, [])
+    if (path === selected) {
+      setSelected(held[0] ?? null)
+      setHeld(held.slice(1))
+      return
+    }
+    if (selected === null) {
+      setSelected(path)
+      return
+    }
+    setHeld(held.includes(path) ? held.filter((p) => p !== path) : [...held, path])
+  }, [selected, held])
+
+  // Shift-click: hold exactly this range alongside the selection.
+  const handleHoldRange = useCallback((paths: string[]) => {
+    setComparePair(null)
+    setHeld(paths.filter((p) => p !== selected))
+  }, [selected])
 
   const handleComparePair = useCallback((original: string, updated: string) => {
     setComparePair({ original, updated })
@@ -356,9 +370,10 @@ export default function App() {
               treeError={treeError}
               exports={exports}
               selected={selected}
-              secondary={secondary}
+              held={held}
               onSelect={handleSelect}
-              onToggleSecondary={handleToggleSecondary}
+              onToggleHeld={handleToggleHeld}
+              onHoldRange={handleHoldRange}
               onComparePair={handleComparePair}
               onReload={loadTree}
               onExportsChanged={loadExports}

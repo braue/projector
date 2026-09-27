@@ -25,3 +25,9 @@ export function leaves(nodes: FileNode[], pick?: (node: FileLeafNode) => boolean
 export function rtacPaths(nodes: FileNode[]): string[] {
   return leaves(nodes, (node) => node.kind === 'rtac').map((node) => node.path)
 }
+
+/** The AcRTAC database project an `.rtac` entry mirrors: its recorded
+ *  `database`, else the entry's name without `.rtac`. */
+export function databaseName(entry: { database?: string | null; name: string }): string {
+  return entry.database ?? entry.name.replace(/\.rtac$/i, '')
+}

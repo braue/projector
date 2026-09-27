@@ -123,23 +123,21 @@ export function dismissRtacError(project: string, path: string): Promise<unknown
   return send(`${base(project)}/artifacts/rtac/status?path=${encodeURIComponent(path)}`, 'DELETE')
 }
 
-/** Upload an exported RTAC XML folder into `dir`. Multer basenames filenames,
- * so the folder-relative paths ride in a parallel field, index-aligned. */
+/** Upload exported RTAC XML folders into `dir` — each path's first segment
+ * names the export it belongs to, so one call can carry several. Multer
+ * basenames filenames, so the paths ride in a parallel field, index-aligned. */
 export function uploadRtacFolder(
   project: string,
   dir: string,
-  files: File[],
+  files: { file: File; path: string }[],
   note: string,
 ): Promise<{ added: { path: string; files: number }[] }> {
   const form = new FormData()
   form.append('dir', dir)
   form.append('note', note)
-  form.append(
-    'paths',
-    JSON.stringify(files.map((file) => file.webkitRelativePath || file.name)),
-  )
-  for (const file of files) {
-    form.append('files', file)
+  form.append('paths', JSON.stringify(files.map((entry) => entry.path)))
+  for (const entry of files) {
+    form.append('files', entry.file)
   }
   return send(`${base(project)}/artifacts/rtac/upload`, 'POST', form)
 }
@@ -414,7 +412,7 @@ export function generateDacsim(project: string, payload: {
     schemeName: string
     dacPath: string
     dacIps: string[]
-    remoteIp: string
+    remoteIps: string[]
   }[]
   masterIp: string
 }): Promise<{ job: string; run: string }> {
@@ -451,12 +449,15 @@ export function saveDacInitRun(project: string, run: string): Promise<{ placed: 
 
 // --- AcRTAC actions (the project tree's actions on an RTAC entry) ---------------
 
-/** Import one RTAC tree entry into the AcRTAC database, as a pollable job. */
+/** Import RTAC tree entries into the AcRTAC database, as ONE pollable job
+ *  (the batch runs in order through a single AcRTAC session). */
 export function startAcrtacImport(project: string, payload: {
-  /** Tree path of the .rtac entry. */
-  path: string
-  /** What the database project will be called. */
-  name: string
+  items: {
+    /** Tree path of the .rtac entry. */
+    path: string
+    /** What the database project will be called. */
+    name: string
+  }[]
   deviceType: string
   firmware: string
 }): Promise<{ job: string }> {

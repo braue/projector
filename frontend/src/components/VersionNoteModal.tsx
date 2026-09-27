@@ -23,8 +23,9 @@ export function VersionNoteModal({
   onCancel,
 }: {
   title: string
-  /** Folder the batch lands in ('' = the project root). */
-  destination: string
+  /** Folder the batch lands in ('' = the project root; null = each item
+   *  supersedes its own entry, wherever it sits). */
+  destination: string | null
   items: PendingItem[]
   busy?: boolean
   error?: string | null
@@ -38,8 +39,10 @@ export function VersionNoteModal({
   return (
     <Modal title={title} onClose={onCancel} locked={busy}>
         <div className="modal-sub">
-          Into <b>{destination || 'the project root'}</b>. Say what this version
-          changes — the note shows beside it in the tree.
+          {destination === null
+            ? 'Each lands as the next version of its entry. '
+            : <>Into <b>{destination || 'the project root'}</b>. </>}
+          Say what this version changes — the note shows beside it in the tree.
         </div>
         <div className="modal-list note-modal-list">
           {items.map((item) => (

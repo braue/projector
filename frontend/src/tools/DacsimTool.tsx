@@ -31,7 +31,8 @@ interface SchemeRow {
   dacPath: string
   /** Comma/space separated in the field; split on generate. */
   dacIps: string
-  remoteIp: string
+  /** Same CSV shape — one address per Remote IO split. */
+  remoteIps: string
 }
 
 /** A scheme name becomes an RTAC variable name in the generated master, so
@@ -146,7 +147,7 @@ export function DacsimTool({ project }: ToolProps) {
         schemeName: schemeNameFor(dacPath),
         dacPath,
         dacIps: `${DAC_IP_PREFIX}${host}`,
-        remoteIp: `${REMOTE_IP_PREFIX}${host}`,
+        remoteIps: `${REMOTE_IP_PREFIX}${host}`,
       }]
     })
   }
@@ -157,7 +158,7 @@ export function DacsimTool({ project }: ToolProps) {
   const badName = rows.find((row) => row.schemeName.trim()
     && !SCHEME_NAME.test(row.schemeName.trim()))
   const rowsReady = rows.length > 0 && !badName
-    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIp.trim())
+    && rows.every((row) => row.schemeName.trim() && row.dacIps.trim() && row.remoteIps.trim())
     && masterIp.trim() !== ''
 
   const generate = async () => {
@@ -171,7 +172,7 @@ export function DacsimTool({ project }: ToolProps) {
           schemeName: row.schemeName.trim(),
           dacPath: row.dacPath,
           dacIps: row.dacIps.split(/[\s,;]+/).filter(Boolean),
-          remoteIp: row.remoteIp.trim(),
+          remoteIps: row.remoteIps.split(/[\s,;]+/).filter(Boolean),
         })),
         masterIp: masterIp.trim(),
       })
@@ -236,7 +237,7 @@ export function DacsimTool({ project }: ToolProps) {
           <div className="dacsim-schemes">
             <span className="dacsim-col">Scheme</span>
             <span className="dacsim-col">DAC IPs</span>
-            <span className="dacsim-col">Remote IO IP</span>
+            <span className="dacsim-col">Remote IO IPs</span>
             <span />
             {rows.map((row, index) => (
               <Fragment key={row.dacPath}>
@@ -250,9 +251,9 @@ export function DacsimTool({ project }: ToolProps) {
                   onChange={(e) => setRow(index, { dacIps: e.target.value })}
                 />
                 <TextInput
-                  value={row.remoteIp}
-                  placeholder="192.168.254.21"
-                  onChange={(e) => setRow(index, { remoteIp: e.target.value })}
+                  value={row.remoteIps}
+                  placeholder="192.168.254.21, 192.168.254.121"
+                  onChange={(e) => setRow(index, { remoteIps: e.target.value })}
                 />
                 <Button title={`Remove ${row.schemeName}`} onClick={() => toggleEntry(row.dacPath)}>
                   ✕

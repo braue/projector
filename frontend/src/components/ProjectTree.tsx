@@ -17,11 +17,12 @@ import {
   uploadRtacFolder,
 } from '../api'
 import { errorMessage } from '../lib/errors'
+import { databaseName } from '../lib/fileNodes'
 import { formatDay, formatStamp, formatWhen } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
 import { useToolJob } from '../lib/useToolJob'
 import type { ArtifactKindName, FileNode, FileVersion, RtacExportStatus } from '../types'
-import { AcrtacImportModal, AcrtacImportRow } from './AcrtacImportModal'
+import { AcrtacImportModal, AcrtacImportRow, type AcrtacImportTarget } from './AcrtacImportModal'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { ContextMenu, InlineNameForm, Spinner, type ContextMenuItem } from './ui'
 import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
@@ -40,13 +41,20 @@ import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 //
 // Interactions:
 //   click            select (artifact → Inspect, .txt → editor, else info)
-//   ctrl/cmd+click   hold a SECOND selection (versions count as files here);
-//                    right-click either held row for the Compare option
+//   ctrl/cmd+click   hold one more row alongside the selection (versions
+//                    count as files here) — or let go of a held one
+//   shift+click      hold every visible entry between the selection and here
+//   right-click      the context menu for whatever is under the cursor; on a
+//                    held row with others held, the BULK menu (delete,
+//                    import to AcRTAC, new versions from AcRTAC — and
+//                    Compare when exactly two of one kind are held)
+//   Delete / Escape  delete what is held / let go of all but the selection
 //   double-click     open with the OS default app (files); an RTAC entry
 //                    opens its database project in the AcSELerator RTAC GUI
-//   right-click      the context menu for whatever is under the cursor
-//   drag row         move into a folder (or the root background)
-//   drop OS files    upload into that folder — the version-note dialog runs
+//   drag row         move into a folder (or the root background) — dragging
+//                    a held row moves everything held
+//   drop OS files    upload into that folder — the version-note dialog runs;
+//                    dropped FOLDERS come in as RTAC exports
 
 const ENTRY_MIME = 'application/projector-file-entry'
 
@@ -228,9 +236,99 @@ function stageVersionFile(file: File, entryName: string): File | string {
   return file
 }
 
+/** A file from a picked or dropped folder, with its folder-relative path. */
+type FolderFile = { file: File; path: string }
+
+/** Split folder files into the RTAC exports they hold. An export's root is
+ *  the folder holding SEL_RTAC/ (or ExportSource.xml), so picking or
+ *  dropping a PARENT of several exports brings each in as its own entry.
+ *  Files come back re-rooted at their export's folder name — the first path
+ *  segment is what the backend names the entry after. Without any marker
+ *  the old rule stands: each top-level folder is one export. Returns the
+ *  refusal message when two exports would land under one name. */
+function splitRtacExports(files: FolderFile[]): { files: FolderFile[]; names: string[] } | string {
+  const roots = new Set<string>()
+  for (const { path } of files) {
+    const parts = path.split('/')
+    const marker = parts.findIndex((part, i) => i > 0 && (i < parts.length - 1
+      ? part.toUpperCase() === 'SEL_RTAC'
+      : /^ExportSource\.xml$/i.test(part)))
+    if (marker > 0) roots.add(parts.slice(0, marker).join('/'))
+  }
+  if (!roots.size) {
+    return { files, names: [...new Set(files.map((entry) => entry.path.split('/')[0]).filter(Boolean))] }
+  }
+  // Longest first: a file belongs to the innermost export holding it.
+  const ordered = [...roots].sort((a, b) => b.length - a.length)
+  const byName = new Map<string, string>()
+  const out: FolderFile[] = []
+  for (const entry of files) {
+    const root = ordered.find((candidate) => entry.path.startsWith(`${candidate}/`))
+    if (!root) continue
+    const name = root.split('/').pop() ?? root
+    const other = byName.get(name.toLowerCase())
+    if (other !== undefined && other !== root) {
+      return `Two exports are both named ${name} (${other} and ${root}) — bring them in separately.`
+    }
+    byName.set(name.toLowerCase(), root)
+    out.push({ file: entry.file, path: `${name}${entry.path.slice(root.length)}` })
+  }
+  return { files: out, names: [...byName.values()].map((root) => root.split('/').pop() ?? root) }
+}
+
+/** Everything under dropped OS entries: folders walked into FolderFiles,
+ *  top-level files kept loose. */
+async function readDropped(entries: FileSystemEntry[]): Promise<{ folders: FolderFile[]; loose: File[] }> {
+  const fileOf = (entry: FileSystemEntry) =>
+    new Promise<File>((resolve, reject) => (entry as FileSystemFileEntry).file(resolve, reject))
+  const childrenOf = async (entry: FileSystemEntry) => {
+    const reader = (entry as FileSystemDirectoryEntry).createReader()
+    const out: FileSystemEntry[] = []
+    // readEntries hands a directory over in batches until an empty one.
+    for (;;) {
+      const batch = await new Promise<FileSystemEntry[]>((resolve, reject) => reader.readEntries(resolve, reject))
+      if (!batch.length) return out
+      out.push(...batch)
+    }
+  }
+  // Siblings are read concurrently; each path is fixed, so order doesn't matter.
+  const walk = async (entry: FileSystemEntry, prefix: string): Promise<FolderFile[]> => {
+    const path = `${prefix}${entry.name}`
+    if (entry.isFile) return [{ file: await fileOf(entry), path }]
+    const nested = await Promise.all((await childrenOf(entry)).map((child) => walk(child, `${path}/`)))
+    return nested.flat()
+  }
+  const [folders, loose] = await Promise.all([
+    Promise.all(entries.filter((e) => e.isDirectory).map((e) => walk(e, ''))).then((nested) => nested.flat()),
+    Promise.all(entries.filter((e) => !e.isDirectory).map(fileOf)),
+  ])
+  return { folders, loose }
+}
+
+/** Run `fn` over every path, carrying on past failures; throws one error
+ *  naming each path that failed. */
+async function each(paths: string[], fn: (path: string) => Promise<unknown>) {
+  const failed: string[] = []
+  for (const path of paths) {
+    try {
+      await fn(path)
+    } catch (err) {
+      failed.push(`${displayName(path)}: ${errorMessage(err)}`)
+    }
+  }
+  if (failed.length) throw new Error(failed.join('\n'))
+}
+
+const parentOf = (path: string) => path.split('/').slice(0, -1).join('/')
+
 type PendingBatch =
   | { kind: 'files'; dir: string; files: File[] }
-  | { kind: 'rtac-folder'; dir: string; files: File[]; names: string[] }
+  /** One or more RTAC export folders — plus any loose files dropped with
+   *  them, landing under the same note. */
+  | { kind: 'rtac-folder'; dir: string; files: FolderFile[]; names: string[]; loose: File[] }
+  /** "New versions from AcRTAC": re-pull each held RTAC entry from the
+   *  database it mirrors, superseding it in place. */
+  | { kind: 'refresh'; entries: { dir: string; name: string; database: string }[] }
   /** "Add new version…": the picked file supersedes the entry named
    *  `entryName` — and the entry takes the PICKED FILE's name (versions
    *  follow what their newest arrival is called). */
@@ -252,9 +350,10 @@ export function ProjectTree({
   treeError,
   exports,
   selected,
-  secondary,
+  held,
   onSelect,
-  onToggleSecondary,
+  onToggleHeld,
+  onHoldRange,
   onComparePair,
   onReload,
   onExportsChanged,
@@ -267,12 +366,14 @@ export function ProjectTree({
   treeError: string | null
   exports: RtacExportStatus[]
   selected: string | null
-  /** The second concurrently-selected path (ctrl/cmd-click). */
-  secondary: string | null
+  /** Further rows held alongside the selection (ctrl/shift-click). */
+  held: string[]
   onSelect: (path: string | null) => void
-  /** Ctrl/cmd-click: pick (or unpick) the second selection. */
-  onToggleSecondary: (path: string) => void
-  /** The context menu's compare over the two held selections. */
+  /** Ctrl/cmd-click: hold (or let go of) one more row. */
+  onToggleHeld: (path: string) => void
+  /** Shift-click: hold exactly these rows alongside the selection. */
+  onHoldRange: (paths: string[]) => void
+  /** The context menu's compare over the two held rows. */
   onComparePair: (original: string, updated: string) => void
   onReload: () => void
   onExportsChanged: () => void
@@ -304,17 +405,13 @@ export function ProjectTree({
   // The AcRTAC browser, opened at a destination folder — optionally aimed
   // at an existing entry as its next version (null = closed).
   const [dbState, setDbState] = useState<{ dir: string; versionOf?: string } | null>(null)
-  const [importTarget, setImportTarget] = useState<{
-    path: string
-    name: string
-    database: string | null
-  } | null>(null)
+  const [importTargets, setImportTargets] = useState<AcrtacImportTarget[] | null>(null)
   // Imports under way, oldest first — the dialog hands each job over and
   // closes, and the row below the tree carries it the rest of the way. The
   // project rides along so switching projects hides (never cancels) them.
   const [imports, setImports] = useState<{
     id: string
-    name: string
+    label: string
     project: string
   }[]>([])
   const [menu, setMenu] = useState<{ x: number; y: number; target: MenuTarget } | null>(null)
@@ -375,7 +472,7 @@ export function ProjectTree({
     ]))
     for (const [exportPath, known] of knownExports.current) {
       if (current.has(exportPath) || known.status !== 'exporting') continue
-      const dir = exportPath.split('/').slice(0, -1).join('/')
+      const dir = parentOf(exportPath)
       revealDir(dir)
       if (known.into) {
         const oldPath = dir ? `${dir}/${known.into}` : known.into
@@ -403,7 +500,7 @@ export function ProjectTree({
   )
   const openInAcrtac = async (node: FileLeaf) => {
     if (acrtacOpening !== null) return
-    const name = node.database ?? node.name.replace(/\.rtac$/i, '')
+    const name = databaseName(node)
     setError(null)
     setAcrtacOpening(name)
     try {
@@ -427,13 +524,16 @@ export function ProjectTree({
     setPending({ kind: 'files', dir, files })
   }
 
-  const stageRtacFolder = (files: File[], dir: string) => {
-    if (!files.length) return
-    const names = [...new Set(files
-      .map((file) => (file.webkitRelativePath || file.name).split('/')[0])
-      .filter(Boolean))]
+  const stageRtacFolder = (files: FolderFile[], dir: string, loose: File[] = []) => {
+    const split = splitRtacExports(files)
+    if (typeof split === 'string') {
+      setError(split)
+      return
+    }
+    if (!split.files.length && !loose.length) return
+    setError(null)
     setNoteError(null)
-    setPending({ kind: 'rtac-folder', dir, files, names })
+    setPending({ kind: 'rtac-folder', dir, files: split.files, names: split.names, loose })
   }
 
   const confirmNote = async (note: string) => {
@@ -457,10 +557,18 @@ export function ProjectTree({
         }
       } else if (pending.kind === 'edit') {
         await recordFileEdit(project, pending.path, note)
+      } else if (pending.kind === 'refresh') {
+        // Each pull supersedes its entry in place when it lands; the export
+        // rows under the tree carry them from here.
+        for (const entry of pending.entries) {
+          await startRtacExport(project, entry.dir, entry.database, note, entry.name)
+        }
+        onExportsChanged()
       } else {
-        await uploadRtacFolder(project, pending.dir, pending.files, note)
+        if (pending.files.length) await uploadRtacFolder(project, pending.dir, pending.files, note)
+        if (pending.loose.length) await uploadFiles(project, pending.dir, pending.loose, note)
       }
-      revealDir(pending.dir)
+      if (pending.kind !== 'refresh') revealDir(pending.dir)
       setPending(null)
       setNoteError(null)
       onReload()
@@ -473,6 +581,12 @@ export function ProjectTree({
 
   const pendingItems: PendingItem[] = useMemo(() => {
     if (!pending || !tree) return []
+    if (pending.kind === 'refresh') {
+      return pending.entries.map((entry) => ({
+        name: entry.dir ? `${entry.dir}/${entry.name}` : entry.name,
+        isNewVersion: true,
+      }))
+    }
     const dirNode = pending.dir ? findNode(tree, pending.dir) : null
     const siblings = new Set(
       (dirNode?.type === 'folder' ? dirNode.children : pending.dir ? [] : tree)
@@ -490,10 +604,16 @@ export function ProjectTree({
     if (pending.kind === 'edit') {
       return [{ name: pending.name, isNewVersion: true }]
     }
-    return pending.names.map((name) => ({
-      name: `${name}.rtac`,
-      isNewVersion: siblings.has(`${name}.rtac`),
-    }))
+    return [
+      ...pending.names.map((name) => ({
+        name: `${name}.rtac`,
+        isNewVersion: siblings.has(`${name}.rtac`),
+      })),
+      ...pending.loose.map((file) => ({
+        name: file.name,
+        isNewVersion: siblings.has(file.name),
+      })),
+    ]
   }, [pending, tree])
 
   const createNote = async (dir: string, name: string) => {
@@ -525,6 +645,100 @@ export function ProjectTree({
     act(() => deleteFileEntry(project, node.path))
   }
 
+  // --- the held set -------------------------------------------------------------
+
+  /** Every held row — the selection first. */
+  const heldPaths = useMemo(
+    () => (selected === null ? [] : [selected, ...held.filter((p) => p !== selected)]),
+    [selected, held],
+  )
+
+  const heldSet = useMemo(() => new Set(heldPaths), [heldPaths])
+
+  /** The held rows that are tree ENTRIES (files, artifacts, folders — not
+   *  archived versions), minus any inside a held folder: what delete and
+   *  move act on. */
+  const heldEntries = useMemo(() => {
+    if (!tree) return []
+    const live = heldPaths.filter((p) => findNode(tree, p) !== null)
+    return live.filter((p) => !live.some((other) => other !== p && p.startsWith(`${other}/`)))
+  }, [heldPaths, tree])
+
+  /** The held rows that import to AcRTAC: RTAC entries and archived RTAC
+   *  versions, each under its own identity. */
+  const importTargetsOf = (paths: string[]): AcrtacImportTarget[] => {
+    if (!tree) return []
+    const out: AcrtacImportTarget[] = []
+    for (const p of paths) {
+      const leaf = findLeafFor(tree, p)
+      if (!leaf) continue
+      if (leaf.path === p) {
+        if (leaf.kind === 'rtac') out.push({ path: p, name: leaf.name, database: leaf.database })
+        continue
+      }
+      const version = leaf.versions.find((v) => v.path === p)
+      if (version?.kind === 'rtac') out.push({ path: p, name: version.name, database: version.database })
+    }
+    return out
+  }
+
+  const deleteEntries = (paths: string[]) => {
+    if (!tree || !paths.length) return
+    if (paths.length === 1) {
+      const node = findNode(tree, paths[0])
+      if (node) deleteEntry(node)
+      return
+    }
+    const names = paths.map((p) => `  • ${displayName(p)}`)
+    const listed = names.length > 12
+      ? [...names.slice(0, 12), `  …and ${names.length - 12} more`]
+      : names
+    if (!window.confirm(`Delete these ${paths.length} entries — with their versions, and everything inside any folder?\n\n${listed.join('\n')}`)) return
+    onSelect(null)
+    act(() => each(paths, (p) => deleteFileEntry(project, p)))
+  }
+
+  /** The bulk menu: what a right-click on one of several held rows acts on. */
+  const bulkItems = (path: string): ContextMenuItem[] => {
+    const items: ContextMenuItem[] = [...comparePairItems(path)]
+    const imports = importTargetsOf(heldPaths)
+    if (imports.length) {
+      items.push({
+        label: imports.length === 1 ? 'Import to AcRTAC…' : `Import ${imports.length} to AcRTAC…`,
+        onClick: () => setImportTargets(imports),
+      })
+    }
+    const rtacLeaves = heldEntries
+      .map((p) => (tree ? findNode(tree, p) : null))
+      .filter((node): node is FileLeaf => node?.type === 'file' && node.kind === 'rtac')
+    if (rtacLeaves.length) {
+      items.push({
+        label: `New versions from AcRTAC (${rtacLeaves.length})…`,
+        onClick: () => {
+          setNoteError(null)
+          setPending({
+            kind: 'refresh',
+            entries: rtacLeaves.map((leaf) => ({
+              dir: parentOf(leaf.path),
+              name: leaf.name,
+              database: databaseName(leaf),
+            })),
+          })
+        },
+      })
+    }
+    const entries = heldEntries
+    if (entries.length) {
+      if (items.length) items.push({ separator: true })
+      items.push({
+        label: entries.length === 1 ? 'Delete' : `Delete ${entries.length} entries`,
+        danger: true,
+        onClick: () => deleteEntries(entries),
+      })
+    }
+    return items
+  }
+
   /** Intake + creation items for a folder ('' = the root). */
   const dirItems = (dir: string): ContextMenuItem[] => [
     {
@@ -535,7 +749,8 @@ export function ProjectTree({
       },
     },
     {
-      label: 'Add RTAC export folder…',
+      // Picking a folder that HOLDS several exports brings each one in.
+      label: 'Add RTAC export folders…',
       onClick: () => {
         intakeDir.current = dir
         folderInput.current?.click()
@@ -572,9 +787,8 @@ export function ProjectTree({
    *  the menu offers comparing them: the right-clicked row is the "new"
    *  side, the other the original — Swap lives in the compare pane. */
   const comparePairItems = (path: string): ContextMenuItem[] => {
-    if (!selected || !secondary) return []
-    if (path !== selected && path !== secondary) return []
-    const other = path === selected ? secondary : selected
+    if (heldPaths.length !== 2 || !heldPaths.includes(path)) return []
+    const other = heldPaths[0] === path ? heldPaths[1] : heldPaths[0]
     const kind = kindOfPath(path)
     if (!kind || kind !== kindOfPath(other)) return []
     return [{
@@ -587,10 +801,16 @@ export function ProjectTree({
    *  share it, each importing under its own identity. */
   const importItem = (path: string, name: string, database: string | null): ContextMenuItem => ({
     label: 'Import to AcRTAC…',
-    onClick: () => setImportTarget({ path, name, database }),
+    onClick: () => setImportTargets([{ path, name, database }]),
   })
 
   const menuItems = (target: MenuTarget): ContextMenuItem[] => {
+    const targetPath = target.type === 'leaf' ? target.node.path
+      : target.type === 'version' ? target.version.path
+      : target.node ? target.dir : null
+    if (targetPath !== null && heldPaths.length > 1 && heldPaths.includes(targetPath)) {
+      return bulkItems(targetPath)
+    }
     if (target.type === 'dir') {
       const items = dirItems(target.dir)
       if (target.node) {
@@ -630,7 +850,7 @@ export function ProjectTree({
     }
 
     const node = target.node
-    const nodeDir = node.path.split('/').slice(0, -1).join('/')
+    const nodeDir = parentOf(node.path)
     return [
       ...(node.kind
         ? [{ label: 'Inspect', onClick: () => onSelect(node.path) }]
@@ -696,14 +916,41 @@ export function ProjectTree({
     e.preventDefault()
     e.stopPropagation()
     setDropTarget(null)
-    const entry = e.dataTransfer.getData(ENTRY_MIME)
-    if (entry) {
-      if (entry !== dir) {
+    const raw = e.dataTransfer.getData(ENTRY_MIME)
+    if (raw) {
+      let paths: string[]
+      try {
+        paths = JSON.parse(raw)
+      } catch {
+        paths = [raw]
+      }
+      // Skip what is already there, and a folder dropped into itself.
+      const moving = paths.filter((p) => p !== dir && parentOf(p) !== dir && !dir.startsWith(`${p}/`))
+      if (moving.length) {
+        // The held paths die with the move; the selection follows its row.
+        const moved = selected !== null && moving.includes(selected)
+          ? [dir, selected.split('/').pop()].filter(Boolean).join('/')
+          : selected
         act(async () => {
-          await moveFileEntry(project, entry, dir)
-          revealDir(dir)
+          try {
+            await each(moving, (p) => moveFileEntry(project, p, dir))
+          } finally {
+            revealDir(dir)
+            if (moving.length > 1 || moved !== selected) onSelect(moved)
+          }
         })
       }
+      return
+    }
+    // Folders only survive the drop event as ENTRIES — read them now, walk
+    // them after. Any folder in the drop makes it an RTAC-export intake.
+    const entries = [...e.dataTransfer.items]
+      .map((item) => (item.kind === 'file' ? item.webkitGetAsEntry() : null))
+      .filter((entry): entry is FileSystemEntry => entry !== null)
+    if (entries.some((entry) => entry.isDirectory)) {
+      readDropped(entries)
+        .then(({ folders, loose }) => stageRtacFolder(folders, dir, loose))
+        .catch((err) => setError(errorMessage(err)))
       return
     }
     stageUpload([...e.dataTransfer.files], dir)
@@ -725,16 +972,36 @@ export function ProjectTree({
   // --- rows --------------------------------------------------------------------
 
   const select = (e: React.MouseEvent, path: string) => {
-    if (e.ctrlKey || e.metaKey) {
-      if (path !== selected) onToggleSecondary(path)
-    } else onSelect(path)
+    if (e.shiftKey && selected !== null) {
+      // The range runs over visible entry rows; a selected archived version
+      // anchors at its entry.
+      const anchor = visibleOrder.includes(selected)
+        ? selected
+        : (tree ? findLeafFor(tree, selected)?.path : null) ?? null
+      const from = anchor === null ? -1 : visibleOrder.indexOf(anchor)
+      const to = visibleOrder.indexOf(path)
+      if (from >= 0 && to >= 0) {
+        onHoldRange(visibleOrder.slice(Math.min(from, to), Math.max(from, to) + 1))
+        return
+      }
+    }
+    if (e.ctrlKey || e.metaKey || e.shiftKey) onToggleHeld(path)
+    else onSelect(path)
   }
 
   const rowClasses = (path: string, extra: string[] = []) => {
     const classes = ['tree-row', 'file-row', ...extra]
     if (selected === path) classes.push('selected')
-    if (secondary === path) classes.push('compare-mark')
+    else if (heldSet.has(path)) classes.push('held')
     return classes.filter(Boolean).join(' ')
+  }
+
+  // Dragging a held row carries everything held (entries only — an archived
+  // version cannot move on its own).
+  const dragStart = (e: React.DragEvent, path: string) => {
+    const group = heldPaths.length > 1 && heldSet.has(path) ? heldEntries : []
+    e.dataTransfer.setData(ENTRY_MIME, JSON.stringify(group.length ? group : [path]))
+    e.dataTransfer.effectAllowed = 'move'
   }
 
   // One version-history row — the archived versions and the current-version
@@ -851,6 +1118,20 @@ export function ProjectTree({
     [tree, filterTerm, filtering],
   )
 
+  // The entry rows on screen, top to bottom — what a shift-click range
+  // spans (version rows stay out: ranges are for bulk entry actions).
+  const visibleOrder = useMemo(() => {
+    const out: string[] = []
+    const walk = (nodes: FileNode[]) => {
+      for (const node of nodes) {
+        out.push(node.path)
+        if (node.type === 'folder' && (filtering || expanded.has(node.path))) walk(node.children)
+      }
+    }
+    walk(shown ?? [])
+    return out
+  }, [shown, filtering, expanded])
+
   const renderLeaf = (node: FileLeaf, depth: number) => {
     const versionsOpen = openVersions.has(node.path)
     const currentVersion = node.versions.length + 1
@@ -861,10 +1142,7 @@ export function ProjectTree({
         {renaming === node.path ? renameForm(node, true) : (
           <button
             draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData(ENTRY_MIME, node.path)
-              e.dataTransfer.effectAllowed = 'move'
-            }}
+            onDragStart={(e) => dragStart(e, node.path)}
             className={rowClasses(node.path, node.kind ? ['artifact-row'] : [])}
             style={indent}
             title={[
@@ -947,10 +1225,7 @@ export function ProjectTree({
         {renaming === node.path ? renameForm(node, false) : (
           <button
             draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData(ENTRY_MIME, node.path)
-              e.dataTransfer.effectAllowed = 'move'
-            }}
+            onDragStart={(e) => dragStart(e, node.path)}
             {...dropProps(node.path)}
             className={[
               rowClasses(node.path, ['tree-folder']),
@@ -959,7 +1234,10 @@ export function ProjectTree({
             style={{ paddingLeft: `${10 + depth * 14}px` }}
             title={node.name}
             onClick={(e) => {
-              if (e.ctrlKey || e.metaKey) return
+              if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                select(e, node.path)
+                return
+              }
               onSelect(node.path)
               setExpanded((current) => toggleSet(current, node.path))
             }}
@@ -995,11 +1273,11 @@ export function ProjectTree({
             className="entry-delete"
             title="Retry this download"
             onClick={() => {
-              const dir = entry.path.split('/').slice(0, -1).join('/')
+              const dir = parentOf(entry.path)
               // The status row carries the real database name; the path is
               // only a fallback (a renamed/sanitized entry cannot reproduce
               // it). `into` keeps the retry superseding the SAME entry.
-              const database = entry.database ?? displayName(entry.path).replace(/\.rtac$/i, '')
+              const database = databaseName({ database: entry.database, name: displayName(entry.path) })
               act(async () => {
                 await dismissRtacError(project, entry.path)
                 await startRtacExport(project, dir, database, entry.note, entry.into ?? undefined)
@@ -1031,6 +1309,17 @@ export function ProjectTree({
         className={`source-scroll files-root${dropTarget === '' ? ' file-drop' : ''}`}
         {...dropProps('')}
         onContextMenu={(e) => openMenu(e, { type: 'dir', dir: '', node: null })}
+        onKeyDown={(e) => {
+          if ((e.target as HTMLElement).closest('input, textarea')) return
+          if (e.key === 'Delete') {
+            if (heldEntries.length) {
+              e.preventDefault()
+              deleteEntries(heldEntries)
+            }
+          } else if (e.key === 'Escape' && held.length) {
+            onSelect(selected)
+          }
+        }}
       >
         <input
           ref={fileInput}
@@ -1071,7 +1360,10 @@ export function ProjectTree({
           // @ts-expect-error non-standard folder-picker attribute
           webkitdirectory=""
           onChange={(e) => {
-            stageRtacFolder([...(e.target.files ?? [])], intakeDir.current)
+            stageRtacFolder(
+              [...(e.target.files ?? [])].map((file) => ({ file, path: file.webkitRelativePath || file.name })),
+              intakeDir.current,
+            )
             e.target.value = ''
           }}
         />
@@ -1097,7 +1389,7 @@ export function ProjectTree({
             <AcrtacImportRow
               key={entry.id}
               job={entry.id}
-              name={entry.name}
+              name={entry.label}
               onDone={() => {
                 finishImport(entry.id)
                 // The entry now records the database project it mirrors —
@@ -1131,8 +1423,10 @@ export function ProjectTree({
           title={pending.kind === 'files' ? 'Add files'
             : pending.kind === 'version' ? `New version of ${pending.entryName}`
             : pending.kind === 'edit' ? `Record edits to ${pending.name}`
+            : pending.kind === 'refresh' ? `New versions from AcRTAC (${pending.entries.length})`
+            : pending.names.length > 1 ? `Add ${pending.names.length} RTAC exports`
             : 'Add RTAC export'}
-          destination={pending.dir}
+          destination={pending.kind === 'refresh' ? null : pending.dir}
           items={pendingItems}
           busy={noteBusy}
           error={noteError}
@@ -1149,17 +1443,15 @@ export function ProjectTree({
           onStarted={onExportsChanged}
         />
       )}
-      {importTarget !== null && (
+      {importTargets !== null && (
         <AcrtacImportModal
           project={project}
-          path={importTarget.path}
-          entryName={importTarget.name}
-          database={importTarget.database}
-          onStarted={(id, name) => {
+          targets={importTargets}
+          onStarted={(id, label) => {
             setError(null)
-            setImports((current) => [...current, { id, name, project }])
+            setImports((current) => [...current, { id, label, project }])
           }}
-          onClose={() => setImportTarget(null)}
+          onClose={() => setImportTargets(null)}
         />
       )}
     </aside>
