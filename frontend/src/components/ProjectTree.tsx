@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   createFileFolder,
-  deleteFileEntry,
+  deleteFileEntries,
   discardFileEdit,
   dismissRtacError,
-  moveFileEntry,
+  type EntryFailure,
+  moveFileEntries,
   openFileEntry,
+  previewRtacFolder,
   recordFileEdit,
   renameFileEntry,
   revealFileEntry,
@@ -239,43 +241,6 @@ function stageVersionFile(file: File, entryName: string): File | string {
 /** A file from a picked or dropped folder, with its folder-relative path. */
 type FolderFile = { file: File; path: string }
 
-/** Split folder files into the RTAC exports they hold. An export's root is
- *  the folder holding SEL_RTAC/ (or ExportSource.xml), so picking or
- *  dropping a PARENT of several exports brings each in as its own entry.
- *  Files come back re-rooted at their export's folder name — the first path
- *  segment is what the backend names the entry after. Without any marker
- *  the old rule stands: each top-level folder is one export. Returns the
- *  refusal message when two exports would land under one name. */
-function splitRtacExports(files: FolderFile[]): { files: FolderFile[]; names: string[] } | string {
-  const roots = new Set<string>()
-  for (const { path } of files) {
-    const parts = path.split('/')
-    const marker = parts.findIndex((part, i) => i > 0 && (i < parts.length - 1
-      ? part.toUpperCase() === 'SEL_RTAC'
-      : /^ExportSource\.xml$/i.test(part)))
-    if (marker > 0) roots.add(parts.slice(0, marker).join('/'))
-  }
-  if (!roots.size) {
-    return { files, names: [...new Set(files.map((entry) => entry.path.split('/')[0]).filter(Boolean))] }
-  }
-  // Longest first: a file belongs to the innermost export holding it.
-  const ordered = [...roots].sort((a, b) => b.length - a.length)
-  const byName = new Map<string, string>()
-  const out: FolderFile[] = []
-  for (const entry of files) {
-    const root = ordered.find((candidate) => entry.path.startsWith(`${candidate}/`))
-    if (!root) continue
-    const name = root.split('/').pop() ?? root
-    const other = byName.get(name.toLowerCase())
-    if (other !== undefined && other !== root) {
-      return `Two exports are both named ${name} (${other} and ${root}) — bring them in separately.`
-    }
-    byName.set(name.toLowerCase(), root)
-    out.push({ file: entry.file, path: `${name}${entry.path.slice(root.length)}` })
-  }
-  return { files: out, names: [...byName.values()].map((root) => root.split('/').pop() ?? root) }
-}
-
 /** Everything under dropped OS entries: folders walked into FolderFiles,
  *  top-level files kept loose. */
 async function readDropped(entries: FileSystemEntry[]): Promise<{ folders: FolderFile[]; loose: File[] }> {
@@ -305,18 +270,9 @@ async function readDropped(entries: FileSystemEntry[]): Promise<{ folders: Folde
   return { folders, loose }
 }
 
-/** Run `fn` over every path, carrying on past failures; throws one error
- *  naming each path that failed. */
-async function each(paths: string[], fn: (path: string) => Promise<unknown>) {
-  const failed: string[] = []
-  for (const path of paths) {
-    try {
-      await fn(path)
-    } catch (err) {
-      failed.push(`${displayName(path)}: ${errorMessage(err)}`)
-    }
-  }
-  if (failed.length) throw new Error(failed.join('\n'))
+/** A bulk call's failures as one error naming each path, or nothing. */
+function throwFailures(failed: EntryFailure[]) {
+  if (failed.length) throw new Error(failed.map((f) => `${displayName(f.path)}: ${f.error}`).join('\n'))
 }
 
 const parentOf = (path: string) => path.split('/').slice(0, -1).join('/')
@@ -524,16 +480,22 @@ export function ProjectTree({
     setPending({ kind: 'files', dir, files })
   }
 
-  const stageRtacFolder = (files: FolderFile[], dir: string, loose: File[] = []) => {
-    const split = splitRtacExports(files)
-    if (typeof split === 'string') {
-      setError(split)
-      return
+  // The backend decides which exports the folder holds (and refuses two
+  // with one name); the preview lets the note dialog name them up front.
+  const stageRtacFolder = async (files: FolderFile[], dir: string, loose: File[] = []) => {
+    if (!files.length && !loose.length) return
+    try {
+      const names = files.length ? await previewRtacFolder(project, files.map((entry) => entry.path)) : []
+      if (!names.length && !loose.length) {
+        setError('No RTAC export found — pick the exported project folder, or a folder of them.')
+        return
+      }
+      setError(null)
+      setNoteError(null)
+      setPending({ kind: 'rtac-folder', dir, files: names.length ? files : [], names, loose })
+    } catch (err) {
+      setError(errorMessage(err))
     }
-    if (!split.files.length && !loose.length) return
-    setError(null)
-    setNoteError(null)
-    setPending({ kind: 'rtac-folder', dir, files: split.files, names: split.names, loose })
   }
 
   const confirmNote = async (note: string) => {
@@ -642,7 +604,7 @@ export function ProjectTree({
           : `"${node.name}"`
     if (!window.confirm(`Delete ${what}?`)) return
     if (selected === node.path || selected?.startsWith(`${node.path}/`)) onSelect(null)
-    act(() => deleteFileEntry(project, node.path))
+    act(async () => throwFailures((await deleteFileEntries(project, [node.path])).failed))
   }
 
   // --- the held set -------------------------------------------------------------
@@ -695,7 +657,7 @@ export function ProjectTree({
       : names
     if (!window.confirm(`Delete these ${paths.length} entries — with their versions, and everything inside any folder?\n\n${listed.join('\n')}`)) return
     onSelect(null)
-    act(() => each(paths, (p) => deleteFileEntry(project, p)))
+    act(async () => throwFailures((await deleteFileEntries(project, paths)).failed))
   }
 
   /** The bulk menu: what a right-click on one of several held rows acts on. */
@@ -927,17 +889,15 @@ export function ProjectTree({
       // Skip what is already there, and a folder dropped into itself.
       const moving = paths.filter((p) => p !== dir && parentOf(p) !== dir && !dir.startsWith(`${p}/`))
       if (moving.length) {
-        // The held paths die with the move; the selection follows its row.
-        const moved = selected !== null && moving.includes(selected)
-          ? [dir, selected.split('/').pop()].filter(Boolean).join('/')
-          : selected
         act(async () => {
-          try {
-            await each(moving, (p) => moveFileEntry(project, p, dir))
-          } finally {
-            revealDir(dir)
-            if (moving.length > 1 || moved !== selected) onSelect(moved)
-          }
+          const { moved, failed } = await moveFileEntries(project, moving, dir)
+          revealDir(dir)
+          // The held paths die with the move; the selection follows its row
+          // (or the folder it was inside) to where the backend put it.
+          const carried = moved.find((m) => selected === m.from || selected?.startsWith(`${m.from}/`))
+          if (carried && selected !== null) onSelect(carried.to + selected.slice(carried.from.length))
+          else if (moving.length > 1) onSelect(selected)
+          throwFailures(failed)
         })
       }
       return

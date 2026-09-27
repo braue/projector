@@ -123,8 +123,15 @@ export function dismissRtacError(project: string, path: string): Promise<unknown
   return send(`${base(project)}/artifacts/rtac/status?path=${encodeURIComponent(path)}`, 'DELETE')
 }
 
-/** Upload exported RTAC XML folders into `dir` — each path's first segment
- * names the export it belongs to, so one call can carry several. Multer
+/** The entries an exported-folder upload of these paths would add — the
+ *  backend's own grouping (a PARENT of several exports is several entries),
+ *  so the note dialog can name them before any bytes move. */
+export async function previewRtacFolder(project: string, paths: string[]): Promise<string[]> {
+  return (await send<{ names: string[] }>(`${base(project)}/artifacts/rtac/upload/preview`, 'POST', { paths })).names
+}
+
+/** Upload exported RTAC XML folders into `dir`, as picked or dropped — the
+ * backend groups the paths into exports (see previewRtacFolder). Multer
  * basenames filenames, so the paths ride in a parallel field, index-aligned. */
 export function uploadRtacFolder(
   project: string,
@@ -212,12 +219,29 @@ export function renameFileEntry(project: string, path: string, name: string): Pr
   return send(`${base(project)}/files/entry`, 'PATCH', { path, name })
 }
 
-export function moveFileEntry(project: string, path: string, to: string): Promise<unknown> {
-  return send(`${base(project)}/files/move`, 'POST', { path, to })
+/** A path a bulk call could not handle, and why. */
+export interface EntryFailure {
+  path: string
+  error: string
 }
 
-export function deleteFileEntry(project: string, path: string): Promise<unknown> {
-  return send(`${base(project)}/files/entry?path=${encodeURIComponent(path)}`, 'DELETE')
+/** Move entries into `to` ('' = root) as one operation; each carries on past
+ *  a failing path. `moved` gives every new path. */
+export function moveFileEntries(
+  project: string,
+  paths: string[],
+  to: string,
+): Promise<{ moved: { from: string; to: string }[]; failed: EntryFailure[] }> {
+  return send(`${base(project)}/files/move`, 'POST', { paths, to })
+}
+
+/** Delete entries (with their versions) as one operation; each carries on
+ *  past a failing path. */
+export function deleteFileEntries(
+  project: string,
+  paths: string[],
+): Promise<{ removed: string[]; failed: EntryFailure[] }> {
+  return send(`${base(project)}/files/remove`, 'POST', { paths })
 }
 
 /** Open the file with the OS default app (the backend runs on this machine). */

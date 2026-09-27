@@ -30,7 +30,7 @@ import json
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from acrtac_common import cli_name, run_session, wait_on
+from acrtac_common import run_session, wait_on
 
 import sel_web
 
@@ -134,10 +134,8 @@ def stage_upload(cli, rtacs, results):
     for i, (r, res) in enumerate(zip(rtacs, results), 1):
         say(f"… [{i}/{len(rtacs)}] {r['project']} → {r['networkIp']}")
         try:
-            # cli_name: selacrtac passes some project names to AcRtacCmd
-            # unquoted (see acrtac_common); pre-quoting is harmless where it
-            # quotes them itself.
-            sent = cli.upload(cli_name(r["project"]), r["networkIp"], RTAC_USER,
+            # the Session quotes the project name (see acrtac_common.Session)
+            sent = cli.upload(r["project"], r["networkIp"], RTAC_USER,
                               password=RTAC_PASSWORD)
             wait_on(sent)
             if sent is False:

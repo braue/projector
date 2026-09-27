@@ -53,6 +53,33 @@ test('files: upload, folders, rename, move, delete round-trip', async () => {
   }
 });
 
+test('bulk move and delete: one operation, new paths back, failures listed', async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-bulk-'));
+  try {
+    const files = new FilesService({ dataDir: tmp });
+    await files.init();
+    await files.createFolder('', 'In');
+    await files.createFolder('', 'Out');
+    await files.createFolder('In', 'Sub');
+    for (const name of ['a.txt', 'b.txt']) await files.upload('In', [asUpload(name, 'x')], 'first');
+    await files.upload('In/Sub', [asUpload('a.txt', 'y')], 'first');
+
+    // Two named a.txt would land on each other: refused before anything moves.
+    await assert.rejects(() => files.moveEntries(['In/a.txt', 'In/Sub/a.txt'], 'Out'), /two entries named a\.txt/);
+
+    const moved = await files.moveEntries(['In/a.txt', 'In/Sub', 'In/nope.txt'], 'Out');
+    assert.deepEqual(moved.moved, [{ from: 'In/a.txt', to: 'Out/a.txt' }, { from: 'In/Sub', to: 'Out/Sub' }]);
+    assert.equal(moved.failed.length, 1);
+    assert.match(moved.failed[0].error, /no such entry/);
+
+    const removed = await files.removeEntries(['Out/Sub', 'gone.txt', 'In/b.txt']);
+    assert.deepEqual(removed.removed, ['Out/Sub', 'In/b.txt']);
+    assert.deepEqual(removed.failed.map((f) => f.path), ['gone.txt']);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test('files: a rename keeps the file\'s extension', async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-files-'));
   try {

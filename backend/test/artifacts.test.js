@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
+import { groupRtacExports } from '../lib/artifacts.js';
 import { asUpload, makeBundle } from './helpers/bundle.js';
 import { makeRdb } from './helpers/makeRdb.js';
 import { MINI_SCL } from './helpers/miniScl.js';
@@ -130,6 +131,20 @@ test('rtac folder upload lands as <name>.rtac, versions on re-upload, parses laz
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
+});
+
+test('rtac folder grouping: exports found by their marker, one definition for preview and upload', () => {
+  const group = (paths) => groupRtacExports(paths).map(({ name, members }) => [name, members.map((m) => m.rest.join('/'))]);
+  // A parent of two exports: each export is rooted at the folder holding SEL_RTAC/.
+  assert.deepEqual(group([
+    'Station/A/SEL_RTAC/Devices.xml', 'Station/A/ExportSource.xml',
+    'Station/B/SEL_RTAC/Devices.xml', 'Station/readme.txt',
+  ]), [['A', ['SEL_RTAC/Devices.xml', 'ExportSource.xml']], ['B', ['SEL_RTAC/Devices.xml']]]);
+  // No marker anywhere: each top-level folder is one export; non-xml ignored.
+  assert.deepEqual(group(['X/a.xml', 'Y/b.xml', 'Y/c.txt', 'loose.xml']), [['X', ['a.xml']], ['Y', ['b.xml']]]);
+  // Two exports sharing a name would land on one entry.
+  assert.throws(() => groupRtacExports(['p/A/SEL_RTAC/d.xml', 'q/A/SEL_RTAC/d.xml']),
+    (err) => err.status === 400 && /both named A/.test(err.message));
 });
 
 test('concurrent reads of one artifact share a single parse', async () => {

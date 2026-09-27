@@ -25,6 +25,7 @@ _fake.AcRTAC = None  # set per test
 sys.modules.setdefault("selacrtac", types.ModuleType("selacrtac"))
 sys.modules["selacrtac.acrtac"] = _fake
 
+import acrtac_common  # noqa: E402
 import sel_web  # noqa: E402
 import rtac_vlan_deploy as deploy  # noqa: E402
 
@@ -182,7 +183,8 @@ class Deploy(unittest.TestCase):
         sel_web.SelWeb._request = self._orig
 
     def run_deploy(self):
-        return deploy.deploy(FakeAcRTAC(), *deploy.validate(self.request))
+        # through the Session, as run_session hands it to the bridge
+        return deploy.deploy(acrtac_common.Session(FakeAcRTAC()), *deploy.validate(self.request))
 
     def test_full_run(self):
         out = self.run_deploy()
@@ -193,7 +195,7 @@ class Deploy(unittest.TestCase):
         self.assertEqual(out["vlan"]["after"], "3-4")
         self.assertEqual(json.loads(json.dumps(out))["vlan"]["moved"], {"1": "3-4"})  # as the bridge prints it
         self.assertEqual(self.devices["10.42.44.12"].rows[1][3]["value"], "1-2,5,19-24")
-        # spaced names go to selacrtac quoted (cli_name), as for exportexp
+        # spaced names reach selacrtac quoted, by the Session
         self.assertEqual(FakeAcRTAC.last.uploads, [
             ('"Station A"', "10.42.44.34", "SEL", "SEL"), ('"Station B"', "10.42.44.35", "SEL", "SEL")])
         self.assertTrue(all(r["upload"]["ok"] for r in out["rtacs"]))
@@ -266,6 +268,23 @@ class Validate(unittest.TestCase):
         form["rtacs"].append({**form["rtacs"][0], "networkIp": "10.42.44.35", "port": "4"})
         with self.assertRaisesRegex(ValueError, "same VLAN IP is used twice: 172.16.100.200"):
             deploy.validate(form)
+
+
+class SessionQuoting(unittest.TestCase):
+    def test_quotes_only_the_commands_that_need_it(self):
+        calls = []
+        cli = types.SimpleNamespace(
+            exportexp=lambda **kw: calls.append(("exportexp", kw["name"])),
+            upload=lambda project, *a, **kw: calls.append(("upload", project)),
+            exportxml=lambda **kw: calls.append(("exportxml", kw["name"])),
+        )
+        session = acrtac_common.Session(cli)
+        session.exportexp(name="Cloud HQ", file="x.exp")
+        session.upload("Cloud HQ", "10.0.0.1", "SEL", password="SEL")
+        session.exportxml(name="Cloud HQ", directory="d")   # quotes itself: untouched
+        session.upload("NoSpaces", "10.0.0.1", "SEL")
+        self.assertEqual(calls, [("exportexp", '"Cloud HQ"'), ("upload", '"Cloud HQ"'),
+                                 ("exportxml", "Cloud HQ"), ("upload", "NoSpaces")])
 
 
 if __name__ == "__main__":

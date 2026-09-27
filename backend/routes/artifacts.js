@@ -101,6 +101,14 @@ function artifactRoutes(resolve, catalog) {
     res.json({ ok: true });
   });
 
+  // What an exported-folder upload would add, from its paths alone (no
+  // bytes): the tree's note dialog names the entries before sending.
+  router.post('/rtac/upload/preview', async (req, res) => {
+    const { paths } = req.body ?? {};
+    if (!Array.isArray(paths)) throw httpError(400, 'field "paths" must list folder-relative paths');
+    res.json((await resolve(req)).previewFolder(paths));
+  });
+
   // The no-database path: an exported folder uploaded from disk. Multer
   // basenames filenames, so the folder-relative paths travel in a parallel
   // JSON field, index-aligned with the files. "dir" and "note" ride the

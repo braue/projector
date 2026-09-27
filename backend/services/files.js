@@ -93,6 +93,21 @@ function assertMutable(relPath) {
   }
 }
 
+/** Run `fn` over each path in order, carrying on past failures:
+ *  { done: [fn results], failed: [{ path, error }] }. */
+async function eachPath(paths, fn) {
+  const done = [];
+  const failed = [];
+  for (const p of paths) {
+    try {
+      done.push(await fn(p));
+    } catch (err) {
+      failed.push({ path: p, error: err?.message ?? String(err) });
+    }
+  }
+  return { done, failed };
+}
+
 class FilesService {
   // Mutations serialize through one chain: sidecar updates are whole-file
   // read-modify-writes, and two in flight would silently drop one side.
@@ -532,39 +547,63 @@ class FilesService {
     });
   }
 
-  // Move a file or folder into another folder ('' = root).
+  // Move a file or folder into another folder ('' = root); resolves to its
+  // new path.
   moveEntry(relPath, toDir) {
+    return this.#serialized(() => this.#moveOne(relPath, toDir));
+  }
+
+  /**
+   * Move several entries into one folder as a single operation. Two sharing
+   * a name are refused before anything moves (they would land on each
+   * other); otherwise each moves on its own, carrying on past any that fail.
+   * Resolves to { moved: [{ from, to }], failed: [{ path, error }] } — the
+   * new paths, so a caller never has to rebuild them.
+   */
+  moveEntries(relPaths, toDir) {
     return this.#serialized(async () => {
-      assertMutable(relPath);
-      assertMutable(toDir);
-      const from = this.#resolve(relPath);
-      if (from === this.root) throw httpError(400, 'cannot move the root');
-      const info = await statOrNull(from);
-      if (!info) throw httpError(404, `no such entry: ${relPath}`);
-      const target = this.#resolve(toDir);
-      if (!(await statOrNull(target))?.isDirectory()) {
-        throw httpError(404, `no such folder: ${toDir || '/'}`);
+      const names = relPaths.map((p) => path.posix.basename(String(p)).toLowerCase());
+      const clash = names.findIndex((name, i) => names.indexOf(name) !== i);
+      if (clash !== -1) {
+        throw httpError(409, `two entries named ${path.posix.basename(String(relPaths[clash]))} can't move into one folder`);
       }
-      // A folder cannot move into itself or a descendant.
-      if (target === from || target.startsWith(from + path.sep)) {
-        throw httpError(400, 'cannot move a folder into itself');
-      }
-      const name = path.basename(from);
-      const to = path.join(target, name);
-      if (to === from) return;
-      if (await statOrNull(to)) {
-        throw httpError(409, `already exists there: ${name}`);
-      }
-      await rename(from, to);
-      // A plain folder carries its own sidecar and archive inside it; any
-      // OTHER entry's record and archived versions live in the directory it
-      // left, so they move with it. (Artifact directories look like leaves
-      // to the UI but are still directories — their versions ride the
-      // record like a file's.)
-      await this.#moveRecord(path.dirname(from), target, name);
-      await this.#moveCommitted(path.dirname(from), name, target, name);
-      this.#changed(relPath);
+      const { done, failed } = await eachPath(relPaths, async (p) => ({ from: p, to: await this.#moveOne(p, toDir) }));
+      return { moved: done, failed };
     });
+  }
+
+  async #moveOne(relPath, toDir) {
+    assertMutable(relPath);
+    assertMutable(toDir);
+    const from = this.#resolve(relPath);
+    if (from === this.root) throw httpError(400, 'cannot move the root');
+    const info = await statOrNull(from);
+    if (!info) throw httpError(404, `no such entry: ${relPath}`);
+    const target = this.#resolve(toDir);
+    if (!(await statOrNull(target))?.isDirectory()) {
+      throw httpError(404, `no such folder: ${toDir || '/'}`);
+    }
+    // A folder cannot move into itself or a descendant.
+    if (target === from || target.startsWith(from + path.sep)) {
+      throw httpError(400, 'cannot move a folder into itself');
+    }
+    const name = path.basename(from);
+    const to = path.join(target, name);
+    const moved = toDir ? `${toDir}/${name}` : name;
+    if (to === from) return moved;
+    if (await statOrNull(to)) {
+      throw httpError(409, `already exists there: ${name}`);
+    }
+    await rename(from, to);
+    // A plain folder carries its own sidecar and archive inside it; any
+    // OTHER entry's record and archived versions live in the directory it
+    // left, so they move with it. (Artifact directories look like leaves
+    // to the UI but are still directories — their versions ride the
+    // record like a file's.)
+    await this.#moveRecord(path.dirname(from), target, name);
+    await this.#moveCommitted(path.dirname(from), name, target, name);
+    this.#changed(relPath);
+    return moved;
   }
 
   /** Carry one entry's committed copy between directories/names (no-op when
@@ -605,28 +644,42 @@ class FilesService {
   }
 
   removeEntry(relPath) {
+    return this.#serialized(() => this.#removeOne(relPath));
+  }
+
+  /** Delete several entries as one operation, carrying on past any that
+   *  fail: { removed: [path], failed: [{ path, error }] }. */
+  removeEntries(relPaths) {
     return this.#serialized(async () => {
-      assertMutable(relPath);
-      const absolute = this.#resolve(relPath);
-      if (absolute === this.root) throw httpError(400, 'cannot delete the root');
-      const info = await statOrNull(absolute);
-      if (!info) throw httpError(404, `no such entry: ${relPath}`);
-      await rm(absolute, { recursive: true, force: true });
-      // Deleting an entry deletes its history with it — the versions were
-      // versions OF the thing just removed.
-      const dir = path.dirname(absolute);
-      const records = await this.#loadRecords(dir, { forWrite: true });
-      const record = records[path.basename(absolute)];
-      if (record) {
-        for (const entry of record.history ?? []) {
-          await rm(path.join(dir, ARCHIVE_DIR, entry.storedName), { recursive: true, force: true });
-        }
-        delete records[path.basename(absolute)];
-        await this.#saveRecords(dir, records);
-      }
-      await rm(path.join(dir, COMMITTED_DIR, path.basename(absolute)), { force: true }).catch(() => {});
-      this.#changed(relPath);
+      const { done, failed } = await eachPath(relPaths, async (p) => {
+        await this.#removeOne(p);
+        return p;
+      });
+      return { removed: done, failed };
     });
+  }
+
+  async #removeOne(relPath) {
+    assertMutable(relPath);
+    const absolute = this.#resolve(relPath);
+    if (absolute === this.root) throw httpError(400, 'cannot delete the root');
+    const info = await statOrNull(absolute);
+    if (!info) throw httpError(404, `no such entry: ${relPath}`);
+    await rm(absolute, { recursive: true, force: true });
+    // Deleting an entry deletes its history with it — the versions were
+    // versions OF the thing just removed.
+    const dir = path.dirname(absolute);
+    const records = await this.#loadRecords(dir, { forWrite: true });
+    const record = records[path.basename(absolute)];
+    if (record) {
+      for (const entry of record.history ?? []) {
+        await rm(path.join(dir, ARCHIVE_DIR, entry.storedName), { recursive: true, force: true });
+      }
+      delete records[path.basename(absolute)];
+      await this.#saveRecords(dir, records);
+    }
+    await rm(path.join(dir, COMMITTED_DIR, path.basename(absolute)), { force: true }).catch(() => {});
+    this.#changed(relPath);
   }
 
   // --- content ---------------------------------------------------------------

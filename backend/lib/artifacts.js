@@ -361,6 +361,48 @@ class RtacKind extends ArtifactKind {
 
 // --- the service -------------------------------------------------------------
 
+/**
+ * Group an exported-folder upload's paths into the RTAC exports they hold —
+ * the one definition of "an export", used by uploadFolder and by the tree's
+ * preview (previewFolder) so the note dialog names what will land. An
+ * export's root is the folder holding SEL_RTAC/ (or ExportSource.xml), so a
+ * PARENT of several exports brings each in as its own entry, named after its
+ * root folder; with no marker anywhere, each top-level folder is one export.
+ * Only .xml files count. Returns [{ name, members: [{ index, rest }] }]
+ * (`index` into `paths`, `rest` the segments inside the export). Two exports
+ * with one name would land on one entry — a 400.
+ */
+function groupRtacExports(paths) {
+  const split = paths.map((p) => String(p).split(/[\\/]/)
+    .filter((segment) => segment && segment !== '.' && segment !== '..'));
+  const roots = new Set();
+  for (const parts of split) {
+    const marker = parts.findIndex((part, i) => i > 0 && (i < parts.length - 1
+      ? part.toUpperCase() === 'SEL_RTAC'
+      : /^ExportSource\.xml$/i.test(part)));
+    if (marker > 0) roots.add(parts.slice(0, marker).join('/'));
+  }
+  // Longest first: a file belongs to the innermost export holding it.
+  const ordered = [...roots].sort((a, b) => b.length - a.length);
+  const groups = new Map();
+  split.forEach((parts, index) => {
+    if (parts.length < 2 || !EXPORTABLE.test(parts[parts.length - 1])) return;
+    const root = ordered.length
+      ? ordered.find((candidate) => parts.join('/').startsWith(`${candidate}/`))
+      : parts[0];
+    if (!root) return;
+    const rootDepth = root.split('/').length;
+    const name = parts[rootDepth - 1];
+    const group = groups.get(name.toLowerCase());
+    if (group && group.root !== root) {
+      throw httpError(400, `two exports are both named ${name} (${group.root} and ${root}) — bring them in separately`);
+    }
+    if (!group) groups.set(name.toLowerCase(), { name, root, members: [] });
+    groups.get(name.toLowerCase()).members.push({ index, rest: parts.slice(rootDepth) });
+  });
+  return [...groups.values()].map(({ name, members }) => ({ name, members }));
+}
+
 class ArtifactsService {
   // treePath -> { key, weight, model, ... } — the bounded model cache. Order
   // is LRU: Map iteration is insertion order, and every hit re-inserts.
@@ -627,6 +669,12 @@ class ArtifactsService {
     return { path: treePath, status: 'exporting' };
   }
 
+  /** What an exported-folder upload of these paths would add: the entry
+   *  names, grouped exactly as uploadFolder will group them. */
+  previewFolder(paths) {
+    return { names: groupRtacExports(paths).map(({ name }) => name.replace(INVALID_NAME, '_')) };
+  }
+
   /**
    * An exported folder uploaded straight from disk — the no-database path.
    * Files arrive with folder-relative paths ("Export1/SEL_RTAC/Devices.xml");
@@ -637,16 +685,10 @@ class ArtifactsService {
    */
   async uploadFolder(dirPath, files, note) {
     const trimmedNote = requireNote(note);
-    const groups = new Map();
-    for (const file of files) {
-      const segments = String(file.path)
-        .split(/[\\/]/)
-        .filter((segment) => segment && segment !== '.' && segment !== '..');
-      if (segments.length < 2 || !EXPORTABLE.test(segments[segments.length - 1])) continue;
-      const [name, ...rest] = segments;
-      if (!groups.has(name)) groups.set(name, []);
-      groups.get(name).push({ rest, buffer: file.buffer ?? null, source: file.source ?? null });
-    }
+    const groups = new Map(groupRtacExports(files.map((file) => file.path)).map(({ name, members }) => [
+      name,
+      members.map(({ index, rest }) => ({ rest, buffer: files[index].buffer ?? null, source: files[index].source ?? null })),
+    ]));
     if (!groups.size) {
       throw httpError(400, 'no .xml files found — upload the exported RTAC project folder itself');
     }
@@ -670,4 +712,4 @@ class ArtifactsService {
   }
 }
 
-export { ArtifactKind, ArtifactsService, splitArtifactRef };
+export { ArtifactKind, ArtifactsService, groupRtacExports, splitArtifactRef };

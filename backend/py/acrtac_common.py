@@ -29,10 +29,11 @@ def cli_name(name):
     without it, while a name with no spaces passes either way. `clean=True`
     does not help -- it leaves the name untouched.
 
-    EXPORTEXP ONLY. exportxml builds `--name "<name>" "<directory>"` and
-    quotes both itself, so it handles spaced names as they come and needs
-    nothing from here (verified on the same project, same session: it passes
-    either way, and a pre-quoted name reaches it as the same command string).
+    Applied by `Session` (below), not by callers. exportxml builds
+    `--name "<name>" "<directory>"` and quotes both itself, so it handles
+    spaced names as they come and needs nothing from here (verified on the
+    same project, same session: it passes either way, and a pre-quoted name
+    reaches it as the same command string).
 
     Names that already carry a double quote are left alone: there is no
     correct wrapping for them, and none has ever been seen in a database.
@@ -41,6 +42,31 @@ def cli_name(name):
     if " " not in text or '"' in text:
         return text
     return f'"{text}"'
+
+
+class Session:
+    """The AcRTAC client every bridge handler gets from run_session: the
+    real client, with project names quoted (cli_name) for the commands that
+    hand them to AcRtacCmd bare. A command that turns out to need it is added
+    HERE, once, never at a call site.
+
+      exportexp  confirmed on AcRTAC 2026-09 (see cli_name)
+      upload     not yet seen with a spaced name; quoted on the exportxml
+                 evidence that a pre-quoted name is harmless where the
+                 library quotes it itself
+    """
+
+    def __init__(self, cli):
+        self._cli = cli
+
+    def __getattr__(self, name):
+        return getattr(self._cli, name)
+
+    def exportexp(self, *args, name, **kwargs):
+        return self._cli.exportexp(*args, name=cli_name(name), **kwargs)
+
+    def upload(self, project, *args, **kwargs):
+        return self._cli.upload(cli_name(project), *args, **kwargs)
 
 
 def wait_on(job):
@@ -81,5 +107,5 @@ def run_session(handler):
         # escapes it is talking to a process that no longer exists.
         with AcRTAC() as cli:
             login(cli)
-            return handler(cli)
+            return handler(Session(cli))
     bridge_main(run)

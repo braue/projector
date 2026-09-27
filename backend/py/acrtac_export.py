@@ -16,7 +16,7 @@ import os
 import sys
 from pathlib import Path
 
-from acrtac_common import cli_name, run_session, wait_on
+from acrtac_common import run_session, wait_on
 
 
 def cmd_list(cli, _request):
@@ -40,9 +40,8 @@ def cmd_export(cli, request):
                 output = outdir.name
             else:
                 out = root / f"{name}.exp"
-                # cli_name, not name: selacrtac passes the project name to
-                # AcRtacCmd unquoted, so a name with spaces is a syntax error.
-                wait_on(cli.exportexp(name=cli_name(name), file=os.fspath(out),
+                # the Session quotes the name (selacrtac passes it bare)
+                wait_on(cli.exportexp(name=name, file=os.fspath(out),
                                       clean=False, verbose=False))
                 output = out.name
             results.append({"project": name, "success": True, "output": output})

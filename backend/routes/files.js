@@ -15,6 +15,14 @@ import { searchPdf, warmPdf } from '../services/pdfText.js';
 
 const MAX_UPLOAD_BYTES = 256 * 1024 * 1024;
 
+/** A body's `paths`: a non-empty list of tree paths. */
+function pathList(paths) {
+  if (!Array.isArray(paths) || !paths.length || paths.some((p) => typeof p !== 'string' || !p)) {
+    throw httpError(400, 'field "paths" must list one or more entry paths');
+  }
+  return paths;
+}
+
 function fileRoutes(resolve) {
   const router = Router({ mergeParams: true });
   // Disk storage, not memory: this backend shares the Electron main process,
@@ -59,14 +67,15 @@ function fileRoutes(resolve) {
     res.json({ ok: true });
   });
 
+  // Move / delete several entries as ONE operation. Each carries on past a
+  // failing path and reports it: { moved: [{ from, to }] | removed: [path],
+  // failed: [{ path, error }] }.
   router.post('/move', async (req, res) => {
-    await (await resolve(req)).files.moveEntry(req.body?.path, req.body?.to ?? '');
-    res.json({ ok: true });
+    res.json(await (await resolve(req)).files.moveEntries(pathList(req.body?.paths), String(req.body?.to ?? '')));
   });
 
-  router.delete('/entry', async (req, res) => {
-    await (await resolve(req)).files.removeEntry(requireQuery(req, 'path'));
-    res.json({ ok: true });
+  router.post('/remove', async (req, res) => {
+    res.json(await (await resolve(req)).files.removeEntries(pathList(req.body?.paths)));
   });
 
   // The built-in text editor's read/save pair. Saving in place is not a new

@@ -55,8 +55,26 @@ function bridgeMessage(err, stderr, explain = {}, timeoutMs = BRIDGE_TIMEOUT_MS)
   return lines[lines.length - 1]?.trim() || err.message || 'Python bridge failed with no error output';
 }
 
+// One AcRTAC session at a time, machine-wide. Every AcRTAC bridge starts its
+// own AcRtacCmd process against the one local database; two at once race each
+// other (an export mid-flight while an import or upload opens projects), so
+// bridge calls queue here rather than each feature inventing its own
+// batching. A call's timeout starts when its session does, not while it
+// waits. Held until the call settles — for acrtac_open, when the bridge
+// exits, leaving the GUI it launched behind.
+let acrtacTail = Promise.resolve();
+let acrtacQueued = 0;
+
+function inAcrtacQueue(onWait, fn) {
+  if (acrtacQueued > 0) onWait?.('Waiting for another AcRTAC session to finish…');
+  acrtacQueued += 1;
+  const run = acrtacTail.then(fn);
+  acrtacTail = run.then(() => {}, () => {}).finally(() => { acrtacQueued -= 1; });
+  return run;
+}
+
 function runBridge(args) {
-  return new Promise((resolve, reject) => {
+  return inAcrtacQueue(null, () => new Promise((resolve, reject) => {
     execFile(
       PYTHON,
       [BRIDGE, ...args],
@@ -75,7 +93,7 @@ function runBridge(args) {
         }
       },
     );
-  });
+  }));
 }
 
 /** Resolve a bridge script path, handling the asar-unpacked copy. */
@@ -95,6 +113,10 @@ function bridgePath(scriptName) {
  * `timeoutMs`: kill the bridge after this long (default 30 minutes) — for a
  * bridge whose work scales with its request, like a run of device uploads.
  *
+ * `acrtac` (default true): the bridge opens an AcRTAC session, so it waits
+ * its turn in the machine-wide queue (see inAcrtacQueue) and says so in the
+ * log while it does. Pass false for a bridge that never touches AcRTAC.
+ *
  * `settleOnExit`: for a bridge that deliberately leaves a GRANDCHILD running
  * (acrtac_open.py's GUI). The grandchild inherits the stdio pipes and holds
  * them open, so 'close' — which waits for every piped fd — never fires;
@@ -102,8 +124,13 @@ function bridgePath(scriptName) {
  * drain, then the call settles on what arrived.
  */
 function runStdinBridge(script, request, {
-  onStderrLine, explain, settleOnExit = false, timeoutMs = BRIDGE_TIMEOUT_MS,
+  onStderrLine, explain, settleOnExit = false, timeoutMs = BRIDGE_TIMEOUT_MS, acrtac = true,
 } = {}) {
+  const run = () => spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
+  return acrtac ? inAcrtacQueue(onStderrLine, run) : run();
+}
+
+function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs }) {
   return new Promise((resolve, reject) => {
     const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
     let stdout = '';
