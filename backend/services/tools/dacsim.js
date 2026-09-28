@@ -187,7 +187,7 @@ class DacsimService {
     const job = this.jobs.start(`DAC SIM generate: ${staged.length} scheme(s)`, async (handle) => {
       handle.log(`Converting ${staged.length} scheme(s)…`);
       const result = await runStdinBridge(CONVERT_SCRIPT, { root: dir }, {
-        onStderrLine: handle.log,
+        job: handle,
         explain: EXPLAIN,
         acrtac: false, // the converter is selacrtac-free; don't queue behind uploads
       });

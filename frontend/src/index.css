@@ -324,11 +324,28 @@ button.ui-section-header:hover { color: var(--ink); }
 .vlandeploy-grid {
   align-self: stretch;
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) minmax(140px, 1.2fr) minmax(60px, 0.5fr) minmax(160px, 2fr) auto;
+  grid-template-columns: minmax(110px, 1fr) minmax(150px, 1.1fr) minmax(130px, 1fr) minmax(160px, 2fr) auto;
   gap: 8px 10px;
   align-items: center;
 }
-.vlandeploy-grid .ui-input, .vlandeploy-grid .ui-select { width: 100%; min-width: 0; max-width: none; }
+.vlandeploy-grid .ui-input, .vlandeploy-grid .ui-select,
+.vlandeploy-devices .ui-input { width: 100%; min-width: 0; max-width: none; }
+/* The bench device table page: identifier, network IP, port, remove. */
+.vlandeploy-devices {
+  align-self: stretch; max-width: 640px;
+  display: grid; grid-template-columns: minmax(100px, 1fr) minmax(130px, 1.2fr) minmax(60px, 0.5fr) auto;
+  gap: 8px 10px; align-items: center;
+}
+.vlandeploy-head { align-self: stretch; align-items: center; justify-content: space-between; }
+.vlandeploy-head .ui-section-header { flex: 1; }
+.vlandeploy-check { display: flex; align-items: center; gap: 6px; height: 28px; font-size: 13px; cursor: pointer; }
+/* Project cell: a field-shaped button that opens the database picker. */
+.vlandeploy-project {
+  height: 28px; min-width: 0; padding: 0 10px; text-align: left; font: inherit; font-size: 13px;
+  color: var(--ink); background: var(--card); border: 1px solid var(--border); border-radius: 7px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
+}
+.vlandeploy-project:hover { border-color: var(--ink); }
 .vlandeploy-results {
   align-self: stretch;
   display: grid;
@@ -536,6 +553,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .modal-list { flex: 1; min-height: 120px; overflow-y: auto; padding: 6px 0; }
 .modal-row { display: flex; align-items: center; gap: 9px; padding: 6px 14px; cursor: pointer; }
 .modal-row:hover { background: var(--fill); }
+
 .modal-name { min-width: 0; overflow-wrap: anywhere; }
 .modal-badge {
   margin-left: auto; flex: none; font-size: 10.5px; font-weight: 600;
@@ -1333,10 +1351,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .acrtac-import-row .ui-input { flex: 1; min-width: 0; }
 
 /* In-flight / failed AcRTAC downloads overlaid at the top of the tree. */
-.export-row { color: var(--ghost-soft); cursor: default; }
-.export-row.export-error { color: var(--bad-ink); background: var(--bad-tint); }
-.export-row .entry-delete { opacity: 1; }
-.export-row .row-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
 
 /* Inspect column: a slim identity/controls bar over the flexing panes. */
 /* position: relative — the find bar (Ctrl+F) floats in this pane's corner. */
@@ -1353,3 +1367,84 @@ button.ui-section-header:hover { color: var(--ink); }
 
 .compare-actions { display: flex; gap: 6px; margin-top: 6px; }
 .file-note { color: var(--muted); font-style: italic; }
+
+/* Tasks: every background job, in the bottom-right corner. The button only
+   exists once there is work to show; the list opens above it. */
+.tasks { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.tasks-button {
+  display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px;
+  font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink);
+  background: var(--card); border: 1px solid var(--border); border-radius: 15px;
+  box-shadow: var(--shadow-modal); cursor: pointer;
+}
+.tasks-button:hover { border-color: var(--ink); }
+.tasks-button.bad { color: var(--bad-ink); border-color: var(--bad); background: var(--bad-tint); }
+.tasks-popover {
+  width: 380px; max-height: min(60vh, 520px); display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow-modal); font-size: 13px; overflow: hidden;
+}
+.tasks-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 8px; border-bottom: 1px solid var(--border-soft); }
+.tasks-head .t { font-weight: 650; font-size: 13.5px; }
+.tasks-link { border: 0; background: none; padding: 0; font: inherit; font-size: 12px; color: var(--muted); cursor: pointer; }
+.tasks-link:hover { color: var(--ink); text-decoration: underline; }
+.tasks-list { list-style: none; margin: 0; padding: 4px 0; overflow-y: auto; }
+.tasks-item { position: relative; border-bottom: 1px solid var(--border-soft); }
+.tasks-item:last-child { border-bottom: 0; }
+.tasks-row {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 56px 8px 14px;
+  border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.tasks-row:hover { background: var(--fill); }
+.tasks-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tasks-label { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tasks-detail { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tasks-error .tasks-detail { color: var(--bad-ink); }
+.tasks-time { flex: none; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tasks-mark { width: 11px; flex: none; text-align: center; font-size: 12px; font-weight: 700; }
+.tasks-mark.ok { color: var(--ok); }
+.tasks-mark.bad { color: var(--bad); }
+.tasks-mark.wait { color: var(--warn); }
+.tasks-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; }
+.tasks-actions button {
+  width: 22px; height: 22px; border: 0; border-radius: 5px;
+  background: none; color: var(--muted); font-size: 13px; cursor: pointer;
+}
+.tasks-actions button:hover { background: var(--fill); color: var(--ink); }
+.tasks-log {
+  margin: 0 14px 10px 35px; padding: 6px 8px; max-height: 220px; overflow-y: auto;
+  background: var(--fill); border-radius: 6px;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.45; color: var(--ink-soft);
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.tasks-empty { color: var(--muted); }
+
+/* The backend restarting (or gone): a thin bar over the top of the window
+   until the event stream is back. */
+.reconnect-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 70; padding: 5px 16px;
+  background: var(--warn-tint); border-bottom: 1px solid var(--warn-line); color: var(--warn-ink);
+  font-size: 12.5px; text-align: center;
+}
+
+/* The AcRTAC project list (AcrtacProjectList) — inside a modal it fills the
+   card; inline (RTAC Exporter) it is a bounded box in the tool column. */
+.acrtac-list { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.acrtac-list-bar { display: flex; gap: 8px; align-items: center; padding: 10px 14px 6px; }
+.acrtac-list-bar .ui-input { flex: 1; width: auto; min-width: 0; }
+.acrtac-list-error { margin: 4px 14px; padding: 8px 11px; border-radius: 8px; background: var(--bad-tint); color: var(--bad-ink); font-size: 12.5px; }
+.acrtac-list-rows { flex: 1; min-height: 120px; overflow-y: auto; padding: 4px 0 8px; }
+.acrtac-list-row {
+  width: 100%; display: flex; align-items: center; gap: 9px; padding: 6px 14px; cursor: pointer;
+  border: 0; background: none; font: inherit; font-size: 13px; color: inherit; text-align: left;
+}
+.acrtac-list-row:hover { background: var(--fill); }
+.acrtac-list-row.is-current { background: var(--fill); font-weight: 600; }
+.acrtac-list-name { min-width: 0; overflow-wrap: anywhere; }
+.acrtac-list-row .modal-badge { margin-left: auto; }
+.acrtac-list-empty { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 24px 14px; color: var(--muted); }
+.tool-scroll > .acrtac-list {
+  align-self: stretch; flex: none; max-height: 360px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--card);
+}
+.tasks-button { box-shadow: 0 2px 10px rgba(15, 18, 26, 0.12); }

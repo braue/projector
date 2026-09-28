@@ -11,8 +11,7 @@ import type {
   ProjectTree,
   QuicksetExtract,
   QuicksetInventory,
-  RtacAvailableList,
-  RtacExportStatus,
+  AcrtacProjectList,
   SearchResults,
   SwsetGenerateResult,
   SwsetModel,
@@ -87,22 +86,12 @@ export function renameProject(name: string, nextName: string): Promise<{ name: s
   return send(`/api/projects/${encodeURIComponent(name)}`, 'PATCH', { name: nextName })
 }
 
-// --- RTAC intake (the machine-global catalog, exported into the tree) ----------
-
-/** The machine-global AcRTAC catalog (the database browser's list). */
-export function fetchRtacAvailable(project: string): Promise<RtacAvailableList> {
-  return get(`${base(project)}/artifacts/rtac/available`)
-}
-
-/** Re-query the database list, then return the catalog. */
-export function refreshRtacAvailable(project: string): Promise<RtacAvailableList> {
-  return send(`${base(project)}/artifacts/rtac/refresh`, 'POST')
-}
+// --- RTAC intake (downloads from AcRTAC, exported-folder uploads) ------------
 
 /** Download a database project into `dir` as <name>.rtac — a NEW VERSION when
  * that entry already exists there. `into` targets an existing .rtac entry by
- * name instead (versioning a renamed export). Completion is polled via the
- * status list. */
+ * name instead (versioning a renamed export). It runs as a job (the tasks
+ * popover shows it); the entry appears in the tree once it lands. */
 export async function startRtacExport(
   project: string,
   dir: string,
@@ -111,16 +100,6 @@ export async function startRtacExport(
   into?: string,
 ): Promise<void> {
   await send(`${base(project)}/artifacts/rtac/export`, 'POST', { dir, name, note, into })
-}
-
-/** In-flight and failed exports, overlaid on the tree while they run. */
-export async function fetchRtacStatus(project: string): Promise<RtacExportStatus[]> {
-  return (await get<{ exports: RtacExportStatus[] }>(`${base(project)}/artifacts/rtac/status`)).exports
-}
-
-/** Dismiss one failed export from the overlay. */
-export function dismissRtacError(project: string, path: string): Promise<unknown> {
-  return send(`${base(project)}/artifacts/rtac/status?path=${encodeURIComponent(path)}`, 'DELETE')
 }
 
 /** The entries an exported-folder upload of these paths would add — the
@@ -329,8 +308,36 @@ export function searchArtifact(project: string, ref: string, query: string): Pro
 const toolRun = (tool: string, run: string) =>
   `/api/tools/${encodeURIComponent(tool)}/runs/${encodeURIComponent(run)}`
 
-export function fetchToolJob(id: string): Promise<ToolJob> {
-  return get(`/api/tools/jobs/${encodeURIComponent(id)}`)
+// --- background work (the job registry) and the AcRTAC project list --------
+
+/** One job in full, result included. Live state arrives on the event stream
+ *  (lib/jobs.ts); this is for the result, once. */
+export function fetchJob(id: string): Promise<ToolJob> {
+  return get(`/api/jobs/${encodeURIComponent(id)}`)
+}
+
+/** Forget a finished job (the tasks popover's ✕). */
+export function dismissJob(id: string): Promise<unknown> {
+  return send(`/api/jobs/${encodeURIComponent(id)}`, 'DELETE')
+}
+
+/** Start a failed job again (the tasks popover's ↻). */
+export function retryJob(id: string): Promise<{ job: string }> {
+  return send(`/api/jobs/${encodeURIComponent(id)}/retry`, 'POST')
+}
+
+export function clearFinishedJobs(): Promise<unknown> {
+  return send('/api/jobs', 'DELETE')
+}
+
+/** The AcRTAC database's projects — cached server-side after the first read. */
+export function fetchAcrtacProjects(): Promise<AcrtacProjectList> {
+  return get('/api/acrtac/projects')
+}
+
+/** Re-read the database, then the list. */
+export function refreshAcrtacProjects(): Promise<AcrtacProjectList> {
+  return send('/api/acrtac/projects/refresh', 'POST')
 }
 
 /** Browser-navigable download URL for one run output file. */
@@ -514,11 +521,6 @@ export function generateSwsetXml(
 // --- RTAC Exporter -------------------------------------------------------------
 
 /** List the AcRTAC database's projects (the bridge logs in itself). */
-export async function listRtacExportProjects(): Promise<string[]> {
-  const body = await send<{ projects: string[] }>('/api/tools/rtac-export/projects', 'POST')
-  return body.projects
-}
-
 /** Start the bulk export job; poll the job id for results. */
 export function startRtacExportJob(args: {
   projects: string[]
@@ -530,18 +532,41 @@ export function startRtacExportJob(args: {
 
 // --- RTAC VLAN Deploy ---------------------------------------------------------
 
-export interface VlanDeployRtac {
+/** One bench device: its identifier ("3555-1"), the network IP it is
+ *  reached at, and the switch port it is plugged into. */
+export interface BenchDevice {
+  id: string
   networkIp: string
-  vlanIp: string
   port: string
+}
+
+export async function fetchBenchDevices(): Promise<BenchDevice[]> {
+  const body = await get<{ devices: BenchDevice[] }>('/api/tools/vlan-deploy/devices')
+  return body.devices
+}
+
+/** Whole-table replace; resolves to the table as saved (trimmed). */
+export async function saveBenchDevices(devices: BenchDevice[]): Promise<BenchDevice[]> {
+  const body = await send<{ devices: BenchDevice[] }>('/api/tools/vlan-deploy/devices', 'PUT', { devices })
+  return body.devices
+}
+
+/** A deploy row: a bench device by identifier, its VLAN IP (always /24,
+ *  gateway .1), and the AcRTAC project to upload. */
+export interface VlanDeployRtac {
+  device: string
+  vlanIp: string
   project: string
 }
 
 /** Start the deploy job (Eth_02 IPs → switch VLAN → uploads); poll the job id.
- *  The project dropdown uses listRtacExportProjects. */
+ *  The project picker reads the shared AcRTAC list (lib/acrtacProjects.ts). */
 export function startVlanDeployJob(args: {
   switchIp: string
   vlan: string
+  piPort: string
+  /** true: every upload at once; false: one at a time. */
+  parallel: boolean
   rtacs: VlanDeployRtac[]
 }): Promise<{ job: string }> {
   return send('/api/tools/vlan-deploy/start', 'POST', args)

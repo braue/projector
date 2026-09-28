@@ -10,7 +10,7 @@ import { compareRoutes } from './compare.js';
 import { fileRoutes } from './files.js';
 import { searchRoutes } from './search.js';
 
-function projectRoutes(projects, catalog) {
+function projectRoutes(projects) {
   const router = Router();
 
   router.get('/', async (_req, res) => {
@@ -33,7 +33,7 @@ function projectRoutes(projects, catalog) {
   const bundle = (req) => projects.bundle(req.params.project);
   const scoped = Router({ mergeParams: true });
   scoped.use('/files', fileRoutes(bundle));
-  scoped.use('/artifacts', artifactRoutes(async (req) => (await bundle(req)).artifacts, catalog));
+  scoped.use('/artifacts', artifactRoutes(async (req) => (await bundle(req)).artifacts));
   scoped.use('/compare', compareRoutes(async (req) => (await bundle(req)).compare));
   scoped.use('/search', searchRoutes(async (req) => (await bundle(req)).search));
   router.use('/:project', scoped);

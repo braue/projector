@@ -1,6 +1,6 @@
 // The project tree's generic AcRTAC actions on an RTAC export entry (the
 // sidebar's right-click / double-click, not a Tools-pane tool), each a job
-// the frontend polls with the bridge's narration streaming into the log:
+// in the app's registry with the bridge's narration streaming into its log:
 //   import — the entry's folder-of-XML goes into the AcRTAC database via
 //            py/acrtac_import.py with the user's device type + firmware.
 //   open   — launch the AcSELerator RTAC GUI on the database project with
@@ -26,8 +26,10 @@ function requireField(value, label) {
 }
 
 class AcrtacService {
-  constructor({ jobs }) {
+  constructor({ jobs, catalog = null }) {
     this.jobs = jobs;
+    // Imports add database projects: re-read the shared list after one.
+    this.catalog = catalog;
   }
 
   /**
@@ -70,7 +72,7 @@ class AcrtacService {
           type: deviceType,
           version: firmware,
         })),
-      }, { onStderrLine: handle.log, explain: EXPLAIN });
+      }, { job: handle, explain: EXPLAIN });
       const failed = [];
       for (const [index, item] of items.entries()) {
         const outcome = results?.[index];
@@ -86,6 +88,7 @@ class AcrtacService {
         // effort: the import itself already succeeded.
         await files.recordDatabase(item.treePath, item.name).catch(() => {});
       }
+      if (failed.length < items.length) this.catalog?.refresh();
       if (failed.length) {
         const done = items.length - failed.length;
         throw new Error(items.length === 1
@@ -108,7 +111,7 @@ class AcrtacService {
       // settleOnExit: the GUI this bridge starts outlives it holding the
       // stdio pipes — waiting for 'close' would never settle the job.
       runStdinBridge(OPEN_SCRIPT, { name }, {
-        onStderrLine: handle.log,
+        job: handle,
         explain: EXPLAIN,
         settleOnExit: true,
       }));

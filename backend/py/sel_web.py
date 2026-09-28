@@ -221,9 +221,13 @@ class InterfacePage:
             return (pick[0].get("value") or "") if pick else ""
         return el["attrs"].get("value") or ""
 
-    def save_body(self, ipv4=None):
+    @property
+    def gateway(self):
+        return self.value("gateway")
+
+    def save_body(self, ipv4=None, gateway=None):
         """submitEthernetSettings()'s post_string, with `ipv4` ('A.B.C.D/prefix')
-        in place of the page's address when given."""
+        and `gateway` ('A.B.C.D') in place of the page's when given."""
         enc = js_encode
         iface_id = self.value("network_interface_id")
         axion_front = "is_axion" in self.dom and self.value("is_axion") == "t" and iface_id == "2"
@@ -272,7 +276,7 @@ class InterfacePage:
             ("Ipv4Dhcp", self.checked("Ipv4Dhcp")),
             ("Ipv4DhcpServer", self.checked("Ipv4DhcpServer", "false")),
             ("ipv4_address", enc(f"{addr}/{cidr}")),
-            ("ipv4_gateway", self.value("gateway")),
+            ("ipv4_gateway", self.gateway if gateway is None else gateway),
             ("primary_gw", self.checked("primary_gw")),
             ("ipv6_address", enc(f"{v6['addr']}/{v6['prefix']}")),
             ("ipv6_interface_enabled", self.checked("ipv6_enable_nic")),
@@ -286,6 +290,20 @@ class InterfacePage:
                 # the page sends the gateways unencoded; this would corrupt the body
                 raise SelWebError(f"{name} value {v!r} can't be sent safely; refusing to save")
         return "&".join(f"{name}={v}" for name, v in fields)
+
+
+def vlan_host(text):
+    """A VLAN address typed as 'A.B.C.D' (or with /24): every VLAN is a /24,
+    so the mask is fixed. Returns ('A.B.C.D/24', gateway 'A.B.C.1')."""
+    text = str(text).strip()
+    addr, slash, prefix = text.partition("/")
+    if slash and prefix.strip() not in ("24", "255.255.255.0"):
+        raise ValueError(f"{text}: VLAN addresses are always /24")
+    iface = ipaddress.IPv4Interface(f"{addr.strip()}/24")
+    gateway = iface.network.network_address + 1
+    if iface.ip == gateway:
+        raise ValueError(f"{iface.ip} is the VLAN's gateway (.1); pick another host")
+    return ip_mask(iface.with_prefixlen), str(gateway)
 
 
 def ip_mask(text):
@@ -322,29 +340,32 @@ def find_interface(web, name):
     raise SelWebError(f"no {name} on this RTAC (interfaces found: {', '.join(seen) or 'none'})")
 
 
-def set_interface_ip(web, name, target, reached_at):
-    """Set the RTAC port `name` (e.g. 'Eth_02') to `target` ('A.B.C.D/prefix'),
-    changing nothing else on the port, and confirm by re-reading. Refuses the
-    port the session reaches the RTAC through (`reached_at`), since changing
-    it would cut the connection the rest of the run depends on.
-    Returns {"before", "after", "changed"}."""
+def set_interface_ip(web, name, target, gateway, reached_at):
+    """Set the RTAC port `name` (e.g. 'Eth_02') to `target` ('A.B.C.D/prefix')
+    with default gateway `gateway`, changing nothing else on the port, and
+    confirm by re-reading. Refuses the port the session reaches the RTAC
+    through (`reached_at`), since changing it would cut the connection the
+    rest of the run depends on.
+    Returns {"before", "after", "gateway", "changed"}."""
     iface_id, page = find_interface(web, name)
     current = page.ipv4
-    if current == target:
-        return {"before": current, "after": current, "changed": False}
+    if current == target and page.gateway == gateway:
+        return {"before": current, "after": current, "gateway": gateway, "changed": False}
     if current.split("/")[0] == reached_at:
         raise SelWebError(f"{name} holds {current}, the address this RTAC is reached at; "
                           f"changing it would cut the connection")
-    body = page.save_body(target)
+    body = page.save_body(target, gateway)
     web.post("update.sel?check_only=true")  # the browser's pre-save session check
     reply = web.post(INTERFACE_SAVE, body)
     if "Ethernet Settings Saved" not in reply:
         text = " ".join(re.sub(r"<[^>]+>", " ", reply).split())
         raise SelWebError(f"the RTAC did not save {name}: {text[:200] or 'empty reply'}")
-    now = read_interface(web, iface_id).ipv4
-    if now != target:
-        raise SelWebError(f"saved, but {name} now reads {now} (expected {target})")
-    return {"before": current, "after": now, "changed": True}
+    reread = read_interface(web, iface_id)
+    now, now_gw = reread.ipv4, reread.gateway
+    if now != target or now_gw != gateway:
+        raise SelWebError(f"saved, but {name} now reads {now} via {now_gw or 'no gateway'} "
+                          f"(expected {target} via {gateway})")
+    return {"before": current, "after": now, "gateway": gateway, "changed": True}
 
 
 # --- SEL-2730M switch: untagged VLAN membership ------------------------------
@@ -399,17 +420,33 @@ def read_vlans(web):
         raise SelWebError(f"unexpected vlan_settings.sel layout ({e!r})") from e
 
 
-def vlan_save_body(vid, vlan, untagged):
+def vlan_save_body(vid, vlan, untagged, tagged=None):
+    tagged = vlan["tagged"] if tagged is None else tagged
     return (f"&VL_VID_ST={vid}&VL_NAME_ST={js_encode(vlan['name'])}"
-            f"&VL_TAGGED_PORTS_ST={js_encode(vlan['tagged'])}"
+            f"&VL_TAGGED_PORTS_ST={js_encode(tagged)}"
             f"&VL_UNTAGGED_PORTS_ST={js_encode(untagged)}&operation=modify")
 
 
-def add_untagged_ports(web, vid, ports, log=lambda line: None):
-    """Add `ports` to VLAN `vid` as untagged, keeping its name, tagged ports
-    and existing untagged ports. A port is untagged on exactly one VLAN, so
-    the switch drops them from their old VLAN itself. Confirms by re-reading.
-    Returns {"before", "after", "changed", "moved": {vid: 'ports'}}."""
+DEFAULT_VLAN = 1  # where ports this run takes off its VLAN are parked
+
+
+def _save_vlan(web, vid, vlan, untagged, tagged=None):
+    reply = web.post_json("vlan_view_save.sel", vlan_save_body(vid, vlan, untagged, tagged),
+                          cache_bust=True)
+    if reply.get("status") != "success":
+        raise SelWebError(f"the switch refused the change to VLAN {vid}: {reply.get('message')!r}")
+
+
+def set_vlan_ports(web, vid, ports, log=lambda line: None):
+    """Make `ports` the ONLY members of VLAN `vid`: exactly those untagged, no
+    tagged ports, and its name kept. Untagged ports already on it that aren't
+    in `ports` are parked on VLAN 1 — adding them there is what takes them
+    off `vid` (a port is untagged on exactly one VLAN and the switch moves
+    it itself; removing a port from every VLAN is never asked of it). Ports
+    coming from other VLANs leave them the same way. Confirms by re-reading.
+    Returns {"before", "after", "changed", "moved": {vid: 'ports'},
+    "removed": untagged ports parked on VLAN 1, "tagged": tagged ports taken off}."""
+    ports = sorted(set(ports))
     known = read_switch_ports(web)
     if bad := [p for p in ports if p not in known]:
         raise SelWebError(f"the switch has no port {fold_ports(bad)} (its ports are {fold_ports(known)})")
@@ -417,13 +454,29 @@ def add_untagged_ports(web, vid, ports, log=lambda line: None):
     if vid not in vlans:
         raise SelWebError(f"VLAN {vid} doesn't exist on the switch "
                           f"(VLANs: {', '.join(map(str, sorted(vlans)))})")
+    if vid == DEFAULT_VLAN:
+        raise SelWebError(f"VLAN {DEFAULT_VLAN} is the switch's default VLAN; deploy onto a test VLAN")
     vlan = vlans[vid]
     try:
         current = parse_ports(vlan["untagged"])
+        tagged = parse_ports(vlan["tagged"])
     except ValueError as e:
         raise SelWebError(f"can't read VLAN {vid}'s current ports: {e}") from e
-    if set(ports) <= set(current):
-        return {"before": vlan["untagged"], "after": vlan["untagged"], "changed": False, "moved": {}}
+    if current == ports and not tagged:
+        return {"before": vlan["untagged"], "after": vlan["untagged"], "changed": False,
+                "moved": {}, "removed": "", "tagged": ""}
+
+    extra = sorted(set(current) - set(ports))
+    if extra:
+        if DEFAULT_VLAN not in vlans:
+            raise SelWebError(f"ports {fold_ports(extra)} must leave VLAN {vid}, but the switch "
+                              f"has no VLAN {DEFAULT_VLAN} to park them on")
+        home = vlans[DEFAULT_VLAN]
+        log(f"  ports {fold_ports(extra)} leave VLAN {vid} → VLAN {DEFAULT_VLAN} ({home['name']})")
+        _save_vlan(web, DEFAULT_VLAN, home,
+                   fold_ports(_ports_or_empty(home["untagged"]) + extra))
+    if tagged:
+        log(f"  tagged ports {fold_ports(tagged)} come off VLAN {vid}")
 
     moved = {}
     for other, v in sorted(vlans.items()):
@@ -431,12 +484,12 @@ def add_untagged_ports(web, vid, ports, log=lambda line: None):
             moved[other] = fold_ports(hit)
             log(f"  ports {fold_ports(hit)} leave VLAN {other} ({v['name']})")
 
-    new = fold_ports(current + list(ports))
-    reply = web.post_json("vlan_view_save.sel", vlan_save_body(vid, vlan, new), cache_bust=True)
-    if reply.get("status") != "success":
-        raise SelWebError(f"the switch refused the change: {reply.get('message')!r}")
+    _save_vlan(web, vid, vlan, fold_ports(ports), tagged="")
     time.sleep(1)  # let the switch apply before re-reading
-    now = read_vlans(web)[vid]["untagged"]
-    if not set(ports) <= set(_ports_or_empty(now)):
-        raise SelWebError(f"the switch said success but VLAN {vid} untagged is now {now or '-'}")
-    return {"before": vlan["untagged"], "after": now, "changed": True, "moved": moved}
+    now = read_vlans(web)[vid]
+    if _ports_or_empty(now["untagged"]) != ports or now["tagged"].strip():
+        raise SelWebError(f"the switch said success but VLAN {vid} is now untagged "
+                          f"{now['untagged'] or '-'}, tagged {now['tagged'] or '-'} "
+                          f"(expected untagged {fold_ports(ports)} only)")
+    return {"before": vlan["untagged"], "after": now["untagged"], "changed": True,
+            "moved": moved, "removed": fold_ports(extra), "tagged": fold_ports(tagged)}

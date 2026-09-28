@@ -10,7 +10,7 @@ import test from 'node:test';
 
 import { SEL_DEVICES_DIR } from '../lib/drawings/deviceMetadata.js';
 import { DwgenService, detectModel, layerFragment } from '../services/tools/dwgen.js';
-import { JobRegistry } from '../services/tools/jobs.js';
+import { JobRegistry } from '../services/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
 
 const PART_NUMBER = '751A51ABA0X71850230';

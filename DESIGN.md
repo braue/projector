@@ -75,18 +75,45 @@ Refs: an artifact is its tree path; a profile inside one is
 `"<path>::<profile>"` (`:` is invalid in names, so no collisions). Kind is
 derived server-side; compare rejects mismatched kinds.
 
+Machine-global pieces, beside the per-project bundles:
+
+```
+services/jobs.js         THE job registry — every piece of background work
+                         (tool runs, AcRTAC downloads/imports/opens,
+                         uploads); in memory, gone on restart
+lib/events.js            one Server-Sent Events stream (/api/events): jobs,
+                         `tree` (a project's files changed), `projects`
+services/projects.js     also watches each open project's files/ folder and
+                         publishes `tree` — the window never polls
+services/rtacCatalog.js  THE AcRTAC project list, read once and shared
+                         (/api/acrtac/projects); every picker uses it
+lib/acrtac/pythonClient  runs the py/ bridges (JSON in on stdin, JSON out on
+                         stdout, narration on stderr → the job's log); the
+                         AcRTAC ones queue machine-wide, and a queued job
+                         shows its `waiting` reason
+py/acrtac_bridge.py      THE database bridge: list + export (xml/exp)
+```
+
+One way to do each thing: background work is a job (never a private status
+map), "something changed" is an event (never a poll or a window event), and
+the AcRTAC project list is the catalog (never a fresh listing per feature).
+
 ### Memory (the reason artifacts.js exists)
 
 A large RTAC export (GP Naheola: ~550 MB of XML, 180+ files) parses into a
-model of **1.3 GB retained / 2.7 GB peak** — measured. The backend lives in
-the Electron main process, so the old design (every parsed model cached
-forever, all XML strings read before parsing) blew V8's ~4 GB ceiling after
-inspecting/comparing a few exports and killed the whole app. Now:
+model of **1.3 GB retained / 2.7 GB peak** — measured. The backend used to
+live in the Electron main process, so the old design (every parsed model
+cached forever, all XML strings read before parsing) blew V8's ~4 GB ceiling
+after inspecting/comparing a few exports and killed the whole app. Now:
 
 - parse cache is LRU with per-weight caps: 2 heavy (RTAC), 12 light —
   compare needs exactly two models live;
 - RTAC parses one file at a time (read → parse → hash → drop the string);
-- electron/main.js raises `--max-old-space-size` to 12 GB as margin;
+- the backend runs in its own Electron utility process
+  (electron/backendHost.js) with `--max-old-space-size` at 12 GB as margin;
+  if it still dies, main restarts it on the same port while the window shows
+  "Reconnecting…" (three crashes in two minutes and the app says so and
+  quits);
 - a GPU-process crash (seen on NVIDIA/Linux: Chromium aborts with "GPU
   process isn't usable") writes a marker and relaunches into software
   rendering; Help > Re-enable GPU acceleration opens the way back.
@@ -108,7 +135,18 @@ components/FindBar.tsx       the one find bar + the DOM find hook every
                              readable pane uses (lib/findInPage.ts is the
                              engine: flattened-text matching, CSS Custom
                              Highlight painting, no DOM mutation)
+components/TasksPopover.tsx  bottom-right: every job, running or finished,
+                             with its log; appears once there is any
+components/AcrtacProjectList THE AcRTAC picker (single or multi), over the
+                             shared list in lib/acrtacProjects.ts
+lib/events.ts, lib/jobs.ts   the event stream and the live job store;
+                             useToolJob follows one job through them
+lib/fileNodes.ts             tree walking/naming helpers (findLeafFor,
+                             refLabel, …) shared by sidebar, panes, tools
 ```
+
+A dropped event stream shows a "Reconnecting…" bar; on reconnect the window
+re-reads the tree and the project list and gets a fresh job snapshot.
 
 Ctrl+F belongs to the pane being read (atlas page, inspection, comparison,
 PDF); the file-tree filter keeps it when that pane has no find, and answers
@@ -116,9 +154,10 @@ to Ctrl+Shift+F always. PDFs are the odd one out — Chromium's viewer cannot
 be highlighted into, so `services/pdfText.js` reads the text with PDFium and
 the bar lists page hits, moving the viewer by reloading it at `#page=N`.
 
-Selection model in App: `selected` (path, live or version) + `compareTo`
-(the original side). ⇆ on a version row compares it to the live entry;
-ctrl+click picks any second artifact.
+Selection model (lib/useTreeSelection.ts): `selected` (path, live or
+version), `held` rows beside it (ctrl/shift+click), and the `comparePair`
+once asked for. ⇆ on a version row compares it to the live entry; two held
+rows of one kind offer Compare.
 
 ## Decisions taken
 

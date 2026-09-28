@@ -4,8 +4,8 @@
 //
 //   - DEVELOPMENT: `npm run dev` runs index.js, the Vite dev server serves the
 //     UI on its own port and proxies /api here.
-//   - PACKAGED: the Electron main process calls startServer() and points a
-//     window at the returned URL. There is no proxy then — this server also
+//   - PACKAGED: electron/main.js forks electron/backendHost.js as a utility
+//     process, which calls startServer(); main points a window at the URL. There is no proxy then — this server also
 //     serves the built frontend, so the UI and the API share one origin.
 //
 // State is a data directory of self-contained projects (each one versioned
@@ -21,11 +21,15 @@ import cors from 'cors';
 import express from 'express';
 
 import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
+import { EventHub } from './lib/events.js';
 import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from './lib/selPaths.js';
+import { acrtacRoutes } from './routes/acrtac.js';
+import { eventRoutes, jobRoutes } from './routes/jobs.js';
 import { projectRoutes } from './routes/projects.js';
 import { selRoutes } from './routes/sel.js';
 import { todoRoutes } from './routes/todos.js';
 import { toolsRoutes } from './routes/tools.js';
+import { JobRegistry } from './services/jobs.js';
 import { ProjectsService } from './services/projects.js';
 import { RtacCatalog } from './services/rtacCatalog.js';
 import { createTools } from './services/tools/index.js';
@@ -99,9 +103,13 @@ export async function startServer(options = {}) {
   // Machine-global, so it sits at the top of the data directory rather than
   // inside a project.
   const todos = new TodosService({ file: path.join(dataDir, 'todos.json') });
-  const projects = new ProjectsService({ dataDir, catalog });
+  // Background work and change notices are machine-global too: one job
+  // registry for everything slow, one event stream to the window.
+  const events = new EventHub();
+  const jobs = new JobRegistry({ events });
+  const projects = new ProjectsService({ dataDir, catalog, jobs, events });
   await projects.init();
-  const tools = await createTools({ dataDir });
+  const tools = await createTools({ dataDir, jobs, catalog });
 
   // The database list can take a while (it spawns the Python bridge) and the
   // server is useful without it — projects on disk are fully browsable — so
@@ -131,7 +139,10 @@ export async function startServer(options = {}) {
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, version });
   });
-  app.use('/api/projects', projectRoutes(projects, catalog));
+  app.use('/api/events', eventRoutes(events, jobs));
+  app.use('/api/jobs', jobRoutes(jobs));
+  app.use('/api/acrtac', acrtacRoutes(catalog));
+  app.use('/api/projects', projectRoutes(projects));
   app.use('/api/sel', selRoutes(selLibrary, selText));
   app.use('/api/todos', todoRoutes(todos));
   app.use('/api/tools', toolsRoutes(tools, projects));
@@ -174,6 +185,8 @@ export async function startServer(options = {}) {
     close: () =>
       new Promise((resolve) => {
         tools.terminal.closeAll();
+        events.closeAll();
+        projects.close();
         const done = setTimeout(resolve, 2000);
         server.close(() => {
           clearTimeout(done);

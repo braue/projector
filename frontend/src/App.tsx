@@ -1,9 +1,8 @@
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   createProject,
   deleteProject,
-  fetchRtacStatus,
   listFiles,
   listProjects,
   openFileEntry,
@@ -13,14 +12,8 @@ import { CompareView } from './components/CompareView'
 import { InspectView } from './components/InspectView'
 import { PdfView } from './components/PdfView'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
-import {
-  ProjectTree,
-  findLeafFor,
-  isPdfFile,
-  isTextFile,
-  refLabel,
-  type FileLeaf,
-} from './components/ProjectTree'
+import { ProjectTree } from './components/ProjectTree'
+import { TasksPopover } from './components/TasksPopover'
 import { TextFileView } from './components/TextFileView'
 import { TodoList } from './components/TodoList'
 // The atlas embeds the whole field-knowledge library — 82 documents inlined as
@@ -32,11 +25,14 @@ const AtlasView = lazy(() =>
 import { Button, TextInput } from './components/ui'
 import { ToolsView } from './tools/ToolsView'
 import { errorMessage } from './lib/errors'
-import { FILES_CHANGED_EVENT } from './lib/filesChanged'
+import { onEvent, useConnected } from './lib/events'
+import { findLeafFor, isPdfFile, isTextFile, refLabel, type FileLeaf } from './lib/fileNodes'
 import { formatSize, formatStamp, formatWhen } from './lib/format'
-import type { FileNode, RtacExportStatus } from './types'
+import { useJobs } from './lib/jobs'
+import { useAction } from './lib/useAction'
+import { useTreeSelection } from './lib/useTreeSelection'
+import type { FileNode, LandedDownload, ToolJob } from './types'
 
-const EXPORT_POLL_MS = 1200
 const PROJECT_KEY = 'projector-project'
 
 export default function App() {
@@ -54,14 +50,20 @@ export default function App() {
   // THE tree — the one sidebar everything lives in.
   const [tree, setTree] = useState<FileNode[] | null>(null)
   const [treeError, setTreeError] = useState<string | null>(null)
-  const [exports, setExports] = useState<RtacExportStatus[]>([])
-  // Selection: the path being worked on (live entry or archived version) —
-  // the one the right pane shows — plus any further rows HELD alongside it
-  // with ctrl/shift+click (bulk actions act on all of them; two held of one
-  // kind offer Compare), and — only once asked for from the context menu —
-  // the compare pair being viewed.
-  const [selected, setSelected] = useState<string | null>(null)
-  const [held, setHeld] = useState<string[]>([])
+  const selection = useTreeSelection()
+  const { selected, held, comparePair } = selection
+  const connected = useConnected()
+  // Work in progress lives only in the tasks popover; the tree just hears
+  // which of this project's AcRTAC downloads have landed, to open the folder.
+  const jobs = useJobs()
+  const landed = useMemo<LandedDownload[]>(() => jobs
+    .filter((job) => job.meta?.type === 'rtac-export' && job.meta.project === project
+      && job.status === 'done')
+    .map((job) => ({
+      job: job.id,
+      path: String(job.meta!.path),
+      into: (job.meta!.into as string | null) ?? null,
+    })), [jobs, project])
   // The file-tree filter, opened with Ctrl+Shift+F (and with Ctrl+F when the
   // pane on the right has no find of its own) and living in the topbar beside
   // the project it filters. Closing clears it — a narrowed tree with no
@@ -69,7 +71,6 @@ export default function App() {
   const [filter, setFilter] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
   const filterInput = useRef<HTMLInputElement>(null)
-  const [comparePair, setComparePair] = useState<{ original: string; updated: string } | null>(null)
 
   const loadTree = useCallback(async () => {
     if (!project) return
@@ -78,16 +79,6 @@ export default function App() {
       setTreeError(null)
     } catch (err) {
       setTreeError(`Cannot reach the backend: ${errorMessage(err)}`)
-    }
-  }, [project])
-
-  const loadExports = useCallback(async () => {
-    if (!project) return
-    try {
-      setExports(await fetchRtacStatus(project))
-    } catch {
-      // The status overlay is best-effort; the tree itself already surfaces
-      // backend failures.
     }
   }, [project])
 
@@ -116,33 +107,39 @@ export default function App() {
   }, [project])
 
   // Switching projects swaps the tree and clears per-project state.
+  const { select } = selection
   useEffect(() => {
     setTree(null)
     setTreeError(null)
-    setExports([])
-    setSelected(null)
-    setHeld([])
-    setComparePair(null)
+    select(null)
     if (!project) return
     loadTree()
-    loadExports()
-  }, [project, loadTree, loadExports])
+  }, [project, loadTree, select])
 
-  // Coming back to the app — from Excel, the file manager, anywhere an
-  // entry's working copy may have been edited in place — is the moment to
-  // re-check the tree, so "edited" flags appear without a manual action.
-  // Tools that change project files (the DAC SIM Converter placing its
-  // generated entries) announce it with the same effect.
+  // The tree follows the disk: the backend watches the project folder and
+  // says when anything in it changed — an upload, a tool saving a result,
+  // Excel saving over a working copy. A finished download reloads too (in
+  // case the watcher is down), and so does coming back from a dropped
+  // connection, since changes in the gap were never announced.
   useEffect(() => {
     if (!project) return
-    const onFocus = () => loadTree()
-    window.addEventListener('focus', onFocus)
-    window.addEventListener(FILES_CHANGED_EVENT, onFocus)
-    return () => {
-      window.removeEventListener('focus', onFocus)
-      window.removeEventListener(FILES_CHANGED_EVENT, onFocus)
-    }
-  }, [project, loadTree])
+    const offs = [
+      onEvent('tree', (data: { project: string }) => {
+        if (data.project === project) loadTree()
+      }),
+      onEvent('job', (job: ToolJob) => {
+        if (job.meta?.type === 'rtac-export' && job.meta.project === project && job.status === 'done') {
+          loadTree()
+        }
+      }),
+      onEvent('reconnected', () => {
+        loadTree()
+        refreshProjects()
+      }),
+      onEvent('projects', () => refreshProjects()),
+    ]
+    return () => offs.forEach((off) => off())
+  }, [project, loadTree, refreshProjects])
 
   const projectMode = !atlasOpen && !toolsOpen
   const closeFilter = useCallback(() => {
@@ -196,25 +193,6 @@ export default function App() {
     filterInput.current?.select()
   }, [filterOpen])
 
-  // Poll while any AcRTAC export is in flight so spinners resolve on their
-  // own; a download that finishes (drops out of the status list) means the
-  // tree gained an entry.
-  const exporting = exports.some((entry) => entry.status === 'exporting')
-  useEffect(() => {
-    if (!exporting || !project) return
-    const timer = window.setTimeout(async () => {
-      const before = exports.filter((entry) => entry.status === 'exporting').length
-      await loadExports()
-      // A completed export changed the tree even if others still run.
-      setExports((current) => {
-        const after = current.filter((entry) => entry.status === 'exporting').length
-        if (after < before) loadTree()
-        return current
-      })
-    }, EXPORT_POLL_MS)
-    return () => window.clearTimeout(timer)
-  }, [exporting, exports, project, loadExports, loadTree])
-
   const handleCreateProject = useCallback(
     async (name: string) => {
       await createProject(name)
@@ -250,40 +228,6 @@ export default function App() {
     [refreshProjects],
   )
 
-  // A plain click is a fresh single selection — anything held and any open
-  // comparison follow the click away.
-  const handleSelect = useCallback((path: string | null) => {
-    setSelected(path)
-    setHeld([])
-    setComparePair(null)
-  }, [])
-
-  // Ctrl/cmd-click: hold (or let go of) one more row. Letting go of the
-  // selected row itself hands the right pane to the next held one.
-  const handleToggleHeld = useCallback((path: string) => {
-    setComparePair(null)
-    if (path === selected) {
-      setSelected(held[0] ?? null)
-      setHeld(held.slice(1))
-      return
-    }
-    if (selected === null) {
-      setSelected(path)
-      return
-    }
-    setHeld(held.includes(path) ? held.filter((p) => p !== path) : [...held, path])
-  }, [selected, held])
-
-  // Shift-click: hold exactly this range alongside the selection.
-  const handleHoldRange = useCallback((paths: string[]) => {
-    setComparePair(null)
-    setHeld(paths.filter((p) => p !== selected))
-  }, [selected])
-
-  const handleComparePair = useCallback((original: string, updated: string) => {
-    setComparePair({ original, updated })
-  }, [])
-
   // Still loading the project list: just the shell, no flash of onboarding.
   if (projects === null) {
     return <header className="topbar" />
@@ -295,6 +239,8 @@ export default function App() {
 
   return (
     <>
+      {!connected && <div className="reconnect-bar">Reconnecting to the backend…</div>}
+      <TasksPopover />
       <header className="topbar">
         {/* Top-left: the project — the only control on that side. It goes
             away while a takeover pane is up, since nothing on screen is
@@ -368,15 +314,14 @@ export default function App() {
               tree={tree}
               filter={filterOpen ? filter : ''}
               treeError={treeError}
-              exports={exports}
+              landed={landed}
               selected={selected}
               held={held}
-              onSelect={handleSelect}
-              onToggleHeld={handleToggleHeld}
-              onHoldRange={handleHoldRange}
-              onComparePair={handleComparePair}
+              onSelect={selection.select}
+              onToggleHeld={selection.toggleHeld}
+              onHoldRange={selection.holdRange}
+              onComparePair={selection.compare}
               onReload={loadTree}
-              onExportsChanged={loadExports}
             />
 
             {comparePair ? (
@@ -384,8 +329,8 @@ export default function App() {
                 project={project}
                 original={{ ref: comparePair.original, label: refLabel(tree, comparePair.original) }}
                 updated={{ ref: comparePair.updated, label: refLabel(tree, comparePair.updated) }}
-                onSwap={() => setComparePair({ original: comparePair.updated, updated: comparePair.original })}
-                onClear={() => setComparePair(null)}
+                onSwap={selection.swapCompare}
+                onClear={selection.clearCompare}
               />
             ) : selected && selectedLeaf?.kind ? (
               <InspectView
@@ -496,20 +441,11 @@ function FileInfo({
 // The first-run gate: nothing exists until the user names a project.
 function FirstProject({ onCreate }: { onCreate: (name: string) => Promise<void> }) {
   const [name, setName] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
+  const { run, busy, error } = useAction()
 
-  const create = async () => {
+  const create = () => {
     const trimmed = name.trim()
-    if (!trimmed || busy) return
-    setBusy(true)
-    setError(null)
-    try {
-      await onCreate(trimmed)
-    } catch (err) {
-      setError(errorMessage(err))
-      setBusy(false)
-    }
+    if (trimmed && !busy) run(() => onCreate(trimmed))
   }
 
   return (

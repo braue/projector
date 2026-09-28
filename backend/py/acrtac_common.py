@@ -1,12 +1,14 @@
 """Shared plumbing for the AcRTAC bridge scripts.
 
-Each bridge (acrtac_bridge.py, acrtac_export.py, acrtac_import.py,
-acrtac_open.py) is one selacrtac session doing one command; the session
+Each bridge (acrtac_bridge.py, acrtac_import.py, acrtac_open.py,
+rtac_upload.py, rtac_vlan_deploy.py) is one selacrtac session doing one
+command; the session
 dance, the fixed admin/TAIL login, the waitable-job quirk, and the
 stdout-JSON / stderr-error framing that lib/acrtac/pythonClient.js parses
 all live here so they cannot drift between scripts.
 """
 
+import contextlib
 import json
 import sys
 
@@ -97,15 +99,23 @@ def bridge_main(run):
     json.dump(result, sys.stdout)
 
 
+@contextlib.contextmanager
+def session():
+    """A logged-in AcRTAC session (a Session) for the with-block.
+
+    AcRTAC only works as a context manager: __enter__ starts the CLI
+    process and registers its alias, __exit__ tears it down. The whole
+    command therefore runs inside the with-block — a client that escapes
+    it is talking to a process that no longer exists."""
+    with AcRTAC() as cli:
+        login(cli)
+        yield Session(cli)
+
+
 def run_session(handler):
     """Run `handler(cli)` inside a logged-in AcRTAC session and print its
     result as one JSON document on stdout (via bridge_main's framing)."""
     def run():
-        # AcRTAC only works as a context manager: __enter__ starts the CLI
-        # process and registers its alias, __exit__ tears it down. The whole
-        # command therefore runs inside the with-block — a client that
-        # escapes it is talking to a process that no longer exists.
-        with AcRTAC() as cli:
-            login(cli)
-            return handler(Session(cli))
+        with session() as cli:
+            return handler(cli)
     bridge_main(run)

@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { JobRegistry } from '../services/tools/jobs.js';
+import { JobRegistry } from '../services/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
 
 const settled = (job) =>

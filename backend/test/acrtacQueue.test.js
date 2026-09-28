@@ -32,8 +32,9 @@ test('acrtac queue: one session at a time, in order; opt-out runs alongside',
     await writeFile(script, SCRIPT);
     try {
       const waits = [];
+      const job = { log: () => {}, waiting: (why) => waits.push(why), running: () => waits.push('running') };
       const a = runStdinBridge(name, { id: 'a', sleep: 0.4 });
-      const b = runStdinBridge(name, { id: 'b', sleep: 0.1, fail: true }, { onStderrLine: (l) => waits.push(l) });
+      const b = runStdinBridge(name, { id: 'b', sleep: 0.1, fail: true }, { job });
       const c = runStdinBridge(name, { id: 'c', sleep: 0.1 });
       const free = runStdinBridge(name, { id: 'free', sleep: 0.1 }, { acrtac: false });
 
@@ -42,7 +43,9 @@ test('acrtac queue: one session at a time, in order; opt-out runs alongside',
       assert.equal(rc.status, 'fulfilled'); // ...doesn't jam the queue
       assert.ok(rc.value.start >= ra.value.end, 'c waited for a (and b)');
       assert.ok(rfree.value.end < ra.value.end, 'the opt-out ran alongside a');
+      // b's job showed as queued, then as working once its turn came
       assert.match(waits[0], /Waiting for another AcRTAC session/);
+      assert.equal(waits[1], 'running');
     } finally {
       await rm(script, { force: true });
     }

@@ -8,8 +8,14 @@
 //
 // Each project gets its own service bundle (files, artifacts, compare,
 // search), built lazily on first touch and cached; the AcRTAC database
-// catalog is the one machine-global piece, shared across bundles.
+// catalog and the job registry are machine-global, shared across bundles.
+//
+// A built bundle also WATCHES its files/ folder and publishes `tree` on the
+// event hub when anything in it changes — an upload, a tool saving a result,
+// Excel saving over a working copy — so the window's tree follows the disk
+// without polling or every caller remembering to reload it.
 
+import { watch } from 'node:fs';
 import { mkdir, readdir, rename, rm } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -22,12 +28,19 @@ import { RdbKind } from './rdb.js';
 import { ScdKind } from './scd.js';
 import { SwKind } from './sw.js';
 
+// A burst of changes (an export placing hundreds of files) is one event.
+const TREE_SETTLE_MS = 250;
+
 class ProjectsService {
-  constructor({ dataDir, catalog }) {
+  constructor({ dataDir, catalog, jobs = null, events = null }) {
     this.root = path.join(dataDir, 'projects');
     this.catalog = catalog;
+    this.jobs = jobs;
+    this.events = events;
     // name -> Promise<bundle> — built once per project per process.
     this.bundles = new Map();
+    // name -> fs.FSWatcher over that project's files/.
+    this.watchers = new Map();
   }
 
   // No default project: the UI makes the user name their first one before
@@ -60,12 +73,16 @@ class ProjectsService {
       throw httpError(409, `project already exists: ${trimmed}`);
     }
     await mkdir(projectDir, { recursive: true });
+    this.events?.publish('projects', {});
     return { name: trimmed };
   }
 
   async remove(name) {
-    await rm(this.dir(name), { recursive: true, force: true });
+    // Unwatch first: on Windows a watched folder can't be deleted or moved.
+    this.#unwatch(name);
     this.bundles.delete(name);
+    await rm(this.dir(name), { recursive: true, force: true });
+    this.events?.publish('projects', {});
   }
 
   // Rename = move the folder. The old bundle is dropped (its services point
@@ -79,8 +96,10 @@ class ProjectsService {
     if (trimmed === name) return { name: trimmed };
     if (names.includes(trimmed)) throw httpError(409, `project already exists: ${trimmed}`);
     const to = this.dir(trimmed);
+    this.#unwatch(name);
     this.bundles.delete(name);
     await rename(this.dir(name), to);
+    this.events?.publish('projects', {});
     return { name: trimmed };
   }
 
@@ -110,7 +129,9 @@ class ProjectsService {
       dataDir: projectDir,
       onChanged: (relPath) => artifacts?.invalidate(relPath),
     });
-    artifacts = new ArtifactsService({ files, catalog: this.catalog, projectDir });
+    artifacts = new ArtifactsService({
+      files, catalog: this.catalog, projectDir, jobs: this.jobs, project: name,
+    });
     artifacts.register('rdb', new RdbKind({ artifacts, projectDir, apiBase }));
     artifacts.register('scd', new ScdKind({ artifacts }));
     artifacts.register('sw', new SwKind({ artifacts }));
@@ -122,7 +143,36 @@ class ProjectsService {
     const search = new SearchService({ load });
 
     await files.init();
+    this.#watch(name, files.root);
     return { files, artifacts, compare, search };
+  }
+
+  #watch(name, dir) {
+    if (!this.events || this.watchers.has(name)) return;
+    let timer = null;
+    const changed = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => this.events.publish('tree', { project: name }), TREE_SETTLE_MS);
+    };
+    try {
+      const watcher = watch(dir, { recursive: true }, changed);
+      // A watcher that dies (the folder vanished, the OS ran out of watches)
+      // only costs live updates; the tree still reloads after in-app actions.
+      watcher.on('error', () => this.#unwatch(name));
+      this.watchers.set(name, watcher);
+    } catch (err) {
+      console.warn(`not watching ${name} for changes: ${err?.message ?? err}`);
+    }
+  }
+
+  #unwatch(name) {
+    this.watchers.get(name)?.close();
+    this.watchers.delete(name);
+  }
+
+  /** Stop every watcher (server shutdown). */
+  close() {
+    for (const name of [...this.watchers.keys()]) this.#unwatch(name);
   }
 }
 

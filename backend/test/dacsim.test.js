@@ -12,7 +12,7 @@ import test from 'node:test';
 import { FilesService } from '../services/files.js';
 import { AcrtacService } from '../services/tools/acrtac.js';
 import { DacsimService } from '../services/tools/dacsim.js';
-import { JobRegistry } from '../services/tools/jobs.js';
+import { JobRegistry } from '../services/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
 import { rtacAnnotate } from './helpers/bundle.js';
 

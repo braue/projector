@@ -198,18 +198,19 @@ test('rtac export: a doomed versionOf rename fails before the export runs', asyn
     const xml = (name) => `<?xml version="1.0"?><SettingPage><Name>${name}</Name></SettingPage>`;
     const exportCalls = [];
     const catalog = {
-      names: ['Feeder 9'],
-      error: null,
-      // A fake database export: land one XML in the staging directory.
+      list: async () => ({ projects: ['Feeder 9'], error: null }),
+      // A fake database export: land one XML flat in the staging directory.
       client: {
-        exportXml: async ({ name, directory }) => {
+        export: async ({ projects: [name], directory, flat }) => {
+          assert.ok(flat);
           exportCalls.push(name);
           await mkdir(path.join(directory, 'SEL_RTAC'), { recursive: true });
           await writeFile(path.join(directory, 'SEL_RTAC', 'Devices.xml'), xml('fresh'));
+          return [{ project: name, success: true }];
         },
       },
     };
-    const { files, artifacts } = await makeBundle(tmp, { catalog });
+    const { files, artifacts, jobs } = await makeBundle(tmp, { catalog });
     await artifacts.uploadFolder('', [
       { path: 'Old Name/SEL_RTAC/Devices.xml', buffer: Buffer.from(xml('old')) },
       { path: 'Feeder 9/SEL_RTAC/Devices.xml', buffer: Buffer.from(xml('clash')) },
@@ -230,12 +231,19 @@ test('rtac export: a doomed versionOf rename fails before the export runs', asyn
 
     // The happy versionOf path records which database the entry mirrors.
     await files.removeEntry('Feeder 9.rtac');
-    await artifacts.startExport('', 'Feeder 9', 'pull', 'Old Name.rtac');
-    // Fire-and-forget: wait for the pending export to settle.
-    for (let i = 0; i < 100 && artifacts.exportStatus().length; i += 1) {
+    const { job: id } = await artifacts.startExport('', 'Feeder 9', 'pull', 'Old Name.rtac');
+    // It runs as a job, tagged with what it is about.
+    const job = jobs.get(id);
+    assert.deepEqual(
+      { type: job.meta.type, project: job.meta.project, path: job.meta.path, into: job.meta.into },
+      { type: 'rtac-export', project: 'test', path: 'Feeder 9.rtac', into: 'Old Name.rtac' },
+    );
+    // A second download onto the same entry while it runs is refused.
+    await assert.rejects(() => artifacts.startExport('', 'Feeder 9', 'again'), /already exporting/);
+    for (let i = 0; i < 100 && job.status === 'running'; i += 1) {
       await new Promise((resolveTick) => setTimeout(resolveTick, 20));
     }
-    assert.deepEqual(artifacts.exportStatus(), []);
+    assert.equal(job.status, 'done', job.error);
     assert.equal(exportCalls.length, 1);
     const tree = await files.tree((name, isDir) => artifacts.kindOf(name, isDir));
     assert.deepEqual(tree.map((node) => node.name), ['Feeder 9.rtac']);

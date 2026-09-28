@@ -1,7 +1,8 @@
 // The Tools surface — global utilities beside the projects, mounted at
-// /api/tools. This router owns what every tool shares — job polling, run-file
+// /api/tools. This router owns what every tool shares — settings, run-file
 // download, copying a run file into a project's Files store — plus each
-// tool's own endpoints, grouped per tool below.
+// tool's own endpoints, grouped per tool below. Tool jobs live in the app's
+// job registry (routes/jobs.js).
 
 import { copyFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -14,7 +15,7 @@ import { httpError, requireQuery } from '../lib/http.js';
 const MAX_UPLOAD_BYTES = 256 * 1024 * 1024;
 
 function toolsRoutes(tools, projects) {
-  const { workspace, jobs, settings } = tools;
+  const { workspace, settings } = tools;
   const router = Router();
   const upload = multer({
     storage: multer.memoryStorage(),
@@ -36,10 +37,6 @@ function toolsRoutes(tools, projects) {
     }
     throw httpError(400, 'send a multipart "file", or { project, path } naming a project file');
   };
-
-  router.get('/jobs/:id', (req, res) => {
-    res.json(jobs.get(req.params.id));
-  });
 
   // Machine-specific tool settings (paths, preferences — never credentials).
   router.get('/settings', async (_req, res) => {
@@ -134,19 +131,24 @@ function toolsRoutes(tools, projects) {
   });
 
   // RTAC Exporter. The bridge logs into the database itself (the fixed
-  // admin/TAIL pair, like the catalog bridge) — no credentials in requests.
-  router.post('/rtac-export/projects', async (_req, res) => {
-    res.json(await tools.rtacExport.listProjects());
-  });
+  // admin/TAIL pair) — no credentials in requests. Its project list is the
+  // shared /api/acrtac/projects.
   router.post('/rtac-export/export', async (req, res) => {
     res.status(202).json(await tools.rtacExport.startExport(req.body ?? {}));
   });
 
   // RTAC VLAN Deploy: the whole bench in one request, one job (Ethernet 2
-  // IPs → switch VLAN → sequential uploads). Its project dropdown uses the
-  // RTAC Exporter's /rtac-export/projects listing above.
+  // IPs → switch VLAN → parallel uploads). Its project picker reads the
+  // shared /api/acrtac/projects; the bench device table
+  // (identifier → network IP + switch port) is whole-list GET/PUT.
+  router.get('/vlan-deploy/devices', async (_req, res) => {
+    res.json({ devices: await tools.vlanDeploy.devices() });
+  });
+  router.put('/vlan-deploy/devices', async (req, res) => {
+    res.json({ devices: await tools.vlanDeploy.saveDevices(req.body?.devices) });
+  });
   router.post('/vlan-deploy/start', async (req, res) => {
-    res.status(202).json(tools.vlanDeploy.start(req.body ?? {}));
+    res.status(202).json(await tools.vlanDeploy.start(req.body ?? {}));
   });
 
   // DAC SIM Converter: DAC exports picked from a project's tree plus form

@@ -24,9 +24,9 @@
 // MEMORY is the reason this service exists as one place. A large RTAC export
 // parses into a model of a gigabyte and more, and the old per-store caches
 // held every parsed model forever — inspecting a handful of big exports was
-// enough to blow past V8's heap ceiling and take the whole app down (the
-// packaged app hosts this backend in the Electron main process). Two rules
-// keep that bounded:
+// enough to blow past V8's heap ceiling and take the backend down (the
+// packaged app runs it in its own utility process, restarted on a crash —
+// but a crash still loses every running job). Two rules keep that bounded:
 //
 //   - the parse cache is LRU with a hard cap per weight class (RTAC exports
 //     count heavy; single-file artifacts light) — compare needs two models
@@ -228,9 +228,9 @@ class RtacKind extends ArtifactKind {
         errors.push({ file, error: err?.message ?? String(err) });
       }
       // parseRtacModule is synchronous, and a big export runs a minute of it.
-      // Yield between files so the event loop breathes — this backend shares
-      // the Electron main process, and sixty seconds of solid parse would
-      // freeze every other request (and the app's own plumbing) with it.
+      // Yield between files so the event loop breathes — sixty seconds of
+      // solid parse would freeze every other request (the event stream, job
+      // updates, the tree) with it.
       await new Promise((resolve) => setImmediate(resolve));
     }
 
@@ -407,19 +407,20 @@ class ArtifactsService {
   // treePath -> { key, weight, model, ... } — the bounded model cache. Order
   // is LRU: Map iteration is insertion order, and every hit re-inserts.
   #cache = new Map();
-  // treePath being exported from AcRTAC right now, or holding a failure the
-  // UI should show: relDir/name.rtac -> { status, at, note, database, error? }.
-  #pendingExports = new Map();
   // In-flight parses per weight class. Evicting a cache entry cannot stop a
   // parse already running, so ADMISSION is what actually bounds concurrent
   // parse memory: a second heavy compare queues behind the first instead of
   // quadrupling the gigabyte-scale models in flight.
   #parseSlots = new Map();
 
-  constructor({ files, catalog, projectDir }) {
+  /** `jobs` is the app's job registry — AcRTAC downloads run as jobs there,
+   *  tagged with `project` (this bundle's project name). */
+  constructor({ files, catalog, projectDir, jobs = null, project = null }) {
     this.files = files;
     this.catalog = catalog;
     this.projectDir = projectDir;
+    this.jobs = jobs;
+    this.project = project;
     this.kinds = { rtac: new RtacKind({ artifacts: this }) };
   }
 
@@ -559,27 +560,6 @@ class ArtifactsService {
 
   // --- RTAC intake -------------------------------------------------------------
 
-  /** The AcRTAC catalog for the database browser. */
-  available() {
-    return {
-      projects: this.catalog.names.map((name) => ({ name })),
-      error: this.catalog.error ?? null,
-    };
-  }
-
-  /** Pending / failed AcRTAC exports, for the sidebar to overlay. */
-  exportStatus() {
-    return [...this.#pendingExports.entries()].map(([treePath, state]) => ({
-      path: treePath,
-      ...state,
-    }));
-  }
-
-  dismissExportError(treePath) {
-    const state = this.#pendingExports.get(treePath);
-    if (state?.status === 'error') this.#pendingExports.delete(treePath);
-  }
-
   /**
    * Download a database project into `dirPath` as `<name>.rtac`. If that
    * entry already exists there, the download lands as its NEW VERSION (the
@@ -593,7 +573,7 @@ class ArtifactsService {
    */
   async startExport(dirPath, displayName, note, into = null) {
     const trimmedNote = requireNote(note);
-    if (!this.catalog.names.includes(displayName)) {
+    if (!(await this.catalog.list()).projects.includes(displayName)) {
       throw httpError(404, `unknown RTAC project: ${displayName}`);
     }
     const entryName = `${displayName.replace(INVALID_NAME, '_')}.rtac`;
@@ -604,7 +584,8 @@ class ArtifactsService {
       throw httpError(400, `not an RTAC entry: ${into}`);
     }
     const treePath = dirPath ? `${dirPath}/${entryName}` : entryName;
-    if (this.#pendingExports.get(treePath)?.status === 'exporting') {
+    const downloads = { type: 'rtac-export', project: this.project };
+    if (this.jobs.active({ ...downloads, path: treePath }).length) {
       throw httpError(409, `already exporting: ${treePath}`);
     }
     if (versionOf) {
@@ -621,52 +602,40 @@ class ArtifactsService {
       }
       // Two concurrent downloads superseding the SAME entry key differently
       // here (by database name) but collide at placement — refuse the second.
-      for (const [pending, state] of this.#pendingExports) {
-        const pendingDir = pending.includes('/') ? pending.slice(0, pending.lastIndexOf('/')) : '';
-        if (state.status === 'exporting' && state.into === versionOf && pendingDir === dirPath) {
-          throw httpError(409, `already exporting a new version of ${versionOf}`);
-        }
+      if (this.jobs.active({ ...downloads, dir: dirPath, into: versionOf }).length) {
+        throw httpError(409, `already exporting a new version of ${versionOf}`);
       }
     }
-    // `database` rides the state so a failed export can RETRY with the real
-    // database name — the tree path alone cannot reproduce it (the entry may
-    // be renamed, and invalid characters were sanitized away). `into` rides
-    // for the same reason: the retry must still supersede the same entry.
-    this.#pendingExports.set(treePath, {
-      status: 'exporting',
-      at: Date.now(),
-      note: trimmedNote,
-      database: displayName,
-      into: versionOf,
-    });
-
-    // Fire-and-forget: the request returns 202 and the sidebar polls
-    // exportStatus(). Failures land as 'error' rather than throwing.
-    (async () => {
+    // The job's meta says what it is about (the tree opens `dir` when it
+    // lands). A retry re-runs this same call: the real database name (the
+    // tree path may be renamed or sanitized away from it) and `into`, so it
+    // still supersedes the same entry.
+    const meta = {
+      ...downloads, path: treePath, dir: dirPath, note: trimmedNote, database: displayName, into: versionOf,
+    };
+    const job = this.jobs.start(`AcRTAC download: ${displayName}`, async (handle) => {
       const staging = path.join(this.projectDir, `.rtac-staging-${Date.now()}`);
       try {
         await rm(staging, { recursive: true, force: true });
-        await this.catalog.client.exportXml({ name: displayName, directory: staging });
+        const [result] = await this.catalog.client.export({
+          projects: [displayName], format: 'xml', directory: staging, flat: true, job: handle,
+        });
+        if (!result?.success) throw new Error(result?.error ?? 'AcRTAC exported nothing');
         await this.files.placeEntry(dirPath, entryName, trimmedNote, async (target) => {
           await rename(staging, target);
         }, { directory: true, versionOf, database: displayName });
         this.invalidate(treePath);
-        this.#pendingExports.delete(treePath);
-      } catch (err) {
-        this.#pendingExports.set(treePath, {
-          status: 'error',
-          at: Date.now(),
-          note: trimmedNote,
-          database: displayName,
-          into: versionOf,
-          error: err?.message ?? String(err),
-        });
+        handle.log(`✓ ${treePath}`);
+        return { path: treePath };
       } finally {
         await rm(staging, { recursive: true, force: true }).catch(() => {});
       }
-    })();
+    }, {
+      meta,
+      retry: async () => (await this.startExport(dirPath, displayName, trimmedNote, into)).job,
+    });
 
-    return { path: treePath, status: 'exporting' };
+    return { path: treePath, job: job.id };
   }
 
   /** What an exported-folder upload of these paths would add: the entry
@@ -681,7 +650,7 @@ class ArtifactsService {
    * the top segment names the export. Same versioning as a download. Each
    * file carries either `buffer` (bytes in hand) or `source` (a temp file on
    * disk) — the route streams big uploads through temp files so a 500 MB
-   * export never sits in main-process memory whole.
+   * export never sits in backend memory whole.
    */
   async uploadFolder(dirPath, files, note) {
     const trimmedNote = requireNote(note);

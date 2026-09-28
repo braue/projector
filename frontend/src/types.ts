@@ -3,30 +3,21 @@
 // the backend services for the full payloads.
 
 /** One AcRTAC database project, as the database browser lists it. */
-export interface RtacAvailableEntry {
-  name: string
-}
-
-export interface RtacAvailableList {
-  projects: RtacAvailableEntry[]
+/** The AcRTAC database's project list (GET /api/acrtac/projects). */
+export interface AcrtacProjectList {
+  projects: string[]
   /** Last database-list failure, or null when the list is healthy. */
   error: string | null
 }
 
-/** One in-flight (or failed) AcRTAC export, overlaid on the file tree. */
-export interface RtacExportStatus {
-  /** Tree path the export lands at ("Station A/GP-Naheola.rtac"). */
+/** A finished AcRTAC download into the tree (a done 'rtac-export' job) —
+ *  the tree opens the folder it landed in. */
+export interface LandedDownload {
+  job: string
+  /** Tree path it landed at ("Station A/GP-Naheola.rtac"). */
   path: string
-  status: 'exporting' | 'error'
-  at: number
-  note: string
-  /** The AcRTAC database this export pulls from — retry needs the REAL name
-   *  (the tree path may be renamed or sanitized away from it). */
-  database?: string
-  /** The existing entry this export supersedes ("new version from AcRTAC"
-   *  onto a differently-named entry) — retry must supersede the same one. */
-  into?: string | null
-  error?: string
+  /** The entry it superseded under another name, if any. */
+  into: string | null
 }
 
 export type ItemCategory =
@@ -347,16 +338,27 @@ export interface ArtifactProfile {
 
 export type ToolJobStatus = 'running' | 'done' | 'error'
 
-/** One slow tool operation, polled at /api/tools/jobs/:id until settled. */
+/** Where a job is: working, finished, or failed. */
+/** One piece of background work (backend services/jobs.js). The event
+ *  stream carries it without `result`; GET /api/jobs/:id has it all. */
 export interface ToolJob {
   id: string
   label: string
   status: ToolJobStatus
+  /** Why it is queued (behind another AcRTAC session), or null while working. */
+  waiting: string | null
   /** 0..1 when the work can estimate, null when it cannot. */
   progress: number | null
   log: string[]
-  result: unknown
+  result?: unknown
   error: string | null
+  /** Failed, and can be started again as it was (the popover's ↻). */
+  retryable?: boolean
+  /** What the job is about, for whoever draws it — e.g. a tree download:
+   *  { type: 'rtac-export', project, path, note, database, into }. */
+  meta: Record<string, unknown> | null
+  startedAt: string
+  endedAt: string | null
 }
 
 /** One downloadable report file a tool run produced. */

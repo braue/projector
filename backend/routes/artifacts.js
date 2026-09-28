@@ -1,5 +1,5 @@
 // Artifact surface for one project: inspect (tree/item/profiles), aggregate,
-// panel drawings, and the RTAC intake (AcRTAC catalog, export-into-folder,
+// panel drawings, and the RTAC intake (download from AcRTAC into a folder,
 // exported-folder upload). Refs and paths contain slashes and "::", so they
 // travel as ?ref= / ?path= / body fields, never as route params.
 // `resolve(req)` supplies the project's { artifacts } bundle slice.
@@ -14,12 +14,11 @@ import { httpError, requireQuery } from '../lib/http.js';
 
 const MAX_RTAC_UPLOAD_BYTES = 64 * 1024 * 1024;
 
-function artifactRoutes(resolve, catalog) {
+function artifactRoutes(resolve) {
   const router = Router({ mergeParams: true });
   // Disk storage, not memory: an exported project folder runs to hundreds of
-  // MB across thousands of files, and this backend shares the Electron main
-  // process — buffering a whole export in RAM is the OOM the parse cache
-  // exists to prevent. Files land in the OS temp dir and are removed after
+  // MB across thousands of files, and buffering a whole export in RAM is the
+  // OOM the parse cache exists to prevent. Files land in the OS temp dir and are removed after
   // the store copies them into place.
   const upload = multer({
     storage: multer.diskStorage({ destination: os.tmpdir() }),
@@ -64,21 +63,11 @@ function artifactRoutes(resolve, catalog) {
 
   // --- RTAC intake -----------------------------------------------------------
 
-  // The database browser: the machine-global AcRTAC catalog.
-  router.get('/rtac/available', async (req, res) => {
-    res.json((await resolve(req)).available());
-  });
-
-  // (Re-)query the database list — the browser's refresh button.
-  router.post('/rtac/refresh', async (req, res) => {
-    await catalog.refresh();
-    res.json((await resolve(req)).available());
-  });
-
   // Download a DATABASE project into a folder of the tree, as a new version
   // if the export is already there. Body: { dir, name, note, into? } —
   // `into` names an existing .rtac entry to version onto regardless of the
-  // database name. 202 — completion is polled via /rtac/status.
+  // database name. 202 with the job id — it runs in the app's job registry,
+  // shown in the tasks popover (and retried from there if it fails).
   router.post('/rtac/export', async (req, res) => {
     const { dir = '', name, note, into } = req.body ?? {};
     if (typeof name !== 'string' || !name) throw httpError(400, 'name required');
@@ -88,17 +77,6 @@ function artifactRoutes(resolve, catalog) {
       note,
       typeof into === 'string' && into ? into : null,
     ));
-  });
-
-  // In-flight and failed exports, for the sidebar overlay.
-  router.get('/rtac/status', async (req, res) => {
-    res.json({ exports: (await resolve(req)).exportStatus() });
-  });
-
-  // Dismiss one failed export from the overlay.
-  router.delete('/rtac/status', async (req, res) => {
-    (await resolve(req)).dismissExportError(requireQuery(req, 'path'));
-    res.json({ ok: true });
   });
 
   // What an exported-folder upload would add, from its paths alone (no

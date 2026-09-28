@@ -1,24 +1,18 @@
 // RTAC Exporter — bulk-export AcRTAC database projects as XML trees or .exp
-// files, ported from the standalone RTAC EXPORTER app. The selacrtac work
-// runs in py/acrtac_export.py, which logs into the database itself with the
-// fixed admin/TAIL pair (same as acrtac_bridge.py); the request travels as
-// JSON on the bridge's stdin, and the exports land in a tool run instead of
-// the old fixed C:\RTAC_exports path, zipped for download / save-to-project.
+// files, ported from the standalone RTAC EXPORTER app. The export runs
+// through the one AcRTAC database bridge (py/acrtac_bridge.py, via the
+// catalog's client), which logs into the database itself with the fixed
+// admin/TAIL pair; the exports land in a tool run instead of the old fixed
+// C:\RTAC_exports path, zipped for download / save-to-project. The project
+// list is the shared catalog (/api/acrtac/projects).
 
 import { httpError } from '../../lib/http.js';
-import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
-
-const SCRIPT = 'acrtac_export.py';
 
 class RtacExportService {
-  constructor({ workspace, jobs }) {
+  constructor({ workspace, jobs, catalog }) {
     this.workspace = workspace;
     this.jobs = jobs;
-  }
-
-  async listProjects() {
-    const result = await runStdinBridge(SCRIPT, { command: 'list' });
-    return { projects: result.projects };
+    this.catalog = catalog;
   }
 
   /** Export the chosen projects into a new run, as a job; the run ends up
@@ -32,16 +26,13 @@ class RtacExportService {
     const workspace = this.workspace;
     const job = this.jobs.start(`RTAC export: ${projects.length} project(s)`, async (handle) => {
       handle.log(`Exporting ${projects.length} project(s) as ${exportFormat.toUpperCase()}…`);
-      const { results } = await runStdinBridge(SCRIPT, {
-        command: 'export',
+      const results = await this.catalog.client.export({
         projects,
         format: exportFormat,
         directory: dir,
         projectPassword: projectPassword || null,
+        job: handle,
       });
-      for (const entry of results) {
-        handle.log(entry.success ? `✓ ${entry.project}` : `✕ ${entry.project}: ${entry.error}`);
-      }
       // One ZIP of the whole run for download / save-to-project.
       const zipName = 'rtac exports.zip';
       const zipped = await workspace.zipRun('rtac-export', runId, zipName);

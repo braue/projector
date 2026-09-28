@@ -45,7 +45,8 @@ whenever the pane on the right has no find of its own).
 ## Running
 
 - Dev: `npm run dev` in `backend/` and `frontend/` (Vite proxies `/api`).
-- Desktop: `npm run app` at the root (Express backend inside Electron).
+- Desktop: `npm run app` at the root (the Express backend runs in its own
+  Electron utility process, restarted if it crashes).
 - Package for Windows: `npm run dist`.
 
 ## Tools & Atlas

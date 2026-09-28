@@ -1,17 +1,29 @@
 // RTAC VLAN Deploy — bring a bench of RTACs onto one VLAN and load their
-// projects. Per RTAC: the network IP it's reached at, the VLAN IP/mask its
-// Eth_02 gets, the switch port it's plugged into, and its AcRTAC project. One
-// switch and one VLAN ID for the run. The backend runs it as one job:
-// Eth_02 IPs → switch ports onto the VLAN → uploads one at a time over the
-// network IP. A failed RTAC in the first two stages stops the run before the
-// next; re-running skips whatever is already done.
+// projects. For the run: one switch, one VLAN ID, and the switch port the
+// Raspberry Pi (network translation for testing) sits on. Per RTAC: a bench
+// device picked by identifier (its network IP and switch port come from the
+// bench device table, edited on this tool's second page), the VLAN IP its
+// Eth_02 gets (always /24, gateway .1), and its AcRTAC project. The backend
+// runs it as one job: Eth_02 IPs → the VLAN becomes exactly these ports →
+// uploads, several at a time. A failed RTAC in the first two stages stops the
+// run before the next; re-running skips whatever is already done.
 
 import { Fragment, useEffect, useState } from 'react'
 
-import { listRtacExportProjects, startVlanDeployJob, type VlanDeployRtac } from '../api'
-import { Button, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import {
+  fetchBenchDevices,
+  fetchToolSettings,
+  saveBenchDevices,
+  startVlanDeployJob,
+  updateToolSettings,
+  type BenchDevice,
+  type VlanDeployRtac,
+} from '../api'
+import { AcrtacProjectPicker } from '../components/AcrtacProjectPicker'
+import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { count } from '../lib/format'
+import { useAction } from '../lib/useAction'
 import { useToolJob } from '../lib/useToolJob'
 import type { ToolProps } from './registry'
 
@@ -20,16 +32,27 @@ interface StepResult {
   error?: string
   before?: string
   after?: string
+  gateway?: string
   changed?: boolean
+  attempts?: number
 }
 
 interface DeployOutcome {
-  rtacs: { networkIp: string; project: string; ip: StepResult | null; upload: StepResult | null }[]
-  vlan: (StepResult & { moved?: Record<string, string> }) | null
+  rtacs: { label: string; networkIp: string; project: string; ip: StepResult | null; upload: StepResult | null }[]
+  vlan: (StepResult & { moved?: Record<string, string>; removed?: string; tagged?: string }) | null
   stoppedAt: null | 'ip' | 'vlan'
 }
 
-const emptyRow = (): VlanDeployRtac => ({ networkIp: '', vlanIp: '', port: '', project: '' })
+/** The run-wide fields, remembered in tool settings between launches. */
+interface RunFields {
+  switchIp: string
+  vlan: string
+  piPort: string
+  parallel: boolean
+}
+
+const SETTINGS_KEY = 'vlanDeploy'
+const emptyRow = (): VlanDeployRtac => ({ device: '', vlanIp: '', project: '' })
 
 function Step({ step, done }: { step: StepResult | null; done: string }) {
   if (!step) return <span className="tool-stats">—</span>
@@ -38,12 +61,13 @@ function Step({ step, done }: { step: StepResult | null; done: string }) {
 }
 
 export function VlanDeployTool({ active }: ToolProps) {
+  const [page, setPage] = useState<'deploy' | 'devices'>('deploy')
   const [error, setError] = useState<string | null>(null)
-  const [projects, setProjects] = useState<string[] | null>(null)
-  const [loading, setLoading] = useState(false)
 
-  const [switchIp, setSwitchIp] = useState('')
-  const [vlan, setVlan] = useState('')
+  const [devices, setDevices] = useState<BenchDevice[] | null>(null)
+  const [picking, setPicking] = useState<number | null>(null)
+
+  const [fields, setFields] = useState<RunFields>({ switchIp: '', vlan: '', piPort: '', parallel: true })
   const [rows, setRows] = useState<VlanDeployRtac[]>([emptyRow()])
 
   const [outcome, setOutcome] = useState<DeployOutcome | null>(null)
@@ -52,40 +76,54 @@ export function VlanDeployTool({ active }: ToolProps) {
     setError,
   )
 
-  const loadProjects = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setProjects(await listRtacExportProjects())
-    } catch (err) {
-      setError(errorMessage(err))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // The list comes from the AcRTAC database (a Python session), so fetch it
-  // when the tool is first shown, not at app start.
+  // The device table and last run's fields load when the tool is first
+  // shown; the project picker reads the shared AcRTAC list when opened.
   useEffect(() => {
-    if (active && projects === null && !loading && !error) loadProjects()
+    if (!active || devices !== null) return
+    fetchBenchDevices().then(setDevices, (err) => { setDevices([]); setError(errorMessage(err)) })
+    fetchToolSettings().then((settings) => {
+      const saved = settings[SETTINGS_KEY] as Partial<RunFields> | undefined
+      // earlier builds saved a worker count here; anything but false means parallel
+      if (saved) setFields((current) => ({ ...current, ...saved, parallel: saved.parallel !== false }))
+    }, () => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
 
+  const setField = <K extends keyof RunFields>(key: K, value: RunFields[K]) =>
+    setFields((current) => ({ ...current, [key]: value }))
   const setRow = (index: number, patch: Partial<VlanDeployRtac>) =>
     setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
 
-  const ready = switchIp.trim() && vlan.trim() && rows.every((r) =>
-    r.networkIp.trim() && r.vlanIp.trim() && r.port.trim() && r.project)
+  const byId = new Map((devices ?? []).map((d) => [d.id, d]))
+  const ready = fields.switchIp.trim() && fields.vlan.trim() && fields.piPort.trim() &&
+    rows.every((r) => byId.has(r.device) && r.vlanIp.trim() && r.project)
 
   const deploy = async () => {
     setError(null)
     setOutcome(null)
     try {
-      const { job: id } = await startVlanDeployJob({ switchIp, vlan, rtacs: rows })
+      const { job: id } = await startVlanDeployJob({ ...fields, rtacs: rows })
       start(id)
+      updateToolSettings({ [SETTINGS_KEY]: fields }).catch(() => {})
     } catch (err) {
       setError(errorMessage(err))
     }
+  }
+
+  if (page === 'devices') {
+    return (
+      <BenchDevicesPage
+        devices={devices ?? []}
+        onSaved={(saved) => {
+          setDevices(saved)
+          // a renamed/removed device can't stay picked
+          const ids = new Set(saved.map((d) => d.id))
+          setRows((current) => current.map((r) => (ids.has(r.device) ? r : { ...r, device: '' })))
+          setPage('deploy')
+        }}
+        onBack={() => setPage('deploy')}
+      />
+    )
   }
 
   return (
@@ -93,47 +131,70 @@ export function VlanDeployTool({ active }: ToolProps) {
       <div className="preview-header">
         <div className="preview-title-row">
           <h2>RTAC VLAN Deploy</h2>
-          {(loading || running) && <Spinner />}
+          {running && <Spinner />}
         </div>
       </div>
       <div className="tool-scroll">
         <div className="tool-row">
-          <TextInput label="Switch IP" value={switchIp} placeholder="10.42.44.12"
-            onChange={(e) => setSwitchIp(e.target.value)} />
-          <TextInput label="VLAN ID" value={vlan} placeholder="14"
-            onChange={(e) => setVlan(e.target.value)} />
+          <TextInput label="Switch IP" value={fields.switchIp} placeholder="10.42.44.12"
+            onChange={(e) => setField('switchIp', e.target.value)} />
+          <TextInput label="VLAN ID" value={fields.vlan} placeholder="14"
+            onChange={(e) => setField('vlan', e.target.value)} />
+          <TextInput label="Raspberry Pi port" value={fields.piPort} placeholder="24"
+            onChange={(e) => setField('piPort', e.target.value)} />
         </div>
 
-        <SectionHeader title="RTACs" count={rows.length} />
+        <div className="tool-row vlandeploy-head">
+          <SectionHeader title="RTACs" count={rows.length} />
+          <Button onClick={() => setPage('devices')}>Bench devices…</Button>
+        </div>
+        {devices?.length === 0 && (
+          <div className="tool-empty">
+            No bench devices yet — add each device’s identifier, network IP and switch port under
+            Bench devices.
+          </div>
+        )}
         <div className="vlandeploy-grid">
-          <span className="vlandeploy-col">Network IP</span>
-          <span className="vlandeploy-col">VLAN IP / mask</span>
-          <span className="vlandeploy-col">Switch port</span>
+          <span className="vlandeploy-col">Device</span>
+          <span className="vlandeploy-col">Network IP · port</span>
+          <span className="vlandeploy-col">VLAN IP (/24)</span>
           <span className="vlandeploy-col">Project</span>
           <span />
-          {rows.map((row, index) => (
-            <Fragment key={index}>
-              <TextInput value={row.networkIp} placeholder="10.42.44.34"
-                onChange={(e) => setRow(index, { networkIp: e.target.value })} />
-              <TextInput value={row.vlanIp} placeholder="172.16.100.200/24"
-                onChange={(e) => setRow(index, { vlanIp: e.target.value })} />
-              <TextInput value={row.port} placeholder="3"
-                onChange={(e) => setRow(index, { port: e.target.value })} />
-              <Select value={row.project} placeholder={projects ? 'Pick a project…' : loading ? 'Loading…' : 'No projects loaded'}
-                options={projects ?? []} disabled={!projects}
-                onChange={(project) => setRow(index, { project })} />
-              <Button title="Remove this RTAC" disabled={rows.length === 1}
-                onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
-                ✕
-              </Button>
-            </Fragment>
-          ))}
+          {rows.map((row, index) => {
+            const device = byId.get(row.device)
+            const usedElsewhere = new Set(rows.filter((_, i) => i !== index).map((r) => r.device))
+            return (
+              <Fragment key={index}>
+                <Select value={row.device} placeholder={devices ? 'Pick a device…' : 'Loading…'}
+                  options={(devices ?? []).filter((d) => !usedElsewhere.has(d.id)).map((d) => d.id)}
+                  disabled={!devices?.length}
+                  onChange={(id) => setRow(index, { device: id })} />
+                <span className="tool-stats">
+                  {device ? `${device.networkIp} · port ${device.port}` : '—'}
+                </span>
+                <TextInput value={row.vlanIp} placeholder="172.16.100.200"
+                  onChange={(e) => setRow(index, { vlanIp: e.target.value })} />
+                <button className="vlandeploy-project" title={row.project || 'Pick the AcRTAC project'}
+                  onClick={() => setPicking(index)}>
+                  {row.project || <span className="tool-stats">Pick a project…</span>}
+                </button>
+                <Button title="Remove this RTAC" disabled={rows.length === 1}
+                  onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
+                  ✕
+                </Button>
+              </Fragment>
+            )
+          })}
         </div>
         <div className="tool-row">
-          <Button onClick={() => setRows((current) => [...current, emptyRow()])}>+ Add RTAC</Button>
-          {projects === null && !loading && (
-            <Button onClick={loadProjects}>Load projects</Button>
-          )}
+          <Button onClick={() => setRows((current) => [...current, emptyRow()])}
+            disabled={!!devices && rows.length >= devices.length}>
+            + Add RTAC
+          </Button>
+          <label className="vlandeploy-check" title="Upload every project at once instead of one at a time">
+            <Checkbox checked={fields.parallel} onChange={(on) => setField('parallel', on)} />
+            Parallel uploads
+          </label>
           <Button variant="primary" disabled={!ready || running} onClick={deploy}>
             Deploy {count(rows.length, 'RTAC')}
           </Button>
@@ -161,8 +222,10 @@ export function VlanDeployTool({ active }: ToolProps) {
               <div className="tool-stats">
                 Switch: <Step step={outcome.vlan}
                   done={outcome.vlan.changed
-                    ? `VLAN ${vlan} untagged ${outcome.vlan.before || '—'} → ${outcome.vlan.after}`
-                    : `ports already on VLAN ${vlan}`} />
+                    ? `VLAN ${fields.vlan} = ${outcome.vlan.after}` +
+                      (outcome.vlan.removed ? ` (${outcome.vlan.removed} moved to VLAN 1)` : '') +
+                      (outcome.vlan.tagged ? ` (tagged ${outcome.vlan.tagged} removed)` : '')
+                    : `VLAN ${fields.vlan} already exactly ${outcome.vlan.after}`} />
               </div>
             )}
             <div className="vlandeploy-results">
@@ -170,16 +233,104 @@ export function VlanDeployTool({ active }: ToolProps) {
               <span className="vlandeploy-col">Eth_02</span>
               <span className="vlandeploy-col">Upload</span>
               {outcome.rtacs.map((r) => (
-                <Fragment key={r.networkIp}>
-                  <span>{r.networkIp} <span className="tool-stats">{r.project}</span></span>
+                <Fragment key={r.label}>
+                  <span>{r.label} <span className="tool-stats">{r.project}</span></span>
                   <Step step={r.ip}
-                    done={r.ip?.changed ? `${r.ip.before} → ${r.ip.after}` : `already ${r.ip?.after}`} />
-                  <Step step={r.upload} done="sent" />
+                    done={r.ip?.changed
+                      ? `${r.ip.before} → ${r.ip.after} via ${r.ip.gateway}`
+                      : `already ${r.ip?.after} via ${r.ip?.gateway}`} />
+                  <Step step={r.upload}
+                    done={r.upload?.attempts && r.upload.attempts > 1 ? `sent (attempt ${r.upload.attempts})` : 'sent'} />
                 </Fragment>
               ))}
             </div>
           </>
         )}
+      </div>
+
+      {picking !== null && (
+        <AcrtacProjectPicker
+          current={rows[picking]?.project}
+          taken={rows.filter((_, i) => i !== picking).map((r) => r.project).filter(Boolean)}
+          onPick={(project) => {
+            setRow(picking, { project })
+            setPicking(null)
+          }}
+          onClose={() => setPicking(null)}
+        />
+      )}
+    </>
+  )
+}
+
+// --- the bench device table ---------------------------------------------------
+
+type DraftDevice = BenchDevice & { key: number }
+
+/** The second page: edit which identifier sits at which network IP on which
+ *  switch port. Saved whole; the backend refuses bad or repeated values. */
+function BenchDevicesPage({
+  devices,
+  onSaved,
+  onBack,
+}: {
+  devices: BenchDevice[]
+  onSaved: (devices: BenchDevice[]) => void
+  onBack: () => void
+}) {
+  const [nextKey, setNextKey] = useState(devices.length + 1)
+  const [draft, setDraft] = useState<DraftDevice[]>(() =>
+    devices.length ? devices.map((d, i) => ({ ...d, key: i })) : [{ id: '', networkIp: '', port: '', key: 0 }])
+  const { run, busy: saving, error } = useAction()
+
+  const set = (key: number, patch: Partial<BenchDevice>) =>
+    setDraft((current) => current.map((d) => (d.key === key ? { ...d, ...patch } : d)))
+  const add = () => {
+    setDraft((current) => [...current, { id: '', networkIp: '', port: '', key: nextKey }])
+    setNextKey((k) => k + 1)
+  }
+
+  const save = () => run(async () => {
+    // rows left entirely blank are just unused space, not errors
+    const rows = draft
+      .filter((d) => d.id.trim() || d.networkIp.trim() || d.port.trim())
+      .map(({ id, networkIp, port }) => ({ id, networkIp, port }))
+    onSaved(await saveBenchDevices(rows))
+  })
+
+  return (
+    <>
+      <div className="preview-header">
+        <div className="preview-title-row">
+          <h2>Bench devices</h2>
+          {saving && <Spinner />}
+        </div>
+      </div>
+      <div className="tool-scroll">
+        <div className="vlandeploy-devices">
+          <span className="vlandeploy-col">Identifier</span>
+          <span className="vlandeploy-col">Network IP</span>
+          <span className="vlandeploy-col">Switch port</span>
+          <span />
+          {draft.map((d) => (
+            <Fragment key={d.key}>
+              <TextInput value={d.id} placeholder="3555-1" onChange={(e) => set(d.key, { id: e.target.value })} />
+              <TextInput value={d.networkIp} placeholder="10.42.44.34"
+                onChange={(e) => set(d.key, { networkIp: e.target.value })} />
+              <TextInput value={d.port} placeholder="3" onChange={(e) => set(d.key, { port: e.target.value })} />
+              <Button title="Remove this device"
+                onClick={() => setDraft((current) => current.filter((x) => x.key !== d.key))}>
+                ✕
+              </Button>
+            </Fragment>
+          ))}
+        </div>
+        <div className="tool-row">
+          <Button onClick={add}>+ Add device</Button>
+          <Button onClick={onBack} disabled={saving}>Cancel</Button>
+          <Button variant="primary" onClick={save} disabled={saving}>Save</Button>
+        </div>
+        {error && <div className="tool-error">{error}</div>}
       </div>
     </>
   )

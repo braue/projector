@@ -1,22 +1,26 @@
-// AcRTAC client — spawns py/acrtac_bridge.py for each call. The bridge owns
-// the selacrtac session (login happens inside it) and prints one JSON
-// document on stdout; anything on stderr becomes the error message.
+// Python bridge runner. Every AcRTAC feature (and the DAC SIM converter) is
+// a script in py/ that takes one JSON request on stdin, narrates on stderr,
+// and prints one JSON result on stdout. This module spawns them, queues the
+// AcRTAC ones machine-wide, and shapes their failures into one-liners. The
+// AcRTAC database itself (list + export) is one bridge, py/acrtac_bridge.py,
+// behind createAcRtacClient below.
 //
 // Requires Python with the selacrtac package on PATH.
 
-import { execFile, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
-// Packaged, this file lives inside app.asar — but Python is a separate process
-// and cannot read into the archive, so the bridge script is listed in
-// electron-builder's asarUnpack and we point at the unpacked copy.
-const BRIDGE = path
-  .join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'py', 'acrtac_bridge.py')
-  .replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
-
 const PYTHON = 'python';
+
+// Python's stdio speaks the console code page on Windows (cp1252), with
+// stderr set to backslashreplace: narration like "✓ … → …" reached the job
+// log as "\u2713", and "—"/"…" as cp1252 bytes Node's UTF-8 decode turned
+// into "?". Every bridge talks UTF-8 on all three pipes instead (stdin
+// too — project names travel in on it). Only the pipes: PYTHONUTF8 would
+// also change open()'s default, which the vendored converters rely on.
+const PYTHON_ENV = { ...process.env, PYTHONIOENCODING: 'utf-8' };
 
 // exportxml of a large project can take a while on a busy database.
 const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
@@ -59,44 +63,28 @@ function bridgeMessage(err, stderr, explain = {}, timeoutMs = BRIDGE_TIMEOUT_MS)
 // own AcRtacCmd process against the one local database; two at once race each
 // other (an export mid-flight while an import or upload opens projects), so
 // bridge calls queue here rather than each feature inventing its own
-// batching. A call's timeout starts when its session does, not while it
-// waits. Held until the call settles — for acrtac_open, when the bridge
-// exits, leaving the GUI it launched behind.
+// batching. A waiting call's job says so (its `waiting` reason, shown in the
+// tasks popover), and its timeout starts when its session does. Held until
+// the call settles — for acrtac_open, when the bridge exits, leaving the GUI
+// it launched behind.
 let acrtacTail = Promise.resolve();
 let acrtacQueued = 0;
 
-function inAcrtacQueue(onWait, fn) {
-  if (acrtacQueued > 0) onWait?.('Waiting for another AcRTAC session to finish…');
+function inAcrtacQueue(job, fn) {
+  if (acrtacQueued > 0) job?.waiting?.('Waiting for another AcRTAC session to finish…');
   acrtacQueued += 1;
-  const run = acrtacTail.then(fn);
+  const run = acrtacTail.then(() => {
+    job?.running?.();
+    return fn();
+  });
   acrtacTail = run.then(() => {}, () => {}).finally(() => { acrtacQueued -= 1; });
   return run;
 }
 
-function runBridge(args) {
-  return inAcrtacQueue(null, () => new Promise((resolve, reject) => {
-    execFile(
-      PYTHON,
-      [BRIDGE, ...args],
-      { timeout: BRIDGE_TIMEOUT_MS, windowsHide: true, maxBuffer: 16 * 1024 * 1024 },
-      (err, stdout, stderr) => {
-        if (err) {
-          // A killed process is almost always our timeout; execFile's own
-          // message for it is unhelpfully generic.
-          reject(new Error(bridgeMessage(err, stderr)));
-          return;
-        }
-        try {
-          resolve(JSON.parse(stdout));
-        } catch {
-          reject(new Error(`acrtac bridge returned non-JSON output: ${stdout.slice(0, 200)}`));
-        }
-      },
-    );
-  }));
-}
-
-/** Resolve a bridge script path, handling the asar-unpacked copy. */
+/** Resolve a bridge script path. Packaged, this file lives inside app.asar —
+ *  but Python is a separate process and cannot read into the archive, so the
+ *  scripts are listed in electron-builder's asarUnpack and we point at the
+ *  unpacked copy. */
 function bridgePath(scriptName) {
   return path
     .join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'py', scriptName)
@@ -104,18 +92,21 @@ function bridgePath(scriptName) {
 }
 
 /**
- * One bridge invocation of the stdin-JSON flavor: `request` travels as JSON
- * on stdin, the result is the JSON document printed on stdout. Stderr is the
- * bridge's narration channel — `onStderrLine` streams it (into a job log);
- * its tail is kept either way to shape a failure via bridgeMessage, with
- * `explain` passed through for per-feature wording.
+ * One bridge invocation: `request` travels as JSON on stdin, the result is
+ * the JSON document printed on stdout. Stderr is the bridge's narration
+ * channel; its tail is kept either way to shape a failure via bridgeMessage,
+ * with `explain` passed through for per-feature wording.
+ *
+ * `job`: the job handle (services/jobs.js) this call works for. Its
+ * narration streams into the job's log, and a wait in the AcRTAC queue shows
+ * as the job's `waiting` reason. `onStderrLine` overrides where lines go.
  *
  * `timeoutMs`: kill the bridge after this long (default 30 minutes) — for a
  * bridge whose work scales with its request, like a run of device uploads.
  *
  * `acrtac` (default true): the bridge opens an AcRTAC session, so it waits
- * its turn in the machine-wide queue (see inAcrtacQueue) and says so in the
- * log while it does. Pass false for a bridge that never touches AcRTAC.
+ * its turn in the machine-wide queue (see inAcrtacQueue). Pass false for a
+ * bridge that never touches AcRTAC.
  *
  * `settleOnExit`: for a bridge that deliberately leaves a GRANDCHILD running
  * (acrtac_open.py's GUI). The grandchild inherits the stdio pipes and holds
@@ -124,15 +115,16 @@ function bridgePath(scriptName) {
  * drain, then the call settles on what arrived.
  */
 function runStdinBridge(script, request, {
-  onStderrLine, explain, settleOnExit = false, timeoutMs = BRIDGE_TIMEOUT_MS, acrtac = true,
+  job = null, onStderrLine = job?.log, explain, settleOnExit = false,
+  timeoutMs = BRIDGE_TIMEOUT_MS, acrtac = true,
 } = {}) {
   const run = () => spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
-  return acrtac ? inAcrtacQueue(onStderrLine, run) : run();
+  return acrtac ? inAcrtacQueue(job, run) : run();
 }
 
 function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs }) {
   return new Promise((resolve, reject) => {
-    const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true });
+    const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true, env: PYTHON_ENV });
     let stdout = '';
     let settled = false;
     const lastLines = [];
@@ -154,6 +146,7 @@ function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit
         reject(new Error(`${script} returned non-JSON output: ${stdout.slice(0, 200)}`));
       }
     };
+    child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk) => { stdout += chunk; });
     createInterface({ input: child.stderr }).on('line', (line) => {
       if (!line.trim()) return;
@@ -180,15 +173,26 @@ function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit
   });
 }
 
+const ACRTAC_BRIDGE = 'acrtac_bridge.py';
+
+/** The AcRTAC database: its project list, and exports out of it. */
 function createAcRtacClient() {
   return {
+    /** Every project name in the database, sorted. */
     async listProjects() {
-      const result = await runBridge(['list']);
-      return result.projects; // [{ name }]
+      return (await runStdinBridge(ACRTAC_BRIDGE, { command: 'list' })).projects;
     },
 
-    async exportXml({ name, directory }) {
-      await runBridge(['export', '--name', name, '--directory', directory]);
+    /** Export `projects` into `directory` — a folder of XML or one .exp file
+     *  each — narrating to `job`. Resolves to one result per project
+     *  ({ project, success, output | error }); one project failing never
+     *  stops the rest. `flat` puts a single project's XML straight into
+     *  `directory` instead of a subfolder named after it. */
+    async export({ projects, format = 'xml', directory, projectPassword = null, flat = false, job = null }) {
+      const { results } = await runStdinBridge(ACRTAC_BRIDGE, {
+        command: 'export', projects, format, directory, projectPassword, flat,
+      }, { job });
+      return results;
     },
   };
 }

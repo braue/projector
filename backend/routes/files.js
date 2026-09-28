@@ -25,9 +25,8 @@ function pathList(paths) {
 
 function fileRoutes(resolve) {
   const router = Router({ mergeParams: true });
-  // Disk storage, not memory: this backend shares the Electron main process,
-  // and buffering a whole upload batch in RAM is the OOM class the parse
-  // cache exists to prevent (same reasoning as the RTAC upload route). The
+  // Disk storage, not memory: buffering a whole upload batch in RAM is the
+  // OOM class the parse cache exists to prevent (same reasoning as the RTAC upload route). The
   // store copies the temp files into place; they are removed after.
   const upload = multer({
     storage: multer.diskStorage({ destination: os.tmpdir() }),

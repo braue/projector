@@ -5,7 +5,7 @@
 //   signature decides added/removed/edited/unchanged. Every type signs the
 //   whole canonical PARSED item — raw-XML noise the parser doesn't model
 //   never flags a file (RTAC folds a raw hash back in only for items the
-//   parser models nothing from; see services/rtac.js).
+//   parser models nothing from; see RtacKind in lib/artifacts.js).
 //
 //   item is the shared inspect shape, so diffItems covers every type: flat
 //   settings for RDB sections and SCD logical devices, plus points/pages/

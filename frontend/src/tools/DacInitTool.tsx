@@ -29,7 +29,6 @@ import {
 import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { rtacPaths } from '../lib/fileNodes'
-import { FILES_CHANGED_EVENT } from '../lib/filesChanged'
 import { useToolJob } from '../lib/useToolJob'
 import type { DacInitResult } from '../types'
 import type { ToolProps } from './registry'
@@ -177,7 +176,6 @@ export function DacInitTool({ project }: ToolProps) {
     try {
       const { placed } = await saveDacInitRun(generatedFrom.current, result.run)
       setSaved(placed)
-      window.dispatchEvent(new Event(FILES_CHANGED_EVENT))
     } catch (err) {
       setError(errorMessage(err))
     } finally {

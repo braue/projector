@@ -4,7 +4,6 @@ import {
   createFileFolder,
   deleteFileEntries,
   discardFileEdit,
-  dismissRtacError,
   type EntryFailure,
   moveFileEntries,
   openFileEntry,
@@ -19,14 +18,28 @@ import {
   uploadRtacFolder,
 } from '../api'
 import { errorMessage } from '../lib/errors'
-import { databaseName } from '../lib/fileNodes'
+import {
+  databaseName,
+  displayName,
+  filterTree,
+  findLeafFor,
+  findNode,
+  isTextFile,
+  nameExtension,
+  parentOf,
+  refLabel,
+  stageVersionFile,
+  type FileLeaf,
+} from '../lib/fileNodes'
+import { readDropped, type FolderFile } from '../lib/folderDrop'
+import { useExpanded } from '../lib/useExpanded'
 import { formatDay, formatStamp, formatWhen } from '../lib/format'
 import { useSidebarWidth } from '../lib/usePaneWidth'
-import { useToolJob } from '../lib/useToolJob'
-import type { ArtifactKindName, FileNode, FileVersion, RtacExportStatus } from '../types'
-import { AcrtacImportModal, AcrtacImportRow, type AcrtacImportTarget } from './AcrtacImportModal'
+import type { ArtifactKindName, FileNode, FileVersion, LandedDownload } from '../types'
+import { AcrtacImportModal, type AcrtacImportTarget } from './AcrtacImportModal'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
-import { ContextMenu, InlineNameForm, Spinner, type ContextMenuItem } from './ui'
+import { ContextMenu, InlineNameForm, type ContextMenuItem } from './ui'
+import { Chevron, FileIcon, FolderIcon, NoteIcon } from './treeIcons'
 import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 
 // THE sidebar — one folder tree holding everything a project is: settings
@@ -60,59 +73,6 @@ import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 
 const ENTRY_MIME = 'application/projector-file-entry'
 
-// Stroke icons for the tree rows (lucide outlines), sized and colored by the
-// .tree-icon / .tree-chevron CSS. App-specific row decoration, not a ui.tsx
-// primitive — the tree rows are LAYOUT, like FileTree's category glyphs.
-function icon(path: React.ReactNode, className = 'tree-icon') {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      {path}
-    </svg>
-  )
-}
-
-const Chevron = ({ open }: { open: boolean }) =>
-  icon(<path d="m9 18 6-6-6-6" />, open ? 'tree-chevron open' : 'tree-chevron')
-
-const FolderIcon = ({ open }: { open: boolean }) =>
-  open
-    ? icon(
-        <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2" />,
-        'tree-icon folder',
-      )
-    : icon(
-        <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />,
-        'tree-icon folder',
-      )
-
-const FileIcon = () =>
-  icon(
-    <>
-      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-    </>,
-  )
-
-const NoteIcon = () =>
-  icon(
-    <>
-      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-      <path d="M10 9H8" />
-      <path d="M16 13H8" />
-      <path d="M16 17H8" />
-    </>,
-  )
-
 const KIND_LABEL: Record<ArtifactKindName, string> = {
   rtac: 'RTAC',
   rdb: 'RDB',
@@ -120,162 +80,10 @@ const KIND_LABEL: Record<ArtifactKindName, string> = {
   sw: 'SW',
 }
 
-export type FileLeaf = Extract<FileNode, { type: 'file' }>
-
-export function findNode(nodes: FileNode[], path: string): FileNode | null {
-  for (const node of nodes) {
-    if (node.path === path) return node
-    if (node.type === 'folder') {
-      const hit = findNode(node.children, path)
-      if (hit) return hit
-    }
-  }
-  return null
-}
-
-/** The live leaf a selected path belongs to — itself, or the entry whose
- *  version list contains it (selecting v2 still "belongs" to the entry). */
-export function findLeafFor(nodes: FileNode[], path: string): FileLeaf | null {
-  for (const node of nodes) {
-    if (node.type === 'folder') {
-      const hit = findLeafFor(node.children, path)
-      if (hit) return hit
-    } else {
-      if (node.path === path) return node
-      if (node.versions.some((version) => version.path === path)) return node
-    }
-  }
-  return null
-}
-
-export function isTextFile(name: string): boolean {
-  return /\.(txt|md)$/i.test(name)
-}
-
-/** Rendered in the preview pane by Chromium's built-in PDF viewer. */
-export function isPdfFile(name: string): boolean {
-  return /\.pdf$/i.test(name)
-}
-
-/** The tree narrowed to what matches: a leaf by its own name, a folder by
- *  holding a match — or by its own name, which keeps its whole subtree, since
- *  naming a folder means asking for what is in it. */
-function filterTree(nodes: FileNode[], needle: string): FileNode[] {
-  const out: FileNode[] = []
-  for (const node of nodes) {
-    const self = node.name.toLowerCase().includes(needle)
-    if (node.type !== 'folder' || self) {
-      if (self) out.push(node)
-      continue
-    }
-    const children = filterTree(node.children, needle)
-    if (children.length) out.push({ ...node, children })
-  }
-  return out
-}
-
-/** Display name for a ref/path — the entry name, with archive stamps shed. */
-export function displayName(path: string): string {
-  const base = path.split('/').pop() ?? path
-  return base.replace(/^\d{10,}-/, '')
-}
-
-/** What to call a path anywhere two versions could be confused: the entry
- *  name plus its version number — "feeder_1.rdb v2" for an archived
- *  version, "feeder_1.rdb v3" for the current one of a versioned entry. */
-export function refLabel(tree: FileNode[] | null, path: string): string {
-  const leaf = tree ? findLeafFor(tree, path) : null
-  if (leaf && leaf.path !== path) {
-    const index = leaf.versions.findIndex((version) => version.path === path)
-    // An archived version answers to ITS name — the entry may have been
-    // renamed by a later arrival.
-    if (index >= 0) return `${leaf.versions[index].name} v${leaf.versions.length - index}`
-  }
-  if (leaf && leaf.path === path && leaf.versions.length) {
-    return `${leaf.name} v${leaf.versions.length + 1}`
-  }
-  return displayName(path)
-}
-
-// Which folders are open rides sessionStorage per project: switching panes
-// or projects doesn't re-collapse an exploration mid-session — only a fresh
-// app start does (folders start collapsed at launch).
-const expandedKey = (project: string) => `projector.tree-expanded:${project}`
-
-function loadExpanded(project: string): Set<string> {
-  try {
-    const raw = JSON.parse(sessionStorage.getItem(expandedKey(project)) ?? '[]')
-    return new Set(Array.isArray(raw) ? raw.filter((p) => typeof p === 'string') : [])
-  } catch {
-    return new Set()
-  }
-}
-
-const extOf = (name: string) => (/\.[^.]+$/.exec(name)?.[0] ?? '').toLowerCase()
-
-/** A file name's extension AS WRITTEN (case kept — it is going back into the
- *  name), or '' when it carries none. Only a short all-alphanumeric tail
- *  holding at least one letter counts, so "Feeder Rev 2.1" has no extension
- *  to protect and renames whole. The backend enforces the same rule. */
-export function nameExtension(name: string): string {
-  return /\.(?=[^.]*[A-Za-z])[A-Za-z0-9]{1,10}$/.exec(name)?.[0] ?? ''
-}
-
-/** The picked "Add new version…" file, its name normalized against the
- *  entry it supersedes — or the refusal message. A browser/Explorer
- *  duplicate suffix (" (1)", " - Copy") never renames the entry, and an
- *  extension change is refused as a mispick: the entry's artifact TYPE is
- *  its extension, and flipping it would strand Inspect/Compare. */
-function stageVersionFile(file: File, entryName: string): File | string {
-  if (extOf(file.name) !== extOf(entryName)) {
-    return `${file.name} is a different file type than ${entryName} — a new version keeps the `
-      + `entry's type. Rename the entry first if the change is deliberate.`
-  }
-  const undup = file.name.replace(/(?: \(\d+\)| - Copy(?: \(\d+\))?)(\.[^.]+)?$/i, '$1')
-  if (undup.toLowerCase() === entryName.toLowerCase() && file.name !== entryName) {
-    return new File([file], entryName, { type: file.type })
-  }
-  return file
-}
-
-/** A file from a picked or dropped folder, with its folder-relative path. */
-type FolderFile = { file: File; path: string }
-
-/** Everything under dropped OS entries: folders walked into FolderFiles,
- *  top-level files kept loose. */
-async function readDropped(entries: FileSystemEntry[]): Promise<{ folders: FolderFile[]; loose: File[] }> {
-  const fileOf = (entry: FileSystemEntry) =>
-    new Promise<File>((resolve, reject) => (entry as FileSystemFileEntry).file(resolve, reject))
-  const childrenOf = async (entry: FileSystemEntry) => {
-    const reader = (entry as FileSystemDirectoryEntry).createReader()
-    const out: FileSystemEntry[] = []
-    // readEntries hands a directory over in batches until an empty one.
-    for (;;) {
-      const batch = await new Promise<FileSystemEntry[]>((resolve, reject) => reader.readEntries(resolve, reject))
-      if (!batch.length) return out
-      out.push(...batch)
-    }
-  }
-  // Siblings are read concurrently; each path is fixed, so order doesn't matter.
-  const walk = async (entry: FileSystemEntry, prefix: string): Promise<FolderFile[]> => {
-    const path = `${prefix}${entry.name}`
-    if (entry.isFile) return [{ file: await fileOf(entry), path }]
-    const nested = await Promise.all((await childrenOf(entry)).map((child) => walk(child, `${path}/`)))
-    return nested.flat()
-  }
-  const [folders, loose] = await Promise.all([
-    Promise.all(entries.filter((e) => e.isDirectory).map((e) => walk(e, ''))).then((nested) => nested.flat()),
-    Promise.all(entries.filter((e) => !e.isDirectory).map(fileOf)),
-  ])
-  return { folders, loose }
-}
-
 /** A bulk call's failures as one error naming each path, or nothing. */
 function throwFailures(failed: EntryFailure[]) {
   if (failed.length) throw new Error(failed.map((f) => `${displayName(f.path)}: ${f.error}`).join('\n'))
 }
-
-const parentOf = (path: string) => path.split('/').slice(0, -1).join('/')
 
 type PendingBatch =
   | { kind: 'files'; dir: string; files: File[] }
@@ -304,7 +112,7 @@ export function ProjectTree({
   tree,
   filter,
   treeError,
-  exports,
+  landed,
   selected,
   held,
   onSelect,
@@ -312,7 +120,6 @@ export function ProjectTree({
   onHoldRange,
   onComparePair,
   onReload,
-  onExportsChanged,
 }: {
   project: string
   tree: FileNode[] | null
@@ -320,7 +127,9 @@ export function ProjectTree({
    *  of the tree (upload collisions, compare labels) still sees all of it. */
   filter: string
   treeError: string | null
-  exports: RtacExportStatus[]
+  /** AcRTAC downloads into this project that have finished (the tasks
+   *  popover shows them; the tree only opens where each one landed). */
+  landed: LandedDownload[]
   selected: string | null
   /** Further rows held alongside the selection (ctrl/shift-click). */
   held: string[]
@@ -332,28 +141,14 @@ export function ProjectTree({
   /** The context menu's compare over the two held rows. */
   onComparePair: (original: string, updated: string) => void
   onReload: () => void
-  onExportsChanged: () => void
 }) {
   const [error, setError] = useState<string | null>(null)
   const [dropTarget, setDropTarget] = useState<string | null>(null)
   const [renaming, setRenaming] = useState<string | null>(null)
   const [creatingIn, setCreatingIn] = useState<string | null>(null)
   const [notingIn, setNotingIn] = useState<string | null>(null)
-  // Folders start collapsed at launch; see loadExpanded for the lifetime.
-  const [expanded, setExpanded] = useState<Set<string>>(() => loadExpanded(project))
-  const expandedFor = useRef(project)
-  if (expandedFor.current !== project) {
-    // Project switched without a remount: swap in that project's set.
-    expandedFor.current = project
-    setExpanded(loadExpanded(project))
-  }
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(expandedKey(project), JSON.stringify([...expanded]))
-    } catch {
-      // Persistence is best-effort; expansion still works for this render.
-    }
-  }, [project, expanded])
+  // Folders start collapsed at launch; see useExpanded for the lifetime.
+  const { expanded, toggle: toggleExpanded, reveal: revealDir } = useExpanded(project)
   const [openVersions, setOpenVersions] = useState<Set<string>>(new Set())
   const [pending, setPending] = useState<PendingBatch | null>(null)
   const [noteBusy, setNoteBusy] = useState(false)
@@ -362,14 +157,6 @@ export function ProjectTree({
   // at an existing entry as its next version (null = closed).
   const [dbState, setDbState] = useState<{ dir: string; versionOf?: string } | null>(null)
   const [importTargets, setImportTargets] = useState<AcrtacImportTarget[] | null>(null)
-  // Imports under way, oldest first — the dialog hands each job over and
-  // closes, and the row below the tree carries it the rest of the way. The
-  // project rides along so switching projects hides (never cancels) them.
-  const [imports, setImports] = useState<{
-    id: string
-    label: string
-    project: string
-  }[]>([])
   const [menu, setMenu] = useState<{ x: number; y: number; target: MenuTarget } | null>(null)
   const { width, startResize } = useSidebarWidth()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -397,80 +184,40 @@ export function ProjectTree({
     return next
   }
 
-  // Anything that PUTS something into a folder opens the path to it, so the
-  // result is on screen. Called on SUCCESS (an upload that lands, an export
-  // that completes, a move) — not on intent, so a cancelled dialog doesn't
-  // leave folders open. The inline create forms are the exception: they
-  // render inside the folder, which must be open for them to show at all.
-  const revealDir = (dir: string) => {
-    if (!dir) return
-    setExpanded((current) => {
-      const next = new Set(current)
-      let acc = ''
-      for (const part of dir.split('/')) {
-        acc = acc ? `${acc}/${part}` : part
-        next.add(acc)
-      }
-      return next
-    })
-  }
-
-  // A finished AcRTAC download leaves the pending list having landed its
-  // entry in a possibly-collapsed folder — reveal where it went, and when
-  // the download superseded (renamed) an entry the selection pointed at,
-  // follow the rename instead of blanking on the stale path. Only rows last
-  // seen 'exporting' landed; an 'error' row leaves by being dismissed.
-  const knownExports = useRef<Map<string, { status: string; into: string | null }>>(new Map())
+  // An AcRTAC download that just landed put its entry in a possibly-collapsed
+  // folder — reveal where it went, and when it superseded (renamed) the entry
+  // the selection pointed at, follow the rename instead of blanking on the
+  // stale path. Downloads already finished when the tree mounted are old news.
+  const seenLanded = useRef<Set<string> | null>(null)
   useEffect(() => {
-    const current = new Map(exports.map((entry) => [
-      entry.path,
-      { status: entry.status, into: entry.into ?? null },
-    ]))
-    for (const [exportPath, known] of knownExports.current) {
-      if (current.has(exportPath) || known.status !== 'exporting') continue
-      const dir = parentOf(exportPath)
+    if (seenLanded.current === null) {
+      seenLanded.current = new Set(landed.map((entry) => entry.job))
+      return
+    }
+    for (const entry of landed) {
+      if (seenLanded.current.has(entry.job)) continue
+      seenLanded.current.add(entry.job)
+      const dir = parentOf(entry.path)
       revealDir(dir)
-      if (known.into) {
-        const oldPath = dir ? `${dir}/${known.into}` : known.into
-        if (selected === oldPath) onSelect(exportPath)
+      if (entry.into) {
+        const oldPath = dir ? `${dir}/${entry.into}` : entry.into
+        if (selected === oldPath) onSelect(entry.path)
       }
     }
-    knownExports.current = current
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exports])
+  }, [landed])
 
   // --- open in AcRTAC ----------------------------------------------------------
 
   // Double-click an RTAC entry: open its database project in the AcSELerator
   // RTAC GUI — the recorded database name when the entry has one (set by
-  // downloads and imports), the entry's own name as the fallback. Needs the
-  // machine with the database — elsewhere the job fails with a clear
-  // message, shown in the tree's error strip.
-  const [acrtacOpening, setAcrtacOpening] = useState<string | null>(null)
-  const acrtacOpenJob = useToolJob(
-    () => setAcrtacOpening(null),
-    (message) => {
-      setAcrtacOpening(null)
-      setError(message)
-    },
-  )
-  const openInAcrtac = async (node: FileLeaf) => {
-    if (acrtacOpening !== null) return
-    const name = databaseName(node)
+  // downloads and imports), the entry's own name as the fallback. It runs as
+  // a job (the tasks popover shows it); needs the machine with the database —
+  // elsewhere the job fails with a clear message there.
+  const openInAcrtac = (node: FileLeaf) => {
     setError(null)
-    setAcrtacOpening(name)
-    try {
-      const { job } = await startAcrtacOpen(name)
-      acrtacOpenJob.start(job)
-    } catch (err) {
-      setAcrtacOpening(null)
-      setError(errorMessage(err))
-    }
+    startAcrtacOpen(databaseName(node)).catch((err) => setError(errorMessage(err)))
   }
-
-  /** Drop a settled import's row; the job itself is already over. */
-  const finishImport = (id: string) =>
-    setImports((current) => current.filter((entry) => entry.id !== id))
 
   // --- intake ----------------------------------------------------------------
 
@@ -520,12 +267,11 @@ export function ProjectTree({
       } else if (pending.kind === 'edit') {
         await recordFileEdit(project, pending.path, note)
       } else if (pending.kind === 'refresh') {
-        // Each pull supersedes its entry in place when it lands; the export
-        // rows under the tree carry them from here.
+        // Each pull supersedes its entry in place when it lands; the tasks
+        // popover carries them from here.
         for (const entry of pending.entries) {
           await startRtacExport(project, entry.dir, entry.database, note, entry.name)
         }
-        onExportsChanged()
       } else {
         if (pending.files.length) await uploadRtacFolder(project, pending.dir, pending.files, note)
         if (pending.loose.length) await uploadFiles(project, pending.dir, pending.loose, note)
@@ -1199,7 +945,7 @@ export function ProjectTree({
                 return
               }
               onSelect(node.path)
-              setExpanded((current) => toggleSet(current, node.path))
+              toggleExpanded(node.path)
             }}
             onContextMenu={(e) => openMenu(e, { type: 'dir', dir: node.path, node })}
           >
@@ -1213,54 +959,6 @@ export function ProjectTree({
       </div>
     )
   }
-
-  // --- in-flight RTAC exports --------------------------------------------------
-
-  const exportRows = exports.map((entry) => (
-    <div
-      key={entry.path}
-      className={`tree-row file-row export-row${entry.status === 'error' ? ' export-error' : ''}`}
-      title={entry.status === 'error'
-        ? `${entry.path}: ${entry.error}`
-        : `Downloading ${entry.path} from the AcRTAC database…`}
-    >
-      {entry.status === 'exporting' ? <Spinner /> : <span className="kind-badge kind-rtac">RTAC</span>}
-      <span className="tree-name">{entry.path}</span>
-      {entry.status === 'error' && (
-        <>
-          <span className="row-note">{entry.error}</span>
-          <span
-            className="entry-delete"
-            title="Retry this download"
-            onClick={() => {
-              const dir = parentOf(entry.path)
-              // The status row carries the real database name; the path is
-              // only a fallback (a renamed/sanitized entry cannot reproduce
-              // it). `into` keeps the retry superseding the SAME entry.
-              const database = databaseName({ database: entry.database, name: displayName(entry.path) })
-              act(async () => {
-                await dismissRtacError(project, entry.path)
-                await startRtacExport(project, dir, database, entry.note, entry.into ?? undefined)
-                onExportsChanged()
-              })
-            }}
-          >
-            ↻
-          </span>
-          <span
-            className="entry-delete"
-            title="Dismiss"
-            onClick={() => act(async () => {
-              await dismissRtacError(project, entry.path)
-              onExportsChanged()
-            })}
-          >
-            ✕
-          </span>
-        </>
-      )}
-    </div>
-  ))
 
   return (
     <aside className="sources" style={{ width }}>
@@ -1333,35 +1031,6 @@ export function ProjectTree({
           {filtering && shown?.length === 0 && (
             <div className="tree-empty">No entries match “{filter.trim()}”</div>
           )}
-          {/* AcRTAC status rows sit BELOW the tree: appearing at the top
-              shifted every entry down a row the moment a job started. */}
-          {exportRows}
-          {acrtacOpening !== null && (
-            <div
-              className="tree-row file-row export-row"
-              title={acrtacOpenJob.job?.log.at(-1) ?? `Opening ${acrtacOpening} in AcSELerator RTAC…`}
-            >
-              <Spinner />
-              <span className="tree-name">Opening {acrtacOpening} in AcRTAC…</span>
-            </div>
-          )}
-          {imports.filter((entry) => entry.project === project).map((entry) => (
-            <AcrtacImportRow
-              key={entry.id}
-              job={entry.id}
-              name={entry.label}
-              onDone={() => {
-                finishImport(entry.id)
-                // The entry now records the database project it mirrors —
-                // reload so "Open in AcRTAC" and the row agree with it.
-                onReload()
-              }}
-              onError={(message) => {
-                finishImport(entry.id)
-                setError(message)
-              }}
-            />
-          ))}
         </div>
         {(error ?? treeError) && (
           <div className="list-error">
@@ -1400,17 +1069,12 @@ export function ProjectTree({
           destination={dbState.dir}
           versionOf={dbState.versionOf ?? null}
           onClose={() => setDbState(null)}
-          onStarted={onExportsChanged}
         />
       )}
       {importTargets !== null && (
         <AcrtacImportModal
           project={project}
           targets={importTargets}
-          onStarted={(id, label) => {
-            setError(null)
-            setImports((current) => [...current, { id, label, project }])
-          }}
           onClose={() => setImportTargets(null)}
         />
       )}

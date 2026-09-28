@@ -9,7 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { FilesService } from '../services/files.js';
-import { JobRegistry } from '../services/tools/jobs.js';
+import { JobRegistry } from '../services/jobs.js';
 import { ToolsWorkspace } from '../services/tools/workspace.js';
 import { DacInitService } from '../services/tools/dacinit.js';
 import {

@@ -1,18 +1,16 @@
 // Import to AcRTAC — the dialog behind the tree's right-click action on one
 // RTAC entry or a multi-selection of them. Asks what each database project
 // should be called and which device type + firmware the batch targets, then
-// hands the job to the tree and closes: the import runs in the background
-// like an AcRTAC download, narrating into a status row under the tree. A
-// batch is ONE job — the bridge imports in order through a single AcRTAC
-// session. Needs the machine with the RTAC database (Python + selacrtac) —
-// elsewhere the job fails with a clear message, shown in the tree's error
-// strip.
+// starts the job and closes: the import runs in the background and shows in
+// the tasks popover like every other job. A batch is ONE job — the bridge
+// imports in order through a single AcRTAC session. Needs the machine with
+// the RTAC database (Python + selacrtac) — elsewhere the job fails with a
+// clear message.
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { startAcrtacImport } from '../api'
-import { errorMessage } from '../lib/errors'
-import { useToolJob } from '../lib/useToolJob'
+import { useAction } from '../lib/useAction'
 import { Button, Modal, Select, Spinner, TextInput } from './ui'
 import { databaseName } from '../lib/fileNodes'
 
@@ -36,23 +34,18 @@ export interface AcrtacImportTarget {
 export function AcrtacImportModal({
   project,
   targets,
-  onStarted,
   onClose,
 }: {
   project: string
   targets: AcrtacImportTarget[]
-  /** Called with the started job once the import is under way; the tree
-   *  watches it from here on. */
-  onStarted: (job: string, label: string) => void
   onClose: () => void
 }) {
   const [names, setNames] = useState(() => targets.map(databaseName))
   const [deviceType, setDeviceType] = useState('')
   const [firmware, setFirmware] = useState('')
-  const [error, setError] = useState<string | null>(null)
   // Only the START of the import is awaited here — a quick POST. The import
   // itself outlives this dialog.
-  const [starting, setStarting] = useState(false)
+  const { run, busy: starting, error } = useAction()
 
   const single = targets.length === 1
   const trimmed = names.map((name) => name.trim())
@@ -62,20 +55,12 @@ export function AcrtacImportModal({
   const ready = trimmed.every(Boolean) && !duplicate && Boolean(deviceType && firmwareOk) && !starting
 
   const begin = async () => {
-    setError(null)
-    setStarting(true)
-    try {
-      const { job } = await startAcrtacImport(project, {
-        items: targets.map((target, index) => ({ path: target.path, name: trimmed[index] })),
-        deviceType,
-        firmware: firmware.trim().toUpperCase(),
-      })
-      onStarted(job, single ? trimmed[0] : `${targets.length} projects`)
-      onClose()
-    } catch (err) {
-      setError(errorMessage(err))
-      setStarting(false)
-    }
+    const started = await run(() => startAcrtacImport(project, {
+      items: targets.map((target, index) => ({ path: target.path, name: trimmed[index] })),
+      deviceType,
+      firmware: firmware.trim().toUpperCase(),
+    }))
+    if (started) onClose()
   }
 
   const setName = (index: number, value: string) =>
@@ -154,40 +139,5 @@ export function AcrtacImportModal({
         </Button>
       </div>
     </Modal>
-  )
-}
-
-/**
- * One in-flight import, as a status row under the tree — the import half of
- * the download's export rows. Owns the job poll: the row is here for as long
- * as the job runs, and its settling is the parent's (onDone / onError).
- */
-export function AcrtacImportRow({
-  name,
-  job,
-  onDone,
-  onError,
-}: {
-  /** What the import is creating — a project name, or "3 projects". */
-  name: string
-  /** Job id from startAcrtacImport. */
-  job: string
-  onDone: () => void
-  onError: (message: string) => void
-}) {
-  const watched = useToolJob(onDone, onError)
-  const { start } = watched
-  useEffect(() => {
-    start(job)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [job])
-  return (
-    <div
-      className="tree-row file-row export-row"
-      title={watched.job?.log.at(-1) ?? `Importing ${name} into AcRTAC…`}
-    >
-      <Spinner />
-      <span className="tree-name">Importing {name} into AcRTAC…</span>
-    </div>
   )
 }

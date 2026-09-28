@@ -2,12 +2,13 @@
 // over a temp directory — files own the bytes, artifacts the meaning.
 
 import { ArtifactsService } from '../../lib/artifacts.js';
+import { JobRegistry } from '../../services/jobs.js';
 import { FilesService } from '../../services/files.js';
 import { RdbKind } from '../../services/rdb.js';
 import { ScdKind } from '../../services/scd.js';
 import { SwKind } from '../../services/sw.js';
 
-async function makeBundle(projectDir, { catalog } = {}) {
+async function makeBundle(projectDir, { catalog, jobs = new JobRegistry() } = {}) {
   let artifacts;
   const files = new FilesService({
     dataDir: projectDir,
@@ -15,14 +16,16 @@ async function makeBundle(projectDir, { catalog } = {}) {
   });
   artifacts = new ArtifactsService({
     files,
-    catalog: catalog ?? { names: [], error: null },
+    catalog: catalog ?? { list: async () => ({ projects: [], error: null }) },
     projectDir,
+    jobs,
+    project: 'test',
   });
   artifacts.register('rdb', new RdbKind({ artifacts, projectDir }));
   artifacts.register('scd', new ScdKind({ artifacts }));
   artifacts.register('sw', new SwKind({ artifacts }));
   await files.init();
-  return { files, artifacts, load: (ref) => artifacts.comparable(ref) };
+  return { files, artifacts, jobs, load: (ref) => artifacts.comparable(ref) };
 }
 
 const asUpload = (name, content) => ({ originalname: name, buffer: Buffer.from(content) });

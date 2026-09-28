@@ -78,7 +78,7 @@ class RdbKind extends ArtifactKind {
   async #profileViews(profile, outputDir) {
     // The output dir is content-hash-keyed, so PNGs rendered by an earlier
     // inspect (before a cache eviction or an app restart) are valid as-is —
-    // re-rendering is seconds of main-process CPU per profile.
+    // re-rendering is seconds of backend CPU per profile.
     const onDisk = (await readdir(outputDir).catch(() => []))
       .filter((name) => name.endsWith('.png'))
       .map((name) => name.slice(0, -'.png'.length));

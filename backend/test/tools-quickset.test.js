@@ -9,7 +9,7 @@ import test from 'node:test';
 
 import { zipSync, strToU8 } from 'fflate';
 
-import { JobRegistry } from '../services/tools/jobs.js';
+import { JobRegistry } from '../services/jobs.js';
 import { QuicksetService } from '../services/tools/quickset/index.js';
 import {
   collectDeviceInfo,

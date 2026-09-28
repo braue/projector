@@ -1,14 +1,15 @@
 // RTAC Exporter — bulk-export AcRTAC database projects as XML or EXP, ported
 // from the standalone RTAC EXPORTER app. The backend bridge logs into the
-// database itself (same fixed login as the catalog browser), so there is no
-// credentials form; exports land in a tool run (zipped) instead of a fixed
-// server-side folder. Needs the machine with the RTAC database (Python +
-// selacrtac) — elsewhere the load fails with a clear message.
+// database itself (the fixed login), so there is no credentials form; exports
+// land in a tool run (zipped) instead of a fixed server-side folder. The
+// project list is the shared one (AcrtacProjectList). Needs the machine with
+// the RTAC database (Python + selacrtac) — elsewhere the list says why not.
 
 import { useState } from 'react'
 
-import { listRtacExportProjects, startRtacExportJob } from '../api'
-import { Button, Checkbox, SectionHeader, SegmentedControl, Spinner, TextInput } from '../components/ui'
+import { startRtacExportJob } from '../api'
+import { AcrtacProjectList } from '../components/AcrtacProjectList'
+import { Button, SectionHeader, SegmentedControl, Spinner } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
 import type { RtacExportResult, ToolReport } from '../types'
@@ -25,10 +26,6 @@ interface ExportOutcome {
 
 export function RtacExportTool(_props: ToolProps) {
   const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-
-  const [projects, setProjects] = useState<string[] | null>(null)
-  const [filter, setFilter] = useState('')
   const [picked, setPicked] = useState<Set<string>>(new Set())
   const [format, setFormat] = useState<'xml' | 'exp'>('exp')
 
@@ -37,20 +34,6 @@ export function RtacExportTool(_props: ToolProps) {
     (result) => setOutcome(result as ExportOutcome),
     setError,
   )
-
-  const load = async () => {
-    setBusy(true)
-    setError(null)
-    setProjects(null)
-    setPicked(new Set())
-    try {
-      setProjects(await listRtacExportProjects())
-    } catch (err) {
-      setError(errorMessage(err))
-    } finally {
-      setBusy(false)
-    }
-  }
 
   const startExport = async () => {
     setError(null)
@@ -66,84 +49,36 @@ export function RtacExportTool(_props: ToolProps) {
     }
   }
 
-  const visible = (projects ?? []).filter((name) =>
-    name.toLowerCase().includes(filter.trim().toLowerCase()),
-  )
-  const allVisiblePicked = visible.length > 0 && visible.every((name) => picked.has(name))
-
-  const toggle = (name: string, on: boolean) => {
-    setPicked((current) => {
-      const next = new Set(current)
-      if (on) next.add(name)
-      else next.delete(name)
-      return next
-    })
-  }
-
   return (
     <>
       <div className="preview-header">
         <div className="preview-title-row">
           <h2>RTAC Exporter</h2>
-          {(busy || exporting) && <Spinner />}
+          {exporting && <Spinner />}
         </div>
       </div>
       <div className="tool-scroll">
+        <SectionHeader title="Projects" count={picked.size ? `${picked.size} picked` : undefined} />
+        <AcrtacProjectList mode="multi" checked={picked} onChange={setPicked} />
         <div className="tool-row">
-          <Button variant="primary" disabled={busy} onClick={load}>
-            Load projects
+          <SegmentedControl
+            options={[
+              { value: 'xml' as const, label: 'XML' },
+              { value: 'exp' as const, label: 'EXP' },
+            ]}
+            value={format}
+            onChange={setFormat}
+          />
+          <Button
+            variant="primary"
+            disabled={exporting || picked.size === 0}
+            onClick={startExport}
+          >
+            Export {picked.size > 0 ? `${picked.size} project(s)` : ''}
           </Button>
         </div>
 
         {error && <div className="tool-error">{error}</div>}
-
-        {projects && (
-          <>
-            <SectionHeader title="Projects" count={`${picked.size}/${projects.length}`} />
-            <div className="tool-row">
-              <TextInput
-                placeholder="Filter…"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-              />
-              <Button
-                onClick={() => setPicked(allVisiblePicked
-                  ? new Set([...picked].filter((name) => !visible.includes(name)))
-                  : new Set([...picked, ...visible]))}
-              >
-                {allVisiblePicked ? 'Clear shown' : 'Select shown'}
-              </Button>
-            </div>
-            <ul className="rtacx-list">
-              {visible.map((name) => (
-                <li key={name}>
-                  <label className="rtacx-row">
-                    <Checkbox checked={picked.has(name)} onChange={(on) => toggle(name, on)} />
-                    <span>{name}</span>
-                  </label>
-                </li>
-              ))}
-              {visible.length === 0 && <li className="tool-empty">No projects match the filter.</li>}
-            </ul>
-            <div className="tool-row">
-              <SegmentedControl
-                options={[
-                  { value: 'xml' as const, label: 'XML' },
-                  { value: 'exp' as const, label: 'EXP' },
-                ]}
-                value={format}
-                onChange={setFormat}
-              />
-              <Button
-                variant="primary"
-                disabled={exporting || picked.size === 0}
-                onClick={startExport}
-              >
-                Export {picked.size > 0 ? `${picked.size} project(s)` : ''}
-              </Button>
-            </div>
-          </>
-        )}
 
         {job && job.status === 'running' && (
           <div className="tool-joblog">
