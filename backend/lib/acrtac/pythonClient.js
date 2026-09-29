@@ -1,7 +1,7 @@
 // Python bridge runner. Every AcRTAC feature (and the DAC SIM converter) is
 // a script in py/ that takes one JSON request on stdin, narrates on stderr,
-// and prints one JSON result on stdout. This module spawns them, queues the
-// AcRTAC ones machine-wide, and shapes their failures into one-liners. The
+// and prints one JSON result on stdout. This module spawns them — all at once;
+// nothing queues machine-wide — and shapes their failures into one-liners. The
 // AcRTAC database itself (list + export) is one bridge, py/acrtac_bridge.py,
 // behind createAcRtacClient below.
 //
@@ -59,28 +59,6 @@ function bridgeMessage(err, stderr, explain = {}, timeoutMs = BRIDGE_TIMEOUT_MS)
   return lines[lines.length - 1]?.trim() || err.message || 'Python bridge failed with no error output';
 }
 
-// One AcRTAC session at a time, machine-wide. Every AcRTAC bridge starts its
-// own AcRtacCmd process against the one local database; two at once race each
-// other (an export mid-flight while an import or upload opens projects), so
-// bridge calls queue here rather than each feature inventing its own
-// batching. A waiting call's job says so (its `waiting` reason, shown in the
-// tasks popover), and its timeout starts when its session does. Held until
-// the call settles — for acrtac_open, when the bridge exits, leaving the GUI
-// it launched behind.
-let acrtacTail = Promise.resolve();
-let acrtacQueued = 0;
-
-function inAcrtacQueue(job, fn) {
-  if (acrtacQueued > 0) job?.waiting?.('Waiting for another AcRTAC session to finish…');
-  acrtacQueued += 1;
-  const run = acrtacTail.then(() => {
-    job?.running?.();
-    return fn();
-  });
-  acrtacTail = run.then(() => {}, () => {}).finally(() => { acrtacQueued -= 1; });
-  return run;
-}
-
 /** Resolve a bridge script path. Packaged, this file lives inside app.asar —
  *  but Python is a separate process and cannot read into the archive, so the
  *  scripts are listed in electron-builder's asarUnpack and we point at the
@@ -98,15 +76,10 @@ function bridgePath(scriptName) {
  * with `explain` passed through for per-feature wording.
  *
  * `job`: the job handle (services/jobs.js) this call works for. Its
- * narration streams into the job's log, and a wait in the AcRTAC queue shows
- * as the job's `waiting` reason. `onStderrLine` overrides where lines go.
+ * narration streams into the job's log. `onStderrLine` overrides where lines go.
  *
  * `timeoutMs`: kill the bridge after this long (default 30 minutes) — for a
  * bridge whose work scales with its request, like a run of device uploads.
- *
- * `acrtac` (default true): the bridge opens an AcRTAC session, so it waits
- * its turn in the machine-wide queue (see inAcrtacQueue). Pass false for a
- * bridge that never touches AcRTAC.
  *
  * `settleOnExit`: for a bridge that deliberately leaves a GRANDCHILD running
  * (acrtac_open.py's GUI). The grandchild inherits the stdio pipes and holds
@@ -116,10 +89,9 @@ function bridgePath(scriptName) {
  */
 function runStdinBridge(script, request, {
   job = null, onStderrLine = job?.log, explain, settleOnExit = false,
-  timeoutMs = BRIDGE_TIMEOUT_MS, acrtac = true,
+  timeoutMs = BRIDGE_TIMEOUT_MS,
 } = {}) {
-  const run = () => spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
-  return acrtac ? inAcrtacQueue(job, run) : run();
+  return spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
 }
 
 function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs }) {

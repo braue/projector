@@ -12,7 +12,7 @@
 //
 // A job's shape: { id, label, status: 'running' | 'done' | 'error', waiting,
 // progress, log, result, error, meta, startedAt, endedAt }. `waiting` is a
-// reason the job is queued behind something (another AcRTAC session) or
+// reason the job is queued behind something or
 // null once it is actually working. `meta` is what the job is ABOUT, for
 // whoever shows it — e.g. a tree download carries { type: 'rtac-export',
 // project, path, … }. `retryable` says a failed job can be started again

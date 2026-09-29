@@ -189,7 +189,6 @@ class DacsimService {
       const result = await runStdinBridge(CONVERT_SCRIPT, { root: dir }, {
         job: handle,
         explain: EXPLAIN,
-        acrtac: false, // the converter is selacrtac-free; don't queue behind uploads
       });
 
       const { names: simDirs } = await this.#simDirs(runId);
