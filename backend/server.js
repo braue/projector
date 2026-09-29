@@ -17,7 +17,6 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import cors from 'cors';
 import express from 'express';
 
 import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
@@ -133,7 +132,9 @@ export async function startServer(options = {}) {
   }
 
   const app = express();
-  app.use(cors());
+  // No CORS, on purpose: the window is served from this same origin (Vite
+  // proxies /api in dev), and allowing other origins would let any web page
+  // open in a browser on this machine read the local API.
   app.use(express.json());
 
   app.get('/api/health', (_req, res) => {

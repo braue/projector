@@ -3,11 +3,12 @@
 // the repo), so the render/crop/tree/item path is testable without one.
 
 import assert from 'node:assert/strict';
-import { access, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PNG } from 'pngjs';
 
 import { ArtifactsService } from '../lib/artifacts.js';
 import { FilesService } from '../services/files.js';
@@ -27,7 +28,8 @@ async function makeRdbBundle(tmp, selDevicesDir) {
 }
 
 // Left half of the page is the front view, right half the rear — the crops
-// carve the two apart.
+// carve the two apart. A red square sits in the front half and a blue one in
+// the rear, so a crop taken from the wrong place shows.
 const METADATA = {
   device: 'TESTREL',
   model_to_drawings: {
@@ -50,6 +52,8 @@ async function makeDrawingPdf() {
   const font = await doc.embedFont(StandardFonts.Helvetica);
   page.drawText('FRONT', { x: 60, y: 130, size: 48, font, color: rgb(0, 0, 0) });
   page.drawText('REAR', { x: 380, y: 130, size: 48, font, color: rgb(0, 0, 0) });
+  page.drawRectangle({ x: 20, y: 20, width: 40, height: 40, color: rgb(1, 0, 0) });
+  page.drawRectangle({ x: 320, y: 20, width: 40, height: 40, color: rgb(0, 0, 1) });
   return doc.save();
 }
 
@@ -84,8 +88,20 @@ test('rdb upload generates front/rear drawings, tree leads with them, item serve
     assert.equal(item.kind, 'Drawing');
     assert.match(item.image.url, /^\/api\/artifacts\/drawing\?ref=/);
 
-    for (const view of ['front', 'rear']) {
-      await access(await service.drawingPath(ref, view)); // the PNG exists on disk
+    // Each view is its half of the page, at the render scale (150 dpi), and
+    // holds its own square and not the other's.
+    const px = Math.round(300 * 150 / 72);
+    for (const [view, own, other] of [['front', 'red', 'blue'], ['rear', 'blue', 'red']]) {
+      const png = PNG.sync.read(await readFile(await service.drawingPath(ref, view)));
+      assert.deepEqual([png.width, png.height], [px, px], view);
+      const seen = { red: false, blue: false };
+      for (let i = 0; i < png.data.length; i += 4) {
+        const [r, g, b] = png.data.subarray(i, i + 3);
+        if (r > 200 && g < 60 && b < 60) seen.red = true;
+        if (b > 200 && r < 60 && g < 60) seen.blue = true;
+      }
+      assert.ok(seen[own], `${view} shows its ${own} square`);
+      assert.ok(!seen[other], `${view} does not reach into the ${other} square`);
     }
     await assert.rejects(() => service.drawingPath(ref, 'top'), /no top drawing/);
   } finally {

@@ -16,7 +16,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { PDFDocument, PDFArray, PDFName } from 'pdf-lib';
-import { Jimp, JimpMime } from 'jimp';
+import { PNG } from 'pngjs';
 
 import {
   arrayify,
@@ -159,8 +159,10 @@ async function configurePdfLayers(pdfBytes, enabledLayers) {
   return document.save({ useObjectStreams: false });
 }
 
-/** Rasterize one page; the page size (PDF points) rides along so the crop
- *  math scales against the same geometry PDFium rendered from. */
+/** Rasterize one page to raw RGBA; the page size (PDF points) rides along so
+ *  the crop math scales against the same geometry PDFium rendered from. The
+ *  pixels stay raw until a view is cropped out of them — only the crop is
+ *  ever encoded as PNG. */
 async function renderPdfPage(pdfBytes, pageNumber) {
   const library = await pdfium();
   const document = await library.loadDocument(Buffer.from(pdfBytes));
@@ -168,16 +170,10 @@ async function renderPdfPage(pdfBytes, pageNumber) {
   try {
     const page = document.getPage(pageNumber - 1);
     const { originalWidth, originalHeight } = page.getOriginalSize();
-    const rendered = await page.render({
-      scale: PDF_RENDER_SCALE,
-      render: async ({ data, width, height }) => {
-        const image = new Jimp({ data: Buffer.from(data), width, height });
-        return image.getBuffer(JimpMime.png);
-      },
-    });
+    const { data, width, height } = await page.render({ scale: PDF_RENDER_SCALE, render: 'bitmap' });
 
     return {
-      renderedPage: Buffer.from(rendered.data),
+      bitmap: { data: Buffer.from(data), width, height },
       pageSize: { width: originalWidth, height: originalHeight },
     };
   } finally {
@@ -186,20 +182,31 @@ async function renderPdfPage(pdfBytes, pageNumber) {
 }
 
 // Crop box (PDF points, bottom-left origin) -> pixel rect in the rendered page.
-function cropPixels(view, pageSize, image) {
+function cropPixels(view, pageSize, bitmap) {
   const [xMin, yMin, xMax, yMax] = view.box;
-  const xScale = image.bitmap.width / pageSize.width;
-  const yScale = image.bitmap.height / pageSize.height;
+  const xScale = bitmap.width / pageSize.width;
+  const yScale = bitmap.height / pageSize.height;
   const x = Math.max(0, Math.round(xMin * xScale));
   const y = Math.max(0, Math.round((pageSize.height - yMax) * yScale));
-  const w = Math.min(image.bitmap.width - x, Math.round((xMax - xMin) * xScale));
-  const h = Math.min(image.bitmap.height - y, Math.round((yMax - yMin) * yScale));
+  const w = Math.min(bitmap.width - x, Math.round((xMax - xMin) * xScale));
+  const h = Math.min(bitmap.height - y, Math.round((yMax - yMin) * yScale));
 
   if (w <= 0 || h <= 0) {
     throw new Error(`Invalid crop box: ${view.box.join(', ')}`);
   }
 
   return { x, y, w, h };
+}
+
+/** The `{x, y, w, h}` rect of an RGBA bitmap, encoded as PNG. */
+function cropToPng(bitmap, { x, y, w, h }) {
+  const png = new PNG({ width: w, height: h });
+  const rowBytes = w * 4;
+  for (let row = 0; row < h; row += 1) {
+    const from = ((y + row) * bitmap.width + x) * 4;
+    bitmap.data.copy(png.data, row * rowBytes, from, from + rowBytes);
+  }
+  return PNG.sync.write(png);
 }
 
 async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber, renderCache, configuredPdfs) {
@@ -247,7 +254,7 @@ async function createImages(model, pn, outputDir, { devicesDir = SEL_DEVICES_DIR
       throw new Error(`Missing ${viewName} crop for ${metadata.device}:${pdfName}`);
     }
 
-    const { pageSize, renderedPage } = await renderedViewContext(
+    const { pageSize, bitmap } = await renderedViewContext(
       metadata,
       deviceDir,
       pdfName,
@@ -257,9 +264,8 @@ async function createImages(model, pn, outputDir, { devicesDir = SEL_DEVICES_DIR
       configuredPdfs,
     );
 
-    const pageImage = await Jimp.read(renderedPage);
-    const crop = cropPixels(view, pageSize, pageImage);
-    await pageImage.crop(crop).write(path.join(outputDir, `${viewName}.png`));
+    const crop = cropPixels(view, pageSize, bitmap);
+    await fs.writeFile(path.join(outputDir, `${viewName}.png`), cropToPng(bitmap, crop));
     written.push(viewName);
   }
 
