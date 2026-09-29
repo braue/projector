@@ -182,7 +182,7 @@ export function SwsetTool({ project }: ToolProps) {
               <span className="swset-grid-head" key={column.id}>{column.label}</span>
             ))}
             {rows.map((row, i) => table.columns.map((column) => (
-              <span key={`${i}:${column.id}`}>
+              <span className="swset-cell" key={`${i}:${column.id}`}>
                 {column.fixed || column.readOnly ? (
                   <span className="swset-readonly mono">{asText(column.fixed ?? row[column.id]) || '—'}</span>
                 ) : columnOptions(column, i) ? (
