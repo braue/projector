@@ -350,6 +350,9 @@ button.ui-section-header:hover { color: var(--ink); }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
 }
 .vlandeploy-project:hover { border-color: var(--ink); }
+/* The RTAC rows' hints: the inputs' placeholders and the empty project cell
+   share one grey, so the cell reads like the other fields. */
+.vlandeploy-grid .ui-input::placeholder, .vlandeploy-ghost { color: var(--muted); }
 .vlandeploy-results {
   align-self: stretch;
   display: grid;

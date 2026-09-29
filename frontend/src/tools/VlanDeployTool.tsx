@@ -196,18 +196,18 @@ export function VlanDeployTool({ active }: ToolProps) {
             const usedElsewhere = new Set(rows.filter((_, i) => i !== index).map((r) => r.device))
             return (
               <Fragment key={index}>
-                <Select value={row.device} placeholder=""
+                <Select value={row.device} placeholder="Pick a device…"
                   options={(devices ?? []).filter((d) => !usedElsewhere.has(d.id)).map((d) => d.id)}
                   disabled={!devices?.length}
                   onChange={(id) => setRow(index, { device: id })} />
                 <span className="tool-stats">
                   {device ? `${device.networkIp} · port ${device.port}` : '—'}
                 </span>
-                <TextInput value={row.vlanIp}
+                <TextInput value={row.vlanIp} placeholder="192.168.xxx.xxx"
                   onChange={(e) => setRow(index, { vlanIp: e.target.value })} />
                 <button className="vlandeploy-project" title={row.project || 'Pick the AcRTAC project'}
                   onClick={() => setPicking(index)}>
-                  {row.project}
+                  {row.project || <span className="vlandeploy-ghost">Pick a project…</span>}
                 </button>
                 <Button title="Remove this RTAC" disabled={rows.length === 1}
                   onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
