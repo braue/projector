@@ -336,6 +336,10 @@ button.ui-section-header:hover { color: var(--ink); }
   display: grid; grid-template-columns: minmax(100px, 1fr) minmax(130px, 1.2fr) minmax(60px, 0.5fr) auto;
   gap: 8px 10px; align-items: center;
 }
+.vlandeploy-switch { display: flex; align-items: center; gap: 6px; }
+/* Switch IP while locked: reads as a value, not a field waiting for input. */
+.vlandeploy-locked { background: var(--fill); color: var(--ink-soft); cursor: default; }
+.vlandeploy-locked:focus { border-color: var(--border); }
 .vlandeploy-head { align-self: stretch; align-items: center; justify-content: space-between; }
 .vlandeploy-head .ui-section-header { flex: 1; }
 .vlandeploy-check { display: flex; align-items: center; gap: 6px; height: 28px; font-size: 13px; cursor: pointer; }

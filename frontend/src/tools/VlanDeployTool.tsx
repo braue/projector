@@ -8,7 +8,7 @@
 // uploads, several at a time. A failed RTAC in the first two stages stops the
 // run before the next; re-running skips whatever is already done.
 
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 import {
   fetchBenchDevices,
@@ -52,6 +52,9 @@ interface RunFields {
 }
 
 const SETTINGS_KEY = 'vlanDeploy'
+// The bench switch. Locked in the form behind an Edit button, since it is
+// almost never anything else.
+const DEFAULT_SWITCH_IP = '10.42.44.12'
 const emptyRow = (): VlanDeployRtac => ({ device: '', vlanIp: '', project: '' })
 
 function Step({ step, done }: { step: StepResult | null; done: string }) {
@@ -67,7 +70,15 @@ export function VlanDeployTool({ active }: ToolProps) {
   const [devices, setDevices] = useState<BenchDevice[] | null>(null)
   const [picking, setPicking] = useState<number | null>(null)
 
-  const [fields, setFields] = useState<RunFields>({ switchIp: '', vlan: '', piPort: '', parallel: true })
+  const [fields, setFields] = useState<RunFields>({ switchIp: DEFAULT_SWITCH_IP, vlan: '', piPort: '', parallel: true })
+  const [editingSwitch, setEditingSwitch] = useState(false)
+  const switchInput = useRef<HTMLInputElement>(null)
+  // Unlocking hands the keyboard straight to the field, IP selected to type over.
+  useEffect(() => {
+    if (!editingSwitch) return
+    switchInput.current?.focus()
+    switchInput.current?.select()
+  }, [editingSwitch])
   const [rows, setRows] = useState<VlanDeployRtac[]>([emptyRow()])
 
   const [outcome, setOutcome] = useState<DeployOutcome | null>(null)
@@ -84,7 +95,14 @@ export function VlanDeployTool({ active }: ToolProps) {
     fetchToolSettings().then((settings) => {
       const saved = settings[SETTINGS_KEY] as Partial<RunFields> | undefined
       // earlier builds saved a worker count here; anything but false means parallel
-      if (saved) setFields((current) => ({ ...current, ...saved, parallel: saved.parallel !== false }))
+      if (saved) {
+        setFields((current) => ({
+          ...current,
+          ...saved,
+          switchIp: saved.switchIp?.trim() || DEFAULT_SWITCH_IP,
+          parallel: saved.parallel !== false,
+        }))
+      }
     }, () => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
@@ -136,11 +154,24 @@ export function VlanDeployTool({ active }: ToolProps) {
       </div>
       <div className="tool-scroll">
         <div className="tool-row">
-          <TextInput label="Switch IP" value={fields.switchIp} placeholder="10.42.44.12"
-            onChange={(e) => setField('switchIp', e.target.value)} />
-          <TextInput label="VLAN ID" value={fields.vlan} placeholder="14"
+          <div className="vlandeploy-switch">
+            <TextInput ref={switchInput} label="Switch IP" value={fields.switchIp} readOnly={!editingSwitch}
+              className={editingSwitch ? 'ui-input' : 'ui-input vlandeploy-locked'}
+              onChange={(e) => setField('switchIp', e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setEditingSwitch(false)
+              }} />
+            <Button title={editingSwitch ? 'Lock the switch IP' : 'Change the switch IP'}
+              onClick={() => {
+                if (editingSwitch && !fields.switchIp.trim()) setField('switchIp', DEFAULT_SWITCH_IP)
+                setEditingSwitch((value) => !value)
+              }}>
+              {editingSwitch ? 'Done' : 'Edit'}
+            </Button>
+          </div>
+          <TextInput label="VLAN ID" value={fields.vlan}
             onChange={(e) => setField('vlan', e.target.value)} />
-          <TextInput label="Raspberry Pi port" value={fields.piPort} placeholder="24"
+          <TextInput label="Raspberry Pi port" value={fields.piPort}
             onChange={(e) => setField('piPort', e.target.value)} />
         </div>
 
@@ -165,18 +196,18 @@ export function VlanDeployTool({ active }: ToolProps) {
             const usedElsewhere = new Set(rows.filter((_, i) => i !== index).map((r) => r.device))
             return (
               <Fragment key={index}>
-                <Select value={row.device} placeholder={devices ? 'Pick a device…' : 'Loading…'}
+                <Select value={row.device} placeholder=""
                   options={(devices ?? []).filter((d) => !usedElsewhere.has(d.id)).map((d) => d.id)}
                   disabled={!devices?.length}
                   onChange={(id) => setRow(index, { device: id })} />
                 <span className="tool-stats">
                   {device ? `${device.networkIp} · port ${device.port}` : '—'}
                 </span>
-                <TextInput value={row.vlanIp} placeholder="172.16.100.200"
+                <TextInput value={row.vlanIp}
                   onChange={(e) => setRow(index, { vlanIp: e.target.value })} />
                 <button className="vlandeploy-project" title={row.project || 'Pick the AcRTAC project'}
                   onClick={() => setPicking(index)}>
-                  {row.project || <span className="tool-stats">Pick a project…</span>}
+                  {row.project}
                 </button>
                 <Button title="Remove this RTAC" disabled={rows.length === 1}
                   onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
@@ -314,10 +345,10 @@ function BenchDevicesPage({
           <span />
           {draft.map((d) => (
             <Fragment key={d.key}>
-              <TextInput value={d.id} placeholder="3555-1" onChange={(e) => set(d.key, { id: e.target.value })} />
-              <TextInput value={d.networkIp} placeholder="10.42.44.34"
+              <TextInput value={d.id} onChange={(e) => set(d.key, { id: e.target.value })} />
+              <TextInput value={d.networkIp}
                 onChange={(e) => set(d.key, { networkIp: e.target.value })} />
-              <TextInput value={d.port} placeholder="3" onChange={(e) => set(d.key, { port: e.target.value })} />
+              <TextInput value={d.port} onChange={(e) => set(d.key, { port: e.target.value })} />
               <Button title="Remove this device"
                 onClick={() => setDraft((current) => current.filter((x) => x.key !== d.key))}>
                 ✕
