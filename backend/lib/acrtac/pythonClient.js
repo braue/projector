@@ -147,6 +147,26 @@ function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit
 
 const ACRTAC_BRIDGE = 'acrtac_bridge.py';
 
+/**
+ * One job's work over several projects: `one(item, onStderrLine)` runs for
+ * every item AT ONCE, each its own bridge — its own AcRTAC session — rather
+ * than one session working through them in turn. With more than one item,
+ * each narration line is tagged with its item's label. Resolves to
+ * `one`'s value per item, in order; an item whose bridge failed outright
+ * (login, a crash) gets `failed(item, message)` instead. If EVERY bridge
+ * failed, that's a failure of the whole call (no Python, no selacrtac…),
+ * so the first error is thrown as is.
+ */
+async function inOwnSessions(items, { label, job, failed }, one) {
+  const tag = items.length > 1;
+  const settled = await Promise.allSettled(items.map((item) => one(item,
+    tag ? (line) => job?.log?.(`[${label(item)}] ${line}`) : job?.log)));
+  if (settled.every((s) => s.status === 'rejected')) throw settled[0].reason;
+  return settled.map((s, i) => (s.status === 'fulfilled'
+    ? s.value
+    : failed(items[i], s.reason?.message ?? String(s.reason))));
+}
+
 /** The AcRTAC database: its project list, and exports out of it. */
 function createAcRtacClient() {
   return {
@@ -156,17 +176,24 @@ function createAcRtacClient() {
     },
 
     /** Export `projects` into `directory` — a folder of XML or one .exp file
-     *  each — narrating to `job`. Resolves to one result per project
+     *  each — narrating to `job`. Every project exports in its own AcRTAC
+     *  session, all at once. Resolves to one result per project
      *  ({ project, success, output | error }); one project failing never
      *  stops the rest. `flat` puts a single project's XML straight into
      *  `directory` instead of a subfolder named after it. */
     async export({ projects, format = 'xml', directory, projectPassword = null, flat = false, job = null }) {
-      const { results } = await runStdinBridge(ACRTAC_BRIDGE, {
-        command: 'export', projects, format, directory, projectPassword, flat,
-      }, { job });
-      return results;
+      return inOwnSessions(projects, {
+        label: (name) => name,
+        job,
+        failed: (project, error) => ({ project, success: false, error }),
+      }, async (name, onStderrLine) => {
+        const { results } = await runStdinBridge(ACRTAC_BRIDGE, {
+          command: 'export', projects: [name], format, directory, projectPassword, flat,
+        }, { job, onStderrLine });
+        return results[0];
+      });
     },
   };
 }
 
-export { createAcRtacClient, bridgeMessage, bridgePath, runStdinBridge, PYTHON };
+export { createAcRtacClient, bridgeMessage, bridgePath, inOwnSessions, runStdinBridge, PYTHON };
