@@ -64,7 +64,7 @@ function validateDevices(rows) {
 }
 
 /** The form, filled in and with devices resolved from the table. What the
- *  values MEAN (addresses, ranges, one /24, duplicates) is
+ *  values MEAN (addresses, ranges, duplicates) is
  *  py/rtac_vlan_deploy.py's validate(), which runs before AcRTAC starts, so a
  *  bad value still fails in a second. */
 function validateDeploy(payload, devices) {

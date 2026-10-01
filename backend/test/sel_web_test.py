@@ -333,12 +333,12 @@ class Validate(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "same switch port .*3 .*Raspberry Pi"):
             deploy.validate({**self.form(), "piPort": "3"})
 
-    def test_one_vlan_is_one_24(self):
+    def test_vlan_ips_may_span_24s_each_with_its_own_gateway(self):
         form = self.form()
         form["rtacs"].append({**form["rtacs"][0], "label": "3555-2", "networkIp": "10.42.44.35",
                               "port": "4", "vlanIp": "172.16.101.5"})
-        with self.assertRaisesRegex(ValueError, "more than one /24"):
-            deploy.validate(form)
+        rtacs = deploy.validate(form)[-1]
+        self.assertEqual([r["gateway"] for r in rtacs], ["172.16.100.1", "172.16.101.1"])
 
 
 class UploadWorker(unittest.TestCase):

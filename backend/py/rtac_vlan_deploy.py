@@ -8,7 +8,8 @@ bench device's identifier to its network IP and switch port):
                 "vlanIp": "172.16.100.200", "port": 3,
                 "project": "Station A RTAC"}, ...]}
 
-Every VLAN is a /24 and its gateway is .1, so a VLAN IP is just an address.
+Every VLAN IP is a /24 and its gateway is that /24's .1, so a VLAN IP is just an
+address. The RTACs' VLAN IPs may sit in different /24s.
 
 Runs in order:
   0. check every project exists in the AcRTAC database (before touching any device)
@@ -107,9 +108,6 @@ def validate(request):
         if dup := sorted({v for v in values if values.count(v) > 1}):
             raise ValueError(f"the same {label} is used twice: {', '.join(map(str, dup))}"
                              + (" (the Raspberry Pi port counts)" if pi_port in dup else ""))
-    if len(nets := {r["gateway"] for r in rtacs}) > 1:
-        raise ValueError("the VLAN IPs span more than one /24 (gateways "
-                         + ", ".join(sorted(nets)) + "); one VLAN is one /24")
     return switch_ip, vid, pi_port, parallel, rtacs
 
 
@@ -133,7 +131,7 @@ def set_port(r):
 def stage_ip(rtacs, results):
     """Every RTAC at once — separate hosts, separate web sessions; the stage
     only has to be complete before the switch moves their ports."""
-    say(f"— Stage 1: {PORT} on {len(rtacs)} RTAC(s), gateway {rtacs[0]['gateway']}")
+    say(f"— Stage 1: {PORT} on {len(rtacs)} RTAC(s), each gateway its /24's .1")
     with ThreadPoolExecutor(max_workers=min(8, len(rtacs))) as pool:
         jobs = {pool.submit(set_port, r): (r, res) for r, res in zip(rtacs, results)}
         for done in as_completed(jobs):
