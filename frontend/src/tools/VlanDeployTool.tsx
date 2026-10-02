@@ -20,7 +20,7 @@ import {
   type VlanDeployRtac,
 } from '../api'
 import { AcrtacProjectPicker } from '../components/AcrtacProjectPicker'
-import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { Button, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { count } from '../lib/format'
 import { useAction } from '../lib/useAction'
@@ -48,7 +48,6 @@ interface RunFields {
   switchIp: string
   vlan: string
   piPort: string
-  parallel: boolean
 }
 
 const SETTINGS_KEY = 'vlanDeploy'
@@ -70,7 +69,7 @@ export function VlanDeployTool({ active }: ToolProps) {
   const [devices, setDevices] = useState<BenchDevice[] | null>(null)
   const [picking, setPicking] = useState<number | null>(null)
 
-  const [fields, setFields] = useState<RunFields>({ switchIp: DEFAULT_SWITCH_IP, vlan: '', piPort: '', parallel: true })
+  const [fields, setFields] = useState<RunFields>({ switchIp: DEFAULT_SWITCH_IP, vlan: '', piPort: '' })
   const [editingSwitch, setEditingSwitch] = useState(false)
   const switchInput = useRef<HTMLInputElement>(null)
   // Unlocking hands the keyboard straight to the field, IP selected to type over.
@@ -94,13 +93,11 @@ export function VlanDeployTool({ active }: ToolProps) {
     fetchBenchDevices().then(setDevices, (err) => { setDevices([]); setError(errorMessage(err)) })
     fetchToolSettings().then((settings) => {
       const saved = settings[SETTINGS_KEY] as Partial<RunFields> | undefined
-      // earlier builds saved a worker count here; anything but false means parallel
       if (saved) {
         setFields((current) => ({
-          ...current,
-          ...saved,
           switchIp: saved.switchIp?.trim() || DEFAULT_SWITCH_IP,
-          parallel: saved.parallel !== false,
+          vlan: saved.vlan ?? current.vlan,
+          piPort: saved.piPort ?? current.piPort,
         }))
       }
     }, () => {})
@@ -222,10 +219,6 @@ export function VlanDeployTool({ active }: ToolProps) {
             disabled={!!devices && rows.length >= devices.length}>
             + Add RTAC
           </Button>
-          <label className="vlandeploy-check" title="Upload every project at once instead of one at a time">
-            <Checkbox checked={fields.parallel} onChange={(on) => setField('parallel', on)} />
-            Parallel uploads
-          </label>
           <Button variant="primary" disabled={!ready || running} onClick={deploy}>
             Deploy {count(rows.length, 'RTAC')}
           </Button>

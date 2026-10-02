@@ -2,14 +2,13 @@
 // sidebar's right-click / double-click, not a Tools-pane tool), each a job
 // in the app's registry with the bridge's narration streaming into its log:
 //   import — the entry's folder-of-XML goes into the AcRTAC database via
-//            py/acrtac_import.py with the user's device type + firmware;
-//            several entries import at once, each in its own session.
+//            py/acrtac_import.py with the user's device type + firmware.
 //   open   — launch the AcSELerator RTAC GUI on the database project with
 //            the entry's name via py/acrtac_open.py (the GUI outlives the
 //            bridge; nothing is read back).
 
 import { httpError } from '../../lib/http.js';
-import { inOwnSessions, runStdinBridge } from '../../lib/acrtac/pythonClient.js';
+import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const IMPORT_SCRIPT = 'acrtac_import.py';
 const OPEN_SCRIPT = 'acrtac_open.py';
@@ -66,16 +65,14 @@ class AcrtacService {
     const label = items.length === 1 ? items[0].name : `${items.length} projects`;
     const job = this.jobs.start(`AcRTAC import: ${label}`, async (handle) => {
       handle.log(`Importing ${label} into AcRTAC as ${deviceType} ${firmware}…`);
-      const results = await inOwnSessions(items, {
-        label: (item) => item.name,
-        job: handle,
-        failed: (item, error) => ({ name: item.name, success: false, error }),
-      }, async (item, onStderrLine) => {
-        const { results: [outcome] } = await runStdinBridge(IMPORT_SCRIPT, {
-          items: [{ path: item.absolute, name: item.name, type: deviceType, version: firmware }],
-        }, { job: handle, onStderrLine, explain: EXPLAIN });
-        return outcome;
-      });
+      const { results } = await runStdinBridge(IMPORT_SCRIPT, {
+        items: items.map((item) => ({
+          path: item.absolute,
+          name: item.name,
+          type: deviceType,
+          version: firmware,
+        })),
+      }, { job: handle, explain: EXPLAIN });
       const failed = [];
       for (const [index, item] of items.entries()) {
         const outcome = results?.[index];

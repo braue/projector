@@ -565,8 +565,6 @@ export function startVlanDeployJob(args: {
   switchIp: string
   vlan: string
   piPort: string
-  /** true: every upload at once; false: one at a time. */
-  parallel: boolean
   rtacs: VlanDeployRtac[]
 }): Promise<{ job: string }> {
   return send('/api/tools/vlan-deploy/start', 'POST', args)

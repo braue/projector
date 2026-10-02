@@ -88,8 +88,9 @@ services/projects.js     also watches each open project's files/ folder and
 services/rtacCatalog.js  THE AcRTAC project list, read once and shared
                          (/api/acrtac/projects); every picker uses it
 lib/acrtac/pythonClient  runs the py/ bridges (JSON in on stdin, JSON out on
-                         stdout, narration on stderr → the job's log); all
-                         run in parallel, nothing queues machine-wide
+                         stdout, narration on stderr → the job's log); the
+                         AcRTAC ones queue machine-wide, and a queued job
+                         shows its `waiting` reason
 py/acrtac_bridge.py      THE database bridge: list + export (xml/exp)
 ```
 

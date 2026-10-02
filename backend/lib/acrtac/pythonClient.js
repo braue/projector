@@ -1,7 +1,7 @@
 // Python bridge runner. Every AcRTAC feature (and the DAC SIM converter) is
 // a script in py/ that takes one JSON request on stdin, narrates on stderr,
-// and prints one JSON result on stdout. This module spawns them — all at once;
-// nothing queues machine-wide — and shapes their failures into one-liners. The
+// and prints one JSON result on stdout. This module spawns them, queues the
+// AcRTAC ones machine-wide, and shapes their failures into one-liners. The
 // AcRTAC database itself (list + export) is one bridge, py/acrtac_bridge.py,
 // behind createAcRtacClient below.
 //
@@ -59,6 +59,28 @@ function bridgeMessage(err, stderr, explain = {}, timeoutMs = BRIDGE_TIMEOUT_MS)
   return lines[lines.length - 1]?.trim() || err.message || 'Python bridge failed with no error output';
 }
 
+// One AcRTAC session at a time, machine-wide. Every AcRTAC bridge starts its
+// own AcRtacCmd process against the one local database; two at once race each
+// other (an export mid-flight while an import or upload opens projects), so
+// bridge calls queue here rather than each feature inventing its own
+// batching. A waiting call's job says so (its `waiting` reason, shown in the
+// tasks popover), and its timeout starts when its session does. Held until
+// the call settles — for acrtac_open, when the bridge exits, leaving the GUI
+// it launched behind.
+let acrtacTail = Promise.resolve();
+let acrtacQueued = 0;
+
+function inAcrtacQueue(job, fn) {
+  if (acrtacQueued > 0) job?.waiting?.('Waiting for another AcRTAC session to finish…');
+  acrtacQueued += 1;
+  const run = acrtacTail.then(() => {
+    job?.running?.();
+    return fn();
+  });
+  acrtacTail = run.then(() => {}, () => {}).finally(() => { acrtacQueued -= 1; });
+  return run;
+}
+
 /** Resolve a bridge script path. Packaged, this file lives inside app.asar —
  *  but Python is a separate process and cannot read into the archive, so the
  *  scripts are listed in electron-builder's asarUnpack and we point at the
@@ -76,10 +98,15 @@ function bridgePath(scriptName) {
  * with `explain` passed through for per-feature wording.
  *
  * `job`: the job handle (services/jobs.js) this call works for. Its
- * narration streams into the job's log. `onStderrLine` overrides where lines go.
+ * narration streams into the job's log, and a wait in the AcRTAC queue shows
+ * as the job's `waiting` reason. `onStderrLine` overrides where lines go.
  *
  * `timeoutMs`: kill the bridge after this long (default 30 minutes) — for a
  * bridge whose work scales with its request, like a run of device uploads.
+ *
+ * `acrtac` (default true): the bridge opens an AcRTAC session, so it waits
+ * its turn in the machine-wide queue (see inAcrtacQueue). Pass false for a
+ * bridge that never touches AcRTAC.
  *
  * `settleOnExit`: for a bridge that deliberately leaves a GRANDCHILD running
  * (acrtac_open.py's GUI). The grandchild inherits the stdio pipes and holds
@@ -89,27 +116,61 @@ function bridgePath(scriptName) {
  */
 function runStdinBridge(script, request, {
   job = null, onStderrLine = job?.log, explain, settleOnExit = false,
-  timeoutMs = BRIDGE_TIMEOUT_MS,
+  timeoutMs = BRIDGE_TIMEOUT_MS, acrtac = true,
 } = {}) {
-  return spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
+  const run = () => spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
+  return acrtac ? inAcrtacQueue(job, run) : run();
+}
+
+/**
+ * Kill a bridge AND everything it started. A bridge's AcRtacCmd.exe (and its
+ * upload workers, and acrtac_open's GUI) are its children; killing only the
+ * Python process orphans them, still logged in to the database, to collide
+ * with the next session the queue lets through. Windows: taskkill /T walks
+ * the tree by parent pid (so it must run while the bridge is alive). Elsewhere
+ * the bridge leads its own process group (spawned `detached`), and the group
+ * goes.
+ */
+function killTree(child) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  if (process.platform === 'win32') {
+    spawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' })
+      .on('error', () => child.kill());
+    return;
+  }
+  try {
+    process.kill(-child.pid, 'SIGKILL');
+  } catch {
+    child.kill('SIGKILL');
+  }
 }
 
 function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs }) {
   return new Promise((resolve, reject) => {
-    const child = spawn(PYTHON, [bridgePath(script)], { windowsHide: true, env: PYTHON_ENV });
+    const child = spawn(PYTHON, [bridgePath(script)], {
+      windowsHide: true,
+      env: PYTHON_ENV,
+      // its own process group, so a timeout can kill the whole tree (killTree);
+      // on Windows `detached` would mean a new console instead, and taskkill
+      // needs no group
+      detached: process.platform !== 'win32',
+    });
     let stdout = '';
     let settled = false;
+    let timedOut = false;
     const lastLines = [];
     const timer = setTimeout(() => {
-      child.kill();
+      timedOut = true;
+      killTree(child);
     }, timeoutMs);
     const fail = (err) => reject(new Error(bridgeMessage(err, lastLines.join('\n'), explain, timeoutMs)));
     const finish = (code, signal) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (code !== 0 || signal) {
-        fail({ killed: Boolean(signal), code });
+      if (code !== 0 || signal || timedOut) {
+        // taskkill ends the bridge with an exit code, not a signal
+        fail({ killed: timedOut || Boolean(signal), code });
         return;
       }
       try {
@@ -147,26 +208,6 @@ function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit
 
 const ACRTAC_BRIDGE = 'acrtac_bridge.py';
 
-/**
- * One job's work over several projects: `one(item, onStderrLine)` runs for
- * every item AT ONCE, each its own bridge — its own AcRTAC session — rather
- * than one session working through them in turn. With more than one item,
- * each narration line is tagged with its item's label. Resolves to
- * `one`'s value per item, in order; an item whose bridge failed outright
- * (login, a crash) gets `failed(item, message)` instead. If EVERY bridge
- * failed, that's a failure of the whole call (no Python, no selacrtac…),
- * so the first error is thrown as is.
- */
-async function inOwnSessions(items, { label, job, failed }, one) {
-  const tag = items.length > 1;
-  const settled = await Promise.allSettled(items.map((item) => one(item,
-    tag ? (line) => job?.log?.(`[${label(item)}] ${line}`) : job?.log)));
-  if (settled.every((s) => s.status === 'rejected')) throw settled[0].reason;
-  return settled.map((s, i) => (s.status === 'fulfilled'
-    ? s.value
-    : failed(items[i], s.reason?.message ?? String(s.reason))));
-}
-
 /** The AcRTAC database: its project list, and exports out of it. */
 function createAcRtacClient() {
   return {
@@ -176,24 +217,17 @@ function createAcRtacClient() {
     },
 
     /** Export `projects` into `directory` — a folder of XML or one .exp file
-     *  each — narrating to `job`. Every project exports in its own AcRTAC
-     *  session, all at once. Resolves to one result per project
+     *  each — narrating to `job`. Resolves to one result per project
      *  ({ project, success, output | error }); one project failing never
      *  stops the rest. `flat` puts a single project's XML straight into
      *  `directory` instead of a subfolder named after it. */
     async export({ projects, format = 'xml', directory, projectPassword = null, flat = false, job = null }) {
-      return inOwnSessions(projects, {
-        label: (name) => name,
-        job,
-        failed: (project, error) => ({ project, success: false, error }),
-      }, async (name, onStderrLine) => {
-        const { results } = await runStdinBridge(ACRTAC_BRIDGE, {
-          command: 'export', projects: [name], format, directory, projectPassword, flat,
-        }, { job, onStderrLine });
-        return results[0];
-      });
+      const { results } = await runStdinBridge(ACRTAC_BRIDGE, {
+        command: 'export', projects, format, directory, projectPassword, flat,
+      }, { job });
+      return results;
     },
   };
 }
 
-export { createAcRtacClient, bridgeMessage, bridgePath, inOwnSessions, runStdinBridge, PYTHON };
+export { createAcRtacClient, bridgeMessage, bridgePath, killTree, runStdinBridge, PYTHON };

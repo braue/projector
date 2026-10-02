@@ -178,7 +178,7 @@ class Deploy(unittest.TestCase):
         deploy.time.sleep = lambda s: None
         acrtac_common.AcRTAC = FakeAcRTAC  # bound at import, so patch it there
         self.uploads = []
-        self.request = {"switchIp": "10.42.44.12", "vlan": 16, "piPort": 24, "parallel": True, "rtacs": [
+        self.request = {"switchIp": "10.42.44.12", "vlan": 16, "piPort": 24, "rtacs": [
             {"label": "3555-1", "networkIp": "10.42.44.34", "vlanIp": "172.16.100.200", "port": 3,
              "project": "Station A"},
             {"label": "3532-3", "networkIp": "10.42.44.35", "vlanIp": "172.16.100.201", "port": 4,
@@ -282,22 +282,18 @@ class Deploy(unittest.TestCase):
         self.assertEqual([r["upload"]["ok"] for r in out["rtacs"]], [False, True])
         self.assertEqual(out["rtacs"][0]["upload"], {"ok": False, "error": "RTAC refused", "attempts": 3})
 
-    def test_unchecked_parallel_uploads_one_at_a_time(self):
-        self.request["parallel"] = False
-        in_flight, peak = [0], [0]
+    def test_uploads_run_one_at_a_time_in_order(self):
+        in_flight, peak, order = [0], [0], []
 
         def attempt(r):
+            order.append(r["project"])
             in_flight[0] += 1
             peak[0] = max(peak[0], in_flight[0])
             threading.Event().wait(0.05)  # time.sleep is stubbed out in setUp
             in_flight[0] -= 1
         self.run_deploy(attempt)
         self.assertEqual(peak[0], 1)
-
-    def test_uploads_run_side_by_side(self):
-        gate = threading.Barrier(2, timeout=5)  # both must be in flight at once
-        out = self.run_deploy(lambda r: gate.wait())
-        self.assertTrue(all(r["upload"]["ok"] for r in out["rtacs"]))
+        self.assertEqual(order, ["Station A", "Station B"])
 
 
 class Validate(unittest.TestCase):
@@ -308,7 +304,7 @@ class Validate(unittest.TestCase):
 
     def test_normalizes(self):
         self.assertEqual(deploy.validate(self.form(vlanIp="172.16.100.200/255.255.255.0")),
-                         ("10.42.44.12", 14, 24, True, [
+                         ("10.42.44.12", 14, 24, [
             {"label": "3555-1", "networkIp": "10.42.44.34", "vlanIp": "172.16.100.200/24",
              "gateway": "172.16.100.1", "port": 3, "project": "A"}]))
 
@@ -383,6 +379,38 @@ class UploadWorker(unittest.TestCase):
     def test_refusal_is_the_error(self):
         with self.assertRaisesRegex(RuntimeError, "^RTAC refused$"):
             deploy.upload_once({"label": "x", "project": "Bad", "networkIp": "10.0.0.5"})
+
+
+class KillTree(unittest.TestCase):
+    """An upload worker that times out takes its AcRtacCmd with it: a worker
+    stand-in starts a grandchild that inherits its stdout, as AcRtacCmd does.
+    The pipe reaches EOF only once every holder is dead, so EOF after
+    kill_tree means the grandchild went too (and an orphan holding it is
+    exactly what would leave a timed-out upload hanging)."""
+
+    def test_kills_the_grandchild(self):
+        import os
+        import subprocess
+        proc = subprocess.Popen(
+            [sys.executable, "-c",
+             "import subprocess, sys, time\n"
+             # stderr away from ours, so a surviving grandchild can't hold the
+             # test runner's pipe open and hang the suite
+             "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'],"
+             " stderr=subprocess.DEVNULL)\n"
+             "print('up', flush=True)\n"
+             "time.sleep(120)\n"],
+            stdout=subprocess.PIPE, text=True, start_new_session=os.name != "nt")
+        try:
+            self.assertEqual(proc.stdout.readline(), "up\n")
+            deploy.kill_tree(proc)
+            reader = threading.Thread(target=proc.stdout.read, daemon=True)
+            reader.start()
+            reader.join(timeout=10)
+            self.assertFalse(reader.is_alive(), "the grandchild outlived kill_tree (pipe still open)")
+        finally:
+            proc.kill()
+            proc.wait()
 
 
 class AcrtacBridge(unittest.TestCase):

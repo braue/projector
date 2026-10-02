@@ -23,7 +23,6 @@ test('vlan deploy: devices resolve from the table, fields trimmed to strings', (
     switchIp: '10.42.44.12',
     vlan: '14',
     piPort: '24',
-    parallel: true,
     rtacs: [{ label: '3555-1', networkIp: '10.42.44.34', port: '3', vlanIp: '172.16.100.200', project: 'Station A' }],
   });
 });

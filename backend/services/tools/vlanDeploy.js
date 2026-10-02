@@ -2,7 +2,7 @@
 // projects: Ethernet 2 on each RTAC gets its VLAN IP (/24, gateway .1) over
 // the RTAC's web interface at its network IP, the SEL-2730M makes the VLAN's
 // members exactly those RTACs' ports plus the Raspberry Pi's, then each
-// RTAC's AcRTAC project is uploaded over the network IP, several at a time.
+// RTAC's AcRTAC project is uploaded over the network IP, one at a time.
 // All of it runs in py/rtac_vlan_deploy.py (device web code py/sel_web.py,
 // one upload per py/rtac_upload.py process) as ONE job.
 //
@@ -75,7 +75,6 @@ function validateDeploy(payload, devices) {
     switchIp: filled(payload.switchIp, 'Switch IP'),
     vlan: filled(payload.vlan, 'VLAN ID'),
     piPort: filled(payload.piPort, 'Raspberry Pi port'),
-    parallel: payload.parallel !== false,
     rtacs: raw.map((r, i) => {
       const id = filled(r?.device, `RTAC ${i + 1} device`);
       const device = byId.get(id);

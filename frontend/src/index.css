@@ -342,7 +342,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .vlandeploy-locked:focus { border-color: var(--border); }
 .vlandeploy-head { align-self: stretch; align-items: center; justify-content: space-between; }
 .vlandeploy-head .ui-section-header { flex: 1; }
-.vlandeploy-check { display: flex; align-items: center; gap: 6px; height: 28px; font-size: 13px; cursor: pointer; }
 /* Project cell: a field-shaped button that opens the database picker. */
 .vlandeploy-project {
   height: 28px; min-width: 0; padding: 0 10px; text-align: left; font: inherit; font-size: 13px;

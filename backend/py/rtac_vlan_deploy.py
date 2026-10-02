@@ -3,7 +3,7 @@
 One JSON request on STDIN (the Node service has already resolved each
 bench device's identifier to its network IP and switch port):
 
-    {"switchIp": "10.42.44.12", "vlan": 14, "piPort": 24, "parallel": true,
+    {"switchIp": "10.42.44.12", "vlan": 14, "piPort": 24,
      "rtacs": [{"label": "3555-1", "networkIp": "10.42.44.34",
                 "vlanIp": "172.16.100.200", "port": 3,
                 "project": "Station A RTAC"}, ...]}
@@ -17,8 +17,10 @@ Runs in order:
      interface at networkIp
   2. switch: the VLAN's members become EXACTLY the RTAC ports + the Pi port,
      untagged, and nothing else
-  3. upload each RTAC's project over networkIp — all at once when `parallel`,
-     else one at a time — each in its own AcRTAC session (py/rtac_upload.py), retried on failure
+  3. upload each RTAC's project over networkIp, one at a time (the whole run
+     holds the app's single AcRTAC queue slot, so nothing else touches AcRTAC
+     meanwhile) — each in its own AcRTAC session (py/rtac_upload.py), retried
+     on failure
 
 A stage that fails for any RTAC stops the run before the next stage, so the
 bench is never left half-moved onto a VLAN it can't reach; uploads (stage 3)
@@ -36,6 +38,7 @@ import contextlib
 import ipaddress
 import json
 import os
+import signal
 import subprocess
 import sys
 import threading
@@ -64,7 +67,7 @@ def say(line):
 def validate(request):
     """The single authority on what a deploy request means (the Node service
     only resolves identifiers and checks the fields are filled in). Returns
-    (switch_ip, vid, pi_port, parallel, rtacs) with addresses normalized;
+    (switch_ip, vid, pi_port, rtacs) with addresses normalized;
     raises ValueError naming the bad field."""
     def ipv4(value, label):
         try:
@@ -81,9 +84,6 @@ def validate(request):
     switch_ip = ipv4(request["switchIp"], "Switch IP")
     vid = whole(request["vlan"], 2, 4094, "VLAN ID")
     pi_port = whole(request["piPort"], 1, 999, "Raspberry Pi port")
-    parallel = request.get("parallel", True)
-    if not isinstance(parallel, bool):
-        raise ValueError("Parallel uploads must be true or false")
     rtacs = []
     for n, r in enumerate(request["rtacs"], 1):
         label = str(r.get("label") or "").strip() or f"RTAC {n}"
@@ -108,7 +108,7 @@ def validate(request):
         if dup := sorted({v for v in values if values.count(v) > 1}):
             raise ValueError(f"the same {label} is used twice: {', '.join(map(str, dup))}"
                              + (" (the Raspberry Pi port counts)" if pi_port in dup else ""))
-    return switch_ip, vid, pi_port, parallel, rtacs
+    return switch_ip, vid, pi_port, rtacs
 
 
 def check_projects(rtacs):
@@ -161,6 +161,26 @@ def stage_vlan(switch_ip, vid, pi_port, rtacs):
         return {"ok": False, "error": str(e)}
 
 
+def kill_tree(proc):
+    """Kill an upload worker AND its AcRtacCmd: proc.kill() alone orphans the
+    CLI, still logged in, to collide with the next upload's session. Windows:
+    taskkill /T walks the tree by parent pid. Elsewhere the worker leads its
+    own session (start_new_session), so its process group goes."""
+    if proc.poll() is not None:
+        return
+    try:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/pid", str(proc.pid), "/T", "/F"],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        else:
+            os.killpg(proc.pid, signal.SIGKILL)
+    except OSError:
+        pass
+    if proc.poll() is None:
+        proc.kill()
+
+
 def upload_once(r):
     """One upload attempt in its own process + AcRTAC session. Streams the
     worker's narration into the log under the device's label; raises with
@@ -170,12 +190,13 @@ def upload_once(r):
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         encoding="utf-8", errors="replace",
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        start_new_session=os.name != "nt",  # its own group, for kill_tree
     )
     timed_out = threading.Event()
 
     def kill():
         timed_out.set()
-        proc.kill()
+        kill_tree(proc)
 
     timer = threading.Timer(UPLOAD_TIMEOUT_S, kill)
     timer.start()
@@ -216,10 +237,8 @@ def upload_with_retry(r, attempt=upload_once, delays=RETRY_DELAYS_S):
             time.sleep(delays[n - 1])
 
 
-def stage_upload(rtacs, results, parallel, attempt=upload_once, delays=RETRY_DELAYS_S):
-    workers = len(rtacs) if parallel else 1
-    say(f"— Stage 3: upload {len(rtacs)} project(s), "
-        + ("all at once" if parallel and workers > 1 else "one at a time"))
+def stage_upload(rtacs, results, attempt=upload_once, delays=RETRY_DELAYS_S):
+    say(f"— Stage 3: upload {len(rtacs)} project(s), one at a time")
     started = time.monotonic()
 
     def one(r):
@@ -233,15 +252,13 @@ def stage_upload(rtacs, results, parallel, attempt=upload_once, delays=RETRY_DEL
             say(f"✕ {r['label']}: {out['error']} (gave up after {out['attempts']} attempts, {mins})")
         return out
 
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        jobs = {pool.submit(one, r): res for r, res in zip(rtacs, results)}
-        for done in as_completed(jobs):
-            jobs[done]["upload"] = done.result()
+    for r, res in zip(rtacs, results):
+        res["upload"] = one(r)
     ok = sum(res["upload"]["ok"] for res in results)
     say(f"— Uploads: {ok}/{len(rtacs)} sent in {(time.monotonic() - started) / 60:.1f} min")
 
 
-def deploy(switch_ip, vid, pi_port, parallel, rtacs, attempt=upload_once, delays=RETRY_DELAYS_S):
+def deploy(switch_ip, vid, pi_port, rtacs, attempt=upload_once, delays=RETRY_DELAYS_S):
     results = [{"label": r["label"], "networkIp": r["networkIp"], "project": r["project"],
                 "ip": None, "upload": None} for r in rtacs]
     out = {"rtacs": results, "vlan": None, "stoppedAt": None}
@@ -255,7 +272,7 @@ def deploy(switch_ip, vid, pi_port, parallel, rtacs, attempt=upload_once, delays
         out["stoppedAt"] = "vlan"
         say("Stopped before uploading.")
         return out
-    stage_upload(rtacs, results, parallel, attempt, delays)
+    stage_upload(rtacs, results, attempt, delays)
     return out
 
 
