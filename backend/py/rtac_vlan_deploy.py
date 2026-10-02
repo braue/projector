@@ -53,7 +53,7 @@ PORT = "Eth_02"             # the RTAC port that joins the VLAN
 WEB_USER = WEB_PASSWORD = "SEL"      # RTAC + switch web login (factory default)
 
 UPLOAD_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rtac_upload.py")
-UPLOAD_TIMEOUT_S = 25 * 60           # one attempt; a healthy upload is minutes
+UPLOAD_TIMEOUT_S = 3 * 60 * 60       # one attempt: a backstop; abort the job to stop sooner
 RETRY_DELAYS_S = (15, 45)            # waits before the 2nd and 3rd attempt
 
 _say_lock = threading.Lock()

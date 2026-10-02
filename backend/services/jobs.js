@@ -17,6 +17,13 @@
 // whoever shows it — e.g. a tree download carries { type: 'rtac-export',
 // project, path, … }. `retryable` says a failed job can be started again
 // as it was (the tasks popover's ↻) — its starter passed a `retry`.
+//
+// A running job can be ABORTED (the tasks popover's ■): it settles at once
+// as failed with the error "Aborted", and the handle's `signal` fires so the
+// work stops — every Python bridge started with the handle (runStdinBridge's
+// `job`) kills its whole process tree, or never starts if it was still
+// queued. Work that doesn't watch the signal runs on unseen and its result
+// is dropped.
 
 import { httpError } from '../lib/http.js';
 
@@ -31,6 +38,8 @@ class JobRegistry {
   #timers = new Map();
   // id -> () => the new job's id, for jobs started with `retry`.
   #retries = new Map();
+  // id -> AbortController, while the job runs.
+  #aborts = new Map();
 
   /** `events` is the hub jobs publish on; optional so services can be
    *  tested with a bare registry. */
@@ -40,7 +49,7 @@ class JobRegistry {
 
   /**
    * Start `fn` and track it. `fn` receives a handle { log, progress,
-   * waiting, running } and its resolved value becomes the job result; a
+   * waiting, running, signal } and its resolved value becomes the job result; a
    * rejection becomes the job error. `meta` rides along untouched.
    * `retry`, if given, starts the same work again (and returns its new job
    * id) — offered once this job has failed.
@@ -65,7 +74,14 @@ class JobRegistry {
     };
     this.#jobs.set(id, job);
     if (retry) this.#retries.set(id, retry);
+    const controller = new AbortController();
+    this.#aborts.set(id, controller);
+    const aborted = new Promise((_, reject) => {
+      controller.signal.addEventListener('abort', () => reject(new Error('Aborted')), { once: true });
+    });
     const handle = {
+      /** Fires when the user aborts the job: stop, and clean up. */
+      signal: controller.signal,
       log: (line) => {
         job.log.push(String(line));
         if (job.log.length > MAX_LOG_LINES) job.log.shift();
@@ -88,8 +104,9 @@ class JobRegistry {
       },
     };
     this.#publish(job);
-    Promise.resolve()
-      .then(() => fn(handle))
+    const work = Promise.resolve().then(() => fn(handle));
+    work.catch(() => {}); // an aborted job's work may still fail behind it
+    Promise.race([work, aborted])
       .then(
         (result) => {
           job.status = 'done';
@@ -102,6 +119,7 @@ class JobRegistry {
         },
       )
       .finally(() => {
+        this.#aborts.delete(id);
         job.waiting = null;
         job.endedAt = new Date().toISOString();
         this.#changed(job, true);
@@ -131,6 +149,15 @@ class JobRegistry {
     const job = this.get(id);
     if (job.status === 'running') throw httpError(409, 'that job is still running');
     this.#drop(job);
+  }
+
+  /** Stop a running job (the popover's ■). It settles as failed, "Aborted";
+   *  its bridges kill their process trees (see the header). */
+  abort(id) {
+    const job = this.get(id);
+    if (job.status !== 'running') throw httpError(409, 'that job has already finished');
+    job.log.push('Aborted by user.');
+    this.#aborts.get(id)?.abort();
   }
 
   /** Start a failed job's work again; the failed one is forgotten.

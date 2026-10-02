@@ -4,6 +4,7 @@
 //   GET    /api/events        Server-Sent Events (lib/events.js)
 //   GET    /api/jobs/:id      one job in full, result included
 //   POST   /api/jobs/:id/retry  start a failed job again → { job }
+//   POST   /api/jobs/:id/abort  stop a running job (the popover's ■)
 //   DELETE /api/jobs/:id      forget a finished job (the popover's ✕)
 //   DELETE /api/jobs          forget every finished job
 
@@ -26,6 +27,11 @@ function jobRoutes(jobs) {
 
   router.post('/:id/retry', async (req, res) => {
     res.status(202).json({ job: await jobs.retry(req.params.id) });
+  });
+
+  router.post('/:id/abort', (req, res) => {
+    jobs.abort(req.params.id);
+    res.json({ ok: true });
   });
 
   router.delete('/:id', (req, res) => {

@@ -75,6 +75,24 @@ test('jobs: a failed job with a retry starts again and the failure goes', async 
   assert.equal(jobs.get(again).status, 'done');
 });
 
+test('jobs: abort settles a running job as "Aborted" at once and fires its signal', async () => {
+  const jobs = new JobRegistry();
+  let signal;
+  const job = jobs.start('long', (handle) => {
+    signal = handle.signal;
+    return new Promise(() => {}); // never ends on its own
+  }, { retry: async () => 'again' });
+  await tick();
+  jobs.abort(job.id);
+  await tick();
+  assert.equal(signal.aborted, true);
+  assert.equal(job.status, 'error');
+  assert.equal(job.error, 'Aborted');
+  assert.equal(job.log.at(-1), 'Aborted by user.');
+  assert.equal(job.retryable, true); // an aborted job can be started again
+  assert.throws(() => jobs.abort(job.id), /already finished/);
+});
+
 test('events: a new client gets the job snapshot, then live events', async () => {
   const events = new EventHub();
   const jobs = new JobRegistry({ events });

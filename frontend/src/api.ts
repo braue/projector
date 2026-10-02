@@ -321,6 +321,11 @@ export function dismissJob(id: string): Promise<unknown> {
   return send(`/api/jobs/${encodeURIComponent(id)}`, 'DELETE')
 }
 
+/** Stop a running job (the tasks popover's ■); it settles as "Aborted". */
+export function abortJob(id: string): Promise<unknown> {
+  return send(`/api/jobs/${encodeURIComponent(id)}/abort`, 'POST')
+}
+
 /** Start a failed job again (the tasks popover's ↻). */
 export function retryJob(id: string): Promise<{ job: string }> {
   return send(`/api/jobs/${encodeURIComponent(id)}/retry`, 'POST')

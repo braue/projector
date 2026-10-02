@@ -1433,6 +1433,7 @@ button.ui-section-header:hover { color: var(--ink); }
   background: none; color: var(--muted); font-size: 13px; cursor: pointer;
 }
 .tasks-actions button:hover { background: var(--fill); color: var(--ink); }
+.tasks-actions button.abort:hover { background: var(--bad-tint); color: var(--bad-ink); }
 .tasks-log {
   margin: 0 14px 10px 35px; padding: 6px 8px; max-height: 220px; overflow-y: auto;
   background: var(--fill); border-radius: 6px;

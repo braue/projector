@@ -21,10 +21,11 @@ import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const SCRIPT = 'rtac_vlan_deploy.py';
 
-// An upload is minutes, several run at once, and each gets retries; allow
-// generously per RTAC on top of the web stages.
+// A backstop above the bridge's own: uploads run one at a time, each attempt
+// may take up to 3 hours (UPLOAD_TIMEOUT_S in the bridge), and there are 3
+// attempts. A run that goes wrong early is aborted from the tasks popover.
 const BASE_TIMEOUT_MS = 10 * 60 * 1000;
-const PER_RTAC_TIMEOUT_MS = 30 * 60 * 1000;
+const PER_RTAC_TIMEOUT_MS = 3 * 3 * 60 * 60 * 1000;
 
 const EXPLAIN = {
   python: 'Python was not found on PATH — install Python and the selacrtac package to deploy RTAC projects from here.',

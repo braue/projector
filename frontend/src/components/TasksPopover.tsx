@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { clearFinishedJobs, dismissJob, retryJob } from '../api'
+import { abortJob, clearFinishedJobs, dismissJob, retryJob } from '../api'
 import { useJobs } from '../lib/jobs'
 import { useDismiss } from '../lib/useDismiss'
 import type { ToolJob } from '../types'
@@ -12,7 +12,8 @@ import { Spinner } from './ui'
 // It is the ONLY place work in progress shows: the file tree draws files,
 // never spinners or pending rows; a failed download is retried from here.
 // Each row shows what it is waiting on or its latest log line; clicking a row
-// shows its log. Finished rows stay until dismissed (or aged out by the
+// shows its log. A running row can be aborted (■) — timeouts are long, so a
+// job that goes wrong early is stopped here rather than waited out. Finished rows stay until dismissed (or aged out by the
 // backend), so a failure that happened while you were elsewhere is still
 // there to read.
 
@@ -95,6 +96,11 @@ export function TasksPopover() {
                     </span>
                     <span className="tasks-time">{elapsed(job, now)}</span>
                   </button>
+                  {job.status === 'running' && (
+                    <span className="tasks-actions">
+                      <button className="abort" title="Abort" onClick={() => abortJob(job.id).catch(() => {})}>■</button>
+                    </span>
+                  )}
                   {job.status !== 'running' && (
                     <span className="tasks-actions">
                       {job.retryable && (

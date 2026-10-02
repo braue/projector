@@ -22,8 +22,18 @@ const PYTHON = 'python';
 // also change open()'s default, which the vendored converters rely on.
 const PYTHON_ENV = { ...process.env, PYTHONIOENCODING: 'utf-8' };
 
-// exportxml of a large project can take a while on a busy database.
-const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
+// A backstop, not a schedule: exportxml of a large project or an upload can
+// take a long while, and a job that goes wrong early is ABORTED from the
+// tasks popover rather than waited out.
+const BRIDGE_TIMEOUT_MS = 3 * 60 * 60 * 1000;
+
+/** "3 hours", "45 minutes". */
+function duration(ms) {
+  const minutes = Math.round(ms / 60000);
+  if (minutes % 60) return `${minutes} minutes`;
+  const hours = minutes / 60;
+  return hours === 1 ? '1 hour' : `${hours} hours`;
+}
 
 /**
  * A readable one-liner instead of a Python traceback. The packaged app ships
@@ -36,9 +46,9 @@ const BRIDGE_TIMEOUT_MS = 30 * 60 * 1000;
  * own feature): { timeout, python, script, selacrtac }.
  */
 function bridgeMessage(err, stderr, explain = {}, timeoutMs = BRIDGE_TIMEOUT_MS) {
+  if (err.aborted) return 'Aborted';
   if (err.killed) {
-    return explain.timeout
-      ?? `Python bridge timed out after ${Math.round(timeoutMs / 60000)} minutes`;
+    return explain.timeout ?? `Python bridge timed out after ${duration(timeoutMs)}`;
   }
   const text = String(stderr ?? '');
   if (err.code === 'ENOENT') {
@@ -74,6 +84,8 @@ function inAcrtacQueue(job, fn) {
   if (acrtacQueued > 0) job?.waiting?.('Waiting for another AcRTAC session to finish…');
   acrtacQueued += 1;
   const run = acrtacTail.then(() => {
+    // aborted while queued: give the turn straight to the next in line
+    if (job?.signal?.aborted) throw new Error('Aborted');
     job?.running?.();
     return fn();
   });
@@ -98,10 +110,11 @@ function bridgePath(scriptName) {
  * with `explain` passed through for per-feature wording.
  *
  * `job`: the job handle (services/jobs.js) this call works for. Its
- * narration streams into the job's log, and a wait in the AcRTAC queue shows
- * as the job's `waiting` reason. `onStderrLine` overrides where lines go.
+ * narration streams into the job's log, a wait in the AcRTAC queue shows
+ * as the job's `waiting` reason, and aborting the job (its `signal`) kills
+ * the bridge's whole process tree. `onStderrLine` overrides where lines go.
  *
- * `timeoutMs`: kill the bridge after this long (default 30 minutes) — for a
+ * `timeoutMs`: kill the bridge after this long (default 3 hours) — for a
  * bridge whose work scales with its request, like a run of device uploads.
  *
  * `acrtac` (default true): the bridge opens an AcRTAC session, so it waits
@@ -118,7 +131,9 @@ function runStdinBridge(script, request, {
   job = null, onStderrLine = job?.log, explain, settleOnExit = false,
   timeoutMs = BRIDGE_TIMEOUT_MS, acrtac = true,
 } = {}) {
-  const run = () => spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs });
+  const run = () => spawnStdinBridge(script, request, {
+    onStderrLine, explain, settleOnExit, timeoutMs, signal: job?.signal,
+  });
   return acrtac ? inAcrtacQueue(job, run) : run();
 }
 
@@ -145,8 +160,12 @@ function killTree(child) {
   }
 }
 
-function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs }) {
+function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit, timeoutMs, signal }) {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new Error('Aborted'));
+      return;
+    }
     const child = spawn(PYTHON, [bridgePath(script)], {
       windowsHide: true,
       env: PYTHON_ENV,
@@ -158,19 +177,26 @@ function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit
     let stdout = '';
     let settled = false;
     let timedOut = false;
+    let aborted = false;
     const lastLines = [];
     const timer = setTimeout(() => {
       timedOut = true;
       killTree(child);
     }, timeoutMs);
+    const onAbort = () => {
+      aborted = true;
+      killTree(child);
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
     const fail = (err) => reject(new Error(bridgeMessage(err, lastLines.join('\n'), explain, timeoutMs)));
-    const finish = (code, signal) => {
+    const finish = (code, exitSignal) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (code !== 0 || signal || timedOut) {
+      signal?.removeEventListener('abort', onAbort);
+      if (code !== 0 || exitSignal || timedOut || aborted) {
         // taskkill ends the bridge with an exit code, not a signal
-        fail({ killed: timedOut || Boolean(signal), code });
+        fail({ aborted, killed: timedOut || Boolean(exitSignal), code });
         return;
       }
       try {
@@ -191,12 +217,13 @@ function spawnStdinBridge(script, request, { onStderrLine, explain, settleOnExit
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
       fail(err);
     });
     child.on('close', finish);
     if (settleOnExit) {
-      child.on('exit', (code, signal) => setTimeout(() => {
-        finish(code, signal);
+      child.on('exit', (code, exitSignal) => setTimeout(() => {
+        finish(code, exitSignal);
         // The grandchild keeps the pipes open forever; let go of our ends.
         child.stdout.destroy();
         child.stderr.destroy();
