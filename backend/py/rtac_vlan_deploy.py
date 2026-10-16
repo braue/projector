@@ -1,59 +1,57 @@
 """RTAC VLAN Deploy bridge: put a bench of RTACs on a VLAN and load their projects.
 
 One JSON request on STDIN (the Node service has already resolved each
-bench device's identifier to its network IP and switch port):
+bench device's identifier to its network IP and switch port, and each .exp
+picked from a Projector project's tree to its file on disk):
 
     {"switchIp": "10.42.44.12", "vlan": 14, "piPort": 24,
      "rtacs": [{"label": "3555-1", "networkIp": "10.42.44.34",
                 "vlanIp": "172.16.100.200", "port": 3,
-                "project": "Station A RTAC"}, ...]}
+                "exp": "C:\\...\\files\\RTACs\\Station_A.exp",
+                "file": "RTACs/Station_A.exp"}, ...]}
 
 Every VLAN IP is a /24 and its gateway is that /24's .1, so a VLAN IP is just an
 address. The RTACs' VLAN IPs may sit in different /24s.
 
 Runs in order:
-  0. check every project exists in the AcRTAC database (before touching any device)
+  0. check every .exp is there (before touching any device)
   1. every RTAC at once: Eth_02 -> its VLAN IP/24, gateway .1, over its web
      interface at networkIp
   2. switch: the VLAN's members become EXACTLY the RTAC ports + the Pi port,
      untagged, and nothing else
-  3. upload each RTAC's project over networkIp, one at a time (the whole run
-     holds the app's single AcRTAC queue slot, so nothing else touches AcRTAC
-     meanwhile) — each in its own AcRTAC session (py/rtac_upload.py), retried
-     on failure
+  3. every RTAC at once, over its web interface at networkIp: upload its .exp
+     and activate it, as the RTAC's Project Management page does — retried on
+     failure
+
+No AcRTAC anywhere: the .exp files are ones already saved into the project
+(selacrtac's upload compiled and sent over its own protocol, minutes per RTAC).
 
 A stage that fails for any RTAC stops the run before the next stage, so the
 bench is never left half-moved onto a VLAN it can't reach; uploads (stage 3)
-each stand alone and all are attempted. The upload sends no `advanced`
-settings, so it doesn't touch the Ethernet 2 address stage 1 just set.
+each stand alone and all are attempted. Activating an .exp applies the
+project only, not the RTAC's Ethernet settings, so the Eth_02 address stage 1
+just set stays.
 
 Narration goes to stderr (the job log); the result prints as one JSON
-document on stdout:
+document on stdout (a failure: the reason on stderr, exit 1):
 
-    {"rtacs": [{"label", "networkIp", "project", "ip": {...}, "upload": {...}}],
+    {"rtacs": [{"label", "networkIp", "file", "ip": {...}, "upload": {...}}],
      "vlan": {...} | null, "stoppedAt": null | "ip" | "vlan"}
 """
 
-import contextlib
 import ipaddress
 import json
-import os
-import signal
-import subprocess
 import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-from acrtac_common import bridge_main, session
+from pathlib import Path
 
 import sel_web
 
 PORT = "Eth_02"             # the RTAC port that joins the VLAN
 WEB_USER = WEB_PASSWORD = "SEL"      # RTAC + switch web login (factory default)
 
-UPLOAD_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rtac_upload.py")
-UPLOAD_TIMEOUT_S = 3 * 60 * 60       # one attempt: a backstop; abort the job to stop sooner
 RETRY_DELAYS_S = (15, 45)            # waits before the 2nd and 3rd attempt
 
 _say_lock = threading.Lock()
@@ -97,7 +95,8 @@ def validate(request):
             "vlanIp": vlan_ip,
             "gateway": gateway,
             "port": whole(r["port"], 1, 999, f"{label} switch port"),
-            "project": str(r["project"]).strip(),
+            "exp": str(r["exp"]),
+            "file": str(r.get("file") or Path(str(r["exp"])).name),
         })
     if not rtacs:
         raise ValueError("no RTACs given")
@@ -111,12 +110,12 @@ def validate(request):
     return switch_ip, vid, pi_port, rtacs
 
 
-def check_projects(rtacs):
-    # selacrtac or the CLI may print; keep stdout clean for the JSON result.
-    with contextlib.redirect_stdout(sys.stderr), session() as cli:
-        have = {p.name for p in cli.listprojects()}
-    if missing := sorted({r["project"] for r in rtacs} - have):
-        raise RuntimeError("not in the AcRTAC database: " + ", ".join(missing))
+def check_files(rtacs):
+    """Stage 0: every RTAC's .exp is a file, before any device is touched."""
+    bad = [f"{r['label']} ({r['file']})" for r in rtacs
+           if not r["exp"].lower().endswith(".exp") or not Path(r["exp"]).is_file()]
+    if bad:
+        raise RuntimeError("not an .exp file: " + ", ".join(bad))
 
 
 def set_port(r):
@@ -161,67 +160,15 @@ def stage_vlan(switch_ip, vid, pi_port, rtacs):
         return {"ok": False, "error": str(e)}
 
 
-def kill_tree(proc):
-    """Kill an upload worker AND its AcRtacCmd: proc.kill() alone orphans the
-    CLI, still logged in, to collide with the next upload's session. Windows:
-    taskkill /T walks the tree by parent pid. Elsewhere the worker leads its
-    own session (start_new_session), so its process group goes."""
-    if proc.poll() is not None:
-        return
-    try:
-        if os.name == "nt":
-            subprocess.run(["taskkill", "/pid", str(proc.pid), "/T", "/F"],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        else:
-            os.killpg(proc.pid, signal.SIGKILL)
-    except OSError:
-        pass
-    if proc.poll() is None:
-        proc.kill()
-
-
 def upload_once(r):
-    """One upload attempt in its own process + AcRTAC session. Streams the
-    worker's narration into the log under the device's label; raises with
-    the worker's reason on failure."""
-    proc = subprocess.Popen(
-        [sys.executable, UPLOAD_SCRIPT],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        encoding="utf-8", errors="replace",
-        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        start_new_session=os.name != "nt",  # its own group, for kill_tree
-    )
-    timed_out = threading.Event()
-
-    def kill():
-        timed_out.set()
-        kill_tree(proc)
-
-    timer = threading.Timer(UPLOAD_TIMEOUT_S, kill)
-    timer.start()
-    tail = []
-    try:
-        # stdout is one small JSON line; read it after stderr drains, which
-        # ends when the worker exits.
-        proc.stdin.write(json.dumps({"project": r["project"], "networkIp": r["networkIp"]}))
-        proc.stdin.close()
-        for line in proc.stderr:
-            if line := line.rstrip():
-                tail.append(line)
-                say(f"  [{r['label']}] {line}")
-        stdout = proc.stdout.read()
-        code = proc.wait()
-    finally:
-        timer.cancel()
-    if timed_out.is_set():
-        raise RuntimeError(f"no result after {UPLOAD_TIMEOUT_S // 60} minutes; stopped it")
-    if code != 0:
-        raise RuntimeError(tail[-1] if tail else f"upload worker exited with code {code}")
-    try:
-        json.loads(stdout)
-    except ValueError:
-        raise RuntimeError(f"upload worker returned {stdout[:120]!r}") from None
+    """One attempt: log in to the RTAC's web interface, upload its .exp and
+    activate it. Raises with the RTAC's reason on failure."""
+    log = lambda line: say(f"  [{r['label']}] {line}")
+    with sel_web.SelWeb(r["networkIp"], WEB_USER, WEB_PASSWORD, "rtac") as web:
+        t0 = time.monotonic()
+        stem = sel_web.upload_project(web, r["exp"])
+        log(f"uploaded {r['file']} as {stem}.exp ({time.monotonic() - t0:.0f}s); activating")
+        sel_web.activate_project(web, stem, log)
 
 
 def upload_with_retry(r, attempt=upload_once, delays=RETRY_DELAYS_S):
@@ -238,31 +185,33 @@ def upload_with_retry(r, attempt=upload_once, delays=RETRY_DELAYS_S):
 
 
 def stage_upload(rtacs, results, attempt=upload_once, delays=RETRY_DELAYS_S):
-    say(f"— Stage 3: upload {len(rtacs)} project(s), one at a time")
+    """Every RTAC at once: separate hosts and web sessions, nothing shared."""
+    say(f"— Stage 3: upload + activate {len(rtacs)} project(s) over the web interface")
     started = time.monotonic()
 
     def one(r):
-        say(f"… {r['label']}: {r['project']} → {r['networkIp']}")
+        say(f"… {r['label']}: {r['file']} → {r['networkIp']}")
         t0 = time.monotonic()
         out = upload_with_retry(r, attempt, delays)
         mins = f"{(time.monotonic() - t0) / 60:.1f} min"
         if out["ok"]:
-            say(f"✓ {r['label']}: {r['project']} sent ({mins})")
+            say(f"✓ {r['label']}: {r['file']} uploaded + activated ({mins})")
         else:
             say(f"✕ {r['label']}: {out['error']} (gave up after {out['attempts']} attempts, {mins})")
         return out
 
-    for r, res in zip(rtacs, results):
-        res["upload"] = one(r)
+    with ThreadPoolExecutor(max_workers=min(8, len(rtacs))) as pool:
+        for res, out in zip(results, pool.map(one, rtacs)):
+            res["upload"] = out
     ok = sum(res["upload"]["ok"] for res in results)
-    say(f"— Uploads: {ok}/{len(rtacs)} sent in {(time.monotonic() - started) / 60:.1f} min")
+    say(f"— Uploads: {ok}/{len(rtacs)} activated in {(time.monotonic() - started) / 60:.1f} min")
 
 
 def deploy(switch_ip, vid, pi_port, rtacs, attempt=upload_once, delays=RETRY_DELAYS_S):
-    results = [{"label": r["label"], "networkIp": r["networkIp"], "project": r["project"],
+    results = [{"label": r["label"], "networkIp": r["networkIp"], "file": r["file"],
                 "ip": None, "upload": None} for r in rtacs]
     out = {"rtacs": results, "vlan": None, "stoppedAt": None}
-    check_projects(rtacs)
+    check_files(rtacs)
     if not stage_ip(rtacs, results):
         out["stoppedAt"] = "ip"
         say("Stopped: fix the failed RTAC(s) and run again (finished ones are skipped as no-ops).")
@@ -277,13 +226,19 @@ def deploy(switch_ip, vid, pi_port, rtacs, attempt=upload_once, delays=RETRY_DEL
 
 
 def main():
-    # Validate before starting AcRTAC, so a bad form fails in a second.
+    # acrtac_common's framing (stdout JSON, stderr reason + exit 1), without
+    # importing it: it loads selacrtac, which this bridge no longer needs.
     try:
         request = validate(json.load(sys.stdin))
     except (KeyError, TypeError, ValueError) as e:
         print(f"bad request: {e}", file=sys.stderr)
         sys.exit(1)
-    bridge_main(lambda: deploy(*request))
+    try:
+        result = deploy(*request)
+    except Exception as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
+    json.dump(result, sys.stdout)
 
 
 if __name__ == "__main__":

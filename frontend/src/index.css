@@ -343,15 +343,8 @@ button.ui-section-header:hover { color: var(--ink); }
 .vlandeploy-head { align-self: stretch; align-items: center; justify-content: space-between; }
 .vlandeploy-head .ui-section-header { flex: 1; }
 /* Project cell: a field-shaped button that opens the database picker. */
-.vlandeploy-project {
-  height: 28px; min-width: 0; padding: 0 10px; text-align: left; font: inherit; font-size: 13px;
-  color: var(--ink); background: var(--card); border: 1px solid var(--border); border-radius: 7px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
-}
-.vlandeploy-project:hover { border-color: var(--ink); }
-/* The RTAC rows' hints: the inputs' placeholders and the empty project cell
-   share one grey, so the cell reads like the other fields. */
-.vlandeploy-grid .ui-input::placeholder, .vlandeploy-ghost { color: var(--muted); }
+/* The RTAC rows' hints share the inputs' placeholder grey. */
+.vlandeploy-grid .ui-input::placeholder { color: var(--muted); }
 .vlandeploy-results {
   align-self: stretch;
   display: grid;

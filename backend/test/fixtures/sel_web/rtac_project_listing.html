@@ -1,0 +1,153 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span id="project_upload" class="current_sub_navigation_item">Project Upload</span>
+   <input id="project_settings" class="action_button" type="button" onclick="sendAjaxGetRequest('project_settings.sel', updateContentPane)" value="Project Settings" />
+
+
+
+
+
+<div id='project_upload_div'>
+   <form id="project_upload_form" method="post" enctype="multipart/form-data" target="upload_frame">
+
+   <input id="upload_project_auth_token" name="upload_project_auth_token" type="hidden" value="REDACTED" />
+   <span id="user_feedback">
+      
+   </span>
+
+   <iframe id="upload_frame" name="upload_frame" style="display: none"></iframe>
+   <iframe id="download_frame" name="download_frame" style="display: none"></iframe>
+
+   <table id="project_upload_table" class="fieldList">
+   <thead>
+      <tr>
+         <th><span id="name" style="cursor:pointer;" onClick="sendAjaxPostRequest('project_upload.sel',updateContentPane, '&path=%2F&sort=name');"><span style="color:darkblue">Name&nbsp;&nbsp;<img src="./images/asc_sort.gif"/>  </span></span></th>
+         <th><span id="date" style="cursor:pointer;" onClick="sendAjaxPostRequest('project_upload.sel',updateContentPane, '&path=%2F&sort=time');"><span style="color:darkblue">Date Modified&nbsp;&nbsp; </span></span></th>
+         <th><span id="size" style="cursor:pointer;" onClick="sendAjaxPostRequest('project_upload.sel',updateContentPane, '&path=%2F&sort=size');"><span style="color:darkblue">Size&nbsp;&nbsp; </span></span></th>
+         <th style="text-align: right;">/&nbsp;&nbsp;&nbsp;</th>
+     </tr>
+   </thead>
+   <tbody>
+   
+    
+
+         <tr class="odd">
+         <td>
+            
+              <span id="download_file_0"
+                    data-row_number="0"
+                    style="cursor:pointer;"
+                    onClick="skip_logout = true; return downloadFile('download_frame', 'project_uploader', '/Pineville_35KV_REM2.exp');">
+                <span style="color:blue">
+                  <img draggable="true"
+                       ondragstart="event.dataTransfer.setData('Text', '/Pineville_35KV_REM2.exp');"
+                       src="./images/unknown.png"
+                       alt="File" />
+                  &nbsp;&nbsp;Pineville_35KV_REM2.exp</span></span>
+             
+         </td>
+         <td id="date_0">
+            Fri Oct  2 17:33:39 2026
+         </td>
+         <td id="size_0">
+            21919168
+         </td>
+         <td>
+            <span class="right_action_buttons" id="project_action_buttons_0">
+                  <input id="activate_file_0"
+                         type="button"
+                         name="activate_file_0"
+                         class="action_button"
+                         value="Activate"
+                         onclick="activate_onclick_handler('/', '/Pineville_35KV_REM2.exp', 0);" />
+                  <input id="advanced_activate_file_0"
+                         type="button"
+                         name="advanced_activate_file_0"
+                         class="action_button"
+                         value="Advanced"
+                         onclick="goto_activate_with_advanced_settings('/', '/Pineville_35KV_REM2.exp', 0)" />
+                  &nbsp;&nbsp;&nbsp;
+                  <input id="rename_file_0"
+                         type="button"
+                         name="rename_file_0"
+                         class="action_button"
+                         value="Rename"
+                         onclick="renameFile('upload_frame', '/Pineville_35KV_REM2.exp', 'project_uploader');" />
+                  &nbsp;&nbsp;&nbsp;
+                  <input id="delete_file_0"
+                         type="button"
+                         name="delete_file_0"
+                         class="action_button"
+                         value="Delete"
+                         onclick="deleteFile('upload_frame', '/Pineville_35KV_REM2.exp', 'project_uploader');" />
+                  &nbsp;&nbsp;&nbsp;
+                  
+               </span>
+            
+         </td>
+      </tr>
+      
+      
+    
+   </tbody>
+   </table>
+
+   
+   
+
+   
+      
+      
+      <table class="fieldList">
+      <thead>
+         <tr>
+            <th id="upload_projects">File Upload</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr class="odd">
+         <td>
+            <input id="file_name"
+                   type="file"
+                   name="file_name"
+                   style="width: 50%"
+                   maxlength="255" size="32"
+            />
+            <input id="file_submit"
+                   type="button"
+                   class="action_button"
+                   value="Upload"
+                   onclick="upload_project_api('/');"
+            />
+         </td>
+         <td>
+            <span class="right_action_buttons">
+               <input id="mkdir"
+                      type="button"
+                      name="mkdir"
+                      class="action_button"
+                      value="Create Directory"
+                      onclick="createDirectory('upload_frame', '/', 'project_uploader');" />
+               &nbsp;&nbsp;&nbsp;
+            </span>
+         </td>
+      </tr>
+      </tbody>
+     </table>
+   
+  </form>
+</div>

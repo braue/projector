@@ -11,6 +11,10 @@ body that carries `session_id` + `session_username`, plus an
          a bare session UUID comes back.
   switch POST auth.sel straight away, `{"status", "message": <uuid>}` back.
 
+The RTAC also has a JSON API under /api/v1 that its Project Management page
+uses to upload and activate a project (see "RTAC: project upload + activate"
+below).
+
 Both ship self-signed certificates, so TLS is not verified (bench network).
 """
 
@@ -22,8 +26,10 @@ import ssl
 import time
 import urllib.error
 import urllib.request
+import uuid
 from functools import cached_property
 from html.parser import HTMLParser
+from pathlib import Path
 from urllib.parse import quote
 
 TIMEOUT = 20
@@ -49,21 +55,31 @@ class SelWeb:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
+        self.cookies = http.cookiejar.CookieJar()
         self._open = urllib.request.build_opener(
             urllib.request.HTTPSHandler(context=ctx),
-            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
+            urllib.request.HTTPCookieProcessor(self.cookies),
         ).open
 
-    def _request(self, url, body=None):
-        headers = {"Origin": self.base, "Referer": self.base + "/"}
+    def _request(self, url, body=None, content_type="text/plain;charset=UTF-8",
+                 timeout=TIMEOUT, accept=None):
+        """One request; `body` (str or bytes) makes it a POST. Returns the reply
+        text. HTTP errors raise with the device's reply text in the message."""
+        headers = {"Origin": self.base, "Referer": self.base + "/home.sel"}
+        if accept:
+            headers["Accept"] = accept
         data = None
         if body is not None:
-            data = body.encode()
-            headers["Content-Type"] = "text/plain;charset=UTF-8"
+            data = body.encode() if isinstance(body, str) else body
+            headers["Content-Type"] = content_type
         try:
             with self._open(urllib.request.Request(url, data=data, headers=headers),
-                            timeout=TIMEOUT) as r:
+                            timeout=timeout) as r:
                 return r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            reply = " ".join(re.sub(r"<[^>]+>", " ", e.read().decode("utf-8", "replace")).split())
+            raise SelWebError(f"{url.split('?')[0]}: HTTP {e.code} {e.reason}"
+                              + (f" ({reply[:200]})" if reply else "")) from e
         except (urllib.error.URLError, OSError) as e:
             raise SelWebError(f"{url.split('?')[0]}: {getattr(e, 'reason', e)}") from e
 
@@ -103,6 +119,20 @@ class SelWeb:
 
     def post_json(self, page, extra="", cache_bust=False):
         return self._json(self.post(page, extra, cache_bust), page)
+
+    def api_json(self, path, body=None, content_type="application/json", timeout=TIMEOUT):
+        """The RTAC's JSON API (/api/v1/...): GET, or POST with `body`."""
+        try:
+            text = self._request(f"{self.base}/{path}", body, content_type, timeout,
+                                 accept="application/json")
+        except SelWebError as e:
+            if re.search(r"HTTP 40[13]\b", str(e)) and not list(self.cookies):
+                # unverified: the capture this was built from had its cookies stripped
+                raise SelWebError(f"{e} — the login set no cookie, so this RTAC's API wants "
+                                  "some other credential; a HAR saved WITH sensitive data "
+                                  "would show which") from e
+            raise
+        return self._json(text, path)
 
     @staticmethod
     def _json(text, page):
@@ -493,3 +523,130 @@ def set_vlan_ports(web, vid, ports, log=lambda line: None):
                           f"(expected untagged {fold_ports(ports)} only)")
     return {"before": vlan["untagged"], "after": now["untagged"], "changed": True,
             "moved": moved, "removed": fold_ports(extra), "tagged": fold_ports(tagged)}
+
+
+# --- RTAC: project upload + activate -----------------------------------------
+#
+# What the Project Management page does (capture 10.42.44.25, 2026-10-02):
+#
+#   POST /api/v1/projects            multipart: Project=<file>.exp, FilePath=/<file>.exp
+#                                    201 {"FilePath": "<file>.exp"}
+#   POST /api/v1/projects/<stem>/commands   {"Command": "Activate"}
+#                                    201 {"Id": <uuid>}
+#   GET  /api/v1/projects/<stem>/commands/<id>   polled about once a second:
+#        {"Command": "Activate", "Logs": [{"Type": "Information", "Message": ...}]}
+#        Validating... Loading Settings... Loading Binaries... Committing...
+#        Reconfiguring... Complete
+#
+# The API calls carry no session_id in their bodies and no auth header, so
+# they ride the login's cookie (the capture's cookies were stripped by the
+# browser's HAR export; SelWeb's cookie jar keeps whatever auth.sel sets).
+# The project is named on the RTAC by its file's stem, and update.sel's
+# `currentProject` confirms it took: {"name": <stem>, "state": "running"}.
+
+API = "api/v1/projects"
+UPLOAD_TIMEOUT = 15 * 60       # one socket operation while sending/accepting the .exp
+ACTIVATE_TIMEOUT = 30 * 60     # the whole activation, polled
+POLL_S = 1
+POLL_MISSES = 30               # consecutive failed polls tolerated (the RTAC reconfigures)
+_LISTING_RE = re.compile(
+    r"downloadFile\('download_frame', 'project_uploader', '([^']*)'\).*?"
+    r'id="size_\d+">\s*(\d+)', re.S)
+
+
+def multipart(fields, boundary=None):
+    """(body, content_type) for multipart/form-data. `fields` is
+    [(name, value)] where value is str, or (filename, bytes) for a file."""
+    boundary = boundary or f"----ProjectorFormBoundary{uuid.uuid4().hex}"
+    parts = []
+    for name, value in fields:
+        if isinstance(value, tuple):
+            filename, data = value
+            head = (f'Content-Disposition: form-data; name="{name}"; filename="{filename}"\r\n'
+                    "Content-Type: application/octet-stream\r\n\r\n")
+        else:
+            head, data = f'Content-Disposition: form-data; name="{name}"\r\n\r\n', value.encode()
+        parts.append(f"--{boundary}\r\n".encode() + head.encode() + data + b"\r\n")
+    body = b"".join(parts) + f"--{boundary}--\r\n".encode()
+    return body, f"multipart/form-data; boundary={boundary}"
+
+
+def project_files(web):
+    """{'/<file>.exp': size} — the RTAC's uploaded project files, from the
+    Project Management page's listing."""
+    html = web.post("project_upload.sel")
+    if "project_upload_table" not in html:
+        raise SelWebError("project_upload.sel isn't the Project Management listing this tool knows")
+    return {path: int(size) for path, size in _LISTING_RE.findall(html)}
+
+
+def current_project(web):
+    """update.sel's {"name", "state"} for the running project."""
+    try:
+        return web.post_json("update.sel", cache_bust=True)["currentProject"] or {}
+    except (KeyError, TypeError) as e:
+        raise SelWebError(f"unexpected update.sel layout ({e!r})") from e
+
+
+def rtac_file_name(path):
+    """The name an .exp is stored under on the RTAC. Its stem is what the RTAC
+    calls the project, and it rides in an API URL and a multipart header, so
+    anything outside [A-Za-z0-9_.-] becomes '_'."""
+    stem = Path(path).stem
+    return "".join(c if c.isascii() and (c.isalnum() or c in "_.-") else "_" for c in stem) + ".exp"
+
+
+def upload_project(web, exp_path):
+    """Send `exp_path` to the RTAC's project store (as rtac_file_name). A
+    same-named file already there with the same size is taken as this one (a
+    retry, or a rerun) and not sent again — the capture shows no overwrite.
+    Returns the stored file's stem, the name the RTAC knows the project by."""
+    name = rtac_file_name(exp_path)
+    remote = f"/{name}"
+    exp = Path(name)
+    data = Path(exp_path).read_bytes()
+    web.post("update.sel?check_only=true")  # the page's session check before acting
+    body, content_type = multipart([("Project", (exp.name, data)), ("FilePath", remote)])
+    try:
+        reply = web.api_json(API, body, content_type, timeout=UPLOAD_TIMEOUT)
+    except SelWebError as e:
+        if project_files(web).get(remote) == len(data):
+            return exp.stem
+        raise SelWebError(f"the RTAC refused {exp.name}: {e}") from e
+    if str(reply.get("FilePath", "")).lstrip("/") != exp.name:
+        raise SelWebError(f"the RTAC stored {exp.name} as {reply.get('FilePath')!r}")
+    return exp.stem
+
+
+def activate_project(web, stem, log=lambda line: None):
+    """Activate the uploaded project `stem` and follow it to "Complete",
+    narrating each step. Confirms by update.sel's currentProject."""
+    path = f"{API}/{quote(stem, safe='')}/commands"
+    web.post("update.sel?check_only=true")
+    reply = web.api_json(path, json.dumps({"Command": "Activate"}), "application/json")
+    if not reply.get("Id"):
+        raise SelWebError(f"activating {stem}: no command id back ({reply!r})")
+    deadline, seen, misses = time.monotonic() + ACTIVATE_TIMEOUT, 0, 0
+    while True:
+        time.sleep(POLL_S)
+        try:
+            logs = web.api_json(f"{path}/{reply['Id']}").get("Logs") or []
+            misses = 0
+        except SelWebError:
+            misses += 1  # the web server can stall while the RTAC reconfigures
+            if misses >= POLL_MISSES:
+                raise
+            continue
+        for entry in logs[seen:]:
+            log(f"{entry.get('Type', '?')}: {entry.get('Message', '')}")
+        seen = len(logs)
+        if errors := [e for e in logs if str(e.get("Type", "")).lower() == "error"]:
+            raise SelWebError(f"activating {stem}: {errors[-1].get('Message')}")
+        if any(e.get("Message") == "Complete" for e in logs):
+            break
+        if time.monotonic() > deadline:
+            raise SelWebError(f"activating {stem}: not complete after {ACTIVATE_TIMEOUT // 60} minutes")
+    now = current_project(web)
+    if now.get("name") != stem or now.get("state") != "running":
+        raise SelWebError(f"activation said Complete, but the RTAC runs {now.get('name')!r} "
+                          f"({now.get('state')})")

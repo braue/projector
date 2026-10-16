@@ -8,3 +8,11 @@ SEL-2730M switch (10.42.44.12), 2026-09. Session ids and credentials removed.
 - switch_vlans_after.json   ... and after
 - switch_save_body.txt      the browser's vlan_view_save.sel body for that change
 - switch_port_state.json    update.sel's portState (the switch's 24 ports)
+
+From an RTAC (10.42.44.25) capture of Project Management upload + Activate,
+2026-10-02 (the browser's HAR export stripped cookies and the .exp's bytes;
+the page's upload_project_auth_token is REDACTED):
+
+- rtac_project_upload_body.txt  POST /api/v1/projects multipart framing (file bytes empty)
+- rtac_project_listing.html     project_upload.sel listing with the uploaded .exp
+- rtac_activate_polls.json      each distinct GET .../commands/<id> reply, in order

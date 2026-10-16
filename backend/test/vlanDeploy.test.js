@@ -15,15 +15,16 @@ const bench = [
   { id: '3555-1', networkIp: '10.42.44.34', port: '3' },
   { id: '3532-3', networkIp: '10.42.44.35', port: '4' },
 ];
-const row = (over = {}) => ({ device: '3555-1', vlanIp: '172.16.100.200', project: 'Station A', ...over });
-const form = (over = {}) => ({ switchIp: '10.42.44.12', vlan: 14, piPort: 24, rtacs: [row()], ...over });
+const row = (over = {}) => ({ device: '3555-1', vlanIp: '172.16.100.200', file: 'RTACs/Station_A.exp', ...over });
+const form = (over = {}) => ({ project: 'Bench', switchIp: '10.42.44.12', vlan: 14, piPort: 24, rtacs: [row()], ...over });
 
 test('vlan deploy: devices resolve from the table, fields trimmed to strings', () => {
   assert.deepEqual(validateDeploy(form({ rtacs: [row({ vlanIp: ' 172.16.100.200 ' })] }), bench), {
+    project: 'Bench',
     switchIp: '10.42.44.12',
     vlan: '14',
     piPort: '24',
-    rtacs: [{ label: '3555-1', networkIp: '10.42.44.34', port: '3', vlanIp: '172.16.100.200', project: 'Station A' }],
+    rtacs: [{ label: '3555-1', networkIp: '10.42.44.34', port: '3', vlanIp: '172.16.100.200', file: 'RTACs/Station_A.exp' }],
   });
 });
 
@@ -34,7 +35,8 @@ test('vlan deploy: missing fields and unknown devices are 400s that name them', 
     [form({ piPort: '' }), /Raspberry Pi port is required/],
     [form({ rtacs: [] }), /at least one RTAC/],
     [form({ rtacs: [row(), row({ device: '3532-3', vlanIp: '' })] }), /3532-3 VLAN IP is required/],
-    [form({ rtacs: [row({ project: ' ' })] }), /3555-1 project is required/],
+    [form({ project: '' }), /Project is required/],
+    [form({ rtacs: [row({ file: ' ' })] }), /3555-1 .exp file is required/],
     [form({ rtacs: [row({ device: '' })] }), /RTAC 1 device is required/],
     [form({ rtacs: [row({ device: '9999-9' })] }), /9999-9 is not in the bench device table/],
   ];
@@ -66,6 +68,34 @@ test('vlan deploy: the device table persists in the data dir', async () => {
     assert.deepEqual(await service.devices(), []);
     await service.saveDevices(bench);
     assert.deepEqual(await new VlanDeployService({ jobs: null, dataDir }).devices(), bench);
+  } finally {
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+test('vlan deploy: start resolves each .exp from the project tree', async () => {
+  const dataDir = await mkdtemp(path.join(os.tmpdir(), 'vlandeploy-'));
+  try {
+    const asked = [];
+    const projects = {
+      bundle: async (name) => ({
+        files: {
+          rawPath: async (rel) => {
+            asked.push([name, rel]);
+            return path.join('/data', name, 'files', rel);
+          },
+        },
+      }),
+    };
+    const started = [];
+    const jobs = { start: (title) => (started.push(title), { id: 'j1' }) };
+    const service = new VlanDeployService({ jobs, dataDir, projects });
+    await service.saveDevices(bench);
+    assert.deepEqual(await service.start(form()), { job: 'j1' });
+    assert.deepEqual(asked, [['Bench', 'RTACs/Station_A.exp']]);
+    assert.deepEqual(started, ['RTAC VLAN deploy: 1 RTAC(s) → VLAN 14']);
+    await assert.rejects(service.start(form({ rtacs: [row({ file: 'RTACs/notes.txt' })] })),
+      (err) => err.status === 400 && /not an \.exp file/.test(err.message));
   } finally {
     await rm(dataDir, { recursive: true, force: true });
   }

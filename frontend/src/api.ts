@@ -557,16 +557,17 @@ export async function saveBenchDevices(devices: BenchDevice[]): Promise<BenchDev
 }
 
 /** A deploy row: a bench device by identifier, its VLAN IP (always /24,
- *  gateway .1), and the AcRTAC project to upload. */
+ *  gateway .1), and the .exp to upload — a tree path in the run's project. */
 export interface VlanDeployRtac {
   device: string
   vlanIp: string
-  project: string
+  file: string
 }
 
-/** Start the deploy job (Eth_02 IPs → switch VLAN → uploads); poll the job id.
- *  The project picker reads the shared AcRTAC list (lib/acrtacProjects.ts). */
+/** Start the deploy job (Eth_02 IPs → switch VLAN → web upload + activate);
+ *  follow the job id. `project` is the Projector project holding the .exp files. */
 export function startVlanDeployJob(args: {
+  project: string
   switchIp: string
   vlan: string
   piPort: string

@@ -108,7 +108,7 @@ export async function startServer(options = {}) {
   const jobs = new JobRegistry({ events });
   const projects = new ProjectsService({ dataDir, catalog, jobs, events });
   await projects.init();
-  const tools = await createTools({ dataDir, jobs, catalog });
+  const tools = await createTools({ dataDir, jobs, catalog, projects });
 
   // The database list can take a while (it spawns the Python bridge) and the
   // server is useful without it — projects on disk are fully browsable — so

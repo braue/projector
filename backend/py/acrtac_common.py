@@ -1,8 +1,7 @@
 """Shared plumbing for the AcRTAC bridge scripts.
 
 Each bridge (acrtac_bridge.py, acrtac_import.py, acrtac_open.py,
-rtac_upload.py, rtac_vlan_deploy.py) is one selacrtac session doing one
-command; the session
+rtac_vlan_deploy.py) is one selacrtac session doing one command; the session
 dance, the fixed admin/TAIL login, the waitable-job quirk, and the
 stdout-JSON / stderr-error framing that lib/acrtac/pythonClient.js parses
 all live here so they cannot drift between scripts.

@@ -14,7 +14,7 @@ import { ToolSettings } from './settings.js';
 import { ToolsWorkspace } from './workspace.js';
 import { VlanDeployService } from './vlanDeploy.js';
 
-async function createTools({ dataDir, jobs, catalog }) {
+async function createTools({ dataDir, jobs, catalog, projects }) {
   const workspace = new ToolsWorkspace({ dataDir });
   await workspace.init();
   const settings = new ToolSettings({ dataDir });
@@ -27,7 +27,7 @@ async function createTools({ dataDir, jobs, catalog }) {
   const dacsim = new DacsimService({ workspace, jobs });
   const dacinit = new DacInitService({ workspace, jobs });
   const acrtac = new AcrtacService({ jobs, catalog });
-  const vlanDeploy = new VlanDeployService({ jobs, dataDir });
+  const vlanDeploy = new VlanDeployService({ jobs, dataDir, projects });
   return {
     workspace, settings, hmi, terminal, quickset, swset, rtacExport,
     dwgen, dacsim, dacinit, acrtac, vlanDeploy,

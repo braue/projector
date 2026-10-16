@@ -138,8 +138,8 @@ function toolsRoutes(tools, projects) {
   });
 
   // RTAC VLAN Deploy: the whole bench in one request, one job (Ethernet 2
-  // IPs → switch VLAN → parallel uploads). Its project picker reads the
-  // shared /api/acrtac/projects; the bench device table
+  // IPs → switch VLAN → parallel web uploads of .exp files picked from a
+  // project's tree, { project, rtacs: [{ device, vlanIp, file }] }); the bench device table
   // (identifier → network IP + switch port) is whole-list GET/PUT.
   router.get('/vlan-deploy/devices', async (_req, res) => {
     res.json({ devices: await tools.vlanDeploy.devices() });

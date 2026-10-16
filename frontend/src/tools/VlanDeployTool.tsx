@@ -3,9 +3,10 @@
 // Raspberry Pi (network translation for testing) sits on. Per RTAC: a bench
 // device picked by identifier (its network IP and switch port come from the
 // bench device table, edited on this tool's second page), the VLAN IP its
-// Eth_02 gets (always /24, gateway .1), and its AcRTAC project. The backend
-// runs it as one job: Eth_02 IPs → the VLAN becomes exactly these ports →
-// uploads, several at a time. A failed RTAC in the first two stages stops the
+// Eth_02 gets (always /24, gateway .1), and the .exp to load — any .exp file
+// in the run's Projector project. The backend runs it as one job: Eth_02 IPs
+// → the VLAN becomes exactly these ports → web upload + activate on every
+// RTAC at once. A failed RTAC in the first two stages stops the
 // run before the next; re-running skips whatever is already done.
 
 import { Fragment, useEffect, useRef, useState } from 'react'
@@ -13,15 +14,17 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import {
   fetchBenchDevices,
   fetchToolSettings,
+  listFiles,
+  listProjects,
   saveBenchDevices,
   startVlanDeployJob,
   updateToolSettings,
   type BenchDevice,
   type VlanDeployRtac,
 } from '../api'
-import { AcrtacProjectPicker } from '../components/AcrtacProjectPicker'
 import { Button, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
+import { leaves } from '../lib/fileNodes'
 import { count } from '../lib/format'
 import { useAction } from '../lib/useAction'
 import { useToolJob } from '../lib/useToolJob'
@@ -38,13 +41,15 @@ interface StepResult {
 }
 
 interface DeployOutcome {
-  rtacs: { label: string; networkIp: string; project: string; ip: StepResult | null; upload: StepResult | null }[]
+  rtacs: { label: string; networkIp: string; file: string; ip: StepResult | null; upload: StepResult | null }[]
   vlan: (StepResult & { moved?: Record<string, string>; removed?: string; tagged?: string }) | null
   stoppedAt: null | 'ip' | 'vlan'
 }
 
 /** The run-wide fields, remembered in tool settings between launches. */
 interface RunFields {
+  /** The Projector project whose tree holds the .exp files. */
+  project: string
   switchIp: string
   vlan: string
   piPort: string
@@ -54,7 +59,8 @@ const SETTINGS_KEY = 'vlanDeploy'
 // The bench switch. Locked in the form behind an Edit button, since it is
 // almost never anything else.
 const DEFAULT_SWITCH_IP = '10.42.44.12'
-const emptyRow = (): VlanDeployRtac => ({ device: '', vlanIp: '', project: '' })
+const emptyRow = (): VlanDeployRtac => ({ device: '', vlanIp: '', file: '' })
+const fileName = (treePath: string) => treePath.split('/').pop() ?? treePath
 
 function Step({ step, done }: { step: StepResult | null; done: string }) {
   if (!step) return <span className="tool-stats">—</span>
@@ -62,14 +68,15 @@ function Step({ step, done }: { step: StepResult | null; done: string }) {
   return <span className="vlandeploy-ok">✓ {done}</span>
 }
 
-export function VlanDeployTool({ active }: ToolProps) {
+export function VlanDeployTool({ project, active }: ToolProps) {
   const [page, setPage] = useState<'deploy' | 'devices'>('deploy')
   const [error, setError] = useState<string | null>(null)
 
   const [devices, setDevices] = useState<BenchDevice[] | null>(null)
-  const [picking, setPicking] = useState<number | null>(null)
+  const [projects, setProjects] = useState<string[]>([])
+  const [exps, setExps] = useState<string[] | null>(null)
 
-  const [fields, setFields] = useState<RunFields>({ switchIp: DEFAULT_SWITCH_IP, vlan: '', piPort: '' })
+  const [fields, setFields] = useState<RunFields>({ project, switchIp: DEFAULT_SWITCH_IP, vlan: '', piPort: '' })
   const [editingSwitch, setEditingSwitch] = useState(false)
   const switchInput = useRef<HTMLInputElement>(null)
   // Unlocking hands the keyboard straight to the field, IP selected to type over.
@@ -86,8 +93,22 @@ export function VlanDeployTool({ active }: ToolProps) {
     setError,
   )
 
-  // The device table and last run's fields load when the tool is first
-  // shown; the project picker reads the shared AcRTAC list when opened.
+  // The .exp files anywhere in the run's project, re-read whenever the RTAC
+  // rows are focused so a file saved while the tool sat open shows up.
+  const loadExps = () => {
+    listProjects().then(setProjects, () => {})
+    if (!fields.project) return setExps([])
+    listFiles(fields.project).then(
+      (tree) => setExps(leaves(tree).map((n) => n.path).filter((p) => p.toLowerCase().endsWith('.exp')).sort()),
+      (err) => { setExps([]); setError(errorMessage(err)) },
+    )
+  }
+  useEffect(() => {
+    if (active) loadExps()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, fields.project])
+
+  // The device table and last run's fields load when the tool is first shown.
   useEffect(() => {
     if (!active || devices !== null) return
     fetchBenchDevices().then(setDevices, (err) => { setDevices([]); setError(errorMessage(err)) })
@@ -95,6 +116,7 @@ export function VlanDeployTool({ active }: ToolProps) {
       const saved = settings[SETTINGS_KEY] as Partial<RunFields> | undefined
       if (saved) {
         setFields((current) => ({
+          project: saved.project || current.project,
           switchIp: saved.switchIp?.trim() || DEFAULT_SWITCH_IP,
           vlan: saved.vlan ?? current.vlan,
           piPort: saved.piPort ?? current.piPort,
@@ -111,7 +133,7 @@ export function VlanDeployTool({ active }: ToolProps) {
 
   const byId = new Map((devices ?? []).map((d) => [d.id, d]))
   const ready = fields.switchIp.trim() && fields.vlan.trim() && fields.piPort.trim() &&
-    rows.every((r) => byId.has(r.device) && r.vlanIp.trim() && r.project)
+    fields.project && rows.every((r) => byId.has(r.device) && r.vlanIp.trim() && r.file)
 
   const deploy = async () => {
     setError(null)
@@ -172,6 +194,20 @@ export function VlanDeployTool({ active }: ToolProps) {
             onChange={(e) => setField('piPort', e.target.value)} />
         </div>
 
+        <div className="tool-row">
+          <Select label="Project (.exp files)" value={fields.project} placeholder="Pick a project…"
+            options={projects.length ? projects : [fields.project].filter(Boolean)}
+            onChange={(name) => {
+              if (name === fields.project) return
+              setField('project', name)
+              setExps(null)
+              setRows((current) => current.map((r) => ({ ...r, file: '' }))) // paths belong to the old project
+            }} />
+          <span className="tool-stats">
+            {exps === null ? 'loading…' : count(exps.length, '.exp file')}
+          </span>
+        </div>
+
         <div className="tool-row vlandeploy-head">
           <SectionHeader title="RTACs" count={rows.length} />
           <Button onClick={() => setPage('devices')}>Bench devices…</Button>
@@ -182,11 +218,16 @@ export function VlanDeployTool({ active }: ToolProps) {
             Bench devices.
           </div>
         )}
-        <div className="vlandeploy-grid">
+        {fields.project && exps?.length === 0 && (
+          <div className="tool-empty">
+            No .exp files in {fields.project} — save each RTAC’s .exp into the project’s tree first.
+          </div>
+        )}
+        <div className="vlandeploy-grid" onFocusCapture={loadExps}>
           <span className="vlandeploy-col">Device</span>
           <span className="vlandeploy-col">Network IP · port</span>
           <span className="vlandeploy-col">VLAN IP (/24)</span>
-          <span className="vlandeploy-col">Project</span>
+          <span className="vlandeploy-col">.exp file</span>
           <span />
           {rows.map((row, index) => {
             const device = byId.get(row.device)
@@ -202,10 +243,11 @@ export function VlanDeployTool({ active }: ToolProps) {
                 </span>
                 <TextInput value={row.vlanIp} placeholder="192.168.xxx.xxx"
                   onChange={(e) => setRow(index, { vlanIp: e.target.value })} />
-                <button className="vlandeploy-project" title={row.project || 'Pick the AcRTAC project'}
-                  onClick={() => setPicking(index)}>
-                  {row.project || <span className="vlandeploy-ghost">Pick a project…</span>}
-                </button>
+                <Select value={row.file} placeholder="Pick an .exp…"
+                  options={[...new Set([...(exps ?? []), row.file].filter(Boolean))]
+                    .map((p) => ({ value: p, label: p }))}
+                  disabled={!exps?.length}
+                  onChange={(file) => setRow(index, { file })} />
                 <Button title="Remove this RTAC" disabled={rows.length === 1}
                   onClick={() => setRows((current) => current.filter((_, i) => i !== index))}>
                   ✕
@@ -258,13 +300,13 @@ export function VlanDeployTool({ active }: ToolProps) {
               <span className="vlandeploy-col">Upload</span>
               {outcome.rtacs.map((r) => (
                 <Fragment key={r.label}>
-                  <span>{r.label} <span className="tool-stats">{r.project}</span></span>
+                  <span>{r.label} <span className="tool-stats" title={r.file}>{fileName(r.file)}</span></span>
                   <Step step={r.ip}
                     done={r.ip?.changed
                       ? `${r.ip.before} → ${r.ip.after} via ${r.ip.gateway}`
                       : `already ${r.ip?.after} via ${r.ip?.gateway}`} />
                   <Step step={r.upload}
-                    done={r.upload?.attempts && r.upload.attempts > 1 ? `sent (attempt ${r.upload.attempts})` : 'sent'} />
+                    done={r.upload?.attempts && r.upload.attempts > 1 ? `activated (attempt ${r.upload.attempts})` : 'activated'} />
                 </Fragment>
               ))}
             </div>
@@ -272,17 +314,6 @@ export function VlanDeployTool({ active }: ToolProps) {
         )}
       </div>
 
-      {picking !== null && (
-        <AcrtacProjectPicker
-          current={rows[picking]?.project}
-          taken={rows.filter((_, i) => i !== picking).map((r) => r.project).filter(Boolean)}
-          onPick={(project) => {
-            setRow(picking, { project })
-            setPicking(null)
-          }}
-          onClose={() => setPicking(null)}
-        />
-      )}
     </>
   )
 }

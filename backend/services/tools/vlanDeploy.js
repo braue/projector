@@ -2,9 +2,11 @@
 // projects: Ethernet 2 on each RTAC gets its VLAN IP (/24, gateway .1) over
 // the RTAC's web interface at its network IP, the SEL-2730M makes the VLAN's
 // members exactly those RTACs' ports plus the Raspberry Pi's, then each
-// RTAC's AcRTAC project is uploaded over the network IP, one at a time.
-// All of it runs in py/rtac_vlan_deploy.py (device web code py/sel_web.py,
-// one upload per py/rtac_upload.py process) as ONE job.
+// RTAC's .exp — a file saved in a Projector project's tree, picked per row —
+// is uploaded and activated through the RTAC's web interface at its network
+// IP, all RTACs at once. All of it runs in py/rtac_vlan_deploy.py (device
+// web code py/sel_web.py) as ONE job. No AcRTAC: it doesn't wait in the
+// AcRTAC queue and doesn't need selacrtac.
 //
 // The bench itself — which identifier ("3555-1") sits at which network IP
 // on which switch port — is a table kept here, in
@@ -21,15 +23,13 @@ import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const SCRIPT = 'rtac_vlan_deploy.py';
 
-// A backstop above the bridge's own: uploads run one at a time, each attempt
-// may take up to 3 hours (UPLOAD_TIMEOUT_S in the bridge), and there are 3
-// attempts. A run that goes wrong early is aborted from the tasks popover.
-const BASE_TIMEOUT_MS = 10 * 60 * 1000;
-const PER_RTAC_TIMEOUT_MS = 3 * 3 * 60 * 60 * 1000;
+// A backstop above the bridge's own: the web uploads run side by side, 3
+// attempts each, every activation bounded at 30 min (sel_web.ACTIVATE_TIMEOUT).
+// A run that goes wrong early is aborted from the tasks popover.
+const TIMEOUT_MS = 2 * 60 * 60 * 1000;
 
 const EXPLAIN = {
-  python: 'Python was not found on PATH — install Python and the selacrtac package to deploy RTAC projects from here.',
-  selacrtac: 'Python is installed but the selacrtac package is missing, so projects cannot be uploaded from here.',
+  python: 'Python was not found on PATH — install Python to deploy RTAC projects from here.',
 };
 
 const IPV4 = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
@@ -65,14 +65,15 @@ function validateDevices(rows) {
 }
 
 /** The form, filled in and with devices resolved from the table. What the
- *  values MEAN (addresses, ranges, duplicates) is
- *  py/rtac_vlan_deploy.py's validate(), which runs before AcRTAC starts, so a
- *  bad value still fails in a second. */
+ *  values MEAN (addresses, ranges, duplicates) is py/rtac_vlan_deploy.py's
+ *  validate(), which runs before any device is touched. Each row's `file`
+ *  is a tree path in `project`; start() resolves it to the file on disk. */
 function validateDeploy(payload, devices) {
   const raw = Array.isArray(payload?.rtacs) ? payload.rtacs : [];
   if (!raw.length) throw httpError(400, 'add at least one RTAC');
   const byId = new Map(devices.map((d) => [d.id, d]));
   return {
+    project: filled(payload.project, 'Project'),
     switchIp: filled(payload.switchIp, 'Switch IP'),
     vlan: filled(payload.vlan, 'VLAN ID'),
     piPort: filled(payload.piPort, 'Raspberry Pi port'),
@@ -85,7 +86,7 @@ function validateDeploy(payload, devices) {
         networkIp: device.networkIp,
         port: device.port,
         vlanIp: filled(r?.vlanIp, `${id} VLAN IP`),
-        project: filled(r?.project, `${id} project`),
+        file: filled(r?.file, `${id} .exp file`),
       };
     }),
   };
@@ -95,8 +96,9 @@ class VlanDeployService {
   // Every write is a whole-file replace, so two in flight would drop one.
   #queue = Promise.resolve();
 
-  constructor({ jobs, dataDir }) {
+  constructor({ jobs, dataDir, projects }) {
     this.jobs = jobs;
+    this.projects = projects;
     this.file = path.join(dataDir, 'tools', 'vlan-deploy', 'devices.json');
   }
 
@@ -125,13 +127,19 @@ class VlanDeployService {
   }
 
   async start(payload) {
-    const request = validateDeploy(payload, await this.devices());
+    const { project, ...request } = validateDeploy(payload, await this.devices());
+    const { files } = await this.projects.bundle(project);
+    for (const r of request.rtacs) {
+      if (!r.file.toLowerCase().endsWith('.exp')) throw httpError(400, `${r.label}: ${r.file} is not an .exp file`);
+      r.exp = await files.rawPath(r.file); // 404s a file that's gone
+    }
     const n = request.rtacs.length;
     const job = this.jobs.start(`RTAC VLAN deploy: ${n} RTAC(s) → VLAN ${request.vlan}`, (handle) =>
       runStdinBridge(SCRIPT, request, {
         job: handle,
         explain: EXPLAIN,
-        timeoutMs: BASE_TIMEOUT_MS + n * PER_RTAC_TIMEOUT_MS,
+        timeoutMs: TIMEOUT_MS,
+        acrtac: false,
       }));
     return { job: job.id };
   }

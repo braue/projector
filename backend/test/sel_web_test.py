@@ -3,8 +3,8 @@ captured from a real SEL-3350 and SEL-2730M (test/fixtures/sel_web/).
 
     python3 test/sel_web_test.py        (also run by test/selWeb.test.js)
 
-The bridge test swaps in simulated devices (SelWeb._request) and a fake
-selacrtac, then runs the whole deploy: RTAC ports, switch VLAN, uploads.
+The bridge test swaps in simulated devices (SelWeb._request), then runs the
+whole deploy: RTAC ports, switch VLAN, web upload + activate of .exp files.
 """
 
 import json
@@ -72,6 +72,18 @@ class CapturedPages(unittest.TestCase):
             with self.assertRaises(ValueError):
                 sel_web.parse_ports(bad)
 
+    def test_project_upload_body_is_the_browsers(self):
+        # the capture leaves the file's bytes out; the framing is what's checked
+        body, ctype = sel_web.multipart(
+            [("Project", ("Pineville_35KV_REM2.exp", b"")), ("FilePath", "/Pineville_35KV_REM2.exp")],
+            boundary="----WebKitFormBoundaryjlQ8trUc2wg0hrFw")
+        self.assertEqual(body, (FIX / "rtac_project_upload_body.txt").read_bytes())
+        self.assertEqual(ctype, "multipart/form-data; boundary=----WebKitFormBoundaryjlQ8trUc2wg0hrFw")
+
+    def test_project_listing(self):
+        web = types.SimpleNamespace(post=lambda page: fixture("rtac_project_listing.html"))
+        self.assertEqual(sel_web.project_files(web), {"/Pineville_35KV_REM2.exp": 21919168})
+
     def test_ip_mask(self):
         self.assertEqual(sel_web.ip_mask("10.0.0.5/255.255.255.0"), "10.0.0.5/24")
         for bad in ("10.0.0.5", "10.0.0.0/24", "10.0.0.255/24", "127.0.0.1/8"):
@@ -82,18 +94,58 @@ class CapturedPages(unittest.TestCase):
 # --- simulated devices --------------------------------------------------------
 
 class FakeRtac:
-    """Serves the captured Eth_02 page at interface_id=1 with a live address."""
+    """Serves the captured Eth_02 page at interface_id=1 with a live address,
+    and the project API: uploads land in `files`, Activate plays the captured
+    poll sequence and makes the project current."""
 
     def __init__(self, eth02="192.168.10.2/24"):
         self.eth02 = eth02
         self.gateway = ""
         self.saves = []
+        self.files = {}           # '/<name>.exp' -> bytes
+        self.posted = []          # each upload's FilePath
+        self.refuse_existing = False
+        self.activate_logs = [p["Logs"] for p in json.loads(fixture("rtac_activate_polls.json"))]
+        self.current = {"name": "Eunice_13KV_REM", "state": "running"}
+        self.activating = None
+
+    def api(self, path, body):
+        if path == "api/v1/projects":
+            m = re.search(rb'name="FilePath"\r\n\r\n([^\r]*)', body)
+            data = re.search(rb'filename="[^"]*"\r\nContent-Type: application/octet-stream\r\n\r\n'
+                             rb'(.*?)\r\n--', body, re.S).group(1)
+            name = m.group(1).decode()
+            if self.refuse_existing and name in self.files:
+                raise sel_web.SelWebError("api/v1/projects: HTTP 409 Conflict")
+            self.files[name] = data
+            self.posted.append(name)
+            return json.dumps({"FilePath": name.lstrip("/")})
+        m = re.fullmatch(r"api/v1/projects/([^/]+)/commands(?:/(.+))?", path)
+        if m and body is not None:
+            assert json.loads(body) == {"Command": "Activate"}
+            assert f"/{unquote(m[1])}.exp" in self.files, "activating a file that was never uploaded"
+            self.activating, self.polls = unquote(m[1]), iter(self.activate_logs)
+            return json.dumps({"Id": "c18c5379"})
+        if m and m[2] == "c18c5379":
+            logs = next(self.polls, self.activate_logs[-1])
+            if any(e["Message"] == "Complete" for e in logs):
+                self.current = {"name": self.activating, "state": "running"}
+            return json.dumps({"Command": "Activate", "Logs": logs})
+        raise AssertionError(f"RTAC API got {path}")
+
+    def listing(self):
+        rows = "".join(f"""<span onClick="return downloadFile('download_frame', 'project_uploader', '{n}');">"""
+                       f'</span><td id="size_{i}">\n {len(d)}\n</td>'
+                       for i, (n, d) in enumerate(self.files.items()))
+        return f'<table id="project_upload_table">{rows}</table>'
 
     def page(self):
         html = fixture("rtac_eth02_page.html").replace('"192.168.10.2/24"', f'"{self.eth02}"')
         return re.sub(r'(id="gateway"[^>]*?value=")[^"]*"', rf'\g<1>{self.gateway}"', html, flags=re.S)
 
     def handle(self, path, body):
+        if path.startswith("api/"):
+            return self.api(path, body)
         if path == "/":
             return '<input id="temp_auth_token" value="c30d0409abc">'
         if path == "auth.sel":
@@ -108,7 +160,11 @@ class FakeRtac:
             self.eth02 = unquote(f["ipv4_address"])
             self.gateway = f["ipv4_gateway"]
             return fixture("rtac_save_reply.html")
-        if path in ("update.sel", "logout.sel"):
+        if path == "project_upload.sel":
+            return self.listing()
+        if path == "update.sel":
+            return json.dumps({"currentProject": self.current})
+        if path == "logout.sel":
             return "{}"
         raise AssertionError(f"RTAC got {path}")
 
@@ -144,56 +200,99 @@ class FakeSwitch:
         raise AssertionError(f"switch got {path}")
 
 
-class FakeAcRTAC:
-    projects = ["Station A", "Station B"]
-
-    def __init__(self):
-        FakeAcRTAC.last = self
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        return False
-
-    def login(self, *a):
-        return None
-
-    def listprojects(self):
-        return [types.SimpleNamespace(name=n) for n in self.projects]
-
-
 class Deploy(unittest.TestCase):
     def setUp(self):
         self.devices = {"10.42.44.34": FakeRtac(), "10.42.44.35": FakeRtac(), "10.42.44.12": FakeSwitch()}
         devices = self.devices
         self._orig = sel_web.SelWeb._request
 
-        def request(web, url, body=None):
+        def request(web, url, body=None, *a, **kw):
             host, path = re.match(r"https://([^/]+)/?([^?]*)", url).groups()
             return devices[host].handle(path or "/", body)
 
         sel_web.SelWeb._request = request
         sel_web.time.sleep = lambda s: None
         deploy.time.sleep = lambda s: None
-        acrtac_common.AcRTAC = FakeAcRTAC  # bound at import, so patch it there
         self.uploads = []
         self.request = {"switchIp": "10.42.44.12", "vlan": 16, "piPort": 24, "rtacs": [
             {"label": "3555-1", "networkIp": "10.42.44.34", "vlanIp": "172.16.100.200", "port": 3,
-             "project": "Station A"},
+             "exp": self.exp("Station A.exp", b"exp of Station A"), "file": "RTACs/Station A.exp"},
             {"label": "3532-3", "networkIp": "10.42.44.35", "vlanIp": "172.16.100.201", "port": 4,
-             "project": "Station B"},
+             "exp": self.exp("Station_B.exp", b"exp of Station B"), "file": "RTACs/Station_B.exp"},
         ]}
 
     def tearDown(self):
         sel_web.SelWeb._request = self._orig
 
     def attempt(self, r):
-        self.uploads.append((r["project"], r["networkIp"]))
+        self.uploads.append((r["file"], r["networkIp"]))
 
     def run_deploy(self, attempt=None):
         return deploy.deploy(*deploy.validate(self.request), attempt=attempt or self.attempt,
                              delays=(0, 0))
+
+    def test_full_run_over_the_web(self):
+        out = deploy.deploy(*deploy.validate(self.request), delays=(0, 0))
+        self.assertTrue(all(r["upload"] == {"ok": True, "attempts": 1} for r in out["rtacs"]))
+        a = self.devices["10.42.44.34"]
+        self.assertEqual(a.files, {"/Station_A.exp": b"exp of Station A"})  # stored name: no space
+        self.assertEqual(a.current, {"name": "Station_A", "state": "running"})
+        self.assertEqual(self.devices["10.42.44.35"].current["name"], "Station_B")
+
+    def test_a_rerun_reactivates_the_file_already_there(self):
+        r = {"label": "3555-1", "networkIp": "10.42.44.34", "file": "Station_A.exp"}
+        exp = Path(self.exp("Station_A.exp"))
+        rtac = self.devices["10.42.44.34"]
+        rtac.refuse_existing = True
+        deploy.upload_once({**r, "exp": str(exp)})
+        rtac.current = {"name": "other", "state": "running"}
+        deploy.upload_once({**r, "exp": str(exp)})
+        self.assertEqual(rtac.posted, ["/Station_A.exp"])
+        self.assertEqual(rtac.current["name"], "Station_A")
+        exp.write_bytes(b"a changed project")  # same name, different file: refused
+        with self.assertRaisesRegex(sel_web.SelWebError, "refused Station_A.exp.*409"):
+            deploy.upload_once({**r, "exp": str(exp)})
+
+    def test_an_activation_error_fails_the_attempt(self):
+        rtac = self.devices["10.42.44.34"]
+        rtac.activate_logs = [[{"Type": "Information", "Message": "Validating..."}],
+                              [{"Type": "Information", "Message": "Validating..."},
+                               {"Type": "Error", "Message": "Firmware mismatch"}]]
+        out = deploy.deploy(*deploy.validate(self.request), delays=(0, 0))
+        self.assertEqual(out["rtacs"][0]["upload"],
+                         {"ok": False, "error": "activating Station_A: Firmware mismatch", "attempts": 3})
+        self.assertTrue(out["rtacs"][1]["upload"]["ok"])
+
+    def test_complete_but_not_running_fails(self):
+        rtac = self.devices["10.42.44.34"]
+        rtac.api = (lambda orig: lambda path, body: (
+            orig(path, body), setattr(rtac, "current", {"name": "Station_A", "state": "stopped"}))[0]
+        )(rtac.api)
+        with self.assertRaisesRegex(sel_web.SelWebError, "runs 'Station_A' \\(stopped\\)"):
+            deploy.upload_once({"label": "x", "networkIp": "10.42.44.34", "file": "Station_A.exp",
+                                "exp": self.exp("Station_A.exp")})
+
+    def test_a_missing_exp_stops_before_any_device(self):
+        Path(self.request["rtacs"][1]["exp"]).unlink()
+        with self.assertRaisesRegex(RuntimeError, r"not an .exp file: 3532-3 \(RTACs/Station_B.exp\)"):
+            self.run_deploy()
+        self.assertEqual(self.devices["10.42.44.34"].saves, [])
+        self.assertEqual(self.uploads, [])
+
+    def test_stored_names_are_url_safe(self):
+        self.assertEqual(sel_web.rtac_file_name("C:/x/Station A (rev 2).exp"), "Station_A__rev_2_.exp")
+        self.assertEqual(sel_web.rtac_file_name("Pineville_35KV_REM2.exp"), "Pineville_35KV_REM2.exp")
+
+    def tmp(self):
+        import tempfile
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        return d.name
+
+    def exp(self, name, data=b"exp"):
+        path = Path(self.tmp()) / name
+        path.write_bytes(data)
+        return str(path)
 
     def test_full_run(self):
         out = self.run_deploy()
@@ -210,7 +309,8 @@ class Deploy(unittest.TestCase):
         self.assertEqual(rows[16][3]["value"], "3-4,24")
         self.assertEqual(rows[1][3]["value"], "1-2,5-23")
         self.assertEqual(json.loads(json.dumps(out))["vlan"]["moved"], {"1": "3-4,24"})
-        self.assertEqual(sorted(self.uploads), [("Station A", "10.42.44.34"), ("Station B", "10.42.44.35")])
+        self.assertEqual(sorted(self.uploads), [("RTACs/Station A.exp", "10.42.44.34"),
+                                                ("RTACs/Station_B.exp", "10.42.44.35")])
         self.assertTrue(all(r["upload"]["ok"] for r in out["rtacs"]))
 
     def test_rerun_is_a_no_op_until_upload(self):
@@ -239,12 +339,6 @@ class Deploy(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "VLAN ID"):
             self.run_deploy()
 
-    def test_missing_project_stops_before_any_device(self):
-        self.request["rtacs"][1]["project"] = "Nope"
-        with self.assertRaisesRegex(RuntimeError, "not in the AcRTAC database: Nope"):
-            self.run_deploy()
-        self.assertEqual(self.devices["10.42.44.34"].saves, [])
-
     def test_the_connected_port_is_refused_and_the_run_stops(self):
         self.devices["10.42.44.35"].eth02 = "10.42.44.35/24"
         out = self.run_deploy()
@@ -262,11 +356,11 @@ class Deploy(unittest.TestCase):
         self.assertEqual(self.uploads, [])
 
     def test_a_flaky_upload_is_retried(self):
-        fails = {"Station A": 2}
+        fails = {"3555-1": 2}
 
         def attempt(r):
-            if fails.get(r["project"], 0):
-                fails[r["project"]] -= 1
+            if fails.get(r["label"], 0):
+                fails[r["label"]] -= 1
                 raise RuntimeError("RTAC busy")
             self.attempt(r)
         out = self.run_deploy(attempt)
@@ -275,38 +369,34 @@ class Deploy(unittest.TestCase):
 
     def test_one_failed_upload_does_not_stop_the_rest(self):
         def attempt(r):
-            if r["project"] == "Station A":
+            if r["label"] == "3555-1":
                 raise RuntimeError("RTAC refused")
             self.attempt(r)
         out = self.run_deploy(attempt)
         self.assertEqual([r["upload"]["ok"] for r in out["rtacs"]], [False, True])
         self.assertEqual(out["rtacs"][0]["upload"], {"ok": False, "error": "RTAC refused", "attempts": 3})
 
-    def test_uploads_run_one_at_a_time_in_order(self):
-        in_flight, peak, order = [0], [0], []
+    def test_uploads_run_side_by_side(self):
+        both = threading.Barrier(2, timeout=5)  # breaks unless both uploads are in flight at once
 
         def attempt(r):
-            order.append(r["project"])
-            in_flight[0] += 1
-            peak[0] = max(peak[0], in_flight[0])
-            threading.Event().wait(0.05)  # time.sleep is stubbed out in setUp
-            in_flight[0] -= 1
-        self.run_deploy(attempt)
-        self.assertEqual(peak[0], 1)
-        self.assertEqual(order, ["Station A", "Station B"])
+            both.wait()
+            self.attempt(r)
+        out = self.run_deploy(attempt)
+        self.assertEqual([r["upload"] for r in out["rtacs"]], [{"ok": True, "attempts": 1}] * 2)
 
 
 class Validate(unittest.TestCase):
     def form(self, **over):
         rtac = {"label": "3555-1", "networkIp": "10.42.44.34", "vlanIp": "172.16.100.200",
-                "port": "3", "project": " A "}
+                "port": "3", "exp": "/d/A.exp", "file": "RTACs/A.exp"}
         return {"switchIp": " 10.42.44.12", "vlan": "14", "piPort": "24", "rtacs": [{**rtac, **over}]}
 
     def test_normalizes(self):
         self.assertEqual(deploy.validate(self.form(vlanIp="172.16.100.200/255.255.255.0")),
                          ("10.42.44.12", 14, 24, [
             {"label": "3555-1", "networkIp": "10.42.44.34", "vlanIp": "172.16.100.200/24",
-             "gateway": "172.16.100.1", "port": 3, "project": "A"}]))
+             "gateway": "172.16.100.1", "port": 3, "exp": "/d/A.exp", "file": "RTACs/A.exp"}]))
 
     def test_names_the_bad_field(self):
         for over, message in (({"networkIp": "10.42.44"}, "3555-1 network IP"),
@@ -337,80 +427,14 @@ class Validate(unittest.TestCase):
         self.assertEqual([r["gateway"] for r in rtacs], ["172.16.100.1", "172.16.101.1"])
 
 
-class UploadWorker(unittest.TestCase):
-    """py/rtac_upload.py as a real child process, over a stand-in selacrtac
-    on its PYTHONPATH: the request goes in, narration streams out labeled,
-    and a refusal comes back as the attempt's error."""
-
-    def setUp(self):
-        import os
-        import tempfile
-        self.dir = tempfile.TemporaryDirectory()
-        pkg = Path(self.dir.name) / "selacrtac"
-        pkg.mkdir()
-        (pkg / "__init__.py").write_text("")
-        (pkg / "acrtac.py").write_text(
-            "class AcRTAC:\n"
-            "    def __enter__(self): return self\n"
-            "    def __exit__(self, *e): return False\n"
-            "    def login(self, *a): pass\n"
-            "    def upload(self, project, ip, user, password=None):\n"
-            "        print('compiling ' + project + ' \u2192 ' + ip)\n"
-            "        if 'Bad' in project: raise RuntimeError('RTAC refused')\n"
-            "        return True\n")
-        self._env = os.environ.get("PYTHONPATH")
-        os.environ["PYTHONPATH"] = self.dir.name
-        self.lines = []
-        self._say, deploy.say = deploy.say, self.lines.append
-
-    def tearDown(self):
-        import os
-        deploy.say = self._say
-        if self._env is None:
-            os.environ.pop("PYTHONPATH", None)
-        else:
-            os.environ["PYTHONPATH"] = self._env
-        self.dir.cleanup()
-
-    def test_sends_and_narrates(self):
-        deploy.upload_once({"label": "3555-1", "project": "Station A", "networkIp": "10.0.0.5"})
-        self.assertIn('  [3555-1] compiling "Station A" \u2192 10.0.0.5', self.lines)
-
-    def test_refusal_is_the_error(self):
-        with self.assertRaisesRegex(RuntimeError, "^RTAC refused$"):
-            deploy.upload_once({"label": "x", "project": "Bad", "networkIp": "10.0.0.5"})
-
-
-class KillTree(unittest.TestCase):
-    """An upload worker that times out takes its AcRtacCmd with it: a worker
-    stand-in starts a grandchild that inherits its stdout, as AcRtacCmd does.
-    The pipe reaches EOF only once every holder is dead, so EOF after
-    kill_tree means the grandchild went too (and an orphan holding it is
-    exactly what would leave a timed-out upload hanging)."""
-
-    def test_kills_the_grandchild(self):
-        import os
+class NoSelacrtac(unittest.TestCase):
+    def test_the_bridge_runs_without_selacrtac(self):
         import subprocess
-        proc = subprocess.Popen(
-            [sys.executable, "-c",
-             "import subprocess, sys, time\n"
-             # stderr away from ours, so a surviving grandchild can't hold the
-             # test runner's pipe open and hang the suite
-             "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'],"
-             " stderr=subprocess.DEVNULL)\n"
-             "print('up', flush=True)\n"
-             "time.sleep(120)\n"],
-            stdout=subprocess.PIPE, text=True, start_new_session=os.name != "nt")
-        try:
-            self.assertEqual(proc.stdout.readline(), "up\n")
-            deploy.kill_tree(proc)
-            reader = threading.Thread(target=proc.stdout.read, daemon=True)
-            reader.start()
-            reader.join(timeout=10)
-            self.assertFalse(reader.is_alive(), "the grandchild outlived kill_tree (pipe still open)")
-        finally:
-            proc.kill()
-            proc.wait()
+        run = subprocess.run(
+            [sys.executable, "-E", "-s", str(HERE.parent / "py" / "rtac_vlan_deploy.py")],
+            input="{}", capture_output=True, text=True, cwd=HERE.parent / "py")
+        self.assertEqual(run.returncode, 1)
+        self.assertIn("bad request", run.stderr)
 
 
 class AcrtacBridge(unittest.TestCase):
