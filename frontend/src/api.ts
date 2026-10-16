@@ -483,6 +483,36 @@ export function saveDacInitRun(project: string, run: string): Promise<{ placed: 
   return send(`/api/tools/dacinit/${encodeURIComponent(run)}/save`, 'POST', { project })
 }
 
+// --- Automatic FAT -> Excel ----------------------------------------------------
+
+/** One input of the FAT converter: an upload, or a file in a project's tree. */
+export type FatInput = { file: File } | { project: string; path: string }
+
+/** Convert an automatic-FAT report into a FAT workbook's checkout sheets, as
+ *  one job. Nothing lands in the tree until saveFatSheetsRun. */
+export function generateFatSheets(args: {
+  workbook: FatInput
+  report: FatInput
+  engineer: string
+}): Promise<{ job: string; run: string }> {
+  const form = new FormData()
+  for (const [field, input] of [['workbook', args.workbook], ['report', args.report]] as const) {
+    if ('file' in input) form.append(field, input.file)
+    else {
+      form.append(`${field}Project`, input.project)
+      form.append(`${field}Path`, input.path)
+    }
+  }
+  form.append('engineer', args.engineer)
+  return send('/api/tools/fatsheets/generate', 'POST', form)
+}
+
+/** Land the converted workbook as a new version of the project entry it was
+ *  made from. */
+export function saveFatSheetsRun(run: string): Promise<{ project: string; placed: string; note: string }> {
+  return send(`/api/tools/fatsheets/${encodeURIComponent(run)}/save`, 'POST', {})
+}
+
 // --- AcRTAC actions (the project tree's actions on an RTAC entry) ---------------
 
 /** Import RTAC tree entries into the AcRTAC database, as ONE pollable job

@@ -8,6 +8,7 @@ import type { ComponentType } from 'react'
 import { DacInitTool } from './DacInitTool'
 import { DacsimTool } from './DacsimTool'
 import { DwgenTool } from './DwgenTool'
+import { FatSheetsTool } from './FatSheetsTool'
 import { HmiTesterTool } from './HmiTesterTool'
 import { QuicksetTool } from './QuicksetTool'
 import { RtacExportTool } from './RtacExportTool'
@@ -38,4 +39,5 @@ export const TOOLS: ToolDef[] = [
   { id: 'dwgen', label: 'Drawing Generator', component: DwgenTool },
   { id: 'dacsim', label: 'DAC SIM Converter', component: DacsimTool },
   { id: 'dacinit', label: 'CLECO DAC Inits', component: DacInitTool },
+  { id: 'fatsheets', label: 'Automatic FAT → Excel', component: FatSheetsTool },
 ]

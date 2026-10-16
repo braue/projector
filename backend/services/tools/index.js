@@ -5,6 +5,7 @@ import { AcrtacService } from './acrtac.js';
 import { DacInitService } from './dacinit.js';
 import { DacsimService } from './dacsim.js';
 import { DwgenService } from './dwgen.js';
+import { FatSheetsService } from './fatsheets.js';
 import { HmiTesterService } from './hmiTester.js';
 import { QuicksetService } from './quickset/index.js';
 import { RtacExportService } from './rtacExport.js';
@@ -26,11 +27,12 @@ async function createTools({ dataDir, jobs, catalog, projects }) {
   const dwgen = new DwgenService({ workspace, jobs, settings });
   const dacsim = new DacsimService({ workspace, jobs });
   const dacinit = new DacInitService({ workspace, jobs });
+  const fatsheets = new FatSheetsService({ workspace, jobs });
   const acrtac = new AcrtacService({ jobs, catalog });
   const vlanDeploy = new VlanDeployService({ jobs, dataDir, projects });
   return {
     workspace, settings, hmi, terminal, quickset, swset, rtacExport,
-    dwgen, dacsim, dacinit, acrtac, vlanDeploy,
+    dwgen, dacsim, dacinit, fatsheets, acrtac, vlanDeploy,
   };
 }
 

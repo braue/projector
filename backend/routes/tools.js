@@ -21,6 +21,10 @@ function toolsRoutes(tools, projects) {
     storage: multer.memoryStorage(),
     limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 },
   });
+  const uploadPair = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MAX_UPLOAD_BYTES, files: 2 },
+  }).fields([{ name: 'workbook', maxCount: 1 }, { name: 'report', maxCount: 1 }]);
 
   // Tool inputs come from either place the user keeps files: a multipart
   // upload (the OS file picker / drag-in), or a file already in a project's
@@ -184,6 +188,31 @@ function toolsRoutes(tools, projects) {
     if (!project) throw httpError(400, 'project required');
     const files = (await projects.bundle(project)).files;
     res.status(201).json(await tools.dacinit.save(files, req.params.run));
+  });
+
+  // Automatic FAT → Excel: a FAT workbook and an automatic-FAT HTML report,
+  // each a multipart upload ("workbook" / "report") or a project file named
+  // by <field>Project + <field>Path; plus `engineer`. One job converts; save
+  // lands the result as a new version of the workbook's project entry.
+  router.post('/fatsheets/generate', uploadPair, async (req, res) => {
+    const body = req.body ?? {};
+    const input = (field) => {
+      const file = req.files?.[field]?.[0];
+      if (file) return { name: file.originalname, buffer: file.buffer };
+      const project = body[`${field}Project`];
+      const filePath = body[`${field}Path`];
+      return project && filePath ? { project: String(project), path: String(filePath) } : null;
+    };
+    const filesFor = async (project) => (await projects.bundle(project)).files;
+    res.status(202).json(await tools.fatsheets.generate(filesFor, {
+      workbook: input('workbook'),
+      report: input('report'),
+      engineer: body.engineer ?? '',
+    }));
+  });
+  router.post('/fatsheets/:run/save', async (req, res) => {
+    const filesFor = async (project) => (await projects.bundle(project)).files;
+    res.status(201).json(await tools.fatsheets.save(filesFor, req.params.run));
   });
 
   // The project tree's generic AcRTAC actions on an RTAC entry, each a

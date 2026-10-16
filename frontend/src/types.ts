@@ -421,6 +421,34 @@ export interface DacInitConflict {
 
 /** A CLECO DAC Inits run: what it wrote into each Init_* POU, what it left
  *  alone, and the note the saved version would carry. */
+/** Automatic FAT -> Excel: what one conversion wrote. */
+export interface FatSheetsResult {
+  run: string
+  workbookName: string
+  reportName: string
+  reportTitle: string
+  /** The project entry the workbook came from; null for an upload. */
+  source: { project: string; path: string } | null
+  sheets: { kind: string; name: string; count: number; replaced: boolean }[]
+  bands: {
+    substations: { name: string; feeders: string[] }[]
+    /** Feeders no banded sheet in the workbook names — banded by feeder. */
+    unbanded: string[]
+  }
+  /** Tests that did not come back Complete, and where they landed. */
+  flagged: {
+    index: number
+    kind: string
+    sheet: string
+    column: string
+    feeder: string
+    status: string
+    comment: string
+  }[]
+  note: string
+  reports: ToolReport[]
+}
+
 export interface DacInitResult {
   run: string
   entryName: string

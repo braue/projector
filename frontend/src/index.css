@@ -285,6 +285,10 @@ button.ui-section-header:hover { color: var(--ink); }
 .tool-stats { font-size: 13px; color: var(--muted); }
 .tool-error { font-size: 13px; color: var(--bad-ink); }
 .tool-empty { padding: 10px 0 4px; font-size: 13px; color: var(--muted); }
+.tool-about { font-size: 13px; color: var(--muted); line-height: 1.45; padding: 4px 0 8px; }
+.tool-about p { margin: 0 0 6px; }
+.tool-about ul { margin: 0; padding-left: 18px; }
+.tool-about li { margin: 2px 0; }
 .tool-outputs { align-self: stretch; display: flex; flex-direction: column; gap: 8px; }
 .tool-outputs .tool-row { align-items: center; }
 /* An action select (Save to project…) sizes to its text like a button,
