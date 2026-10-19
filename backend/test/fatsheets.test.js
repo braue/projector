@@ -20,6 +20,7 @@ import { parseAutoFat } from '../services/tools/fatsheets/autofat.js';
 import { columnFor, configuration } from '../services/tools/fatsheets/columns.js';
 import { convertAutoFat } from '../services/tools/fatsheets/index.js';
 import { SHEETS } from '../services/tools/fatsheets/layout.js';
+import { selectTests } from '../services/tools/fatsheets/select.js';
 import {
   attrsOf, block, cellText, elements, parseSheet, partText, readPackage, sharedStrings,
 } from '../services/tools/fatsheets/ooxml.js';
@@ -251,6 +252,30 @@ test('columns: phrasing and footnote marks follow the hand-completed FAT', () =>
   assert.equal(abnFail.elsewhere, 'N/A');
 });
 
+test('miscoordination and abnormal sheets take one test per feeder, the one with the most switching', async () => {
+  const tests = [
+    ...TESTS,
+    { type: 'Miscoordination', index: 9, status: 'Fail', feeder: 'F1', trip: 'R12', loc: 'R13', open: 'R13 , R14', close: 'R98', oc: 'R12' },
+    { type: 'Miscoordination', index: 10, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R13', open: 'R13 , R14', close: 'R98', oc: 'R12' },
+    { type: 'Miscoordination', index: 11, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'R21', open: 'R21' },
+    // F1 gains an abnormal fault test: it wins over the busier open phase one.
+    { type: 'AbnormalOpenPhase', index: 12, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', abn: 'R12', open: 'R11 , R12 , R13', close: 'R98 , R97' },
+    { type: 'AbnormalFaultLo', index: 13, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', abn: 'R12', open: 'R11' },
+    { type: 'AbnormalFaultLo', index: 14, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', abn: 'R21', open: 'B2', close: 'R77 , R78' },
+  ];
+  const { tests: parsed } = parseAutoFat(report(tests));
+  const pick = (kind) => selectTests(kind, parsed.filter((t) => t.kind === kind)).map((t) => t.index);
+  assert.deepEqual(pick('fault'), [1, 2, 3, 8]); // every one
+  assert.deepEqual(pick('miscoordination'), [10, 11]); // 10 ties 9 on switching, and passed
+  assert.deepEqual(pick('abnormal'), [13, 14]);
+  // With no abnormal fault test on a feeder, its other abnormal tests stand in.
+  assert.deepEqual(selectTests('abnormal', parsed.filter((t) => t.kind === 'abnormal' && t.index !== 13)).map((t) => t.index), [12, 14]);
+
+  const result = await convertAutoFat({ workbook: workbookPackage(), html: report(tests) });
+  assert.deepEqual(result.sheets.map((s) => [s.kind, s.count, s.inReport]),
+    [['fault', 4, 4], ['openPhase', 1, 1], ['miscoordination', 2, 4], ['abnormal', 2, 5]]);
+});
+
 test('the shipped template carries the rows the layout fills', async () => {
   const pkg = readPackage(await readFile(TEMPLATE));
   const labels = {
@@ -332,6 +357,27 @@ test('convertAutoFat grafts the sheets and leaves the rest of the workbook alone
   assert.deepEqual(again.sheets.map((s) => [s.kind, s.count, s.replaced]), [['fault', 1, true]]);
   assert.equal(grid(pkg2, 'Fault Test Checkout')(6, 5), null);
   assert.equal((partText(pkg2, 'xl/workbook.xml').match(/'Fault Test Checkout'!\$A\$1/g) ?? []).length, 1);
+});
+
+test('a re-run matches sheet names like Excel does and keeps the replaced sheet\'s codeName', async () => {
+  const first = readPackage((await convertAutoFat({ workbook: workbookPackage(), html: report(TESTS) })).buffer);
+  // Someone renamed the tab's case, and Excel gave the sheet a VBA codeName.
+  first.set('xl/workbook.xml', enc(partText(first, 'xl/workbook.xml').replace('name="Fault Test Checkout"', 'name="FAULT test checkout"')));
+  const part = sheetsOf(first).find((s) => s.name === 'FAULT test checkout').part;
+  first.set(part, enc(partText(first, part).replace(/(<worksheet\b[^>]*>)/, '$1<sheetPr codeName="Sheet7"><tabColor rgb="FF00B050"/></sheetPr>')));
+  const input = zipSync(Object.fromEntries(first));
+
+  // A control character from the report would make the workbook unreadable.
+  const tests = TESTS.map((t) => (t.index === 2 ? { ...t, failures: [['R12.Other.Point', 'TRUE', 'bad\u0001value']] } : t));
+  const again = readPackage((await convertAutoFat({ workbook: input, html: report(tests) })).buffer);
+  const names = sheetsOf(again).map((s) => s.name);
+  assert.equal(names.filter((n) => /^fault test checkout$/i.test(n)).length, 1);
+  assert.ok(names.includes('FAULT test checkout'));
+  const xml = partText(again, part);
+  assert.match(xml, /^<\?xml[^>]*>\n<worksheet\b[^>]*><sheetPr codeName="Sheet7"><tabColor rgb="FF00B050"\/><\/sheetPr><dimension /);
+  assert.match(xml, /was badvalue/);
+  assert.doesNotMatch(xml, /\u0001/);
+  assert.match(partText(again, 'xl/workbook.xml'), /'FAULT test checkout'!\$A\$1/);
 });
 
 test('fatsheets service: project workbook in, new version of that entry out', async () => {

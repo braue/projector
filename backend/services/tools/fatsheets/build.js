@@ -23,6 +23,17 @@ const WORKSHEET_CT = 'application/vnd.openxmlformats-officedocument.spreadsheetm
 
 // --- workbook structure -------------------------------------------------------
 
+// Excel compares sheet names without regard to case: a workbook can't hold
+// "Fault Test Checkout" next to "fault test checkout", so matching must not
+// tell them apart either.
+function sameName(a, b) {
+  return String(a).toLowerCase() === String(b).toLowerCase();
+}
+
+function findSheet(sheets, name) {
+  return sheets.find((s) => sameName(s.name, name));
+}
+
 function workbookSheets(pkg) {
   const rels = partText(pkg, 'xl/_rels/workbook.xml.rels');
   const targets = new Map(elements(rels, 'Relationship').map((tag) => {
@@ -52,7 +63,7 @@ function readBands(pkg, sheets, strings) {
   const feeders = new Map();
   const substations = [];
   for (const name of BAND_SOURCES) {
-    const sheet = sheets.find((s) => s.name === name);
+    const sheet = findSheet(sheets, name);
     if (!sheet || !pkg.has(sheet.part)) continue;
     const xml = partText(pkg, sheet.part);
     const parsed = parseSheet(xml);
@@ -79,7 +90,7 @@ function readBands(pkg, sheets, strings) {
 /** A footer from the target's own checkout sheets (project name, date code). */
 function targetFooter(pkg, sheets) {
   for (const name of [...BAND_SOURCES, ...INSERT_BEFORE]) {
-    const sheet = sheets.find((s) => s.name === name);
+    const sheet = findSheet(sheets, name);
     if (!sheet || !pkg.has(sheet.part)) continue;
     const footer = block(partText(pkg, sheet.part), 'headerFooter');
     if (footer) return footer;
@@ -244,12 +255,23 @@ function shiftPositions(workbookXml, position) {
 function insertPosition(sheets, placed) {
   // After the last of our sheets already placed, else after INSERT_AFTER,
   // else before the first INSERT_BEFORE sheet, else at the end.
-  const ours = sheets.map((s, i) => (placed.has(s.name) ? i : -1)).filter((i) => i >= 0);
+  const ours = sheets.map((s, i) => ([...placed].some((p) => sameName(p, s.name)) ? i : -1)).filter((i) => i >= 0);
   if (ours.length) return Math.max(...ours) + 1;
-  const after = sheets.findIndex((s) => s.name === INSERT_AFTER);
+  const after = sheets.findIndex((s) => sameName(s.name, INSERT_AFTER));
   if (after >= 0) return after + 1;
-  const before = sheets.findIndex((s) => INSERT_BEFORE.includes(s.name));
+  const before = sheets.findIndex((s) => INSERT_BEFORE.some((n) => sameName(n, s.name)));
   return before >= 0 ? before : sheets.length;
+}
+
+/**
+ * The replaced sheet's <sheetPr> carried into its new XML. It holds the
+ * sheet's codeName — the name a macro workbook's VBA project knows the sheet
+ * by, which Excel "repairs" when it goes missing — and its tab colour.
+ */
+function keepSheetPr(newXml, oldXml) {
+  const sheetPr = block(oldXml, 'sheetPr');
+  if (!sheetPr) return newXml;
+  return newXml.replace(/(<worksheet\b[^>]*>)/, (open) => open + sheetPr);
 }
 
 function dropCalcChain(pkg) {
@@ -320,10 +342,10 @@ function graftSheets(targetBuffer, templateBuffer, byKind) {
       || (a.rank === substations.length ? a.feeder.localeCompare(b.feeder) : 0) || a.order - b.order);
 
     const built = buildSheet(kind, partText(tpl, tplSheet.part), tplStrings, columns, { styles, footer });
-    const existing = sheets.find((s) => s.name === layout.name);
+    const existing = findSheet(sheets, layout.name);
     let localId;
     if (existing) {
-      pkg.set(existing.part, new TextEncoder().encode(built.xml));
+      pkg.set(existing.part, new TextEncoder().encode(keepSheetPr(built.xml, partText(pkg, existing.part))));
       // The old sheet's own relationships (printer settings, comments) no
       // longer describe what's in the part.
       pkg.delete(relsPathOf(existing.part));
@@ -349,9 +371,10 @@ function graftSheets(targetBuffer, templateBuffer, byKind) {
       sheets = [...sheets.slice(0, position), { tag, name: layout.name, sheetId, rid, part }, ...sheets.slice(position)];
       localId = position;
     }
-    placed.add(layout.name);
-    workbookXml = setPrintNames(workbookXml, localId, layout.name, layout.firstCol, built.lastCol, built.lastRow);
-    report.push({ kind, name: layout.name, count: columns.length, replaced: Boolean(existing), columns });
+    const sheetName = existing?.name ?? layout.name;
+    placed.add(sheetName);
+    workbookXml = setPrintNames(workbookXml, localId, sheetName, layout.firstCol, built.lastCol, built.lastRow);
+    report.push({ kind, name: sheetName, count: columns.length, replaced: Boolean(existing), columns });
   }
 
   setPartText(pkg, 'xl/workbook.xml', workbookXml);

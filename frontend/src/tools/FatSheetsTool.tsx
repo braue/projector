@@ -91,6 +91,14 @@ export function FatSheetsTool({ project }: ToolProps) {
     setError,
   )
 
+  // A result describes the inputs it was made from; picking another input
+  // makes it stale, so it goes (Save would land the old conversion).
+  const changeInput = (set: (input: FatInput | null) => void) => (input: FatInput | null) => {
+    set(input)
+    setResult(null)
+    setSaved(null)
+  }
+
   const convert = async () => {
     if (!workbook || !report || running) return
     setError(null)
@@ -143,7 +151,10 @@ export function FatSheetsTool({ project }: ToolProps) {
             <p>
               Fills a FAT workbook's <b>Fault Test</b>, <b>Open Phase</b>, <b>Miscoordination</b> and{' '}
               <b>Abnormal Condition</b> checkout sheets from the DAC simulator's automatic-FAT HTML
-              report — one column per test, in the standard FAT format.
+              report, in the standard FAT format: one column per fault and open phase test, and one
+              per feeder on the miscoordination and abnormal sheets (those checkouts are done once
+              per feeder) — the feeder's test with the most switching, its abnormal one picked from
+              the abnormal fault tests.
             </p>
             <ul>
               <li>
@@ -184,7 +195,7 @@ export function FatSheetsTool({ project }: ToolProps) {
           extensions={['.xlsm', '.xlsx']}
           project={project}
           value={workbook}
-          onChange={setWorkbook}
+          onChange={changeInput(setWorkbook)}
           disabled={running}
         />
         <InputPick
@@ -193,7 +204,7 @@ export function FatSheetsTool({ project }: ToolProps) {
           extensions={['.html', '.htm']}
           project={project}
           value={report}
-          onChange={setReport}
+          onChange={changeInput(setReport)}
           disabled={running}
         />
         <div className="tool-row">
@@ -224,6 +235,7 @@ export function FatSheetsTool({ project }: ToolProps) {
               <div className="tool-row" key={sheet.kind}>
                 <span className="tool-stats">
                   {sheet.name} — {sheet.count} test{sheet.count === 1 ? '' : 's'}
+                  {sheet.inReport > sheet.count ? ` (one per feeder, of ${sheet.inReport} in the report)` : ''}
                   {sheet.replaced ? ' (replaced the existing sheet)' : ' (added)'}
                 </span>
               </div>

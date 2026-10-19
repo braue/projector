@@ -429,7 +429,7 @@ export interface FatSheetsResult {
   reportTitle: string
   /** The project entry the workbook came from; null for an upload. */
   source: { project: string; path: string } | null
-  sheets: { kind: string; name: string; count: number; replaced: boolean }[]
+  sheets: { kind: string; name: string; count: number; inReport: number; replaced: boolean }[]
   bands: {
     substations: { name: string; feeders: string[] }[]
     /** Feeders no banded sheet in the workbook names — banded by feeder. */

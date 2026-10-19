@@ -41,9 +41,11 @@ class FatSheetsService {
   async generate(filesFor, { workbook, report, engineer = '' }) {
     if (!workbook) throw httpError(400, 'pick the FAT workbook (.xlsm or .xlsx)');
     if (!report) throw httpError(400, 'pick the automatic FAT report (.html)');
-    const workbookName = workbook.name ?? path.basename(String(workbook.path ?? ''));
+    // Basenames only: the converted workbook is written into the run
+    // directory under this name, and an upload's name is the client's word.
+    const workbookName = path.basename(String(workbook.name ?? workbook.path ?? ''));
     if (!WORKBOOK_EXT.test(workbookName)) throw httpError(400, `${workbookName} is not an .xlsm or .xlsx workbook`);
-    const reportName = report.name ?? path.basename(String(report.path ?? ''));
+    const reportName = path.basename(String(report.name ?? report.path ?? ''));
 
     const read = async (input) => (input.buffer ?? (await filesFor(input.project)).read(input.path));
     const { runId, dir: runDir } = await this.workspace.createRun('fatsheets');
@@ -58,7 +60,8 @@ class FatSheetsService {
         engineer: String(engineer).trim(),
       });
       for (const sheet of result.sheets) {
-        handle.log(`${sheet.name}: ${sheet.count} test${sheet.count === 1 ? '' : 's'}${sheet.replaced ? ' (replaced the existing sheet)' : ''}`);
+        const picked = sheet.inReport > sheet.count ? ` (one per feeder, of ${sheet.inReport} in the report)` : '';
+        handle.log(`${sheet.name}: ${sheet.count} test${sheet.count === 1 ? '' : 's'}${picked}${sheet.replaced ? ' (replaced the existing sheet)' : ''}`);
       }
       if (result.bands.unbanded.length) {
         handle.log(`No substation band found for ${result.bands.unbanded.join(', ')} — banded by feeder`);

@@ -50,8 +50,13 @@ function unescapeXml(text) {
   });
 }
 
+// Characters XML 1.0 can't carry at all, escaped or not (C0 controls other
+// than tab/newline/CR, lone surrogates, U+FFFE/FFFF). One in a cell and
+// Excel calls the whole workbook corrupt, so they're dropped on the way out.
+const XML_ILLEGAL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+
 function escapeXml(text) {
-  return String(text)
+  return String(text).replace(XML_ILLEGAL, '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
