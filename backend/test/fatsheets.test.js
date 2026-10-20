@@ -76,15 +76,15 @@ function report(tests) {
 
 const TESTS = [
   { type: 'FaultLo', index: 1, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', open: 'B2 , R21', close: 'R99', groups: ['R21-IsoFltDwn', 'R99-Rest'] },
-  { type: 'FaultLo', index: 2, status: 'Fail', reason: 'OutOfSequence', feeder: 'F1', trip: 'R11', loc: 'R11', open: 'R11', groups: ['R12-IsoFltDwn'],
+  { type: 'FaultLo', index: 2, status: 'Fail', reason: 'OutOfSequence', feeder: 'F1', trip: 'R11', loc: 'R11', open: 'R11', close: 'R97', groups: ['R12-IsoFltDwn'],
     failures: [['R12.SW.Switch.Status.ALL', 'FALSE', 'TRUE'], ['R98.SW.Switch.Status.ALL', 'TRUE', 'FALSE']] },
-  { type: 'FaultLo', index: 3, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R12', open: 'R12', so: 'R13.A', sc: 'R14.B' },
+  { type: 'FaultLo', index: 3, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R12', open: 'R12', close: 'R96', so: 'R13.A', sc: 'R14.B' },
   { type: 'OpenPhase', index: 4, status: 'Questionable', feeder: 'F1', trip: 'R11', loc: 'R11', open: 'R11 , R12', close: 'R98' },
   { type: 'Miscoordination', index: 5, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R12', open: 'R12', close: 'R98', oc: 'R11' },
   { type: 'AbnormalFaultLo', index: 6, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', abn: 'R21', alarms: ['R21.Alarms.Reclose'], close: 'R77' },
   { type: 'AbnormalOpenPhase', index: 7, status: 'Fail', reason: 'OutOfSequence', feeder: 'F1', trip: 'R11', loc: 'R11', abn: 'R12',
     alarms: ['R12.Alarms.Remote'], failures: [['R11.SW.Switch.Status.ALL', 'FALSE', 'TRUE']], event: false },
-  { type: 'FaultLo', index: 8, status: 'Complete', feeder: 'F9', trip: 'B9', loc: 'B9', open: 'B9' },
+  { type: 'FaultLo', index: 8, status: 'Complete', feeder: 'F9', trip: 'B9', loc: 'B9', open: 'B9', close: 'R95' },
 ];
 
 // --- a small FAT workbook ----------------------------------------------------------
@@ -214,7 +214,8 @@ test('columns: phrasing and footnote marks follow the hand-completed FAT', () =>
   assert.equal(failed.recognized, 'YES'); // the SOE shows the event
   assert.equal(failed.downstream, 'NO');
   assert.equal(failed.acceptable, 'NO');
-  assert.equal(failed.closed, 'None');
+  assert.equal(failed.closed, 'R97'); // R98 should have closed too
+  assert.equal(columnFor('fault', { ...byIndex(2), close: [] }).closed, 'None');
   assert.match(failed.comments, /Fail \(OutOfSequence\) — R12 did not open; R98 did not close\. Test 2/);
 
   assert.equal(columnFor('fault', byIndex(3)).downstream, 'N/A'); // nothing downstream
@@ -252,9 +253,16 @@ test('columns: phrasing and footnote marks follow the hand-completed FAT', () =>
   assert.equal(abnFail.elsewhere, 'N/A');
 });
 
-test('miscoordination and abnormal sheets take one test per feeder, the one with the most switching', async () => {
+test('fault and open phase sheets drop tests that restored nothing unless they need review; miscoordination and abnormal take one per feeder, the busiest', async () => {
   const tests = [
     ...TESTS,
+    // Nothing closed to restore load ("None"): left off their sheets.
+    { type: 'FaultLo', index: 15, status: 'Complete', feeder: 'F1', trip: 'R14', loc: 'R14', open: 'R14' },
+    { type: 'OpenPhase', index: 16, status: 'Complete', feeder: 'F2', trip: 'R21', loc: 'R21', open: 'R21' },
+    // …unless it needs review: Questionable or failed ones stay.
+    { type: 'FaultLo', index: 18, status: 'Questionable', feeder: 'F1', trip: 'R14', loc: 'R14', open: 'R14' },
+    { type: 'OpenPhase', index: 17, status: 'Fail', reason: 'OutOfSequence', feeder: 'F2', trip: 'R21', loc: 'R21', open: 'R21',
+      failures: [['R77.SW.Switch.Status.ALL', 'TRUE', 'FALSE']] },
     { type: 'Miscoordination', index: 9, status: 'Fail', feeder: 'F1', trip: 'R12', loc: 'R13', open: 'R13 , R14', close: 'R98', oc: 'R12' },
     { type: 'Miscoordination', index: 10, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R13', open: 'R13 , R14', close: 'R98', oc: 'R12' },
     { type: 'Miscoordination', index: 11, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'R21', open: 'R21' },
@@ -265,7 +273,8 @@ test('miscoordination and abnormal sheets take one test per feeder, the one with
   ];
   const { tests: parsed } = parseAutoFat(report(tests));
   const pick = (kind) => selectTests(kind, parsed.filter((t) => t.kind === kind)).map((t) => t.index);
-  assert.deepEqual(pick('fault'), [1, 2, 3, 8]); // every one
+  assert.deepEqual(pick('fault'), [1, 2, 3, 8, 18]); // every one that closed something
+  assert.deepEqual(pick('openPhase'), [4, 17]);
   assert.deepEqual(pick('miscoordination'), [10, 11]); // 10 ties 9 on switching, and passed
   assert.deepEqual(pick('abnormal'), [13, 14]);
   // With no abnormal fault test on a feeder, its other abnormal tests stand in.
@@ -273,7 +282,7 @@ test('miscoordination and abnormal sheets take one test per feeder, the one with
 
   const result = await convertAutoFat({ workbook: workbookPackage(), html: report(tests) });
   assert.deepEqual(result.sheets.map((s) => [s.kind, s.count, s.inReport]),
-    [['fault', 4, 4], ['openPhase', 1, 1], ['miscoordination', 2, 4], ['abnormal', 2, 5]]);
+    [['fault', 5, 6], ['openPhase', 2, 3], ['miscoordination', 2, 4], ['abnormal', 2, 5]]);
 });
 
 test('the shipped template carries the rows the layout fills', async () => {

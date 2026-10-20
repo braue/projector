@@ -235,7 +235,9 @@ export function FatSheetsTool({ project }: ToolProps) {
               <div className="tool-row" key={sheet.kind}>
                 <span className="tool-stats">
                   {sheet.name} — {sheet.count} test{sheet.count === 1 ? '' : 's'}
-                  {sheet.inReport > sheet.count ? ` (one per feeder, of ${sheet.inReport} in the report)` : ''}
+                  {sheet.inReport > sheet.count
+                    ? ` (${sheet.kind === 'fault' || sheet.kind === 'openPhase' ? 'clean passes that restored nothing left off' : 'one per feeder'}, of ${sheet.inReport} in the report)`
+                    : ''}
                   {sheet.replaced ? ' (replaced the existing sheet)' : ' (added)'}
                 </span>
               </div>
