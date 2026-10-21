@@ -78,6 +78,8 @@ class FatSheetsService {
         sheets: result.sheets,
         bands: result.bands,
         flagged: result.flagged,
+        unpaired: result.unpaired,
+        abnormalUnmatched: result.abnormalUnmatched,
         note,
         reports: [{ path: workbookName, label: workbookName }],
       };

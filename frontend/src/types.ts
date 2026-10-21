@@ -445,6 +445,10 @@ export interface FatSheetsResult {
     status: string
     comment: string
   }[]
+  /** Segments left off the Fault and Open Phase sheets: no fault + open phase pair from one configuration. */
+  unpaired: { location: string; feeders: string[]; reason: string; tests: number[] }[]
+  /** Feeders with abnormal tests, none of which re-runs a fault-sheet test — left off the abnormal sheet. */
+  abnormalUnmatched: string[]
   note: string
   reports: ToolReport[]
 }

@@ -20,7 +20,7 @@ import { parseAutoFat } from '../services/tools/fatsheets/autofat.js';
 import { columnFor, configuration } from '../services/tools/fatsheets/columns.js';
 import { convertAutoFat } from '../services/tools/fatsheets/index.js';
 import { SHEETS } from '../services/tools/fatsheets/layout.js';
-import { selectTests } from '../services/tools/fatsheets/select.js';
+import { selectSheets } from '../services/tools/fatsheets/select.js';
 import {
   attrsOf, block, cellText, elements, parseSheet, partText, readPackage, sharedStrings,
 } from '../services/tools/fatsheets/ooxml.js';
@@ -85,6 +85,10 @@ const TESTS = [
   { type: 'AbnormalOpenPhase', index: 7, status: 'Fail', reason: 'OutOfSequence', feeder: 'F1', trip: 'R11', loc: 'R11', abn: 'R12',
     alarms: ['R12.Alarms.Remote'], failures: [['R11.SW.Switch.Status.ALL', 'FALSE', 'TRUE']], event: false },
   { type: 'FaultLo', index: 8, status: 'Complete', feeder: 'F9', trip: 'B9', loc: 'B9', open: 'B9', close: 'R95' },
+  // Open phase partners — same segment, same starting configuration — for the fault tests above.
+  { type: 'OpenPhase', index: 91, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', open: 'B2', close: 'R99' },
+  { type: 'OpenPhase', index: 92, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R12', open: 'R12', close: 'R96', so: 'R13.A', sc: 'R14.B' },
+  { type: 'OpenPhase', index: 93, status: 'Complete', feeder: 'F9', trip: 'B9', loc: 'B9', open: 'B9', close: 'R95' },
 ];
 
 // --- a small FAT workbook ----------------------------------------------------------
@@ -253,36 +257,64 @@ test('columns: phrasing and footnote marks follow the hand-completed FAT', () =>
   assert.equal(abnFail.elsewhere, 'N/A');
 });
 
-test('fault and open phase sheets drop tests that restored nothing unless they need review; miscoordination and abnormal take one per feeder, the busiest', async () => {
+test('fault and open phase sheets pair one test of each per segment from one configuration; miscoordination and abnormal take one per feeder, the busiest', async () => {
   const tests = [
-    ...TESTS,
-    // Nothing closed to restore load ("None"): left off their sheets.
+    ...TESTS.filter((t) => t.index < 90),
+    // R11: 2 failed and 4 is Questionable; 19 passed, so 19 + 4 pair (normal configuration).
+    { type: 'FaultLo', index: 19, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', open: 'R11', close: 'R97' },
+    // …over the other configuration's pair, whose open phase test restored nothing.
+    { type: 'FaultLo', index: 30, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', open: 'R11 , R12', close: 'R97', so: 'R13.A', sc: 'R14.B' },
+    { type: 'OpenPhase', index: 31, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', open: 'R11 , R12', so: 'R13.A', sc: 'R14.B' },
+    // B2: 1 + 32; 20 is busier but restored nothing.
+    { type: 'OpenPhase', index: 32, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', open: 'B2', close: 'R99' },
+    { type: 'FaultLo', index: 20, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', open: 'B2 , R21 , R22' },
+    // R12: fault 3 starts with R13 open / R14 closed, open phase 33 from normal — no pair.
+    { type: 'OpenPhase', index: 33, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R12', open: 'R12', close: 'R96' },
+    // R14: nothing restored on either, but it's all the segment has — 15 (cleaner than 18) + 34.
     { type: 'FaultLo', index: 15, status: 'Complete', feeder: 'F1', trip: 'R14', loc: 'R14', open: 'R14' },
-    { type: 'OpenPhase', index: 16, status: 'Complete', feeder: 'F2', trip: 'R21', loc: 'R21', open: 'R21' },
-    // …unless it needs review: Questionable or failed ones stay.
     { type: 'FaultLo', index: 18, status: 'Questionable', feeder: 'F1', trip: 'R14', loc: 'R14', open: 'R14' },
+    { type: 'OpenPhase', index: 34, status: 'Complete', feeder: 'F1', trip: 'R14', loc: 'R14', open: 'R14' },
+    // R21: open phase tests only. (B9: fault 8 only.)
+    { type: 'OpenPhase', index: 16, status: 'Complete', feeder: 'F2', trip: 'R21', loc: 'R21', open: 'R21' },
     { type: 'OpenPhase', index: 17, status: 'Fail', reason: 'OutOfSequence', feeder: 'F2', trip: 'R21', loc: 'R21', open: 'R21',
       failures: [['R77.SW.Switch.Status.ALL', 'TRUE', 'FALSE']] },
     { type: 'Miscoordination', index: 9, status: 'Fail', feeder: 'F1', trip: 'R12', loc: 'R13', open: 'R13 , R14', close: 'R98', oc: 'R12' },
     { type: 'Miscoordination', index: 10, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R13', open: 'R13 , R14', close: 'R98', oc: 'R12' },
     { type: 'Miscoordination', index: 11, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'R21', open: 'R21' },
-    // F1 gains an abnormal fault test: it wins over the busier open phase one.
+    // Abnormal: only re-runs of a fault-sheet test (13 → 19, 14 → 1). 12 is open phase; 21's
+    // configuration matches no R12 fault test; 35 re-runs 3, which isn't on the fault sheet.
     { type: 'AbnormalOpenPhase', index: 12, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', abn: 'R12', open: 'R11 , R12 , R13', close: 'R98 , R97' },
     { type: 'AbnormalFaultLo', index: 13, status: 'Complete', feeder: 'F1', trip: 'R11', loc: 'R11', abn: 'R12', open: 'R11' },
     { type: 'AbnormalFaultLo', index: 14, status: 'Complete', feeder: 'F2', trip: 'B2', loc: 'B2', abn: 'R21', open: 'B2', close: 'R77 , R78' },
+    { type: 'AbnormalFaultLo', index: 21, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R12', abn: 'R11', open: 'R12 , R13 , R14', close: 'R96 , R95' },
+    { type: 'AbnormalFaultLo', index: 35, status: 'Complete', feeder: 'F1', trip: 'R12', loc: 'R12', abn: 'R11', open: 'R12 , R13', close: 'R96 , R95', so: 'R13.A', sc: 'R14.B' },
   ];
   const { tests: parsed } = parseAutoFat(report(tests));
-  const pick = (kind) => selectTests(kind, parsed.filter((t) => t.kind === kind)).map((t) => t.index);
-  assert.deepEqual(pick('fault'), [1, 2, 3, 8, 18]); // every one that closed something
-  assert.deepEqual(pick('openPhase'), [4, 17]);
-  assert.deepEqual(pick('miscoordination'), [10, 11]); // 10 ties 9 on switching, and passed
-  assert.deepEqual(pick('abnormal'), [13, 14]);
-  // With no abnormal fault test on a feeder, its other abnormal tests stand in.
-  assert.deepEqual(selectTests('abnormal', parsed.filter((t) => t.kind === 'abnormal' && t.index !== 13)).map((t) => t.index), [12, 14]);
+  const picked = selectSheets(parsed);
+  const indices = (kind) => picked[kind].map((t) => t.index);
+  assert.deepEqual(indices('fault'), [1, 15, 19]);
+  assert.deepEqual(indices('openPhase'), [32, 34, 4]); // in step with the fault sheet
+  picked.fault.forEach((f, i) => {
+    assert.equal(picked.openPhase[i].location, f.location);
+    assert.deepEqual([picked.openPhase[i].setupOpen, picked.openPhase[i].setupClose], [f.setupOpen, f.setupClose]);
+  });
+  assert.deepEqual(Object.fromEntries(picked.unpaired.map((u) => [u.location, [u.reason, u.tests]])), {
+    B9: ['fault only', [8]],
+    R12: ['no shared configuration', [3, 33]],
+    R21: ['open phase only', [16, 17]],
+  });
+  assert.deepEqual(indices('miscoordination'), [10, 11]); // 10 ties 9 on switching, and passed
+  assert.deepEqual(indices('abnormal'), [13, 14]);
+  assert.deepEqual(picked.abnormalUnmatched, []);
+  // Without 13, F1 has no abnormal re-run of a fault-sheet test: it's left off.
+  const without13 = selectSheets(parsed.filter((t) => t.index !== 13));
+  assert.deepEqual(without13.abnormal.map((t) => t.index), [14]);
+  assert.deepEqual(without13.abnormalUnmatched, ['F1']);
 
   const result = await convertAutoFat({ workbook: workbookPackage(), html: report(tests) });
   assert.deepEqual(result.sheets.map((s) => [s.kind, s.count, s.inReport]),
-    [['fault', 5, 6], ['openPhase', 2, 3], ['miscoordination', 2, 4], ['abnormal', 2, 5]]);
+    [['fault', 3, 9], ['openPhase', 3, 7], ['miscoordination', 2, 4], ['abnormal', 2, 7]]);
+  assert.equal(result.unpaired.length, 3);
 });
 
 test('the shipped template carries the rows the layout fills', async () => {
@@ -319,7 +351,8 @@ test('convertAutoFat grafts the sheets and leaves the rest of the workbook alone
     'Under Frequency Test Checkout',
   ]);
   assert.deepEqual(result.sheets.map((s) => [s.kind, s.count, s.replaced]),
-    [['fault', 4, false], ['openPhase', 1, false], ['miscoordination', 1, false], ['abnormal', 2, false]]);
+    [['fault', 4, false], ['openPhase', 4, false], ['miscoordination', 1, false], ['abnormal', 1, false]]);
+  assert.deepEqual(result.unpaired, []);
 
   // Untouched parts are byte-identical; the stale calc chain is gone.
   assert.deepEqual(pkg.get('xl/media/image1.png'), MEDIA);
@@ -354,16 +387,21 @@ test('convertAutoFat grafts the sheets and leaves the rest of the workbook alone
   assert.equal(fault(17, 4).text, 'Noah Braue');
   assert.equal(Number(fault(18, 4).text), 46302); // 2026-10-07 as an Excel date
   assert.match(partText(pkg, sheetsOf(pkg).find((s) => s.name === 'Fault Test Checkout').part), /Project Footer/);
+  // FT-n and OP-n are the same segment, run from the same configuration.
+  const openPhase = grid(pkg, 'Open Phase Test Checkout');
+  for (const row of [6, 7, 8]) {
+    assert.deepEqual([4, 5, 6, 7].map((c) => openPhase(row, c)?.text), [4, 5, 6, 7].map((c) => fault(row, c)?.text));
+  }
 
   // Flagged tests point at their column.
   assert.deepEqual(result.flagged.map((f) => [f.index, f.column, f.status]),
-    [[2, 'FT-1', 'Fail'], [4, 'OP-1', 'Questionable'], [7, 'ABN-1', 'Fail']]);
+    [[2, 'FT-1', 'Fail'], [4, 'OP-1', 'Questionable']]);
 
   // A re-run replaces the sheets in place instead of stacking copies.
-  const again = await convertAutoFat({ workbook: result.buffer, html: report(TESTS.slice(0, 1)) });
+  const again = await convertAutoFat({ workbook: result.buffer, html: report(TESTS.filter((t) => t.index === 1 || t.index === 91)) });
   const pkg2 = readPackage(again.buffer);
   assert.deepEqual(sheetsOf(pkg2).map((s) => s.name), sheetsOf(pkg).map((s) => s.name));
-  assert.deepEqual(again.sheets.map((s) => [s.kind, s.count, s.replaced]), [['fault', 1, true]]);
+  assert.deepEqual(again.sheets.map((s) => [s.kind, s.count, s.replaced]), [['fault', 1, true], ['openPhase', 1, true]]);
   assert.equal(grid(pkg2, 'Fault Test Checkout')(6, 5), null);
   assert.equal((partText(pkg2, 'xl/workbook.xml').match(/'Fault Test Checkout'!\$A\$1/g) ?? []).length, 1);
 });
@@ -411,7 +449,7 @@ test('fatsheets service: project workbook in, new version of that entry out', as
     });
     const job = await settled(jobs.get(jobId));
     assert.equal(job.status, 'done', job.error ?? '');
-    assert.equal(job.result.note, 'Automatic FAT sheets: 4 fault, 1 open phase, 1 miscoordination, 2 abnormal from auto.html');
+    assert.equal(job.result.note, 'Automatic FAT sheets: 4 fault, 4 open phase, 1 miscoordination, 1 abnormal from auto.html');
     assert.deepEqual(job.result.reports, [{ path: 'Eunice FAT.xlsm', label: 'Eunice FAT.xlsm' }]);
 
     const saved = await service.save(filesFor, run);

@@ -23,6 +23,12 @@ import { RunOutputs } from './RunOutputs'
 
 const ENGINEER_KEY = 'projector.fatsheets.engineer'
 
+const UNPAIRED_REASON: Record<string, string> = {
+  'fault only': 'Fault tests only — no open phase test',
+  'open phase only': 'Open phase tests only — no fault test',
+  'no shared configuration': 'Fault and open phase tests, but never from the same configuration',
+}
+
 function storedEngineer(): string {
   try {
     return localStorage.getItem(ENGINEER_KEY) ?? ''
@@ -151,11 +157,25 @@ export function FatSheetsTool({ project }: ToolProps) {
             <p>
               Fills a FAT workbook's <b>Fault Test</b>, <b>Open Phase</b>, <b>Miscoordination</b> and{' '}
               <b>Abnormal Condition</b> checkout sheets from the DAC simulator's automatic-FAT HTML
-              report, in the standard FAT format: one column per fault and open phase test, and one
-              per feeder on the miscoordination and abnormal sheets (those checkouts are done once
-              per feeder) — the feeder's test with the most switching, its abnormal one picked from
-              the abnormal fault tests.
+              report, in the standard FAT format.
             </p>
+            <ul>
+              <li>
+                Fault and Open Phase: one column per segment, the same segment and starting
+                configuration in the same column on both sheets — a fault test and an open phase
+                test run from one configuration, preferring ones that restored load. A segment
+                without such a pair is left off both and listed after the run.
+              </li>
+              <li>
+                Miscoordination: one column per feeder (the checkout is done once per feeder), the
+                test with the most switching.
+              </li>
+              <li>
+                Abnormal Condition: one column per feeder, an abnormal fault test that re-runs one
+                of the Fault sheet's tests (same trip, location and configuration). A feeder
+                without one is left off and named after the run.
+              </li>
+            </ul>
             <ul>
               <li>
                 Adds the four sheets after “Simulator HMI screens”, or replaces them in place if the
@@ -236,7 +256,7 @@ export function FatSheetsTool({ project }: ToolProps) {
                 <span className="tool-stats">
                   {sheet.name} — {sheet.count} test{sheet.count === 1 ? '' : 's'}
                   {sheet.inReport > sheet.count
-                    ? ` (${sheet.kind === 'fault' || sheet.kind === 'openPhase' ? 'clean passes that restored nothing left off' : 'one per feeder'}, of ${sheet.inReport} in the report)`
+                    ? ` (${sheet.kind === 'fault' || sheet.kind === 'openPhase' ? 'one per segment, paired with the other sheet' : 'one per feeder'}, of ${sheet.inReport} in the report)`
                     : ''}
                   {sheet.replaced ? ' (replaced the existing sheet)' : ' (added)'}
                 </span>
@@ -254,6 +274,41 @@ export function FatSheetsTool({ project }: ToolProps) {
               <div className="tool-error">
                 No Under Frequency / Loss of Source sheet names a substation for{' '}
                 {result.bands.unbanded.join(', ')} — those columns are banded by feeder instead.
+              </div>
+            )}
+
+            {result.unpaired?.length > 0 && (
+              <CollapsibleSection title="Segments left off the Fault and Open Phase sheets" count={result.unpaired.length}>
+                <div className="tool-row">
+                  <span className="tool-stats">
+                    A segment gets a column only when it has a fault test and an open phase test from the same starting configuration.
+                  </span>
+                </div>
+                <DataTable
+                  maxHeight="320px"
+                  columns={[
+                    { key: 'location', label: 'Segment' },
+                    { key: 'feeder', label: 'Feeder' },
+                    { key: 'reason', label: 'Why' },
+                    { key: 'tests', label: 'Tests in report' },
+                  ]}
+                  rows={result.unpaired.map((u) => ({
+                    id: u.location,
+                    cells: {
+                      location: u.location,
+                      feeder: u.feeders.join(', '),
+                      reason: UNPAIRED_REASON[u.reason] ?? u.reason,
+                      tests: u.tests.join(', '),
+                    },
+                  }))}
+                />
+              </CollapsibleSection>
+            )}
+
+            {result.abnormalUnmatched?.length > 0 && (
+              <div className="tool-error">
+                No abnormal fault test re-runs a Fault sheet test (same trip, location and configuration) on{' '}
+                {result.abnormalUnmatched.join(', ')} — left off the Abnormal sheet.
               </div>
             )}
 
