@@ -23,16 +23,17 @@ import type { Dispatch, SetStateAction } from 'react'
 import {
   generateDacInit,
   listFiles,
-  listProjects,
   saveDacInitRun,
 } from '../api'
 import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { rtacPaths } from '../lib/fileNodes'
+import { projectOptions, useProjectList } from '../lib/projectList'
 import { useToolJob } from '../lib/useToolJob'
 import type { DacInitResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
 const SOURCE_SLOTS = 6
 
@@ -110,7 +111,7 @@ export function DacInitTool({ project }: ToolProps) {
     setError,
   )
 
-  const [projects, setProjects] = useState<string[]>([])
+  const projectList = useProjectList()
   const [formProject, setFormProject] = useState(project)
   const [rtacEntries, setRtacEntries] = useState<string[]>([])
   const [selectedPath, setSelectedPath] = useState('')
@@ -124,10 +125,6 @@ export function DacInitTool({ project }: ToolProps) {
   const generatedFrom = useRef('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState<string | null>(null)
-
-  useEffect(() => {
-    listProjects().then(setProjects).catch(() => {})
-  }, [])
 
   const loadEntries = (chosen: string) => {
     listFiles(chosen)
@@ -246,19 +243,15 @@ export function DacInitTool({ project }: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>CLECO DAC Inits</h2>
-          {generating && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="CLECO DAC Inits" busy={generating} />
       <div className="tool-scroll">
         <SectionHeader title="Project" />
         <div className="tool-row" onFocusCapture={() => formProject && loadEntries(formProject)}>
           <Select
             label="Project"
             value={formProject}
-            options={projects.length ? projects : [formProject].filter(Boolean)}
+            placeholder="Pick a project…"
+            options={projectOptions(projectList, formProject)}
             onChange={(name) => name && setFormProject(name)}
           />
           <Select
@@ -268,7 +261,7 @@ export function DacInitTool({ project }: ToolProps) {
             onChange={setSelectedPath}
           />
         </div>
-        {rtacEntries.length === 0 && (
+        {formProject && rtacEntries.length === 0 && (
           <div className="tool-stats">No RTAC projects in {formProject}</div>
         )}
 
@@ -410,7 +403,6 @@ export function DacInitTool({ project }: ToolProps) {
               >
                 Overwrite {overwrite.length} &amp; regenerate
               </Button>
-              <span className="tool-stats">Declarations stay as they are — a VAR_GLOBAL line carries only the device type.</span>
             </div>
           </div>
         )}
@@ -433,7 +425,7 @@ export function DacInitTool({ project }: ToolProps) {
               <div className="tool-row"><span className="tool-stats">Already declared: {alreadyDeclared.join(', ')}</span></div>
             )}
             {!result.changed && (
-              <div className="tool-row"><span className="tool-stats">Nothing to save — every device you listed is already in this project.</span></div>
+              <div className="tool-row"><span className="tool-stats">Nothing new to save.</span></div>
             )}
             {result.changed > 0 && result.reports.length === 0 && <div className="tool-row">{saveButton}</div>}
             {saved && (

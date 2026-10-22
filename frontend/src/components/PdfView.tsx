@@ -135,7 +135,7 @@ export function PdfView({
             <div className="find-note">{error}</div>
           ) : textless && !matches.length ? (
             <div className="find-note">
-              No text in this PDF — scanned pages carry images, not words.
+              No text in this PDF.
             </div>
           ) : needle && !reading ? (
             <>

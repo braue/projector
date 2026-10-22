@@ -21,7 +21,6 @@ import {
 } from '../services/tools/dacinit/pou.js';
 
 const PROJ = { recPrefix: 'SEL_651R2', scadaMap: 'DMS_MAP', fdrPrefix: 'FDR', bkrPrefix: 'BKR', voltage: '13.2kV' };
-const norm = (s) => s.replace(/\/\/[^\n]*/g, '').replace(/\s+/g, '').toLowerCase();
 const settled = (job) => new Promise((resolve) => {
   const tick = () => (job.status === 'running' ? setTimeout(tick, 5) : resolve(job));
   tick();

@@ -275,8 +275,7 @@ export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNod
           {item.hasArchivedContent && (
             <CollapsibleSection title="Logic Body">
               <p className="section-note">
-                Graphical body (CFC/LD-style, stored as an archived blob) — no plain-text
-                source to display.
+                Graphical body — no text source.
               </p>
             </CollapsibleSection>
           )}
@@ -347,7 +346,7 @@ export function Preview({ item, banner }: { item: ProjectItem; banner?: ReactNod
           !item.nodes?.length &&
           !item.layout?.length &&
           !item.files?.length && (
-            <p className="sheet-empty">The export carries this module but no settings for it.</p>
+            <p className="sheet-empty">No settings.</p>
           )
         )}
       </div>

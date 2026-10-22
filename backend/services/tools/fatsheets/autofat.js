@@ -106,7 +106,7 @@ function readSection(sectionHtml) {
       }
     } else if (hasHeaders(table, ['RootTag', 'PointId', 'Value'])) {
       for (const { cells: [tag, , value] } of table.rows) {
-        if (/\.Event$/.test(tag) && value === 'TRUE') detail.eventSeen = true;
+        if (tag.endsWith('.Event') && value === 'TRUE') detail.eventSeen = true;
       }
     } else if (hasHeaders(table, ['ID', 'Sequence', 'Action', 'Value'])) {
       for (const { cells: [id, , action, value] } of table.rows) {

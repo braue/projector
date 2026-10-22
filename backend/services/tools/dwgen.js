@@ -60,7 +60,7 @@ function layerFragment(name) {
 // Where the "Open as DWG" pass launches AutoCAD (the old tool's
 // find_autocad). Full AutoCAD only: LT ships no LISP engine, so a found
 // acadlt.exe would open the drawing and toggle nothing. Resolution order:
-// the tool setting (autocadPath, editable via /api/tools/settings), the
+// the tool setting (autocadPath, editable via /api/settings), the
 // PROJECTOR_AUTOCAD env var (the test hook), then a newest-year-wins scan of
 // the standard install root — memoized, since installs don't change
 // mid-session, while the setting is re-read so a UI change takes effect.

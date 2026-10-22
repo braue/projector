@@ -6,11 +6,12 @@
 // its saving happens through the tool's own Save button, which `rowActions`
 // puts in the same row so the two ways out stay side by side).
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
-import { listProjects, saveToolFileToProject, toolRunFileUrl } from '../api'
+import { saveToolFileToProject, toolRunFileUrl } from '../api'
 import { LinkButton, SectionHeader, Select } from '../components/ui'
 import { errorMessage } from '../lib/errors'
+import { projectOptions, useProjectList } from '../lib/projectList'
 import type { ToolReport } from '../types'
 
 export function RunOutputs({
@@ -36,11 +37,7 @@ export function RunOutputs({
   rowActions?: (report: ToolReport) => ReactNode
 }) {
   const [status, setStatus] = useState<string | null>(null)
-  const [projects, setProjects] = useState<string[]>([])
-
-  useEffect(() => {
-    listProjects().then(setProjects).catch(() => {})
-  }, [])
+  const projectList = useProjectList()
 
   const saveToProject = async (report: ToolReport, target: string) => {
     setStatus(null)
@@ -70,7 +67,7 @@ export function RunOutputs({
               value=""
               variant="action"
               placeholder="Save to project…"
-              options={projects}
+              options={projectOptions(projectList)}
               onChange={(target) => {
                 if (target) saveToProject(report, target)
               }}

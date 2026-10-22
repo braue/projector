@@ -1,17 +1,20 @@
-// projector backend — settings-truth communications canvas.
+// projector backend — a versioned project file tree for substation settings,
+// plus the tools and reference library around it.
 //
 // Loopback-only Express app. Two ways in:
 //
 //   - DEVELOPMENT: `npm run dev` runs index.js, the Vite dev server serves the
 //     UI on its own port and proxies /api here.
 //   - PACKAGED: electron/main.js forks electron/backendHost.js as a utility
-//     process, which calls startServer(); main points a window at the URL. There is no proxy then — this server also
-//     serves the built frontend, so the UI and the API share one origin.
+//     process, which calls startServer(); main points a window at the URL.
+//     There is no proxy then — this server also serves the built frontend,
+//     so the UI and the API share one origin.
 //
 // State is a data directory of self-contained projects (each one versioned
-// file tree of artifacts, documents, and notes) plus the machine-global AcRTAC catalog
-// and SEL document library. The data directory is a parameter because the
-// packaged app must write under the user's profile, not into Program Files.
+// file tree of artifacts, documents, and notes) plus a few machine-global
+// stores (todos, hours, settings), the AcRTAC catalog and the SEL document
+// library. The data directory is a parameter because the packaged app must
+// write under the user's profile, not into Program Files.
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -24,20 +27,23 @@ import { EventHub } from './lib/events.js';
 import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from './lib/selPaths.js';
 import { acrtacRoutes } from './routes/acrtac.js';
 import { eventRoutes, jobRoutes } from './routes/jobs.js';
+import { hourRoutes } from './routes/hours.js';
 import { projectRoutes } from './routes/projects.js';
 import { selRoutes } from './routes/sel.js';
+import { settingsRoutes } from './routes/settings.js';
 import { todoRoutes } from './routes/todos.js';
 import { toolsRoutes } from './routes/tools.js';
+import { HoursService } from './services/hours.js';
 import { JobRegistry } from './services/jobs.js';
 import { ProjectsService } from './services/projects.js';
 import { RtacCatalog } from './services/rtacCatalog.js';
-import { createTools } from './services/tools/index.js';
 import { SelFullText } from './services/selFullText.js';
 import { SelLibrary } from './services/selLibrary.js';
+import { SettingsService } from './services/settings.js';
 import { TodosService } from './services/todos.js';
+import { createTools } from './services/tools/index.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const HOME = process.env.USERPROFILE ?? process.env.HOME ?? '';
 
 /** Where projects live when nobody says otherwise (the dev-server layout). */
 const DEFAULT_DATA_DIR = path.join(HERE, 'data');
@@ -106,9 +112,11 @@ export async function startServer(options = {}) {
   // registry for everything slow, one event stream to the window.
   const events = new EventHub();
   const jobs = new JobRegistry({ events });
-  const projects = new ProjectsService({ dataDir, catalog, jobs, events });
+  const hours = new HoursService({ file: path.join(dataDir, 'hours.json'), events });
+  const projects = new ProjectsService({ dataDir, catalog, jobs, events, hours });
   await projects.init();
-  const tools = await createTools({ dataDir, jobs, catalog, projects });
+  const settings = new SettingsService({ dataDir });
+  const tools = await createTools({ dataDir, jobs, catalog, projects, settings });
 
   // The database list can take a while (it spawns the Python bridge) and the
   // server is useful without it — projects on disk are fully browsable — so
@@ -146,6 +154,8 @@ export async function startServer(options = {}) {
   app.use('/api/projects', projectRoutes(projects));
   app.use('/api/sel', selRoutes(selLibrary, selText));
   app.use('/api/todos', todoRoutes(todos));
+  app.use('/api/hours', hourRoutes(hours));
+  app.use('/api/settings', settingsRoutes(settings));
   app.use('/api/tools', toolsRoutes(tools, projects));
 
   // The API always speaks JSON, including for failures the routers never see.

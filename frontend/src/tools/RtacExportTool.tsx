@@ -9,12 +9,13 @@ import { useState } from 'react'
 
 import { startRtacExportJob } from '../api'
 import { AcrtacProjectList } from '../components/AcrtacProjectList'
-import { Button, SectionHeader, SegmentedControl, Spinner } from '../components/ui'
+import { Button, SectionHeader, SegmentedControl } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
 import type { RtacExportResult, ToolReport } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
 interface ExportOutcome {
   run: string
@@ -51,12 +52,7 @@ export function RtacExportTool(_props: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>RTAC Exporter</h2>
-          {exporting && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="RTAC Exporter" busy={exporting} />
       <div className="tool-scroll">
         <SectionHeader title="Projects" count={picked.size ? `${picked.size} picked` : undefined} />
         <AcrtacProjectList mode="multi" checked={picked} onChange={setPicked} />

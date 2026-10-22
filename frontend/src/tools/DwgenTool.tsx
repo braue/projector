@@ -8,11 +8,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { fetchDwgenModels, generateDwgen, openDwgenDwg, toolRunFileUrl } from '../api'
-import { Button, CollapsibleSection, DataTable, Select, Spinner, TextInput } from '../components/ui'
+import { Button, CollapsibleSection, DataTable, Select, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { DwgenResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
 export function DwgenTool(_props: ToolProps) {
   const [partNumber, setPartNumber] = useState('')
@@ -57,13 +58,9 @@ export function DwgenTool(_props: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>Drawing Generator</h2>
-          {busy && <Spinner />}
-          {result && <span className="tool-stats">{result.product ?? result.model}</span>}
-        </div>
-      </div>
+      <ToolHeader title="Drawing Generator" busy={busy}>
+        {result && <span className="tool-stats">{result.product ?? result.model}</span>}
+      </ToolHeader>
       <div className="tool-scroll">
         <div className="tool-col">
           <TextInput

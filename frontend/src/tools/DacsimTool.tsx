@@ -13,16 +13,17 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import {
   generateDacsim,
   listFiles,
-  listProjects,
   saveDacsimRun,
 } from '../api'
 import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { rtacPaths } from '../lib/fileNodes'
+import { projectOptions, useProjectList } from '../lib/projectList'
 import { useToolJob } from '../lib/useToolJob'
 import type { DacsimResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
 /** One scheme row of the from-project form. */
 interface SchemeRow {
@@ -100,17 +101,13 @@ export function DacsimTool({ project }: ToolProps) {
   // checks which ones are DACs, each checked one grows its addressing and
   // device fields, and the backend writes settings.json from them.
   // Tools are global: the open project is only the dropdown's start value.
-  const [projects, setProjects] = useState<string[]>([])
+  const projectList = useProjectList()
   const [formProject, setFormProject] = useState(project)
   const [rtacEntries, setRtacEntries] = useState<string[] | null>(null)
   const [rows, setRows] = useState<SchemeRow[]>([])
   // ONE master IP for the whole run (settings.json repeats it per scheme
   // because the format demands it).
   const [masterIp, setMasterIp] = useState(MASTER_IP)
-
-  useEffect(() => {
-    listProjects().then(setProjects).catch(() => {})
-  }, [])
 
   // The roster for the chosen project. Refreshed via onFocusCapture below,
   // so exports added while the (latched) tool pane sat hidden still show.
@@ -187,19 +184,15 @@ export function DacsimTool({ project }: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>DAC SIM Converter</h2>
-          {generating && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="DAC SIM Converter" busy={generating} />
       <div className="tool-scroll">
         <SectionHeader title="Schemes" />
         <div className="tool-row">
           <Select
             label="Project"
             value={formProject}
-            options={projects.length ? projects : [formProject].filter(Boolean)}
+            placeholder="Pick a project…"
+            options={projectOptions(projectList, formProject)}
             onChange={switchProject}
           />
         </div>

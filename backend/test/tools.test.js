@@ -115,15 +115,20 @@ test('hmi: bad tags, duplicates, and the imported-list marker', async () => {
   ]);
 });
 
-test('tool settings: merge, remove, and empty default', async () => {
-  const { ToolSettings } = await import('../services/tools/settings.js');
+test('settings: merge, remove, empty default, and concurrent patches both land', async () => {
+  const { SettingsService } = await import('../services/settings.js');
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'projector-tools-'));
   try {
-    const settings = new ToolSettings({ dataDir: tmp });
+    const settings = new SettingsService({ dataDir: tmp });
     assert.deepEqual(await settings.get(), {});
     await settings.update({ exportFolder: 'C:\\Exports', keep: 1 });
     assert.deepEqual(await settings.get(), { exportFolder: 'C:\\Exports', keep: 1 });
     assert.deepEqual(await settings.update({ exportFolder: null }), { keep: 1 });
+    // Two tools saving at once: read-modify-write is serialized, so neither
+    // patch drops the other.
+    await Promise.all([settings.update({ a: 1 }), settings.update({ b: 2 })]);
+    assert.deepEqual(await settings.get(), { keep: 1, a: 1, b: 2 });
+    await assert.rejects(settings.update([1]), { status: 400 });
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

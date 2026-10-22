@@ -14,7 +14,7 @@ function projectRoutes(projects) {
   const router = Router();
 
   router.get('/', async (_req, res) => {
-    res.json({ projects: await projects.list() });
+    res.json(await projects.listWithArchive());
   });
 
   router.post('/', async (req, res) => {
@@ -28,6 +28,10 @@ function projectRoutes(projects) {
 
   router.patch('/:project', async (req, res) => {
     res.json(await projects.rename(req.params.project, req.body?.name));
+  });
+
+  router.put('/:project/archived', async (req, res) => {
+    res.json(await projects.setArchived(req.params.project, req.body?.archived === true));
   });
 
   const bundle = (req) => projects.bundle(req.params.project);

@@ -15,6 +15,7 @@ import type {
   SearchResults,
   SwsetGenerateResult,
   SwsetModel,
+  Hours,
   Todo,
   ToolJob,
 } from './types'
@@ -63,21 +64,66 @@ export async function saveTodos(todos: Todo[]): Promise<Todo[]> {
   return (await send<{ todos: Todo[] }>('/api/todos', 'PUT', { todos })).todos
 }
 
+/**
+ * Billable hours — machine-global, like the todo list: a budget per project
+ * and hours per project per day. Writes are one cell at a time and return
+ * the whole store.
+ */
+export function fetchHours(): Promise<Hours> {
+  return get('/api/hours')
+}
+
+export function setDayHours(date: string, project: string, hours: number): Promise<Hours> {
+  return send('/api/hours/day', 'PUT', { date, project, hours })
+}
+
+export function setBudgetHours(project: string, hours: number): Promise<Hours> {
+  return send('/api/hours/budget', 'PUT', { project, hours })
+}
+
+/** Machine settings — tool paths and window preferences, never credentials.
+ *  Read them through lib/settings, which holds the loaded copy. */
+export function fetchSettings(): Promise<Record<string, unknown>> {
+  return get('/api/settings')
+}
+
+/** Shallow-merge; a null value removes the key. */
+export function updateSettings(
+  patch: Record<string, unknown>,
+  init?: { keepalive?: boolean },
+): Promise<Record<string, unknown>> {
+  if (init?.keepalive) {
+    // Page teardown: fetch() with keepalive outlives the window, send() would not.
+    return fetch('/api/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+      keepalive: true,
+    }).then(() => ({}))
+  }
+  return send('/api/settings', 'PATCH', patch)
+}
+
 // Everything except the project list itself is scoped to one project.
 const base = (project: string) => `/api/projects/${encodeURIComponent(project)}`
 
 // --- projects -----------------------------------------------------------------
 
-export async function listProjects(): Promise<string[]> {
-  const body = await get<{ projects: string[] }>('/api/projects')
-  return body.projects
+/** Every project, plus the names filed under Archive (a subset). Read it
+ *  through lib/projectList, which shares one live copy across the window. */
+export function listProjects(): Promise<{ projects: string[]; archived: string[] }> {
+  return get('/api/projects')
+}
+
+export function setProjectArchived(name: string, archived: boolean): Promise<unknown> {
+  return send(`/api/projects/${encodeURIComponent(name)}/archived`, 'PUT', { archived })
 }
 
 export function createProject(name: string): Promise<{ name: string }> {
   return send('/api/projects', 'POST', { name })
 }
 
-/** Delete a project and everything in it (sources, canvas). */
+/** Delete a project and everything in it — its whole file tree and history. */
 export function deleteProject(name: string): Promise<unknown> {
   return send(`/api/projects/${encodeURIComponent(name)}`, 'DELETE')
 }
@@ -362,17 +408,6 @@ export function saveToolFileToProject(args: {
   name?: string
 }): Promise<{ added: string[] }> {
   return send('/api/tools/save-to-project', 'POST', args)
-}
-
-/** Machine-specific tool settings (paths, preferences — never credentials). */
-export function fetchToolSettings(): Promise<Record<string, unknown>> {
-  return get('/api/tools/settings')
-}
-
-export function updateToolSettings(
-  patch: Record<string, unknown>,
-): Promise<Record<string, unknown>> {
-  return send('/api/tools/settings', 'PATCH', patch)
 }
 
 /** Run the HMI Tag Tester over one uploaded .hprj/.hprb. */

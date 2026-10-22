@@ -1,6 +1,5 @@
 // The Tools surface — global utilities beside the projects, mounted at
-// /api/tools. This router owns what every tool shares — settings, run-file
-// download, copying a run file into a project's Files store — plus each
+// /api/tools. This router owns what every tool shares — run-file download, copying a run file into a project's Files store — plus each
 // tool's own endpoints, grouped per tool below. Tool jobs live in the app's
 // job registry (routes/jobs.js).
 
@@ -15,7 +14,7 @@ import { httpError, requireQuery } from '../lib/http.js';
 const MAX_UPLOAD_BYTES = 256 * 1024 * 1024;
 
 function toolsRoutes(tools, projects) {
-  const { workspace, settings } = tools;
+  const { workspace } = tools;
   const router = Router();
   const upload = multer({
     storage: multer.memoryStorage(),
@@ -41,14 +40,6 @@ function toolsRoutes(tools, projects) {
     }
     throw httpError(400, 'send a multipart "file", or { project, path } naming a project file');
   };
-
-  // Machine-specific tool settings (paths, preferences — never credentials).
-  router.get('/settings', async (_req, res) => {
-    res.json(await settings.get());
-  });
-  router.patch('/settings', async (req, res) => {
-    res.json(await settings.update(req.body ?? {}));
-  });
 
   // HMI Tag Tester: one input in (upload or project file), the report out.
   router.post('/hmi/analyze', upload.single('file'), async (req, res) => {

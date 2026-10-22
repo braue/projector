@@ -4,11 +4,12 @@ import {
   createProject,
   deleteProject,
   listFiles,
-  listProjects,
   openFileEntry,
   renameProject,
+  setProjectArchived,
 } from './api'
 import { CompareView } from './components/CompareView'
+import { HoursPanel } from './components/HoursPanel'
 import { InspectView } from './components/InspectView'
 import { PdfView } from './components/PdfView'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
@@ -29,11 +30,11 @@ import { onEvent, useConnected } from './lib/events'
 import { findLeafFor, isPdfFile, isTextFile, refLabel, type FileLeaf } from './lib/fileNodes'
 import { formatSize, formatStamp, formatWhen } from './lib/format'
 import { useJobs } from './lib/jobs'
+import { reloadProjects, useProjectList } from './lib/projectList'
 import { useAction } from './lib/useAction'
 import { useTreeSelection } from './lib/useTreeSelection'
 import type { FileNode, LandedDownload, ToolJob } from './types'
 
-const PROJECT_KEY = 'projector-project'
 
 export default function App() {
   // Reference material and global utilities sit beside the project, hold the
@@ -43,10 +44,10 @@ export default function App() {
   const [atlasEverOpened, setAtlasEverOpened] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [toolsEverOpened, setToolsEverOpened] = useState(false)
-  // The current project scopes everything below. null projects = still
-  // loading the list; null project + loaded list = nothing exists yet.
+  // The current project scopes everything below. The window opens with none —
+  // the user picks one from the switcher; null list = still loading it.
   const [project, setProject] = useState<string | null>(null)
-  const [projects, setProjects] = useState<string[] | null>(null)
+  const projectList = useProjectList()
   // THE tree — the one sidebar everything lives in.
   const [tree, setTree] = useState<FileNode[] | null>(null)
   const [treeError, setTreeError] = useState<string | null>(null)
@@ -82,29 +83,6 @@ export default function App() {
     }
   }, [project])
 
-  const refreshProjects = useCallback(async () => {
-    try {
-      const names = await listProjects()
-      setProjects(names)
-      return names
-    } catch {
-      return null
-    }
-  }, [])
-
-  // Startup: restore the last-used project if it still exists, otherwise the
-  // first one; none at all leaves `project` null and gates on naming one.
-  useEffect(() => {
-    refreshProjects().then((names) => {
-      if (!names) return
-      const remembered = localStorage.getItem(PROJECT_KEY)
-      setProject(remembered && names.includes(remembered) ? remembered : names[0] ?? null)
-    })
-  }, [refreshProjects])
-
-  useEffect(() => {
-    if (project) localStorage.setItem(PROJECT_KEY, project)
-  }, [project])
 
   // Switching projects swaps the tree and clears per-project state.
   const { select } = selection
@@ -132,14 +110,10 @@ export default function App() {
           loadTree()
         }
       }),
-      onEvent('reconnected', () => {
-        loadTree()
-        refreshProjects()
-      }),
-      onEvent('projects', () => refreshProjects()),
+      onEvent('reconnected', loadTree),
     ]
     return () => offs.forEach((off) => off())
-  }, [project, loadTree, refreshProjects])
+  }, [project, loadTree])
 
   const projectMode = !atlasOpen && !toolsOpen
   const closeFilter = useCallback(() => {
@@ -196,19 +170,19 @@ export default function App() {
   const handleCreateProject = useCallback(
     async (name: string) => {
       await createProject(name)
-      await refreshProjects()
+      await reloadProjects()
       setProject(name)
     },
-    [refreshProjects],
+    [],
   )
 
   const handleRenameProject = useCallback(
     async (name: string, nextName: string) => {
       const renamed = await renameProject(name, nextName)
-      await refreshProjects()
+      await reloadProjects()
       setProject((current) => (current === name ? renamed.name : current))
     },
-    [refreshProjects],
+    [],
   )
 
   const handleDeleteProject = useCallback(
@@ -222,18 +196,35 @@ export default function App() {
         setTreeError(errorMessage(err))
         return
       }
-      const names = (await refreshProjects()) ?? []
-      setProject((current) => (current === name ? names[0] ?? null : current))
+      await reloadProjects()
+      // Deleting the open project leaves nothing open, like a fresh start.
+      setProject((current) => (current === name ? null : current))
     },
-    [refreshProjects],
+    [],
+  )
+
+  // Archiving only refiles the project in the switcher; whatever is open
+  // stays open.
+  const handleArchiveProject = useCallback(
+    async (name: string, archive: boolean) => {
+      try {
+        await setProjectArchived(name, archive)
+      } catch (err) {
+        setTreeError(errorMessage(err))
+        return
+      }
+      await reloadProjects()
+    },
+    [],
   )
 
   // Still loading the project list: just the shell, no flash of onboarding.
-  if (projects === null) {
+  if (projectList === null) {
     return <header className="topbar" />
   }
 
-  if (project === null) {
+  // Nothing exists yet: the user names their first project.
+  if (projectList.projects.length === 0) {
     return <FirstProject onCreate={handleCreateProject} />
   }
 
@@ -248,14 +239,16 @@ export default function App() {
         {projectMode && (
           <ProjectSwitcher
             current={project}
-            projects={projects}
+            projects={projectList.projects}
+            archived={projectList.archived}
             onSelect={setProject}
             onCreate={handleCreateProject}
             onRename={handleRenameProject}
             onDelete={handleDeleteProject}
+            onArchive={handleArchiveProject}
           />
         )}
-        {projectMode && filterOpen && (
+        {projectMode && project !== null && filterOpen && (
           <div className="tree-filter">
             <TextInput
               ref={filterInput}
@@ -279,52 +272,55 @@ export default function App() {
         <span className="topbar-info" />
         {/* Top-right: the machine-global panes, holding the corner so their
             toggles never move. */}
+        <HoursPanel />
         <TodoList />
-        <button
-          className={toolsOpen ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
+        <PaneToggle
+          mark="⚒"
+          label="Tools"
+          on={toolsOpen}
+          title={toolsOpen ? 'Back to the project' : 'Open the tools'}
           onClick={() => {
             setToolsOpen((open) => !open)
             setToolsEverOpened(true)
             setAtlasOpen(false)
           }}
-          title={toolsOpen ? 'Back to the project' : 'Open the tools'}
-        >
-          <span className="topbar-toggle-mark">⚒</span>
-          <span>Tools</span>
-        </button>
-        <button
-          className={atlasOpen ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
+        />
+        <PaneToggle
+          mark="◆"
+          label="Atlas"
+          on={atlasOpen}
+          title={atlasOpen ? 'Back to the project' : 'Open the atlas reference'}
           onClick={() => {
             setAtlasOpen((open) => !open)
             setAtlasEverOpened(true)
             setToolsOpen(false)
           }}
-          title={atlasOpen ? 'Back to the project' : 'Open the atlas reference'}
-        >
-          <span className="topbar-toggle-mark">◆</span>
-          <span>Atlas</span>
-        </button>
+        />
       </header>
 
       <div className="app">
         {projectMode && (
           <>
-            <ProjectTree
-              project={project}
-              tree={tree}
-              filter={filterOpen ? filter : ''}
-              treeError={treeError}
-              landed={landed}
-              selected={selected}
-              held={held}
-              onSelect={selection.select}
-              onToggleHeld={selection.toggleHeld}
-              onHoldRange={selection.holdRange}
-              onComparePair={selection.compare}
-              onReload={loadTree}
-            />
+            {project !== null && (
+              <ProjectTree
+                project={project}
+                tree={tree}
+                filter={filterOpen ? filter : ''}
+                treeError={treeError}
+                landed={landed}
+                selected={selected}
+                held={held}
+                onSelect={selection.select}
+                onToggleHeld={selection.toggleHeld}
+                onHoldRange={selection.holdRange}
+                onComparePair={selection.compare}
+                onReload={loadTree}
+              />
+            )}
 
-            {comparePair ? (
+            {project === null ? (
+              <main className="preview" />
+            ) : comparePair ? (
               <CompareView
                 project={project}
                 original={{ ref: comparePair.original, label: refLabel(tree, comparePair.original) }}
@@ -371,7 +367,7 @@ export default function App() {
             tool form survives a detour back into the project. */}
         {toolsEverOpened && (
           <div className="tools-pane" hidden={!toolsOpen}>
-            <ToolsView project={project} />
+            <ToolsView project={project ?? ''} />
           </div>
         )}
 
@@ -386,6 +382,28 @@ export default function App() {
         )}
       </div>
     </>
+  )
+}
+
+/** A topbar button that swaps the main area for a takeover pane. */
+function PaneToggle({
+  mark,
+  label,
+  on,
+  title,
+  onClick,
+}: {
+  mark: string
+  label: string
+  on: boolean
+  title: string
+  onClick: () => void
+}) {
+  return (
+    <button className={on ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'} onClick={onClick} title={title}>
+      <span className="topbar-toggle-mark">{mark}</span>
+      <span>{label}</span>
+    </button>
   )
 }
 
@@ -455,10 +473,6 @@ function FirstProject({ onCreate }: { onCreate: (name: string) => Promise<void> 
         <div className="modal-card onboard-card">
           <div className="modal-head">
             <span className="t">Name your first project</span>
-          </div>
-          <div className="modal-sub">
-            A project is one folder tree — settings artifacts, documents, and
-            notes side by side, everything scoped to one job.
           </div>
           <div className="onboard-form">
             <TextInput

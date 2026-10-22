@@ -96,7 +96,7 @@ export function AggregateView({
     () => (
       <TreePane
         // No name line: the inspect bar right above already carries it.
-        header={<div className="tree-subtitle">check objects to scope · none = all</div>}
+        header={<div className="tree-subtitle">scope · none = all</div>}
         footer={checked.size ? `${checked.size} objects in scope` : 'whole project in scope'}
       >
         <TreeRows nodes={tree.tree} checked={checked} onToggleCheck={onToggleCheck} />
@@ -114,7 +114,7 @@ export function AggregateView({
         <div className="aggregate-controls">
           <div className="aggregate-input">
             <label className="aggregate-label" htmlFor="agg-terms">
-              Setting names — one per line or comma-separated
+              Setting names
             </label>
             <TextArea
               id="agg-terms"
@@ -138,7 +138,7 @@ export function AggregateView({
               count={`${result.rows.length} objects${result.scoped ? ' · scoped' : ''}`}
             />
             {result.rows.length === 0 ? (
-              <p className="section-note">No object in scope carries a matching setting.</p>
+              <p className="section-note">No matches.</p>
             ) : (
               <DataTable
                 columns={[

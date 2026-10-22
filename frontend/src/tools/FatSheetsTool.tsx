@@ -15,26 +15,20 @@ import { useState } from 'react'
 import { generateFatSheets, saveFatSheetsRun, type FatInput } from '../api'
 import { Button, CollapsibleSection, DataTable, FileDropZone, SectionHeader, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
+import { saveSettings, setting } from '../lib/settings'
 import { useToolJob } from '../lib/useToolJob'
 import type { FatSheetsResult } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
-const ENGINEER_KEY = 'projector.fatsheets.engineer'
+const ENGINEER_KEY = 'fatSheetsEngineer'
 
 const UNPAIRED_REASON: Record<string, string> = {
-  'fault only': 'Fault tests only — no open phase test',
-  'open phase only': 'Open phase tests only — no fault test',
-  'no shared configuration': 'Fault and open phase tests, but never from the same configuration',
-}
-
-function storedEngineer(): string {
-  try {
-    return localStorage.getItem(ENGINEER_KEY) ?? ''
-  } catch {
-    return ''
-  }
+  'fault only': 'No open phase test',
+  'open phase only': 'No fault test',
+  'no shared configuration': 'No shared configuration',
 }
 
 function inputLabel(input: FatInput): string {
@@ -87,7 +81,7 @@ function InputPick({
 export function FatSheetsTool({ project }: ToolProps) {
   const [workbook, setWorkbook] = useState<FatInput | null>(null)
   const [report, setReport] = useState<FatInput | null>(null)
-  const [engineer, setEngineer] = useState(storedEngineer)
+  const [engineer, setEngineer] = useState(() => setting(ENGINEER_KEY, ''))
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<FatSheetsResult | null>(null)
   const [saving, setSaving] = useState(false)
@@ -110,11 +104,8 @@ export function FatSheetsTool({ project }: ToolProps) {
     setError(null)
     setResult(null)
     setSaved(null)
-    try {
-      localStorage.setItem(ENGINEER_KEY, engineer.trim())
-    } catch {
-      // remembering the name is a convenience only
-    }
+    // Remembering the name is a convenience only.
+    saveSettings({ [ENGINEER_KEY]: engineer.trim() }).catch(() => {})
     try {
       const { job: id } = await generateFatSheets({ workbook, report, engineer })
       start(id)
@@ -145,70 +136,8 @@ export function FatSheetsTool({ project }: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>Automatic FAT → Excel</h2>
-          {running && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="Automatic FAT → Excel" busy={running} />
       <div className="tool-scroll">
-        <CollapsibleSection title="What this does">
-          <div className="tool-about">
-            <p>
-              Fills a FAT workbook's <b>Fault Test</b>, <b>Open Phase</b>, <b>Miscoordination</b> and{' '}
-              <b>Abnormal Condition</b> checkout sheets from the DAC simulator's automatic-FAT HTML
-              report, in the standard FAT format.
-            </p>
-            <ul>
-              <li>
-                Fault and Open Phase: one column per segment, the same segment and starting
-                configuration in the same column on both sheets — a fault test and an open phase
-                test run from one configuration, preferring ones that restored load. A segment
-                without such a pair is left off both and listed after the run.
-              </li>
-              <li>
-                Miscoordination: one column per feeder (the checkout is done once per feeder), the
-                test with the most switching.
-              </li>
-              <li>
-                Abnormal Condition: one column per feeder, an abnormal fault test that re-runs one
-                of the Fault sheet's tests (same trip, location and configuration). A feeder
-                without one is left off and named after the run.
-              </li>
-            </ul>
-            <ul>
-              <li>
-                Adds the four sheets after “Simulator HMI screens”, or replaces them in place if the
-                workbook already has them. Nothing else in the workbook changes — macros, images and
-                the other sheets are left as they were.
-              </li>
-              <li>
-                Columns are grouped by substation, with the names and colours the workbook's Under
-                Frequency / Loss of Source sheets already use.
-              </li>
-              <li>
-                Every answer is read from the report: configuration and event location from each
-                test's setup, opened/closed devices from the Switching Summary (fault sheet: *
-                opened by protection, ** closed to correct a miscoordination; miscoordination
-                sheet: * closed to correct it), YES/NO from the test's status and validation.
-              </li>
-              <li>
-                Tests that did not come back Complete are listed under “Needs review”: a Fail gets
-                NO where it applies and a comment saying what went wrong; a Questionable passed
-                every validation and gets a comment asking for review.
-              </li>
-              <li>
-                Left blank for you: Return to Normal (the automatic run doesn't test it), and the
-                abnormal-tags question on a failed abnormal test.
-              </li>
-              <li>
-                A workbook picked from a project saves back as a new version of that entry (the
-                previous one stays in its history); an uploaded one can be downloaded or saved to
-                a project.
-              </li>
-            </ul>
-          </div>
-        </CollapsibleSection>
         <InputPick
           title="FAT workbook"
           accept=".xlsm,.xlsx"
@@ -228,10 +157,7 @@ export function FatSheetsTool({ project }: ToolProps) {
           disabled={running}
         />
         <div className="tool-row">
-          <label>
-            FAT test engineer
-            <TextInput value={engineer} placeholder="Name" onChange={(e) => setEngineer(e.target.value)} />
-          </label>
+          <TextInput label="Engineer" value={engineer} placeholder="Name" onChange={(e) => setEngineer(e.target.value)} />
         </div>
         <div className="tool-row">
           <Button variant="primary" disabled={!workbook || !report || running} onClick={convert}>
@@ -264,7 +190,7 @@ export function FatSheetsTool({ project }: ToolProps) {
             ))}
             <div className="tool-row">
               <span className="tool-stats">
-                Substation bands from the workbook:{' '}
+                Substations:{' '}
                 {result.bands.substations.length
                   ? result.bands.substations.map((s) => `${s.name} (${s.feeders.join(', ')})`).join(' · ')
                   : 'none found'}
@@ -272,25 +198,19 @@ export function FatSheetsTool({ project }: ToolProps) {
             </div>
             {result.bands.unbanded.length > 0 && (
               <div className="tool-error">
-                No Under Frequency / Loss of Source sheet names a substation for{' '}
-                {result.bands.unbanded.join(', ')} — those columns are banded by feeder instead.
+                Banded by feeder (no substation found): {result.bands.unbanded.join(', ')}
               </div>
             )}
 
             {result.unpaired?.length > 0 && (
-              <CollapsibleSection title="Segments left off the Fault and Open Phase sheets" count={result.unpaired.length}>
-                <div className="tool-row">
-                  <span className="tool-stats">
-                    A segment gets a column only when it has a fault test and an open phase test from the same starting configuration.
-                  </span>
-                </div>
+              <CollapsibleSection title="Left off Fault / Open Phase" count={result.unpaired.length}>
                 <DataTable
                   maxHeight="320px"
                   columns={[
                     { key: 'location', label: 'Segment' },
                     { key: 'feeder', label: 'Feeder' },
                     { key: 'reason', label: 'Why' },
-                    { key: 'tests', label: 'Tests in report' },
+                    { key: 'tests', label: 'Tests' },
                   ]}
                   rows={result.unpaired.map((u) => ({
                     id: u.location,
@@ -307,8 +227,7 @@ export function FatSheetsTool({ project }: ToolProps) {
 
             {result.abnormalUnmatched?.length > 0 && (
               <div className="tool-error">
-                No abnormal fault test re-runs a Fault sheet test (same trip, location and configuration) on{' '}
-                {result.abnormalUnmatched.join(', ')} — left off the Abnormal sheet.
+                Left off Abnormal (no matching re-run): {result.abnormalUnmatched.join(', ')}
               </div>
             )}
 
@@ -320,7 +239,7 @@ export function FatSheetsTool({ project }: ToolProps) {
                     { key: 'column', label: 'Column' },
                     { key: 'feeder', label: 'Feeder' },
                     { key: 'status', label: 'Status' },
-                    { key: 'comment', label: 'Comment written' },
+                    { key: 'comment', label: 'Comment' },
                   ]}
                   rows={result.flagged.map((f) => ({
                     id: String(f.index),
@@ -329,14 +248,9 @@ export function FatSheetsTool({ project }: ToolProps) {
                   }))}
                 />
               ) : (
-                <div className="tool-empty">Every test came back Complete.</div>
+                <div className="tool-empty">All complete.</div>
               )}
             </CollapsibleSection>
-            <div className="tool-row">
-              <span className="tool-stats">
-                Return to Normal answers are left blank — the automatic run doesn't exercise RTN.
-              </span>
-            </div>
 
             <RunOutputs
               tool="fatsheets"

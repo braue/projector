@@ -25,6 +25,7 @@ import {
   findLeafFor,
   findNode,
   isTextFile,
+  joinPath,
   nameExtension,
   parentOf,
   refLabel,
@@ -72,6 +73,9 @@ import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 //                    dropped FOLDERS come in as RTAC exports
 
 const ENTRY_MIME = 'application/projector-file-entry'
+
+/** A row's left padding at a nesting depth. */
+const indent = (depth: number) => ({ paddingLeft: `${10 + depth * 14}px` })
 
 const KIND_LABEL: Record<ArtifactKindName, string> = {
   rtac: 'RTAC',
@@ -177,6 +181,12 @@ export function ProjectTree({
     onReload()
   }
 
+  /** Open the version-note dialog for a batch, clearing the last one's error. */
+  const stage = (batch: PendingBatch) => {
+    setNoteError(null)
+    setPending(batch)
+  }
+
   const toggleSet = (set: Set<string>, key: string) => {
     const next = new Set(set)
     if (next.has(key)) next.delete(key)
@@ -200,7 +210,7 @@ export function ProjectTree({
       const dir = parentOf(entry.path)
       revealDir(dir)
       if (entry.into) {
-        const oldPath = dir ? `${dir}/${entry.into}` : entry.into
+        const oldPath = joinPath(dir, entry.into)
         if (selected === oldPath) onSelect(entry.path)
       }
     }
@@ -223,8 +233,7 @@ export function ProjectTree({
 
   const stageUpload = (files: File[], dir: string) => {
     if (!files.length) return
-    setNoteError(null)
-    setPending({ kind: 'files', dir, files })
+    stage({ kind: 'files', dir, files })
   }
 
   // The backend decides which exports the folder holds (and refuses two
@@ -234,12 +243,11 @@ export function ProjectTree({
     try {
       const names = files.length ? await previewRtacFolder(project, files.map((entry) => entry.path)) : []
       if (!names.length && !loose.length) {
-        setError('No RTAC export found — pick the exported project folder, or a folder of them.')
+        setError('No RTAC export found.')
         return
       }
       setError(null)
-      setNoteError(null)
-      setPending({ kind: 'rtac-folder', dir, files: names.length ? files : [], names, loose })
+      stage({ kind: 'rtac-folder', dir, files: names.length ? files : [], names, loose })
     } catch (err) {
       setError(errorMessage(err))
     }
@@ -255,7 +263,7 @@ export function ProjectTree({
         // The entry FOLLOWS the new version's name: the picked file lands
         // under its own name, superseding (and renaming) the entry.
         const { added } = await uploadFiles(project, pending.dir, [pending.file], note, pending.entryName)
-        const oldPath = pending.dir ? `${pending.dir}/${pending.entryName}` : pending.entryName
+        const oldPath = joinPath(pending.dir, pending.entryName)
         if (added[0] && added[0] !== oldPath) {
           // Selection and the open-versions accordion follow the rename —
           // otherwise the right pane silently blanks on a stale path.
@@ -291,7 +299,7 @@ export function ProjectTree({
     if (!pending || !tree) return []
     if (pending.kind === 'refresh') {
       return pending.entries.map((entry) => ({
-        name: entry.dir ? `${entry.dir}/${entry.name}` : entry.name,
+        name: joinPath(entry.dir, entry.name),
         isNewVersion: true,
       }))
     }
@@ -326,7 +334,7 @@ export function ProjectTree({
 
   const createNote = async (dir: string, name: string) => {
     const file = /\.(txt|md)$/i.test(name) ? name : `${name}.txt`
-    const path = dir ? `${dir}/${file}` : file
+    const path = joinPath(dir, file)
     await saveTextFile(project, path, '')
     setNotingIn(null)
     onReload()
@@ -422,26 +430,22 @@ export function ProjectTree({
     if (rtacLeaves.length) {
       items.push({
         label: `New versions from AcRTAC (${rtacLeaves.length})…`,
-        onClick: () => {
-          setNoteError(null)
-          setPending({
-            kind: 'refresh',
-            entries: rtacLeaves.map((leaf) => ({
-              dir: parentOf(leaf.path),
-              name: leaf.name,
-              database: databaseName(leaf),
-            })),
-          })
-        },
+        onClick: () => stage({
+          kind: 'refresh',
+          entries: rtacLeaves.map((leaf) => ({
+            dir: parentOf(leaf.path),
+            name: leaf.name,
+            database: databaseName(leaf),
+          })),
+        }),
       })
     }
-    const entries = heldEntries
-    if (entries.length) {
+    if (heldEntries.length) {
       if (items.length) items.push({ separator: true })
       items.push({
-        label: entries.length === 1 ? 'Delete' : `Delete ${entries.length} entries`,
+        label: heldEntries.length === 1 ? 'Delete' : `Delete ${heldEntries.length} entries`,
         danger: true,
-        onClick: () => deleteEntries(entries),
+        onClick: () => deleteEntries(heldEntries),
       })
     }
     return items
@@ -576,10 +580,7 @@ export function ProjectTree({
         ? [
             {
               label: 'Record edits as new version…',
-              onClick: () => {
-                setNoteError(null)
-                setPending({ kind: 'edit', dir: nodeDir, path: node.path, name: node.name })
-              },
+              onClick: () => stage({ kind: 'edit', dir: nodeDir, path: node.path, name: node.name }),
             },
             {
               label: 'Discard on-disk edits',
@@ -726,7 +727,7 @@ export function ProjectTree({
     <button
       key={`${opts.path}${opts.current ? ':current' : ''}`}
       className={rowClasses(opts.path, ['version-row'])}
-      style={{ paddingLeft: `${10 + (opts.depth + 1) * 14}px` }}
+      style={indent(opts.depth + 1)}
       title={opts.title}
       onClick={(e) => select(e, opts.path)}
       onDoubleClick={opts.onDoubleClick}
@@ -772,7 +773,7 @@ export function ProjectTree({
       <InlineNameForm
         initial={ext ? node.name.slice(0, -ext.length) : node.name}
         suffix={ext}
-        placeholder="New name — Enter to rename"
+        placeholder="New name"
         onCommit={async (value) => {
           await renameFileEntry(project, node.path, value)
           setRenaming(null)
@@ -802,7 +803,7 @@ export function ProjectTree({
       )}
       {notingIn === dir && (
         <InlineNameForm
-          placeholder="Note name — Enter to create"
+          placeholder="Note name"
           onCommit={(value) => createNote(dir, value)}
           onCancel={() => setNotingIn(null)}
         />
@@ -841,7 +842,6 @@ export function ProjectTree({
   const renderLeaf = (node: FileLeaf, depth: number) => {
     const versionsOpen = openVersions.has(node.path)
     const currentVersion = node.versions.length + 1
-    const indent = { paddingLeft: `${10 + depth * 14}px` }
     const stamp = node.uploadedAt !== null ? formatDay(node.uploadedAt) : ''
     return (
       <div key={node.path} className="tree-entry">
@@ -850,7 +850,7 @@ export function ProjectTree({
             draggable
             onDragStart={(e) => dragStart(e, node.path)}
             className={rowClasses(node.path, node.kind ? ['artifact-row'] : [])}
-            style={indent}
+            style={indent(depth)}
             title={[
               `${node.name}${node.uploadedAt ? ` — ${formatWhen(node.uploadedAt)}` : ''}`,
               node.note ?? undefined,
@@ -870,7 +870,7 @@ export function ProjectTree({
             {node.edited && (
               <span
                 className="edited-badge"
-                title="Edited on disk since its recorded version — right-click to record or discard"
+                title="Edited on disk"
               >
                 edited
               </span>
@@ -937,7 +937,7 @@ export function ProjectTree({
               rowClasses(node.path, ['tree-folder']),
               dropTarget === node.path ? 'file-drop' : '',
             ].filter(Boolean).join(' ')}
-            style={{ paddingLeft: `${10 + depth * 14}px` }}
+            style={indent(depth)}
             title={node.name}
             onClick={(e) => {
               if (e.ctrlKey || e.metaKey || e.shiftKey) {
@@ -1002,8 +1002,7 @@ export function ProjectTree({
                 setError(staged)
               } else {
                 setError(null)
-                setNoteError(null)
-                setPending({ kind: 'version', dir: target.dir, entryName: target.entryName, file: staged })
+                stage({ kind: 'version', dir: target.dir, entryName: target.entryName, file: staged })
               }
             }
             e.target.value = ''

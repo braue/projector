@@ -49,15 +49,11 @@ export function RtacDatabaseModal({
       <div className="modal-sub">
         {versionOf ? (
           <>
-            Select the database project to pull as the <b>next version of{' '}
-            {versionOf}</b> — the copy you have is kept underneath, and the
-            entry takes the database project's name.
+            Next version of <b>{versionOf}</b>
           </>
         ) : (
           <>
-            Select the RTAC projects to download into{' '}
-            <b>{destination || 'the project root'}</b>. One already there
-            becomes its next version.
+            Into <b>{destination || 'the project root'}</b>
           </>
         )}
       </div>
@@ -71,7 +67,7 @@ export function RtacDatabaseModal({
       <div className="modal-filter">
         <TextInput
           value={note}
-          placeholder="Version note — what is this download? (required)"
+          placeholder="Version note"
           onChange={(e) => setNote(e.target.value)}
         />
       </div>

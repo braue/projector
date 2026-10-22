@@ -17,7 +17,6 @@ import {
   DataTable,
   FileDropZone,
   SectionHeader,
-  Spinner,
   TextArea,
   TextInput,
 } from '../components/ui'
@@ -27,6 +26,7 @@ import type { QuicksetExtract, QuicksetInventory } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
 const DEFAULT_SETTINGS = [
   'OUT101', 'OUT102', 'OUT103', 'OUT104', 'OUT105', 'OUT106', 'OUT107', 'OUT108',
@@ -124,17 +124,12 @@ export function QuicksetTool({ project }: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>QuickSet Extract</h2>
-          {(busy || dumping) && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="QuickSet Extract" busy={busy || dumping} />
       <div className="tool-scroll">
         <SectionHeader title="Source" />
         <FileDropZone accept=".zip" onFile={uploadZip}>
           <b>Drop an exported-configs ZIP here</b>
-          or click to browse — the location/device tree from a previous dump
+          or click to browse
         </FileDropZone>
         <ProjectFilePick
           project={project}
@@ -191,7 +186,7 @@ export function QuicksetTool({ project }: ToolProps) {
               rows={3}
               value={terms}
               onChange={(e) => setTerms(e.target.value)}
-              placeholder="Setting names, space or comma separated — e.g. OUT101 OUT102"
+              placeholder="OUT101 OUT102"
             />
             <div className="tool-row">
               <Button variant="primary" disabled={busy} onClick={runExtract}>Extract</Button>

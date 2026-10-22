@@ -10,7 +10,7 @@ One window, three regions:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ [Project ▾]                       ☑ todos · ⚒ Tools · ◆ Atlas│
+│ [Project ▾]             ◷ Hours · ✓ Todo · ⚒ Tools · ◆ Atlas│
 ├─────────────┬────────────────────────────────────────────────┤
 │ THE TREE    │  what the selection is:                        │
 │             │                                                │
@@ -25,7 +25,9 @@ One window, three regions:
 ```
 
 No Canvas, no Files/Compare/Notes tabs. The project switcher is the only
-top-left control; Tools and the Atlas hold the top-right, machine-global.
+top-left control (finished projects file under its collapsed Archive
+section — still fully usable, just out of the way); Hours, Todo, Tools and
+the Atlas hold the top-right, machine-global.
 
 ## Core concept: one tree, versioned in place
 
@@ -92,7 +94,17 @@ lib/acrtac/pythonClient  runs the py/ bridges (JSON in on stdin, JSON out on
                          AcRTAC ones queue machine-wide, and a queued job
                          shows its `waiting` reason
 py/acrtac_bridge.py      THE database bridge: list + export (xml/exp)
+lib/jsonFile.js          the one shape every machine-global store has: a
+                         JSON document, missing = empty, corrupt = error,
+                         writes serialized. Todos (todos.json), billable
+                         hours (hours.json, keyed by project name — a rename
+                         re-keys them), settings (tools/settings.json: tool
+                         paths AND window preferences), the VLAN bench table
 ```
+
+Window preferences (pane widths, remembered form fields) are
+settings, never localStorage: the packaged app listens on port 0, so its
+origin — and Chromium's per-origin storage with it — changes every launch.
 
 One way to do each thing: background work is a job (never a private status
 map), "something changed" is an event (never a poll or a window event), and
@@ -143,6 +155,12 @@ lib/events.ts, lib/jobs.ts   the event stream and the live job store;
                              useToolJob follows one job through them
 lib/fileNodes.ts             tree walking/naming helpers (findLeafFor,
                              refLabel, …) shared by sidebar, panes, tools
+lib/projectList.ts           THE project list (with the archived subset),
+                             live via the `projects` event; every project
+                             picker reads it and projectOptions() orders it
+lib/settings.ts              settings, loaded before first render and read
+                             synchronously; saveSettingSoon debounces
+components/HoursPanel.tsx    the billable-hours week grid + budgets
 ```
 
 A dropped event stream shows a "Reconnecting…" bar; on reconnect the window

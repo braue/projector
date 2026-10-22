@@ -2,7 +2,7 @@
 // <Configuration> XML the web UI writes: a Nameplate block plus a tree of
 // CompositeSetting/Setting/Value elements.
 //
-// Comm-truth focused: it models what the canvas and inspect views link on —
+// Comm-truth focused: it models what inspect and compare care about —
 //
 //   ports        the physical jacks (eth1..ethN): enabled, speed/duplex,
 //                user label — what a manual connection plugs into

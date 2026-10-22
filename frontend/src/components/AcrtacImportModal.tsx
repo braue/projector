@@ -91,12 +91,6 @@ export function AcrtacImportModal({
       title={single ? `Import to AcRTAC — ${targets[0].name}` : `Import ${targets.length} to AcRTAC`}
       onClose={onClose}
     >
-      <div className="modal-sub">
-        {single
-          ? 'Import this RTAC export into the AcRTAC database as a new project.'
-          : 'Import these RTAC exports into the AcRTAC database, one new project each, all on the same hardware.'}
-        {' '}The import runs in the background — you can keep working while it does.
-      </div>
       {single ? field('Name in AcRTAC', names[0], (value) => setName(0, value), 'Database project name') : (
         <div className="modal-list">
           {targets.map((target, index) => (
@@ -128,7 +122,7 @@ export function AcrtacImportModal({
       {field('Firmware', firmware, setFirmware, 'R151')}
       {firmware.trim() !== '' && !firmwareOk && (
         <div className="modal-error">
-          Firmware is the revision label — an R followed by the number, e.g. R151.
+          Firmware looks like R151.
         </div>
       )}
       {error && <div className="modal-error">{error}</div>}

@@ -15,10 +15,10 @@
 // an address or port is written down. (Not localStorage: the packaged app's
 // origin changes every launch — see services/todos.js.)
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
+import { JsonFile } from '../../lib/jsonFile.js';
 import { runStdinBridge } from '../../lib/acrtac/pythonClient.js';
 
 const SCRIPT = 'rtac_vlan_deploy.py';
@@ -93,37 +93,23 @@ function validateDeploy(payload, devices) {
 }
 
 class VlanDeployService {
-  // Every write is a whole-file replace, so two in flight would drop one.
-  #queue = Promise.resolve();
-
   constructor({ jobs, dataDir, projects }) {
     this.jobs = jobs;
     this.projects = projects;
-    this.file = path.join(dataDir, 'tools', 'vlan-deploy', 'devices.json');
+    this.store = new JsonFile(path.join(dataDir, 'tools', 'vlan-deploy', 'devices.json'), {
+      label: 'the bench device table',
+      empty: () => [],
+      clean: (raw) => (Array.isArray(raw) ? raw : []),
+    });
   }
 
-  async devices() {
-    try {
-      const parsed = JSON.parse(await readFile(this.file, 'utf8'));
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-      // Only a missing file means "no devices yet" — a corrupt one must fail,
-      // or the next save would overwrite the lot.
-      if (err?.code === 'ENOENT') return [];
-      throw httpError(500, `could not read the bench device table: ${err?.message ?? err}`);
-    }
+  devices() {
+    return this.store.read();
   }
 
   /** Whole-table replace. */
-  async saveDevices(rows) {
-    const devices = validateDevices(rows);
-    const run = this.#queue.then(async () => {
-      await mkdir(path.dirname(this.file), { recursive: true });
-      await writeFile(this.file, JSON.stringify(devices, null, 2));
-      return devices;
-    });
-    this.#queue = run.catch(() => {});
-    return run;
+  saveDevices(rows) {
+    return this.store.write(validateDevices(rows));
   }
 
   async start(payload) {

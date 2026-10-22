@@ -6,12 +6,13 @@
 import { useState } from 'react'
 
 import { generateSwsetXml, parseSwsetProjectFile, parseSwsetXml } from '../api'
-import { Button, CollapsibleSection, FileDropZone, Select, Spinner, TabBar, TextInput } from '../components/ui'
+import { Button, CollapsibleSection, FileDropZone, Select, TabBar, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { SwsetColumn, SwsetGenerateResult, SwsetModel, SwsetTable } from '../types'
 import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
+import { ToolHeader } from './ToolHeader'
 
 type TableEdits = { fields?: Record<string, string>; rows?: Record<string, string>[] }
 
@@ -214,17 +215,13 @@ export function SwsetTool({ project }: ToolProps) {
   const active = model?.sections.find((s) => s.id === section)
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>Switch Settings</h2>
-          {busy && <Spinner />}
-          {model && <span className="tool-stats">{model.deviceType} · {model.fid}</span>}
-        </div>
-      </div>
+      <ToolHeader title="Switch Settings" busy={busy}>
+        {model && <span className="tool-stats">{model.deviceType} · {model.fid}</span>}
+      </ToolHeader>
       <div className="tool-scroll">
         <FileDropZone accept=".xml" onFile={parse}>
           <b>Drop a switch Configuration XML here</b>
-          or click to browse — SEL-2730M / 2731 family
+          or click to browse
         </FileDropZone>
         <ProjectFilePick
           project={project}

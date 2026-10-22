@@ -43,7 +43,7 @@ import { modelSignature } from './compare.js';
 import { INVALID_NAME } from './fs.js';
 import { httpError } from './http.js';
 import { itemSummary } from './inspect.js';
-import { shedArchiveStamp } from './names.js';
+import { joinTree, requireNote, shedArchiveStamp } from './names.js';
 import { parseRtacModule } from './parsers/rtac/parseModule.js';
 import { buildProject, moduleBaseName } from './parsers/rtac/project.js';
 import { foldTree } from './tree.js';
@@ -77,12 +77,6 @@ function splitArtifactRef(ref) {
  *  stamp an old version's stored name carries shed. */
 function entryLabel(treePath) {
   return shedArchiveStamp(path.basename(treePath));
-}
-
-function requireNote(note) {
-  const trimmed = typeof note === 'string' ? note.trim() : '';
-  if (!trimmed) throw httpError(400, 'a version note is required');
-  return trimmed;
 }
 
 // --- kind base ---------------------------------------------------------------
@@ -202,7 +196,7 @@ class RtacKind extends ArtifactKind {
     const walk = async (dir, rel) => {
       const entries = await readdir(dir, { withFileTypes: true });
       for (const entry of entries) {
-        const relPath = rel ? `${rel}/${entry.name}` : entry.name;
+        const relPath = joinTree(rel, entry.name);
         if (entry.isDirectory()) await walk(path.join(dir, entry.name), relPath);
         else if (EXPORTABLE.test(entry.name)) files.push({ file: relPath, abs: path.join(dir, entry.name) });
       }
@@ -583,7 +577,7 @@ class ArtifactsService {
     if (versionOf && !RTAC_SUFFIX.test(versionOf)) {
       throw httpError(400, `not an RTAC entry: ${into}`);
     }
-    const treePath = dirPath ? `${dirPath}/${entryName}` : entryName;
+    const treePath = joinTree(dirPath, entryName);
     const downloads = { type: 'rtac-export', project: this.project };
     if (this.jobs.active({ ...downloads, path: treePath }).length) {
       throw httpError(409, `already exporting: ${treePath}`);
@@ -594,7 +588,7 @@ class ArtifactsService {
       // be free — unless it differs from the old name only by case, which
       // resolves to the same entry on the shipped (Windows) filesystem and
       // is the rename itself, not a collision (files.#place agrees).
-      const supersededPath = dirPath ? `${dirPath}/${versionOf}` : versionOf;
+      const supersededPath = joinTree(dirPath, versionOf);
       await this.files.identify(supersededPath);
       if (versionOf.toLowerCase() !== entryName.toLowerCase()
         && await this.files.identify(treePath).then(() => true, () => false)) {
@@ -665,7 +659,7 @@ class ArtifactsService {
     const added = [];
     for (const [name, entries] of groups) {
       const entryName = `${name.replace(INVALID_NAME, '_')}.rtac`;
-      const treePath = dirPath ? `${dirPath}/${entryName}` : entryName;
+      const treePath = joinTree(dirPath, entryName);
       await this.files.placeEntry(dirPath, entryName, trimmedNote, async (target) => {
         for (const entry of entries) {
           const file = path.join(target, ...entry.rest);

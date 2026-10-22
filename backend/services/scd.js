@@ -39,7 +39,7 @@ class ScdKind extends ArtifactKind {
   //   Network          access points with IP/subnet/gateway per port
   //   GOOSE Transmit   control blocks merged with their wire addresses
   //   GOOSE Receive    bound ExtRefs point-by-point (path 'subscriptions' —
-  //                    the same declared links the canvas linker consumes)
+  //                    grouped per publisher control block)
   //   Reports          full trigger/option configuration per ReportControl
   //   one per dataset  every FCDA resolved to 61850 path + device source
   //
@@ -174,8 +174,7 @@ class ScdKind extends ArtifactKind {
     }
 
     if (key === 'subscriptions') {
-      // Grouped per publisher control block for the inspect sheet and the
-      // linker's summary; the page lists every bound point in receive-map
+      // Grouped per publisher control block for the inspect sheet; the page lists every bound point in receive-map
       // order. The summaries are pure roll-ups of those rows, so they are
       // flagged derived: a receive edit diffs as the per-point table, never
       // restated as cryptic "N points bound" summary changes.

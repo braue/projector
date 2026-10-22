@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { abortJob, clearFinishedJobs, dismissJob, retryJob } from '../api'
 import { useJobs } from '../lib/jobs'
+import { useAction } from '../lib/useAction'
 import { useDismiss } from '../lib/useDismiss'
 import type { ToolJob } from '../types'
 import { Spinner } from './ui'
@@ -13,9 +14,9 @@ import { Spinner } from './ui'
 // never spinners or pending rows; a failed download is retried from here.
 // Each row shows what it is waiting on or its latest log line; clicking a row
 // shows its log. A running row can be aborted (■) — timeouts are long, so a
-// job that goes wrong early is stopped here rather than waited out. Finished rows stay until dismissed (or aged out by the
-// backend), so a failure that happened while you were elsewhere is still
-// there to read.
+// job that goes wrong early is stopped here rather than waited out. Finished
+// rows stay until dismissed (or aged out by the backend), so a failure that
+// happened while you were elsewhere is still there to read.
 
 function elapsed(job: ToolJob, now: number): string {
   const from = Date.parse(job.startedAt)
@@ -41,6 +42,9 @@ export function TasksPopover() {
   // Failures the user hasn't opened the list to see yet turn the button red.
   const [seenFailures, setSeenFailures] = useState<Set<string>>(new Set())
   const wrap = useDismiss<HTMLDivElement>(open, () => setOpen(false), { escape: true })
+  // Abort / retry / dismiss / clear: a refusal (the job already settled, the
+  // backend restarted) says so instead of the click doing nothing.
+  const action = useAction()
 
   const running = jobs.filter((job) => job.status === 'running')
   const failed = jobs.filter((job) => job.status === 'error')
@@ -75,11 +79,12 @@ export function TasksPopover() {
           <div className="tasks-head">
             <span className="t">Tasks</span>
             {jobs.length > running.length && (
-              <button className="tasks-link" onClick={() => clearFinishedJobs().catch(() => {})}>
+              <button className="tasks-link" onClick={() => action.run(clearFinishedJobs)}>
                 Clear finished
               </button>
             )}
           </div>
+          {action.error && <div className="tasks-error">{action.error}</div>}
           <ul className="tasks-list">
             {newestFirst.map((job) => {
               const isOpen = expanded === job.id
@@ -98,15 +103,15 @@ export function TasksPopover() {
                   </button>
                   {job.status === 'running' && (
                     <span className="tasks-actions">
-                      <button className="abort" title="Abort" onClick={() => abortJob(job.id).catch(() => {})}>■</button>
+                      <button className="abort" title="Abort" onClick={() => action.run(() => abortJob(job.id))}>■</button>
                     </span>
                   )}
                   {job.status !== 'running' && (
                     <span className="tasks-actions">
                       {job.retryable && (
-                        <button title="Try again" onClick={() => retryJob(job.id).catch(() => {})}>↻</button>
+                        <button title="Try again" onClick={() => action.run(() => retryJob(job.id))}>↻</button>
                       )}
-                      <button title="Dismiss" onClick={() => dismissJob(job.id).catch(() => {})}>✕</button>
+                      <button title="Dismiss" onClick={() => action.run(() => dismissJob(job.id))}>✕</button>
                     </span>
                   )}
                   {isOpen && (

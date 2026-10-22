@@ -5,6 +5,9 @@
 //   <name>/files/         the folder tree — settings artifacts, documents,
 //                         and .txt notes side by side, versioned in place
 //   <name>/drawings/      generated RDB panel drawings, keyed by content hash
+//   <name>/.archived      present = the project is archived: no longer in
+//                         active development, filed under the switcher's
+//                         Archive section but otherwise fully usable
 //
 // Each project gets its own service bundle (files, artifacts, compare,
 // search), built lazily on first touch and cached; the AcRTAC database
@@ -16,7 +19,7 @@
 // without polling or every caller remembering to reload it.
 
 import { watch } from 'node:fs';
-import { mkdir, readdir, rename, rm } from 'node:fs/promises';
+import { access, mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { ArtifactsService } from '../lib/artifacts.js';
@@ -28,15 +31,20 @@ import { RdbKind } from './rdb.js';
 import { ScdKind } from './scd.js';
 import { SwKind } from './sw.js';
 
+// Lives beside files/, not in it, so archiving is not a tree change.
+const ARCHIVED_MARKER = '.archived';
+
 // A burst of changes (an export placing hundreds of files) is one event.
 const TREE_SETTLE_MS = 250;
 
 class ProjectsService {
-  constructor({ dataDir, catalog, jobs = null, events = null }) {
+  constructor({ dataDir, catalog, jobs = null, events = null, hours = null }) {
     this.root = path.join(dataDir, 'projects');
     this.catalog = catalog;
     this.jobs = jobs;
     this.events = events;
+    // Billed hours are keyed by project name, so a rename carries them over.
+    this.hours = hours;
     // name -> Promise<bundle> — built once per project per process.
     this.bundles = new Map();
     // name -> fs.FSWatcher over that project's files/.
@@ -59,6 +67,33 @@ class ProjectsService {
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
       .sort((a, b) => a.localeCompare(b));
+  }
+
+  /** Every project name, with the archived subset beside it. */
+  async listWithArchive() {
+    const names = await this.list();
+    const flags = await Promise.all(names.map((name) => this.#isArchived(name)));
+    return { projects: names, archived: names.filter((_, i) => flags[i]) };
+  }
+
+  async #isArchived(name) {
+    try {
+      await access(path.join(this.dir(name), ARCHIVED_MARKER));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Archiving only files the project away in the switcher — nothing about
+  // its tree, bundle or watcher changes, so it stays fully usable.
+  async setArchived(name, archived) {
+    if (!(await this.#exists(name))) throw httpError(404, `unknown project: ${name}`);
+    const marker = path.join(this.dir(name), ARCHIVED_MARKER);
+    if (archived) await writeFile(marker, '');
+    else await rm(marker, { force: true });
+    this.events?.publish('projects', {});
+    return { name, archived: Boolean(archived) };
   }
 
   async #exists(name) {
@@ -99,6 +134,7 @@ class ProjectsService {
     this.#unwatch(name);
     this.bundles.delete(name);
     await rename(this.dir(name), to);
+    await this.hours?.renameProject(name, trimmed);
     this.events?.publish('projects', {});
     return { name: trimmed };
   }

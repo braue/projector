@@ -139,3 +139,6 @@ export function stageVersionFile(file: File, entryName: string): File | string {
 
 /** The folder a tree path sits in ('' for the root). */
 export const parentOf = (path: string) => path.split('/').slice(0, -1).join('/')
+
+/** `name` inside the tree folder `dir` ('' = the root) — parentOf's inverse. */
+export const joinPath = (dir: string, name: string) => (dir ? `${dir}/${name}` : name)

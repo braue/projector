@@ -45,7 +45,7 @@ import path from 'node:path';
 import { httpError, resolveWithin } from '../lib/http.js';
 import { statOrNull, INVALID_NAME } from '../lib/fs.js';
 import { openWithOs, revealWithOs } from '../lib/openWithOs.js';
-import { shedArchiveStamp, uniqueName } from '../lib/names.js';
+import { joinTree, requireNote, shedArchiveStamp, uniqueName } from '../lib/names.js';
 import { treeOrder } from '../lib/tree.js';
 
 const SIDECAR = '.versions.json';
@@ -75,12 +75,6 @@ function extensionOf(name) {
   return (/\.(?=[^.]*[A-Za-z])[A-Za-z0-9]{1,10}$/.exec(String(name ?? ''))?.[0] ?? '').toLowerCase();
 }
 
-function requireNote(note) {
-  const trimmed = typeof note === 'string' ? note.trim() : '';
-  if (!trimmed) throw httpError(400, 'a version note is required');
-  return trimmed;
-}
-
 /** Mutations may not reach into the store's own dot-namespace: renaming the
  *  sidecar, rewriting archived bytes, or moving something INTO `.versions/`
  *  would corrupt history. Reads deliberately still address archived paths. */
@@ -91,6 +85,29 @@ function assertMutable(relPath) {
   if (segments.some((segment) => segment.startsWith('.') && segment !== '.' && segment !== '..')) {
     throw httpError(400, `the version archive is read-only: ${relPath}`);
   }
+}
+
+/** When an entry came to be, for entries the sidecar has no time for:
+ *  birth time where the filesystem keeps one, else mtime. */
+function bornAt(info) {
+  return Math.round(info.birthtimeMs || info.mtimeMs) || null;
+}
+
+/** The record an entry gets the first time anything is written about it. */
+function freshRecord(info) {
+  return { at: bornAt(info), note: null, history: [] };
+}
+
+/** What a FILE's record remembers of its committed bytes. */
+function statOf(info) {
+  return { mtimeMs: info.mtimeMs, size: info.size };
+}
+
+/** The live file no longer matches the committed version: it was edited in
+ *  place (Excel, an external tool). */
+function diverged(record, info) {
+  return Boolean(record?.stat
+    && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size));
 }
 
 /** Run `fn` over each path in order, carrying on past failures:
@@ -154,7 +171,7 @@ class FilesService {
     if (!info) throw httpError(404, `no such entry: ${relPath}`);
     const record = (await this.#loadRecords(path.dirname(absolute)))[path.basename(absolute)];
     const key = info.isDirectory()
-      ? `dir:${record?.at ?? Math.round(info.birthtimeMs || info.mtimeMs)}`
+      ? `dir:${record?.at ?? bornAt(info)}`
       : `file:${info.mtimeMs}:${info.size}`;
     return { absolute, key, isDirectory: info.isDirectory() };
   }
@@ -221,7 +238,7 @@ class FilesService {
       const nodes = await Promise.all(entries
         .filter((entry) => !entry.name.startsWith('.'))
         .map(async (entry) => {
-          const relPath = rel ? `${rel}/${entry.name}` : entry.name;
+          const relPath = joinTree(rel, entry.name);
           // Dirent answers for the LINK on a symlink; follow it, so a linked
           // export or folder reads as what it points at.
           const isDirectory = entry.isSymbolicLink()
@@ -251,7 +268,7 @@ class FilesService {
             modifiedAt: info.mtime.toISOString(),
             // The version time from the sidecar when there is one — mtime
             // does not survive copies between machines.
-            uploadedAt: record?.at ?? (Math.round(info.birthtimeMs || info.mtimeMs) || null),
+            uploadedAt: record?.at ?? bornAt(info),
             note: record?.note ?? null,
             // The AcRTAC database project this entry mirrors, when known
             // (recorded by database downloads and successful imports) — what
@@ -261,8 +278,7 @@ class FilesService {
             // The live bytes no longer match the recorded version: the file
             // was edited in place (Excel, an external tool) — the working
             // copy has uncommitted changes.
-            edited: Boolean(!isDirectory && record?.stat
-              && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size)),
+            edited: !isDirectory && diverged(record, info),
             versions: await this.#versionNodes(dir, relPath, record, annotate),
           };
         }));
@@ -282,9 +298,7 @@ class FilesService {
       const info = await statOrNull(path.join(dir, ARCHIVE_DIR, entry.storedName));
       if (!info) return null;
       return {
-        path: parentRel
-          ? `${parentRel}/${ARCHIVE_DIR}/${entry.storedName}`
-          : `${ARCHIVE_DIR}/${entry.storedName}`,
+        path: joinTree(parentRel, `${ARCHIVE_DIR}/${entry.storedName}`),
         name: entry.name,
         // Kinded by the version's OWN name — the entry's present name may
         // describe different bytes (renamed since).
@@ -376,8 +390,7 @@ class FilesService {
     }
     let archived = null;
     if (previous) {
-      const record = records[previousName]
-        ?? { at: Math.round(previous.birthtimeMs || previous.mtimeMs) || null, note: null, history: [] };
+      const record = records[previousName] ?? freshRecord(previous);
       delete records[previousName];
       records[name] = record;
       record.history ??= [];
@@ -427,7 +440,7 @@ class FilesService {
       // For files, the stat of the bytes as committed — an in-place edit
       // (Excel saving over the working copy) is detected by divergence
       // from this.
-      ...(placed?.isFile() ? { stat: { mtimeMs: placed.mtimeMs, size: placed.size } } : {}),
+      ...(placed?.isFile() ? { stat: statOf(placed) } : {}),
     };
     if (placed?.isFile()) {
       // Refresh the committed copy to back the NEW current version. Best
@@ -445,10 +458,10 @@ class FilesService {
       // The old name's committed copy backed a version now in the archive,
       // and caches holding the old path must hear it is gone.
       await rm(path.join(dir, COMMITTED_DIR, previousName), { force: true }).catch(() => {});
-      this.#changed(dirPath ? `${dirPath}/${previousName}` : previousName);
+      this.#changed(joinTree(dirPath, previousName));
     }
     await this.#saveRecords(dir, records);
-    const treePath = dirPath ? `${dirPath}/${name}` : name;
+    const treePath = joinTree(dirPath, name);
     this.#changed(treePath);
     return treePath;
   }
@@ -492,8 +505,7 @@ class FilesService {
       const dir = path.dirname(absolute);
       const name = path.basename(absolute);
       const records = await this.#loadRecords(dir, { forWrite: true });
-      const record = records[name]
-        ??= { at: Math.round(info.birthtimeMs || info.mtimeMs) || null, note: null, history: [] };
+      const record = (records[name] ??= freshRecord(info));
       record.database = String(database);
       await this.#saveRecords(dir, records);
     });
@@ -589,7 +601,7 @@ class FilesService {
     }
     const name = path.basename(from);
     const to = path.join(target, name);
-    const moved = toDir ? `${toDir}/${name}` : name;
+    const moved = joinTree(toDir, name);
     if (to === from) return moved;
     if (await statOrNull(to)) {
       throw httpError(409, `already exists there: ${name}`);
@@ -744,8 +756,7 @@ class FilesService {
       const records = await this.#loadRecords(dir);
       const record = records[base];
       if (record) {
-        const info = await stat(absolute);
-        record.stat = { mtimeMs: info.mtimeMs, size: info.size };
+        record.stat = statOf(await stat(absolute));
         const committed = path.join(dir, COMMITTED_DIR, base);
         if (await statOrNull(committed)) {
           await copyFile(absolute, committed).catch(() => {});
@@ -796,18 +807,15 @@ class FilesService {
       } catch {
         return; // Degraded folder — open still works, just unprotected.
       }
-      const record = records[name]
-        ??= { at: Math.round(info.birthtimeMs || info.mtimeMs) || null, note: null, history: [] };
-      const diverged = record.stat
-        && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size);
-      if (diverged) return;
+      const record = (records[name] ??= freshRecord(info));
+      if (diverged(record, info)) return;
       const committed = path.join(dir, COMMITTED_DIR, name);
       if (!(await statOrNull(committed))) {
         await mkdir(path.join(dir, COMMITTED_DIR), { recursive: true });
         await copyFile(absolute, committed);
       }
       if (!record.stat) {
-        record.stat = { mtimeMs: info.mtimeMs, size: info.size };
+        record.stat = statOf(info);
         await this.#saveRecords(dir, records);
       }
     });
@@ -831,9 +839,7 @@ class FilesService {
       const name = path.basename(absolute);
       const records = await this.#loadRecords(dir, { forWrite: true });
       const record = records[name];
-      const diverged = record?.stat
-        && (record.stat.mtimeMs !== info.mtimeMs || record.stat.size !== info.size);
-      if (!diverged) throw httpError(409, `no on-disk edits to record: ${relPath}`);
+      if (!diverged(record, info)) throw httpError(409, `no on-disk edits to record: ${relPath}`);
       record.history ??= [];
       const committed = path.join(dir, COMMITTED_DIR, name);
       if (await statOrNull(committed)) {
@@ -843,7 +849,7 @@ class FilesService {
         at: Date.now(),
         note: trimmedNote,
         history: record.history,
-        stat: { mtimeMs: info.mtimeMs, size: info.size },
+        stat: statOf(info),
       };
       try {
         await mkdir(path.join(dir, COMMITTED_DIR), { recursive: true });
@@ -875,8 +881,7 @@ class FilesService {
       const records = await this.#loadRecords(dir, { forWrite: true });
       const record = records[name];
       if (record) {
-        const info = await stat(absolute);
-        record.stat = { mtimeMs: info.mtimeMs, size: info.size };
+        record.stat = statOf(await stat(absolute));
         await this.#saveRecords(dir, records);
       }
       this.#changed(relPath);

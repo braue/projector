@@ -386,8 +386,7 @@ export function DiffPreview({ compare }: { compare: CompareItem }) {
             <p className="section-note">Identical in both projects.</p>
           ) : empty ? (
             <p className="section-note">
-              The raw XML differs, but nothing the parser models changed — likely an
-              archived logic blob or formatting.
+              Raw XML differs; no modeled changes.
             </p>
           ) : (
             <>

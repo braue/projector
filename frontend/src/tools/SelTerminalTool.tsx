@@ -14,16 +14,16 @@ import { useEffect, useRef, useState } from 'react'
 
 import {
   closeTerminal,
-  fetchToolSettings,
   openTerminal,
   sendTerminalInput,
   terminalStreamUrl,
-  updateToolSettings,
   uploadFiles,
 } from '../api'
 import { Button, Select, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
+import { saveSettings, setting } from '../lib/settings'
 import type { ToolProps } from './registry'
+import { ToolHeader } from './ToolHeader'
 
 const MAX_BUFFER_CHARS = 400_000
 
@@ -50,7 +50,10 @@ export function SelTerminalTool({ project }: ToolProps) {
   const [host, setHost] = useState('')
   const [port, setPort] = useState('23')
   const [transport, setTransport] = useState<'telnet' | 'tcp'>('telnet')
-  const [saved, setSaved] = useState<SavedConnection[]>([])
+  const [saved, setSaved] = useState<SavedConnection[]>(() => {
+    const stored = setting<unknown>('terminalConnections', [])
+    return Array.isArray(stored) ? (stored as SavedConnection[]) : []
+  })
   const [saveStatus, setSaveStatus] = useState<string | null>(null)
 
   const sessionIdRef = useRef<string | null>(null)
@@ -68,11 +71,6 @@ export function SelTerminalTool({ project }: ToolProps) {
   }
 
   useEffect(() => {
-    fetchToolSettings().then((settings) => {
-      if (Array.isArray(settings.terminalConnections)) {
-        setSaved(settings.terminalConnections as SavedConnection[])
-      }
-    }).catch(() => {})
     // Leaving the app (not just switching tools — the pane stays mounted)
     // tears the session down server-side via the stream close.
     return () => {
@@ -185,7 +183,7 @@ export function SelTerminalTool({ project }: ToolProps) {
   const persistSaved = async (next: SavedConnection[]) => {
     setSaved(next)
     try {
-      await updateToolSettings({ terminalConnections: next })
+      await saveSettings({ terminalConnections: next })
     } catch (err) {
       setSaveStatus(errorMessage(err))
     }
@@ -238,12 +236,9 @@ export function SelTerminalTool({ project }: ToolProps) {
   const live = status === 'connected' || status === 'connecting'
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>SEL Terminal</h2>
-          <span className={`tool-conn-status is-${status}`}>{STATUS_LABEL[status]}</span>
-        </div>
-      </div>
+      <ToolHeader title="SEL Terminal">
+        <span className={`tool-conn-status is-${status}`}>{STATUS_LABEL[status]}</span>
+      </ToolHeader>
       <div className="tool-fill">
         <div className="tool-row">
           <TextInput

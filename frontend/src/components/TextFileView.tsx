@@ -213,7 +213,6 @@ export function TextFileView({
             className="note-editor"
             value={text}
             readOnly={readOnly}
-            placeholder={'Write freely. Start a line with "[ ] " for a checkbox (click or type an x to tick it), "- " for a bullet, "1. " for a numbered list.'}
             spellCheck={false}
             onChange={(e) => setText(e.target.value)}
             onBlur={flush}

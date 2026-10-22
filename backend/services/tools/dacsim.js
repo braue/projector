@@ -149,7 +149,7 @@ class DacsimService {
     for (const [index, scheme] of staged.entries()) {
       await copyEntry(sources[index], path.join(dir, scheme.dac.subFolder));
     }
-    const settings = staged.map(({ dacPath, ...scheme }) => scheme);
+    const settings = staged.map(({ dacPath: _dacPath, ...scheme }) => scheme);
     await writeFile(path.join(dir, 'settings.json'), JSON.stringify(settings, null, 2));
     return { run: runId, schemes: parseSchemes(JSON.stringify(settings)) };
   }

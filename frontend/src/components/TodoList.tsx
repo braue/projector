@@ -9,8 +9,8 @@ import { Checkbox, InlineNameForm, RowAction, TextInput } from './ui'
 
 // A general scratch list: the one thing in the app that is deliberately NOT
 // project data. It rides in the topbar beside Tools and the Atlas rather than
-// in the mode row, and it drops as a floating panel instead of taking the
-// pane over — a task gets jotted mid-thought, without leaving the canvas.
+// in the project, and it drops as a floating panel instead of taking the
+// pane over — a task gets jotted mid-thought, without leaving the work.
 //
 // It is stored server-side, in <dataDir>/todos.json, NOT in localStorage.
 // The packaged app listens on port 0, so the window origin
@@ -142,7 +142,7 @@ export function TodoList() {
           <div className="todo-add">
             <TextInput
               value={draft}
-              placeholder="Add a task — Enter to save"
+              placeholder="Add a task"
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') add()
@@ -192,7 +192,7 @@ export function TodoList() {
                   {editing === todo.id ? (
                     <InlineNameForm
                       initial={todo.text}
-                      placeholder="Task — Enter to save"
+                      placeholder="Task"
                       onCommit={(text) => {
                         update(todo.id, { text })
                         setEditing(null)

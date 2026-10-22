@@ -40,16 +40,15 @@ export function VersionNoteModal({
     <Modal title={title} onClose={onCancel} locked={busy}>
         <div className="modal-sub">
           {destination === null
-            ? 'Each lands as the next version of its entry. '
-            : <>Into <b>{destination || 'the project root'}</b>. </>}
-          Say what this version changes — the note shows beside it in the tree.
+            ? 'Each lands as the next version of its entry.'
+            : <>Into <b>{destination || 'the project root'}</b></>}
         </div>
         <div className="modal-list note-modal-list">
           {items.map((item) => (
             <div key={item.name} className="modal-row note-modal-row">
               <span className="modal-name mono">{item.name}</span>
               {item.isNewVersion && (
-                <span className="modal-badge" title="An entry with this name is already there — it becomes the previous version, kept underneath">
+                <span className="modal-badge" title="Replaces the current version">
                   new version
                 </span>
               )}

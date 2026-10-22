@@ -143,7 +143,7 @@ function recloserBlock(rec, proj) {
 
 // Capacity = ((MVA * 1e6) / 13200 / 1.73) * 1.20, rounded to nearest 1 — the
 // macro hardcodes the 13.2kV line voltage and the 1.73 sqrt(3) approximation.
-function transformerBlock(xf, proj) {
+function transformerBlock(xf, _proj) {
   const sub = String(xf.substation).replace(/ /g, '_');
   const id = String(xf.transformer);
   const name = `XFMR_${sub}_${id}`;

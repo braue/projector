@@ -51,8 +51,8 @@ export function LinkButton({
   )
 }
 
-/** Exclusive choice rendered as a joined button strip (topbar mode switch,
- *  sidebar source tabs). `fill` splits the width evenly between segments
+/** Exclusive choice rendered as a joined button strip (Inspect's view
+ *  switch, RTAC Exporter's format). `fill` splits the width evenly between segments
  *  instead of sizing each to its label. */
 export function SegmentedControl<T extends string>({
   options,
@@ -220,7 +220,7 @@ export function InlineNameForm({
             }
           }}
         />
-        {suffix && <span className="side-form-suffix" title="The extension stays with the file">{suffix}</span>}
+        {suffix && <span className="side-form-suffix">{suffix}</span>}
       </div>
       {error && <div className="side-form-error">{error}</div>}
     </div>
@@ -602,25 +602,34 @@ export function ContextMenu({
  * files). A span, not a button - rows are already buttons; the click stops
  * propagating so the row click survives underneath.
  */
+const ROW_ACTION_GLYPHS = {
+  rename: '\u270E',
+  delete: '\u2715',
+  archive: '\u21E9',
+  unarchive: '\u21E7',
+}
+
 export function RowAction({
   kind,
   title,
   onClick,
 }: {
-  kind: 'rename' | 'delete'
+  kind: 'rename' | 'delete' | 'archive' | 'unarchive'
   title: string
   onClick: () => void
 }) {
+  // Every non-delete action shares the rename look (quiet, ink on hover);
+  // only ✕ turns red.
   return (
     <span
-      className={kind === 'rename' ? 'entry-delete entry-rename' : 'entry-delete'}
+      className={kind === 'delete' ? 'entry-delete' : 'entry-delete entry-rename'}
       title={title}
       onClick={(e) => {
         e.stopPropagation()
         onClick()
       }}
     >
-      {kind === 'rename' ? '\u270E' : '\u2715'}
+      {ROW_ACTION_GLYPHS[kind]}
     </span>
   )
 }

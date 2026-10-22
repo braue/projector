@@ -13,22 +13,22 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 
 import {
   fetchBenchDevices,
-  fetchToolSettings,
   listFiles,
-  listProjects,
   saveBenchDevices,
   startVlanDeployJob,
-  updateToolSettings,
   type BenchDevice,
   type VlanDeployRtac,
 } from '../api'
-import { Button, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { Button, SectionHeader, Select, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
+import { saveSettings, setting } from '../lib/settings'
 import { leaves } from '../lib/fileNodes'
+import { projectOptions, useProjectList } from '../lib/projectList'
 import { count } from '../lib/format'
 import { useAction } from '../lib/useAction'
 import { useToolJob } from '../lib/useToolJob'
 import type { ToolProps } from './registry'
+import { ToolHeader } from './ToolHeader'
 
 interface StepResult {
   ok: boolean
@@ -73,10 +73,19 @@ export function VlanDeployTool({ project, active }: ToolProps) {
   const [error, setError] = useState<string | null>(null)
 
   const [devices, setDevices] = useState<BenchDevice[] | null>(null)
-  const [projects, setProjects] = useState<string[]>([])
+  const projectList = useProjectList()
   const [exps, setExps] = useState<string[] | null>(null)
 
-  const [fields, setFields] = useState<RunFields>({ project, switchIp: DEFAULT_SWITCH_IP, vlan: '', piPort: '' })
+  // Last run's fields, so a re-run is one click.
+  const [fields, setFields] = useState<RunFields>(() => {
+    const saved = setting<Partial<RunFields>>(SETTINGS_KEY, {})
+    return {
+      project: saved.project || project,
+      switchIp: saved.switchIp?.trim() || DEFAULT_SWITCH_IP,
+      vlan: saved.vlan ?? '',
+      piPort: saved.piPort ?? '',
+    }
+  })
   const [editingSwitch, setEditingSwitch] = useState(false)
   const switchInput = useRef<HTMLInputElement>(null)
   // Unlocking hands the keyboard straight to the field, IP selected to type over.
@@ -96,7 +105,6 @@ export function VlanDeployTool({ project, active }: ToolProps) {
   // The .exp files anywhere in the run's project, re-read whenever the RTAC
   // rows are focused so a file saved while the tool sat open shows up.
   const loadExps = () => {
-    listProjects().then(setProjects, () => {})
     if (!fields.project) return setExps([])
     listFiles(fields.project).then(
       (tree) => setExps(leaves(tree).map((n) => n.path).filter((p) => p.toLowerCase().endsWith('.exp')).sort()),
@@ -108,21 +116,10 @@ export function VlanDeployTool({ project, active }: ToolProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, fields.project])
 
-  // The device table and last run's fields load when the tool is first shown.
+  // The device table loads when the tool is first shown.
   useEffect(() => {
     if (!active || devices !== null) return
     fetchBenchDevices().then(setDevices, (err) => { setDevices([]); setError(errorMessage(err)) })
-    fetchToolSettings().then((settings) => {
-      const saved = settings[SETTINGS_KEY] as Partial<RunFields> | undefined
-      if (saved) {
-        setFields((current) => ({
-          project: saved.project || current.project,
-          switchIp: saved.switchIp?.trim() || DEFAULT_SWITCH_IP,
-          vlan: saved.vlan ?? current.vlan,
-          piPort: saved.piPort ?? current.piPort,
-        }))
-      }
-    }, () => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
 
@@ -141,7 +138,7 @@ export function VlanDeployTool({ project, active }: ToolProps) {
     try {
       const { job: id } = await startVlanDeployJob({ ...fields, rtacs: rows })
       start(id)
-      updateToolSettings({ [SETTINGS_KEY]: fields }).catch(() => {})
+      saveSettings({ [SETTINGS_KEY]: fields }).catch(() => {})
     } catch (err) {
       setError(errorMessage(err))
     }
@@ -165,12 +162,7 @@ export function VlanDeployTool({ project, active }: ToolProps) {
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>RTAC VLAN Deploy</h2>
-          {running && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="RTAC VLAN Deploy" busy={running} />
       <div className="tool-scroll">
         <div className="tool-row">
           <div className="vlandeploy-switch">
@@ -196,7 +188,7 @@ export function VlanDeployTool({ project, active }: ToolProps) {
 
         <div className="tool-row">
           <Select label="Project (.exp files)" value={fields.project} placeholder="Pick a project…"
-            options={projects.length ? projects : [fields.project].filter(Boolean)}
+            options={projectOptions(projectList, fields.project)}
             onChange={(name) => {
               if (name === fields.project) return
               setField('project', name)
@@ -214,8 +206,7 @@ export function VlanDeployTool({ project, active }: ToolProps) {
         </div>
         {devices?.length === 0 && (
           <div className="tool-empty">
-            No bench devices yet — add each device’s identifier, network IP and switch port under
-            Bench devices.
+            No bench devices yet.
           </div>
         )}
         {fields.project && exps?.length === 0 && (
@@ -355,12 +346,7 @@ function BenchDevicesPage({
 
   return (
     <>
-      <div className="preview-header">
-        <div className="preview-title-row">
-          <h2>Bench devices</h2>
-          {saving && <Spinner />}
-        </div>
-      </div>
+      <ToolHeader title="Bench devices" busy={saving} />
       <div className="tool-scroll">
         <div className="vlandeploy-devices">
           <span className="vlandeploy-col">Identifier</span>

@@ -49,8 +49,21 @@ whenever the pane on the right has no find of its own).
   Electron utility process, restarted if it crashes).
 - Package for Windows: `npm run dist`.
 
-## Tools & Atlas
+## Projects
 
-Machine-global utilities (SEL terminal, QuickSet extract, SWSET, drawing
-generator, RTAC exporter) and the field-knowledge atlas live in the top-right
-corner, beside any project.
+The project switcher (top left) creates, renames, and deletes projects.
+**Archive** a finished one from its row (⇩) to file it under the menu's
+collapsed Archive section — it stays fully usable, it just stops crowding
+the list and the tools' project pickers lead with active projects.
+
+## Hours, Todo, Tools & Atlas
+
+Machine-global, in the top-right corner beside any project:
+
+- **Hours** — a week grid of billable hours per project (type `1.5` or
+  `1:30`), with each project's total against its budget.
+- **Todo** — a scratch list.
+- **Tools** — HMI tag tester, SEL terminal, switch settings, QuickSet
+  extract, RTAC exporter, RTAC VLAN deploy, drawing generator, DAC SIM
+  converter, CLECO DAC inits, and Automatic FAT → Excel.
+- **Atlas** — the field-knowledge reference.

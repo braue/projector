@@ -1,4 +1,4 @@
-// The Tools pane — a beside-the-modes takeover like the atlas: a rail of
+// The Tools pane — a takeover beside the project, like the atlas: a rail of
 // global utilities on the left, the selected tool's interface on the right.
 // Opened tools latch-mount and stay mounted while hidden, so a terminal
 // session or a half-filled form survives switching between tools.
@@ -22,18 +22,14 @@ export function ToolsView({ project }: { project: string }) {
     <>
       <aside className="sources" style={{ width }}>
         <div className="tools-rail-head">Tools</div>
-        <ul className="source-list">
+        <ul className="tool-list">
           {TOOLS.map((tool) => (
             <li key={tool.id}>
               <button
-                className={
-                  tool.id === selected
-                    ? 'project-entry status-ready selected'
-                    : 'project-entry status-ready'
-                }
+                className={tool.id === selected ? 'tool-entry selected' : 'tool-entry'}
                 onClick={() => open(tool.id)}
               >
-                <span className="project-name">{tool.label}</span>
+                <span className="tool-entry-name">{tool.label}</span>
               </button>
             </li>
           ))}
@@ -41,9 +37,6 @@ export function ToolsView({ project }: { project: string }) {
         <div className="sidebar-resize" onMouseDown={startResize} />
       </aside>
       <main className="preview">
-        {selected === null && (
-          <div className="pane-message">Pick a tool from the list.</div>
-        )}
         {TOOLS.filter((tool) => everOpened.has(tool.id)).map((tool) => (
           <div key={tool.id} className="tool-host" hidden={tool.id !== selected}>
             <tool.component project={project} active={tool.id === selected} />

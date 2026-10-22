@@ -11,14 +11,12 @@ import { QuicksetService } from './quickset/index.js';
 import { RtacExportService } from './rtacExport.js';
 import { SelTerminalService } from './selTerminal.js';
 import { SwsetService } from './swset/index.js';
-import { ToolSettings } from './settings.js';
 import { ToolsWorkspace } from './workspace.js';
 import { VlanDeployService } from './vlanDeploy.js';
 
-async function createTools({ dataDir, jobs, catalog, projects }) {
+async function createTools({ dataDir, jobs, catalog, projects, settings }) {
   const workspace = new ToolsWorkspace({ dataDir });
   await workspace.init();
-  const settings = new ToolSettings({ dataDir });
   const hmi = new HmiTesterService({ workspace });
   const terminal = new SelTerminalService();
   const quickset = new QuicksetService({ workspace, jobs });
@@ -31,7 +29,7 @@ async function createTools({ dataDir, jobs, catalog, projects }) {
   const acrtac = new AcrtacService({ jobs, catalog });
   const vlanDeploy = new VlanDeployService({ jobs, dataDir, projects });
   return {
-    workspace, settings, hmi, terminal, quickset, swset, rtacExport,
+    workspace, hmi, terminal, quickset, swset, rtacExport,
     dwgen, dacsim, dacinit, fatsheets, acrtac, vlanDeploy,
   };
 }

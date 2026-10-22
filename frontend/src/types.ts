@@ -560,3 +560,10 @@ export interface Todo {
   text: string
   done: boolean
 }
+
+/** The billable-hours store (see api.ts fetchHours). Dates are local
+ *  YYYY-MM-DD; a missing cell is zero. */
+export interface Hours {
+  budgets: Record<string, number>
+  days: Record<string, Record<string, number>>
+}

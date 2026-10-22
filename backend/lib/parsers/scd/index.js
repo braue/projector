@@ -370,8 +370,8 @@ function parseLDevice(ldevice, lnIndex) {
 }
 
 // One subscription row per (publisher, service, control block), with the
-// number of bound points riding it — the declared-link summary the canvas
-// linker consumes.
+// number of bound points riding it — the declared-link summary Inspect's
+// GOOSE Receive section groups by.
 function summarizeSubscriptions(ldevices) {
   const groups = new Map();
   for (const ldevice of ldevices) {
@@ -459,7 +459,7 @@ function ldevicesOf(ied) {
 // The wire address of one GOOSE publication: the Communication section's GSE
 // entry when present (matched by control-block name; ldInst wildcarded when
 // the entry omits it), the SEL private on the control block otherwise. The
-// trickiest merge rule in the SCD path — inspect and the canvas share it.
+// trickiest merge rule in the SCD path.
 function wireAddressFor(gses, ldevice, cb) {
   const wire = gses.find(
     (candidate) => candidate.cbName === cb.name

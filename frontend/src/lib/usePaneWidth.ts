@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-// Drag-to-resize width for a vertical pane. One localStorage key per pane
-// kind, so panes of the same kind (the source rail across modes, the tree
-// pane across browse/compare/aggregate) share a width that survives reloads.
+import { saveSettingSoon, setting } from './settings'
+
+// Drag-to-resize width for a vertical pane. One settings key per pane
+// kind, so panes of the same kind (the left sidebar in the project and the
+// tools, the item tree across inspect/compare/aggregate) share a width that
+// survives restarts.
 
 interface PaneConfig {
   min: number
@@ -12,12 +15,15 @@ interface PaneConfig {
 
 function usePaneWidth(key: string, { min, max, fallback }: PaneConfig) {
   const [width, setWidth] = useState(() => {
-    const stored = Number(localStorage.getItem(key))
-    return Number.isFinite(stored) && stored >= min && stored <= max ? stored : fallback
+    const stored = setting<unknown>(key, null)
+    return typeof stored === 'number' && stored >= min && stored <= max ? stored : fallback
   })
 
+  // Only a drag is worth remembering — saving the untouched default would pin
+  // it against a future default change.
+  const initial = useRef(width)
   useEffect(() => {
-    localStorage.setItem(key, String(width))
+    if (width !== initial.current && width !== setting(key, null)) saveSettingSoon(key, width)
   }, [key, width])
 
   /** Mousedown handler for the pane's right-edge grip. */
@@ -43,12 +49,12 @@ function usePaneWidth(key: string, { min, max, fallback }: PaneConfig) {
   return { width, startResize }
 }
 
-/** The left source rail (canvas/inspect sidebar and the compare rail). */
+/** The left sidebar: the project tree, and the tools list. */
 export function useSidebarWidth() {
-  return usePaneWidth('projector-sidebar-width', { min: 180, max: 560, fallback: 224 })
+  return usePaneWidth('sidebarWidth', { min: 180, max: 560, fallback: 224 })
 }
 
 /** The item tree pane (browse, compare, and aggregate all share it). */
 export function useTreePaneWidth() {
-  return usePaneWidth('projector-tree-width', { min: 220, max: 680, fallback: 320 })
+  return usePaneWidth('treePaneWidth', { min: 220, max: 680, fallback: 320 })
 }

@@ -6,10 +6,11 @@
 
 import { useEffect, useState } from 'react'
 
-import { listFiles, listProjects } from '../api'
+import { listFiles } from '../api'
 import { Select } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { leaves } from '../lib/fileNodes'
+import { projectOptions, useProjectList } from '../lib/projectList'
 
 export function ProjectFilePick({
   project,
@@ -24,13 +25,12 @@ export function ProjectFilePick({
   onPick: (path: string, project: string) => void
   disabled?: boolean
 }) {
-  const [projects, setProjects] = useState<string[]>([])
+  const projectList = useProjectList()
   const [selected, setSelected] = useState(project)
   const [paths, setPaths] = useState<string[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const load = () => {
-    listProjects().then(setProjects).catch(() => {})
     if (!selected) return
     listFiles(selected)
       .then((tree) => {
@@ -49,13 +49,14 @@ export function ProjectFilePick({
   useEffect(load, [selected])
 
   if (error) return <div className="tool-error">Project files unavailable: {error}</div>
-  if (!projects.length && !selected) return null
+  if (!projectList?.projects.length && !selected) return null
   return (
     <div className="tool-row" onFocusCapture={load}>
       <Select
         label="From project"
         value={selected}
-        options={projects.length ? projects : [selected].filter(Boolean)}
+        placeholder="Pick a project…"
+        options={projectOptions(projectList, selected)}
         onChange={(name) => {
           if (name && name !== selected) {
             setPaths(null)
@@ -66,7 +67,9 @@ export function ProjectFilePick({
       <Select
         label="Pick a file"
         value=""
-        placeholder={paths === null
+        placeholder={!selected
+          ? 'pick a project first'
+          : paths === null
           ? 'loading…'
           : paths.length
             ? `${paths.length} matching file(s)…`
