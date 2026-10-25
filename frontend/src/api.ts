@@ -600,45 +600,69 @@ export function startRtacExportJob(args: {
   return send('/api/tools/rtac-export/export', 'POST', args)
 }
 
-// --- RTAC VLAN Deploy ---------------------------------------------------------
+// --- Test network ---------------------------------------------------------------
 
-/** One bench device: its identifier ("3555-1"), the network IP it is
- *  reached at, and the switch port it is plugged into. */
+/** One bench device: its identifier ("3555-1"), whether it is an RTAC, the
+ *  network IP it is reached at (optional for non-RTACs), and its switch port. */
 export interface BenchDevice {
   id: string
+  kind: 'rtac' | 'other'
   networkIp: string
   port: string
 }
 
+export interface TestVlan {
+  vid: number
+  name: string
+  untagged: number[]
+  tagged: number[]
+}
+
+/** What one bench RTAC said when the network was read. */
+export interface TestDeviceState {
+  id: string
+  eth02: string | null
+  gateway: string | null
+  project: { name: string; state: string } | null
+  error: string | null
+}
+
+export interface TestScan {
+  at: string
+  /** The bench table the scan ran against. */
+  bench: BenchDevice[]
+  switch: { ip: string; ports: number[]; vlans: TestVlan[]; error: string | null }
+  devices: TestDeviceState[]
+}
+
+export function fetchTestNetwork(): Promise<{ scan: TestScan | null; scanning: boolean }> {
+  return get('/api/test-network')
+}
+
+export function scanTestNetwork(switchIp: string): Promise<TestScan> {
+  return send('/api/test-network/scan', 'POST', { switchIp })
+}
+
+/** Put a bench device's switch port on VLAN `vid` (untagged); resolves to
+ *  the snapshot with the switch's VLANs as re-read after the change. */
+export function moveTestDevice(args: { switchIp: string; device: string; vid: number }): Promise<{ scan: TestScan }> {
+  return send('/api/test-network/move', 'POST', args)
+}
+
 export async function fetchBenchDevices(): Promise<BenchDevice[]> {
-  const body = await get<{ devices: BenchDevice[] }>('/api/tools/vlan-deploy/devices')
+  const body = await get<{ devices: BenchDevice[] }>('/api/test-network/devices')
   return body.devices
 }
 
 /** Whole-table replace; resolves to the table as saved (trimmed). */
 export async function saveBenchDevices(devices: BenchDevice[]): Promise<BenchDevice[]> {
-  const body = await send<{ devices: BenchDevice[] }>('/api/tools/vlan-deploy/devices', 'PUT', { devices })
+  const body = await send<{ devices: BenchDevice[] }>('/api/test-network/devices', 'PUT', { devices })
   return body.devices
 }
 
-/** A deploy row: a bench device by identifier, its VLAN IP (always /24,
- *  gateway .1), and the .exp to upload — a tree path in the run's project. */
-export interface VlanDeployRtac {
-  device: string
-  vlanIp: string
-  file: string
-}
-
-/** Start the deploy job (Eth_02 IPs → switch VLAN → web upload + activate);
- *  follow the job id. `project` is the Projector project holding the .exp files. */
-export function startVlanDeployJob(args: {
-  project: string
-  switchIp: string
-  vlan: string
-  piPort: string
-  rtacs: VlanDeployRtac[]
-}): Promise<{ job: string }> {
-  return send('/api/tools/vlan-deploy/start', 'POST', args)
+/** Send AcRTAC database project `project` to bench RTAC `device`; follow the job. */
+export function uploadToTestRtac(args: { device: string; project: string; switchIp: string }): Promise<{ job: string }> {
+  return send('/api/test-network/upload', 'POST', args)
 }
 
 // --- DWGEN (drawing generator) -------------------------------------------------

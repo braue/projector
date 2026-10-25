@@ -12,6 +12,11 @@
 //     tables: the validation result (groups like "R3170-IsoFltDwn" with the
 //     expected/actual switch states under them), the SOE, and the scripted
 //     sequence (which is where an abnormal test sets "<dev>.Alarms.Reclose").
+//   * The SOE's "<dev>.SW.Switch.Lockout" TRUE rows are what protection
+//     actually opened. That is not always the summary's Trip Device: a fault
+//     past a switch (no protection of its own) is cleared by the recloser
+//     upstream of it, while the summary still names the switch (New Iberia,
+//     2026-10-22: test 12, Trip R3798, R3799 locked out).
 //
 // Device names carry a terminal suffix in places (".A" source side, ".B"
 // load side); the FAT sheets use bare names.
@@ -91,7 +96,7 @@ function datePart(text) {
  * applied.
  */
 function readSection(sectionHtml) {
-  const detail = { groups: [], failures: [], eventSeen: false, alarms: [], validated: new Set() };
+  const detail = { groups: [], failures: [], eventSeen: false, alarms: [], lockouts: [], validated: new Set() };
   for (const table of tables(sectionHtml)) {
     if (hasHeaders(table, ['ID', 'Sequence', 'Fail Reason', 'Expected', 'Actual'])) {
       for (const { cells: [id, , reason, expected, actual] } of table.rows) {
@@ -107,6 +112,8 @@ function readSection(sectionHtml) {
     } else if (hasHeaders(table, ['RootTag', 'PointId', 'Value'])) {
       for (const { cells: [tag, , value] } of table.rows) {
         if (tag.endsWith('.Event') && value === 'TRUE') detail.eventSeen = true;
+        const lockout = /^([A-Z]+\d+[A-Z]?)\.SW\.Switch\.Lockout$/.exec(tag);
+        if (lockout && value === 'TRUE' && !detail.lockouts.includes(lockout[1])) detail.lockouts.push(lockout[1]);
       }
     } else if (hasHeaders(table, ['ID', 'Sequence', 'Action', 'Value'])) {
       for (const { cells: [id, , action, value] } of table.rows) {
@@ -124,7 +131,7 @@ function readSection(sectionHtml) {
  *   { index, id, type, kind, abnormal, status, failReason, feeder, trip,
  *     location, abnormalDevice, date, setupOpen[], setupClose[], open[],
  *     close[], openClosed[], closedOpened[], groups[], failures[],
- *     eventSeen, alarms[], validated:Set }
+ *     eventSeen, alarms[], lockouts[], validated:Set }
  */
 function parseAutoFat(html) {
   const text = String(html);

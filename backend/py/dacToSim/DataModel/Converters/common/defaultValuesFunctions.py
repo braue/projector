@@ -84,14 +84,28 @@ def getDefaultDeviceDefinition(old:VarAssignment, device:Device, scheme:Scheme, 
 
 def getSchemeName(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
   return scheme.schemeName
-  
+
+def getSubstationName(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
+  try:
+    return device.initialization.methods['MINIT'].inputs["SubstationName".upper()].right
+  except:
+    seed = "'New Sub' {error 'Needs manual population'}"
+
+    if old and old.right and old.right.find(seed):
+      return old.right
+    else:
+      return seed
 
 def getTransformerVoltage(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
-  if old and old.right:
-    return old.right
-  else:
-    return "12470 {error 'Verify voltage level'}"
+  try:
+    return device.initialization.methods['MINIT'].inputs["VoltageLL".upper()].right
+  except:
+    seed = "12470 {error 'Verify voltage level'}"
 
+    if old and old.right and old.right.find(seed):
+      return old.right
+    else:
+      return seed
 
 def getFieldTagName(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
   return replacePouName(old, device.field)
@@ -99,6 +113,26 @@ def getFieldTagName(old:VarAssignment, device:Device, scheme:Scheme, projectType
 
 def getScadaTagName(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
   return replacePouName(old, device.scada)
+
+
+def getSimSrcId(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
+  # if old empty return empty
+  if not old or not old.right:
+    return ''
+  
+  if not old.right.upper().endswith('.ID'):
+    return "''"
+
+  srcName = old.right.upper().replace(".ID","")
+
+  # Get new source from nameConversions if renamed
+  newSrcNames = [x for x in scheme.nameConversions if x.old.upper() == srcName]
+
+  if newSrcNames:
+    srcName = newSrcNames[0].new
+
+  return f"{srcName}.ID"
+  
 
 def getInterconnectManagerName(old:VarAssignment, device:Device, scheme:Scheme, projectType:str) -> str:
   if projectType == REMOTE_IO:

@@ -84,11 +84,23 @@ initRemoteLoop  = DeviceRule(
   ]    
 )
 
+initDgPermissive = DeviceRule(
+  name='InitCircuitPermissives',
+  dacName='InitCircuitPermissives',
+  parameters=[
+    VarAssignment().fromInputs("Circuit1", getSimSrcId , ''),
+    VarAssignment().fromInputs("Circuit2", getSimSrcId, ''),
+    VarAssignment().fromInputs("Circuit3", getSimSrcId, ''),
+    VarAssignment().fromInputs("Circuit4", getSimSrcId, '')
+  ]    
+)
+
 logicMappingRules = DeviceRules()
 logicMappingRules.methods=[
     initLogic,
     initLogicLoop,
     initDaScadaLink,
+    initDgPermissive,
     initPowerDir
   ]
 

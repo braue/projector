@@ -1,6 +1,6 @@
 // The AcRTAC database catalog — the one list of RTAC projects on this
 // machine, read once and shared by everything that picks a database project:
-// the tree's "Download from AcRTAC", the RTAC Exporter, RTAC VLAN Deploy.
+// the tree's "Download from AcRTAC", the RTAC Exporter, the Test page.
 // Reading it means a Python + AcRTAC session (seconds), so it is cached and
 // re-read only on request (a picker's Refresh) or after something changes
 // the database (an import).

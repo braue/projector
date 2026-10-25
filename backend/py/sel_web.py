@@ -1,5 +1,9 @@
-"""The SEL device web interfaces the RTAC VLAN Deploy tool drives: an RTAC's
-Ethernet settings page and an SEL-2730M switch's VLAN table.
+"""The SEL device web interfaces: an RTAC's Ethernet settings page and project
+store, and an SEL-2730M switch's VLAN table. The Test pane (py/test_network.py)
+reads both and moves switch ports between VLANs (move_port). The rest — setting
+an Eth_02 address, making a VLAN exactly a set of ports, the web project
+upload + activate — came with the retired RTAC VLAN Deploy tool and is kept,
+tested, for the Test pane to grow into.
 
 Ported from the standalone rtac-web scripts (set_eth_ip.py, set_vlan_ports.py),
 onto the standard library so the bridge needs nothing beyond selacrtac. Both
@@ -423,7 +427,7 @@ def fold_ports(ports):
     return ",".join(str(a) if a == b else f"{a}-{b}" for a, b in runs)
 
 
-def _ports_or_empty(text):
+def ports_or_empty(text):
     try:
         return parse_ports(text)
     except ValueError:
@@ -504,25 +508,56 @@ def set_vlan_ports(web, vid, ports, log=lambda line: None):
         home = vlans[DEFAULT_VLAN]
         log(f"  ports {fold_ports(extra)} leave VLAN {vid} → VLAN {DEFAULT_VLAN} ({home['name']})")
         _save_vlan(web, DEFAULT_VLAN, home,
-                   fold_ports(_ports_or_empty(home["untagged"]) + extra))
+                   fold_ports(ports_or_empty(home["untagged"]) + extra))
     if tagged:
         log(f"  tagged ports {fold_ports(tagged)} come off VLAN {vid}")
 
     moved = {}
     for other, v in sorted(vlans.items()):
-        if other != vid and (hit := set(_ports_or_empty(v["untagged"])) & set(ports)):
+        if other != vid and (hit := set(ports_or_empty(v["untagged"])) & set(ports)):
             moved[other] = fold_ports(hit)
             log(f"  ports {fold_ports(hit)} leave VLAN {other} ({v['name']})")
 
     _save_vlan(web, vid, vlan, fold_ports(ports), tagged="")
     time.sleep(1)  # let the switch apply before re-reading
     now = read_vlans(web)[vid]
-    if _ports_or_empty(now["untagged"]) != ports or now["tagged"].strip():
+    if ports_or_empty(now["untagged"]) != ports or now["tagged"].strip():
         raise SelWebError(f"the switch said success but VLAN {vid} is now untagged "
                           f"{now['untagged'] or '-'}, tagged {now['tagged'] or '-'} "
                           f"(expected untagged {fold_ports(ports)} only)")
     return {"before": vlan["untagged"], "after": now["untagged"], "changed": True,
             "moved": moved, "removed": fold_ports(extra), "tagged": fold_ports(tagged)}
+
+
+def move_port(web, port, vid):
+    """Make `port` an untagged member of VLAN `vid` — the Test page's drag
+    of a device onto a VLAN. Adding it to `vid`'s untagged list is what takes
+    it off its old VLAN (the switch moves an untagged port itself, as the
+    10.42.44.12 capture shows); it also comes off `vid`'s tagged list if it
+    was there. Every other port is left as it is. Confirms by re-reading.
+    Returns {"port", "from": old vid or None, "to", "changed"}."""
+    port, vid = int(port), int(vid)
+    if port not in read_switch_ports(web):
+        raise SelWebError(f"the switch has no port {port}")
+    vlans = read_vlans(web)
+    if vid not in vlans:
+        raise SelWebError(f"VLAN {vid} doesn't exist on the switch "
+                          f"(VLANs: {', '.join(map(str, sorted(vlans)))})")
+    old = next((v for v, row in sorted(vlans.items())
+                if port in ports_or_empty(row["untagged"])), None)
+    vlan = vlans[vid]
+    untagged, tagged = ports_or_empty(vlan["untagged"]), ports_or_empty(vlan["tagged"])
+    if old == vid and port not in tagged:
+        return {"port": port, "from": old, "to": vid, "changed": False}
+    _save_vlan(web, vid, vlan, fold_ports(untagged + [port]),
+               tagged=fold_ports(p for p in tagged if p != port))
+    time.sleep(1)  # let the switch apply before re-reading
+    now = read_vlans(web)
+    holders = [v for v, row in now.items() if port in ports_or_empty(row["untagged"])]
+    if holders != [vid]:
+        raise SelWebError(f"the switch said success but port {port} is now untagged on "
+                          f"VLAN {', '.join(map(str, holders)) or 'none'} (expected {vid})")
+    return {"port": port, "from": old, "to": vid, "changed": True}
 
 
 # --- RTAC: project upload + activate -----------------------------------------

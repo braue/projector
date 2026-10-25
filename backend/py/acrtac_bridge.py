@@ -1,4 +1,4 @@
-"""The AcRTAC database bridge: list its projects, export them.
+"""The AcRTAC database bridge: list its projects, export them, send one to an RTAC.
 
 The one bridge behind lib/acrtac/pythonClient.js createAcRtacClient — the
 tree's "Download from AcRTAC", the RTAC Exporter tool, and every project
@@ -7,6 +7,7 @@ picker all come through here. One JSON request on STDIN:
     {"command": "list"}
     {"command": "export", "projects": [...], "format": "xml" | "exp",
      "directory": ..., "projectPassword": null, "flat": false}
+    {"command": "upload", "project": ..., "host": "10.42.44.34"}
 
 `export` writes each project into `directory` as a folder of XML (or one
 .exp file), narrating on stderr; one project failing never stops the rest.
@@ -69,9 +70,19 @@ def cmd_export(cli, request):
     return {"results": results}
 
 
+def cmd_upload(cli, request):
+    # The Test page's per-RTAC upload: AcRTAC sends and activates the database
+    # project over the RTAC's network address. The Session quotes the name.
+    project, host = request["project"], request["host"]
+    say(f"… {project} → {host}")
+    wait_on(cli.upload(project, host, "SEL", password="SEL"))
+    say(f"✓ {project} → {host}")
+    return {"project": project, "host": host}
+
+
 def main():
     request = json.load(sys.stdin)
-    handler = {"list": cmd_list, "export": cmd_export}[request["command"]]
+    handler = {"list": cmd_list, "export": cmd_export, "upload": cmd_upload}[request["command"]]
 
     def run(cli):
         # selacrtac or the CLI may print; keep stdout clean for the JSON result.

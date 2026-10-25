@@ -56,14 +56,18 @@ The project switcher (top left) creates, renames, and deletes projects.
 collapsed Archive section — it stays fully usable, it just stops crowding
 the list and the tools' project pickers lead with active projects.
 
-## Hours, Todo, Tools & Atlas
+## Hours, Todo, Test, Tools & Atlas
 
 Machine-global, in the top-right corner beside any project:
 
 - **Hours** — a week grid of billable hours per project (type `1.5` or
   `1:30`), with each project's total against its budget.
 - **Todo** — a scratch list.
+- **Test** — the bench test network as it stands: the SEL-2730M's VLANs,
+  which bench device sits on each, and each RTAC's Eth_02 address and
+  running project. Drag a device onto another VLAN to move its switch port;
+  click an RTAC to upload an AcRTAC project to it.
 - **Tools** — HMI tag tester, SEL terminal, switch settings, QuickSet
-  extract, RTAC exporter, RTAC VLAN deploy, drawing generator, DAC SIM
-  converter, CLECO DAC inits, and Automatic FAT → Excel.
+  extract, RTAC exporter, drawing generator, DAC SIM converter, CLECO DAC
+  inits, and Automatic FAT → Excel.
 - **Atlas** — the field-knowledge reference.

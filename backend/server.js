@@ -31,6 +31,7 @@ import { hourRoutes } from './routes/hours.js';
 import { projectRoutes } from './routes/projects.js';
 import { selRoutes } from './routes/sel.js';
 import { settingsRoutes } from './routes/settings.js';
+import { testNetworkRoutes } from './routes/testNetwork.js';
 import { todoRoutes } from './routes/todos.js';
 import { toolsRoutes } from './routes/tools.js';
 import { HoursService } from './services/hours.js';
@@ -40,6 +41,7 @@ import { RtacCatalog } from './services/rtacCatalog.js';
 import { SelFullText } from './services/selFullText.js';
 import { SelLibrary } from './services/selLibrary.js';
 import { SettingsService } from './services/settings.js';
+import { TestNetworkService } from './services/testNetwork.js';
 import { TodosService } from './services/todos.js';
 import { createTools } from './services/tools/index.js';
 
@@ -116,7 +118,13 @@ export async function startServer(options = {}) {
   const projects = new ProjectsService({ dataDir, catalog, jobs, events, hours });
   await projects.init();
   const settings = new SettingsService({ dataDir });
-  const tools = await createTools({ dataDir, jobs, catalog, projects, settings });
+  const testNetwork = new TestNetworkService({
+    dataDir, jobs, events,
+    // DRAFT: canned network for building the page away from the bench.
+    bridge: process.env.PROJECTOR_TEST_NETWORK_DEMO ? (await import('./services/testNetworkDemo.js')).demoBridge : null,
+  });
+  await testNetwork.init();
+  const tools = await createTools({ dataDir, jobs, catalog, settings });
 
   // The database list can take a while (it spawns the Python bridge) and the
   // server is useful without it — projects on disk are fully browsable — so
@@ -156,6 +164,7 @@ export async function startServer(options = {}) {
   app.use('/api/todos', todoRoutes(todos));
   app.use('/api/hours', hourRoutes(hours));
   app.use('/api/settings', settingsRoutes(settings));
+  app.use('/api/test-network', testNetworkRoutes(testNetwork));
   app.use('/api/tools', toolsRoutes(tools, projects));
 
   // The API always speaks JSON, including for failures the routers never see.

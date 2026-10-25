@@ -132,20 +132,6 @@ function toolsRoutes(tools, projects) {
     res.status(202).json(await tools.rtacExport.startExport(req.body ?? {}));
   });
 
-  // RTAC VLAN Deploy: the whole bench in one request, one job (Ethernet 2
-  // IPs → switch VLAN → parallel web uploads of .exp files picked from a
-  // project's tree, { project, rtacs: [{ device, vlanIp, file }] }); the bench device table
-  // (identifier → network IP + switch port) is whole-list GET/PUT.
-  router.get('/vlan-deploy/devices', async (_req, res) => {
-    res.json({ devices: await tools.vlanDeploy.devices() });
-  });
-  router.put('/vlan-deploy/devices', async (req, res) => {
-    res.json({ devices: await tools.vlanDeploy.saveDevices(req.body?.devices) });
-  });
-  router.post('/vlan-deploy/start', async (req, res) => {
-    res.status(202).json(await tools.vlanDeploy.start(req.body ?? {}));
-  });
-
   // DAC SIM Converter: DAC exports picked from a project's tree plus form
   // fields in (settings.json is generated server-side); one job converts.
   // Nothing lands in the project until the explicit save call places the

@@ -1,5 +1,5 @@
 // One JSON document on disk — the machine-global stores (todos, hours, tool
-// settings, the VLAN bench table) are each exactly this, so the two rules
+// settings, the test network's bench table) are each exactly this, so the two rules
 // they all need live here once:
 //
 // - Only a MISSING file reads as empty. A locked or corrupt one fails the

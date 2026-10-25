@@ -15,6 +15,7 @@
     "dist": "npm run build && electron-builder --win",
     "dist:dir": "npm run build && electron-builder --win --dir",
     "sel:index": "node tools/build-sel-index.mjs",
+    "check:registry": "node tools/check-registry.mjs",
     "version:patch": "npm version patch --no-git-tag-version",
     "version:minor": "npm version minor --no-git-tag-version"
   },

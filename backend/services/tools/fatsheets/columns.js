@@ -46,27 +46,39 @@ function unique(names) {
 }
 
 /**
+ * The devices protection opened, in the order the event went. The SOE says
+ * which locked out, and every one of them counts; a report without lockout rows falls back to the trip
+ * device plus every "Open -> Closed" device. The summary's Trip Device alone
+ * is not enough: for a fault past a switch it names the switch, which the
+ * DAC opened to isolate, while the recloser upstream did the tripping.
+ */
+function protectionOpened(test, operatedOpen) {
+  // A lockout is an open even when the Switching Summary leaves the device
+  // out — a pseudo-breaker (DA_PSEUDO_BKR) has no status of its own, the DAC
+  // predicts it from the first device downstream.
+  if (test.lockouts?.length) return unique(test.lockouts);
+  return unique([...(operatedOpen.includes(test.trip) ? [test.trip] : []), ...test.openClosed]);
+}
+
+/**
  * Opened/closed lists. `tripMark` goes on devices protection opened (fault:
- * "*") — the trip device, and every "Open -> Closed" device, which opened on
- * protection and was then closed to correct the miscoordination.
- * `correctedMark` goes on those same "Open -> Closed" devices in the closed
- * list ("**" on the fault sheet, "*" on the miscoordination sheet). Protection
- * operations lead the opened list and corrections lead the closed list — the
- * order a reader follows the event in.
+ * "*"). `correctedMark` goes on those of them the DAC then closed again —
+ * "Open -> Closed" devices — in the closed list ("**" on the fault sheet, "*"
+ * on the miscoordination sheet). Protection operations lead the opened list
+ * and corrections lead the closed list — the order a reader follows the
+ * event in.
  */
 function switching(test, { tripMark = '', correctedMark = '' } = {}) {
   const operatedOpen = unique([...test.open, ...test.openClosed, ...test.closedOpened]);
-  const byProtection = unique([
-    ...(operatedOpen.includes(test.trip) ? [test.trip] : []),
-    ...test.openClosed,
-  ]);
+  const byProtection = protectionOpened(test, operatedOpen);
+  const corrected = test.openClosed.filter((d) => byProtection.includes(d));
   const opened = [
     ...byProtection.map((d) => `${d}${tripMark}`),
     ...operatedOpen.filter((d) => !byProtection.includes(d)),
   ];
   const closed = [
-    ...test.openClosed.map((d) => `${d}${correctedMark}`),
-    ...unique([...test.close, ...test.closedOpened]).filter((d) => !test.openClosed.includes(d)),
+    ...corrected.map((d) => `${d}${correctedMark}`),
+    ...unique([...test.openClosed, ...test.close, ...test.closedOpened]).filter((d) => !corrected.includes(d)),
   ];
   return { opened: joined(opened), closed: joined(closed) };
 }

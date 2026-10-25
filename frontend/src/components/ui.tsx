@@ -315,16 +315,19 @@ export function Modal({
   title,
   onClose,
   locked = false,
+  className,
   children,
 }: {
   title: string
   onClose: () => void
   locked?: boolean
+  /** Extra class on the card, for a modal that needs another width. */
+  className?: string
   children: ReactNode
 }) {
   return (
     <div className="modal-overlay" onClick={locked ? undefined : onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className={className ? `modal-card ${className}` : 'modal-card'} onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <span className="t">{title}</span>
           <button className="x" onClick={onClose} title="Close">✕</button>

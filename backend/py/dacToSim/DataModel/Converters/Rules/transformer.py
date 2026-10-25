@@ -11,7 +11,7 @@ initLogic = DeviceRule(
     name='mInit',
     dacName='Init',
     parameters=[
-        VarAssignment().fromInputs("SubstationName", "'New Sub' {error 'Needs manual population'}", ''),
+        VarAssignment().fromInputs("SubstationName", getSubstationName, ''),
         VarAssignment().fromInputs("Name", '', ''),
         VarAssignment().fromInputs("VoltageLL", getTransformerVoltage, ''),
         VarAssignment().fromInputs("Capacity", '', ''),
@@ -81,6 +81,6 @@ remoteMappingRules.methods=[
 
 
 mappingRules = {
-  'SIM_BKR': logicMappingRules,
-  'SIM_BKR_REMOTE': remoteMappingRules,
+  'LOGIC': logicMappingRules,
+  'REMOTE_IO': remoteMappingRules,
 }

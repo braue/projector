@@ -15,6 +15,7 @@ import { PdfView } from './components/PdfView'
 import { ProjectSwitcher } from './components/ProjectSwitcher'
 import { ProjectTree } from './components/ProjectTree'
 import { TasksPopover } from './components/TasksPopover'
+import { TestNetworkView } from './components/TestNetworkView'
 import { TextFileView } from './components/TextFileView'
 import { TodoList } from './components/TodoList'
 // The atlas embeds the whole field-knowledge library — 82 documents inlined as
@@ -44,6 +45,8 @@ export default function App() {
   const [atlasEverOpened, setAtlasEverOpened] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [toolsEverOpened, setToolsEverOpened] = useState(false)
+  const [testOpen, setTestOpen] = useState(false)
+  const [testEverOpened, setTestEverOpened] = useState(false)
   // The current project scopes everything below. The window opens with none —
   // the user picks one from the switcher; null list = still loading it.
   const [project, setProject] = useState<string | null>(null)
@@ -115,7 +118,7 @@ export default function App() {
     return () => offs.forEach((off) => off())
   }, [project, loadTree])
 
-  const projectMode = !atlasOpen && !toolsOpen
+  const projectMode = !atlasOpen && !toolsOpen && !testOpen
   const closeFilter = useCallback(() => {
     setFilterOpen(false)
     setFilter('')
@@ -275,6 +278,18 @@ export default function App() {
         <HoursPanel />
         <TodoList />
         <PaneToggle
+          mark="▦"
+          label="Test"
+          on={testOpen}
+          title={testOpen ? 'Back to the project' : 'Open the test network'}
+          onClick={() => {
+            setTestOpen((open) => !open)
+            setTestEverOpened(true)
+            setToolsOpen(false)
+            setAtlasOpen(false)
+          }}
+        />
+        <PaneToggle
           mark="⚒"
           label="Tools"
           on={toolsOpen}
@@ -283,6 +298,7 @@ export default function App() {
             setToolsOpen((open) => !open)
             setToolsEverOpened(true)
             setAtlasOpen(false)
+            setTestOpen(false)
           }}
         />
         <PaneToggle
@@ -294,6 +310,7 @@ export default function App() {
             setAtlasOpen((open) => !open)
             setAtlasEverOpened(true)
             setToolsOpen(false)
+            setTestOpen(false)
           }}
         />
       </header>
@@ -361,6 +378,12 @@ export default function App() {
               </main>
             )}
           </>
+        )}
+
+        {testEverOpened && (
+          <div className="test-pane" hidden={!testOpen}>
+            <TestNetworkView active={testOpen} />
+          </div>
         )}
 
         {/* Same latch as the atlas: an open terminal session or half-filled

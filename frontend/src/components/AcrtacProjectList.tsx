@@ -4,8 +4,8 @@ import { useAcrtacProjects } from '../lib/acrtacProjects'
 import { Button, Checkbox, Spinner, TextInput } from './ui'
 
 // The AcRTAC database's projects as a filterable list — the one picker every
-// feature uses (the tree's download window, the RTAC Exporter, RTAC VLAN
-// Deploy's project cell). The list itself is shared and cached
+// feature uses (the tree's download window, the RTAC Exporter, the Test
+// page's upload). The list itself is shared and cached
 // (lib/acrtacProjects.ts), so it is instant after the first read anywhere,
 // and Refresh here refreshes it everywhere.
 //

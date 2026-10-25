@@ -256,6 +256,10 @@ button.ui-section-header:hover { color: var(--ink); }
 /* The tools pane — same takeover shape; rail + tool interface inside. */
 .tools-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
 .tools-pane[hidden] { display: none; }
+
+/* The test network pane — same takeover shape. */
+.test-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
+.test-pane[hidden] { display: none; }
 .tools-rail-head {
   flex: none; padding: 12px 16px 8px; font-size: 11px; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
@@ -316,41 +320,6 @@ button.ui-section-header:hover { color: var(--ink); }
 .dacsim-schemes .dacsim-col { font-size: 12px; font-weight: 600; color: var(--muted); }
 .dacsim-schemes .ui-input { width: 100%; min-width: 0; }
 .dacsim-master { display: flex; flex-direction: column; gap: 8px; }
-
-/* RTAC VLAN Deploy: one grid for every RTAC row, and one for the results. */
-.vlandeploy-grid {
-  align-self: stretch;
-  display: grid;
-  grid-template-columns: minmax(110px, 1fr) minmax(150px, 1.1fr) minmax(130px, 1fr) minmax(160px, 2fr) auto;
-  gap: 8px 10px;
-  align-items: center;
-}
-.vlandeploy-grid .ui-input, .vlandeploy-grid .ui-select,
-.vlandeploy-devices .ui-input { width: 100%; min-width: 0; max-width: none; }
-/* The bench device table page: identifier, network IP, port, remove. */
-.vlandeploy-devices {
-  align-self: stretch; max-width: 640px;
-  display: grid; grid-template-columns: minmax(100px, 1fr) minmax(130px, 1.2fr) minmax(60px, 0.5fr) auto;
-  gap: 8px 10px; align-items: center;
-}
-.vlandeploy-switch { display: flex; align-items: center; gap: 6px; }
-/* Switch IP while locked: reads as a value, not a field waiting for input. */
-.vlandeploy-locked { background: var(--fill); color: var(--ink-soft); cursor: default; }
-.vlandeploy-locked:focus { border-color: var(--border); }
-.vlandeploy-head { align-self: stretch; align-items: center; justify-content: space-between; }
-.vlandeploy-head .ui-section-header { flex: 1; }
-/* The RTAC rows' hints share the inputs' placeholder grey. */
-.vlandeploy-grid .ui-input::placeholder { color: var(--muted); }
-.vlandeploy-results {
-  align-self: stretch;
-  display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(120px, 1fr);
-  gap: 4px 10px;
-  font-size: 13px;
-}
-.vlandeploy-col { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
-.vlandeploy-ok { color: var(--ok-ink); }
-.vlandeploy-bad { color: var(--bad-ink); }
 
 /* DAC Init Builder — project params row, per-device cards/grids. Labelled
    fields stack their caption above the input so the wide forms stay legible. */
@@ -1327,3 +1296,97 @@ th.hours-budget, td.hours-budget { width: 92px; }
   border: 1px solid var(--border); border-radius: 10px; background: var(--card);
 }
 .tasks-button { box-shadow: 0 2px 10px rgba(15, 18, 26, 0.12); }
+
+/* ==========================================================================
+ * TEST NETWORK (TestNetworkView.tsx) — the switch's faceplate over one lane
+ * per VLAN; each lane's colour (--lane) also tints its ports (--port).
+ * ========================================================================== */
+
+.testnet { display: flex; flex-direction: column; min-height: 0; }
+.testnet-head .preview-title-row { gap: 12px; }
+.testnet-spacer { flex: 1; }
+.testnet-at { font-size: 12px; }
+.testnet-switch { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.testnet-ip-value {
+  border: 1px solid transparent; border-radius: 6px; background: none;
+  padding: 2px 6px; cursor: text;
+}
+.testnet-ip-value:hover { border-color: var(--border); background: var(--fill); }
+.testnet-ip { width: 130px; height: 26px; }
+
+.testnet-body {
+  flex: 1; min-height: 0; overflow: auto; padding: 18px 20px 28px;
+  display: flex; flex-direction: column; gap: 18px; background: var(--bg);
+}
+
+.testnet-faceplate {
+  align-self: flex-start; display: flex; flex-direction: column; gap: 4px;
+  padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--card);
+}
+.testnet-portrow { display: flex; gap: 4px; }
+.testnet-port {
+  width: 46px; height: 36px; border-radius: 5px; background: var(--fill);
+  border-bottom: 3px solid var(--port);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--ghost); cursor: default;
+}
+.testnet-port.used { color: var(--ink); }
+.testnet-port.tagged { outline: 1px dashed var(--port); outline-offset: -1px; }
+.testnet-port.hover { background: var(--border); }
+.testnet-port-n { font-size: 10.5px; font-family: var(--font-mono); }
+.testnet-port-dev {
+  max-width: 42px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 9.5px; font-weight: 600;
+}
+
+.testnet-lanes {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 14px; align-items: start;
+}
+.testnet-lane { border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.testnet-lane.idle { background: transparent; border-style: dashed; }
+.testnet-lane.drop { border-color: var(--lane); background: var(--fill); }
+.testnet-lane-head { display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 6px; font-size: 13px; }
+.testnet-vid { font-weight: 650; color: var(--lane); }
+.testnet-lane.idle .testnet-vid { color: var(--muted); }
+.testnet-lane-name { font-weight: 600; }
+.testnet-cards { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 14px 14px; }
+
+.testnet-card, .testnet-trunk {
+  width: 172px; height: 92px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card);
+  display: flex; flex-direction: column; gap: 2px; font-size: 12px;
+}
+.testnet-card { cursor: grab; }
+.testnet-card.rtac { cursor: pointer; }
+.testnet-card.moving { opacity: 0.55; cursor: default; }
+.testnet-card.rtac:hover, .testnet-card.hover, .testnet-trunk.hover { background: var(--fill); }
+.testnet-trunk { border-style: dashed; }
+.testnet-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.testnet-card-name, .testnet-trunk-name { font-weight: 600; font-size: 13px; }
+.testnet-card-ip { font-size: 12px; color: var(--ink); }
+.testnet-card-net { font-size: 11px; }
+.testnet-card-proj { display: flex; align-items: center; gap: 6px; margin-top: auto; min-width: 0; }
+.testnet-proj-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.testnet-proj-name.bad { color: var(--bad-ink); }
+.testnet-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--ghost); }
+.testnet-dot.ok { background: var(--ok); }
+.testnet-dot.warn { background: var(--warn); }
+.testnet-dot.bad { background: var(--bad); }
+.testnet-dot.busy { background: var(--accent); }
+.testnet-empty { align-self: center; font-size: 12px; }
+
+.testnet-pick { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.testnet-pick-now { display: flex; gap: 12px; padding: 0 14px; font-size: 12.5px; }
+
+.testnet-bench-modal { width: 580px; max-width: calc(100vw - 32px); }
+.testnet-bench {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 8px 14px 2px;
+  display: grid; gap: 8px 10px; align-items: center; align-content: start;
+  grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1.2fr) 64px 16px;
+}
+.testnet-bench .ui-input, .testnet-bench .ui-select { width: 100%; min-width: 0; max-width: none; }
+.testnet-col { font-size: 12px; font-weight: 600; color: var(--muted); }
+.testnet-bench .entry-delete { justify-self: center; opacity: 1; }
+.testnet-bench-foot { display: flex; align-items: center; gap: 10px; padding: 12px 14px 14px; }
+.testnet-bench-foot .tool-error { min-width: 0; overflow-wrap: anywhere; }

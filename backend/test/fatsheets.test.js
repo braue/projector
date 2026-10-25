@@ -42,7 +42,7 @@ const table = (headers, rows, rowClass = 'bodyRow') => `<table class="table"><th
 const SUMMARY = ['Fault Type', 'Index', 'Start Time', 'Status', 'Fail Reason', 'Feeder', 'Zone Entry', 'Trip Device', 'Fault Location', 'Fault Phase'];
 const SWITCHING = ['Feeder', 'Fault Location', 'Index', 'ID', 'Status', 'Fail Reason', 'Setup Open', 'Setup Close', 'Copy Test Setup', 'Open', 'Close', 'Open -&gt; Closed', 'Closed -&gt; Opened', 'Copy Results'];
 
-/** tests: [{ type, index, status, reason, feeder, trip, loc, abn, so, sc, open, close, oc, groups, failures, alarms, event }] */
+/** tests: [{ type, index, status, reason, feeder, trip, loc, abn, so, sc, open, close, oc, groups, failures, alarms, event, lockouts }] */
 function report(tests) {
   const plain = tests.filter((t) => !t.type.startsWith('Abnormal'));
   const abnormal = tests.filter((t) => t.type.startsWith('Abnormal'));
@@ -53,6 +53,7 @@ function report(tests) {
     for (const g of t.groups ?? []) validation.push([g, 'Series', 'None', '', '']);
     for (const f of t.failures ?? []) validation.push([f[0], '', 'Value', f[1], f[2]]);
     const soe = [[`T-${t.index}`, 'Step', 'Fault', '2026/10/07 14:16:23.272']];
+    for (const d of t.lockouts ?? []) soe.push([`${d}.SW.Switch.Lockout`, 'A, B, C', 'TRUE', '2026/10/07 14:16:23.472']);
     if (t.event !== false) soe.push([`${t.feeder}.Event`, 'InProgress', 'TRUE', '2026/10/07 14:16:39.272']);
     const sequence = [['Initialize', 'Series', 'Set', '']];
     for (const a of t.alarms ?? []) sequence.push([a, '', 'Set', 'TRUE']);
@@ -229,6 +230,28 @@ test('columns: phrasing and footnote marks follow the hand-completed FAT', () =>
   const corrected = columnFor('fault', { ...byIndex(1), open: ['B2'], openClosed: ['R21'], close: ['R99'] });
   assert.equal(corrected.opened, 'B2*, R21*');
   assert.equal(corrected.closed, 'R21**, R99');
+
+  // A fault past a switch (New Iberia test 12): the summary names the switch
+  // as Trip Device, but the recloser upstream locked out, and the DAC opened
+  // the switch to isolate and reclosed the recloser. Only the recloser is
+  // "opened due to protection".
+  const [pastSwitch] = parseAutoFat(report([{
+    type: 'FaultLo', index: 12, status: 'Questionable', feeder: 'F3723', trip: 'R3798', loc: 'R3798',
+    open: 'R3798', oc: 'R3799', lockouts: ['R3799'], groups: ['R3798-IsoFltSrc', 'R3721-IsoFltDwn'],
+  }])).tests;
+  assert.deepEqual(pastSwitch.lockouts, ['R3799']);
+  const pastSwitchColumn = columnFor('fault', pastSwitch);
+  assert.equal(pastSwitchColumn.opened, 'R3799*, R3798');
+  assert.equal(pastSwitchColumn.closed, 'R3799**');
+  // A lockout the Switching Summary leaves out (a pseudo-breaker's predicted
+  // trip) still opened by protection.
+  const pseudo = columnFor('fault', { ...pastSwitch, open: ['R3798'], openClosed: [], lockouts: ['B3723'] });
+  assert.equal(pseudo.opened, 'B3723*, R3798');
+  // A device the DAC opened and closed again without protection tripping it
+  // carries no marks.
+  const reused = columnFor('fault', { ...pastSwitch, openClosed: ['R3799', 'R3700'] });
+  assert.equal(reused.opened, 'R3799*, R3798, R3700');
+  assert.equal(reused.closed, 'R3799**, R3700');
 
   const openPhase = columnFor('openPhase', byIndex(4));
   assert.equal(openPhase.opened, 'R11, R12'); // no marks on the open phase sheet

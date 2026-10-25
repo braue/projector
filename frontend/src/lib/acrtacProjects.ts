@@ -1,5 +1,5 @@
 // The AcRTAC database's project list, shared by every picker in the window
-// (tree download, RTAC Exporter, RTAC VLAN Deploy). The backend caches it
+// (tree download, RTAC Exporter, the Test pane's upload). The backend caches it
 // (services/rtacCatalog.js); this caches the answer here too, so opening a
 // second picker is instant and Refresh anywhere refreshes everywhere.
 
