@@ -262,6 +262,23 @@ class TestNetwork(unittest.TestCase):
         with self.assertRaisesRegex(sel_web.SelWebError, "no port 30"):
             test_network.move({"switchIp": "10.42.44.12", "port": 30, "vid": 14})
 
+    def test_set_eth02(self):
+        rtac = self.devices["10.42.44.34"]
+        out = test_network.set_eth02({"networkIp": "10.42.44.34", "ip": "172.16.14.10"})
+        self.assertEqual(out, {"before": "192.168.10.2/24", "after": "172.16.14.10/24",
+                               "gateway": "172.16.14.1", "changed": True})
+        self.assertEqual((rtac.eth02, rtac.gateway), ("172.16.14.10/24", "172.16.14.1"))
+        again = test_network.set_eth02({"networkIp": "10.42.44.34", "ip": "172.16.14.10/24"})
+        self.assertFalse(again["changed"])
+        self.assertEqual(len(rtac.saves), 1)
+        with self.assertRaisesRegex(sel_web.SelWebError, "gateway"):
+            test_network.set_eth02({"networkIp": "10.42.44.34", "ip": "172.16.14.1"})
+        with self.assertRaisesRegex(sel_web.SelWebError, "always /24"):
+            test_network.set_eth02({"networkIp": "10.42.44.34", "ip": "172.16.14.10/16"})
+        with self.assertRaisesRegex(sel_web.SelWebError, "network port's subnet"):
+            test_network.set_eth02({"networkIp": "10.42.44.35", "ip": "10.42.44.200"})
+        self.assertEqual(len(rtac.saves), 1)
+
     def test_switch_down_is_reported_not_raised(self):
         out = test_network.scan({"switchIp": "10.42.44.200", "devices": []})
         self.assertIn("timed out", out["switch"]["error"])

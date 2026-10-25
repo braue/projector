@@ -12,6 +12,11 @@ result plus the VLAN table as it reads afterwards:
 
     {"command": "move", "switchIp": "10.42.44.12", "port": 3, "vid": 16}
 
+or a new Eth_02 address for one RTAC, reached at its network IP — always /24,
+gateway .1 (sel_web.vlan_host) — printing sel_web.set_interface_ip's result:
+
+    {"command": "eth02", "networkIp": "10.42.44.34", "ip": "172.16.14.10"}
+
 One JSON document on stdout:
 
     {"switch": {"ip", "ports": [1, ...], "vlans": [{"vid", "name", "untagged": [..], "tagged": [..]}],
@@ -24,6 +29,7 @@ RTACs are read side by side; each is one web login. Device web code is
 py/sel_web.py.
 """
 
+import ipaddress
 import json
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -78,10 +84,27 @@ def move(request):
         return {**sel_web.move_port(web, request["port"], request["vid"]), "vlans": vlan_list(web)}
 
 
+def set_eth02(request):
+    try:
+        target, gateway = sel_web.vlan_host(request["ip"])
+    except ValueError as e:
+        raise sel_web.SelWebError(str(e)) from e
+    # Eth_02 on the network port's own subnet gives the RTAC two ports on one
+    # /24, and the connection this runs over can go either way after.
+    if ipaddress.ip_address(request["networkIp"]) in ipaddress.ip_interface(target).network:
+        raise sel_web.SelWebError(f"{target} is on the network port's subnet ({request['networkIp']}); "
+                                  "Eth_02 needs its own")
+    with sel_web.SelWeb(request["networkIp"], WEB_USER, WEB_PASSWORD, "rtac") as web:
+        return sel_web.set_interface_ip(web, "Eth_02", target, gateway, reached_at=request["networkIp"])
+
+
+COMMANDS = {"move": move, "eth02": set_eth02}
+
+
 def main():
     request = json.load(sys.stdin)
     try:
-        result = move(request) if request.get("command") == "move" else scan(request)
+        result = COMMANDS.get(request.get("command"), scan)(request)
     except Exception as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(1)

@@ -15,15 +15,34 @@ const bench = [
 ];
 
 const vlans = [
-        { vid: 1, name: 'Default', untagged: [1, 2, 6, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], tagged: [] },
-        { vid: 14, name: 'Eunice', untagged: [3, 4, 5], tagged: [24] },
-        { vid: 16, name: 'Gulfport', untagged: [7, 8], tagged: [24] },
-        { vid: 20, name: 'Evergreen', untagged: [11, 12], tagged: [24] },
-        { vid: 30, name: 'Spare', untagged: [], tagged: [] },
+  { vid: 1, name: 'Default', untagged: [1, 2, 6, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], tagged: [] },
+  { vid: 14, name: 'Eunice', untagged: [3, 4, 5], tagged: [24] },
+  { vid: 16, name: 'Gulfport', untagged: [7, 8], tagged: [24] },
+  { vid: 20, name: 'Evergreen', untagged: [11, 12], tagged: [24] },
+  { vid: 30, name: 'Spare', untagged: [], tagged: [] },
+];
+
+const devices = [
+  { id: '3555-1', eth02: '172.16.14.10/24', gateway: '172.16.14.1', project: { name: 'Eunice_35KV_DAC', state: 'running' }, error: null },
+  { id: '3532-3', eth02: '172.16.14.11/24', gateway: '172.16.14.1', project: { name: 'Eunice_35KV_REM1', state: 'running' }, error: null },
+  { id: '3555-2', eth02: '172.16.14.12/24', gateway: '172.16.14.1', project: { name: 'Eunice_35KV_REM2', state: 'stopped' }, error: null },
+  { id: '3350-1', eth02: '172.16.16.10/24', gateway: '172.16.16.1', project: { name: 'Gulfport_DAC', state: 'running' }, error: null },
+  { id: '3350-2', eth02: '172.16.16.11/24', gateway: '172.16.16.1', project: { name: 'Gulfport_SIM_Master', state: 'running' }, error: null },
+  { id: '3530-1', eth02: '172.16.20.10/24', gateway: '172.16.20.1', project: { name: 'Evergreen_DAC', state: 'running' }, error: null },
+  { id: '3555-3', eth02: null, gateway: null, project: null, error: 'https://10.42.44.37/: timed out' },
 ];
 
 async function demoBridge(request) {
   await new Promise((resolve) => setTimeout(resolve, 600));
+  if (request.command === 'eth02') {
+    const id = bench.find((d) => d.networkIp === request.networkIp)?.id;
+    const device = devices.find((d) => d.id === id);
+    if (!device || device.error) throw new Error(`https://${request.networkIp}/: timed out`);
+    const after = `${request.ip.replace(/\/24$/, '')}/24`;
+    const before = device.eth02;
+    Object.assign(device, { eth02: after, gateway: after.replace(/\.\d+\/24$/, '.1') });
+    return { before, after, gateway: device.gateway, changed: before !== after };
+  }
   if (request.command === 'move') {
     const from = vlans.find((v) => v.untagged.includes(request.port));
     for (const v of vlans) v.untagged = v.untagged.filter((p) => p !== request.port);
@@ -39,15 +58,7 @@ async function demoBridge(request) {
       error: null,
       vlans: structuredClone(vlans),
     },
-    devices: [
-      { id: '3555-1', eth02: '172.16.14.10/24', gateway: '172.16.14.1', project: { name: 'Eunice_35KV_DAC', state: 'running' }, error: null },
-      { id: '3532-3', eth02: '172.16.14.11/24', gateway: '172.16.14.1', project: { name: 'Eunice_35KV_REM1', state: 'running' }, error: null },
-      { id: '3555-2', eth02: '172.16.14.12/24', gateway: '172.16.14.1', project: { name: 'Eunice_35KV_REM2', state: 'stopped' }, error: null },
-      { id: '3350-1', eth02: '172.16.16.10/24', gateway: '172.16.16.1', project: { name: 'Gulfport_DAC', state: 'running' }, error: null },
-      { id: '3350-2', eth02: '172.16.16.11/24', gateway: '172.16.16.1', project: { name: 'Gulfport_SIM_Master', state: 'running' }, error: null },
-      { id: '3530-1', eth02: '172.16.20.10/24', gateway: '172.16.20.1', project: { name: 'Evergreen_DAC', state: 'running' }, error: null },
-      { id: '3555-3', eth02: null, gateway: null, project: null, error: 'https://10.42.44.37/: timed out' },
-    ],
+    devices: structuredClone(devices),
   };
 }
 

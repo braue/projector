@@ -3,8 +3,8 @@
 // that port; each RTAC's web interface says its Eth_02 address and running
 // project. Drawn as the switch's faceplate over one lane per VLAN. Dragging
 // a card onto another lane moves its switch port to that VLAN, on the switch,
-// at once. Clicking an RTAC picks an AcRTAC database project to upload to it
-// (a job, in the AcRTAC queue).
+// at once. Clicking an RTAC opens its window: a new Eth_02 address, or an
+// AcRTAC database project to upload to it (a job, in the AcRTAC queue).
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -14,6 +14,7 @@ import {
   moveTestDevice,
   saveBenchDevices,
   scanTestNetwork,
+  setTestEth02,
   uploadToTestRtac,
   type BenchDevice,
   type TestDeviceState,
@@ -274,19 +275,10 @@ export function TestNetworkView({ active }: { active: boolean }) {
       </div>
 
       {picking && (
-        <Modal title={`Upload to ${picking.id}`} onClose={() => setPicking(null)}>
-          <div className="testnet-pick">
-            <div className="testnet-pick-now">
-              <span className="mono">{picking.networkIp}</span>
-              {states.get(picking.id)?.project && (
-                <span className="dim">{states.get(picking.id)!.project!.name}</span>
-              )}
-            </div>
-            <AcrtacProjectList mode="single" autoFocus
-              current={states.get(picking.id)?.project?.name ?? null}
-              onPick={(name) => upload(picking, name)} />
-          </div>
-        </Modal>
+        <RtacModal device={picking} state={states.get(picking.id)}
+          onClose={() => setPicking(null)}
+          onEth02={async (ip) => setScan((await setTestEth02({ device: picking.id, ip })).scan)}
+          onUpload={(name) => upload(picking, name)} />
       )}
 
       {benchOpen && (
@@ -405,6 +397,52 @@ function DeviceCard({
         <div className="testnet-card-net mono dim">{device.networkIp || ' '}</div>
       )}
     </div>
+  )
+}
+
+/** An RTAC's window: its Eth_02 address, editable, over the AcRTAC project
+ *  picker that uploads to it. */
+function RtacModal({
+  device,
+  state,
+  onClose,
+  onEth02,
+  onUpload,
+}: {
+  device: BenchDevice
+  state: TestDeviceState | undefined
+  onClose: () => void
+  onEth02: (ip: string) => Promise<void>
+  onUpload: (project: string) => void
+}) {
+  const current = state?.eth02?.split('/')[0] ?? ''
+  const [ip, setIp] = useState(current)
+  const { run, busy, error } = useAction()
+  const save = () => run(() => onEth02(ip.trim()))
+  const changed = ip.trim() !== '' && ip.trim() !== current
+
+  return (
+    <Modal title={device.id} onClose={onClose} locked={busy}>
+      <div className="testnet-pick">
+        <div className="testnet-pick-now">
+          <span className="mono">{device.networkIp}</span>
+          {state?.project && <span className="dim">{state.project.name}</span>}
+        </div>
+        <div className="testnet-eth02">
+          <TextInput label="Eth_02" value={ip} spellCheck={false} disabled={busy}
+            onChange={(e) => setIp(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && changed && !busy) save()
+            }} />
+          <span className="mono dim">/24</span>
+          <Button disabled={!changed || busy} onClick={save}>{busy ? <Spinner /> : 'Set'}</Button>
+        </div>
+        {error && <div className="modal-error">{error}</div>}
+        <AcrtacProjectList mode="single"
+          current={state?.project?.name ?? null}
+          onPick={onUpload} />
+      </div>
+    </Modal>
   )
 }
 

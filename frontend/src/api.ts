@@ -649,6 +649,12 @@ export function moveTestDevice(args: { switchIp: string; device: string; vid: nu
   return send('/api/test-network/move', 'POST', args)
 }
 
+/** Set a bench RTAC's Eth_02 address (always /24, gateway .1); resolves to
+ *  the snapshot with that address as re-read. */
+export function setTestEth02(args: { device: string; ip: string }): Promise<{ scan: TestScan }> {
+  return send('/api/test-network/eth02', 'POST', args)
+}
+
 export async function fetchBenchDevices(): Promise<BenchDevice[]> {
   const body = await get<{ devices: BenchDevice[] }>('/api/test-network/devices')
   return body.devices

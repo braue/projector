@@ -2,9 +2,9 @@
 // SEL-2730M, read as it stands: which switch port sits on which VLAN, which
 // bench device is on that port, its Eth_02 address and the project it runs.
 // Over the devices' web interfaces (py/test_network.py, which needs no
-// selacrtac). Two writes: moving one switch port onto a VLAN (the page's
-// drag and drop), and sending a database project to an RTAC through
-// AcRTAC's upload, as a job in the AcRTAC queue.
+// selacrtac). Three writes: moving one switch port onto a VLAN (the page's
+// drag and drop), setting an RTAC's Eth_02 address, and sending a database
+// project to an RTAC through AcRTAC's upload, as a job in the AcRTAC queue.
 //
 // The bench itself — which identifier ("3555-1") is at which network IP on
 // which switch port — is a table kept in <dataDir>/test-network/devices.json,
@@ -150,6 +150,30 @@ class TestNetworkService {
     });
     this.#moves = run.catch(() => {});
     return run;
+  }
+
+  /** Set bench RTAC `device`'s Eth_02 to `ip` (always /24, gateway .1),
+   *  over its web interface at its network IP. Resolves to the snapshot with
+   *  that device's address as re-read. */
+  async setEth02(payload) {
+    const id = filled(payload?.device, 'device');
+    const ip = filled(payload?.ip, 'Eth_02 IP').replace(/\/24$/, '');
+    if (!IPV4.test(ip)) throw httpError(400, `Eth_02 IP: "${ip}" is not an IPv4 address`);
+    const bench = this.#last?.bench ?? await this.devices();
+    const device = bench.find((d) => d.id === id);
+    if (!device) throw httpError(400, `${id} is not on the test network`);
+    if (device.kind !== 'rtac') throw httpError(400, `${id} is not an RTAC`);
+    const result = await this.bridge({ command: 'eth02', networkIp: device.networkIp, ip });
+    if (this.#last) {
+      this.#last = {
+        ...this.#last,
+        devices: this.#last.devices.map((d) => (d.id === id
+          ? { ...d, eth02: result.after, gateway: result.gateway, error: null }
+          : d)),
+      };
+    }
+    this.events?.publish('test-network', {});
+    return { ...result, scan: this.#last };
   }
 
   /** Send AcRTAC database project `project` to bench RTAC `device` (by

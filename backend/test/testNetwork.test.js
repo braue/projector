@@ -92,6 +92,8 @@ test('test network: a move goes by the scanned bench, one at a time, and patches
     assert.equal(b.scan.switch.vlans[0].vid, 16);
     assert.equal(svc.state().scan.switch.vlans[0].vid, 16);
     await assert.rejects(svc.move({ switchIp: '10.42.44.12', device: '3555-1', vid: 5000 }), /1-4094/);
+    await assert.rejects(svc.setEth02({ device: '3555-1', ip: '172.16.14' }), /not an IPv4/);
+    await assert.rejects(svc.setEth02({ device: 'nope', ip: '172.16.14.10' }), /not on the test network/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
