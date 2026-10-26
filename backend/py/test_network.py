@@ -7,10 +7,10 @@ One JSON request on STDIN, a scan (read-only):
     {"switchIp": "10.42.44.12",
      "devices": [{"id": "3555-1", "networkIp": "10.42.44.34", "port": "3", "kind": "rtac"}]}
 
-or a move, which changes only that port's VLAN and prints sel_web.move_port's
-result plus the VLAN table as it reads afterwards:
+or a move, which changes only those ports' VLAN (one save) and prints
+sel_web.move_ports's result plus the VLAN table as it reads afterwards:
 
-    {"command": "move", "switchIp": "10.42.44.12", "port": 3, "vid": 16}
+    {"command": "move", "switchIp": "10.42.44.12", "ports": [3, 4], "vid": 16}
 
 or a new Eth_02 address for one RTAC, reached at its network IP — always /24,
 gateway .1 (sel_web.vlan_host) — printing sel_web.set_interface_ip's result:
@@ -78,10 +78,10 @@ def scan(request):
 
 
 def move(request):
-    """Move the port, then hand back the switch's whole VLAN table as it now
-    reads, so the page updates without logging into every RTAC again."""
+    """Move the ports (one save), then hand back the switch's whole VLAN table
+    as it now reads, so the page updates without logging into every RTAC."""
     with sel_web.SelWeb(request["switchIp"], WEB_USER, WEB_PASSWORD, "switch") as web:
-        return {**sel_web.move_port(web, request["port"], request["vid"]), "vlans": vlan_list(web)}
+        return {**sel_web.move_ports(web, request["ports"], request["vid"]), "vlans": vlan_list(web)}
 
 
 def set_eth02(request):

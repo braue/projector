@@ -44,11 +44,11 @@ async function demoBridge(request) {
     return { before, after, gateway: device.gateway, changed: before !== after };
   }
   if (request.command === 'move') {
-    const from = vlans.find((v) => v.untagged.includes(request.port));
-    for (const v of vlans) v.untagged = v.untagged.filter((p) => p !== request.port);
+    const from = Object.fromEntries(request.ports.map((p) => [p, vlans.find((v) => v.untagged.includes(p))?.vid ?? null]));
+    for (const v of vlans) v.untagged = v.untagged.filter((p) => !request.ports.includes(p));
     const to = vlans.find((v) => v.vid === request.vid);
-    to.untagged = [...to.untagged, request.port].sort((a, b) => a - b);
-    return { port: request.port, from: from?.vid ?? null, to: to.vid, changed: true, vlans: structuredClone(vlans) };
+    to.untagged = [...to.untagged, ...request.ports].sort((a, b) => a - b);
+    return { ports: request.ports, from, to: to.vid, changed: true, vlans: structuredClone(vlans) };
   }
   return {
     bench,

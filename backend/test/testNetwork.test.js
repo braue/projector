@@ -69,7 +69,8 @@ test('test network: a move goes by the scanned bench, one at a time, and patches
       jobs: null,
       bridge: async (request) => {
         if (request.command !== 'move') {
-          return { bench: [{ id: '3555-1', kind: 'rtac', networkIp: '10.0.0.1', port: '3' }],
+          return { bench: [{ id: '3555-1', kind: 'rtac', networkIp: '10.0.0.1', port: '3' },
+            { id: '3532-3', kind: 'rtac', networkIp: '10.0.0.2', port: '4' }],
             switch: { ip: request.switchIp, ports: [3], vlans: [], error: null }, devices: [] };
         }
         active += 1;
@@ -77,21 +78,24 @@ test('test network: a move goes by the scanned bench, one at a time, and patches
         calls.push(request);
         await new Promise((resolve) => setTimeout(resolve, 5));
         active -= 1;
-        return { port: request.port, from: 1, to: request.vid, changed: true,
+        return { ports: request.ports, from: {}, to: request.vid, changed: true,
           vlans: [{ vid: request.vid, name: 'x', untagged: [3], tagged: [] }] };
       },
     });
-    await assert.rejects(svc.move({ switchIp: '10.42.44.12', device: '3555-1', vid: 14 }), /not on the test network/);
+    await assert.rejects(svc.move({ switchIp: '10.42.44.12', devices: ['3555-1'], vid: 14 }), /not on the test network/);
     await svc.scan('10.42.44.12');
     const [a, b] = await Promise.all([
-      svc.move({ switchIp: '10.42.44.12', device: '3555-1', vid: 14 }),
-      svc.move({ switchIp: '10.42.44.12', device: '3555-1', vid: 16 }),
+      svc.move({ switchIp: '10.42.44.12', devices: ['3555-1', '3532-3'], vid: 14 }),
+      svc.move({ switchIp: '10.42.44.12', devices: ['3555-1'], vid: 16 }),
     ]);
-    assert.deepEqual(calls.map((c) => [c.port, c.vid]), [[3, 14], [3, 16]]);
+    // several devices are one bridge call (one switch save); moves never overlap
+    assert.deepEqual(calls.map((c) => [c.ports, c.vid]), [[[3, 4], 14], [[3], 16]]);
     assert.equal(a.to, 14);
     assert.equal(b.scan.switch.vlans[0].vid, 16);
     assert.equal(svc.state().scan.switch.vlans[0].vid, 16);
-    await assert.rejects(svc.move({ switchIp: '10.42.44.12', device: '3555-1', vid: 5000 }), /1-4094/);
+    await assert.rejects(svc.move({ switchIp: '10.42.44.12', devices: ['3555-1'], vid: 5000 }), /1-4094/);
+    await assert.rejects(svc.move({ switchIp: '10.42.44.12', devices: [], vid: 14 }), /at least one device/);
+    await assert.rejects(svc.move({ switchIp: '10.42.44.12', devices: ['3555-1', 'nope'], vid: 14 }), /nope is not on/);
     await assert.rejects(svc.setEth02({ device: '3555-1', ip: '172.16.14' }), /not an IPv4/);
     await assert.rejects(svc.setEth02({ device: 'nope', ip: '172.16.14.10' }), /not on the test network/);
   } finally {

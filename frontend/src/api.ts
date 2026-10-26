@@ -659,9 +659,9 @@ export function scanTestNetwork(switchIp: string): Promise<TestScan> {
   return send('/api/test-network/scan', 'POST', { switchIp })
 }
 
-/** Put a bench device's switch port on VLAN `vid` (untagged); resolves to
- *  the snapshot with the switch's VLANs as re-read after the change. */
-export function moveTestDevice(args: { switchIp: string; device: string; vid: number }): Promise<{ scan: TestScan }> {
+/** Put bench devices' switch ports on VLAN `vid` (untagged), in one switch
+ *  save; resolves to the snapshot with the switch's VLANs as re-read. */
+export function moveTestDevices(args: { switchIp: string; devices: string[]; vid: number }): Promise<{ scan: TestScan }> {
   return send('/api/test-network/move', 'POST', args)
 }
 

@@ -1,6 +1,6 @@
 """The SEL device web interfaces: an RTAC's Ethernet settings page and project
 store, and an SEL-2730M switch's VLAN table. The Test pane (py/test_network.py)
-reads both and moves switch ports between VLANs (move_port). The rest — setting
+reads both and moves switch ports between VLANs (move_ports). The rest — setting
 an Eth_02 address, making a VLAN exactly a set of ports, the web project
 upload + activate — came with the retired RTAC VLAN Deploy tool and is kept,
 tested, for the Test pane to grow into.
@@ -529,35 +529,40 @@ def set_vlan_ports(web, vid, ports, log=lambda line: None):
             "moved": moved, "removed": fold_ports(extra), "tagged": fold_ports(tagged)}
 
 
-def move_port(web, port, vid):
-    """Make `port` an untagged member of VLAN `vid` — the Test page's drag
-    of a device onto a VLAN. Adding it to `vid`'s untagged list is what takes
-    it off its old VLAN (the switch moves an untagged port itself, as the
-    10.42.44.12 capture shows); it also comes off `vid`'s tagged list if it
-    was there. Every other port is left as it is. Confirms by re-reading.
-    Returns {"port", "from": old vid or None, "to", "changed"}."""
-    port, vid = int(port), int(vid)
-    if port not in read_switch_ports(web):
-        raise SelWebError(f"the switch has no port {port}")
+def move_ports(web, ports, vid):
+    """Make `ports` untagged members of VLAN `vid`, in ONE save — the Test
+    page's drag of one or several devices onto a VLAN. Adding them to `vid`'s
+    untagged list is what takes each off its old VLAN (the switch moves an
+    untagged port itself, as the 10.42.44.12 capture shows); any of them on
+    `vid`'s tagged list comes off it too. Every other port is left as it is.
+    Confirms by re-reading. Returns {"ports", "from": {port: old vid or
+    None}, "to", "changed"}."""
+    ports, vid = sorted({int(p) for p in ports}), int(vid)
+    if not ports:
+        raise SelWebError("no ports to move")
+    known = read_switch_ports(web)
+    if bad := [p for p in ports if p not in known]:
+        raise SelWebError(f"the switch has no port {fold_ports(bad)}")
     vlans = read_vlans(web)
     if vid not in vlans:
         raise SelWebError(f"VLAN {vid} doesn't exist on the switch "
                           f"(VLANs: {', '.join(map(str, sorted(vlans)))})")
-    old = next((v for v, row in sorted(vlans.items())
-                if port in ports_or_empty(row["untagged"])), None)
+    old = {p: next((v for v, row in sorted(vlans.items())
+                    if p in ports_or_empty(row["untagged"])), None) for p in ports}
     vlan = vlans[vid]
     untagged, tagged = ports_or_empty(vlan["untagged"]), ports_or_empty(vlan["tagged"])
-    if old == vid and port not in tagged:
-        return {"port": port, "from": old, "to": vid, "changed": False}
-    _save_vlan(web, vid, vlan, fold_ports(untagged + [port]),
-               tagged=fold_ports(p for p in tagged if p != port))
+    if all(old[p] == vid for p in ports) and not set(ports) & set(tagged):
+        return {"ports": ports, "from": old, "to": vid, "changed": False}
+    _save_vlan(web, vid, vlan, fold_ports(untagged + ports),
+               tagged=fold_ports(p for p in tagged if p not in ports))
     time.sleep(1)  # let the switch apply before re-reading
     now = read_vlans(web)
-    holders = [v for v, row in now.items() if port in ports_or_empty(row["untagged"])]
-    if holders != [vid]:
-        raise SelWebError(f"the switch said success but port {port} is now untagged on "
-                          f"VLAN {', '.join(map(str, holders)) or 'none'} (expected {vid})")
-    return {"port": port, "from": old, "to": vid, "changed": True}
+    wrong = {p: [v for v, row in now.items() if p in ports_or_empty(row["untagged"])] for p in ports}
+    wrong = {p: holders for p, holders in wrong.items() if holders != [vid]}
+    if wrong:
+        said = "; ".join(f"port {p} on VLAN {', '.join(map(str, h)) or 'none'}" for p, h in wrong.items())
+        raise SelWebError(f"the switch said success but {said} (expected all on {vid})")
+    return {"ports": ports, "from": old, "to": vid, "changed": True}
 
 
 # --- RTAC: project upload + activate -----------------------------------------

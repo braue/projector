@@ -242,25 +242,32 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(rows["3532-3"]["project"]["name"], "Station_B")
         self.assertIn("timed out", rows["gone"]["error"])
 
-    def test_move_port(self):
+    def test_move_ports(self):
         switch = self.devices["10.42.44.12"]
         # port 7 sits untagged on VLAN 16 in the capture; VLAN 14 takes it
-        out = test_network.move({"switchIp": "10.42.44.12", "port": 7, "vid": 14})
+        out = test_network.move({"switchIp": "10.42.44.12", "ports": [7], "vid": 14})
         vlans = {v["vid"]: v["untagged"] for v in out.pop("vlans")}
-        self.assertEqual(out, {"port": 7, "from": 16, "to": 14, "changed": True})
+        self.assertEqual(out, {"ports": [7], "from": {7: 16}, "to": 14, "changed": True})
         self.assertEqual(vlans[14], [7])
-        vlans = {vid: cells[3]["value"] for vid, cells in switch.rows.items()}
-        self.assertEqual(vlans[14], "7")
-        self.assertEqual(vlans[16], "6,8-18")   # nothing else moved
-        self.assertEqual(vlans[1], "1-5,19-24")
+        rows = lambda: {vid: cells[3]["value"] for vid, cells in switch.rows.items()}
+        self.assertEqual(rows()[16], "6,8-18")   # nothing else moved
+        self.assertEqual(rows()[1], "1-5,19-24")
         self.assertEqual(len(switch.saves), 1)
-        again = test_network.move({"switchIp": "10.42.44.12", "port": 7, "vid": 14})
+        again = test_network.move({"switchIp": "10.42.44.12", "ports": [7], "vid": 14})
         self.assertFalse(again["changed"])
         self.assertEqual(len(switch.saves), 1)
+        # several at once, from different VLANs: still ONE save
+        out = test_network.move({"switchIp": "10.42.44.12", "ports": [3, 9, 20], "vid": 14})
+        self.assertEqual(out["from"], {3: 1, 9: 16, 20: 1})
+        self.assertEqual(len(switch.saves), 2)
+        self.assertEqual(rows()[14], "3,7,9,20")
+        self.assertEqual(rows()[16], "6,8,10-18")
+        self.assertEqual(rows()[1], "1-2,4-5,19,21-24")
         with self.assertRaisesRegex(sel_web.SelWebError, "VLAN 99 doesn't exist"):
-            test_network.move({"switchIp": "10.42.44.12", "port": 7, "vid": 99})
+            test_network.move({"switchIp": "10.42.44.12", "ports": [7], "vid": 99})
         with self.assertRaisesRegex(sel_web.SelWebError, "no port 30"):
-            test_network.move({"switchIp": "10.42.44.12", "port": 30, "vid": 14})
+            test_network.move({"switchIp": "10.42.44.12", "ports": [7, 30], "vid": 14})
+        self.assertEqual(len(switch.saves), 2)
 
     def test_set_eth02(self):
         rtac = self.devices["10.42.44.34"]

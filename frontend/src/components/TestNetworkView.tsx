@@ -3,7 +3,7 @@
 // that port; each RTAC's web interface says its Eth_02 address and running
 // project. Drawn as the switch's faceplate over one lane per VLAN. Dragging
 // a card onto another lane moves its switch port to that VLAN, on the switch,
-// at once. Clicking an RTAC opens its window: a new Eth_02 address, or an
+// at once; Ctrl+click picks several cards to drag together (one switch save). Clicking an RTAC opens its window: a new Eth_02 address, or an
 // AcRTAC database project to upload to it (a job, in the AcRTAC queue).
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
@@ -11,7 +11,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   fetchBenchDevices,
   fetchTestNetwork,
-  moveTestDevice,
+  moveTestDevices,
   saveBenchDevices,
   scanTestNetwork,
   setTestEth02,
@@ -92,9 +92,11 @@ export function TestNetworkView({ active }: { active: boolean }) {
   const [hoverPort, setHoverPort] = useState<number | null>(null)
   const [picking, setPicking] = useState<BenchDevice | null>(null)
   const [benchOpen, setBenchOpen] = useState(false)
-  // Drag and drop: the card in hand, the lane under it, and drops the
-  // switch hasn't confirmed yet (device id → VLAN).
-  const [dragging, setDragging] = useState<BenchDevice | null>(null)
+  // Drag and drop: the cards in hand, the lane under them, and drops the
+  // switch hasn't confirmed yet (device id → VLAN). Ctrl+click builds a
+  // selection that drags as one.
+  const [dragging, setDragging] = useState<BenchDevice[] | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
   const [dropVid, setDropVid] = useState<number | null>(null)
   const [moving, setMoving] = useState<Map<string, number>>(new Map())
   const jobs = useJobs()
@@ -142,20 +144,41 @@ export function TestNetworkView({ active }: { active: boolean }) {
     .filter((j) => j.meta?.type === 'test-upload' && j.status === 'running')
     .map((j) => [String(j.meta!.device), String(j.meta!.project)])), [jobs])
 
-  const move = async (device: BenchDevice, vid: number) => {
-    setMoving((current) => new Map(current).set(device.id, vid))
+  const move = async (devices: BenchDevice[], vid: number) => {
+    const ids = devices.map((d) => d.id)
+    setMoving((current) => {
+      const next = new Map(current)
+      for (const id of ids) next.set(id, vid)
+      return next
+    })
     setError(null)
     try {
-      setScan((await moveTestDevice({ switchIp: savedIp, device: device.id, vid })).scan)
+      setScan((await moveTestDevices({ switchIp: savedIp, devices: ids, vid })).scan)
     } catch (err) {
-      setError(`${device.id} → VLAN ${vid}: ${errorMessage(err)}`)
+      setError(`${ids.join(', ')} → VLAN ${vid}: ${errorMessage(err)}`)
     } finally {
       setMoving((current) => {
         const next = new Map(current)
-        next.delete(device.id)
+        for (const id of ids) next.delete(id)
         return next
       })
     }
+  }
+
+  // Esc lets go of the selection.
+  useEffect(() => {
+    if (!active || !selected.size) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelected(new Set())
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active, selected])
+  // The cards a drag from `device` carries: the whole selection when the
+  // card is in it, else just that card.
+  const dragSet = (device: BenchDevice): BenchDevice[] => {
+    if (!selected.has(device.id) || selected.size < 2) return [device]
+    return lanes.flatMap((lane) => lane.devices).filter((d) => selected.has(d.id) && !moving.has(d.id))
   }
 
   // Leaving the switch IP field (Enter or click away) keeps what was typed,
@@ -222,7 +245,8 @@ export function TestNetworkView({ active }: { active: boolean }) {
                     + (dropVid === lane.vid ? ' drop' : '')}
                   style={{ '--lane': lane.color } as React.CSSProperties}
                   onDragOver={(e) => {
-                    if (!dragging || lane.devices.some((x) => x.id === dragging.id)) return
+                    const arriving = (dragging ?? []).filter((d) => !lane.devices.some((x) => x.id === d.id))
+                    if (!arriving.length) return
                     e.preventDefault()
                     setDropVid(lane.vid)
                   }}
@@ -232,7 +256,10 @@ export function TestNetworkView({ active }: { active: boolean }) {
                   onDrop={(e) => {
                     e.preventDefault()
                     setDropVid(null)
-                    if (dragging && !lane.devices.some((x) => x.id === dragging.id)) move(dragging, lane.vid)
+                    const arriving = (dragging ?? []).filter((d) => !lane.devices.some((x) => x.id === d.id))
+                    if (!arriving.length) return
+                    setSelected(new Set())
+                    move(arriving, lane.vid)
                   }}>
                   <header className="testnet-lane-head">
                     <span className="testnet-vid">VLAN {lane.vid}</span>
@@ -243,10 +270,29 @@ export function TestNetworkView({ active }: { active: boolean }) {
                       <DeviceCard key={d.id} device={d} state={states.get(d.id)}
                         uploading={uploading.get(d.id)}
                         moving={moving.has(d.id)}
-                        onDrag={(on) => setDragging(on ? d : null)}
+                        selected={selected.has(d.id)}
+                        onDragStart={() => {
+                          const set = dragSet(d)
+                          if (set.length === 1) setSelected(new Set())
+                          setDragging(set)
+                          return set.length
+                        }}
+                        onDragEnd={() => setDragging(null)}
                         hover={hoverPort === Number(d.port)}
                         onHover={(on) => setHoverPort(on ? Number(d.port) : null)}
-                        onClick={d.kind === 'rtac' ? () => setPicking(d) : undefined} />
+                        onClick={(e) => {
+                          if (e.ctrlKey || e.metaKey) {
+                            setSelected((current) => {
+                              const next = new Set(current)
+                              if (next.has(d.id)) next.delete(d.id)
+                              else next.add(d.id)
+                              return next
+                            })
+                            return
+                          }
+                          setSelected(new Set())
+                          if (d.kind === 'rtac') setPicking(d)
+                        }} />
                     ))}
                     {lane.trunks.map((d) => (
                       <div key={`t-${d.id}`} className={hoverPort === Number(d.port) ? 'testnet-trunk hover' : 'testnet-trunk'}
@@ -339,7 +385,9 @@ function DeviceCard({
   state,
   uploading,
   moving,
-  onDrag,
+  selected,
+  onDragStart,
+  onDragEnd,
   hover,
   onHover,
   onClick,
@@ -348,24 +396,37 @@ function DeviceCard({
   state: TestDeviceState | undefined
   uploading: string | undefined
   moving: boolean
-  onDrag: (on: boolean) => void
+  selected: boolean
+  /** Returns how many cards the drag carries. */
+  onDragStart: () => number
+  onDragEnd: () => void
   hover: boolean
   onHover: (on: boolean) => void
-  onClick?: () => void
+  onClick: (e: React.MouseEvent) => void
 }) {
   const rtac = device.kind === 'rtac'
   const status = !rtac ? null : uploading || moving ? 'busy' : state?.error ? 'bad'
     : state?.project?.state === 'running' ? 'ok' : 'warn'
   return (
     <div
-      className={'testnet-card' + (rtac ? ' rtac' : '') + (hover ? ' hover' : '') + (moving ? ' moving' : '')}
+      className={'testnet-card' + (rtac ? ' rtac' : '') + (hover ? ' hover' : '') + (moving ? ' moving' : '')
+        + (selected ? ' selected' : '')}
       draggable={!moving}
       onDragStart={(e) => {
         e.dataTransfer.effectAllowed = 'move'
         e.dataTransfer.setData('text/plain', device.id)
-        onDrag(true)
+        const count = onDragStart()
+        if (count > 1) {
+          // One ghost for the group: "5 devices".
+          const ghost = document.createElement('div')
+          ghost.className = 'testnet-ghost'
+          ghost.textContent = `${count} devices`
+          document.body.appendChild(ghost)
+          e.dataTransfer.setDragImage(ghost, 12, 12)
+          setTimeout(() => ghost.remove(), 0)
+        }
       }}
-      onDragEnd={() => onDrag(false)}
+      onDragEnd={onDragEnd}
       onClick={onClick}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}

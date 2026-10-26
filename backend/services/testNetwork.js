@@ -2,8 +2,8 @@
 // SEL-2730M, read as it stands: which switch port sits on which VLAN, which
 // bench device is on that port, its Eth_02 address and the project it runs.
 // Over the devices' web interfaces (py/test_network.py, which needs no
-// selacrtac). Three writes: moving one switch port onto a VLAN (the page's
-// drag and drop), setting an RTAC's Eth_02 address, and sending a database
+// selacrtac). Three writes: moving switch ports onto a VLAN (the page's
+// drag and drop, one or several cards at once), setting an RTAC's Eth_02 address, and sending a database
 // project to an RTAC through AcRTAC's upload, as a job in the AcRTAC queue.
 //
 // The bench itself — which identifier ("3555-1") is at which network IP on
@@ -129,21 +129,26 @@ class TestNetworkService {
     return this.#scanning;
   }
 
-  /** Put bench device `device` (by identifier) on VLAN `vid`: its switch
-   *  port becomes an untagged member there, off whatever VLAN had it. The
-   *  device is looked up in the last scan's bench — the card that was
-   *  dragged — or, when the backend has restarted since, in the table.
-   *  Resolves to the snapshot with the switch's VLANs as re-read. */
+  /** Put bench `devices` (identifiers) on VLAN `vid`: their switch ports
+   *  become untagged members there, off whatever VLAN had them, in one
+   *  switch save. Devices are looked up in the last scan's bench — the cards
+   *  that were dragged — or, when the backend has restarted since, in the
+   *  table. Moves run one at a time. Resolves to the snapshot with the
+   *  switch's VLANs as re-read. */
   async move(payload) {
     const ip = filled(payload?.switchIp, 'Switch IP');
-    const id = filled(payload?.device, 'device');
+    const ids = Array.isArray(payload?.devices) ? payload.devices.map((d) => String(d).trim()).filter(Boolean) : [];
+    if (!ids.length) throw httpError(400, 'pick at least one device to move');
     const vid = Number(payload?.vid);
     if (!Number.isInteger(vid) || vid < 1 || vid > 4094) throw httpError(400, 'VLAN must be 1-4094');
     const bench = this.#last?.bench ?? await this.devices();
-    const device = bench.find((d) => d.id === id);
-    if (!device) throw httpError(400, `${id} is not on the test network`);
+    const ports = ids.map((id) => {
+      const device = bench.find((d) => d.id === id);
+      if (!device) throw httpError(400, `${id} is not on the test network`);
+      return Number(device.port);
+    });
     const run = this.#moves.then(async () => {
-      const { vlans, ...moved } = await this.bridge({ command: 'move', switchIp: ip, port: Number(device.port), vid });
+      const { vlans, ...moved } = await this.bridge({ command: 'move', switchIp: ip, ports, vid });
       if (this.#last) this.#last = { ...this.#last, switch: { ...this.#last.switch, vlans } };
       this.events?.publish('test-network', {});
       return { ...moved, scan: this.#last };
