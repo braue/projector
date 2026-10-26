@@ -4,12 +4,16 @@
 // columns plus one prototype test column), one column per test, and written
 // into the target as new parts — or over the existing parts when the
 // workbook already has sheets by those names, in place, so a re-run replaces
-// the previous conversion instead of stacking copies. Everything else in the
-// workbook is left byte-for-byte as it was.
+// the previous conversion instead of stacking copies. All four are written on
+// every run, a kind with no tests as its labels alone: the sheets always say
+// exactly what this conversion found. Everything else in the workbook is
+// left byte-for-byte as it was.
 //
-// The row-4 substation band is taken from the target itself: its Under
+// The row-4 substation band comes from the caller when given — which feeder
+// sits under which substation, and each substation's colour (the tool's
+// inputs). Otherwise it is taken from the target itself: its Under
 // Frequency / Loss of Source sheets already band each feeder under its
-// substation in that project's colours, so the new sheets match them.
+// substation in that project's colours.
 
 import {
   StyleMerger, attrsOf, block, cellText, colLetters, elements, escapeXml, parseSheet, partText,
@@ -87,6 +91,23 @@ function readBands(pkg, sheets, strings) {
   return { feeders, substations };
 }
 
+/** feeder → { substation, color } and the substation order, from the
+ *  caller's [{ name, color, feeders }]; `color` is 'RRGGBB' or null. */
+function givenBands(bands) {
+  const feeders = new Map();
+  const substations = [];
+  for (const band of bands) {
+    const name = String(band.name ?? '').trim();
+    if (!name) continue;
+    const color = /^#?[0-9a-f]{6}$/i.test(band.color ?? '') ? band.color.replace('#', '') : null;
+    substations.push({ name, color });
+    for (const feeder of band.feeders ?? []) {
+      if (!feeders.has(feeder)) feeders.set(feeder, { substation: name, color });
+    }
+  }
+  return { feeders, substations };
+}
+
 /** A footer from the target's own checkout sheets (project name, date code). */
 function targetFooter(pkg, sheets) {
   for (const name of [...BAND_SOURCES, ...INSERT_BEFORE]) {
@@ -156,7 +177,8 @@ function buildSheet(kind, templateXml, templateStrings, columns, { styles, foote
         if (row.r === 4) {
           const band = column.band;
           const starts = i === 0 || columns[i - 1].band.label !== band.label;
-          const style = band.style ?? styles.map(protoBand?.s ?? proto.s);
+          const base = styles.map(protoBand?.s ?? proto.s);
+          const style = band.style ?? (band.color ? styles.withFill(base, band.color) : base);
           cells.push(starts ? { col, s: style, kind: 'str', value: band.label } : { col, s: style, kind: 'blank' });
         } else if (row.r === 5) {
           cells.push({
@@ -178,7 +200,12 @@ function buildSheet(kind, templateXml, templateStrings, columns, { styles, foote
 
   // Label merges that reached the prototype column span every test; row 4
   // gets one merge per substation run.
-  const merges = template.merges.map((m) => (m.c2 === first && m.c1 < first ? { ...m, c2: last } : m));
+  // With no tests the sheet is its label columns alone: anything that
+  // reached into the prototype column stops at the last label column, and
+  // what lived only in it goes.
+  const merges = template.merges
+    .map((m) => (m.c2 === first && m.c1 < first ? { ...m, c2: last } : m))
+    .filter((m) => m.c1 <= m.c2 && (m.c1 < m.c2 || m.r1 < m.r2));
   let runStart = 0;
   columns.forEach((column, i) => {
     const endsRun = i === columns.length - 1 || columns[i + 1].band.label !== column.band.label;
@@ -189,9 +216,10 @@ function buildSheet(kind, templateXml, templateStrings, columns, { styles, foote
 
   const validations = template.validations.map((v) => ({
     ...v,
-    ranges: v.ranges.map((r) => (r.c1 === first ? { ...r, c2: last } : r)),
-  }));
+    ranges: v.ranges.map((r) => (r.c1 === first ? { ...r, c2: last } : r)).filter((r) => r.c1 <= r.c2),
+  })).filter((v) => v.ranges.length);
   const cols = template.cols.map((c) => (c.min === first ? { ...c, max: last } : c))
+    .filter((c) => c.min <= c.max)
     .map((c) => ({ ...c, style: c.style != null ? styles.map(c.style) : undefined }));
   const { margins, setup, headerFooter } = printTail(templateXml);
 
@@ -294,14 +322,14 @@ function dropCalcChain(pkg) {
  *
  * Returns { buffer, sheets: [{ kind, name, count, replaced }], bands }.
  */
-function graftSheets(targetBuffer, templateBuffer, byKind) {
+function graftSheets(targetBuffer, templateBuffer, byKind, { bands = null } = {}) {
   const pkg = readPackage(targetBuffer);
   const tpl = readPackage(templateBuffer);
   const strings = sharedStrings(pkg);
   const tplStrings = sharedStrings(tpl);
   const tplSheets = workbookSheets(tpl);
   let sheets = workbookSheets(pkg);
-  const { feeders, substations } = readBands(pkg, sheets, strings);
+  const { feeders, substations } = bands ? givenBands(bands) : readBands(pkg, sheets, strings);
   const footer = targetFooter(pkg, sheets);
   const styles = new StyleMerger(partText(pkg, 'xl/styles.xml'), partText(tpl, 'xl/styles.xml'));
 
@@ -320,7 +348,6 @@ function graftSheets(targetBuffer, templateBuffer, byKind) {
 
   for (const kind of KIND_ORDER) {
     const tests = byKind[kind] ?? [];
-    if (!tests.length) continue;
     const layout = SHEETS[kind];
     const tplSheet = tplSheets.find((s) => s.name === layout.name);
     if (!tplSheet) throw new Error(`the template has no "${layout.name}" sheet`);
@@ -334,7 +361,7 @@ function graftSheets(targetBuffer, templateBuffer, byKind) {
       return {
         ...column,
         order,
-        band: band ? { label: band.substation, style: band.style } : { label: column.feeder, style: null },
+        band: band ? { label: band.substation, style: band.style ?? null, color: band.color ?? null } : { label: column.feeder, style: null },
         rank: band ? substationRank(band.substation) : substations.length,
         feederRank: band ? feederOrder.indexOf(column.feeder) : feederOrder.length,
       };

@@ -215,6 +215,7 @@ class StyleMerger {
     this.target = styleLists(targetStylesXml);
     this.source = styleLists(templateStylesXml);
     this.memo = new Map();
+    this.fillMemo = new Map();
     this.changed = false;
   }
 
@@ -269,6 +270,21 @@ class StyleMerger {
     const mapped = xf ? this.#ensure('cellXfs', this.#rebuild(xf, 'cellXfs')) : 0;
     this.memo.set(index, mapped);
     return mapped;
+  }
+
+  /** A target cellXfs index like `s` (already a TARGET index) but with a
+   *  solid fill of `rgb` ('RRGGBB') — a substation band's colour. */
+  withFill(s, rgb) {
+    const key = `${s}|${rgb}`;
+    if (this.fillMemo.has(key)) return this.fillMemo.get(key);
+    const fill = `<fill><patternFill patternType="solid"><fgColor rgb="FF${rgb.toUpperCase()}"/><bgColor indexed="64"/></patternFill></fill>`;
+    const fillId = this.#ensure('fills', fill);
+    const xf = this.target.cellXfs[Number(s)] ?? '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>';
+    const tag = xf.match(/^<xf\b[^>]*?\/?>/)[0];
+    const recoloured = withAttr(withAttr(tag, 'fillId', String(fillId)), 'applyFill', '1') + xf.slice(tag.length);
+    const index = this.#ensure('cellXfs', recoloured);
+    this.fillMemo.set(key, index);
+    return index;
   }
 
   /** styles.xml with the appended records (unchanged text when none were). */

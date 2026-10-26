@@ -307,6 +307,25 @@ button.ui-section-header:hover { color: var(--ink); }
 .dacsim-entry.on { background: var(--accent-tint); }
 .dacsim-entry input { accent-color: var(--accent); }
 .dacsim-entry-name { font-weight: 550; }
+/* The FAT tool's feeder list: short names, so several to a row. */
+/* The FAT tool's feeders: pick, count, substation; then one swatch per
+   substation band (click to recolour), tinted the band's own colour. */
+.fat-feeders {
+  flex-shrink: 0; display: grid; grid-template-columns: auto auto auto minmax(160px, 260px);
+  gap: 6px 14px; align-items: center;
+}
+.fat-col { font-size: 12px; font-weight: 600; color: var(--muted); }
+.fat-feeder { font-weight: 550; font-size: 13px; }
+.fat-feeder.off { color: var(--ghost); }
+.fat-feeders .ui-input { width: 100%; min-width: 0; }
+.fat-bands { flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.fat-band {
+  display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px;
+  border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: #1a1a22;
+}
+.fat-band input[type="color"] { width: 28px; height: 24px; padding: 0; border: 1px solid rgba(0,0,0,0.2); border-radius: 5px; background: none; cursor: pointer; }
+.fat-band-name { font-weight: 650; font-size: 13px; }
+.fat-band-feeders { font-size: 12px; opacity: 0.75; }
 /* The addressing fields for the checked DACs: one grid so every scheme's
    fields line up under a single header row (Button/TextInput cells are
    direct grid children — the per-scheme wrappers are Fragments). */

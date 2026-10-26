@@ -250,7 +250,7 @@ if (electron) {
   const zip = `${mirror}v${electron.version}/electron-v${electron.version}-${targetOs}-${targetCpu}.zip`;
   const r = await probe(zip, { 'User-Agent': headers['User-Agent'] });
   console.log(`\nElectron zip  ${r.status && r.status < 400 ? 'reachable' : label(r.status)}  ${zip}`);
-  if (r.message && r.status >= 400) console.log(`      ${r.message}`);
+  if (r.message && (r.status === 0 || r.status >= 400)) console.log(`      ${r.message}`);
 }
 
 const out = opt('--json');

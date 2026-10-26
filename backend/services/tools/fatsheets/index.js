@@ -17,15 +17,33 @@ import { selectSheets } from './select.js';
 const TEMPLATE = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
   '../../../resources/fatSheets/checkout-template.xlsx');
 
+/** The report's feeders, in report order, with how many tests each has. */
+function reportFeeders(html) {
+  const { title, tests } = parseAutoFat(html);
+  const counts = new Map();
+  for (const t of tests) counts.set(t.feeder, (counts.get(t.feeder) ?? 0) + 1);
+  return { title, feeders: [...counts].map(([feeder, count]) => ({ feeder, tests: count })) };
+}
+
 /**
- * { workbook: Buffer, html: string, engineer?: string, template?: Buffer }
+ * { workbook: Buffer, html: string, engineer?: string, feeders?: string[],
+ *   bands?: [{ name, color, feeders }], template?: Buffer }
+ *   `feeders` limits the run to those feeders' tests (all when omitted).
+ *   `bands` says which feeder sits under which substation and each
+ *   substation's colour ('RRGGBB'); without it they are read from the
+ *   workbook's Under Frequency / Loss of Source sheets.
+ *   All four sheets are always rewritten, a kind with no tests left empty.
  *   → { buffer, title, sheets: [{kind, name, count, inReport, replaced}], bands,
  *       flagged: [{ index, kind, sheet, column, feeder, status, comment }],
  *       unpaired: [{ location, feeders, reason, tests }], abnormalUnmatched: [feeder] }
  */
-async function convertAutoFat({ workbook, html, engineer = '', template }) {
-  const { title, tests } = parseAutoFat(html);
-  if (!tests.length) throw new Error('the report has no fault, open phase, miscoordination or abnormal tests');
+async function convertAutoFat({ workbook, html, engineer = '', feeders = null, bands = null, template }) {
+  const parsed = parseAutoFat(html);
+  const { title } = parsed;
+  if (!parsed.tests.length) throw new Error('the report has no fault, open phase, miscoordination or abnormal tests');
+  const wanted = feeders ? new Set(feeders) : null;
+  const tests = wanted ? parsed.tests.filter((t) => wanted.has(t.feeder)) : parsed.tests;
+  if (!tests.length) throw new Error('none of the picked feeders has tests in the report');
   const selected = selectSheets(tests);
   // An abnormal column's baseline answer reads off the fault-sheet test it re-runs.
   const plainTests = [...selected.fault, ...tests.filter((t) => !t.abnormal)];
@@ -39,7 +57,7 @@ async function convertAutoFat({ workbook, html, engineer = '', template }) {
       values: columnFor(kind, test, { engineer, plainTests }),
     }));
   }
-  const result = graftSheets(workbook, template ?? await readFile(TEMPLATE), byKind);
+  const result = graftSheets(workbook, template ?? await readFile(TEMPLATE), byKind, { bands });
 
   // Where the tests that need a second look landed. graftSheets sorts each
   // sheet's columns by substation/feeder, so positions come from its order.
@@ -64,4 +82,4 @@ async function convertAutoFat({ workbook, html, engineer = '', template }) {
     unpaired: selected.unpaired, abnormalUnmatched: selected.abnormalUnmatched };
 }
 
-export { convertAutoFat };
+export { convertAutoFat, reportFeeders };

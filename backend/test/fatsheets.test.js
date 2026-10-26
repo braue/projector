@@ -18,7 +18,7 @@ import { JobRegistry } from '../services/jobs.js';
 import { FatSheetsService } from '../services/tools/fatsheets.js';
 import { parseAutoFat } from '../services/tools/fatsheets/autofat.js';
 import { columnFor, configuration } from '../services/tools/fatsheets/columns.js';
-import { convertAutoFat } from '../services/tools/fatsheets/index.js';
+import { convertAutoFat, reportFeeders } from '../services/tools/fatsheets/index.js';
 import { SHEETS } from '../services/tools/fatsheets/layout.js';
 import { selectSheets } from '../services/tools/fatsheets/select.js';
 import {
@@ -420,13 +420,65 @@ test('convertAutoFat grafts the sheets and leaves the rest of the workbook alone
   assert.deepEqual(result.flagged.map((f) => [f.index, f.column, f.status]),
     [[2, 'FT-1', 'Fail'], [4, 'OP-1', 'Questionable']]);
 
-  // A re-run replaces the sheets in place instead of stacking copies.
+  // A re-run replaces the sheets in place instead of stacking copies — all
+  // four, every time: a kind the new report has no tests for is emptied.
   const again = await convertAutoFat({ workbook: result.buffer, html: report(TESTS.filter((t) => t.index === 1 || t.index === 91)) });
   const pkg2 = readPackage(again.buffer);
   assert.deepEqual(sheetsOf(pkg2).map((s) => s.name), sheetsOf(pkg).map((s) => s.name));
-  assert.deepEqual(again.sheets.map((s) => [s.kind, s.count, s.replaced]), [['fault', 1, true], ['openPhase', 1, true]]);
+  assert.deepEqual(again.sheets.map((s) => [s.kind, s.count, s.replaced]),
+    [['fault', 1, true], ['openPhase', 1, true], ['miscoordination', 0, true], ['abnormal', 0, true]]);
   assert.equal(grid(pkg2, 'Fault Test Checkout')(6, 5), null);
   assert.equal((partText(pkg2, 'xl/workbook.xml').match(/'Fault Test Checkout'!\$A\$1/g) ?? []).length, 1);
+  // The emptied sheet keeps its labels, and nothing in it reaches past them.
+  const mis = grid(pkg2, 'Miscoordination Test Checkout');
+  assert.match(mis(9, 3).text, /recognize the miscoordination/);
+  assert.equal(mis(6, 4), null);
+  const misXml = partText(pkg2, sheetsOf(pkg2).find((s) => s.name === 'Miscoordination Test Checkout').part);
+  for (const tag of elements(misXml, 'col')) assert.ok(Number(attrsOf(tag).min) <= Number(attrsOf(tag).max), tag);
+  for (const tag of elements(misXml, 'mergeCell')) assert.doesNotMatch(attrsOf(tag).ref, /^([A-Z]+\d+):\1$/, tag);
+  assert.match(partText(pkg2, 'xl/workbook.xml'), /'Miscoordination Test Checkout'!\$A\$1:\$C\$/);
+});
+
+test('feeders: listed in report order with test counts; a run can be limited to some', async () => {
+  const html = report(TESTS);
+  assert.deepEqual(reportFeeders(html).feeders, [
+    { feeder: 'F2', tests: 3 }, { feeder: 'F1', tests: 6 }, { feeder: 'F9', tests: 2 },
+  ]);
+  const only = await convertAutoFat({ workbook: workbookPackage(), html, feeders: ['F2'] });
+  assert.deepEqual(only.sheets.map((s) => [s.kind, s.count]),
+    [['fault', 1], ['openPhase', 1], ['miscoordination', 0], ['abnormal', 1]]);
+  await assert.rejects(convertAutoFat({ workbook: workbookPackage(), html, feeders: ['F7'] }), /none of the picked feeders/);
+});
+
+test('bands given as inputs: substations in the given order, each band its colour across the merge', async () => {
+  const result = await convertAutoFat({
+    workbook: workbookPackage(),
+    html: report(TESTS),
+    bands: [
+      { name: 'Ville Platte', color: '#FFC000', feeders: ['F9', 'F2'] },
+      { name: 'Eunice', color: '9BC2E6', feeders: ['F1'] },
+    ],
+  });
+  // The workbook's own bands (Eunice / Habetz on Under Frequency) are not used.
+  assert.deepEqual(result.bands.substations, [
+    { name: 'Ville Platte', feeders: ['F9', 'F2'] },
+    { name: 'Eunice', feeders: ['F1'] },
+  ]);
+  const pkg = readPackage(result.buffer);
+  const fault = grid(pkg, 'Fault Test Checkout');
+  // FT columns: F9, F2 under Ville Platte, then F1 under Eunice.
+  assert.deepEqual([4, 5, 6].map((c) => fault(6, c).text), ['F9', 'F2', 'F1']);
+  assert.equal(fault(4, 4).text, 'Ville Platte');
+  assert.equal(fault(4, 6).text, 'Eunice');
+  const styles = partText(pkg, 'xl/styles.xml');
+  const xfs = elements(block(styles, 'cellXfs'), 'xf');
+  const fills = elements(block(styles, 'fills'), 'fill');
+  const rgb = (s) => /rgb="FF([0-9A-F]{6})"/.exec(fills[Number(attrsOf(xfs[s].match(/^<xf\b[^>]*>/)[0]).fillId)])?.[1];
+  assert.equal(rgb(fault(4, 4).s), 'FFC000');
+  assert.equal(rgb(fault(4, 5).s), 'FFC000'); // the merged continuation cell too
+  assert.equal(rgb(fault(4, 6).s), '9BC2E6');
+  const sheetXml = partText(pkg, sheetsOf(pkg).find((s) => s.name === 'Fault Test Checkout').part);
+  assert.ok(elements(sheetXml, 'mergeCell').some((t) => attrsOf(t).ref === 'D4:E4'));
 });
 
 test('a re-run matches sheet names like Excel does and keeps the replaced sheet\'s codeName', async () => {

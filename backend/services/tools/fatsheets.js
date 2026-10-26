@@ -14,7 +14,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { httpError } from '../../lib/http.js';
-import { convertAutoFat } from './fatsheets/index.js';
+import { convertAutoFat, reportFeeders } from './fatsheets/index.js';
 
 const MANIFEST = '.fatsheets-manifest.json';
 const WORKBOOK_EXT = /\.(xlsm|xlsx)$/i;
@@ -33,12 +33,26 @@ class FatSheetsService {
     this.jobs = jobs;
   }
 
+  /** The report's feeders ({ title, feeders: [{ feeder, tests }] }), for the
+   *  picker. `report` is an upload or a project file, as in generate. */
+  async feeders(filesFor, report) {
+    if (!report) throw httpError(400, 'pick the automatic FAT report (.html)');
+    const bytes = report.buffer ?? await (await filesFor(report.project)).read(report.path);
+    try {
+      return reportFeeders(bytes.toString('utf8'));
+    } catch (err) {
+      throw httpError(400, err.message);
+    }
+  }
+
   /**
    * inputs: { workbook, report } — each { name, buffer } (an upload) or
    * { project, path } (a project file, read through `filesFor(project)`).
    * Returns { job, run }; the job's result describes what was written.
+   * `feeders`, when given, limits the run to those feeders' tests; `bands`
+   * ([{ name, color, feeders }]) sets the substation bands and their colours.
    */
-  async generate(filesFor, { workbook, report, engineer = '' }) {
+  async generate(filesFor, { workbook, report, engineer = '', feeders = null, bands = null }) {
     if (!workbook) throw httpError(400, 'pick the FAT workbook (.xlsm or .xlsx)');
     if (!report) throw httpError(400, 'pick the automatic FAT report (.html)');
     // Basenames only: the converted workbook is written into the run
@@ -46,6 +60,7 @@ class FatSheetsService {
     const workbookName = path.basename(String(workbook.name ?? workbook.path ?? ''));
     if (!WORKBOOK_EXT.test(workbookName)) throw httpError(400, `${workbookName} is not an .xlsm or .xlsx workbook`);
     const reportName = path.basename(String(report.name ?? report.path ?? ''));
+    if (feeders !== null && (!Array.isArray(feeders) || !feeders.length)) throw httpError(400, 'pick at least one feeder');
 
     const read = async (input) => (input.buffer ?? (await filesFor(input.project)).read(input.path));
     const { runId, dir: runDir } = await this.workspace.createRun('fatsheets');
@@ -58,13 +73,16 @@ class FatSheetsService {
         workbook: workbookBytes,
         html: reportBytes.toString('utf8'),
         engineer: String(engineer).trim(),
+        feeders: feeders?.map(String) ?? null,
+        bands: Array.isArray(bands) ? bands : null,
       });
       for (const sheet of result.sheets) {
-        const picked = sheet.inReport > sheet.count ? ` (one per feeder, of ${sheet.inReport} in the report)` : '';
+        const per = sheet.kind === 'fault' || sheet.kind === 'openPhase' ? 'one per segment' : 'one per feeder';
+        const picked = sheet.inReport > sheet.count ? ` (${per}, of ${sheet.inReport} for these feeders)` : '';
         handle.log(`${sheet.name}: ${sheet.count} test${sheet.count === 1 ? '' : 's'}${picked}${sheet.replaced ? ' (replaced the existing sheet)' : ''}`);
       }
       if (result.bands.unbanded.length) {
-        handle.log(`No substation band found for ${result.bands.unbanded.join(', ')} — banded by feeder`);
+        handle.log(`No substation for ${result.bands.unbanded.join(', ')} — banded by feeder`);
       }
       await writeFile(path.join(runDir, workbookName), result.buffer);
       const note = versionNote(result.sheets, reportName);

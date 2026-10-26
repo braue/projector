@@ -525,20 +525,36 @@ export type FatInput = { file: File } | { project: string; path: string }
 
 /** Convert an automatic-FAT report into a FAT workbook's checkout sheets, as
  *  one job. Nothing lands in the tree until saveFatSheetsRun. */
+function appendFatInput(form: FormData, field: 'workbook' | 'report', input: FatInput) {
+  if ('file' in input) form.append(field, input.file)
+  else {
+    form.append(`${field}Project`, input.project)
+    form.append(`${field}Path`, input.path)
+  }
+}
+
+/** A report's feeders, in report order, with how many tests each has. */
+export function fetchFatFeeders(report: FatInput): Promise<{ title: string; feeders: { feeder: string; tests: number }[] }> {
+  const form = new FormData()
+  appendFatInput(form, 'report', report)
+  return send('/api/tools/fatsheets/feeders', 'POST', form)
+}
+
 export function generateFatSheets(args: {
   workbook: FatInput
   report: FatInput
   engineer: string
+  /** Limit the run to these feeders. */
+  feeders: string[]
+  /** Which feeder sits under which substation, and each band's colour ('#RRGGBB'). */
+  bands: { name: string; color: string; feeders: string[] }[]
 }): Promise<{ job: string; run: string }> {
   const form = new FormData()
-  for (const [field, input] of [['workbook', args.workbook], ['report', args.report]] as const) {
-    if ('file' in input) form.append(field, input.file)
-    else {
-      form.append(`${field}Project`, input.project)
-      form.append(`${field}Path`, input.path)
-    }
-  }
+  appendFatInput(form, 'workbook', args.workbook)
+  appendFatInput(form, 'report', args.report)
   form.append('engineer', args.engineer)
+  form.append('feeders', JSON.stringify(args.feeders))
+  form.append('bands', JSON.stringify(args.bands))
   return send('/api/tools/fatsheets/generate', 'POST', form)
 }
 

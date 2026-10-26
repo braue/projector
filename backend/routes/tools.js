@@ -171,25 +171,43 @@ function toolsRoutes(tools, projects) {
   // each a multipart upload ("workbook" / "report") or a project file named
   // by <field>Project + <field>Path; plus `engineer`. One job converts; save
   // lands the result as a new version of the workbook's project entry.
+  // `feeders` (a JSON array) limits the run to those feeders; `bands` (JSON
+  // [{ name, color, feeders }]) sets the substation bands; /fatsheets/feeders
+  // lists a report's feeders for the picker (the report alone, same fields).
+  const fatInput = (req, field) => {
+    const body = req.body ?? {};
+    const file = req.files?.[field]?.[0];
+    if (file) return { name: file.originalname, buffer: file.buffer };
+    const project = body[`${field}Project`];
+    const filePath = body[`${field}Path`];
+    return project && filePath ? { project: String(project), path: String(filePath) } : null;
+  };
+  const fatFilesFor = async (project) => (await projects.bundle(project)).files;
+  router.post('/fatsheets/feeders', uploadPair, async (req, res) => {
+    res.json(await tools.fatsheets.feeders(fatFilesFor, fatInput(req, 'report')));
+  });
   router.post('/fatsheets/generate', uploadPair, async (req, res) => {
     const body = req.body ?? {};
-    const input = (field) => {
-      const file = req.files?.[field]?.[0];
-      if (file) return { name: file.originalname, buffer: file.buffer };
-      const project = body[`${field}Project`];
-      const filePath = body[`${field}Path`];
-      return project && filePath ? { project: String(project), path: String(filePath) } : null;
+    const json = (field) => {
+      if (!body[field]) return null;
+      try {
+        return JSON.parse(body[field]);
+      } catch {
+        throw httpError(400, `${field} must be JSON`);
+      }
     };
-    const filesFor = async (project) => (await projects.bundle(project)).files;
-    res.status(202).json(await tools.fatsheets.generate(filesFor, {
-      workbook: input('workbook'),
-      report: input('report'),
+    const feeders = json('feeders');
+    const bands = json('bands');
+    res.status(202).json(await tools.fatsheets.generate(fatFilesFor, {
+      workbook: fatInput(req, 'workbook'),
+      report: fatInput(req, 'report'),
       engineer: body.engineer ?? '',
+      feeders,
+      bands,
     }));
   });
   router.post('/fatsheets/:run/save', async (req, res) => {
-    const filesFor = async (project) => (await projects.bundle(project)).files;
-    res.status(201).json(await tools.fatsheets.save(filesFor, req.params.run));
+    res.status(201).json(await tools.fatsheets.save(fatFilesFor, req.params.run));
   });
 
   // The project tree's generic AcRTAC actions on an RTAC entry, each a
