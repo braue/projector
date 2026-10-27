@@ -1,4 +1,5 @@
-"""The AcRTAC database bridge: list its projects, export them, send one to an RTAC.
+"""The AcRTAC database bridge: list its projects, export them, send one to an
+RTAC, read one back from an RTAC.
 
 The one bridge behind lib/acrtac/pythonClient.js createAcRtacClient — the
 tree's "Download from AcRTAC", the RTAC Exporter tool, and every project
@@ -8,6 +9,7 @@ picker all come through here. One JSON request on STDIN:
     {"command": "export", "projects": [...], "format": "xml" | "exp",
      "directory": ..., "projectPassword": null, "flat": false}
     {"command": "upload", "project": ..., "host": "10.42.44.34"}
+    {"command": "read", "host": "10.42.44.34"}
 
 `export` writes each project into `directory` as a folder of XML (or one
 .exp file), narrating on stderr; one project failing never stops the rest.
@@ -80,9 +82,25 @@ def cmd_upload(cli, request):
     return {"project": project, "host": host}
 
 
+def cmd_read(cli, request):
+    # The Test page's Read: pull whatever the RTAC runs into the database.
+    # readasleft picks the database name itself (a free one when the RTAC's
+    # project name is already taken) and returns it — or, on failure, a
+    # remark in the same string; the database listing tells the two apart.
+    host = request["host"]
+    say(f"… reading {host}")
+    result = str(cli.readasleft(host, "SEL", password="SEL") or "").strip()
+    if result not in {p.name for p in cli.listprojects()}:
+        raise RuntimeError(result or f"AcRTAC read nothing from {host}")
+    say(f"✓ {host} → {result}")
+    return {"name": result}
+
+
 def main():
     request = json.load(sys.stdin)
-    handler = {"list": cmd_list, "export": cmd_export, "upload": cmd_upload}[request["command"]]
+    handler = {
+        "list": cmd_list, "export": cmd_export, "upload": cmd_upload, "read": cmd_read,
+    }[request["command"]]
 
     def run(cli):
         # selacrtac or the CLI may print; keep stdout clean for the JSON result.

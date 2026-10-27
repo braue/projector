@@ -27,13 +27,14 @@ import { useDismiss } from '../lib/useDismiss'
 /** Push button. `variant="primary"` is the filled call-to-action. */
 export function Button({
   variant = 'default',
+  className,
   children,
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'default' | 'primary'
 }) {
   return (
-    <button className={`ui-button ui-button-${variant}`} {...rest}>
+    <button className={`ui-button ui-button-${variant}${className ? ` ${className}` : ''}`} {...rest}>
       {children}
     </button>
   )

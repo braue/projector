@@ -3,8 +3,9 @@
 // that port; each RTAC's web interface says its Eth_02 address and running
 // project. Drawn as the switch's faceplate over one lane per VLAN. Dragging
 // a card onto another lane moves its switch port to that VLAN, on the switch,
-// at once; Ctrl+click picks several cards to drag together (one switch save). Clicking an RTAC opens its window: a new Eth_02 address, or an
-// AcRTAC database project to upload to it (a job, in the AcRTAC queue).
+// at once; Ctrl+click picks several cards to drag together (one switch save). Clicking an RTAC opens its window: a new Eth_02 address, then
+// Upload (pick an AcRTAC database project, then send it) or Read (its
+// running project into the database, opened in the AcRTAC GUI) — each a job.
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -15,6 +16,7 @@ import {
   saveBenchDevices,
   scanTestNetwork,
   setTestEth02,
+  readTestRtac,
   uploadToTestRtac,
   type BenchDevice,
   type TestDeviceState,
@@ -140,9 +142,10 @@ export function TestNetworkView({ active }: { active: boolean }) {
     }
     return colors
   }, [lanes, shown])
-  const uploading = useMemo(() => new Map(jobs
-    .filter((j) => j.meta?.type === 'test-upload' && j.status === 'running')
-    .map((j) => [String(j.meta!.device), String(j.meta!.project)])), [jobs])
+  // What each RTAC is doing through AcRTAC right now, as its card says it.
+  const activity = useMemo(() => new Map(jobs
+    .filter((j) => (j.meta?.type === 'test-upload' || j.meta?.type === 'test-read') && j.status === 'running')
+    .map((j) => [String(j.meta!.device), j.meta!.type === 'test-read' ? '← Reading' : `→ ${String(j.meta!.project)}`])), [jobs])
 
   const move = async (devices: BenchDevice[], vid: number) => {
     const ids = devices.map((d) => d.id)
@@ -197,6 +200,15 @@ export function TestNetworkView({ active }: { active: boolean }) {
     setPicking(null)
     try {
       await uploadToTestRtac({ device: device.id, project, switchIp: savedIp })
+    } catch (err) {
+      setError(errorMessage(err))
+    }
+  }
+
+  const read = async (device: BenchDevice) => {
+    setPicking(null)
+    try {
+      await readTestRtac({ device: device.id })
     } catch (err) {
       setError(errorMessage(err))
     }
@@ -268,7 +280,7 @@ export function TestNetworkView({ active }: { active: boolean }) {
                   <div className="testnet-cards">
                     {lane.devices.map((d) => (
                       <DeviceCard key={d.id} device={d} state={states.get(d.id)}
-                        uploading={uploading.get(d.id)}
+                        activity={activity.get(d.id)}
                         moving={moving.has(d.id)}
                         selected={selected.has(d.id)}
                         onDragStart={() => {
@@ -324,7 +336,8 @@ export function TestNetworkView({ active }: { active: boolean }) {
         <RtacModal device={picking} state={states.get(picking.id)}
           onClose={() => setPicking(null)}
           onEth02={async (ip) => setScan((await setTestEth02({ device: picking.id, ip })).scan)}
-          onUpload={(name) => upload(picking, name)} />
+          onUpload={(name) => upload(picking, name)}
+          onRead={() => read(picking)} />
       )}
 
       {benchOpen && (
@@ -383,7 +396,7 @@ function Faceplate({
 function DeviceCard({
   device,
   state,
-  uploading,
+  activity,
   moving,
   selected,
   onDragStart,
@@ -394,7 +407,8 @@ function DeviceCard({
 }: {
   device: BenchDevice
   state: TestDeviceState | undefined
-  uploading: string | undefined
+  /** An AcRTAC job in flight on it: "→ Project" or "← Reading". */
+  activity: string | undefined
   moving: boolean
   selected: boolean
   /** Returns how many cards the drag carries. */
@@ -405,7 +419,7 @@ function DeviceCard({
   onClick: (e: React.MouseEvent) => void
 }) {
   const rtac = device.kind === 'rtac'
-  const status = !rtac ? null : uploading || moving ? 'busy' : state?.error ? 'bad'
+  const status = !rtac ? null : activity || moving ? 'busy' : state?.error ? 'bad'
     : state?.project?.state === 'running' ? 'ok' : 'warn'
   return (
     <div
@@ -443,8 +457,8 @@ function DeviceCard({
           <div className="testnet-card-net mono dim">{device.networkIp}</div>
           <div className="testnet-card-proj">
             <span className={`testnet-dot ${status}`} />
-            {uploading ? (
-              <span className="testnet-proj-name">→ {uploading}</span>
+            {activity ? (
+              <span className="testnet-proj-name">{activity}</span>
             ) : state?.error ? (
               <span className="testnet-proj-name bad">Unreachable</span>
             ) : state?.project ? (
@@ -461,23 +475,28 @@ function DeviceCard({
   )
 }
 
-/** An RTAC's window: its Eth_02 address, editable, over the AcRTAC project
- *  picker that uploads to it. */
+/** An RTAC's window: its Eth_02 address, editable, then its two AcRTAC
+ *  actions. Upload opens the database picker; a project is only sent once
+ *  it is selected AND "Upload project" is pressed. Read starts at once. */
 function RtacModal({
   device,
   state,
   onClose,
   onEth02,
   onUpload,
+  onRead,
 }: {
   device: BenchDevice
   state: TestDeviceState | undefined
   onClose: () => void
   onEth02: (ip: string) => Promise<void>
   onUpload: (project: string) => void
+  onRead: () => void
 }) {
   const current = state?.eth02?.split('/')[0] ?? ''
   const [ip, setIp] = useState(current)
+  const [picking, setPicking] = useState(false)
+  const [chosen, setChosen] = useState<string | null>(null)
   const { run, busy, error } = useAction()
   const save = () => run(() => onEth02(ip.trim()))
   const changed = ip.trim() !== '' && ip.trim() !== current
@@ -499,9 +518,23 @@ function RtacModal({
           <Button disabled={!changed || busy} onClick={save}>{busy ? <Spinner /> : 'Set'}</Button>
         </div>
         {error && <div className="modal-error">{error}</div>}
-        <AcrtacProjectList mode="single"
-          current={state?.project?.name ?? null}
-          onPick={onUpload} />
+        <div className="testnet-actions">
+          <Button className={picking ? 'on' : undefined} onClick={() => setPicking(!picking)}>Upload</Button>
+          <Button onClick={onRead}>Read</Button>
+        </div>
+        {picking && (
+          <>
+            <AcrtacProjectList mode="single" autoFocus
+              current={state?.project?.name ?? null}
+              selected={chosen}
+              onPick={setChosen} />
+            <div className="testnet-upload-bar">
+              <Button variant="primary" disabled={!chosen} onClick={() => chosen && onUpload(chosen)}>
+                Upload project
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   )

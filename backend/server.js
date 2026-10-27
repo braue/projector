@@ -103,7 +103,9 @@ export async function startServer(options = {}) {
   // override with SEL_LIBRARY if it lives somewhere else.
   const selRoot = process.env.SEL_LIBRARY ?? DEFAULT_SEL_ROOT;
 
-  const catalog = new RtacCatalog({ client: createAcRtacClient() });
+  // DRAFT: canned network + AcRTAC for building the Test page away from the bench.
+  const demo = process.env.PROJECTOR_TEST_NETWORK_DEMO ? await import('./services/testNetworkDemo.js') : null;
+  const catalog = new RtacCatalog({ client: demo?.demoCatalogClient ?? createAcRtacClient() });
   const selLibrary = new SelLibrary({ root: selRoot });
   const selText = new SelFullText();
   selText.open(selIndex);
@@ -119,9 +121,9 @@ export async function startServer(options = {}) {
   await projects.init();
   const settings = new SettingsService({ dataDir });
   const testNetwork = new TestNetworkService({
-    dataDir, jobs, events,
-    // DRAFT: canned network for building the page away from the bench.
-    bridge: process.env.PROJECTOR_TEST_NETWORK_DEMO ? (await import('./services/testNetworkDemo.js')).demoBridge : null,
+    dataDir, jobs, events, catalog,
+    bridge: demo?.demoBridge ?? null,
+    acrtac: demo?.demoAcrtac ?? null,
   });
   await testNetwork.init();
   const tools = await createTools({ dataDir, jobs, catalog, settings });

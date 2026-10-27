@@ -62,4 +62,44 @@ async function demoBridge(request) {
   };
 }
 
-export { demoBridge };
+// The AcRTAC side: a database list for the pickers, and canned upload /
+// read / open runs that narrate into their job like the real bridges.
+const demoProjects = [
+  'Eunice_35KV_DAC', 'Eunice_35KV_REM1', 'Eunice_35KV_REM2', 'Gulfport_DAC',
+  'Gulfport_SIM_Master', 'Evergreen_DAC', 'Evergreen_SIM_Master', 'Bunkie_DAC',
+];
+
+const demoCatalogClient = { listProjects: async () => [...demoProjects].sort() };
+
+async function demoAcrtac(script, request, { job } = {}) {
+  const step = async (line, ms = 900) => {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+    job?.log(line);
+  };
+  if (script === 'acrtac_open.py') {
+    await step('Starting AcSELerator RTAC…');
+    await step(`Opening ${request.name}…`, 1200);
+    return { name: request.name, alreadyOpen: false };
+  }
+  const id = bench.find((d) => d.networkIp === request.host)?.id;
+  const device = devices.find((d) => d.id === id);
+  if (!device || device.error) throw new Error(`could not connect to ${request.host}`);
+  if (request.command === 'upload') {
+    await step(`… ${request.project} → ${request.host}`, 2500);
+    device.project = { name: request.project, state: 'running' };
+    await step(`✓ ${request.project} → ${request.host}`);
+    return { project: request.project, host: request.host };
+  }
+  if (request.command === 'read') {
+    await step(`… reading ${request.host}`, 2500);
+    const base = device.project?.name ?? id;
+    let name = base;
+    for (let n = 1; demoProjects.includes(name); n++) name = `${base}_${n}`;
+    demoProjects.push(name);
+    await step(`✓ ${request.host} → ${name}`);
+    return { name };
+  }
+  throw new Error(`demo: no ${request.command}`);
+}
+
+export { demoAcrtac, demoBridge, demoCatalogClient };

@@ -83,11 +83,58 @@
   --shadow-panel: 0 12px 40px rgba(15,18,26,0.16);
   --shadow-modal: 0 16px 48px rgba(15,18,26,0.22);
 
+  /* The primary button's hover — a step off --ink. */
+  --ink-hover: #33333e;
+
   --font-mono: ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
 
   font-family: ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
   font-size: 13.5px;
   color: var(--ink);
+}
+
+/* Dark: the same tokens restated (lib/theme.ts sets the attribute). Every
+   semantic keeps its role — --bg still sits a step below --card, tints still
+   read as a wash of their solid. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17191e;
+  --card: #1d1f25;
+  --ink: #e4e6eb;
+  --muted: #9a9eac;
+  --border: #30333b;
+  --border-soft: #272a31;
+  --fill: #282b32;
+  --accent: #1fb68f;
+  --accent-tint: #173129;
+  --mark: #5c4b15;
+
+  --ink-soft: #c3c6cf;
+  --ghost: #6d7282;
+  --ghost-soft: #5a5f6c;
+
+  --ok: #2fb874;
+  --ok-ink: #63d29c;
+  --ok-tint: #162a20;
+  --ok-tint-hover: #1c3529;
+
+  --bad: #e5554d;
+  --bad-ink: #f08c86;
+  --bad-tint: #341b1b;
+  --bad-tint-hover: #412121;
+
+  --warn: #e0a628;
+  --warn-ink: #e5c46e;
+  --warn-tint: #31280f;
+  --warn-tint-hover: #3c3115;
+  --warn-line: #6e5621;
+
+  --shadow-raised: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-menu: 0 10px 32px rgba(0,0,0,0.5);
+  --shadow-panel: 0 12px 40px rgba(0,0,0,0.55);
+  --shadow-modal: 0 16px 48px rgba(0,0,0,0.6);
+
+  --ink-hover: #c9ccd3;
 }
 
 * { box-sizing: border-box; }
@@ -110,7 +157,7 @@ button { font: inherit; color: inherit; }
 .ui-button:hover:not(:disabled) { background: var(--fill); }
 .ui-button:disabled { opacity: 0.55; cursor: default; }
 .ui-button-primary { background: var(--ink); border-color: var(--ink); color: var(--card); }
-.ui-button-primary:hover:not(:disabled) { background: #33333e; }
+.ui-button-primary:hover:not(:disabled) { background: var(--ink-hover); border-color: var(--ink-hover); }
 
 .ui-segmented { display: flex; gap: 2px; background: var(--fill); border-radius: 9px; padding: 3px; }
 .ui-segment {
@@ -151,7 +198,7 @@ button { font: inherit; color: inherit; }
 
 .ui-spinner {
   width: 11px; height: 11px; flex: none; display: inline-block;
-  border: 2px solid #c4c7cf; border-top-color: transparent; border-radius: 50%;
+  border: 2px solid var(--ghost-soft); border-top-color: transparent; border-radius: 50%;
 }
 @media (prefers-reduced-motion: no-preference) {
   .ui-spinner { animation: ui-spin 0.85s linear infinite; }
@@ -383,6 +430,23 @@ button.ui-section-header:hover { color: var(--ink); }
   display: flex; flex-direction: column; gap: 10px;
 }
 .tool-conn-status { font-size: 12px; font-weight: 600; }
+.tool-fill[hidden] { display: none; }
+
+/* SEL terminal session tabs: the ui-tabbar strip with a status dot and a
+   close mark per tab, and a trailing + for a new session. */
+.term-tabs { gap: 18px; }
+.term-tab { gap: 7px; }
+.term-tab-dot { width: 6px; height: 6px; border-radius: 50%; flex: none; background: var(--ghost-soft); }
+.term-tab-dot.is-connected { background: var(--ok); }
+.term-tab-dot.is-connecting { background: var(--warn); }
+.term-tab-dot.is-closed { background: var(--bad); }
+.term-tab-close {
+  border: 0; background: none; padding: 0 2px; margin-left: 1px; cursor: pointer;
+  font-size: 10px; color: var(--ghost); visibility: hidden;
+}
+.term-tab:hover .term-tab-close, .term-tab.active .term-tab-close { visibility: visible; }
+.term-tab-close:hover { color: var(--ink); }
+.term-tab-add { font-size: 16px; padding: 6px 2px 5px; }
 .tool-conn-status.is-connected { color: var(--ok-ink); }
 .tool-conn-status.is-connecting { color: var(--muted); }
 .tool-conn-status.is-closed { color: var(--bad-ink); }
@@ -455,6 +519,10 @@ button.ui-section-header:hover { color: var(--ink); }
   border-color: var(--accent); background: var(--accent-tint); color: var(--accent);
 }
 .topbar-toggle-mark { font-size: 9px; color: var(--accent); }
+
+/* The far corner: a glyph-only square. */
+.theme-toggle { justify-content: center; width: 32px; padding: 5px 0; color: var(--muted); }
+.theme-toggle:hover { color: var(--ink); }
 
 /* --- sources sidebar ------------------------------------------------------- */
 
@@ -629,6 +697,12 @@ button.ui-section-header:hover { color: var(--ink); }
 .cat-connection { color: #3d6fa8; } .cat-taglist { color: #7a5cb0; } .cat-logic { color: #b07a2e; }
 .cat-system { color: var(--muted); } .cat-hardware { color: #2e8f66; } .cat-extension { color: #a8578c; }
 .cat-visual { color: #3a8fb0; }
+[data-theme="dark"] .cat-connection { color: #7aa5d8; }
+[data-theme="dark"] .cat-taglist { color: #a98ad8; }
+[data-theme="dark"] .cat-logic { color: #d6a35a; }
+[data-theme="dark"] .cat-hardware { color: #5cc297; }
+[data-theme="dark"] .cat-extension { color: #d283b5; }
+[data-theme="dark"] .cat-visual { color: #6cbcd8; }
 .cat-meta { color: var(--muted); } .cat-other { color: var(--ghost); }
 .tree-tag {
   font-size: 10.5px; font-family: var(--font-mono); color: var(--muted);
@@ -684,6 +758,10 @@ button.ui-section-header:hover { color: var(--ink); }
 .tok-type { color: #7048a8; }
 .tok-str { color: #8a5a00; }
 .tok-num { color: #0e7569; }
+[data-theme="dark"] .tok-kw { color: #7aa8f0; }
+[data-theme="dark"] .tok-type { color: #b494e6; }
+[data-theme="dark"] .tok-str { color: #e0b263; }
+[data-theme="dark"] .tok-num { color: #4fcab8; }
 .tok-com { color: var(--muted); font-style: italic; }
 .diff-line.diff-add { background: var(--ok-tint); }
 .diff-line.diff-del { background: var(--bad-tint); }
@@ -959,7 +1037,7 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .drawing-view { padding: 4px 0 8px; }
 .drawing-view img { max-width: 100%; display: block; }
 .drawing-view img, .dwgen-previews img {
-  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
 }
 
 /* --- crash screen ----------------------------------------------------------- */
@@ -1153,6 +1231,9 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .kind-rdb { background: #e8eefc; color: #3d6fa8; }
 .kind-scd { background: #f0e9fb; color: #7a5cb0; }
 .kind-sw { background: #e9f5ef; color: #2e8f66; }
+[data-theme="dark"] .kind-rdb { background: #1c2740; color: #7aa5d8; }
+[data-theme="dark"] .kind-scd { background: #2a2140; color: #a98ad8; }
+[data-theme="dark"] .kind-sw { background: #16302a; color: #5cc297; }
 
 /* Every version wears its time; the row's right side is stamp then actions. */
 .row-stamp {
@@ -1307,6 +1388,7 @@ th.hours-budget, td.hours-budget { width: 92px; }
 }
 .acrtac-list-row:hover { background: var(--fill); }
 .acrtac-list-row.is-current { background: var(--fill); font-weight: 600; }
+.acrtac-list-row.is-selected, .acrtac-list-row.is-selected:hover { background: var(--accent-tint); color: var(--accent); }
 .acrtac-list-name { min-width: 0; overflow-wrap: anywhere; }
 .acrtac-list-row .modal-badge { margin-left: auto; }
 .acrtac-list-empty { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 24px 14px; color: var(--muted); }
@@ -1405,6 +1487,10 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .testnet-eth02 { display: flex; align-items: center; gap: 8px; padding: 10px 14px 0; }
 .testnet-eth02 .ui-labeled { flex: 1; }
 .testnet-eth02 .ui-input { flex: 1; width: auto; min-width: 0; }
+.testnet-actions { display: flex; gap: 8px; padding: 12px 14px 14px; }
+.testnet-actions .ui-button { flex: 1; }
+.testnet-actions .ui-button.on { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); }
+.testnet-upload-bar { display: flex; justify-content: flex-end; padding: 10px 14px 14px; border-top: 1px solid var(--border-soft); }
 
 .testnet-bench-modal { width: 580px; max-width: calc(100vw - 32px); }
 .testnet-bench {

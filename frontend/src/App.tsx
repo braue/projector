@@ -28,6 +28,7 @@ import { Button, TextInput } from './components/ui'
 import { ToolsView } from './tools/ToolsView'
 import { errorMessage } from './lib/errors'
 import { onEvent, useConnected } from './lib/events'
+import { toggleTheme, useTheme } from './lib/theme'
 import { findLeafFor, isPdfFile, isTextFile, refLabel, type FileLeaf } from './lib/fileNodes'
 import { formatSize, formatStamp, formatWhen } from './lib/format'
 import { useJobs } from './lib/jobs'
@@ -313,6 +314,7 @@ export default function App() {
             setTestOpen(false)
           }}
         />
+        <ThemeToggle />
       </header>
 
       <div className="app">
@@ -405,6 +407,25 @@ export default function App() {
         )}
       </div>
     </>
+  )
+}
+
+/** The topbar's corner: light / dark. */
+function ThemeToggle() {
+  const dark = useTheme() === 'dark'
+  return (
+    <button className="topbar-button theme-toggle" onClick={toggleTheme} title={dark ? 'Light mode' : 'Dark mode'}>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        {dark ? (
+          <>
+            <circle cx="8" cy="8" r="3" />
+            <path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1.06 1.06M11.54 11.54l1.06 1.06M3.4 12.6l1.06-1.06M11.54 4.46l1.06-1.06" />
+          </>
+        ) : (
+          <path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7Z" strokeLinejoin="round" />
+        )}
+      </svg>
+    </button>
   )
 }
 

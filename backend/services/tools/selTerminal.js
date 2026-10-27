@@ -52,7 +52,7 @@ function cleanInbound(buffer, { telnet }) {
   return Buffer.from(out).toString('latin1');
 }
 
-const MAX_SESSIONS = 4;
+const MAX_SESSIONS = 8;
 const DEFAULT_PORT = 23;
 const DEFAULT_TIMEOUT_MS = 10_000;
 // Volture had no idle timeout (sessions lived as long as the browser); a

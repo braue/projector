@@ -9,7 +9,8 @@ import { Button, Checkbox, Spinner, TextInput } from './ui'
 // (lib/acrtacProjects.ts), so it is instant after the first read anywhere,
 // and Refresh here refreshes it everywhere.
 //
-//   single  clicking a row picks it (onPick) — the caller closes/moves on
+//   single  clicking a row picks it (onPick) — the caller closes/moves on,
+//           or passes `selected` to keep the pick marked until it acts
 //   multi   rows carry checkboxes; "Select shown" / "Clear shown" act on
 //           what the filter leaves. Checked rows a filter hides STAY checked.
 
@@ -18,7 +19,7 @@ type Props = {
   taken?: string[]
   autoFocus?: boolean
 } & (
-  | { mode: 'single'; current?: string | null; onPick: (name: string) => void }
+  | { mode: 'single'; current?: string | null; selected?: string | null; onPick: (name: string) => void }
   | { mode: 'multi'; checked: Set<string>; onChange: (next: Set<string>) => void }
 )
 
@@ -71,7 +72,8 @@ export function AcrtacProjectList(props: Props) {
           {shown.map((name) => {
             const badge = props.taken?.includes(name) && <span className="modal-badge">in use</span>
             return props.mode === 'single' ? (
-              <button key={name} className={`acrtac-list-row pick${name === props.current ? ' is-current' : ''}`}
+              <button key={name}
+                className={`acrtac-list-row pick${name === props.current ? ' is-current' : ''}${name === props.selected ? ' is-selected' : ''}`}
                 onClick={() => props.onPick(name)}>
                 <span className="acrtac-list-name">{name}</span>
                 {badge}

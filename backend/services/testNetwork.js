@@ -5,6 +5,8 @@
 // selacrtac). Three writes: moving switch ports onto a VLAN (the page's
 // drag and drop, one or several cards at once), setting an RTAC's Eth_02 address, and sending a database
 // project to an RTAC through AcRTAC's upload, as a job in the AcRTAC queue.
+// One read the other way: an RTAC's running project into the database
+// (AcRTAC's readasleft), then opened in the AcRTAC GUI.
 //
 // The bench itself — which identifier ("3555-1") is at which network IP on
 // which switch port — is a table kept in <dataDir>/test-network/devices.json,
@@ -23,6 +25,7 @@ import { runStdinBridge } from '../lib/acrtac/pythonClient.js';
 
 const SCAN_SCRIPT = 'test_network.py';
 const ACRTAC_BRIDGE = 'acrtac_bridge.py';
+const OPEN_SCRIPT = 'acrtac_open.py';
 // Each device is one web login with a 20 s socket timeout; a dead network
 // should come back as errors, not hang the page.
 const SCAN_TIMEOUT_MS = 2 * 60 * 1000;
@@ -75,9 +78,13 @@ class TestNetworkService {
   // Switch writes are read-modify-write of its VLAN table: one at a time.
   #moves = Promise.resolve();
 
-  constructor({ dataDir, jobs, events = null, bridge = null }) {
+  constructor({ dataDir, jobs, events = null, catalog = null, bridge = null, acrtac = null }) {
     this.jobs = jobs;
     this.events = events;
+    // A read adds a database project: re-read the shared list after one.
+    this.catalog = catalog;
+    // The AcRTAC bridges (upload, read, open) — swappable like the scan's.
+    this.acrtac = acrtac ?? runStdinBridge;
     this.legacy = path.join(dataDir, 'tools', 'vlan-deploy', 'devices.json');
     this.store = new JsonFile(path.join(dataDir, 'test-network', 'devices.json'), {
       label: 'the bench device table',
@@ -184,21 +191,46 @@ class TestNetworkService {
   /** Send AcRTAC database project `project` to bench RTAC `device` (by
    *  identifier), as a job; the network is re-read after it lands. */
   async upload(payload) {
-    const id = filled(payload?.device, 'device');
     const project = filled(payload?.project, 'project');
-    const device = (await this.devices()).find((d) => d.id === id);
-    if (!device) throw httpError(400, `${id} is not in the bench device table`);
-    if (device.kind !== 'rtac') throw httpError(400, `${id} is not an RTAC`);
+    const device = await this.#rtac(payload?.device);
+    const id = device.id;
     const switchIp = payload?.switchIp;
     const job = this.jobs.start(`Upload ${project} → ${id}`, async (handle) => {
       handle.log(`Sending ${project} to ${id} at ${device.networkIp}…`);
-      const result = await runStdinBridge(ACRTAC_BRIDGE, {
+      const result = await this.acrtac(ACRTAC_BRIDGE, {
         command: 'upload', project, host: device.networkIp,
       }, { job: handle, explain: EXPLAIN });
       if (switchIp) this.scan(switchIp).catch(() => {});
       return result;
     }, { meta: { type: 'test-upload', device: id, project } });
     return { job: job.id };
+  }
+
+  /** Read the project bench RTAC `device` runs into the AcRTAC database, then
+   *  open it in the AcRTAC GUI — one job. The database name is AcRTAC's pick
+   *  (the RTAC's project name, or a free variant of it). */
+  async read(payload) {
+    const device = await this.#rtac(payload?.device);
+    const job = this.jobs.start(`Read ${device.id}`, async (handle) => {
+      handle.log(`Reading the project on ${device.id} at ${device.networkIp}…`);
+      const { name } = await this.acrtac(ACRTAC_BRIDGE, {
+        command: 'read', host: device.networkIp,
+      }, { job: handle, explain: EXPLAIN });
+      this.catalog?.refresh();
+      handle.log(`Opening ${name} in AcRTAC…`);
+      // settleOnExit: the GUI outlives the bridge holding its stdio pipes.
+      await this.acrtac(OPEN_SCRIPT, { name }, { job: handle, explain: EXPLAIN, settleOnExit: true });
+      return { name };
+    }, { meta: { type: 'test-read', device: device.id } });
+    return { job: job.id };
+  }
+
+  async #rtac(rawId) {
+    const id = filled(rawId, 'device');
+    const device = (await this.devices()).find((d) => d.id === id);
+    if (!device) throw httpError(400, `${id} is not in the bench device table`);
+    if (device.kind !== 'rtac') throw httpError(400, `${id} is not an RTAC`);
+    return device;
   }
 }
 

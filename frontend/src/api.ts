@@ -687,6 +687,12 @@ export function uploadToTestRtac(args: { device: string; project: string; switch
   return send('/api/test-network/upload', 'POST', args)
 }
 
+/** Read the project bench RTAC `device` runs into the AcRTAC database and
+ *  open it in the AcRTAC GUI; follow the job. */
+export function readTestRtac(args: { device: string }): Promise<{ job: string }> {
+  return send('/api/test-network/read', 'POST', args)
+}
+
 // --- DWGEN (drawing generator) -------------------------------------------------
 
 export async function fetchDwgenModels(): Promise<string[]> {

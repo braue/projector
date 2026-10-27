@@ -15,6 +15,7 @@ import { search, highlightParts } from '../atlas/search'
 import { selOpen, selStatus, selText } from '../atlas/selDocs'
 import type { SelStatus, SelTextGroup } from '../atlas/selDocs'
 import { useDebounced } from '../lib/useDebounced'
+import { useTheme } from '../lib/theme'
 import { FindBar, useFindInPage } from './FindBar'
 import '../atlas/atlas.css'
 
@@ -36,6 +37,7 @@ import '../atlas/atlas.css'
 const SKIN_TOKENS = [
   'card', 'bg', 'ink', 'muted', 'border', 'border-soft', 'fill',
   'accent', 'accent-tint', 'bad', 'bad-tint', 'warn', 'warn-tint', 'warn-line',
+  'ink-soft', 'ghost', 'bad-ink', 'warn-ink', 'ok-ink',
   'font-mono',
 ]
 
@@ -144,8 +146,62 @@ document.addEventListener('keydown', function (e) {
 })
 </script>`
 
+/* Dark only: the pages hard-code their light palette — inline backgrounds and
+   the SVG diagrams' fill/stroke attributes — which the token skin cannot
+   reach. CSS beats a presentation attribute, so each literal the pages use is
+   remapped onto its token here. */
+const SVG_REMAP: [string, string, string[]][] = [
+  ['fill', 'var(--card)', ['#fff', '#ffffff']],
+  ['fill', 'var(--bg)', ['#fafbfc']],
+  ['fill', 'var(--fill)', ['#f2f3f5', '#e6e8ec']],
+  ['fill', 'var(--border)', ['#e5e7eb', '#d0d3da', '#c9ccd8']],
+  ['fill', 'var(--accent-tint)', ['#e7f6f1']],
+  ['fill', 'var(--warn-tint)', ['#fdf3e7']],
+  ['fill', 'var(--bad-tint)', ['#fbeeee']],
+  ['fill', '#22263a', ['#eef0f9', '#eef0f8']],
+  ['fill', 'var(--ink)', ['#1a1a22']],
+  ['fill', 'var(--ink-soft)', ['#454956']],
+  ['fill', 'var(--muted)', ['#6e7180']],
+  ['fill', 'var(--ghost)', ['#8a8e9b', '#a9adb8']],
+  ['fill', 'var(--bad-ink)', ['#9c3838', '#a32d2d']],
+  ['fill', 'var(--warn-ink)', ['#9c6d06', '#7c4a06']],
+  ['fill', 'var(--ok-ink)', ['#0d7f63', '#0d8266', '#0d7a60']],
+  ['fill', '#8b9be6', ['#5468c4']],
+  ['stroke', 'var(--ink)', ['#1a1a22']],
+  ['stroke', 'var(--ink-soft)', ['#454956']],
+  ['stroke', 'var(--muted)', ['#6e7180', '#8a8e9b']],
+  ['stroke', 'var(--ghost)', ['#a9adb8']],
+  ['stroke', 'var(--border)', ['#e5e7eb', '#d0d3da']],
+  ['stroke', 'var(--warn-line)', ['#f2e2cc']],
+  ['stroke', '#24493f', ['#cfe9e1']],
+  ['stroke', '#4d2a2a', ['#f0dcdc']],
+  ['stroke', '#353b58', ['#dde1f2']],
+  ['stroke', '#8b9be6', ['#5468c4']],
+]
+
+const DARK_SKIN = `<style id="atlas-dark">@media screen {
+  :root { color-scheme: dark; }
+  ${SVG_REMAP.map(([attr, to, from]) => `${from.map((f) => `[${attr}="${f}"]`).join(',')} { ${attr}: ${to}; }`).join('\n  ')}
+  [style*="background:#fafbfc"] { background: var(--bg) !important; }
+  [style*="background:#f2f3f5"] { background: var(--fill) !important; }
+  h2 .num[style] { background: transparent !important; }
+  [style*="color:#a9adb8"], [style*="color:#8a8e9b"] { color: var(--ghost) !important; }
+  [style*="color:#6e7180"] { color: var(--muted) !important; }
+  [style*="color:#9c6d06"] { color: var(--warn-ink) !important; }
+  .flow .stage { background: var(--card); border-color: var(--border); }
+  .flow .stage b, .grid3 b { color: var(--ink); }
+  .card.latch { border-left-color: #8b9be6; } .card.latch h3 { color: #8b9be6; }
+  .card.pulse h3 { color: var(--warn-ink); }
+}</style>`
+
+/** The theme-dependent half of the skin: token values, plus the dark remap. */
+function themeStyles(): string {
+  const dark = document.documentElement.dataset.theme === 'dark' ? DARK_SKIN : ''
+  return `<style id="atlas-tokens">@media screen { ${skinTokens()} }</style>${dark}`
+}
+
 function injectSkin(raw: string): string {
-  const skin = `<style id="atlas-tokens">@media screen { ${skinTokens()} }</style>${DOC_SKIN}`
+  const skin = `${DOC_SKIN}${themeStyles()}`
   const i = raw.search(/<\/head>/i)
   if (i >= 0) return raw.slice(0, i) + skin + raw.slice(i)
   return skin + raw
@@ -515,6 +571,17 @@ function AtlasDocView(props: {
     [doc.kind, doc.raw],
   )
   const srcDoc = useMemo(() => (doc.kind === 'html' ? injectSkin(doc.raw) : ''), [doc.kind, doc.raw])
+
+  // A theme flip re-skins the open page in place — reloading the frame
+  // would lose the reading position.
+  const theme = useTheme()
+  useEffect(() => {
+    const d = frameRef.current?.contentDocument
+    if (!d?.head || !d.getElementById('atlas-tokens')) return
+    d.getElementById('atlas-tokens')?.remove()
+    d.getElementById('atlas-dark')?.remove()
+    d.head.insertAdjacentHTML('beforeend', themeStyles())
+  }, [theme])
 
   // --- find in page (Ctrl+F) --------------------------------------------------
   // The sidebar search finds DOCUMENTS; this finds words inside the one you

@@ -9,8 +9,12 @@
 // goes as one POST per line. The backend closes the relay session when the
 // stream detaches, so a lost stream means a fresh session, announced in the
 // transcript rather than silently swapped.
+//
+// Tabs: each one is a whole TerminalSession — its own target, transcript,
+// history and relay session. All stay mounted while hidden, so a relay keeps
+// streaming into a tab you are not looking at.
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   closeTerminal,
@@ -43,17 +47,115 @@ const STATUS_LABEL: Record<TerminalStatus, string> = {
   closed: 'Disconnected',
 }
 
-export function SelTerminalTool({ project }: ToolProps) {
+interface TabState {
+  id: number
+  label: string
+  status: TerminalStatus
+}
+
+let nextTabId = 1
+const newTab = (): TabState => ({ id: nextTabId++, label: '', status: 'idle' })
+
+export function SelTerminalTool({ project, active }: ToolProps) {
+  const [tabs, setTabs] = useState<TabState[]>(() => [newTab()])
+  const [activeId, setActiveId] = useState(() => tabs[0].id)
+  const [saved, setSaved] = useState<SavedConnection[]>(() => {
+    const stored = setting<unknown>('terminalConnections', [])
+    return Array.isArray(stored) ? (stored as SavedConnection[]) : []
+  })
+
+  const current = tabs.find((t) => t.id === activeId) ?? tabs[0]
+
+  const addTab = () => {
+    const tab = newTab()
+    setTabs((prev) => [...prev, tab])
+    setActiveId(tab.id)
+  }
+
+  // Closing a tab unmounts its session, which closes the relay session.
+  // The last tab is replaced rather than leaving an empty pane.
+  const closeTab = (id: number) => {
+    const i = tabs.findIndex((t) => t.id === id)
+    const rest = tabs.filter((t) => t.id !== id)
+    const next = rest.length ? rest : [newTab()]
+    setTabs(next)
+    if (id === activeId) setActiveId(next[Math.min(i, next.length - 1)].id)
+  }
+
+  const reportTab = useCallback((id: number, patch: Partial<TabState>) => {
+    setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)))
+  }, [])
+
+  return (
+    <>
+      <ToolHeader title="SEL Terminal">
+        <span className={`tool-conn-status is-${current.status}`}>{STATUS_LABEL[current.status]}</span>
+      </ToolHeader>
+      <div className="ui-tabbar term-tabs">
+        {tabs.map((tab) => (
+          <div
+            key={tab.id}
+            className={tab.id === current.id ? 'ui-tab term-tab active' : 'ui-tab term-tab'}
+            onClick={() => setActiveId(tab.id)}
+            onAuxClick={(e) => e.button === 1 && closeTab(tab.id)}
+          >
+            <span className={`term-tab-dot is-${tab.status}`} />
+            {tab.label || 'New session'}
+            <button
+              className="term-tab-close"
+              title="Close"
+              onClick={(e) => {
+                e.stopPropagation()
+                closeTab(tab.id)
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button className="ui-tab term-tab-add" title="New session" onClick={addTab}>
+          +
+        </button>
+      </div>
+      {tabs.map((tab) => (
+        <TerminalSession
+          key={tab.id}
+          id={tab.id}
+          project={project}
+          visible={active && tab.id === current.id}
+          hidden={tab.id !== current.id}
+          saved={saved}
+          setSaved={setSaved}
+          onReport={reportTab}
+        />
+      ))}
+    </>
+  )
+}
+
+function TerminalSession({
+  id,
+  project,
+  visible,
+  hidden,
+  saved,
+  setSaved,
+  onReport,
+}: {
+  id: number
+  project: string
+  visible: boolean
+  hidden: boolean
+  saved: SavedConnection[]
+  setSaved: (next: SavedConnection[]) => void
+  onReport: (id: number, patch: Partial<TabState>) => void
+}) {
   const [status, setStatus] = useState<TerminalStatus>('idle')
   const [buffer, setBuffer] = useState('')
   const [line, setLine] = useState('')
   const [host, setHost] = useState('')
   const [port, setPort] = useState('23')
   const [transport, setTransport] = useState<'telnet' | 'tcp'>('telnet')
-  const [saved, setSaved] = useState<SavedConnection[]>(() => {
-    const stored = setting<unknown>('terminalConnections', [])
-    return Array.isArray(stored) ? (stored as SavedConnection[]) : []
-  })
   const [saveStatus, setSaveStatus] = useState<string | null>(null)
 
   const sessionIdRef = useRef<string | null>(null)
@@ -79,14 +181,29 @@ export function SelTerminalTool({ project }: ToolProps) {
     }
   }, [])
 
-  // Keep the view pinned to the newest output.
+  // Keep the view pinned to the newest output — re-pinned on reveal, since
+  // a hidden tab cannot scroll.
   useEffect(() => {
     const el = scrollRef.current
-    if (el) el.scrollTop = el.scrollHeight
-  }, [buffer])
+    if (el && !hidden) el.scrollTop = el.scrollHeight
+  }, [buffer, hidden])
+
+  // After the render that enables the input — focusing it from the stream's
+  // open handler ran while it was still disabled, leaving focus on the
+  // Connect/Disconnect button for Enter to hit.
+  useEffect(() => {
+    if (visible && status === 'connected') inputRef.current?.focus()
+  }, [visible, status])
+
+  // The tab is named for the relay it was last pointed at.
+  const connectedHost = useRef('')
+  useEffect(() => {
+    onReport(id, { status, label: connectedHost.current })
+  }, [id, status, onReport])
 
   const connect = async () => {
     if (status === 'connecting' || status === 'connected') return
+    connectedHost.current = port && port !== '23' ? `${host.trim()}:${port}` : host.trim()
     setStatus('connecting')
     setBuffer('')
     let sessionId: string
@@ -108,10 +225,7 @@ export function SelTerminalTool({ project }: ToolProps) {
     // The banner latch: retries after a broken stream would otherwise fill
     // the transcript. One notice per episode.
     let failureShown = false
-    stream.onopen = () => {
-      setStatus('connected')
-      inputRef.current?.focus()
-    }
+    stream.onopen = () => setStatus('connected')
     stream.addEventListener('data', (e) => {
       append(JSON.parse((e as MessageEvent).data))
     })
@@ -235,85 +349,80 @@ export function SelTerminalTool({ project }: ToolProps) {
 
   const live = status === 'connected' || status === 'connecting'
   return (
-    <>
-      <ToolHeader title="SEL Terminal">
-        <span className={`tool-conn-status is-${status}`}>{STATUS_LABEL[status]}</span>
-      </ToolHeader>
-      <div className="tool-fill">
-        <div className="tool-row">
-          <TextInput
-            label="Host"
-            value={host}
-            placeholder="10.0.0.5"
-            disabled={live}
-            onChange={(e) => setHost(e.target.value)}
-          />
-          <TextInput
-            label="Port"
-            value={port}
-            disabled={live}
-            style={{ width: 70 }}
-            onChange={(e) => setPort(e.target.value.replace(/\D/g, ''))}
-          />
-          <Select
-            label="Transport"
-            value={transport}
-            onChange={(value) => setTransport(value === 'tcp' ? 'tcp' : 'telnet')}
-            options={[
-              { value: 'telnet', label: 'Telnet' },
-              { value: 'tcp', label: 'Raw TCP' },
-            ]}
-          />
-          {live ? (
-            <Button onClick={disconnect}>Disconnect</Button>
-          ) : (
-            <Button variant="primary" disabled={!host.trim()} onClick={connect}>
-              Connect
-            </Button>
-          )}
-          {saved.length > 0 && (
-            <Select
-              label="Saved"
-              value=""
-              placeholder="Pick…"
-              onChange={pickSaved}
-              options={saved.map((s) => s.name)}
-            />
-          )}
-          <Button
-            disabled={!host.trim() || saved.some((s) => s.name === currentName)}
-            onClick={saveConnection}
-          >
-            Save
+    <div className="tool-fill" hidden={hidden}>
+      <div className="tool-row">
+        <TextInput
+          label="Host"
+          value={host}
+          placeholder="10.0.0.5"
+          disabled={live}
+          onChange={(e) => setHost(e.target.value)}
+        />
+        <TextInput
+          label="Port"
+          value={port}
+          disabled={live}
+          style={{ width: 70 }}
+          onChange={(e) => setPort(e.target.value.replace(/\D/g, ''))}
+        />
+        <Select
+          label="Transport"
+          value={transport}
+          onChange={(value) => setTransport(value === 'tcp' ? 'tcp' : 'telnet')}
+          options={[
+            { value: 'telnet', label: 'Telnet' },
+            { value: 'tcp', label: 'Raw TCP' },
+          ]}
+        />
+        {live ? (
+          <Button onClick={disconnect}>Disconnect</Button>
+        ) : (
+          <Button variant="primary" disabled={!host.trim()} onClick={connect}>
+            Connect
           </Button>
-        </div>
-        {/* One surface, like Volture's window: the transcript with the
-            command line flush beneath it — the input is borderless so typing
-            reads as typing into the terminal. */}
-        <div className="tools-terminal-frame" onClick={() => inputRef.current?.focus()}>
-          <pre ref={scrollRef} className="tools-terminal">
-            {buffer || (status === 'connecting' ? 'Opening session…' : 'Connect to a relay to start.')}
-          </pre>
-          <div className="tools-terminal-inputrow">
-            <span className="tools-terminal-prompt">&gt;</span>
-            <TextInput
-              ref={inputRef}
-              value={line}
-              disabled={status !== 'connected'}
-              placeholder={status === 'connected' ? 'Type a command — Enter sends, Ctrl+X aborts output' : ''}
-              autoComplete="off"
-              spellCheck={false}
-              onChange={(e) => setLine(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-        </div>
-        <div className="tool-row">
-          <Button disabled={!buffer} onClick={saveTranscript}>Save transcript to project</Button>
-          <Button disabled={!buffer} onClick={downloadTranscript}>Download transcript</Button>
-          {saveStatus && <span className="tool-status">{saveStatus}</span>}
+        )}
+        {saved.length > 0 && (
+          <Select
+            label="Saved"
+            value=""
+            placeholder="Pick…"
+            onChange={pickSaved}
+            options={saved.map((s) => s.name)}
+          />
+        )}
+        <Button
+          disabled={!host.trim() || saved.some((s) => s.name === currentName)}
+          onClick={saveConnection}
+        >
+          Save
+        </Button>
+      </div>
+      {/* One surface, like Volture's window: the transcript with the
+          command line flush beneath it — the input is borderless so typing
+          reads as typing into the terminal. */}
+      <div className="tools-terminal-frame" onClick={() => inputRef.current?.focus()}>
+        <pre ref={scrollRef} className="tools-terminal">
+          {buffer || (status === 'connecting' ? 'Opening session…' : 'Connect to a relay to start.')}
+        </pre>
+        <div className="tools-terminal-inputrow">
+          <span className="tools-terminal-prompt">&gt;</span>
+          <TextInput
+            ref={inputRef}
+            value={line}
+            disabled={status !== 'connected'}
+            placeholder={status === 'connected' ? 'Type a command — Enter sends, Ctrl+X aborts output' : ''}
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(e) => setLine(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
         </div>
       </div>
-    </>
+      <div className="tool-row">
+        <Button disabled={!buffer} onClick={saveTranscript}>Save transcript to project</Button>
+        <Button disabled={!buffer} onClick={downloadTranscript}>Download transcript</Button>
+        {saveStatus && <span className="tool-status">{saveStatus}</span>}
+      </div>
+    </div>
   )
 }
