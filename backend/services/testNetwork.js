@@ -2,8 +2,9 @@
 // SEL-2730M, read as it stands: which switch port sits on which VLAN, which
 // bench device is on that port, its Eth_02 address and the project it runs.
 // Over the devices' web interfaces (py/test_network.py, which needs no
-// selacrtac). Three writes: moving switch ports onto a VLAN (the page's
-// drag and drop, one or several cards at once), setting an RTAC's Eth_02 address, and sending a database
+// selacrtac). Four writes: moving switch ports onto a VLAN (the page's
+// drag and drop, one or several cards at once), adding / renaming /
+// deleting a VLAN, setting an RTAC's Eth_02 address, and sending a database
 // project to an RTAC through AcRTAC's upload, as a job in the AcRTAC queue.
 // One read the other way: an RTAC's running project into the database
 // (AcRTAC's readasleft), then opened in the AcRTAC GUI.
@@ -30,6 +31,9 @@ const OPEN_SCRIPT = 'acrtac_open.py';
 // should come back as errors, not hang the page.
 const SCAN_TIMEOUT_MS = 2 * 60 * 1000;
 const KINDS = ['rtac', 'other'];
+const VLAN_OPS = ['add', 'rename', 'delete'];
+const DEFAULT_VLAN = 1;
+const VLAN_NAME_MAX = 128;
 
 const EXPLAIN = {
   python: 'Python was not found on PATH — install Python to read the test network.',
@@ -76,7 +80,7 @@ class TestNetworkService {
   #scanning = null;
   #last = null;
   // Switch writes are read-modify-write of its VLAN table: one at a time.
-  #moves = Promise.resolve();
+  #switchWrites = Promise.resolve();
 
   constructor({ dataDir, jobs, events = null, catalog = null, bridge = null, acrtac = null }) {
     this.jobs = jobs;
@@ -154,13 +158,38 @@ class TestNetworkService {
       if (!device) throw httpError(400, `${id} is not on the test network`);
       return Number(device.port);
     });
-    const run = this.#moves.then(async () => {
-      const { vlans, ...moved } = await this.bridge({ command: 'move', switchIp: ip, ports, vid });
+    return this.#switchWrite({ command: 'move', switchIp: ip, ports, vid });
+  }
+
+  /** Add VLAN `vid` (no ports), rename it, or delete it (the switch puts its
+   *  ports back on VLAN 1) — `op` is add | rename | delete. Queued with the
+   *  moves. Resolves to the snapshot with the switch's VLANs as re-read. */
+  async editVlan(payload) {
+    const ip = filled(payload?.switchIp, 'Switch IP');
+    const op = payload?.op;
+    if (!VLAN_OPS.includes(op)) throw httpError(400, `op must be one of ${VLAN_OPS.join(', ')}`);
+    const vid = Number(payload?.vid);
+    if (!Number.isInteger(vid) || vid < 1 || vid > 4094) throw httpError(400, 'VLAN must be 1-4094');
+    if (op === 'delete' && vid === DEFAULT_VLAN) throw httpError(400, `VLAN ${DEFAULT_VLAN} can't be deleted`);
+    const request = { command: 'vlan', switchIp: ip, op, vid };
+    if (op !== 'delete') {
+      const name = filled(payload?.name, 'VLAN name');
+      if (name.length > VLAN_NAME_MAX) throw httpError(400, `VLAN names are at most ${VLAN_NAME_MAX} characters`);
+      request.name = name;
+    }
+    return this.#switchWrite(request);
+  }
+
+  /** One switch write through the bridge, after any before it; the VLAN
+   *  table it hands back replaces the cached scan's. */
+  #switchWrite(request) {
+    const run = this.#switchWrites.then(async () => {
+      const { vlans, ...result } = await this.bridge(request);
       if (this.#last) this.#last = { ...this.#last, switch: { ...this.#last.switch, vlans } };
       this.events?.publish('test-network', {});
-      return { ...moved, scan: this.#last };
+      return { ...result, scan: this.#last };
     });
-    this.#moves = run.catch(() => {});
+    this.#switchWrites = run.catch(() => {});
     return run;
   }
 

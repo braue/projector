@@ -1,5 +1,5 @@
 // The test network: the last scan, a fresh scan, a device moved to a
-// VLAN, an RTAC's Eth_02 address, the bench device table
+// VLAN, a VLAN added / renamed / deleted, an RTAC's Eth_02 address, the bench device table
 // (whole-list GET/PUT), and an AcRTAC upload to / read from one bench RTAC
 // (each a job).
 
@@ -18,6 +18,10 @@ function testNetworkRoutes(testNetwork) {
 
   router.post('/move', async (req, res) => {
     res.json(await testNetwork.move(req.body ?? {}));
+  });
+
+  router.post('/vlan', async (req, res) => {
+    res.json(await testNetwork.editVlan(req.body ?? {}));
   });
 
   router.post('/eth02', async (req, res) => {

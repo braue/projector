@@ -1,6 +1,7 @@
 """The SEL device web interfaces: an RTAC's Ethernet settings page and project
 store, and an SEL-2730M switch's VLAN table. The Test pane (py/test_network.py)
-reads both and moves switch ports between VLANs (move_ports). The rest — setting
+reads both, moves switch ports between VLANs (move_ports) and adds, renames
+and deletes VLANs (add_vlan, rename_vlan, delete_vlan). The rest — setting
 an Eth_02 address, making a VLAN exactly a set of ports, the web project
 upload + activate — came with the retired RTAC VLAN Deploy tool and is kept,
 tested, for the Test pane to grow into.
@@ -454,21 +455,29 @@ def read_vlans(web):
         raise SelWebError(f"unexpected vlan_settings.sel layout ({e!r})") from e
 
 
-def vlan_save_body(vid, vlan, untagged, tagged=None):
+def vlan_save_body(vid, vlan, untagged, tagged=None, operation="modify"):
     tagged = vlan["tagged"] if tagged is None else tagged
     return (f"&VL_VID_ST={vid}&VL_NAME_ST={js_encode(vlan['name'])}"
             f"&VL_TAGGED_PORTS_ST={js_encode(tagged)}"
-            f"&VL_UNTAGGED_PORTS_ST={js_encode(untagged)}&operation=modify")
+            f"&VL_UNTAGGED_PORTS_ST={js_encode(untagged)}&operation={operation}")
+
+
+def vlan_delete_body(vid):
+    return f"&VL_VID_ST={vid}&operation=delete"
 
 
 DEFAULT_VLAN = 1  # where ports this run takes off its VLAN are parked
+VLAN_NAME_MAX = 128  # the VLAN View grid's maxlength
+
+
+def _post_vlan_save(web, vid, body):
+    reply = web.post_json("vlan_view_save.sel", body, cache_bust=True)
+    if reply.get("status") != "success":
+        raise SelWebError(f"the switch refused the change to VLAN {vid}: {reply.get('message')!r}")
 
 
 def _save_vlan(web, vid, vlan, untagged, tagged=None):
-    reply = web.post_json("vlan_view_save.sel", vlan_save_body(vid, vlan, untagged, tagged),
-                          cache_bust=True)
-    if reply.get("status") != "success":
-        raise SelWebError(f"the switch refused the change to VLAN {vid}: {reply.get('message')!r}")
+    _post_vlan_save(web, vid, vlan_save_body(vid, vlan, untagged, tagged))
 
 
 def set_vlan_ports(web, vid, ports, log=lambda line: None):
@@ -563,6 +572,81 @@ def move_ports(web, ports, vid):
         said = "; ".join(f"port {p} on VLAN {', '.join(map(str, h)) or 'none'}" for p, h in wrong.items())
         raise SelWebError(f"the switch said success but {said} (expected all on {vid})")
     return {"ports": ports, "from": old, "to": vid, "changed": True}
+
+
+def _vlan_name(name):
+    name = str(name or "").strip()
+    if not name:
+        raise SelWebError("a VLAN needs a name")
+    if len(name) > VLAN_NAME_MAX:
+        raise SelWebError(f"VLAN names are at most {VLAN_NAME_MAX} characters")
+    return name
+
+
+def _vid(vid):
+    vid = int(vid)
+    if not 1 <= vid <= 4094:
+        raise SelWebError(f"VLAN {vid}: VLAN IDs are 1-4094")
+    return vid
+
+
+def add_vlan(web, vid, name):
+    """Create VLAN `vid` named `name`, with no ports — `operation=add`, as
+    the VLAN View page sends it (10.42.44.12 capture, 2026-11-01; that add
+    carried ports, this one sends both port lists empty). Confirms by
+    re-reading. Returns {"vid", "name"}."""
+    vid, name = _vid(vid), _vlan_name(name)
+    if vid in read_vlans(web):
+        raise SelWebError(f"VLAN {vid} already exists")
+    _post_vlan_save(web, vid, vlan_save_body(vid, {"name": name, "tagged": ""}, "", operation="add"))
+    time.sleep(1)  # let the switch apply before re-reading
+    now = read_vlans(web).get(vid)
+    if not now:
+        raise SelWebError(f"the switch said success but has no VLAN {vid}")
+    return {"vid": vid, "name": now["name"]}
+
+
+def rename_vlan(web, vid, name):
+    """Rename VLAN `vid`: the usual `operation=modify` save with its ports as
+    they are and the new name. Returns {"vid", "before", "after", "changed"}."""
+    vid, name = _vid(vid), _vlan_name(name)
+    vlans = read_vlans(web)
+    if vid not in vlans:
+        raise SelWebError(f"VLAN {vid} doesn't exist on the switch")
+    vlan = vlans[vid]
+    if vlan["name"] == name:
+        return {"vid": vid, "before": name, "after": name, "changed": False}
+    _post_vlan_save(web, vid, vlan_save_body(vid, {**vlan, "name": name}, vlan["untagged"]))
+    time.sleep(1)
+    now = read_vlans(web).get(vid)
+    if not now or now["name"] != name:
+        raise SelWebError(f"the switch said success but VLAN {vid} is named "
+                          f"{(now or {}).get('name')!r} (expected {name!r})")
+    return {"vid": vid, "before": vlan["name"], "after": name, "changed": True}
+
+
+def delete_vlan(web, vid):
+    """Delete VLAN `vid` — `operation=delete` with only the VID. The switch
+    puts the VLAN's untagged ports back on VLAN 1 itself (the capture shows
+    it). VLAN 1 is never deleted. Confirms by re-reading. Returns {"vid",
+    "name", "ports": the untagged ports it had, now on VLAN 1}."""
+    vid = _vid(vid)
+    if vid == DEFAULT_VLAN:
+        raise SelWebError(f"VLAN {DEFAULT_VLAN} is the switch's default VLAN; it stays")
+    vlans = read_vlans(web)
+    if vid not in vlans:
+        raise SelWebError(f"VLAN {vid} doesn't exist on the switch")
+    ports = ports_or_empty(vlans[vid]["untagged"])
+    _post_vlan_save(web, vid, vlan_delete_body(vid))
+    time.sleep(1)
+    now = read_vlans(web)
+    if vid in now:
+        raise SelWebError(f"the switch said success but VLAN {vid} is still there")
+    home = ports_or_empty(now.get(DEFAULT_VLAN, {}).get("untagged", ""))
+    if lost := [p for p in ports if p not in home]:
+        raise SelWebError(f"VLAN {vid} is deleted but ports {fold_ports(lost)} "
+                          f"are not on VLAN {DEFAULT_VLAN}")
+    return {"vid": vid, "name": vlans[vid]["name"], "ports": ports}
 
 
 # --- RTAC: project upload + activate -----------------------------------------

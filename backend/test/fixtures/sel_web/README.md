@@ -16,3 +16,12 @@ the page's upload_project_auth_token is REDACTED):
 - rtac_project_upload_body.txt  POST /api/v1/projects multipart framing (file bytes empty)
 - rtac_project_listing.html     project_upload.sel listing with the uploaded .exp
 - rtac_activate_polls.json      each distinct GET .../commands/<id> reply, in order
+
+From a later switch (10.42.44.12) capture of adding, then deleting, a VLAN,
+2026-11-01 (session ids removed). The add put ports 1-5 on new VLAN 18
+(off VLAN 1); the delete put them back on VLAN 1 — the switch parks a
+deleted VLAN's untagged ports there itself. Both replied
+{"status": "success", "message": "Settings successfully updated."}:
+
+- switch_add_body.txt       vlan_view_save.sel body adding VLAN 18 "Test", untagged 1-5
+- switch_delete_body.txt    ... and deleting it (only VL_VID_ST + operation)

@@ -1,6 +1,7 @@
 """The test network: read it as it stands — the SEL-2730M's VLAN table, and
 for each bench RTAC its Eth_02 address and running project — or move one
-switch port onto a VLAN (the Test page's drag and drop).
+switch port onto a VLAN (the Test page's drag and drop), or add, rename or
+delete a VLAN.
 
 One JSON request on STDIN, a scan (read-only):
 
@@ -11,6 +12,12 @@ or a move, which changes only those ports' VLAN (one save) and prints
 sel_web.move_ports's result plus the VLAN table as it reads afterwards:
 
     {"command": "move", "switchIp": "10.42.44.12", "ports": [3, 4], "vid": 16}
+
+or a VLAN added (no ports), renamed, or deleted (its ports go back to VLAN 1),
+printing sel_web's add/rename/delete result plus the VLAN table afterwards:
+
+    {"command": "vlan", "switchIp": "10.42.44.12", "op": "add" | "rename" | "delete",
+     "vid": 18, "name": "Test"}
 
 or a new Eth_02 address for one RTAC, reached at its network IP — always /24,
 gateway .1 (sel_web.vlan_host) — printing sel_web.set_interface_ip's result:
@@ -84,6 +91,21 @@ def move(request):
         return {**sel_web.move_ports(web, request["ports"], request["vid"]), "vlans": vlan_list(web)}
 
 
+VLAN_OPS = {
+    "add": lambda web, r: sel_web.add_vlan(web, r["vid"], r.get("name")),
+    "rename": lambda web, r: sel_web.rename_vlan(web, r["vid"], r.get("name")),
+    "delete": lambda web, r: sel_web.delete_vlan(web, r["vid"]),
+}
+
+
+def edit_vlan(request):
+    op = VLAN_OPS.get(request.get("op"))
+    if not op:
+        raise sel_web.SelWebError(f"unknown VLAN operation {request.get('op')!r}")
+    with sel_web.SelWeb(request["switchIp"], WEB_USER, WEB_PASSWORD, "switch") as web:
+        return {**op(web, request), "vlans": vlan_list(web)}
+
+
 def set_eth02(request):
     try:
         target, gateway = sel_web.vlan_host(request["ip"])
@@ -98,7 +120,7 @@ def set_eth02(request):
         return sel_web.set_interface_ip(web, "Eth_02", target, gateway, reached_at=request["networkIp"])
 
 
-COMMANDS = {"move": move, "eth02": set_eth02}
+COMMANDS = {"move": move, "vlan": edit_vlan, "eth02": set_eth02}
 
 
 def main():

@@ -75,7 +75,7 @@ import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 const ENTRY_MIME = 'application/projector-file-entry'
 
 /** A row's left padding at a nesting depth. */
-const indent = (depth: number) => ({ paddingLeft: `${10 + depth * 14}px` })
+const indent = (depth: number) => ({ paddingLeft: `${10 + depth * 20}px` })
 
 const KIND_LABEL: Record<ArtifactKindName, string> = {
   rtac: 'RTAC',

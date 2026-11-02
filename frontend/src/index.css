@@ -1450,7 +1450,18 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .testnet-lane-head { display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 6px; font-size: 13px; }
 .testnet-vid { font-weight: 650; color: var(--lane); }
 .testnet-lane.idle .testnet-vid { color: var(--muted); }
-.testnet-lane-name { font-weight: 600; }
+.testnet-lane-name {
+  font: inherit; font-weight: 600; color: inherit; background: none; cursor: text;
+  border: 1px solid transparent; border-radius: 6px; padding: 1px 5px; margin-left: -6px;
+}
+.testnet-lane-name:hover:not(:disabled) { border-color: var(--border); background: var(--fill); }
+.testnet-lane-rename { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.testnet-lane-rename .ui-input { height: 24px; flex: 1; min-width: 0; }
+.testnet-lane-head .entry-delete { align-self: center; }
+.testnet-lane:hover .testnet-lane-head .entry-delete { opacity: 1; }
+.testnet-lane.deleting { opacity: 0.5; }
+.testnet-addvlan { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 0; }
+.testnet-addvlan-vid { width: 90px; }
 .testnet-cards { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 14px 14px; }
 
 .testnet-card, .testnet-trunk {

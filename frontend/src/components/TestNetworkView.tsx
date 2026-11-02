@@ -3,13 +3,16 @@
 // that port; each RTAC's web interface says its Eth_02 address and running
 // project. Drawn as the switch's faceplate over one lane per VLAN. Dragging
 // a card onto another lane moves its switch port to that VLAN, on the switch,
-// at once; Ctrl+click picks several cards to drag together (one switch save). Clicking an RTAC opens its window: a new Eth_02 address, then
+// at once; Ctrl+click picks several cards to drag together (one switch save).
+// A lane's name renames its VLAN on a click, its ✕ deletes it (the switch
+// puts its ports back on VLAN 1), and "+ VLAN" adds one. Clicking an RTAC opens its window: a new Eth_02 address, then
 // Upload (pick an AcRTAC database project, then send it) or Read (its
 // running project into the database, opened in the AcRTAC GUI) — each a job.
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
+  editTestVlan,
   fetchBenchDevices,
   fetchTestNetwork,
   moveTestDevices,
@@ -101,6 +104,11 @@ export function TestNetworkView({ active }: { active: boolean }) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [dropVid, setDropVid] = useState<number | null>(null)
   const [moving, setMoving] = useState<Map<string, number>>(new Map())
+  // VLAN edits: the lane whose name is being typed, the add window, and the
+  // VLANs a delete is on its way to the switch for.
+  const [renaming, setRenaming] = useState<number | null>(null)
+  const [adding, setAdding] = useState(false)
+  const [deleting, setDeleting] = useState<Set<number>>(new Set())
   const jobs = useJobs()
 
   const refresh = useCallback(async (ip: string = savedIp) => {
@@ -163,6 +171,44 @@ export function TestNetworkView({ active }: { active: boolean }) {
       setMoving((current) => {
         const next = new Map(current)
         for (const id of ids) next.delete(id)
+        return next
+      })
+    }
+  }
+
+  /** One VLAN edit on the switch; the page takes the VLAN table it re-read
+   *  (or rescans when the backend has no snapshot to patch). Throws. */
+  const editVlan = async (args: { op: 'add' | 'rename' | 'delete'; vid: number; name?: string }) => {
+    setError(null)
+    const { scan: next } = await editTestVlan({ switchIp: savedIp, ...args })
+    if (next) setScan(next)
+    else refresh()
+  }
+
+  const rename = async (vid: number, name: string) => {
+    try {
+      await editVlan({ op: 'rename', vid, name })
+    } catch (err) {
+      setError(`VLAN ${vid}: ${errorMessage(err)}`)
+    } finally {
+      setRenaming(null)
+    }
+  }
+
+  const remove = async (lane: Lane) => {
+    const what = `VLAN ${lane.vid}${lane.name ? ` "${lane.name}"` : ''}`
+    if (!window.confirm(lane.devices.length || lane.empty.length
+      ? `Delete ${what}? Its ports go to VLAN ${DEFAULT_VLAN}.`
+      : `Delete ${what}?`)) return
+    setDeleting((current) => new Set(current).add(lane.vid))
+    try {
+      await editVlan({ op: 'delete', vid: lane.vid })
+    } catch (err) {
+      setError(`${what}: ${errorMessage(err)}`)
+    } finally {
+      setDeleting((current) => {
+        const next = new Set(current)
+        next.delete(lane.vid)
         return next
       })
     }
@@ -235,6 +281,7 @@ export function TestNetworkView({ active }: { active: boolean }) {
           </span>
           <span className="testnet-spacer" />
           {scan && <span className="dim testnet-at">{formatStamp(Date.parse(scan.at))}</span>}
+          <Button disabled={!scan || !!scan.switch.error} onClick={() => setAdding(true)}>+ VLAN</Button>
           <Button onClick={() => setBenchOpen(true)}>Bench…</Button>
           <Button disabled={scanning} onClick={() => refresh()}>
             {scanning ? <Spinner /> : 'Refresh'}
@@ -254,7 +301,7 @@ export function TestNetworkView({ active }: { active: boolean }) {
               {lanes.map((lane) => (
                 <section key={lane.vid}
                   className={'testnet-lane' + (lane.vid === DEFAULT_VLAN ? ' idle' : '')
-                    + (dropVid === lane.vid ? ' drop' : '')}
+                    + (dropVid === lane.vid ? ' drop' : '') + (deleting.has(lane.vid) ? ' deleting' : '')}
                   style={{ '--lane': lane.color } as React.CSSProperties}
                   onDragOver={(e) => {
                     const arriving = (dragging ?? []).filter((d) => !lane.devices.some((x) => x.id === d.id))
@@ -275,7 +322,21 @@ export function TestNetworkView({ active }: { active: boolean }) {
                   }}>
                   <header className="testnet-lane-head">
                     <span className="testnet-vid">VLAN {lane.vid}</span>
-                    <span className="testnet-lane-name">{lane.name}</span>
+                    {renaming === lane.vid ? (
+                      <LaneNameInput initial={lane.name}
+                        onCommit={(name) => rename(lane.vid, name)}
+                        onCancel={() => setRenaming(null)} />
+                    ) : (
+                      <button className="testnet-lane-name" title="Rename"
+                        disabled={deleting.has(lane.vid)}
+                        onClick={() => setRenaming(lane.vid)}>
+                        {lane.name || '—'}
+                      </button>
+                    )}
+                    {lane.vid !== DEFAULT_VLAN && !deleting.has(lane.vid) && (
+                      <RowAction kind="delete" title="Delete" onClick={() => remove(lane)} />
+                    )}
+                    {deleting.has(lane.vid) && <Spinner />}
                   </header>
                   <div className="testnet-cards">
                     {lane.devices.map((d) => (
@@ -340,6 +401,15 @@ export function TestNetworkView({ active }: { active: boolean }) {
           onRead={() => read(picking)} />
       )}
 
+      {adding && scan && (
+        <AddVlanModal taken={scan.switch.vlans.map((v) => v.vid)}
+          onClose={() => setAdding(false)}
+          onAdd={async (vid, name) => {
+            await editVlan({ op: 'add', vid, name })
+            setAdding(false)
+          }} />
+      )}
+
       {benchOpen && (
         <BenchModal onClose={() => setBenchOpen(false)}
           onSaved={() => {
@@ -348,6 +418,84 @@ export function TestNetworkView({ active }: { active: boolean }) {
           }} />
       )}
     </main>
+  )
+}
+
+/** A lane's name, being typed: Enter or clicking away saves a changed name,
+ *  Esc (or an unchanged / emptied one) leaves it. */
+function LaneNameInput({
+  initial,
+  onCommit,
+  onCancel,
+}: {
+  initial: string
+  onCommit: (name: string) => Promise<void>
+  onCancel: () => void
+}) {
+  const [value, setValue] = useState(initial)
+  const [pending, setPending] = useState(false)
+  // Set once Esc or a commit has finished the field, so the blur that
+  // follows can't act a second time.
+  const done = useRef(false)
+  const finish = () => {
+    if (done.current) return
+    done.current = true
+    const name = value.trim()
+    if (!name || name === initial) return onCancel()
+    setPending(true)
+    onCommit(name)
+  }
+  return (
+    <span className="testnet-lane-rename">
+      <TextInput autoFocus value={value} maxLength={128} spellCheck={false} disabled={pending}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={finish}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur()
+          if (e.key === 'Escape') {
+            done.current = true
+            onCancel()
+          }
+        }} />
+      {pending && <Spinner />}
+    </span>
+  )
+}
+
+/** A new VLAN: its ID (the next free one above the highest, to start) and
+ *  name. It starts with no ports — drag cards onto it. */
+function AddVlanModal({
+  taken,
+  onClose,
+  onAdd,
+}: {
+  taken: number[]
+  onClose: () => void
+  onAdd: (vid: number, name: string) => Promise<void>
+}) {
+  const [vid, setVid] = useState(() => String(Math.min(4094, Math.max(1, ...taken) + 1)))
+  const [name, setName] = useState('')
+  const { run, busy, error } = useAction()
+  const n = Number(vid.trim())
+  const valid = Number.isInteger(n) && n >= 1 && n <= 4094 && !taken.includes(n) && name.trim() !== ''
+  const add = () => valid && !busy && run(() => onAdd(n, name.trim()))
+  const enter = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') add()
+  }
+  return (
+    <Modal title="New VLAN" onClose={onClose} locked={busy}>
+      <div className="testnet-addvlan">
+        <TextInput label="VLAN" value={vid} disabled={busy} className="ui-input testnet-addvlan-vid"
+          onChange={(e) => setVid(e.target.value)} onKeyDown={enter} />
+        <TextInput label="Name" value={name} autoFocus maxLength={128} disabled={busy}
+          onChange={(e) => setName(e.target.value)} onKeyDown={enter} />
+        {taken.includes(n) && <div className="modal-error">VLAN {n} exists.</div>}
+        {error && <div className="modal-error">{error}</div>}
+        <div className="testnet-upload-bar">
+          <Button variant="primary" disabled={!valid || busy} onClick={add}>{busy ? <Spinner /> : 'Add'}</Button>
+        </div>
+      </div>
+    </Modal>
   )
 }
 

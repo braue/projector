@@ -43,6 +43,26 @@ async function demoBridge(request) {
     Object.assign(device, { eth02: after, gateway: after.replace(/\.\d+\/24$/, '.1') });
     return { before, after, gateway: device.gateway, changed: before !== after };
   }
+  if (request.command === 'vlan') {
+    const at = vlans.findIndex((v) => v.vid === request.vid);
+    if (request.op === 'add') {
+      if (at >= 0) throw new Error(`VLAN ${request.vid} already exists`);
+      vlans.push({ vid: request.vid, name: request.name, untagged: [], tagged: [] });
+      vlans.sort((a, b) => a.vid - b.vid);
+      return { vid: request.vid, name: request.name, vlans: structuredClone(vlans) };
+    }
+    if (at < 0) throw new Error(`VLAN ${request.vid} doesn't exist on the switch`);
+    const vlan = vlans[at];
+    if (request.op === 'rename') {
+      const before = vlan.name;
+      vlan.name = request.name;
+      return { vid: vlan.vid, before, after: vlan.name, changed: before !== vlan.name, vlans: structuredClone(vlans) };
+    }
+    vlans.splice(at, 1);
+    const home = vlans.find((v) => v.vid === 1);
+    home.untagged = [...home.untagged, ...vlan.untagged].sort((a, b) => a - b);
+    return { vid: vlan.vid, name: vlan.name, ports: vlan.untagged, vlans: structuredClone(vlans) };
+  }
   if (request.command === 'move') {
     const from = Object.fromEntries(request.ports.map((p) => [p, vlans.find((v) => v.untagged.includes(p))?.vid ?? null]));
     for (const v of vlans) v.untagged = v.untagged.filter((p) => !request.ports.includes(p));

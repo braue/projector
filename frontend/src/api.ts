@@ -665,6 +665,17 @@ export function moveTestDevices(args: { switchIp: string; devices: string[]; vid
   return send('/api/test-network/move', 'POST', args)
 }
 
+/** Add VLAN `vid` (no ports), rename it, or delete it (its ports go back to
+ *  VLAN 1); resolves to the snapshot with the switch's VLANs as re-read. */
+export function editTestVlan(args: {
+  switchIp: string
+  op: 'add' | 'rename' | 'delete'
+  vid: number
+  name?: string
+}): Promise<{ scan: TestScan | null }> {
+  return send('/api/test-network/vlan', 'POST', args)
+}
+
 /** Set a bench RTAC's Eth_02 address (always /24, gateway .1); resolves to
  *  the snapshot with that address as re-read. */
 export function setTestEth02(args: { device: string; ip: string }): Promise<{ scan: TestScan }> {

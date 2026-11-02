@@ -103,6 +103,50 @@ test('test network: a move goes by the scanned bench, one at a time, and patches
   }
 });
 
+test('test network: VLAN add / rename / delete is checked, queued with moves, and patches the VLANs', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'testnet-'));
+  try {
+    const calls = [];
+    let active = 0;
+    const svc = new TestNetworkService({
+      dataDir: dir,
+      jobs: null,
+      bridge: async (request) => {
+        if (!request.command) {
+          return { bench: [{ id: '3555-1', kind: 'rtac', networkIp: '10.0.0.1', port: '3' }],
+            switch: { ip: request.switchIp, ports: [3], vlans: [], error: null }, devices: [] };
+        }
+        active += 1;
+        assert.equal(active, 1, 'switch writes overlap');
+        calls.push(request);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        active -= 1;
+        return { vid: request.vid, vlans: [{ vid: request.vid, name: request.name ?? '', untagged: [], tagged: [] }] };
+      },
+    });
+    await svc.scan('10.42.44.12');
+    const ip = '10.42.44.12';
+    const [, renamed] = await Promise.all([
+      svc.editVlan({ switchIp: ip, op: 'add', vid: 18, name: ' Test ' }),
+      svc.editVlan({ switchIp: ip, op: 'rename', vid: 18, name: 'Eunice' }),
+      svc.move({ switchIp: ip, devices: ['3555-1'], vid: 18 }),
+      svc.editVlan({ switchIp: ip, op: 'delete', vid: 18, name: 'ignored' }),
+    ]);
+    assert.deepEqual(calls.map((c) => [c.command, c.op, c.name]),
+      [['vlan', 'add', 'Test'], ['vlan', 'rename', 'Eunice'], ['move', undefined, undefined], ['vlan', 'delete', undefined]]);
+    assert.equal(renamed.scan.switch.vlans[0].name, 'Eunice');
+    assert.equal(svc.state().scan.switch.vlans[0].vid, 18);
+    await assert.rejects(svc.editVlan({ switchIp: ip, op: 'delete', vid: 1 }), /can't be deleted/);
+    await assert.rejects(svc.editVlan({ switchIp: ip, op: 'add', vid: 0, name: 'x' }), /1-4094/);
+    await assert.rejects(svc.editVlan({ switchIp: ip, op: 'add', vid: 19, name: ' ' }), /name is required/);
+    await assert.rejects(svc.editVlan({ switchIp: ip, op: 'add', vid: 19, name: 'x'.repeat(129) }), /at most 128/);
+    await assert.rejects(svc.editVlan({ switchIp: ip, op: 'merge', vid: 19 }), /op must be/);
+    assert.equal(calls.length, 4);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('test network: Read reads the RTAC into the database, refreshes the list, then opens it', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'testnet-'));
   try {

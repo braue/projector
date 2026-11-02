@@ -64,6 +64,11 @@ class CapturedPages(unittest.TestCase):
         vlan = {"name": "Noah", "tagged": "", "untagged": ""}
         self.assertEqual(sel_web.vlan_save_body(14, vlan, "1-5,19"), fixture("switch_save_body.txt"))
 
+    def test_switch_add_and_delete_bodies_are_the_browsers(self):
+        vlan = {"name": "Test", "tagged": ""}
+        self.assertEqual(sel_web.vlan_save_body(18, vlan, "1-5", operation="add"), fixture("switch_add_body.txt"))
+        self.assertEqual(sel_web.vlan_delete_body(18), fixture("switch_delete_body.txt"))
+
     def test_ports(self):
         self.assertEqual(sel_web.parse_ports("1-5,19"), [1, 2, 3, 4, 5, 19])
         self.assertEqual(sel_web.fold_ports([19, 1, 2, 3, 4, 5]), "1-5,19")
@@ -187,12 +192,26 @@ class FakeSwitch:
         if path == "vlan_view_save.sel":
             self.saves.append(body)
             f = {k: unquote(v) for k, v in fields(body).items()}
-            vid, ports = int(f["VL_VID_ST"]), set(sel_web.parse_ports(f["VL_UNTAGGED_PORTS_ST"]))
+            vid, op = int(f["VL_VID_ST"]), f["operation"]
+            data = self.page["members"][0]["inputs"][0]["data"]
+            if op == "delete":
+                # the switch parks a deleted VLAN's untagged ports on VLAN 1
+                gone = set(sel_web.ports_or_empty(self.rows.pop(vid)[3]["value"]))
+                data[:] = [r for r in data if int(r["ids"][0]["value"]) != vid]
+                home = self.rows[1][3]
+                home["value"] = sel_web.fold_ports(set(sel_web.ports_or_empty(home["value"])) | gone)
+                return json.dumps({"status": "success", "message": "Settings successfully updated."})
+            if op == "add":
+                cells = [{"value": str(vid), "readonly": True}, {"value": ""}, {"value": ""}, {"value": ""}]
+                data.append({"ids": [{"name": "VL_VID_ST", "value": vid}], "input": cells})
+                self.rows[vid] = cells
+            ports = set(sel_web.parse_ports(f["VL_UNTAGGED_PORTS_ST"]))
             for other, cells in self.rows.items():
                 if other != vid:
                     cells[3]["value"] = sel_web.fold_ports(set(sel_web.parse_ports(cells[3]["value"])) - ports)
             self.rows[vid][3]["value"] = f["VL_UNTAGGED_PORTS_ST"]
             self.rows[vid][2]["value"] = f["VL_TAGGED_PORTS_ST"]
+            self.rows[vid][1]["value"] = f["VL_NAME_ST"]
             return json.dumps({"status": "success", "message": "Settings successfully updated."})
         if path == "logout.sel":
             return "{}"
@@ -268,6 +287,47 @@ class TestNetwork(unittest.TestCase):
         with self.assertRaisesRegex(sel_web.SelWebError, "no port 30"):
             test_network.move({"switchIp": "10.42.44.12", "ports": [7, 30], "vid": 14})
         self.assertEqual(len(switch.saves), 2)
+
+    def test_vlan_add_rename_delete(self):
+        switch = self.devices["10.42.44.12"]
+        edit = lambda **r: test_network.edit_vlan({"switchIp": "10.42.44.12", **r})
+        out = edit(op="add", vid=18, name="Test")
+        self.assertEqual({v["vid"]: v["name"] for v in out.pop("vlans")}[18], "Test")
+        self.assertEqual(out, {"vid": 18, "name": "Test"})
+        self.assertEqual(fields(switch.saves[-1])["operation"], "add")
+        self.assertEqual(fields(switch.saves[-1])["VL_UNTAGGED_PORTS_ST"], "")
+        with self.assertRaisesRegex(sel_web.SelWebError, "already exists"):
+            edit(op="add", vid=18, name="Again")
+        for bad in (0, 4095):
+            with self.assertRaisesRegex(sel_web.SelWebError, "1-4094"):
+                edit(op="add", vid=bad, name="x")
+        with self.assertRaisesRegex(sel_web.SelWebError, "needs a name"):
+            edit(op="add", vid=19, name="  ")
+
+        # a rename keeps the ports: VLAN 16 holds 6-18 in the capture
+        out = edit(op="rename", vid=16, name="Gulfport & co")
+        self.assertEqual(out["before"], "Noah 3")
+        self.assertTrue(out["changed"])
+        row = {v["vid"]: v for v in out["vlans"]}[16]
+        self.assertEqual((row["name"], row["untagged"]), ("Gulfport & co", list(range(6, 19))))
+        saves = len(switch.saves)
+        self.assertFalse(edit(op="rename", vid=16, name="Gulfport & co")["changed"])
+        self.assertEqual(len(switch.saves), saves)
+
+        # deleting puts its ports back on VLAN 1
+        test_network.move({"switchIp": "10.42.44.12", "ports": [3, 4], "vid": 18})
+        out = edit(op="delete", vid=18)
+        vlans = {v["vid"]: v for v in out.pop("vlans")}
+        self.assertEqual(out, {"vid": 18, "name": "Test", "ports": [3, 4]})
+        self.assertNotIn(18, vlans)
+        self.assertIn(3, vlans[1]["untagged"])
+        self.assertTrue(switch.saves[-1].endswith("&VL_VID_ST=18&operation=delete"))
+        with self.assertRaisesRegex(sel_web.SelWebError, "default VLAN"):
+            edit(op="delete", vid=1)
+        with self.assertRaisesRegex(sel_web.SelWebError, "doesn't exist"):
+            edit(op="delete", vid=18)
+        with self.assertRaisesRegex(sel_web.SelWebError, "unknown VLAN operation"):
+            edit(op="merge", vid=16)
 
     def test_set_eth02(self):
         rtac = self.devices["10.42.44.34"]
