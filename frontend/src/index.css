@@ -1407,6 +1407,8 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .testnet-head .preview-title-row { gap: 12px; }
 .testnet-spacer { flex: 1; }
 .testnet-at { font-size: 12px; }
+.testnet-head .preview-title-row > :not(.testnet-wrote, .testnet-spacer) { flex-shrink: 0; white-space: nowrap; }
+.testnet-head .testnet-wrote { font-size: 12px; }
 .testnet-switch { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
 .testnet-ip-value {
   border: 1px solid transparent; border-radius: 6px; background: none;

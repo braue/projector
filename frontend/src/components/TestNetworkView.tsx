@@ -99,6 +99,9 @@ export function TestNetworkView({ active }: { active: boolean }) {
   const [hoverPort, setHoverPort] = useState<number | null>(null)
   const [picking, setPicking] = useState<BenchDevice | null>(null)
   const [benchOpen, setBenchOpen] = useState(false)
+  // Save to AcRTAC: the saved bench table into AcRTAC's SEL3530.csv.
+  const [connections, setConnections] = useState<{ text: string; title?: string; failed?: boolean } | null>(null)
+  const [writingConnections, setWritingConnections] = useState(false)
   // Drag and drop: the cards in hand, the lane under them, and drops the
   // switch hasn't confirmed yet (device id → VLAN). Ctrl+click builds a
   // selection that drags as one.
@@ -112,6 +115,20 @@ export function TestNetworkView({ active }: { active: boolean }) {
   const [adding, setAdding] = useState(false)
   const [deleting, setDeleting] = useState<Set<number>>(new Set())
   const jobs = useJobs()
+
+  const saveToAcrtac = async () => {
+    setWritingConnections(true)
+    setConnections(null)
+    try {
+      const r = await writeAcrtacConnections()
+      const text = `SEL3530.csv: ${r.added.length} added, ${r.updated.length} updated`
+      setConnections({ text, title: `${text}\n${r.file}` })
+    } catch (err) {
+      setConnections({ text: errorMessage(err), failed: true })
+    } finally {
+      setWritingConnections(false)
+    }
+  }
 
   const refresh = useCallback(async (ip: string = savedIp) => {
     setScanning(true)
@@ -284,7 +301,15 @@ export function TestNetworkView({ active }: { active: boolean }) {
           <span className="testnet-spacer" />
           {scan && <span className="dim testnet-at">{formatStamp(Date.parse(scan.at))}</span>}
           <Button disabled={!scan || !!scan.switch.error} onClick={() => setAdding(true)}>+ VLAN</Button>
+          {connections && (
+            <span className={connections.failed ? 'tool-error testnet-wrote' : 'dim testnet-wrote'} title={connections.title}>
+              {connections.text}
+            </span>
+          )}
           <Button onClick={() => setBenchOpen(true)}>Bench…</Button>
+          <Button disabled={writingConnections} onClick={saveToAcrtac}>
+            {writingConnections ? <Spinner /> : 'Save to AcRTAC'}
+          </Button>
           <Button disabled={scanning} onClick={() => refresh()}>
             {scanning ? <Spinner /> : 'Refresh'}
           </Button>
@@ -414,7 +439,6 @@ export function TestNetworkView({ active }: { active: boolean }) {
 
       {benchOpen && (
         <BenchModal onClose={() => setBenchOpen(false)}
-          onStored={() => refresh()}
           onSaved={() => {
             setBenchOpen(false)
             refresh()
@@ -702,18 +726,14 @@ const blank = (key: number): DraftDevice => ({ id: '', kind: 'rtac', networkIp: 
 function BenchModal({
   onClose,
   onSaved,
-  onStored,
 }: {
   onClose: () => void
   onSaved: (devices: BenchDevice[]) => void
-  /** The table was saved without closing (Save to AcRTAC). */
-  onStored: () => void
 }) {
   const [nextKey, setNextKey] = useState(1000)
   const [draft, setDraft] = useState<DraftDevice[] | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const { run, busy, error } = useAction()
-  const [wrote, setWrote] = useState<{ file: string; summary: string } | null>(null)
   useEffect(() => {
     fetchBenchDevices().then(
       (devices) => setDraft(devices.length ? devices.map((d, i) => ({ ...d, key: i })) : [blank(0)]),
@@ -730,17 +750,6 @@ function BenchModal({
   const save = () => run(async () => {
     if (!draft) return
     onSaved(await saveBenchDevices(filled(draft)))
-  })
-  // AcRTAC gets the table as saved, so this saves first.
-  const toAcrtac = () => run(async () => {
-    if (!draft) return
-    setWrote(null)
-    const saved = await saveBenchDevices(filled(draft))
-    setDraft(saved.length ? saved.map((d, i) => ({ ...d, key: nextKey + i })) : [blank(nextKey)])
-    setNextKey((k) => k + saved.length + 1)
-    onStored()
-    const r = await writeAcrtacConnections()
-    setWrote({ file: r.file, summary: `${r.added.length} added, ${r.updated.length} updated` })
   })
   // An import replaces the table on screen; Save still checks and stores it.
   const importCsv = (file: File) => run(async () => {
@@ -795,8 +804,6 @@ function BenchModal({
         <Button onClick={exportCsv}>Export CSV</Button>
         <span className="testnet-spacer" />
         {error && <span className="tool-error">{error}</span>}
-        {!error && wrote && <span className="dim testnet-wrote" title={wrote.file}>SEL3530.csv: {wrote.summary}</span>}
-        <Button onClick={toAcrtac} disabled={busy}>Save to AcRTAC</Button>
         <Button variant="primary" onClick={save} disabled={busy}>Save</Button>
       </div>
       </>)}
