@@ -693,6 +693,11 @@ export async function saveBenchDevices(devices: BenchDevice[]): Promise<BenchDev
   return body.devices
 }
 
+/** Merge the saved bench's RTACs into AcRTAC's SEL3530.csv connection list. */
+export function writeAcrtacConnections(): Promise<{ file: string; added: string[]; updated: string[]; total: number }> {
+  return send('/api/test-network/acrtac-connections', 'POST', {})
+}
+
 /** Send AcRTAC database project `project` to bench RTAC `device`; follow the job. */
 export function uploadToTestRtac(args: { device: string; project: string; switchIp: string }): Promise<{ job: string }> {
   return send('/api/test-network/upload', 'POST', args)

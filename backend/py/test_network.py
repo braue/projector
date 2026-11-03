@@ -59,25 +59,41 @@ def read_switch(ip):
             ports = sorted(sel_web.read_switch_ports(web))
             vlans = vlan_list(web)
         return {"ip": ip, "ports": ports, "vlans": vlans, "error": None}
-    except sel_web.SelWebError as e:
-        return {"ip": ip, "ports": [], "vlans": [], "error": str(e)}
+    except Exception as e:  # never the whole scan's failure
+        return {"ip": ip, "ports": [], "vlans": [], "error": describe(e)}
 
 
 def read_rtac(device):
-    out = {"id": device["id"], "eth02": None, "gateway": None, "project": None, "error": None}
+    """One RTAC's row. Eth_02 and the project are read separately, so a page
+    that reads oddly costs only its own field; the first failure is the
+    row's error."""
+    out = {"id": device.get("id"), "eth02": None, "gateway": None, "project": None, "error": None}
     try:
         with sel_web.SelWeb(device["networkIp"], WEB_USER, WEB_PASSWORD, "rtac") as web:
-            _, page = sel_web.find_interface(web, "Eth_02")
-            out["eth02"], out["gateway"] = page.ipv4, page.gateway or None
-            now = sel_web.current_project(web)
-            out["project"] = {"name": now.get("name"), "state": now.get("state")} if now.get("name") else None
-    except sel_web.SelWebError as e:
-        out["error"] = str(e)
+            try:
+                _, page = sel_web.find_interface(web, "Eth_02")
+                out["eth02"], out["gateway"] = page.ipv4, page.gateway or None
+            except Exception as e:
+                out["error"] = describe(e)
+            try:
+                now = sel_web.current_project(web)
+                out["project"] = now if now.get("name") else None
+            except Exception as e:
+                out["error"] = out["error"] or describe(e)
+    except Exception as e:
+        out["error"] = out["error"] or describe(e)
     return out
 
 
+def describe(exc):
+    """A device error for the page: SelWeb's own messages as they are, any
+    other failure (a layout this code didn't expect) with its type."""
+    return str(exc) if isinstance(exc, sel_web.SelWebError) else f"{type(exc).__name__}: {exc}"
+
+
 def scan(request):
-    rtacs = [d for d in request.get("devices", []) if d.get("kind", "rtac") == "rtac" and d.get("networkIp")]
+    rtacs = [d for d in request.get("devices") or [] if isinstance(d, dict)
+             and d.get("kind", "rtac") == "rtac" and d.get("networkIp")]
     with ThreadPoolExecutor(max_workers=max(1, min(8, len(rtacs) + 1))) as pool:
         switch = pool.submit(read_switch, request["switchIp"])
         devices = list(pool.map(read_rtac, rtacs))

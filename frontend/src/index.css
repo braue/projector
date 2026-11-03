@@ -1514,3 +1514,4 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .testnet-bench .entry-delete { justify-self: center; opacity: 1; }
 .testnet-bench-foot { display: flex; align-items: center; gap: 10px; padding: 12px 14px 14px; }
 .testnet-bench-foot .tool-error { min-width: 0; overflow-wrap: anywhere; }
+.testnet-wrote { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

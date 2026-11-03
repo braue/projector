@@ -346,6 +346,30 @@ class TestNetwork(unittest.TestCase):
             test_network.set_eth02({"networkIp": "10.42.44.35", "ip": "10.42.44.200"})
         self.assertEqual(len(rtac.saves), 1)
 
+    def test_odd_current_project_costs_only_its_row(self):
+        self.devices["10.42.44.34"].current = "Eunice_13KV_REM"
+        self.devices["10.42.44.35"].current = ["?"]
+        boom = FakeRtac()
+        boom.handle = lambda path, body: (_ for _ in ()).throw(RuntimeError("bad page")) \
+            if path == "ethernet_interface.sel" else FakeRtac.handle(boom, path, body)
+        self.devices["10.42.44.36"] = boom
+        out = test_network.scan({"switchIp": "10.42.44.12", "devices": [
+            {"id": "str", "networkIp": "10.42.44.34"},
+            {"id": "list", "networkIp": "10.42.44.35"},
+            {"id": "boom", "networkIp": "10.42.44.36"},
+            "not a row",
+        ]})
+        rows = {d["id"]: d for d in out["devices"]}
+        self.assertEqual(rows["str"]["project"], {"name": "Eunice_13KV_REM", "state": None})
+        self.assertIsNone(rows["str"]["error"])
+        self.assertEqual(rows["list"]["eth02"], "172.16.100.201/24")
+        self.assertIsNone(rows["list"]["project"])
+        self.assertIn("currentProject", rows["list"]["error"])
+        self.assertIsNone(rows["boom"]["eth02"])
+        self.assertEqual(rows["boom"]["project"]["name"], "Eunice_13KV_REM")
+        self.assertIn("RuntimeError: bad page", rows["boom"]["error"])
+        self.assertIsNone(out["switch"]["error"])
+
     def test_switch_down_is_reported_not_raised(self):
         out = test_network.scan({"switchIp": "10.42.44.200", "devices": []})
         self.assertIn("timed out", out["switch"]["error"])
@@ -409,6 +433,49 @@ class AcrtacBridge(unittest.TestCase):
         out = acrtac_bridge.cmd_upload(self.cli, {"project": "Station A", "host": "10.42.44.34"})
         self.assertEqual(out, {"project": "Station A", "host": "10.42.44.34"})
         self.assertEqual(sent, [('"Station A"', "10.42.44.34", "SEL", "SEL")])
+
+    def fake_db(self, projects, rtac_runs, fails=False):
+        """A database of `projects` whose read() adds `rtac_runs` (refusing
+        a name already there, as overwrite=False should)."""
+        db = set(projects)
+        log = []
+        cli = self.cli._cli
+        cli.listprojects = lambda: [types.SimpleNamespace(name=n) for n in db]
+
+        def rename(new, old):
+            new, old = new.strip('"'), old.strip('"')
+            assert old in db and new not in db, (new, old)
+            db.discard(old); db.add(new); log.append(("rename", new, old))
+
+        def read(host, user, password=None, overwrite=None):
+            log.append(("read", host, overwrite))
+            if fails or rtac_runs in db:
+                return "Could not read the project"
+            db.add(rtac_runs)
+        cli.rename, cli.read = rename, read
+        return db, log
+
+    def test_read_new_project(self):
+        db, log = self.fake_db({"Other"}, "Station A")
+        out = acrtac_bridge.cmd_read(self.cli, {"host": "10.42.44.34", "project": "Station A"})
+        self.assertEqual(out, {"name": "Station A"})
+        self.assertEqual(log, [("read", "10.42.44.34", False)])
+
+    def test_read_keeps_the_database_copy(self):
+        db, log = self.fake_db({"Station A", "Station A_1"}, "Station A")
+        out = acrtac_bridge.cmd_read(self.cli, {"host": "10.42.44.34", "project": "Station A"})
+        self.assertEqual(out, {"name": "Station A_2"})
+        self.assertEqual(db, {"Station A", "Station A_1", "Station A_2"})
+
+    def test_read_failure_puts_the_original_back(self):
+        db, log = self.fake_db({"Station A"}, "Station A", fails=True)
+        with self.assertRaisesRegex(RuntimeError, "Could not read"):
+            acrtac_bridge.cmd_read(self.cli, {"host": "10.42.44.34", "project": "Station A"})
+        self.assertEqual(db, {"Station A"})
+        # project unknown to the scan and already in the database: read refuses, nothing moved
+        with self.assertRaisesRegex(RuntimeError, "Could not read"):
+            acrtac_bridge.cmd_read(self.cli, {"host": "10.42.44.34"})
+        self.assertEqual(db, {"Station A"})
 
     def test_exp(self):
         out = self.export(projects=["Cloud HQ"], format="exp")

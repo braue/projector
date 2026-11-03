@@ -162,6 +162,7 @@ test('test network: Read reads the RTAC into the database, refreshes the list, t
         },
       },
       catalog: { refresh: () => { refreshed += 1; } },
+      bridge: async () => ({ switch: {}, devices: [{ id: '3350-1', project: { name: 'Gulfport_DAC', state: 'running' } }] }),
       acrtac: async (script, request, options) => {
         calls.push({ script, request, settleOnExit: options?.settleOnExit ?? false });
         return script === 'acrtac_bridge.py' ? { name: 'Gulfport_DAC_1' } : {};
@@ -176,10 +177,16 @@ test('test network: Read reads the RTAC into the database, refreshes the list, t
     assert.deepEqual(job.meta, { type: 'test-read', device: '3350-1' });
     assert.deepEqual(await job.done, { name: 'Gulfport_DAC_1' });
     assert.deepEqual(calls, [
-      { script: 'acrtac_bridge.py', request: { command: 'read', host: '10.42.44.25' }, settleOnExit: false },
+      { script: 'acrtac_bridge.py', request: { command: 'read', host: '10.42.44.25', project: null }, settleOnExit: false },
       { script: 'acrtac_open.py', request: { name: 'Gulfport_DAC_1' }, settleOnExit: true },
     ]);
     assert.equal(refreshed, 1);
+    // After a scan the bridge knows the RTAC's project, to keep a same-named database copy.
+    await svc.scan('10.42.44.12');
+    calls.length = 0;
+    await svc.read({ device: '3350-1' });
+    await job.done;
+    assert.equal(calls[0].request.project, 'Gulfport_DAC');
     await assert.rejects(svc.read({ device: 'Pi' }), /not an RTAC/);
     await assert.rejects(svc.read({ device: 'nope' }), /not in the bench device table/);
   } finally {

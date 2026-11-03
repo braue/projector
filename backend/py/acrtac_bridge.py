@@ -9,7 +9,7 @@ picker all come through here. One JSON request on STDIN:
     {"command": "export", "projects": [...], "format": "xml" | "exp",
      "directory": ..., "projectPassword": null, "flat": false}
     {"command": "upload", "project": ..., "host": "10.42.44.34"}
-    {"command": "read", "host": "10.42.44.34"}
+    {"command": "read", "host": "10.42.44.34", "project": "Station A" | null}
 
 `export` writes each project into `directory` as a folder of XML (or one
 .exp file), narrating on stderr; one project failing never stops the rest.
@@ -82,18 +82,61 @@ def cmd_upload(cli, request):
     return {"project": project, "host": host}
 
 
+def free_name(base, taken):
+    n = 1
+    while f"{base}_{n}" in taken:
+        n += 1
+    return f"{base}_{n}"
+
+
 def cmd_read(cli, request):
-    # The Test page's Read: pull whatever the RTAC runs into the database.
-    # readasleft picks the database name itself (a free one when the RTAC's
-    # project name is already taken) and returns it — or, on failure, a
-    # remark in the same string; the database listing tells the two apart.
-    host = request["host"]
-    say(f"… reading {host}")
-    result = str(cli.readasleft(host, "SEL", password="SEL") or "").strip()
-    if result not in {p.name for p in cli.listprojects()}:
-        raise RuntimeError(result or f"AcRTAC read nothing from {host}")
-    say(f"✓ {host} → {result}")
-    return {"name": result}
+    # The Test page's Read: pull whatever the RTAC runs into the database,
+    # never over a project already there. readasleft did that itself but is
+    # missing from the installed selacrtac, so this uses `read` and works out
+    # the name from the database listing before and after, not from read's
+    # reply. `project` is the RTAC's running project as the last scan saw it;
+    # when the database already has one by that name it is parked under a
+    # temporary name for the read, the new copy renamed to a free variant
+    # (Name_1), and the original put back — on failure too.
+    host, expect = request["host"], request.get("project")
+    names = lambda: {p.name for p in cli.listprojects()}
+    before = names()
+    if hasattr(cli, "readasleft"):
+        say(f"… reading {host}")
+        result = str(cli.readasleft(host, "SEL", password="SEL") or "").strip()
+        if result not in names():
+            raise RuntimeError(result or f"AcRTAC read nothing from {host}")
+        say(f"✓ {host} → {result}")
+        return {"name": result}
+
+    parked = free_name(f"{expect}_projector_parked", before) if expect in before else None
+    baseline = before
+    if parked:
+        say(f"… {expect} is already in the database; keeping it as it is")
+        wait_on(cli.rename(parked, expect))
+        baseline = before - {expect} | {parked}
+    try:
+        say(f"… reading {host}")
+        reply = cli.read(host, "SEL", password="SEL", overwrite=False)
+        wait_on(reply)
+        after = names()
+        new = after - baseline
+        if len(new) != 1:
+            remark = reply.strip() if isinstance(reply, str) else ""
+            raise RuntimeError(remark or f"AcRTAC read nothing new from {host}")
+        name = new.pop()
+        if parked:
+            target = free_name(expect, after | before)
+            wait_on(cli.rename(target, name))
+            name = target
+    finally:
+        if parked:
+            if expect in names():
+                say(f"! {expect} is taken; the original is kept as {parked}")
+            else:
+                wait_on(cli.rename(expect, parked))
+    say(f"✓ {host} → {name}")
+    return {"name": name}
 
 
 def main():

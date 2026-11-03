@@ -17,6 +17,7 @@ import {
   fetchTestNetwork,
   moveTestDevices,
   saveBenchDevices,
+  writeAcrtacConnections,
   scanTestNetwork,
   setTestEth02,
   readTestRtac,
@@ -31,6 +32,7 @@ import { formatStamp } from '../lib/format'
 import { useJobs } from '../lib/jobs'
 import { saveSettings, setting } from '../lib/settings'
 import { useAction } from '../lib/useAction'
+import { benchFromCsv, benchToCsv } from '../lib/benchCsv'
 import { AcrtacProjectList } from './AcrtacProjectList'
 import { Button, Modal, RowAction, Select, Spinner, TextInput } from './ui'
 
@@ -412,6 +414,7 @@ export function TestNetworkView({ active }: { active: boolean }) {
 
       {benchOpen && (
         <BenchModal onClose={() => setBenchOpen(false)}
+          onStored={() => refresh()}
           onSaved={() => {
             setBenchOpen(false)
             refresh()
@@ -699,14 +702,18 @@ const blank = (key: number): DraftDevice => ({ id: '', kind: 'rtac', networkIp: 
 function BenchModal({
   onClose,
   onSaved,
+  onStored,
 }: {
   onClose: () => void
   onSaved: (devices: BenchDevice[]) => void
+  /** The table was saved without closing (Save to AcRTAC). */
+  onStored: () => void
 }) {
   const [nextKey, setNextKey] = useState(1000)
   const [draft, setDraft] = useState<DraftDevice[] | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const { run, busy, error } = useAction()
+  const [wrote, setWrote] = useState<{ file: string; summary: string } | null>(null)
   useEffect(() => {
     fetchBenchDevices().then(
       (devices) => setDraft(devices.length ? devices.map((d, i) => ({ ...d, key: i })) : [blank(0)]),
@@ -716,13 +723,40 @@ function BenchModal({
 
   const set = (key: number, patch: Partial<BenchDevice>) =>
     setDraft((current) => current && current.map((d) => (d.key === key ? { ...d, ...patch } : d)))
+  const csvInput = useRef<HTMLInputElement>(null)
+  const filled = (rows: DraftDevice[]) => rows
+    .filter((d) => d.id.trim() || d.networkIp.trim() || d.port.trim())
+    .map(({ id, kind, networkIp, port }) => ({ id, kind, networkIp, port }))
   const save = () => run(async () => {
     if (!draft) return
-    const rows = draft
-      .filter((d) => d.id.trim() || d.networkIp.trim() || d.port.trim())
-      .map(({ id, kind, networkIp, port }) => ({ id, kind, networkIp, port }))
-    onSaved(await saveBenchDevices(rows))
+    onSaved(await saveBenchDevices(filled(draft)))
   })
+  // AcRTAC gets the table as saved, so this saves first.
+  const toAcrtac = () => run(async () => {
+    if (!draft) return
+    setWrote(null)
+    const saved = await saveBenchDevices(filled(draft))
+    setDraft(saved.length ? saved.map((d, i) => ({ ...d, key: nextKey + i })) : [blank(nextKey)])
+    setNextKey((k) => k + saved.length + 1)
+    onStored()
+    const r = await writeAcrtacConnections()
+    setWrote({ file: r.file, summary: `${r.added.length} added, ${r.updated.length} updated` })
+  })
+  // An import replaces the table on screen; Save still checks and stores it.
+  const importCsv = (file: File) => run(async () => {
+    const rows = benchFromCsv(await file.text())
+    setDraft(rows.length ? rows.map((d, i) => ({ ...d, key: nextKey + i })) : [blank(nextKey)])
+    setNextKey((k) => k + rows.length + 1)
+  })
+  const exportCsv = () => {
+    if (!draft) return
+    const url = URL.createObjectURL(new Blob([benchToCsv(filled(draft))], { type: 'text/csv' }))
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = 'bench-devices.csv'
+    anchor.click()
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  }
 
   return (
     <Modal title="Bench devices" onClose={onClose} locked={busy} className="testnet-bench-modal">
@@ -751,8 +785,18 @@ function BenchModal({
           setDraft((current) => current && [...current, blank(nextKey)])
           setNextKey((k) => k + 1)
         }}>+ Add</Button>
+        <input ref={csvInput} type="file" accept=".csv,text/csv" style={{ display: 'none' }}
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) importCsv(file)
+            e.target.value = ''
+          }} />
+        <Button onClick={() => csvInput.current?.click()} disabled={busy}>Import CSV…</Button>
+        <Button onClick={exportCsv}>Export CSV</Button>
         <span className="testnet-spacer" />
         {error && <span className="tool-error">{error}</span>}
+        {!error && wrote && <span className="dim testnet-wrote" title={wrote.file}>SEL3530.csv: {wrote.summary}</span>}
+        <Button onClick={toAcrtac} disabled={busy}>Save to AcRTAC</Button>
         <Button variant="primary" onClick={save} disabled={busy}>Save</Button>
       </div>
       </>)}

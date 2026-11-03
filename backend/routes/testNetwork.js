@@ -1,6 +1,7 @@
 // The test network: the last scan, a fresh scan, a device moved to a
 // VLAN, a VLAN added / renamed / deleted, an RTAC's Eth_02 address, the bench device table
-// (whole-list GET/PUT), and an AcRTAC upload to / read from one bench RTAC
+// (whole-list GET/PUT) and its RTACs written into AcRTAC's connection list,
+// and an AcRTAC upload to / read from one bench RTAC
 // (each a job).
 
 import { Router } from 'express';
@@ -34,6 +35,10 @@ function testNetworkRoutes(testNetwork) {
 
   router.put('/devices', async (req, res) => {
     res.json({ devices: await testNetwork.saveDevices(req.body?.devices) });
+  });
+
+  router.post('/acrtac-connections', async (_req, res) => {
+    res.json(await testNetwork.writeAcrtacConnections());
   });
 
   router.post('/upload', async (req, res) => {

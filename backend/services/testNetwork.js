@@ -7,7 +7,7 @@
 // deleting a VLAN, setting an RTAC's Eth_02 address, and sending a database
 // project to an RTAC through AcRTAC's upload, as a job in the AcRTAC queue.
 // One read the other way: an RTAC's running project into the database
-// (AcRTAC's readasleft), then opened in the AcRTAC GUI.
+// (AcRTAC's read), then opened in the AcRTAC GUI.
 //
 // The bench itself — which identifier ("3555-1") is at which network IP on
 // which switch port — is a table kept in <dataDir>/test-network/devices.json,
@@ -20,6 +20,7 @@
 import { copyFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
+import { writeAcrtacConnections } from '../lib/acrtacConnections.js';
 import { httpError } from '../lib/http.js';
 import { JsonFile } from '../lib/jsonFile.js';
 import { runStdinBridge } from '../lib/acrtac/pythonClient.js';
@@ -82,7 +83,9 @@ class TestNetworkService {
   // Switch writes are read-modify-write of its VLAN table: one at a time.
   #switchWrites = Promise.resolve();
 
-  constructor({ dataDir, jobs, events = null, catalog = null, bridge = null, acrtac = null }) {
+  constructor({ dataDir, jobs, events = null, catalog = null, bridge = null, acrtac = null, connectionsDir }) {
+    // AcRTAC's Connections directory (tests point it elsewhere).
+    this.connectionsDir = connectionsDir;
     this.jobs = jobs;
     this.events = events;
     // A read adds a database project: re-read the shared list after one.
@@ -114,6 +117,13 @@ class TestNetworkService {
   /** Whole-table replace. */
   saveDevices(rows) {
     return this.store.write(validateDevices(rows));
+  }
+
+  /** Put the bench RTACs into AcRTAC's SEL3530.csv connection list. */
+  async writeAcrtacConnections() {
+    const rtacs = (await this.devices()).filter((d) => d.kind === 'rtac' && d.networkIp);
+    if (!rtacs.length) throw httpError(400, 'the bench has no RTACs with a network IP');
+    return writeAcrtacConnections(rtacs, this.connectionsDir);
   }
 
   /** The last scan (null before the first), and whether one is running. */
@@ -236,14 +246,16 @@ class TestNetworkService {
   }
 
   /** Read the project bench RTAC `device` runs into the AcRTAC database, then
-   *  open it in the AcRTAC GUI — one job. The database name is AcRTAC's pick
-   *  (the RTAC's project name, or a free variant of it). */
+   *  open it in the AcRTAC GUI — one job. The database name is the RTAC's
+   *  project name, or a free variant of it when the database has one already
+   *  (the bridge needs the name as the last scan saw it for that). */
   async read(payload) {
     const device = await this.#rtac(payload?.device);
+    const project = this.#last?.devices?.find((d) => d.id === device.id)?.project?.name ?? null;
     const job = this.jobs.start(`Read ${device.id}`, async (handle) => {
       handle.log(`Reading the project on ${device.id} at ${device.networkIp}…`);
       const { name } = await this.acrtac(ACRTAC_BRIDGE, {
-        command: 'read', host: device.networkIp,
+        command: 'read', host: device.networkIp, project,
       }, { job: handle, explain: EXPLAIN });
       this.catalog?.refresh();
       handle.log(`Opening ${name} in AcRTAC…`);

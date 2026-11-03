@@ -705,11 +705,21 @@ def project_files(web):
 
 
 def current_project(web):
-    """update.sel's {"name", "state"} for the running project."""
+    """update.sel's {"name", "state"} for the running project, {} for none.
+    A bare string there is taken as the name with no state; anything else
+    that isn't {"name", "state"} is refused rather than handed on."""
     try:
-        return web.post_json("update.sel", cache_bust=True)["currentProject"] or {}
+        now = web.post_json("update.sel", cache_bust=True)["currentProject"]
     except (KeyError, TypeError) as e:
         raise SelWebError(f"unexpected update.sel layout ({e!r})") from e
+    if not now:
+        return {}
+    if isinstance(now, str):
+        return {"name": now, "state": None}
+    if not isinstance(now, dict):
+        raise SelWebError(f"unexpected update.sel currentProject {now!r:.80}")
+    name, state = now.get("name"), now.get("state")
+    return {"name": str(name) if name else None, "state": str(state) if state else None}
 
 
 def rtac_file_name(path):

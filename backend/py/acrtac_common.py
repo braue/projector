@@ -55,6 +55,7 @@ class Session:
       upload     not yet seen with a spaced name; quoted on the exportxml
                  evidence that a pre-quoted name is harmless where the
                  library quotes it itself
+      rename     the same reasoning as upload (the Test page's Read)
     """
 
     def __init__(self, cli):
@@ -68,6 +69,9 @@ class Session:
 
     def upload(self, project, *args, **kwargs):
         return self._cli.upload(cli_name(project), *args, **kwargs)
+
+    def rename(self, newname, oldname, *args, **kwargs):
+        return self._cli.rename(cli_name(newname), cli_name(oldname), *args, **kwargs)
 
 
 def wait_on(job):
