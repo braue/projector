@@ -17,6 +17,8 @@ import type {
   SwsetModel,
   Hours,
   Todo,
+  TodoFields,
+  TodoStatus,
   ToolJob,
 } from './types'
 
@@ -50,18 +52,34 @@ export async function appVersion(): Promise<string | null> {
 }
 
 /**
- * The todo list — machine-global, not project state. It lives in the data
+ * The todo board — machine-global, not project state. It lives in the data
  * directory rather than localStorage because the packaged app listens on port
  * 0, so its origin changes every launch and browser-side storage does not
- * survive a restart.
+ * survive a restart. Writes are one card at a time and return the board.
  */
 export async function listTodos(): Promise<Todo[]> {
   return (await get<{ todos: Todo[] }>('/api/todos')).todos
 }
 
-/** Whole-list replace — order is the user's, so it is sent as given. */
-export async function saveTodos(todos: Todo[]): Promise<Todo[]> {
-  return (await send<{ todos: Todo[] }>('/api/todos', 'PUT', { todos })).todos
+export async function createTodo(fields: TodoFields): Promise<Todo[]> {
+  return (await send<{ todos: Todo[] }>('/api/todos', 'POST', fields)).todos
+}
+
+export async function updateTodo(id: string, fields: TodoFields): Promise<Todo[]> {
+  return (await send<{ todos: Todo[] }>(`/api/todos/${encodeURIComponent(id)}`, 'PATCH', fields)).todos
+}
+
+export async function deleteTodo(id: string): Promise<Todo[]> {
+  return (await send<{ todos: Todo[] }>(`/api/todos/${encodeURIComponent(id)}`, 'DELETE')).todos
+}
+
+/** Into `status`, above card `before` — null for the bottom of the column. */
+export async function moveTodo(id: string, status: TodoStatus, before: string | null): Promise<Todo[]> {
+  return (await send<{ todos: Todo[] }>(`/api/todos/${encodeURIComponent(id)}/move`, 'POST', { status, before })).todos
+}
+
+export async function clearDoneTodos(): Promise<Todo[]> {
+  return (await send<{ todos: Todo[] }>('/api/todos/clear-done', 'POST')).todos
 }
 
 /**

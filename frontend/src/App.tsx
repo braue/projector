@@ -17,7 +17,7 @@ import { ProjectTree } from './components/ProjectTree'
 import { TasksPopover } from './components/TasksPopover'
 import { TestNetworkView } from './components/TestNetworkView'
 import { TextFileView } from './components/TextFileView'
-import { TodoList } from './components/TodoList'
+import { TodoBoard } from './components/TodoBoard'
 // The atlas embeds the whole field-knowledge library — 82 documents inlined as
 // raw text — so it is its own chunk, fetched the first time it is opened
 // rather than parsed on every cold start.
@@ -33,21 +33,26 @@ import { findLeafFor, isPdfFile, isTextFile, refLabel, type FileLeaf } from './l
 import { formatSize, formatStamp, formatWhen } from './lib/format'
 import { useJobs } from './lib/jobs'
 import { reloadProjects, useProjectList } from './lib/projectList'
+import { useTodos } from './lib/todos'
 import { useAction } from './lib/useAction'
 import { useTreeSelection } from './lib/useTreeSelection'
 import type { FileNode, LandedDownload, ToolJob } from './types'
 
+/** What fills the window under the topbar: the project, or one of the
+ *  machine-global takeover panes. */
+type Pane = 'project' | 'todo' | 'test' | 'tools' | 'atlas'
 
 export default function App() {
   // Reference material and global utilities sit beside the project, hold the
   // top-right corner, and latch once opened so an open terminal session or a
   // half-read page survives a detour back into the project.
-  const [atlasOpen, setAtlasOpen] = useState(false)
-  const [atlasEverOpened, setAtlasEverOpened] = useState(false)
-  const [toolsOpen, setToolsOpen] = useState(false)
-  const [toolsEverOpened, setToolsEverOpened] = useState(false)
-  const [testOpen, setTestOpen] = useState(false)
-  const [testEverOpened, setTestEverOpened] = useState(false)
+  const [pane, setPane] = useState<Pane>('project')
+  const [opened, setOpened] = useState<ReadonlySet<Pane>>(() => new Set())
+  const togglePane = (next: Pane) => {
+    setPane((current) => (current === next ? 'project' : next))
+    setOpened((seen) => (seen.has(next) ? seen : new Set(seen).add(next)))
+  }
+  const openTodos = (useTodos() ?? []).filter((c) => c.status !== 'done').length
   // The current project scopes everything below. The window opens with none —
   // the user picks one from the switcher; null list = still loading it.
   const [project, setProject] = useState<string | null>(null)
@@ -119,7 +124,7 @@ export default function App() {
     return () => offs.forEach((off) => off())
   }, [project, loadTree])
 
-  const projectMode = !atlasOpen && !toolsOpen && !testOpen
+  const projectMode = pane === 'project'
   const closeFilter = useCallback(() => {
     setFilterOpen(false)
     setFilter('')
@@ -237,10 +242,10 @@ export default function App() {
       {!connected && <div className="reconnect-bar">Reconnecting to the backend…</div>}
       <TasksPopover />
       <header className="topbar">
-        {/* Top-left: the project — the only control on that side. It goes
-            away while a takeover pane is up, since nothing on screen is
-            scoped to a project then. */}
-        {projectMode && (
+        {/* Top-left: the project — the only control on that side. It stays
+            on the todo board, which it scopes; it goes away under the other
+            takeover panes, since nothing on screen is scoped to a project. */}
+        {(projectMode || pane === 'todo') && (
           <ProjectSwitcher
             current={project}
             projects={projectList.projects}
@@ -277,42 +282,34 @@ export default function App() {
         {/* Top-right: the machine-global panes, holding the corner so their
             toggles never move. */}
         <HoursPanel />
-        <TodoList />
+        <PaneToggle
+          mark="✓"
+          label="Todo"
+          count={openTodos}
+          on={pane === 'todo'}
+          title={pane === 'todo' ? 'Back to the project' : 'Open the todo board'}
+          onClick={() => togglePane('todo')}
+        />
         <PaneToggle
           mark="▦"
           label="Test"
-          on={testOpen}
-          title={testOpen ? 'Back to the project' : 'Open the test network'}
-          onClick={() => {
-            setTestOpen((open) => !open)
-            setTestEverOpened(true)
-            setToolsOpen(false)
-            setAtlasOpen(false)
-          }}
+          on={pane === 'test'}
+          title={pane === 'test' ? 'Back to the project' : 'Open the test network'}
+          onClick={() => togglePane('test')}
         />
         <PaneToggle
           mark="⚒"
           label="Tools"
-          on={toolsOpen}
-          title={toolsOpen ? 'Back to the project' : 'Open the tools'}
-          onClick={() => {
-            setToolsOpen((open) => !open)
-            setToolsEverOpened(true)
-            setAtlasOpen(false)
-            setTestOpen(false)
-          }}
+          on={pane === 'tools'}
+          title={pane === 'tools' ? 'Back to the project' : 'Open the tools'}
+          onClick={() => togglePane('tools')}
         />
         <PaneToggle
           mark="◆"
           label="Atlas"
-          on={atlasOpen}
-          title={atlasOpen ? 'Back to the project' : 'Open the atlas reference'}
-          onClick={() => {
-            setAtlasOpen((open) => !open)
-            setAtlasEverOpened(true)
-            setToolsOpen(false)
-            setTestOpen(false)
-          }}
+          on={pane === 'atlas'}
+          title={pane === 'atlas' ? 'Back to the project' : 'Open the atlas reference'}
+          onClick={() => togglePane('atlas')}
         />
         <ThemeToggle />
       </header>
@@ -382,26 +379,32 @@ export default function App() {
           </>
         )}
 
-        {testEverOpened && (
-          <div className="test-pane" hidden={!testOpen}>
-            <TestNetworkView active={testOpen} />
+        {opened.has('todo') && (
+          <div className="todo-pane" hidden={pane !== 'todo'}>
+            <TodoBoard project={project} />
+          </div>
+        )}
+
+        {opened.has('test') && (
+          <div className="test-pane" hidden={pane !== 'test'}>
+            <TestNetworkView active={pane === 'test'} />
           </div>
         )}
 
         {/* Same latch as the atlas: an open terminal session or half-filled
             tool form survives a detour back into the project. */}
-        {toolsEverOpened && (
-          <div className="tools-pane" hidden={!toolsOpen}>
+        {opened.has('tools') && (
+          <div className="tools-pane" hidden={pane !== 'tools'}>
             <ToolsView project={project ?? ''} />
           </div>
         )}
 
         {/* Mounted from the first open onwards — never before, so the library
             is not in the startup path, and never unmounted after. */}
-        {atlasEverOpened && (
-          <div className="atlas-pane" hidden={!atlasOpen}>
+        {opened.has('atlas') && (
+          <div className="atlas-pane" hidden={pane !== 'atlas'}>
             <Suspense fallback={null}>
-              <AtlasView active={atlasOpen} />
+              <AtlasView active={pane === 'atlas'} />
             </Suspense>
           </div>
         )}
@@ -433,12 +436,15 @@ function ThemeToggle() {
 function PaneToggle({
   mark,
   label,
+  count = 0,
   on,
   title,
   onClick,
 }: {
   mark: string
   label: string
+  /** A chip after the label (open todo cards); hidden at 0. */
+  count?: number
   on: boolean
   title: string
   onClick: () => void
@@ -447,6 +453,7 @@ function PaneToggle({
     <button className={on ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'} onClick={onClick} title={title}>
       <span className="topbar-toggle-mark">{mark}</span>
       <span>{label}</span>
+      {count > 0 && <span className="todo-count">{count}</span>}
     </button>
   )
 }

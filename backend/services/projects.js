@@ -38,13 +38,15 @@ const ARCHIVED_MARKER = '.archived';
 const TREE_SETTLE_MS = 250;
 
 class ProjectsService {
-  constructor({ dataDir, catalog, jobs = null, events = null, hours = null }) {
+  constructor({ dataDir, catalog, jobs = null, events = null, hours = null, todos = null }) {
     this.root = path.join(dataDir, 'projects');
     this.catalog = catalog;
     this.jobs = jobs;
     this.events = events;
-    // Billed hours are keyed by project name, so a rename carries them over.
+    // Billed hours and todo cards are keyed by project name, so a rename
+    // carries them over.
     this.hours = hours;
+    this.todos = todos;
     // name -> Promise<bundle> — built once per project per process.
     this.bundles = new Map();
     // name -> fs.FSWatcher over that project's files/.
@@ -135,6 +137,7 @@ class ProjectsService {
     this.bundles.delete(name);
     await rename(this.dir(name), to);
     await this.hours?.renameProject(name, trimmed);
+    await this.todos?.renameProject(name, trimmed);
     this.events?.publish('projects', {});
     return { name: trimmed };
   }

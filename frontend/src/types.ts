@@ -554,12 +554,25 @@ export interface DwgenResult {
   warnings: string[]
 }
 
-/** A row on the machine-global todo list (see api.ts listTodos). */
+/** A column on the todo board. */
+export type TodoStatus = 'todo' | 'doing' | 'done'
+
+/** A card on the machine-global todo board (see api.ts listTodos). */
 export interface Todo {
   id: string
-  text: string
-  done: boolean
+  title: string
+  description: string
+  /** A Projector project's name, or null for none. */
+  project: string | null
+  /** Estimated hours, or null for none. */
+  hours: number | null
+  /** Hours already put in, or null for none. The board shows hours - spent. */
+  spent: number | null
+  status: TodoStatus
 }
+
+/** The fields a card's editor (or a new card) may set. */
+export type TodoFields = Partial<Omit<Todo, 'id'>>
 
 /** The billable-hours store (see api.ts fetchHours). Dates are local
  *  YYYY-MM-DD; a missing cell is zero. */

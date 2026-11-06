@@ -307,6 +307,9 @@ button.ui-section-header:hover { color: var(--ink); }
 /* The test network pane — same takeover shape. */
 .test-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
 .test-pane[hidden] { display: none; }
+
+.todo-pane { flex: 1; display: flex; min-height: 0; min-width: 0; }
+.todo-pane[hidden] { display: none; }
 .tools-rail-head {
   flex: none; padding: 12px 16px 8px; font-size: 11px; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
@@ -553,7 +556,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .entry-rename:hover { color: var(--ink); }
 /* Quiet until you point at the row — one rule for every row kind that carries
  * them, so a new row kind opts in by joining this list. */
-:is(.ws-item, .todo-row, td.hours-project):hover .entry-delete { opacity: 1; }
+:is(.ws-item, td.hours-project):hover .entry-delete { opacity: 1; }
 
 /* Inline rename/create form (ui.tsx InlineNameForm) in sidebar rows and menus. */
 .side-form { padding: 6px 10px; }
@@ -859,7 +862,7 @@ button.ui-section-header:hover { color: var(--ink); }
 .ws-current { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ws-none { color: var(--muted); font-weight: 400; }
 .ws-caret { font-size: 10px; color: var(--muted); }
-/* Both topbar dropdowns — the project switcher and the todo list — are the
+/* Both topbar dropdowns — the project switcher and the hours panel — are the
    same kind of surface: right-anchored under their own trigger, at the right
    of the topbar. One rule, so tuning the drop offset or the elevation cannot
    move only one of them. */
@@ -897,14 +900,14 @@ button.ui-section-header:hover { color: var(--ink); }
   font-size: 11px; color: var(--muted);
 }
 
-/* --- todo list ------------------------------------------------------------ */
-/* The one surface that is not project data: a general scratch list, so it
-   rides beside Tools and the Atlas. It drops as a floating panel (14px
-   gutter, --shadow-menu, like the project switcher) instead of taking the
-   pane over — a task gets jotted without leaving the work. */
+/* --- topbar dropdown panel --------------------------------------------- */
+/* The hours panel drops from the topbar as a floating panel (14px gutter,
+   --shadow-menu, like the project switcher) instead of taking the pane over.
+   The todo-* names are from when the todo list dropped the same way. */
 
-/* Open items, on the trigger. Reads as a count, not a status, so it borrows
-   the accent tint rather than one of the three semantic tones. */
+/* A count on a topbar trigger (open todo cards, the week's hours). Reads as a
+   count, not a status, so it borrows the accent tint rather than one of the
+   three semantic tones. */
 .todo-count {
   flex: none; min-width: 17px; padding: 0 5px; border-radius: 999px;
   background: var(--accent-tint); color: var(--accent);
@@ -915,48 +918,14 @@ button.ui-section-header:hover { color: var(--ink); }
 .topbar-toggle.on .todo-count { background: var(--card); }
 
 /* Chrome comes from the shared :is(.ws-menu, .todo-menu) rule; this is only
-   what differs — a fixed width, and a column that clips its own scroller. */
-.todo-menu { width: 340px; display: flex; flex-direction: column; overflow: hidden; }
+   what differs — a column that clips its own scroller. */
+.todo-menu { display: flex; flex-direction: column; overflow: hidden; }
 .todo-head { display: flex; align-items: baseline; gap: 8px; padding: 12px 14px 9px; }
 .todo-head .t { font-size: 13px; font-weight: 650; }
 .todo-head .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-/* Progress at a glance; the fraction beside the title is there for when the
-   exact number matters. */
-.todo-bar { height: 3px; margin: 1px 14px 0; border-radius: 999px; background: var(--border); overflow: hidden; }
-.todo-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
-@media (prefers-reduced-motion: no-preference) {
-  .todo-bar > i { transition: width 160ms ease; }
-}
-
-.todo-add { padding: 10px 14px; }
-.todo-add .ui-input { width: 100%; }
-
-/* Rows inset by 6px so a hovered row's fill sits inside the panel gutter
-   rather than running to its edge. */
-.todo-list { max-height: 322px; overflow-y: auto; padding: 0 8px 6px; }
-.todo-row {
-  display: flex; align-items: center; gap: 8px; padding: 7px 6px;
-  border-radius: 7px; font-size: 13px; line-height: 1.35;
-}
-.todo-row:hover { background: var(--fill); }
-.todo-row.dragging { opacity: 0.45; }
-/* Grip and ✕ are both quiet until you point at the row — the list reads as
-   text at rest, and grows its controls under the cursor. */
-.todo-grip {
-  flex: none; padding: 0 1px; font-size: 11px; line-height: 1;
-  color: var(--ghost-soft); cursor: grab; opacity: 0; user-select: none;
-}
-.todo-row:hover .todo-grip { opacity: 1; }
-.todo-grip:active { cursor: grabbing; }
-.todo-text { flex: 1; min-width: 0; cursor: text; overflow-wrap: anywhere; }
-.todo-row.done .todo-text { color: var(--ghost); text-decoration: line-through; }
-/* The inline editor takes the text's place in the row, so it drops the
-   sidebar padding the form carries elsewhere. */
-.todo-row .side-form { flex: 1; min-width: 0; padding: 0; }
 
 .todo-empty { padding: 2px 14px 16px; font-size: 12.5px; color: var(--muted); }
-/* A failed read or save — the list keeps working locally, so this reports
-   rather than blocks. */
+/* A failed read or save — reports rather than blocks. */
 .todo-error { margin: 0 14px 8px; font-size: 12px; color: var(--bad); }
 
 .todo-foot {
@@ -1517,3 +1486,72 @@ th.hours-budget, td.hours-budget { width: 92px; }
 .testnet-bench-foot { display: flex; align-items: center; gap: 10px; padding: 12px 14px 14px; }
 .testnet-bench-foot .tool-error { min-width: 0; overflow-wrap: anywhere; }
 .testnet-wrote { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ==========================================================================
+ * TODO BOARD (TodoBoard.tsx) — three columns of cards on the page ground,
+ * dragged between and within them; a dashed slot marks where one will land.
+ * ========================================================================== */
+
+.board { display: flex; flex-direction: column; min-height: 0; }
+.board-spacer { flex: 1; }
+
+.board-body {
+  flex: 1; min-height: 0; overflow: auto; padding: 18px 20px 28px;
+  display: flex; flex-direction: column; gap: 12px; background: var(--bg);
+}
+.board-cols {
+  flex: 1; min-height: 0; display: grid; gap: 14px; align-items: start;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+}
+.board-col {
+  display: flex; flex-direction: column; min-height: 120px; max-height: 100%;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--fill);
+}
+.board-col.drop { border-color: var(--accent); }
+.board-col-head { display: flex; align-items: baseline; gap: 8px; padding: 10px 12px 8px; font-size: 13px; }
+.board-col-head .t { font-weight: 650; }
+.board-col-head .n, .board-col-head .h { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.board-add, .board-clear {
+  border: 0; border-radius: 6px; background: none; color: var(--muted); cursor: pointer;
+}
+.board-add { width: 22px; height: 22px; font-size: 16px; line-height: 1; align-self: center; }
+.board-clear { font-size: 12px; padding: 2px 4px; }
+.board-add:hover { background: var(--border); color: var(--ink); }
+.board-clear:hover { color: var(--bad); }
+
+.board-cards { display: flex; flex-direction: column; gap: 8px; padding: 0 10px 12px; overflow-y: auto; }
+.board-card {
+  padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card); box-shadow: var(--shadow-raised);
+  display: flex; flex-direction: column; gap: 5px; font-size: 13px; cursor: grab;
+}
+.board-card:hover { border-color: var(--ghost-soft); }
+.board-card.dragging { opacity: 0.4; }
+.board-card-title { font-weight: 550; overflow-wrap: anywhere; }
+.board-card.done .board-card-title { color: var(--muted); text-decoration: line-through; }
+.board-card-desc {
+  font-size: 12px; color: var(--muted); white-space: pre-line; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.board-card-foot { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.board-card-project {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 6px;
+  background: var(--accent-tint); color: var(--accent);
+}
+.board-card-hours { margin-left: auto; flex: none; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.board-card-hours.over { color: var(--bad-ink); }
+.board-slot { height: 38px; flex: none; border: 1.5px dashed var(--accent); border-radius: 8px; }
+.board-empty { padding: 4px 2px; font-size: 12px; color: var(--muted); }
+.board-adding .side-form { padding: 0; }
+
+.board-modal { width: 520px; max-width: calc(100vw - 32px); }
+.board-form { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 14px; min-height: 0; overflow-y: auto; }
+.board-form .ui-labeled { width: 100%; flex-direction: column; align-items: stretch; gap: 4px; }
+.board-form :is(.ui-input, .ui-select) { flex: none; width: 100%; min-width: 0; max-width: none; }
+.board-form-row { display: flex; gap: 10px; }
+.board-form-row .ui-labeled:first-child { flex: 2; }
+.board-form-row .ui-labeled { flex: 1; min-width: 0; }
+.board-hours.bad { border-color: var(--bad); }
+.board-desc .ui-textarea { font-family: inherit; font-size: 13px; line-height: 1.45; }
+.board-delete:hover:not(:disabled) { color: var(--bad); }

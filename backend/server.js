@@ -109,15 +109,14 @@ export async function startServer(options = {}) {
   const selLibrary = new SelLibrary({ root: selRoot });
   const selText = new SelFullText();
   selText.open(selIndex);
-  // Machine-global, so it sits at the top of the data directory rather than
-  // inside a project.
-  const todos = new TodosService({ file: path.join(dataDir, 'todos.json') });
-  // Background work and change notices are machine-global too: one job
-  // registry for everything slow, one event stream to the window.
+  // Background work and change notices are machine-global: one job registry
+  // for everything slow, one event stream to the window. Hours and todos sit
+  // at the top of the data directory rather than inside a project.
   const events = new EventHub();
   const jobs = new JobRegistry({ events });
   const hours = new HoursService({ file: path.join(dataDir, 'hours.json'), events });
-  const projects = new ProjectsService({ dataDir, catalog, jobs, events, hours });
+  const todos = new TodosService({ file: path.join(dataDir, 'todos.json'), events });
+  const projects = new ProjectsService({ dataDir, catalog, jobs, events, hours, todos });
   await projects.init();
   const settings = new SettingsService({ dataDir });
   const testNetwork = new TestNetworkService({
