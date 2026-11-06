@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Redundancy &amp; SCADA Control</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Redundancy, SCADA control and setpoint retention</h1>
+<p></p>
+<div class="chips"><span>§19</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<ul>
+<li>Up to four DACs (Primary, Secondary, Tertiary, Quaternary) linked over UDP port 59000. Only the <b>active</b> DAC runs AR (<code>Enable AND DacActive</code>) and sends <code>DA_ENABLED_WDOG</code>. <span class="src">ADP/Device Function Blocks/AR/DA_Redundancy</span></li>
+<li>Active-DAC selection, in order of what is configured: SCADA <b>force/unforce</b> commands; <b>RTU voting</b> (each RTU votes; the DAC that sees the most live RTUs wins; ties go to the higher-priority DAC, so the primary takes back over when equal; a DAC with a failed watchdog cannot win); <b>SCADA heartbeat</b> (the DAC that last received the heartbeat is active); otherwise manual or dual-hot failover on link loss. Transfers are delayed and conflicts resolved so only one DAC is active. <span class="src">ADP/Device Function Blocks/RtuVotingScheme/*</span></li>
+<li>A <code>SettingsVersion</code> check between DACs prevents an out-of-date DAC taking over (bypassed when SCADA voting is in use).</li>
+<li>A DA Reset command marks the DAC online.</li>
+<li><b>Redundant point management</b>: operator-changeable values (scheme and feature enables, heartbeat monitoring, forced DAC, feeder include/exclude, SCADA inhibit/bypass/OOS, capacities, priorities, timers listed in <code>enumAnalogPointCodes</code>) are replicated to the partner and saved to a setpoint file, so a reboot or failover keeps the operator's state. On first initialisation they take the setting defaults.</li>
+</ul>
+</body>
+</html>

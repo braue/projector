@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Enabling, Arming, Resets &amp; Licensing</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC,Scheme enable chain,Licensing,Resets,Startup timeline">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Enabling, arming, resets and startup</h1>
+<p>The chain of conditions that decides whether the DAC is allowed to act, scheme-wide and per feeder.</p>
+<div class="chips"><span>§02</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>AR runs only when <b>Enable</b> AND this DAC is the <b>active redundant DAC</b> AND the library is <b>licensed</b> (<a href="#licensing">licensing</a>) AND there is <b>no settings error</b>.</li>
+<li>A feeder is <b>Armed</b> when AR is enabled AND the feeder is not <b>Excluded</b> AND not <b>Excluded by underfrequency</b>. An unarmed feeder detects nothing and is never used as an alternate.</li>
+<li>An armed feeder that is <b>Abnormal</b> is still armed, but with the default abnormal mode (None) it can neither isolate nor restore and cannot be an alternate source.</li>
+<li>A system <b>Reset</b> is ignored while any DA sequence is in progress. When accepted it re-initialises the whole model.</li>
+<li>Outputs and commands are suppressed for the first 5 s after any reset (<code>MapOutputs</code>).</li>
+</ol></div>
+
+<h2 id="enable-chain">Scheme enable chain</h2>
+<div class="flow">SCADA Enable/Disable (latched)  ─┐
+Field DA-enabled latch / toggle  ─┼─ Field_DA_Enable_Mode ─┐
+SCADA heartbeat not timed out    ─┘                         ├─ Input.Enable ─┐
+                                                                             ├─ DA_MANAGER.Enable ─┐
+Redundancy: this DAC is active (DacActive) ──────────────────────────────────┘                     │
+Licence (MOT AR permitted) ────────────────────────────────────────────────────────────────────────┤
+No SettingsDiagnostics.Settings_Error ─────────────────────────────────────────────────────────────┴─ AR_Enabled</div>
+<p class="srcs"><span class="src">ADP/DA_CONTROL.prv_ControlInputs</span> <span class="src">OBJ/DA_MANAGER_AR</span></p>
+
+<h3>Field_DA_Enable_Mode (Adapter <code>DA_CONTROL</code>)</h3>
+<div class="tw"><table>
+<tr><th>Mode</th><th>Enable is TRUE when</th></tr>
+<tr><td><code>FeederAbnormal</code> (0, default)</td><td>SCADA enable latch set (Enable or SchemeInclude sets it; Disable or SchemeExclude clears it), and not disabled by heartbeat. Relay "DA enabled" points do not gate the scheme.</td></tr>
+<tr><td><code>FieldLatch_Scada</code> (1)</td><td>SCADA latch AND every configured relay reports DA Enabled, and not disabled by heartbeat.</td></tr>
+<tr><td><code>FieldLatch_NoScada</code> (2)</td><td>Every configured relay reports DA Enabled. SCADA enable not required.</td></tr>
+<tr><td><code>FieldToggle</code> (3)</td><td>Flip-flop: a SCADA enable or a rising edge of any relay's DA Enabled point toggles it; SCADA disable, a second toggle, or heartbeat timeout turns it off.</td></tr>
+</table></div>
+
+<h3>Feature enables</h3>
+<p>Miscoordination detection, open-phase detection, overload detection, load shed and loss-of-source detection each have a setting default and an optional SCADA Enable/Disable pair. <b>A feature is SCADA-controllable only if both its enable and its disable points are mapped</b>; otherwise it is forced to the setting default every scan. Each feature enable is ANDed with AR_Enabled inside the manager, so turning AR off turns them all off. <span class="src">ADP/DA_CONTROL.prv_ControlInputs</span></p>
+<p>Overload detection and load shed are additionally forced off whenever any <code>DA_CONNECTOR</code> is in service (<code>g_DA_ConnectorInService</code>), because the solver cannot handle overload transfers across DAC boundaries. <span class="src">OBJ/DA_MANAGER_AR</span></p>
+
+<h2 id="licensing">Licensing</h2>
+<p>The library checks what this RTAC is licensed for and turns that into two permissions: <b>AR permitted</b> (fault isolation and restoration) and <b>DFO permitted</b> (voltage/var optimisation). Each permission has a feeder limit. The check reads only the RTAC itself, through its part number (MOT) and its installed license strings. Nothing in the DAC settings changes it. <span class="src">_zMOTCheck/prv_LicenseLimits</span> <span class="src">_zMOTCheck/prvfb_LicenseManager</span> <span class="src">OBJ/DA_CONTROLLER</span></p>
+
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>The license is read <b>once</b>, at startup. A second attempt runs on the Adapter's first scan in case the OS call failed during init. After that it is never read again, so a new license or a new part number takes effect only after a restart.</li>
+<li>The DAC uses the first of these four checks that gives a result: an all-features part number, then feeder-count license strings, then a legacy part-number code, then a demo license.</li>
+<li>AR is permitted when the licensed AR feeder count is above 0 <b>and</b> the number of feeders configured on this RTAC does not exceed it. Going over the limit does not just drop the extra feeders. <b>AR is turned off for the whole RTAC.</b></li>
+<li>Without the AR permission, the manager's <code>Licensed</code> output is FALSE, so <code>AR_Enabled</code> is FALSE. The effect is the same as Disable: no feeder is armed and nothing is detected or commanded.</li>
+<li>DFO is judged separately, with its own count and limit.</li>
+</ol></div>
+
+<h3>How the licensed feeder count is found</h3>
+<div class="tw"><table>
+<tr><th>Order</th><th>Source</th><th>Result</th></tr>
+<tr><td class="num">1</td><td>Part number: the 4th- and 3rd-from-last characters of the MOT are <code>ZZ</code></td><td>AR and DFO both licensed for <code>FEEDER_MAX</code> (100) feeders. (<code>PermitAll</code>)</td></tr>
+<tr><td class="num">2</td><td>RTAC license strings <code>DA_AR_n</code> and <code>DA_DFO_n</code>, where n is one of 2, 4, 10, 20, 30, 40, 50, 60, 70, 80, 100</td><td>The largest n found is the count. AR and DFO are checked separately. This is the current scheme, tied to ES part numbers (revision history, JDS-181, March 2022).</td></tr>
+<tr><td class="num">3</td><td>Legacy: if no AR string was found and the first of the two MOT characters is <code>D</code>, the second character sets the count (table below)</td><td>Applied separately to AR and to DFO, each only when no string was found for it.</td></tr>
+<tr><td class="num">4</td><td>Demo: only when AR and DFO both came out 0. Either the two MOT characters are <code>D0</code>, or the license string <code>DA_DEMO</code> is installed</td><td>AR and DFO both set to 100 feeders, and the Demo flag is set.</td></tr>
+</table></div>
+<p>If the part number can't be read (the MOT string is 10 characters or fewer), steps 1 and 3 have nothing to work with. Only the license strings can then grant anything.</p>
+
+<h3>Legacy part-number codes (first character <code>D</code>)</h3>
+<div class="tw"><table>
+<tr><th>2nd character</th><th class="num">AR feeders</th><th class="num">DFO feeders</th></tr>
+<tr><td><code>A</code></td><td class="num">2</td><td class="num">0</td></tr>
+<tr><td><code>B</code></td><td class="num">4</td><td class="num">0</td></tr>
+<tr><td><code>C</code> / <code>K</code></td><td class="num">10</td><td class="num">0 / 10</td></tr>
+<tr><td><code>D</code> / <code>L</code></td><td class="num">20</td><td class="num">0 / 20</td></tr>
+<tr><td><code>E</code> / <code>M</code></td><td class="num">30</td><td class="num">0 / 30</td></tr>
+<tr><td><code>F</code> / <code>N</code></td><td class="num">40</td><td class="num">0 / 40</td></tr>
+<tr><td><code>G</code> / <code>O</code></td><td class="num">50</td><td class="num">0 / 50</td></tr>
+<tr><td><code>H</code> / <code>P</code></td><td class="num">60</td><td class="num">0 / 60</td></tr>
+<tr><td><code>I</code> / <code>Q</code></td><td class="num">70</td><td class="num">0 / 70</td></tr>
+<tr><td><code>J</code> / <code>R</code></td><td class="num">80</td><td class="num">0 / 80</td></tr>
+<tr><td><code>1</code></td><td class="num">100</td><td class="num">0</td></tr>
+<tr><td><code>2</code></td><td class="num">0</td><td class="num">100</td></tr>
+<tr><td><code>3</code></td><td class="num">100</td><td class="num">100</td></tr>
+<tr><td><code>0</code></td><td colspan="2">Demo (step 4)</td></tr>
+<tr><td>anything else</td><td class="num">0</td><td class="num">0</td></tr>
+</table></div>
+<p>In the second column, A–J give AR only and K–R give AR plus the same DFO count.</p>
+
+<h3>What counts as a feeder</h3>
+<ul>
+<li><b>AR count:</b> the global <code>FeederCount</code>. This is the highest feeder slot assigned on this RTAC across all schemes. Every <code>DA_CIRCUIT</code> takes a slot, and so does every <code>DA_CONNECTOR</code>, because each connector builds a feeder to stand in for the neighbouring DAC's side. <span class="src">Feeder/Assignment/mFEEDER_Assign</span></li>
+<li><b>DFO count:</b> the circuits running voltage optimisation (<code>PermitOp</code> TRUE and <code>PermitLoop</code> FALSE), counted again every scan. <span class="src">OBJ/DA_CIRCUIT.prv_VVO</span></li>
+</ul>
+<div class="callout interp"><b>Interpretation</b> Connectors use up license slots. A 20-feeder license on a DAC with 18 circuits and 3 connectors comes to 21 slots, which exceeds the limit and disables AR completely. Count connectors when sizing a license.</div>
+
+<h3>Demo / lab license</h3>
+<ul>
+<li>When Demo is set, a 4-hour timer starts the first time the controller runs. When it expires, <code>DemoOver</code> latches TRUE and clears only on a restart or power cycle.</li>
+<li>DFO honours this: <code>g_DFO_Enable</code> requires <code>(Licensed OR Demo) AND NOT DemoOver</code>. <span class="src">OBJ/DA_MANAGER_OP</span></li>
+<li>AR does not check <code>DemoOver</code>. Demo mode sets the AR count to 100, so <code>AR_Permitted</code> stays TRUE after the 4 hours as well. See the caveat below.</li>
+</ul>
+
+<h3>What you see (Adapter)</h3>
+<div class="tw"><table>
+<tr><th>Indication</th><th>Meaning</th></tr>
+<tr><td><code>OutputData.Licensed</code>, SCADA point <code>eSCADA_Licensed</code></td><td>AR is permitted (manager <code>Licensed</code>). It is also TRUE under a demo license.</td></tr>
+<tr><td><code>OutputData.DemoLicensed</code></td><td>Demo license active and not yet expired. Shown as "Lab/Demo License" on the commissioning HMI.</td></tr>
+<tr><td><code>OutputData.DemoOver</code></td><td>The 4-hour demo period has ended. Shown as "Lab/Demo Over".</td></tr>
+<tr><td>Alarm <code>DAC Unlicensed</code> (category DA Licensing Alarm)</td><td>AR not permitted. Raised 10 s after startup (<code>_LicensingDelay</code>). The HMI shows "Hardware unlicensed for DAC functionality. Contact DAC_Support@selinc.com".</td></tr>
+<tr><td>Alarm <code>Configuration exceeds the N Feeders licensed.</code></td><td>The AR or DFO feeder limit is exceeded. N is the AR count, even when the DFO limit is the one exceeded.</td></tr>
+<tr><td>Alarm <code>DFO Functionality Unlicensed</code></td><td>Fed by the <b>AR</b> licensed flag, not the DFO one (caveat below).</td></tr>
+</table></div>
+<p class="srcs"><span class="src">ADP/DA_CONTROL</span> <span class="src">ADP/Commissioning HMI/Header</span></p>
+<div class="warn"><b>Code caveat</b> Three things here behave differently than their labels say. (1) The Adapter describes a demo license as "DAC automatically disables after 4-hours", but the code stops only DFO at 4 hours. AR stays licensed under demo until a restart. (2) The <code>DFO Functionality Unlicensed</code> alarm reads the AR <code>Licensed</code> output, so it doesn't show DFO's own license state. (3) <code>PrecheckPreReqs</code> works out whether the FileIo library license is present, but nothing reads the result, so a missing FileIo license does not block the DAC.</div>
+
+<h2 id="arming">Feeder arming, exclusion and availability</h2>
+<div class="tw"><table>
+<tr><th>Term</th><th>Code definition</th><th>Effect</th></tr>
+<tr><td>Armed</td><td><code>AR_Enabled AND NOT (Excluded OR ExcludedByUnderFrequency)</code> <span class="src">Feeder/Armed/mFEEDER_CheckArmed</span></td><td>State ARMED: detects events and RTN. Unarmed: step forced IDLE, events and RTN cleared every scan.</td></tr>
+<tr><td>Excluded</td><td><code>DA_CIRCUIT.Exclude</code>; Adapter: SCADA Exclude (latched, retained) OR SchemeExclude OR feeder-group exclude OR logic</td><td>Feeder unarmed. A remote DAC's source behind a failed connector is also forced excluded.</td></tr>
+<tr><td>Abnormal (feeder)</td><td>Any equipment in the actual (filtered) topology Abnormal, OR the feeder is in a confirmed loop <span class="src">Feeder/Flags/mFEEDER_CheckFlags</span></td><td>See abnormal restoration modes, <a href="atlas:distribution-automation/dac-foundations/topology.html#abn-modes">§06</a>.</td></tr>
+<tr><td>Available (as alternate)</td><td><code>Armed AND (NOT Abnormal OR AbnormalRestoration.Mode &lt;&gt; None)</code></td><td>Only available feeders can pick up load.</td></tr>
+<tr><td>AllowIsolation</td><td><code>NOT Abnormal OR mode has Isolate bit</code></td><td>Whether the DAC may open switches on this feeder (immediate isolation, source-event isolation).</td></tr>
+<tr><td>AllowRestoration</td><td><code>NOT Abnormal OR mode has BuildUpstream/BuildDownstream bit</code></td><td>Whether roots on this feeder may be restored.</td></tr>
+</table></div>
+
+<h2 id="resets">Resets</h2>
+<div class="tw"><table>
+<tr><th>Reset</th><th>Trigger</th><th>What it does</th><th>Blocked when</th></tr>
+<tr><td>Controller reset</td><td>Rising edge of (<code>Reset AND NOT DA_InProgress</code>) or rising edge of Enable, or Startup</td><td>0.5 s pulse. Every POU re-initialises: equipment, node and feeder indexes reassigned, all targets cleared, close-on-fault cleared, comm health restarts (each device needs 3 fresh responses again), solver memory cleared. Outputs held off 5 s.</td><td>Any DA sequence in progress. The press is simply lost; it is not queued.</td></tr>
+<tr><td>Feeder reset (<code>DA_CIRCUIT.FeederReset</code>)</td><td>Rising edge</td><td>Clears that feeder's targets and the latched flags of equipment presently on it (command failure, update failed, faults, open-phase, close-on-fault). Also resets latched scheme step-timeout targets.</td><td>DA in progress.</td></tr>
+<tr><td>Topology reset</td><td>Spare breaker swapped in or out (<code>SpareInService</code> change)</td><td>Rebuild all node assignments.</td><td>DA in progress.</td></tr>
+<tr><td>RTN target reset</td><td>A feeder RTN request with nothing else in progress (Adapter)</td><td>Issues a scheme Reset.</td><td>DA in progress.</td></tr>
+</table></div>
+<p class="srcs"><span class="src">OBJ/DA_MANAGER_AR</span> <span class="src">OBJ/DA_CONTROLLER</span> <span class="src">Feeder/Initialize/mFEEDER_ResetPresentTopologyFlags</span></p>
+<div class="callout interp"><b>Interpretation</b> A controller reset is heavy: comm health is re-proved from scratch, so for roughly 3 poll cycles (each device re-polls every 10 s until 3 good responses) devices can show <code>COMM_ALARM</code> and be abnormal. Pressing Reset to clear a target right before a planned test can leave the system briefly unable to act.</div>
+
+<h2 id="startup">Startup timeline</h2>
+<ul>
+<li>Scans 1–3: <code>Startup</code> TRUE; everything initialises.</li>
+<li>Cycles to 10: indexes assigned; at cycle 10 a topology checksum is taken (used to keep calibrated DFO X-factors only if the topology is unchanged); from cycle 10 the circuit-zone and load-allocation validators run (<code>ZoneWithZeroLoadAllocation</code> settings error).</li>
+<li>Every comm device gets a poll request on its first scan; the integrity poll also fires on DA enable.</li>
+<li>Adapter: 10 s start-up delay; without a redundancy/setpoint library, the DAC is marked active and operator setpoints initialise to defaults at the end of it.</li>
+<li><code>MapOutputs</code> goes TRUE 5 s after the controller reset ends; until then, no command or feeder status output is written.</li>
+</ul>
+</body>
+</html>

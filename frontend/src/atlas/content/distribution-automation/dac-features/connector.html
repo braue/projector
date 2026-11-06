@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DAC-to-DAC Connectors</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC,Collaboration phases,What capacity each side sees,Outputs">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>DAC-to-DAC interconnection (DA_CONNECTOR)</h1>
+<p>Lets a feeder shared between two DACs be restored by either. Each DAC models the other side as a source, a source switch, a line, an edge switch and a boundary line, and the two negotiate a joint solution.</p>
+<div class="chips"><span>§17</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>The connection is online only when the partner's messages carry a matching library version and its watchdog counter keeps changing.</li>
+<li>A watchdog stall of <code>UpdateTimeLimit</code> (10 s on the connector) raises <code>Comm_Alarm</code> and excludes the remote source.</li>
+<li>Either DAC can start a collaboration when it has an event or RTN on the shared feeder. Both must accept; either can reject.</li>
+<li>Collaboration runs in lock-step phases; each phase completes only when both DACs report it done.</li>
+<li>Remote switches are never operated directly: every remote open/close is a handshake request.</li>
+<li>Any connector in service disables overload detection and load shed scheme-wide.</li>
+</ol></div>
+<h2 id="con-phases">Collaboration phases</h2>
+<div class="tw"><table>
+<tr><th>State</th><th>What happens</th></tr>
+<tr><td>CollabIdle</td><td>No joint event. Modelled remote switches track the partner's reported state; remote capacity is mapped from the partner's offer.</td></tr>
+<tr><td>InitialUpdate</td><td>Both DACs update and confirm their events. Times out after Update + Analyze limits.</td></tr>
+<tr><td>InitialSolutionHandshake → InitialSolution</td><td>Phase one: each DAC solves alone and publishes what it could give across the boundary (capacity, load to shed, whether restoration is certain).</td></tr>
+<tr><td>FinalSolutionHandshake → FinalSolution</td><td>Phase two: each solves again using the partner's phase-one offer. Return-close overrides isolation on connector switches here.</td></tr>
+<tr><td>ExecutionHandshake → Execution</td><td>Both execute; remote operations go as handshake commands.</td></tr>
+<tr><td>Complete</td><td>Both report execution complete.</td></tr>
+</table></div>
+<p>Each phase step needs at least 2 fresh watchdog updates from the partner (<code>CON_UpdateCheck</code>). After any abort no new collaboration starts for 60 s. Remote events are mapped onto local feeders only after the connector has been head (local DAC feeds the boundary) or tail (remote feeds it) for 10 s.</p>
+<h2 id="con-capacity">What capacity each side sees</h2>
+<p>The remote source's modelled capacity comes from the partner's published margin, with small floors so the solver never sees zero: <span class="src">OBJ/DA_CONNECTOR.prv_MapCapacity</span></p>
+<div class="tw"><table>
+<tr><th>Phase</th><th>Local feeds the boundary (Head)</th><th>Remote feeds it (Tail)</th></tr>
+<tr><td>FinalSolution / ExecutionHandshake</td><td>MAX(remote phase-one capacity, boundary load + 0.1 A)</td><td>MAX(remote capacity, 0.1 A)</td></tr>
+<tr><td>Other phases</td><td>MAX(remote capacity, remote tail load + 0.1 A)</td><td>MAX(remote capacity, 0.1 A)</td></tr>
+<tr><td>RTN with zero remote capacity</td><td colspan="2">10000 A (unconstrained)</td></tr>
+</table></div>
+<p>The margin a DAC offers its partner is its node margin if the boundary is fed locally; otherwise the best margin over its open edge switches (minimum of node margin and switch capacity). <span class="src">Connector/Measurements/Current/mCON_getLocalMargin</span></p>
+<div class="callout interp"><b>Interpretation</b> A margin of exactly 0.1 A in a connector report means one side offered nothing (or a clamp to the dead side's margin) and the floor was applied. It is a symptom, not a real measurement.</div>
+<h2 id="con-outputs">Outputs</h2>
+<p><code>Comm_Alarm</code>, <code>Abnormal</code>, <code>VersionMismatch</code> (partner's DA_Version checksum differs or is 0; connection refused), <code>ControlSequenceFailure</code> (a handshake open/close failed), <code>NoEdgePts</code> (no PTs at the connector edge device), <code>SolutionLoop</code> (both DACs planned to feed the boundary).</p>
+</body>
+</html>

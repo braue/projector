@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Source Events</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC,Detail,Where source events come from (Adapter)">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Source events</h1>
+<p>An external "the source of this circuit is gone or untrustworthy" signal: transformer bank lockout, bus lockout, breaker failure, low-side hot-line tag, or a custom trigger.</p>
+<div class="chips"><span>§09</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>Triggered by the <b>rising edge</b> of the circuit's <code>SourceEvent</code>, accepted only if the feeder is armed and allowed to isolate (an abnormal feeder in mode None ignores it).</li>
+<li>Confirmed as soon as the feeder reaches ANALYZE (after the update poll).</li>
+<li>The first switching device of the feeder (normally the feeder breaker) is the isolation point and is opened immediately; everything behind it is restored from alternates.</li>
+<li>With <code>IsolateBreakerZone</code>, the breaker zone (breaker to first downstream switches) is isolated instead and left dead.</li>
+<li>A feeder with a latched source event is never used as an alternate source ("Source Faulted").</li>
+</ol></div>
+
+<h2 id="src-detail">Detail</h2>
+<ul>
+<li>Confirmation walks the feeder and runs isolation at switch depth 1 with "open now" and "set recent open as root" so that a breaker which has already tripped still produces a root behind it. <span class="src">Feeder/Event/Source/class_SourceEvent</span></li>
+<li>If a fault is present at the same time, the source event stands in for the lockout: the fault is confirmed and located without waiting for a relay lockout. <span class="src">Feeder/Event/mFEEDER_ConfirmEvent</span></li>
+<li>With a source event, a miscoordinated locked-out device at the first level is not reclosed.</li>
+<li>Abnormal devices on the feeder are added to the abnormal check list as interrupted.</li>
+</ul>
+
+<h2 id="src-adapter">Where source events come from (Adapter)</h2>
+<div class="tw"><table>
+<tr><th>Origin</th><th>Raises SourceEvent on</th><th>Isolates breaker zone if</th></tr>
+<tr><td>Transformer bank lockout (<code>DA_XFMR_MAIN_BUS</code>, <code>BankLockout</code>)</td><td>Every feeder breaker on that bus (<code>DA_FDR_BKR</code>, <code>DA_FDR_PSEUDO_BKR</code>)</td><td><code>BankLockout_IsolatesBreakerZone</code></td></tr>
+<tr><td>Bus lockout (<code>BusLockout</code>)</td><td>Every feeder on the bus</td><td><code>BusLockout_IsolatesBreakerZone</code></td></tr>
+<tr><td>Low-side main hot-line tag</td><td>(zone flag only)</td><td><code>HotLineTagIsolatesBreakerZone</code></td></tr>
+<tr><td>Any feeder breaker's breaker failure on the bus</td><td>Every feeder on the bus</td><td>Always for the failed breaker's own feeder</td></tr>
+<tr><td><code>DA_FDR</code> field <code>SourceEvent</code> point</td><td>That circuit</td><td>Device definition <code>IsolateBreakerZone</code></td></tr>
+<tr><td>Confirmed LOS on an IsolateBreakerZone circuit</td><td>That circuit (<code>SourceEvent_Voltage</code>)</td><td>Yes</td></tr>
+</table></div>
+<p class="srcs"><span class="src">ADP/DA_FDR_BKR</span> <span class="src">ADP/DA_XFMR_MAIN_BUS</span> <span class="src">ADP/DA_FDR</span></p>
+</body>
+</html>

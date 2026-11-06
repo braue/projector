@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Distributed Generation</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Distributed generation</h1>
+<p><code>DA_DG_UNIT</code> (Adapter <code>DA_DG</code>) models a DG point of interconnection the DAC can trip and permit to reconnect.</p>
+<div class="chips"><span>§16</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>DG is tripped 5 s after its feeder has a fault, it becomes islanded, it is paralleled across a valid and an invalid circuit, or it ends up on a circuit it is not allowed on, unless its <code>RideThrough</code> setting covers that case. A disallowed circuit always trips.</li>
+<li>DG is given a close permissive 5 s after it is back on an allowed circuit with no fault and no DA sequence in progress.</li>
+<li>If DG exists anywhere in the system, post-outage reporting is turned off, and DG output is ignored in capacity margins.</li>
+</ol></div>
+<ul>
+<li><code>Circuit[1..4]</code>: the source (circuit) IDs the DG may be connected to. All zero = any circuit.</li>
+<li><code>RideThrough</code> bits: Fault (1), Isolation (2), CloseTransition (4), All (7), None (0, default).</li>
+<li>Controls only act when AR is enabled, the DG is in service and not abnormal, and it has been seen connected to a source at least once since boot (and its feeder is not excluded). Trips need <code>OpenControlAvailable</code>; close permissive needs <code>EnableCloseControlAvailable</code> and is only sent while <code>ClosePermissive</code> feedback is FALSE.</li>
+<li>The 5 s flicker delay drops to 0 when the DG is fed through a DAC connector (held 5 s).</li>
+<li>Outputs: <code>Open</code>, <code>EnableClose</code>, <code>Islanded</code>, <code>DisallowedCircuit</code>. The open in progress is reported to the execution engine (<code>LogicOpenInProgress</code>).</li>
+<li><code>DA_DG_CURTAILMENT</code> (trip DG when POI export falls below a threshold) is marked obsolete in this build: "Needs updates before deployment".</li>
+</ul>
+<p class="srcs"><span class="src">OBJ/DA_DG_UNIT</span> <span class="src">ExternalHelpers/DG/Equip/mDgIsConnectable</span> <span class="src">OBJ/DA_DG_CURTAILMENT</span></p>
+</body>
+</html>

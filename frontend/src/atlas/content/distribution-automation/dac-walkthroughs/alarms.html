@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alarms &amp; Log Messages</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC,Categories,Settings errors (blocking),Email alarms,Full log catalogue by device type">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Alarms, log entries and diagnostic messages</h1>
+<p>Everything the libraries write to the RTAC log, raise as an alarm, or send by email. Each entry lists its trigger and whether it stops the DAC.</p>
+<div class="chips"><span>§28</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>Every Adapter device block writes <b>change-of-state entries</b> to the RTAC log. The tag reads <code>&lt;device name&gt;: &lt;description&gt;</code> and the message is <code>Asserted</code> or <code>Deasserted</code>. Analog, enumeration and setpoint entries log the new value. The Device Name field is the DAC's logger name.</li>
+<li><b>Only changes are logged.</b> For the first 10 s after startup (<code>StartUpDelayComplete</code>) nothing is logged. The state at that moment becomes the baseline, so a condition already present at startup isn't logged until it changes.</li>
+<li><b>Chatter filter:</b> an entry that changes 5 times within 5 s is suppressed by the RTAC logger (<code>Chatter_Counts_Before_Removal</code> 5, <code>Chatter_Time_For_Removal</code> 5 s).</li>
+<li><b>"DA Alarm" is a category, not an RTAC alarm.</b> Nearly all entries are plain log entries. Only the configuration and licensing entries of <code>DA_CONTROL</code>, the Lib's <b>DA Settings Error</b> entries and the <b>DA Settings Warning</b> start-up entries set the RTAC alarm state.</li>
+<li>A <b>settings error</b> disables AR (<a href="atlas:distribution-automation/dac-foundations/enable.html">§02</a>) until the configuration is fixed and resent. A <b>settings warning</b> is informational.</li>
+<li><b>Email alarms</b> are a separate path. They go out only when an emailer is configured, only while the DAC is enabled, and not for devices on excluded feeders.</li>
+</ol></div>
+<p class="srcs"><span class="src">ADP/zInternal/Logging/Logger_DAC_Base</span> <span class="src">ADP/zInternal/Logging/Logger_DAC_BOOL</span> <span class="src">ADP/DA_CONTROL</span></p>
+
+<h2 id="al-cats">Categories</h2>
+<div class="tw"><table>
+<tr><th>Category</th><th>What it holds</th><th>RTAC alarm?</th></tr>
+<tr><td>DA Settings Error</td><td>Blocking configuration errors raised by the Lib (table below)</td><td>Yes</td></tr>
+<tr><td>DA Configuration Alarm</td><td>Scheme settings error text, duplicate name, non-zero <code>LossOfSourceRestoreTime</code>; circuit "Limited Loop Source Event Restoration"</td><td>Yes for the scheme entries</td></tr>
+<tr><td>DA Licensing Alarm</td><td>Unlicensed, feeder limit exceeded, DFO unlicensed (<a href="atlas:distribution-automation/dac-foundations/enable.html">§02</a>)</td><td>Yes, except DFO unlicensed</td></tr>
+<tr><td>DA Settings Warning</td><td>Start-up model checks (Orphaned etc.); DG non-default settings</td><td>Start-up checks: yes</td></tr>
+<tr><td>DA Alarm</td><td>Abnormal conditions, command timeouts, comm alarms, completion flags</td><td>No (log only)</td></tr>
+<tr><td>DA Status</td><td>Sequence steps, events, completion</td><td>No</td></tr>
+<tr><td>DA Operating Mode</td><td>Feature enables, exclude, bypass, out of service, inhibit, commissioning</td><td>No</td></tr>
+<tr><td>DA Command</td><td>Every command the DAC sends: open, close, poll, watchdog, reset, settings group</td><td>No</td></tr>
+<tr><td>SCADA Command</td><td>Open/close commands detected as coming from SCADA</td><td>No</td></tr>
+<tr><td>Field Status</td><td>Relay points as the Adapter receives them</td><td>No</td></tr>
+<tr><td>DA AFS Alarm</td><td>Alternate-feed-source alarms on reclosers</td><td>No</td></tr>
+<tr><td>DFO Alarm / Status / Operating Mode / Command / Setpoint</td><td>Voltage optimisation</td><td>No</td></tr>
+</table></div>
+
+<h2 id="al-settings">Settings errors (blocking)</h2>
+<p>Raised by the Lib's settings error manager. Each one is logged once per POU, 10 s after start-up, in category <b>DA Settings Error</b> with the alarm state set. The scheme's <code>SettingsError</code> output goes TRUE and <code>SettingsErrorText</code> shows the first error in this priority order. AR stays disabled while the error is present. The error list is cleared only on start-up or a controller reset, and then rebuilt from what is still wrong, so after fixing the configuration send it and reset or restart. <span class="src">ErrorLogging/class_SettingsErrors</span></p>
+<div class="tw"><table>
+<tr><th>SettingsErrorText</th><th>Log message (tag = POU name)</th><th>Raised when</th></tr>
+<tr><td>Duplicate Instances</td><td>Duplicate call detected</td><td>An equipment POU is called more than once per scan <span class="src">Equipment/EQUIPMENT</span></td></tr>
+<tr><td>Too Many Equipment</td><td>Equipment limit exceeded</td><td>More than <code>EQUIP_MAX</code> (2000) equipment objects</td></tr>
+<tr><td>Too Many Nodes</td><td>Node limit exceeded</td><td>More than <code>NODE_MAX</code> (2000) nodes</td></tr>
+<tr><td>Too Many Connectors</td><td>Connector limit exceeded</td><td>More than <code>CON_MAX</code> (15) connectors <span class="src">Connector/Manager/class_ConnectorManager</span></td></tr>
+<tr><td>Too Many Shared Buses</td><td>Shared bus limit exceeded</td><td>Defined, but no code path raises it</td></tr>
+<tr><td>Duplicate Connector IDs</td><td>Duplicate connected ID detected</td><td>Two connectors share an ID. <b>Shown as "Duplicate Instances"</b>, see caveat.</td></tr>
+<tr><td>Duplicate Shared Bus IDs</td><td>Duplicate shared bus ID detected</td><td>Defined, but no code path raises it</td></tr>
+<tr><td>Zone With Zero Load Allocation</td><td>Zone has zero load allocation</td><td>A metered zone's load allocation sums to zero (checked from cycle 10) <span class="src">Feeder/LoadAllocation/Checks/fb_ValidateLoadAllocation</span></td></tr>
+<tr><td>Too Many Inferred Xfmr On Bus</td><td>Too many inferred transformers on bus</td><td>While a transformer's current is being inferred from its feeders, the search reaches another transformer within two switch levels. The two are tied, so the inferred loading would be wrong. <span class="src">ExternalHelpers/Transformer/fb_XfmrGetFdrCurrents</span></td></tr>
+<tr><td>No Connector Edge Device Pts</td><td>Connector has no edge PTs</td><td>A connector's edge device has no voltage measurement <span class="src">Connector/Measurements/Voltage/fb_CheckConnectorEdgePts</span></td></tr>
+<tr><td>Duplicate Device Name</td><td>&lt;name&gt; used for multiple devices of the same type</td><td>Two Adapter devices of one type share a name <span class="src">ADP/zInternal/DiagnosticLoggers/fbInitLogger</span></td></tr>
+<tr><td>Dynamic Memory Allocation Failed</td><td>Dynamic Memory Allocation Failed</td><td>An Adapter block couldn't allocate its vectors</td></tr>
+</table></div>
+<div class="warn"><b>Code caveat</b> The flag mapping is crossed for two codes. A duplicate connector ID sets the <code>Duplicate_Instances</code> flag, so <code>SettingsErrorText</code> says "Duplicate Instances". A duplicate shared-bus ID sets <code>Duplicate_Connector_ID</code>, which would read "Duplicate Connector IDs", although nothing raises that code today. The individual log entries carry the right message. Read those, not the scheme text. <span class="src">ErrorLogging/class_SettingsErrors.prv_SetDiagFlag</span></div>
+
+<h2 id="al-init">Start-up model checks (DA Settings Warning)</h2>
+<p>About 5 s after the Adapter starts, every device block is checked once. Each problem gets one log entry tagged with the POU name, with the alarm state set. <span class="src">ADP/zInternal/DiagnosticLoggers/fbInitLogger</span></p>
+<div class="tw"><table>
+<tr><th>Message</th><th>Meaning</th></tr>
+<tr><td>Orphaned</td><td>The block exists but never ran its initialisation and isn't in the topology. Usually it was declared but never called.</td></tr>
+<tr><td>Initialized but not in topology</td><td>Initialised, but not connected to any node. Check its A/B node assignments.</td></tr>
+<tr><td>In Topology but not initialized</td><td>Connected in the model, but its initialisation (device definition, points) didn't run.</td></tr>
+</table></div>
+<p>The same pass registers <b>Duplicate Device Name</b> and <b>Dynamic Memory Allocation Failed</b> as settings errors (above).</p>
+
+<h2 id="al-scheme">Scheme-level alarms with RTAC alarm state</h2>
+<div class="tw"><table>
+<tr><th>Log text (tag <code>&lt;scheme&gt;: …</code>)</th><th>Asserts when</th><th>Effect</th></tr>
+<tr><td>‹SettingsErrorText›</td><td><code>SettingsError</code>, 10 s after start-up</td><td>AR disabled</td></tr>
+<tr><td>Duplicate Name</td><td>Duplicate device name detected</td><td>AR disabled (settings error)</td></tr>
+<tr><td>Non-Zero LossOfSourceRestoreTime Set</td><td><code>LossOfSourceRestoreTime</code> ≠ 0</td><td>Warning only. A loss of source will wait for an operator command (<a href="atlas:distribution-automation/dac-events/openphase.html">§08</a>).</td></tr>
+<tr><td>DAC Unlicensed</td><td>AR not licensed</td><td>AR disabled</td></tr>
+<tr><td>Configuration exceeds the N Feeders licensed.</td><td>AR or DFO feeder limit exceeded</td><td>AR (or DFO) disabled</td></tr>
+</table></div>
+
+<h2 id="al-email">Email alarms</h2>
+<p>The Adapter has a built-in emailer. Each buffer collects alarm points. When any point in a buffer has been in its alarm state continuously for <b>30 s</b>, one email is built listing every point in that buffer that is in alarm. Each alarm is reported once until it clears. Up to 3 recipients. Emails are inhibited while the DAC is disabled (<code>gv_GlobalInhibitEmailAlarms</code> = NOT Enabled) and for devices whose feeder is excluded. An alarm that happened while inhibited is acknowledged silently, so it doesn't fire when the inhibit lifts. <span class="src">ADP/zInternal/Emailer/FunctionBlocks/class_AlarmBuffer</span> <span class="src">ADP/zInternal/Emailer/PointLogger/class_AlarmPoint</span></p>
+<div class="tw"><table>
+<tr><th>Buffer</th><th>Trigger</th><th>Email contents</th></tr>
+<tr><td>Device abnormal (recloser, switch, breaker, dual switch)</td><td><code>ABNORMAL</code> asserted</td><td>"Abnormal: Detected" plus whichever causes are active: Remote Disabled, Hot Line Tag Enabled, Reclose Disabled, Command Timeout, Diagnostic Failure, Close on Fault, Communication Failure, Bad Fault Indication, Voltage Discrepancy, Protection Failure</td></tr>
+<tr><td>Open-phase isolation (same devices)</td><td>Device opened to isolate an open phase</td><td>"Tripped to isolate open phase condition"</td></tr>
+<tr><td>Flip-flop (recloser, dual switch)</td><td>Flip-flop manual command (latched)</td><td>"Flip-Flop Scheme Disabled"</td></tr>
+<tr><td>Feeder state (circuit)</td><td>End of a reconfiguration (falling edge of Reconfiguration Started; latched)</td><td>Reconfiguration Complete, Restoration Fail, Capacity Limit, Abnormal Condition, Voltage Limit, Command Failure, Loss Of Source, each TRUE/FALSE</td></tr>
+<tr><td>Connector</td><td>Connector abnormal or comm alarm; manager remote-DAC comm fail</td><td>"Abnormal" / "Comm Alarm"</td></tr>
+<tr><td>DG</td><td>DG abnormal or command timeout</td><td>"Abnormal" / "Command Timeout"</td></tr>
+<tr><td>Capacitor (DFO)</td><td>Operation failure</td><td>"Operation Failure"</td></tr>
+<tr><td>Event / post-outage reports</td><td>A DA event report or post-outage report file is written</td><td>Subject "Event Report - n" / "Post Outage Report - n", sent 10 s after the file is ready</td></tr>
+</table></div>
+
+<h2 id="al-catalog">Full log catalogue by device type</h2>
+<p>Every log entry the Adapter blocks define: 435 in total, generated from the code. "Driven by" is the signal that asserts it (<code>in.</code> = block input). Entries tagged <span class="tag">RTAC alarm</span> set the alarm state. Open a device type to see its list.</p>
+<details class="cat"><summary><b>Scheme (DA_CONTROL)</b> <span class="cnt">54 entries, 15 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>DAC Unlicensed <span class="tag">RTAC alarm</span></td><td>DA Licensing Alarm</td><td><code>NOT Licensed AND _LicensingDelay.Q</code></td></tr>
+<tr><td>Configuration exceeds the N Feeders licensed. <span class="tag">RTAC alarm</span></td><td>DA Licensing Alarm</td><td><code>(MOT_Related.ArFeederLimitExceeded OR MOT_Related.DfoFeederLimitExceeded) AND _LicensingDelay.Q</code></td></tr>
+<tr><td>DFO Functionality Unlicensed</td><td>DA Licensing Alarm</td><td><code>NOT Licensed AND _LicensingDelay.Q</code></td></tr>
+<tr><td>‹settings error text, see table above› <span class="tag">RTAC alarm</span></td><td>DA Configuration Alarm</td><td><code>SettingsError AND _LicensingDelay.Q</code></td></tr>
+<tr><td>Duplicate Name <span class="tag">RTAC alarm</span></td><td>DA Configuration Alarm</td><td><code>DuplicateName AND _LicensingDelay.Q</code></td></tr>
+<tr><td>Non-Zero LossOfSourceRestoreTime Set <span class="tag">RTAC alarm</span></td><td>DA Configuration Alarm</td><td><code>(in.LossOfSourceRestoreTime &lt;&gt; T#0MS) AND _LicensingDelay.Q</code></td></tr>
+<tr><td>Loop</td><td>DA Alarm</td><td><code>Loop</code></td></tr>
+<tr><td>Capacity Limit</td><td>DA Alarm</td><td><code>CapacityLimit</code></td></tr>
+<tr><td>Abnormal Condition</td><td>DA Alarm</td><td><code>AbnormalCondition</code></td></tr>
+<tr><td>Voltage Limit</td><td>DA Alarm</td><td><code>VoltageLimit</code></td></tr>
+<tr><td>Command Failure</td><td>DA Alarm</td><td><code>CommandFailure</code></td></tr>
+<tr><td>Incorrect Settings Group Detected</td><td>DA Alarm</td><td><code>IncorrectSG</code></td></tr>
+<tr><td>Close Onto Fault Detected</td><td>DA Alarm</td><td><code>CloseOnFault</code></td></tr>
+<tr><td>Voltage Discrepancy Detected</td><td>DA Alarm</td><td><code>VoltageDiscrepancy</code></td></tr>
+<tr><td>Disabled Due to Lack of Heartbeat</td><td>DA Alarm</td><td><code>DisabledByHeartbeat</code></td></tr>
+<tr><td>Target Reset</td><td>DA Status</td><td><code>in.Reset</code></td></tr>
+<tr><td>DAC Enabled</td><td>DA Status</td><td><code>Enabled</code></td></tr>
+<tr><td>Outage Reporting Enabled</td><td>DA Status</td><td><code>OutageReportingEnabled</code></td></tr>
+<tr><td>Event Detected</td><td>DA Status</td><td><code>EventDetected</code></td></tr>
+<tr><td>Event Confirmed</td><td>DA Status</td><td><code>EventConfirmed</code></td></tr>
+<tr><td>Outage Detected</td><td>DA Status</td><td><code>OutageOngoing</code></td></tr>
+<tr><td>Permanent Fault</td><td>DA Status</td><td><code>PermanentFault</code></td></tr>
+<tr><td>Miscoordination</td><td>DA Status</td><td><code>Miscoordination</code></td></tr>
+<tr><td>Open Phase</td><td>DA Status</td><td><code>OpenPhase</code></td></tr>
+<tr><td>Remote Event</td><td>DA Status</td><td><code>RemoteEvent</code></td></tr>
+<tr><td>Overload Confirmed</td><td>DA Status</td><td><code>Overload</code></td></tr>
+<tr><td>Overload Warning</td><td>DA Status</td><td><code>OverloadWarning</code></td></tr>
+<tr><td>Update Step</td><td>DA Status</td><td><code>UpdateStep</code></td></tr>
+<tr><td>Analyze Step</td><td>DA Status</td><td><code>AnalyzeStep</code></td></tr>
+<tr><td>Reconfigure Step</td><td>DA Status</td><td><code>ReconfigureStep</code></td></tr>
+<tr><td>Update Timeout</td><td>DA Status</td><td><code>UpdateStepTimeout</code></td></tr>
+<tr><td>Analyze Timeout</td><td>DA Status</td><td><code>AnalyzeStepTimeout</code></td></tr>
+<tr><td>Reconfigure Timeout</td><td>DA Status</td><td><code>ReconfigureStepTimeout</code></td></tr>
+<tr><td>Return Detected</td><td>DA Status</td><td><code>ReturnDetected</code></td></tr>
+<tr><td>Phase Discrepancy Detected</td><td>DA Status</td><td><code>PhaseDiscrepancy</code></td></tr>
+<tr><td>Load Shed</td><td>DA Status</td><td><code>LoadShed</code></td></tr>
+<tr><td>Shed Warning</td><td>DA Status</td><td><code>ShedWarning</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Status</td><td><code>System_Variables.DA_SimulationMode</code></td></tr>
+<tr><td>Miscoordination Detection Enabled</td><td>DA Operating Mode</td><td><code>in.EnableMiscoordinationDetection</code></td></tr>
+<tr><td>Open Phase Detection Enabled</td><td>DA Operating Mode</td><td><code>in.EnableOpenPhaseDetection</code></td></tr>
+<tr><td>Overload Detection Enabled</td><td>DA Operating Mode</td><td><code>in.EnableOverloadDetection</code></td></tr>
+<tr><td>Load Shed Enabled</td><td>DA Operating Mode</td><td><code>in.EnableLoadShed</code></td></tr>
+<tr><td>Loss of Source Detection Enabled</td><td>DA Operating Mode</td><td><code>in.EnableLossOfSourceDetection</code></td></tr>
+<tr><td>Heartbeat Monitoring Enabled</td><td>DA Operating Mode</td><td><code>in.HeartbeatMonitor</code></td></tr>
+<tr><td>Outage Reset Cmd Received</td><td>DA Control</td><td><code>in.OutageReset</code></td></tr>
+<tr><td>DFO Functions Enabled</td><td>DFO Status</td><td><code>Dfo_Enabled</code></td></tr>
+<tr><td>Minimum Capacitor On Time</td><td>DFO Setpoint</td><td><code>in.MinCapOnTime &lt;&gt; _LoggingDfo.MinCapOnTime.Value</code></td></tr>
+<tr><td>Minimum Capacitor Off Time</td><td>DFO Setpoint</td><td><code>in.MinCapOffTime &lt;&gt; _LoggingDfo.MinCapOffTime.Value</code></td></tr>
+<tr><td>DFO Evaluation Settle Time</td><td>DFO Setpoint</td><td><code>in.SettleTime &lt;&gt; _LoggingDfo.SettleTime.Value</code></td></tr>
+<tr><td>Maximum Time Between DFO Evaluations</td><td>DFO Setpoint</td><td><code>in.EvaluationInterval &lt;&gt; _LoggingDfo.EvaluationInterval.Value</code></td></tr>
+<tr><td>Control Excursion Evaluation Time Delay</td><td>DFO Setpoint</td><td><code>in.ControlQualificationTime &lt;&gt; _LoggingDfo.ControlQualificationTime.Value</code></td></tr>
+<tr><td>Critical Excursion Evaluation Time Delay</td><td>DFO Setpoint</td><td><code>in.CriticalQualificationTime &lt;&gt; _LoggingDfo.CriticalQualificationTime.Value</code></td></tr>
+<tr><td>(MaxRegOps)</td><td>DFO Setpoint</td><td><code>in.MaxRegOps &lt;&gt; _LoggingDfo.MaxRegOps.Value</code></td></tr>
+<tr><td>(MaxCapOps)</td><td>DFO Setpoint</td><td><code>in.MaxCapOps &lt;&gt; _LoggingDfo.MaxCapOps.Value</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Circuit (DA_FDR)</b> <span class="cnt">57 entries, 19 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Limited Loop Source Event Restoration</td><td>DA Configuration Alarm</td><td><code>_StartUpDelay.Q AND in.PermitLoop AND in.SourceEvent_Available</code></td></tr>
+<tr><td>Excluded by Underfrequency</td><td>DA Alarm</td><td><code>ExcludedByUnderfrequency</code></td></tr>
+<tr><td>Incorrect Settings Group Detected</td><td>DA Alarm</td><td><code>IncorrectSG</code></td></tr>
+<tr><td>Close Onto Fault Detected</td><td>DA Alarm</td><td><code>CloseOnFault</code></td></tr>
+<tr><td>Voltage Discrepancy Detected</td><td>DA Alarm</td><td><code>VoltageDiscrepancy</code></td></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>FeederAbnormal</code></td></tr>
+<tr><td>Feeder Loop</td><td>DA Alarm</td><td><code>FeederLoop</code></td></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Restoration Fail</td><td>DA Alarm</td><td><code>RestorationFail</code></td></tr>
+<tr><td>Capacity Limit</td><td>DA Alarm</td><td><code>CapacityLimit</code></td></tr>
+<tr><td>Abnormal Condition</td><td>DA Alarm</td><td><code>AbnormalCondition</code></td></tr>
+<tr><td>Voltage Limit</td><td>DA Alarm</td><td><code>VoltageLimit</code></td></tr>
+<tr><td>Command Failure</td><td>DA Alarm</td><td><code>CommandFailure</code></td></tr>
+<tr><td>Source Event Logic Trigger</td><td>DA Status</td><td><code>in.SourceEvent_Logic</code></td></tr>
+<tr><td>Source Event Voltage Trigger</td><td>DA Status</td><td><code>in.SourceEvent_Voltage</code></td></tr>
+<tr><td>Target Reset</td><td>DA Status</td><td><code>in.FeederReset</code></td></tr>
+<tr><td>Armed</td><td>DA Status</td><td><code>FeederArmed</code></td></tr>
+<tr><td>Event</td><td>DA Status</td><td><code>FeederEvent</code></td></tr>
+<tr><td>Fault</td><td>DA Status</td><td><code>FeederFault</code></td></tr>
+<tr><td>Open Phase</td><td>DA Status</td><td><code>FeederOpenPhase</code></td></tr>
+<tr><td>Overload</td><td>DA Status</td><td><code>FeederOverload</code></td></tr>
+<tr><td>Overload Warning</td><td>DA Status</td><td><code>OverloadWarning</code></td></tr>
+<tr><td>Miscoordination</td><td>DA Status</td><td><code>FeederMiscoordination</code></td></tr>
+<tr><td>Confirmed Event</td><td>DA Status</td><td><code>FeederConfirmedEvent</code></td></tr>
+<tr><td>Reconfigured</td><td>DA Status</td><td><code>FeederReconfigured</code></td></tr>
+<tr><td>Source Event</td><td>DA Status</td><td><code>FeederSourceEvent</code></td></tr>
+<tr><td>Shed Warning</td><td>DA Status</td><td><code>ShedWarning</code></td></tr>
+<tr><td>Load Shed</td><td>DA Status</td><td><code>LoadShed</code></td></tr>
+<tr><td>Reconfiguration Started</td><td>DA Status</td><td><code>ReconfigurationStarted</code></td></tr>
+<tr><td>Reconfiguration Complete</td><td>DA Status</td><td><code>ReconfigurationComplete</code></td></tr>
+<tr><td>Loss Of Source</td><td>DA Status</td><td><code>LossOfSource</code></td></tr>
+<tr><td>Phase Discrepancy Detected</td><td>DA Status</td><td><code>PhaseDiscrepancy</code></td></tr>
+<tr><td>Exclude</td><td>DA Operating Mode</td><td><code>in.Exclude</code></td></tr>
+<tr><td>Allow Select Level 1</td><td>DA Operating Mode</td><td><code>in.AllowSelectLevel1</code></td></tr>
+<tr><td>Allow Restore Level 1</td><td>DA Operating Mode</td><td><code>in.AllowRestoreLevel1</code></td></tr>
+<tr><td>Loss Of Source Restore</td><td>DA Operating Mode</td><td><code>in.LossOfSourceRestore</code></td></tr>
+<tr><td>Request Permissive</td><td>DA Command</td><td><code>RequestPermissive</code></td></tr>
+<tr><td>Permissive</td><td>Field Status</td><td><code>in.Permissive</code></td></tr>
+<tr><td>Source Event Trigger</td><td>Field Status</td><td><code>in.SourceEvent</code></td></tr>
+<tr><td>DFO Unable to Correct - Resources Unavailable</td><td>DFO Alarm</td><td><code>UnableToCorrect</code></td></tr>
+<tr><td>Reactive Power Setpoints Overridden by Upstream Goals</td><td>DFO Alarm</td><td><code>VarControlOverridden</code></td></tr>
+<tr><td>Voltage Above Hi Limit</td><td>DFO Alarm</td><td><code>V_HiAlarm</code></td></tr>
+<tr><td>Voltage Below Lo Limit</td><td>DFO Alarm</td><td><code>V_LoAlarm</code></td></tr>
+<tr><td>Voltage Out of Band</td><td>DFO Alarm</td><td><code>V_BandAlarm</code></td></tr>
+<tr><td>Power Factor Out of Band</td><td>DFO Alarm</td><td><code>PF_Alarm</code></td></tr>
+<tr><td>DFO Operation Permitted</td><td>DFO Operating Mode</td><td><code>in.PermitDfo</code></td></tr>
+<tr><td>VQ Optimization</td><td>DFO Operating Mode</td><td><code>in.VQ_Enable</code></td></tr>
+<tr><td>Capacitors Allowed to Operate from Upstream Setpoints</td><td>DFO Operating Mode</td><td><code>in.Cap_Enable</code></td></tr>
+<tr><td>Regulators Allowed to Operate from Upstream Setpoints</td><td>DFO Operating Mode</td><td><code>in.Reg_Enable</code></td></tr>
+<tr><td>(V_Setpoint)</td><td>DFO Setpoint</td><td><code>in.V_Setpoint &lt;&gt; _LoggingDfo.V_Setpoint.Value</code></td></tr>
+<tr><td>(V_Band)</td><td>DFO Setpoint</td><td><code>in.V_Band &lt;&gt; _LoggingDfo.V_Band.Value</code></td></tr>
+<tr><td>(Q_Band)</td><td>DFO Setpoint</td><td><code>in.Q_Band &lt;&gt; _LoggingDfo.Q_Band.Value</code></td></tr>
+<tr><td>(V_HiLimit)</td><td>DFO Setpoint</td><td><code>in.V_HiLimit &lt;&gt; _LoggingDfo.V_HiLimit.Value</code></td></tr>
+<tr><td>(V_LoLimit)</td><td>DFO Setpoint</td><td><code>in.V_LoLimit &lt;&gt; _LoggingDfo.V_LoLimit.Value</code></td></tr>
+<tr><td>(PF_Limit1)</td><td>DFO Setpoint</td><td><code>in.PF_Limit1 &lt;&gt; _LoggingDfo.PF_Limit1.Value</code></td></tr>
+<tr><td>(PF_Limit2)</td><td>DFO Setpoint</td><td><code>in.PF_Limit2 &lt;&gt; _LoggingDfo.PF_Limit2.Value</code></td></tr>
+<tr><td>(VQ_Factor)</td><td>DFO Setpoint</td><td><code>in.VQ_Factor &lt;&gt; _LoggingDfo.VQ_Factor.Value</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Recloser (DA_REC)</b> <span class="cnt">61 entries, 12 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>ABNORMAL</code></td></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Voltage Discrepancy</td><td>DA Alarm</td><td><code>VoltageDiscrepancy</code></td></tr>
+<tr><td>Opened to Isolate Open Phase</td><td>DA Alarm</td><td><code>OpenPhaseIsolated</code></td></tr>
+<tr><td>Closed Onto Fault</td><td>DA Alarm</td><td><code>CloseOnFault</code></td></tr>
+<tr><td>Incorrect Settings Group</td><td>DA Alarm</td><td><code>IncorrectSG</code></td></tr>
+<tr><td>Bad Fault Indication</td><td>DA Alarm</td><td><code>BadFaultIndication</code></td></tr>
+<tr><td>Opened to Extend Isolation Zone</td><td>DA Alarm</td><td><code>ExtendedIsolation</code></td></tr>
+<tr><td>‹user text from CustomizableAbnormal›</td><td>DA Alarm</td><td><code>in.CustomizableAbnormal</code></td></tr>
+<tr><td>AFS Closed Disabled</td><td>DA AFS Alarm</td><td>—</td></tr>
+<tr><td>AFS Margin Alarm</td><td>DA AFS Alarm</td><td>—</td></tr>
+<tr><td>Inhibited No Control</td><td>DA Operating Mode</td><td><code>in.InhibitNoControl</code></td></tr>
+<tr><td>Bypass</td><td>DA Operating Mode</td><td><code>in.Bypass OR in.BypassScada</code></td></tr>
+<tr><td>Scada Inhibited</td><td>DA Operating Mode</td><td><code>in.InhibitControlScada</code></td></tr>
+<tr><td>Out Of Service</td><td>DA Operating Mode</td><td><code>in.OutOfService OR in.OutOfServiceScada</code></td></tr>
+<tr><td>Field Inhibited</td><td>DA Operating Mode</td><td><code>in.InhibitControl</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Voltage Inheritance</td><td>DA Operating Mode</td><td><code>in.VoltageInheritance</code></td></tr>
+<tr><td>Flip-Flop Auto Cmd</td><td>DA Command</td><td><code>FlipFlop_Auto_Cmd</code></td></tr>
+<tr><td>Flip-Flop Man Cmd</td><td>DA Command</td><td><code>FlipFlop_Man_Cmd</code></td></tr>
+<tr><td>UPID</td><td>DA Command</td><td>—</td></tr>
+<tr><td>Close Cmd</td><td>DA Command</td><td><code>CLOSE</code></td></tr>
+<tr><td>Open Cmd</td><td>DA Command</td><td><code>OPEN</code></td></tr>
+<tr><td>Enable Close Cmd</td><td>DA Command</td><td><code>EnableClose</code></td></tr>
+<tr><td>Disable Close Cmd</td><td>DA Command</td><td><code>BlockClose</code></td></tr>
+<tr><td>Set Settings Cmd</td><td>DA Command</td><td>—</td></tr>
+<tr><td>Source Reversal Cmd</td><td>DA Command</td><td><code>SOURCE_REVERSAL</code></td></tr>
+<tr><td>Poll Cmd</td><td>DA Command</td><td><code>POLL</code></td></tr>
+<tr><td>Reset Cmd</td><td>DA Command</td><td><code>RESET</code></td></tr>
+<tr><td>Wdog Cmd</td><td>DA Command</td><td><code>WDOG</code></td></tr>
+<tr><td>Close Cmd from SCADA</td><td>SCADA Command</td><td><code>ScadaCloseCmd</code></td></tr>
+<tr><td>Open Cmd from SCADA</td><td>SCADA Command</td><td><code>ScadaOpenCmd</code></td></tr>
+<tr><td>Flip-Flop Auto Cmd from SCADA</td><td>SCADA Command</td><td><code>Scada_FlipFlop_Auto_Cmd</code></td></tr>
+<tr><td>Flip-Flop Man Cmd from SCADA</td><td>SCADA Command</td><td><code>Scada_FlipFlop_Man_Cmd</code></td></tr>
+<tr><td>Backup Settings</td><td>Field Status</td><td><code>in.Backup</code></td></tr>
+<tr><td>DA Enabled</td><td>Field Status</td><td><code>in.da</code></td></tr>
+<tr><td>FaultLatch</td><td>Field Status</td><td><code>in.Fault</code></td></tr>
+<tr><td>FaultLatch AB</td><td>Field Status</td><td><code>in.FaultAB</code></td></tr>
+<tr><td>FaultLatch BA</td><td>Field Status</td><td><code>in.FaultBA</code></td></tr>
+<tr><td>Hot Line Tag</td><td>Field Status</td><td><code>in.HotLineTag</code></td></tr>
+<tr><td>Reclose Enabled</td><td>Field Status</td><td><code>in.Reclose</code></td></tr>
+<tr><td>Remote Enabled</td><td>Field Status</td><td><code>in.Remote</code></td></tr>
+<tr><td>Active Settings</td><td>Field Status</td><td>—</td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>Lockout</td><td>Field Status</td><td><code>in.Lockout</code></td></tr>
+<tr><td>Protection Failure</td><td>Field Status</td><td><code>in.ProtectionFailure</code></td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.DiagnosticFail</code></td></tr>
+<tr><td>Switch Mode</td><td>Field Status</td><td><code>in.SwitchMode</code></td></tr>
+<tr><td>Single-Phase Lockout Mode</td><td>Field Status</td><td><code>in.SinglePhaseLockoutMode</code></td></tr>
+<tr><td>Source Reversal Ready</td><td>Field Status</td><td><code>in.SourceReversalReady</code></td></tr>
+<tr><td>Normal Status</td><td>Field Status</td><td><code>in.NormalStatus</code></td></tr>
+<tr><td>Underfrequency Event</td><td>Field Status</td><td><code>in.FrequencyLockout</code></td></tr>
+<tr><td>Phase Discrepancy</td><td>Field Status</td><td><code>in.PhaseDiscrepancy</code></td></tr>
+<tr><td>Status Discrepancy</td><td>Field Status</td><td><code>in.StatusDiscrepancy</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Flip-Flop Enabled</td><td>Field Status</td><td><code>in.FlipFlop_Enabled</code></td></tr>
+<tr><td>59N Side A</td><td>Field Status</td><td><code>in.Voltage59NA</code></td></tr>
+<tr><td>59N Side B</td><td>Field Status</td><td><code>in.Voltage59NB</code></td></tr>
+<tr><td>Voltage Side A</td><td>Field Status</td><td><code>_VoltageA_Index</code></td></tr>
+<tr><td>Voltage Side B</td><td>Field Status</td><td><code>_VoltageB_Index</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Switch (DA_SW)</b> <span class="cnt">40 entries, 8 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>ABNORMAL</code></td></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Voltage Discrepancy</td><td>DA Alarm</td><td><code>VoltageDiscrepancy</code></td></tr>
+<tr><td>Opened to Isolate Open Phase</td><td>DA Alarm</td><td><code>OpenPhaseIsolated</code></td></tr>
+<tr><td>Closed Onto Fault</td><td>DA Alarm</td><td><code>CloseOnFault</code></td></tr>
+<tr><td>Bad Fault Indication</td><td>DA Alarm</td><td><code>BadFaultIndication</code></td></tr>
+<tr><td>Opened to Extend Isolation Zone</td><td>DA Alarm</td><td><code>ExtendedIsolation</code></td></tr>
+<tr><td>Inhibited No Control</td><td>DA Operating Mode</td><td><code>in.InhibitNoControl</code></td></tr>
+<tr><td>Bypass</td><td>DA Operating Mode</td><td><code>in.Bypass OR in.BypassScada</code></td></tr>
+<tr><td>Scada Inhibited</td><td>DA Operating Mode</td><td><code>in.InhibitControlScada</code></td></tr>
+<tr><td>Out Of Service</td><td>DA Operating Mode</td><td><code>in.OutOfService OR in.OutOfServiceScada</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Voltage Inheritance</td><td>DA Operating Mode</td><td><code>in.VoltageInheritance</code></td></tr>
+<tr><td>Close Cmd</td><td>DA Command</td><td><code>CLOSE</code></td></tr>
+<tr><td>Open Cmd</td><td>DA Command</td><td><code>OPEN</code></td></tr>
+<tr><td>Enable Close Cmd</td><td>DA Command</td><td><code>EnableClose</code></td></tr>
+<tr><td>Disable Close Cmd</td><td>DA Command</td><td><code>BlockClose</code></td></tr>
+<tr><td>Source Reversal Cmd</td><td>DA Command</td><td><code>SOURCE_REVERSAL</code></td></tr>
+<tr><td>Poll Cmd</td><td>DA Command</td><td><code>POLL</code></td></tr>
+<tr><td>Reset Cmd</td><td>DA Command</td><td><code>RESET</code></td></tr>
+<tr><td>Wdog Cmd</td><td>DA Command</td><td><code>WDOG</code></td></tr>
+<tr><td>Close Cmd from SCADA</td><td>SCADA Command</td><td><code>ScadaCloseCmd</code></td></tr>
+<tr><td>Open Cmd from SCADA</td><td>SCADA Command</td><td><code>ScadaOpenCmd</code></td></tr>
+<tr><td>DA Enabled</td><td>Field Status</td><td><code>in.da</code></td></tr>
+<tr><td>FaultLatch</td><td>Field Status</td><td><code>in.Fault</code></td></tr>
+<tr><td>FaultLatch AB</td><td>Field Status</td><td><code>in.FaultAB</code></td></tr>
+<tr><td>FaultLatch BA</td><td>Field Status</td><td><code>in.FaultBA</code></td></tr>
+<tr><td>Hot Line Tag</td><td>Field Status</td><td><code>in.HotLineTag</code></td></tr>
+<tr><td>Remote Enabled</td><td>Field Status</td><td><code>in.Remote</code></td></tr>
+<tr><td>Source Reversal Ready</td><td>Field Status</td><td><code>in.SourceReversalReady</code></td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.DiagnosticFail</code></td></tr>
+<tr><td>Protection Failure</td><td>Field Status</td><td><code>in.ProtectionFailure</code></td></tr>
+<tr><td>Underfrequency Event</td><td>Field Status</td><td><code>field.FrequencyLockout.stVal</code></td></tr>
+<tr><td>Status Discrepancy</td><td>Field Status</td><td><code>in.StatusDiscrepancy</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Voltage Side A</td><td>Field Status</td><td><code>_VoltageA_Index</code></td></tr>
+<tr><td>Voltage Side B</td><td>Field Status</td><td><code>_VoltageB_Index</code></td></tr>
+<tr><td>(BreakerInhibited)</td><td>(uncategorised)</td><td><code>in.InhibitControl</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Breaker (DA_BKR)</b> <span class="cnt">47 entries, 9 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>ABNORMAL</code></td></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Voltage Discrepancy</td><td>DA Alarm</td><td><code>VoltageDiscrepancy</code></td></tr>
+<tr><td>Opened to Isolate Open Phase</td><td>DA Alarm</td><td><code>OpenPhaseIsolated</code></td></tr>
+<tr><td>Closed Onto Fault</td><td>DA Alarm</td><td><code>CloseOnFault</code></td></tr>
+<tr><td>Incorrect Settings Group</td><td>DA Alarm</td><td><code>IncorrectSG</code></td></tr>
+<tr><td>Bad Fault Indication</td><td>DA Alarm</td><td><code>BadFaultIndication</code></td></tr>
+<tr><td>Opened to Extend Isolation Zone</td><td>DA Alarm</td><td><code>ExtendedIsolation</code></td></tr>
+<tr><td>Inhibited No Control</td><td>DA Operating Mode</td><td><code>in.InhibitNoControl</code></td></tr>
+<tr><td>Bypass</td><td>DA Operating Mode</td><td><code>in.Bypass OR in.BypassScada</code></td></tr>
+<tr><td>Scada Inhibited</td><td>DA Operating Mode</td><td><code>in.InhibitControlScada</code></td></tr>
+<tr><td>Out Of Service</td><td>DA Operating Mode</td><td><code>in.OutOfService OR in.OutOfServiceScada</code></td></tr>
+<tr><td>Field Inhibited</td><td>DA Operating Mode</td><td><code>in.InhibitControl</code></td></tr>
+<tr><td>Spare In Service</td><td>DA Operating Mode</td><td><code>in.SpareBreakerScada</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Voltage Inheritance</td><td>DA Operating Mode</td><td><code>in.VoltageInheritance</code></td></tr>
+<tr><td>UPID</td><td>DA Command</td><td>—</td></tr>
+<tr><td>Close Cmd</td><td>DA Command</td><td><code>CLOSE</code></td></tr>
+<tr><td>Open Cmd</td><td>DA Command</td><td><code>OPEN</code></td></tr>
+<tr><td>Enable Close Cmd</td><td>DA Command</td><td><code>EnableClose</code></td></tr>
+<tr><td>Disable Close Cmd</td><td>DA Command</td><td><code>BlockClose</code></td></tr>
+<tr><td>Set Settings Cmd</td><td>DA Command</td><td>—</td></tr>
+<tr><td>Poll Cmd</td><td>DA Command</td><td><code>POLL</code></td></tr>
+<tr><td>Reset Cmd</td><td>DA Command</td><td><code>RESET</code></td></tr>
+<tr><td>Wdog Cmd</td><td>DA Command</td><td><code>WDOG</code></td></tr>
+<tr><td>Close Cmd from SCADA</td><td>SCADA Command</td><td><code>ScadaCloseCmd</code></td></tr>
+<tr><td>Open Cmd from SCADA</td><td>SCADA Command</td><td><code>ScadaOpenCmd</code></td></tr>
+<tr><td>Backup Settings</td><td>Field Status</td><td><code>in.Backup</code></td></tr>
+<tr><td>DA Enabled</td><td>Field Status</td><td><code>in.da</code></td></tr>
+<tr><td>FaultLatch</td><td>Field Status</td><td><code>in.Fault</code></td></tr>
+<tr><td>FaultLatch AB</td><td>Field Status</td><td><code>in.FaultAB</code></td></tr>
+<tr><td>FaultLatch BA</td><td>Field Status</td><td><code>in.FaultBA</code></td></tr>
+<tr><td>Breaker Fail</td><td>Field Status</td><td><code>in.BreakerFailure</code></td></tr>
+<tr><td>Hot Line Tag</td><td>Field Status</td><td><code>in.HotLineTag</code></td></tr>
+<tr><td>Reclose Enabled</td><td>Field Status</td><td><code>in.Reclose</code></td></tr>
+<tr><td>Remote Enabled</td><td>Field Status</td><td><code>in.Remote</code></td></tr>
+<tr><td>Active Settings</td><td>Field Status</td><td>—</td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>Lockout</td><td>Field Status</td><td><code>in.Lockout</code></td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.DiagnosticFail</code></td></tr>
+<tr><td>Switch Mode</td><td>Field Status</td><td><code>in.SwitchMode</code></td></tr>
+<tr><td>Underfrequency Event</td><td>Field Status</td><td><code>field.FrequencyLockout.stVal</code></td></tr>
+<tr><td>Status Discrepancy</td><td>Field Status</td><td><code>in.StatusDiscrepancy</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Voltage Side A</td><td>Field Status</td><td><code>_VoltageA_Index</code></td></tr>
+<tr><td>Voltage Side B</td><td>Field Status</td><td><code>_VoltageB_Index</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Dual switch (DA_DUAL_SW)</b> <span class="cnt">12 entries, 0 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Flip-Flop Auto Cmd</td><td>DA Command</td><td><code>FlipFlop_Auto_CMD</code></td></tr>
+<tr><td>Flip-Flop Man Cmd</td><td>DA Command</td><td><code>FlipFlop_Man_CMD</code></td></tr>
+<tr><td>Flip-Flop Auto Cmd from SCADA</td><td>DA Command</td><td><code>Scada_FlipFlop_Auto_CMD</code></td></tr>
+<tr><td>Flip-Flop Man Cmd from SCADA</td><td>DA Command</td><td><code>Scada_FlipFlop_Man_CMD</code></td></tr>
+<tr><td>DA Enabled</td><td>Field Status</td><td><code>in.DA_Enabled</code></td></tr>
+<tr><td>Remote Enabled</td><td>Field Status</td><td><code>in.Remote</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Flip-Flop Enabled</td><td>Field Status</td><td><code>in.FlipFlop_Enabled</code></td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.DiagnosticFail</code></td></tr>
+<tr><td>Poll Cmd</td><td>(uncategorised)</td><td><code>POLL</code></td></tr>
+<tr><td>Reset Cmd</td><td>(uncategorised)</td><td><code>RESET</code></td></tr>
+<tr><td>Wdog Cmd</td><td>(uncategorised)</td><td><code>WDOG</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Connector (DA_DAC_INTERCONNECT)</b> <span class="cnt">22 entries, 10 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Linked</td><td>DA Alarm</td><td><code>in.Linked</code></td></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>ABNORMAL</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>No Edge Device Pts</td><td>DA Alarm</td><td><code>NoEdgePts AND _SettingsAlarmDelay</code></td></tr>
+<tr><td>Local Abort</td><td>DA Alarm</td><td><code>Device.LocalData.AbortSequence</code></td></tr>
+<tr><td>Remote Abort</td><td>DA Alarm</td><td><code>Device.RemoteData.AbortSequence</code></td></tr>
+<tr><td>Solution Creates Loop</td><td>DA Alarm</td><td><code>Device.SolutionLoop</code></td></tr>
+<tr><td>Local Feeder Abnormal</td><td>DA Alarm</td><td><code>Device.LocalData.SrcAbnormal OR Device.LocalData.EdgeAbnormal</code></td></tr>
+<tr><td>Remote Feeder Abnormal</td><td>DA Alarm</td><td><code>Device.RemoteData.SrcAbnormal OR Device.RemoteData.EdgeAbnormal</code></td></tr>
+<tr><td>Control Sequence Fail</td><td>DA Alarm</td><td><code>Device.ControlSequenceFailure</code></td></tr>
+<tr><td>Remote Event</td><td>DA Status</td><td><code>Device.RemoteData.DetectedEvent</code></td></tr>
+<tr><td>Remote ConfirmedEvent</td><td>DA Status</td><td><code>Device.RemoteData.ConfirmedEvent</code></td></tr>
+<tr><td>Remote Feeder Return</td><td>DA Status</td><td><code>Device.RemoteData.ReturnNormal</code></td></tr>
+<tr><td>Collaboration Stage</td><td>DA Status</td><td>—</td></tr>
+<tr><td>Restoration Planning Local Source</td><td>DA Status</td><td><code>Device.LocalSolutionSource</code></td></tr>
+<tr><td>Restoration Planning Remote Source</td><td>DA Status</td><td><code>Device.RemoteSolutionSource</code></td></tr>
+<tr><td>Request Permissive</td><td>DA Command</td><td><code>dEQUIPMENT[Device.SRC1.iEQUIPMENT].SRC.RequestPermissive</code></td></tr>
+<tr><td>Connection Linked</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Remote Edge Status</td><td>Field Status</td><td><code>Device.EDGE_SW.Input.Status</code></td></tr>
+<tr><td>Remote Source Status</td><td>Field Status</td><td><code>Device.SRC_SW.Input.Status</code></td></tr>
+<tr><td>Permissive</td><td>Field Status</td><td><code>Device.SRC1.Input.Permissive</code></td></tr>
+<tr><td>Voltage</td><td>FieldStatus</td><td><code>in.EdgeVoltageLevel,pList:=ADR(LoggingLists.g_VoltageLevels)</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Connector manager (DA_DAC_INTERCONNECT_MANAGER)</b> <span class="cnt">5 entries, 3 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Remote DAC WDOG Timeout</td><td>DA Alarm</td><td><code>RemoteDacCommFail</code></td></tr>
+<tr><td>Settings Error</td><td>DA Alarm</td><td><code>in.InvalidSettings</code></td></tr>
+<tr><td>Remote DAC Name Invalid</td><td>DA Alarm</td><td><code>RemoteDacNameInvalid</code></td></tr>
+<tr><td>Remote DAC Enabled</td><td>DA Status</td><td><code>RemoteDacEnabled</code></td></tr>
+<tr><td>Remote DAC Priority Changed</td><td>DA Status</td><td><code>TO_DINT(_ActiveRemote), pList := ADR(g_DacPriority)</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Distributed generation (DA_DG)</b> <span class="cnt">19 entries, 2 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Out Of Service Non-Default</td><td>DA Settings Warning</td><td>—</td></tr>
+<tr><td>Ride Through Non-Default</td><td>DA Settings Warning</td><td>—</td></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Islanded</td><td>DA Status</td><td><code>Islanded</code></td></tr>
+<tr><td>Disallowed Circuit</td><td>DA Status</td><td><code>DisallowedCircuit</code></td></tr>
+<tr><td>Out Of Service</td><td>DA Operating Mode</td><td><code>in.OutOfService OR in.OutOfServiceScada</code></td></tr>
+<tr><td>Ride Through Faults</td><td>DA Operating Mode</td><td><code>(in.RideThroughMode AND enumRideThrough.Fault) &lt;&gt; 0</code></td></tr>
+<tr><td>Ride Through Isolation</td><td>DA Operating Mode</td><td><code>(in.RideThroughMode AND enumRideThrough.Isolation) &lt;&gt; 0</code></td></tr>
+<tr><td>Ride Through Closed Transistion</td><td>DA Operating Mode</td><td><code>(in.RideThroughMode AND enumRideThrough.CloseTransition) &lt;&gt; 0</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Enable Close Cmd</td><td>DA Command</td><td><code>EnableCloseCmd</code></td></tr>
+<tr><td>Open Cmd</td><td>DA Command</td><td><code>OpenCmd</code></td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>POI Close Permissive</td><td>Field Status</td><td><code>in.ClosePermissive</code></td></tr>
+<tr><td>FaultLatch Internal</td><td>Field Status</td><td><code>in.FaultLatch</code></td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.DiagnosticFail</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Abnormal</td><td>(uncategorised)</td><td><code>ABNORMAL</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation bus (DA_SUB_BUS)</b> <span class="cnt">16 entries, 5 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Bus Lockout</td><td>Field Status</td><td><code>in.BusLockout</code></td></tr>
+<tr><td>Voltage Above Hi Limit</td><td>DFO Alarm</td><td><code>V_HiAlarm</code></td></tr>
+<tr><td>Voltage Below Lo Limit</td><td>DFO Alarm</td><td><code>V_LoAlarm</code></td></tr>
+<tr><td>Power Factor Out of Band</td><td>DFO Alarm</td><td><code>PF_Alarm</code></td></tr>
+<tr><td>Reactive Power Out of Band</td><td>DFO Alarm</td><td><code>Q_BandAlarm</code></td></tr>
+<tr><td>DFO Unable to Correct - Resources Unavailable</td><td>DFO Alarm</td><td><code>UnableToCorrect</code></td></tr>
+<tr><td>DFO Operation Permitted</td><td>DFO Operating Mode</td><td><code>in.PermitDfo</code></td></tr>
+<tr><td>PF Control Enabled</td><td>DFO Operating Mode</td><td><code>in.PF_Enable</code></td></tr>
+<tr><td>Voltage Limits Enforced</td><td>DFO Operating Mode</td><td><code>in.V_LimitEnabled</code></td></tr>
+<tr><td>PF Limits Enforced</td><td>DFO Operating Mode</td><td><code>in.PF_LimitEnabled</code></td></tr>
+<tr><td>(PF_Setpoint)</td><td>DFO Setpoint</td><td><code>in.PF_Setpoint &lt;&gt; _LoggingDfo.PF_Setpoint.Value</code></td></tr>
+<tr><td>(Q_Band)</td><td>DFO Setpoint</td><td><code>in.Q_Band &lt;&gt; _LoggingDfo.Q_Band.Value</code></td></tr>
+<tr><td>(V_HiLimit)</td><td>DFO Setpoint</td><td><code>in.V_HiLimit &lt;&gt; _LoggingDfo.V_HiLimit.Value</code></td></tr>
+<tr><td>(V_LoLimit)</td><td>DFO Setpoint</td><td><code>in.V_LoLimit &lt;&gt; _LoggingDfo.V_LoLimit.Value</code></td></tr>
+<tr><td>(PF_Limit1)</td><td>DFO Setpoint</td><td><code>in.PF_Limit1 &lt;&gt; _LoggingDfo.PF_Limit1.Value</code></td></tr>
+<tr><td>(PF_Limit2)</td><td>DFO Setpoint</td><td><code>in.PF_Limit2 &lt;&gt; _LoggingDfo.PF_Limit2.Value</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation main (DA_SUB_MAIN)</b> <span class="cnt">17 entries, 2 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Bypass</td><td>DA Operating Mode</td><td><code>in.Bypass OR in.BypassScada</code></td></tr>
+<tr><td>Out Of Service</td><td>DA Operating Mode</td><td><code>in.OutOfService OR in.OutOfServiceScada</code></td></tr>
+<tr><td>Close Cmd</td><td>DA Command</td><td><code>CLOSE</code></td></tr>
+<tr><td>Open Cmd</td><td>DA Command</td><td><code>OPEN</code></td></tr>
+<tr><td>Remote Enabled</td><td>Field Status</td><td><code>in.Remote</code></td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Hot Line Tag</td><td>Field Status</td><td><code>in.HotLineTag</code></td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.Trouble</code></td></tr>
+<tr><td>Poll Cmd</td><td>(uncategorised)</td><td>—</td></tr>
+<tr><td>Reset Cmd</td><td>(uncategorised)</td><td>—</td></tr>
+<tr><td>Wdog Cmd</td><td>(uncategorised)</td><td>—</td></tr>
+<tr><td>(ScadaCloseCmd)</td><td>(uncategorised)</td><td><code>ScadaCloseCmd</code></td></tr>
+<tr><td>(ScadaOpenCmd)</td><td>(uncategorised)</td><td><code>ScadaOpenCmd</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation tie (DA_SUB_TIE)</b> <span class="cnt">15 entries, 2 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Command Timeout</td><td>DA Alarm</td><td><code>CMD_TIMEOUT</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Bypass</td><td>DA Operating Mode</td><td><code>in.Bypass OR in.BypassScada</code></td></tr>
+<tr><td>Out Of Service</td><td>DA Operating Mode</td><td><code>in.OutOfService OR in.OutOfServiceScada</code></td></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Close Cmd</td><td>DA Command</td><td><code>CLOSE</code></td></tr>
+<tr><td>Open Cmd</td><td>DA Command</td><td><code>OPEN</code></td></tr>
+<tr><td>Remote Enabled</td><td>Field Status</td><td><code>in.Remote</code></td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Poll Cmd</td><td>(uncategorised)</td><td>—</td></tr>
+<tr><td>Reset Cmd</td><td>(uncategorised)</td><td>—</td></tr>
+<tr><td>Wdog Cmd</td><td>(uncategorised)</td><td>—</td></tr>
+<tr><td>(ScadaCloseCmd)</td><td>(uncategorised)</td><td><code>ScadaCloseCmd</code></td></tr>
+<tr><td>(ScadaOpenCmd)</td><td>(uncategorised)</td><td><code>ScadaOpenCmd</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation transformer (DA_SUB_TRANSFORMER)</b> <span class="cnt">15 entries, 7 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>ABNORMAL</code></td></tr>
+<tr><td>Comm Alarm</td><td>DA Alarm</td><td><code>COMM_ALARM</code></td></tr>
+<tr><td>Overload</td><td>DA Alarm</td><td><code>Overload</code></td></tr>
+<tr><td></td><td>DA Alarm</td><td>—</td></tr>
+<tr><td></td><td>DA Alarm</td><td>—</td></tr>
+<tr><td>Device Trouble</td><td>Field Status</td><td><code>in.DiagnosticFail</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Bank Lockout</td><td>Field Status</td><td><code>in.BankLockout</code></td></tr>
+<tr><td>Reactive Power Out of Band</td><td>DFO Alarm</td><td><code>Q_BandAlarm</code></td></tr>
+<tr><td>DFO Unable to Correct - Resources Unavailable</td><td>DFO Alarm</td><td><code>UnableToCorrect</code></td></tr>
+<tr><td>DFO Operation Permitted</td><td>DFO Operating Mode</td><td><code>in.PermitDfo</code></td></tr>
+<tr><td>PF Control Enabled</td><td>DFO Operating Mode</td><td><code>in.PF_Enable</code></td></tr>
+<tr><td>(PF_Setpoint)</td><td>DFO Setpoint</td><td><code>in.PF_Setpoint &lt;&gt; _LoggingDfo.PF_Setpoint.Value</code></td></tr>
+<tr><td>(Q_Setpoint)</td><td>DFO Setpoint</td><td><code>in.Q_Setpoint &lt;&gt; _LoggingDfo.Q_Setpoint.Value</code></td></tr>
+<tr><td>(Q_Band)</td><td>DFO Setpoint</td><td><code>in.Q_Band &lt;&gt; _LoggingDfo.Q_Band.Value</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Priority load (DA_PRIORITY_LOAD)</b> <span class="cnt">4 entries, 3 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Fault</td><td>DA Alarm</td><td><code>Fault</code></td></tr>
+<tr><td>Overload</td><td>DA Alarm</td><td><code>Overload</code></td></tr>
+<tr><td>Stranded</td><td>DA Alarm</td><td><code>Stranded</code></td></tr>
+<tr><td>Overload Warning</td><td>DA Status</td><td><code>OverloadWarning</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Pseudo breaker (DA_PSEUDO_BKR)</b> <span class="cnt">4 entries, 1 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Abnormal</td><td>DA Alarm</td><td><code>ABNORMAL</code></td></tr>
+<tr><td>FaultLatch</td><td>Calculated Field Status</td><td><code>in.Fault</code></td></tr>
+<tr><td>Status</td><td>Calculated Field Status</td><td><code>in.Status</code></td></tr>
+<tr><td>Lockout</td><td>Calculated Field Status</td><td><code>in.Lockout</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Manual switch (DA_ManSw)</b> <span class="cnt">4 entries, 0 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Commissioning Mode</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>SEL(SimulationModeActive,in.Status,in.StatusSim)</code></td></tr>
+<tr><td>Voltage Side A</td><td>Field Status</td><td><code>_VoltageA_Index</code></td></tr>
+<tr><td>Voltage Side B</td><td>Field Status</td><td><code>_VoltageB_Index</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Feeder group (DA_FeederGroupControl)</b> <span class="cnt">1 entries, 0 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Feeder Group Excluded State</td><td>DA Operating Mode</td><td>—</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Capacitor, DFO (DA_CAP)</b> <span class="cnt">23 entries, 4 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Feedback Sync Close</td><td>SCADA Command</td><td><code>in.FeedbackClose</code></td></tr>
+<tr><td>Feedback Sync Open</td><td>SCADA Command</td><td><code>in.FeedbackOpen</code></td></tr>
+<tr><td>Close Cmd Manually Initiated</td><td>SCADA Command</td><td><code>in.ManClose</code></td></tr>
+<tr><td>Open Cmd Manually Initiated</td><td>SCADA Command</td><td><code>in.ManOpen</code></td></tr>
+<tr><td>Start Calibration Cmd</td><td>SCADA Command</td><td><code>_Scada.CalibrateCmd.Control</code></td></tr>
+<tr><td>Reset Cmd</td><td>SCADA Command</td><td><code>in.ResetCmd</code></td></tr>
+<tr><td>Status</td><td>Field Status</td><td><code>in.SwitchStatus</code></td></tr>
+<tr><td>DFO Active</td><td>Field Status</td><td><code>in.DFO_Active</code></td></tr>
+<tr><td>DFO Enabled</td><td>Field Status</td><td><code>in.DFO_Enabled</code></td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td><code>in.DeviceOnline</code></td></tr>
+<tr><td>Voltage</td><td>Field Status</td><td><code>_Voltage_Index</code></td></tr>
+<tr><td>Failure</td><td>DFO Alarm</td><td><code>Failure</code></td></tr>
+<tr><td>Feedback Trouble</td><td>DFO Alarm</td><td><code>FeedbackTrouble</code></td></tr>
+<tr><td>Warning</td><td>DFO Alarm</td><td><code>Warning</code></td></tr>
+<tr><td>Calibration Failed</td><td>DFO Alarm</td><td><code>CalFail</code></td></tr>
+<tr><td>Available</td><td>DFO Status</td><td><code>Available</code></td></tr>
+<tr><td>Calibration Done</td><td>DFO Status</td><td><code>CalDone</code></td></tr>
+<tr><td>Calibration In Progress</td><td>DFO Status</td><td><code>in.CalibrateCmd</code></td></tr>
+<tr><td>Scada Inhibited</td><td>DFO Operating Mode</td><td><code>in.InhibitControlScada</code></td></tr>
+<tr><td>Field Inhibited</td><td>DFO Operating Mode</td><td><code>in.InhibitControl</code></td></tr>
+<tr><td>Close Cmd</td><td>DFO Command</td><td><code>CloseCmd</code></td></tr>
+<tr><td>Open Cmd</td><td>DFO Command</td><td><code>OpenCmd</code></td></tr>
+<tr><td>DFO Activate Cmd</td><td>DFO Command</td><td>—</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Regulator, DFO (DA_REG)</b> <span class="cnt">18 entries, 0 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>Bypass</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Scada Inhibited</td><td>DA Operating Mode</td><td>—</td></tr>
+<tr><td>Reset Cmd</td><td>SCADA Command</td><td><code>in.ResetCmd</code></td></tr>
+<tr><td>DFO Active</td><td>Field Status</td><td>—</td></tr>
+<tr><td>DFO Enabled</td><td>Field Status</td><td>—</td></tr>
+<tr><td>Device Online</td><td>Field Status</td><td>—</td></tr>
+<tr><td>Voltage Side A</td><td>Field Status</td><td><code>_Voltage_Index</code></td></tr>
+<tr><td>Voltage Side B</td><td>Field Status</td><td><code>_Voltage_Index</code></td></tr>
+<tr><td>Failure</td><td>DFO Status</td><td>—</td></tr>
+<tr><td>Feedback Trouble</td><td>DFO Status</td><td>—</td></tr>
+<tr><td>Operation Limit</td><td>DFO Status</td><td>—</td></tr>
+<tr><td>Warning</td><td>DFO Status</td><td>—</td></tr>
+<tr><td>Raise Cmd</td><td>DFO Command</td><td>—</td></tr>
+<tr><td>Lower Cmd</td><td>DFO Command</td><td>—</td></tr>
+<tr><td>DFO Activate Cmd</td><td>DFO Command</td><td>—</td></tr>
+<tr><td>Minimum Time Between Tap Commands</td><td>DFO Setpoint</td><td><code>in.MinTimeBtwTaps &lt;&gt; _Logging.MinTimeBtwTaps.Value</code></td></tr>
+<tr><td>(MinTap)</td><td>DFO Setpoint</td><td><code>in.MinTap = MIN(MIN(Device.TapPosition[1],Device.TapPosition[2]),Device.TapPosition[3])</code></td></tr>
+<tr><td>(MaxTap)</td><td>DFO Setpoint</td><td><code>in.MaxTap = MAX(MAX(Device.TapPosition[1],Device.TapPosition[2]),Device.TapPosition[3])</code></td></tr>
+</table></div></details>
+<details class="cat"><summary><b>RTU vote master (RtuVoteMaster)</b> <span class="cnt">1 entries, 0 in alarm categories</span></summary>
+<div class="tw"><table><tr><th>Log text</th><th>Category</th><th>Driven by</th></tr>
+<tr><td>RTU Online</td><td>Field Status</td><td>—</td></tr>
+</table></div></details>
+</body>
+</html>

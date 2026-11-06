@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings Reference</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DAC,Fixed internal constants">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Settings reference</h1>
+<p>Every scheme-level setting, with the default an Adapter project gets (<code>DA_CONTROL</code>) and the default of the raw Lib block (<code>DA_MANAGER_AR</code> / <code>DA_SCHEME</code>). Differences are marked.</p>
+<div class="chips"><span>§20</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="tw"><table>
+<tr><th>Setting</th><th class="num">Adapter</th><th class="num">Lib</th><th>What it controls</th></tr>
+<tr><td><code>NominalVoltage</code></td><td class="num">115000</td><td class="num">19900 ≠</td><td>Primary L-N base for the % thresholds.</td></tr>
+<tr><td><code>DeadLevel / LiveLevel1 / LiveLevel2</code></td><td class="num">20 / 90 / 95 %</td><td class="num">same</td><td>Voltage levels (<a href="atlas:distribution-automation/dac-foundations/voltage.html">§05</a>).</td></tr>
+<tr><td><code>VoltageDeadband</code></td><td class="num">2 %</td><td class="num">same</td><td>Hysteresis on each level.</td></tr>
+<tr><td><code>IntegrityPeriod</code></td><td class="num">5 min</td><td class="num">300 s</td><td>Background poll of every device; also the comm-failure timeout base (+10 s).</td></tr>
+<tr><td><code>WatchdogPulsePeriod</code></td><td class="num">90 s</td><td class="num">90 s</td><td>WDOG pulse to field devices.</td></tr>
+<tr><td><code>EventDetectTime</code></td><td class="num">10 s</td><td class="num">10 s</td><td>Open-phase detection delay, overload pickup, directional-fault conflict window, UF voltage qualification, reclose-in-progress reset (×2).</td></tr>
+<tr><td><code>FaultHoldTime</code></td><td class="num">120 s</td><td class="num">120 s</td><td>When the DAC resets relay fault targets; protection-failure arming window; part of UF exclusion hold.</td></tr>
+<tr><td><code>UpdateTimeLimit</code></td><td class="num">120 s</td><td class="num">60 s ≠</td><td>UPDATE timeout; <b>command timeout</b>; voltage-discrepancy alarm delay.</td></tr>
+<tr><td><code>MinimumUpdateTime</code></td><td class="num">10 s</td><td class="num">10 s</td><td>Least time spent collecting data before ANALYZE.</td></tr>
+<tr><td><code>AnalyzeTimeLimit</code></td><td class="num">120 s</td><td class="num">120 s</td><td>Feeder ANALYZE timeout (scheme analyse timeout = 3×); UF hold.</td></tr>
+<tr><td><code>ReconfigTimeLimit</code></td><td class="num">120 s</td><td class="num">120 s</td><td>Maximum execution time before RestorationFail.</td></tr>
+<tr><td><code>OpenPhaseConfirmTime</code></td><td class="num">60 s</td><td class="num">60 s</td><td>Open-phase/LOS confirmation; half of it = re-arm time.</td></tr>
+<tr><td><code>LoopConfirmTime</code></td><td class="num">60 s</td><td class="num">60 s</td><td>Loop on a radial feeder → feeder abnormal.</td></tr>
+<tr><td><code>OverloadConfirmTime1</code></td><td class="num">5 min</td><td class="num">60 min ≠</td><td>Level-1 (normal rating) confirmation.</td></tr>
+<tr><td><code>OverloadConfirmTime2</code></td><td class="num">60 s</td><td class="num">300 s ≠</td><td>Level-2 (temporary rating) confirmation.</td></tr>
+<tr><td><code>ShedConfirmTime</code></td><td class="num">60 min</td><td class="num">30 min ≠</td><td>Level-2 time before load shed.</td></tr>
+<tr><td><code>TransferDepth</code></td><td class="num">2</td><td class="num">0 ≠</td><td>Feeder hops for polling and restorability (see caveat in <a href="atlas:distribution-automation/dac-restoration/solver.html">§13</a>).</td></tr>
+<tr><td><code>ReturnMode</code></td><td class="num">CLOSED_TRANSITION</td><td class="num">same</td><td>§12.</td></tr>
+<tr><td><code>EnableMiscoordinationDetection</code></td><td class="num">TRUE</td><td class="num">FALSE ≠</td><td>Reclose the upstream device after a miscoordinated trip (<a href="atlas:distribution-automation/dac-events/fault.html">§07</a>).</td></tr>
+<tr><td><code>EnableOpenPhaseDetection</code></td><td class="num">TRUE</td><td class="num">FALSE ≠</td><td>§08.</td></tr>
+<tr><td><code>IsolateOpenPhase</code></td><td class="num">FALSE</td><td class="num">TRUE ≠</td><td>Isolate both sides of an open phase vs. only restore beyond it.</td></tr>
+<tr><td><code>EnableLossOfSourceDetection</code></td><td class="num">TRUE</td><td class="num">FALSE ≠</td><td>§08.</td></tr>
+<tr><td><code>LossOfSourceRestoreTime</code></td><td class="num">0 s</td><td class="num">0 s</td><td>0 = automatic LOS restoration; &gt;0 = operator window.</td></tr>
+<tr><td><code>EnableOverloadDetection</code> / <code>EnableLoadShed</code></td><td class="num">FALSE / FALSE</td><td class="num">same</td><td>§10; forced off with connectors.</td></tr>
+<tr><td><code>EnableVoltageDiscrepancy</code></td><td class="num">FALSE</td><td class="num">TRUE ≠</td><td>§05.</td></tr>
+<tr><td><code>AllowExtendedOpenPhaseRestoration</code></td><td class="num">FALSE</td><td class="num">FALSE</td><td>Restore through open-phase-flagged paths.</td></tr>
+<tr><td><code>AbnormalRestoration</code></td><td class="num">None (hidden)</td><td class="num">None</td><td>§06.</td></tr>
+<tr><td><code>BlockCloseMode</code></td><td class="num">BlockCloseDisabled</td><td class="num">AllClosedTransition ≠</td><td>§18.</td></tr>
+<tr><td><code>CloseDelay</code></td><td class="num">0 s</td><td class="num">0 s</td><td>Fixed delay before each DAC close command.</td></tr>
+<tr><td><code>RepollAfterLockout</code></td><td class="num">FALSE (hidden)</td><td class="num">FALSE</td><td>Extra poll of event and adjacent feeders after lockout.</td></tr>
+<tr><td><code>Field_DA_Enable_Mode</code></td><td class="num">FeederAbnormal</td><td class="num">—</td><td>§02.</td></tr>
+<tr><td><code>TempCapacityMultiplierPhasePu / CapacityMultiplier</code></td><td class="num">0.95 / 0.95</td><td class="num">—</td><td>Capacity from phase pickup.</td></tr>
+<tr><td><code>HeartbeatTimeoutTime</code> (DeviceDef)</td><td class="num">300 s</td><td class="num">—</td><td>SCADA heartbeat.</td></tr>
+<tr><td><code>OutageReportingEnableDisable / OutageMinimumReportingTime / OutageTimeoutTime</code></td><td class="num">DEFAULT / 5 min / 7 d</td><td class="num">same</td><td>Post-outage reporting.</td></tr>
+</table></div>
+<h2 id="settings-fixed">Fixed internal constants</h2>
+<div class="tw"><table>
+<tr><th>Constant</th><th class="num">Value</th><th>Used for</th></tr>
+<tr><td><code>CMD_PULSE</code></td><td class="num">5 s</td><td>Command and watchdog pulse width</td></tr>
+<tr><td><code>CMD_RETRIES</code> / <code>CMD_RETRY_DELAY</code></td><td class="num">2 / 7 s</td><td>Command retries</td></tr>
+<tr><td><code>FaultDetectorDelayTime</code></td><td class="num">10 s</td><td>"Recently opened" window; topology freeze after a switch opens</td></tr>
+<tr><td><code>COM_RECOVERY_SUBSEQUENT_POLL_DELAY</code></td><td class="num">10 s</td><td>Re-poll interval until 3 good responses</td></tr>
+<tr><td>Poll timeout during DA</td><td class="num">10 s</td><td>DA_COM_LINE</td></tr>
+<tr><td>Close-on-fault window</td><td class="num">10 s</td><td>After each close command</td></tr>
+<tr><td>Overload new-detection suppression</td><td class="num">30 s</td><td>After any DA sequence</td></tr>
+<tr><td>Open-phase block after disturbance</td><td class="num">10 s</td><td>After fault/bus restore/analysis/loop change</td></tr>
+<tr><td>Collaboration abort hold-off</td><td class="num">60 s</td><td>Connectors</td></tr>
+<tr><td>DG flicker delay</td><td class="num">5 s</td><td>Trip / permissive</td></tr>
+<tr><td>Adapter internal fault latch</td><td class="num">2 min</td><td>When LatchFaultAtDevice = FALSE</td></tr>
+<tr><td>MapOutputs delay after reset</td><td class="num">5 s</td><td>All outputs</td></tr>
+</table></div>
+
+<h2 id="settings-circuit">Per-circuit (DA_CIRCUIT / DA_FDR) settings</h2>
+<div class="tw"><table>
+<tr><th>Pin</th><th class="num">Default</th><th>Effect</th></tr>
+<tr><td><code>Capacity / TempCapacity</code></td><td class="num">10000 / 10000 A</td><td>Source ratings.</td></tr>
+<tr><td><code>SourceGroup</code></td><td class="num">0 (inherit)</td><td>Paralleling group.</td></tr>
+<tr><td><code>Exclude</code></td><td class="num">FALSE</td><td>Unarm the feeder.</td></tr>
+<tr><td><code>Permissive</code></td><td class="num">FALSE (Lib)</td><td>Must be TRUE for the DAC to close load onto this feeder without first requesting.</td></tr>
+<tr><td><code>PermitLoop</code></td><td class="num">FALSE</td><td>Feeder may operate looped (ignored with PermitOp).</td></tr>
+<tr><td><code>AllowSelectLevel1 / AllowRestoreLevel1</code></td><td class="num">FALSE / FALSE</td><td>Use a feeder whose voltage is only Live1.</td></tr>
+<tr><td><code>IsolateBreakerZone</code></td><td class="num">FALSE</td><td>Source events isolate the breaker zone.</td></tr>
+<tr><td><code>LossOfSourceRestore</code></td><td class="num">—</td><td>Operator start of LOS restoration.</td></tr>
+<tr><td><code>FeederReset</code>, <code>ReturnNormal</code></td><td class="num">—</td><td>§02, <a href="atlas:distribution-automation/dac-events/rtn.html">§12</a>.</td></tr>
+<tr><td><code>AbnormalRestoration / OpenPhase / IsolateOpenPhase / DetectMiscoordination</code></td><td class="num">GLOBAL</td><td>Per-feeder overrides (see caveat in <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>TopologyID</code></td><td class="num">0 (inherit)</td><td>Grouping label inherited by lines; used by DG curtailment.</td></tr>
+</table></div>
+</body>
+</html>

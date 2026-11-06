@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overload &amp; Load Shed</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DAC,Detail">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Overload and load shed</h1>
+<p>Two current levels per device, timed confirmation, and optional load shed. Disabled entirely when any DAC connector exists.</p>
+<div class="chips"><span>§10</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>Level 1 = above normal <code>Capacity</code>; Level 2 = above <code>TempCapacity</code>. Each must persist <code>EventDetectTime</code> to be detected.</li>
+<li>Level 1 confirms after <code>OverloadConfirmTime1</code>, Level 2 after <code>OverloadConfirmTime2</code>.</li>
+<li>Confirmation makes the whole overloaded feeder a candidate for transfer, using <b>closed-transition</b> switching (same source group only).</li>
+<li>With load shed enabled, Level 2 for <code>ShedConfirmTime</code> allows shedding load by priority.</li>
+<li>No new overload is detected during a DA sequence or for 30 s after one.</li>
+</ol></div>
+
+<h2 id="ol-detail">Detail</h2>
+<ul>
+<li>Device detection uses filtered current vs. rating, 10 s reset delay, and is blocked while either side of the device is Dead (stale current) or the device is out of service. Transformer/bus overloads count for every feeder on that transformer/bus. <span class="src">Equipment/Overload/Detector/EQUIPMENT_OVERLOAD_DETECTOR</span></li>
+<li>The feeder polls devices periodically while overloaded (half the remaining time, between 60 s and <code>IntegrityPeriod</code>). <span class="src">Feeder/Event/Overload/FEEDER_OVERLOAD</span></li>
+<li><code>Overload.New</code> (the event trigger into UPDATE) fires 60 s before a confirm timer expires (2 s if the confirm time is ≤ 60 s), again 120 s after confirmation if the overload is still there and nothing is in progress, and when the shed timer expires. The overload confirms in ANALYZE once a confirm timer has run out.</li>
+<li>On confirmation: the feeder source is a root with restore flags on the whole feeder. Without shed, the feeder is flagged <b>MatchSourceGroup</b>, so only same-source-group alternates can take load (load is live, so the transfer must be closed transition). With shed, shed permissives are set instead. <span class="src">Feeder/Event/Overload/mFEEDER_ConfirmOverload</span></li>
+<li>The solver treats a root feeder with a detected overload as if its temporary margin were its normal margin, which drives the solution to bring it back under normal rating.</li>
+<li>Outputs: <code>OverloadWarning</code> (detected), <code>Overload</code> target (confirmed), <code>OverloadTime/Seconds</code> countdown, <code>ShedWarning</code> (L2 confirmed and timing to shed), <code>ShedTime/Seconds</code>, <code>LoadShed</code> target, level None/L1/L2/Shed.</li>
+<li><code>DA_LOAD.Priority</code>: smaller = more important (default 9999). A load with priority 0, or any load when shed is disabled, is <code>BlockShed</code> unless its allocation is 0.</li>
+</ul>
+<div class="warn"><b>Code caveat</b> The Revision_History header still carries the note "Load Shed is in an untested state. Do NOT enable Load Shed until can be fixed." Both Adapter and Lib default it off. <span class="src">DA Lib/POUs/Revision_History</span></div>
+</body>
+</html>

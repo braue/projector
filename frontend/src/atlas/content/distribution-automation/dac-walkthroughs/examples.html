@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Worked Examples</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Worked examples with timelines</h1>
+<p>Three events followed second by second: what the field does, what the DAC does in response, and the log entries you'd expect to see.</p>
+<div class="chips"><span>§27</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="callout interp"><b>How to read these</b> Times are illustrative and use Adapter defaults. They assume devices answer polls in 1–2 s and report status changes within 2–3 s. The order of events and the gating conditions come from the code. The exact seconds depend on your communications and protection settings. Log entries are shown as <code>Name: Description</code> with Asserted/Deasserted, which is how the Adapter writes them (<a href="atlas:distribution-automation/dac-walkthroughs/alarms.html">§28</a>).</div>
+
+<h2 id="ex-fault">Example 1: Permanent fault, isolate and restore from a tie</h2>
+<div class="flow">  SUB A ──[BKR-A]──── R1 ────── R2 ────── (T1, normally open) ────── SUB B
+                         fault here ↑
+  R1 sees fault current, R2 does not. R1 curve: trip, 2 s, 10 s, 15 s, lockout.
+  Feeder B is armed, not abnormal, Live2, and has the margin to carry R2's load.</div>
+
+<div class="tw"><table>
+<tr><th class="num">t</th><th>Field</th><th>DAC</th><th>Log entries you'd see</th></tr>
+<tr><td class="num">0.0</td><td>R1 trips, fault target up</td><td>Feeder A latches the fault. R1 open with fault present → TripNew → feeder A goes to UPDATE. <code>DA_EVENT_Detected</code>, <code>DA_InProgress</code>. Polls go to A's devices and to feeders within <code>TransferDepth</code> (2). WDOG pulses stop.</td><td><code>R1: FaultLatch</code>, <code>R1: Status</code> change, <code>Feeder A: Event</code>, <code>DAC: Event Detected</code>, <code>DAC: Update Step</code></td></tr>
+<tr><td class="num">2</td><td>R1 recloses, trips again</td><td>"Reclose in progress" is inferred because R1 opened within 10 s with a fault. For fault location, the open R1 counts as tripped.</td><td>R1 status changes</td></tr>
+<tr><td class="num">10</td><td>—</td><td><code>MinimumUpdateTime</code> has run and every device answered → ANALYZE. The fault is located but unresolved, because no lockout yet.</td><td><code>DAC: Analyze Step</code></td></tr>
+<tr><td class="num">12</td><td>R1 recloses, trips</td><td>Still waiting for lockout. <code>AnalyzeTimeLimit</code> (120 s) is running.</td><td>—</td></tr>
+<tr><td class="num">27</td><td>R1 recloses, trips, <b>locks out</b></td><td>Lockout seen on a device that saw the fault → <code>LockoutLatched</code>. The feeder is polled again for fresh data.</td><td><code>R1: Lockout</code></td></tr>
+<tr><td class="num">30</td><td>—</td><td>All devices answered → <b>fault confirmed</b>. Location: between R1 and R2. Isolation search: R1 is already open, and R2 is the downstream isolation point. R2 is load-break, so it gets OPEN <b>now</b>, before the solve. Beyond R2 is a root to restore. <code>Reconfiguration.Started</code>.</td><td><code>Feeder A: Fault</code>, <code>Confirmed Event</code>, <code>Reconfiguration Started</code>, <code>DAC: Event Confirmed</code>, <code>Permanent Fault</code>, <code>R2: Open Cmd</code>, <code>R2: Opened to Extend Isolation Zone</code> only if the zone grew past a non-controllable device</td></tr>
+<tr><td class="num">30</td><td>—</td><td>Feeder A has no unresolved faults → IDLE. All feeders idle → <code>DA_Analyze</code>: solver picks "close T1 from B". <code>DA_Reconfiguration</code> starts and the 120 s <code>ReconfigTimeLimit</code> begins.</td><td><code>DAC: Reconfigure Step</code></td></tr>
+<tr><td class="num">32</td><td>R2 opens, status reported</td><td>The close of T1 had been waiting on <b>UpstreamIsolation</b>. That condition is now cleared.</td><td><code>R2: Status</code> change</td></tr>
+<tr><td class="num">32</td><td>—</td><td>Settings-group check along the path from B through T1: T1 must be in the group mapped to source B. It isn't, so an SG command goes out and the close waits.</td><td><code>T1: Set Settings Cmd</code></td></tr>
+<tr><td class="num">37</td><td>T1 reports the new group</td><td>Groups correct. Side B is sourced and Live, side A is dead → <b>CLOSE T1</b> (5 s pulse). The 10 s close-on-fault window opens.</td><td><code>T1: Close Cmd</code>, <code>T1: Active Settings</code> changes</td></tr>
+<tr><td class="num">40</td><td>T1 closes, load picked up</td><td>All operations done → <code>DA_EVENT_Complete</code>. Feeder A: <code>ReconfigurationComplete</code>. Fault latches are cleared and a fault <code>RESET</code> is pulsed to relays that still show targets. An integrity poll follows.</td><td><code>T1: Status</code>, <code>Feeder A: Reconfiguration Complete</code>, <code>R1: Reset Cmd</code></td></tr>
+<tr><td class="num">47</td><td>—</td><td>T1's close-on-fault window ends with no trip.</td><td>—</td></tr>
+<tr><td class="num">70</td><td>—</td><td>Feeder-state email goes out if the emailer is configured: Reconfiguration Started/Complete. It is sent after the triggering point has stayed in alarm for 30 s.</td><td>—</td></tr>
+<tr><td class="num">630</td><td>—</td><td><code>ReconfigurationComplete</code> self-clears after 600 s.</td><td><code>Feeder A: Reconfiguration Complete</code> Deasserted</td></tr>
+</table></div>
+<p><b>Variations.</b> If B has a permissive input that is FALSE, <code>Request Permissive</code> goes out at t ≈ 32 and the close waits for it. If T1 closes onto a fault inside the 10 s window, <code>CloseOnFault</code> latches on T1, the sequence aborts with <code>AbnormalCondition</code>, and T1 gets no further closes until a reset. If R2 were not load-break, it would be opened only once dead, which it already is here because R1 is locked out.</p>
+
+<h2 id="ex-los">Example 2: Loss of source, automatic restoration</h2>
+<div class="flow">  SUB A (transmission source lost) ──[BKR-A closed]──── R1 ──── (T1 open) ──── SUB B (healthy)
+  No fault anywhere. BKR-A stays closed; everything on feeder A goes dead.</div>
+<div class="tw"><table>
+<tr><th class="num">t</th><th>Field</th><th>DAC</th><th>Log entries</th></tr>
+<tr><td class="num">0</td><td>Feeder A goes dead</td><td>The open-phase detector sees everything below the source dead with no fault. Detection timer <code>EventDetectTime</code> (10 s) starts. This needs the feeder and all its PTs armed (Live1 for 30 s beforehand).</td><td>Voltage status points change on A's devices</td></tr>
+<tr><td class="num">10</td><td>—</td><td>Open phase latched → feeder UPDATE → polls go out.</td><td><code>Feeder A: Event</code>, <code>DAC: Event Detected</code></td></tr>
+<tr><td class="num">20</td><td>—</td><td>ANALYZE. Waiting for <code>OpenPhaseConfirmTime</code>.</td><td><code>DAC: Analyze Step</code></td></tr>
+<tr><td class="num">70</td><td>Still dead</td><td>Confirmed. The dead section starts above the first switching device (depth 0), so this is a <b>loss of source</b>. <code>LossOfSourceRestoreTime</code> = 0 → <code>LossOfSource.Restore</code> set automatically → reconfiguration starts. The feeder below BKR-A is the area to restore. Because there is no fault, nothing is opened immediately. The solve picks T1.</td><td><code>Feeder A: Loss Of Source</code>, <code>Confirmed Event</code>, <code>Reconfiguration Started</code></td></tr>
+<tr><td class="num">≈70</td><td>—</td><td>Execution. T1 can't close yet: side A still connects through the closed BKR-A to a source, even though that source is dead, so it isn't "one side sourced, the other dead" (<a href="atlas:distribution-automation/dac-restoration/execution.html">§14</a>). BKR-A is the switch that separates the restored area from the dead source, so it is opened first.</td><td><code>BKR-A: Open Cmd</code></td></tr>
+<tr><td class="num">≈73</td><td>BKR-A opens</td><td>Side A of T1 now has no source and is dead, and side B is live → SG check → close.</td><td><code>T1: Close Cmd</code></td></tr>
+<tr><td class="num">≈80</td><td>T1 closed</td><td>Complete.</td><td><code>Feeder A: Reconfiguration Complete</code></td></tr>
+</table></div>
+<p><b>If <code>LossOfSourceRestoreTime</code> is set above 0</b>, at t = 70 the feeder raises <code>LossOfSource</code> and the <code>LossOfSourceRestoreWindow</code> analog counts down. Nothing switches unless an operator sends <code>LossOfSourceRestoreCmd</code> inside the window. This is also why the Adapter raises the configuration alarm <code>Non-Zero LossOfSourceRestoreTime Set</code>. <b>If the source returns</b> before confirmation, the open phase clears and nothing happens.</p>
+
+<h2 id="ex-cap">Example 3: Restoration limited by connector capacity</h2>
+<div class="flow">  DAC-1 feeder A ── R1 ── R2 ── (T1 open, edge of DAC-1) ══ connector ══ DAC-2 feeder C
+  Fault between R1 and R2. The only alternate is feeder C, owned by DAC-2.</div>
+<div class="tw"><table>
+<tr><th class="num">t</th><th>DAC-1</th><th>DAC-2</th></tr>
+<tr><td class="num">0–30</td><td>Same as Example 1 up to fault confirmation. R2 opens immediately.</td><td>The connector reports DAC-1's event as a remote event on feeder C.</td></tr>
+<tr><td class="num">30</td><td>Collaboration requested (InitialUpdate). Both DACs update and confirm.</td><td>Updates feeder C.</td></tr>
+<tr><td class="num">≈32</td><td>Phase one (InitialSolution): solves alone and publishes what it needs across the boundary.</td><td>Phase one: solves alone and publishes its offer, the margin at T1 for feeder C.</td></tr>
+<tr><td class="num">≈34</td><td>Phase two (FinalSolution): solves again with DAC-2's offer. The remote capacity it sees is floored at 0.1 A (<a href="atlas:distribution-automation/dac-features/connector.html">§17</a>). If DAC-2 offered nothing, because its side is dead, its permissive is off, or the offer was clamped, the margin is too small for R2's load and T1 isn't closed. The best executable state is still executed (<a href="atlas:distribution-automation/dac-reference/caveats.html">§24</a>, caveat 6), so whatever fits is restored, which may be nothing.</td><td>Phase two with DAC-1's figures.</td></tr>
+<tr><td class="num">end</td><td><code>CapacityLimit</code> and <code>RestorationFail</code> on feeder A. The event report shows T1's candidate rejected for capacity, and the connector's reported margin is exactly 0.1 A.</td><td>No operation.</td></tr>
+</table></div>
+<p class="why">A 0.1 A connector margin means the DAC acted correctly on what it was told. The question is why the remote side offered no margin: a dead side, its permissive, a clamp to the dead side's margin, or a stale connector watchdog. This is the pattern seen in the Evergreen 10-19-26 review.</p>
+</body>
+</html>

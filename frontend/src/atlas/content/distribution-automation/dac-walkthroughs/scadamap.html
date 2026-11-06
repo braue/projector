@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SCADA Point Map</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DAC,Three ways to link points,Coded analogs,All points by device type">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>SCADA point map</h1>
+<p>Every SCADA point the Adapter blocks can expose: what it means, how it's linked, and how controls must be sent.</p>
+<div class="chips"><span>§29</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>A point exists only if it's linked. Unlinked points are simply absent. For a feature's enable/disable pair, both points have to be linked, or the feature stays at its setting default (<a href="atlas:distribution-automation/dac-foundations/enable.html">§02</a>).</li>
+<li><b>Status points</b> (DAC → SCADA) are single-point binaries (SPS). <b>Analogs</b> are measured values (MV). <b>Controls</b> (SCADA → DAC) are read from DNP control points (DNPC).</li>
+<li><b>An enable/disable pair on two separate DNP control points responds only to <i>Pulse On</i>.</b> Latch On/Off and Close/Trip on those points are ignored. If an enable from SCADA seems to do nothing, check the operation code the master sends first.</li>
+<li><b>A pair sharing one point</b> uses Close for the first command of the pair and Trip for the second. The first command differs by block. See the table below, because for feeders Close means <i>Exclude</i>.</li>
+<li>Single controls (Reset, Return to Normal, Outage Reset, Heartbeat) accept any operation code.</li>
+<li>Commands from SCADA are latched until the DAC processes them. Reset is ignored while DA is in progress (<a href="atlas:distribution-automation/dac-foundations/enable.html">§02</a>).</li>
+</ol></div>
+<p class="srcs"><span class="src">ADP/zInternal/Common/Data Classes/class_Control</span> <span class="src">ADP/zInternal/Common/Data Classes/Helper/fun_MapControlPair</span></p>
+
+<h2 id="sm-link">Three ways to link points</h2>
+<div class="tw"><table>
+<tr><th>Method</th><th>How it works</th><th>Used for</th></tr>
+<tr><td>Device definition indexes</td><td><code>InitDaScadaLink(pFirst_Bi, pFirst_Ai, pFirst_Bo, …)</code> gives the first point of each SCADA map type. Each <code>SCADA_&lt;name&gt;_Index</code> in the device definition is the offset from that first point. −1 means not used.</td><td>Standard projects. One device definition is shared by many devices with identical maps.</td></tr>
+<tr><td>Extension pointers</td><td><code>ManualScadaInit(ScadaMapping)</code> with a <code>type…ScadaPointers</code> structure, one pointer per point (<code>pt_DAC_Licensed</code>, <code>pt_DAC_SchemeExcludeInclude</code>, …).</td><td>Projects that map points individually</td></tr>
+<tr><td>Tag functions</td><td>One call per point with an <code>enumScadaTagFunctions</code> value (<code>eSCADA_Licensed</code>, …) and a pointer</td><td>Generated or tool-built maps</td></tr>
+</table></div>
+<p>Each call creates a separate SCADA data profile, so the same block can be linked to more than one SCADA connection.</p>
+
+<h2 id="sm-pairs">Shared-point pairs: what Close and Trip mean</h2>
+<div class="tw"><table>
+<tr><th>Block</th><th>Pair</th><th>Close on the shared point</th><th>Trip on the shared point</th></tr>
+<tr><td>Scheme</td><td>AR Enable / Disable</td><td>Enable</td><td>Disable</td></tr>
+<tr><td>Scheme</td><td>Scheme Include / Exclude</td><td>Include</td><td>Exclude</td></tr>
+<tr><td>Scheme</td><td>Feature enable/disable pairs, Heartbeat monitor, Force/Unforce active DAC</td><td>Enable / Force</td><td>Disable / Unforce</td></tr>
+<tr><td>Circuit</td><td>Exclude / Include</td><td><b>Exclude</b></td><td><b>Include</b></td></tr>
+<tr><td>Circuit</td><td>Allow / Disallow Select Level 1, Restore Level 1</td><td>Allow</td><td>Disallow</td></tr>
+<tr><td>Feeder group</td><td>Group Exclude / Include</td><td><b>Exclude</b></td><td><b>Include</b></td></tr>
+<tr><td>Recloser, switch, breaker</td><td>Inhibit, Bypass, Out of service</td><td>Enable (set)</td><td>Disable (clear)</td></tr>
+<tr><td>Breaker</td><td>Transfer to / from spare</td><td>To spare</td><td>From spare</td></tr>
+</table></div>
+<div class="warn"><b>Code caveat</b> With <b>device-definition indexes on two separate points</b>, the scheme's Include and Exclude are cross-wired. The Include command reads <code>SCADA_SchemeExcludeCmd_Index</code> and the Exclude command reads <code>SCADA_SchemeIncludeCmd_Index</code>. A Pulse On to the point defined as "Exclude" therefore <b>includes</b> the scheme, and the reverse. Shared-point mapping, extension pointers and tag functions are wired correctly. Test this on any project that maps scheme include/exclude as two indexed points. <span class="src">ADP/DA_CONTROL.InitDaScadaLink</span></div>
+
+<h2 id="sm-codes">Coded analogs</h2>
+<div class="tw"><table>
+<tr><th>Point</th><th>Values</th></tr>
+<tr><td>Circuit <code>FeederState</code></td><td>0 INITIALIZE, 1 UNARMED, 2 ARMED</td></tr>
+<tr><td>Circuit <code>FeederStep</code></td><td>0 IDLE, 1 UPDATE, 2 ANALYZE. Values 3 RECONFIGURE and 4 RTN_NORMAL exist in the type but are never set. Reconfiguration and RTN show on the scheme points and the feeder flags instead.</td></tr>
+<tr><td>Scheme <code>EventDuration</code></td><td>Seconds since the DA sequence started (timer elapsed time, up to 600 s)</td></tr>
+<tr><td>Circuit <code>LossOfSourceRestoreWindow</code></td><td>Seconds left to send <code>LossOfSourceRestoreCmd</code></td></tr>
+</table></div>
+
+<h2 id="sm-all">All points by device type</h2>
+<p>Generated from the device definitions: 548 points across 23 block types. Point names are the <code>SCADA_&lt;name&gt;_Index</code> entries without prefix and suffix. Dual switches repeat the switch set as <code>SW1_…</code> and <code>SW2_…</code>.</p>
+<details class="cat"><summary><b>Scheme (DA_CONTROL)</b> <span class="cnt">76 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>MiscoordinationDetectionEnabled</code></td><td>Status</td><td>Miscoordination Detection Enabled.</td></tr>
+<tr><td><code>OpenPhaseDetectionEnabled</code></td><td>Status</td><td>Open Phase Detection Enabled.</td></tr>
+<tr><td><code>OverloadDetectionEnabled</code></td><td>Status</td><td>Overload Detection Enabled.</td></tr>
+<tr><td><code>LoadShedEnabled</code></td><td>Status</td><td>Load Shed Enabled.</td></tr>
+<tr><td><code>LossOfSourceDetectionEnabled</code></td><td>Status</td><td>Loss Of Source Detection Enabled.</td></tr>
+<tr><td><code>AR_Enabled</code></td><td>Status</td><td>DAC (AR) enabled: enabled, active, licensed, no settings error.</td></tr>
+<tr><td><code>AllSchemeFeedersArmed</code></td><td>Status</td><td>All feeders in the armed state</td></tr>
+<tr><td><code>Loop</code></td><td>Status</td><td>Loop.</td></tr>
+<tr><td><code>EventDetected</code></td><td>Status</td><td>Event Detected.</td></tr>
+<tr><td><code>EventConfirmed</code></td><td>Status</td><td>Event Confirmed.</td></tr>
+<tr><td><code>OutageOngoing</code></td><td>Status</td><td>Outage Ongoing.</td></tr>
+<tr><td><code>PermanentFault</code></td><td>Status</td><td>Permanent Fault.</td></tr>
+<tr><td><code>OpenPhase</code></td><td>Status</td><td>Open Phase.</td></tr>
+<tr><td><code>Miscoordination</code></td><td>Status</td><td>Miscoordination.</td></tr>
+<tr><td><code>Overload</code></td><td>Status</td><td>Overload.</td></tr>
+<tr><td><code>OverloadWarning</code></td><td>Status</td><td>Overload Warning.</td></tr>
+<tr><td><code>LoadShed</code></td><td>Status</td><td>Load Shed.</td></tr>
+<tr><td><code>ShedWarning</code></td><td>Status</td><td>Shed Warning.</td></tr>
+<tr><td><code>RemoteEvent</code></td><td>Status</td><td>Remote Event.</td></tr>
+<tr><td><code>UpdateStep</code></td><td>Status</td><td>Update Step.</td></tr>
+<tr><td><code>AnalyzeStep</code></td><td>Status</td><td>Analyze Step.</td></tr>
+<tr><td><code>ReconfigureStep</code></td><td>Status</td><td>Reconfigure Step.</td></tr>
+<tr><td><code>ReturnDetected</code></td><td>Status</td><td>Return Detected.</td></tr>
+<tr><td><code>CapacityLimit</code></td><td>Status</td><td>Capacity Limit.</td></tr>
+<tr><td><code>UpdateStepTimeout</code></td><td>Status</td><td>Update Step Timeout.</td></tr>
+<tr><td><code>AnalyzeStepTimeout</code></td><td>Status</td><td>Analyze Step Timeout.</td></tr>
+<tr><td><code>ReconfigureStepTimeout</code></td><td>Status</td><td>Reconfigure Step Timeout.</td></tr>
+<tr><td><code>CommandFailure</code></td><td>Status</td><td>Command Failure.</td></tr>
+<tr><td><code>AbnormalFailure</code></td><td>Status</td><td>Sequence ended with AbnormalCondition.</td></tr>
+<tr><td><code>VoltageLimit</code></td><td>Status</td><td>Voltage Limit.</td></tr>
+<tr><td><code>Licensed</code></td><td>Status</td><td>Licensed.</td></tr>
+<tr><td><code>CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>IncorrectSG</code></td><td>Status</td><td>Active settings group does not match the group for the present source.</td></tr>
+<tr><td><code>VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>HeartbeatEnabled</code></td><td>Status</td><td>Indicator that DAC is expecting Heartbeat pulses</td></tr>
+<tr><td><code>HeartbeatTimeout</code></td><td>Status</td><td>Alarm that DAC is disabled due to SCADA heartbeat timeout</td></tr>
+<tr><td><code>PrimaryActive</code></td><td>Status</td><td>Primary Active.</td></tr>
+<tr><td><code>SecondaryActive</code></td><td>Status</td><td>Secondary Active.</td></tr>
+<tr><td><code>TertiaryActive</code></td><td>Status</td><td>Tertiary Active.</td></tr>
+<tr><td><code>QuaternaryActive</code></td><td>Status</td><td>Quaternary Active.</td></tr>
+<tr><td><code>PrimaryForcedActive</code></td><td>Status</td><td>Primary Forced Active.</td></tr>
+<tr><td><code>SecondaryForcedActive</code></td><td>Status</td><td>Secondary Forced Active.</td></tr>
+<tr><td><code>TertiaryForcedActive</code></td><td>Status</td><td>Tertiary Forced Active.</td></tr>
+<tr><td><code>QuaternaryForcedActive</code></td><td>Status</td><td>Quaternary Forced Active.</td></tr>
+<tr><td><code>RedundancyCommunicationFailure</code></td><td>Status</td><td>Link to the redundant DAC is down.</td></tr>
+<tr><td><code>EventDuration</code></td><td>Analog</td><td>Seconds since the DA sequence started.</td></tr>
+<tr><td><code>OverloadSeconds</code></td><td>Analog</td><td>Overload countdown (s).</td></tr>
+<tr><td><code>ShedSeconds</code></td><td>Analog</td><td>Seconds until a level-2 overload sheds load.</td></tr>
+<tr><td><code>AR_EnableCmd</code></td><td>Control</td><td>Enable the scheme (latched).</td></tr>
+<tr><td><code>AR_DisableCmd</code></td><td>Control</td><td>Disable the scheme (latched).</td></tr>
+<tr><td><code>ReturnNormalCmd</code></td><td>Control</td><td>Start return to normal for this feeder.</td></tr>
+<tr><td><code>ResetCmd</code></td><td>Control</td><td>System reset (ignored while DA is in progress).</td></tr>
+<tr><td><code>OutageResetCmd</code></td><td>Control</td><td>Reset outage tracking.</td></tr>
+<tr><td><code>SchemeExcludeCmd</code></td><td>Control</td><td>Disables the scheme and marks all scheme feeders excluded</td></tr>
+<tr><td><code>SchemeIncludeCmd</code></td><td>Control</td><td>Enables the scheme and marks all scheme feeders included</td></tr>
+<tr><td><code>EnableMiscoordinationCmd</code></td><td>Control</td><td>Enable Miscoordination Cmd.</td></tr>
+<tr><td><code>DisableMiscoordinationCmd</code></td><td>Control</td><td>Disable Miscoordination Cmd.</td></tr>
+<tr><td><code>EnableOpenPhaseCmd</code></td><td>Control</td><td>Enable Open Phase Cmd.</td></tr>
+<tr><td><code>DisableOpenPhaseCmd</code></td><td>Control</td><td>Disable Open Phase Cmd.</td></tr>
+<tr><td><code>EnableOverloadCmd</code></td><td>Control</td><td>Enable Overload Cmd.</td></tr>
+<tr><td><code>DisableOverloadCmd</code></td><td>Control</td><td>Disable Overload Cmd.</td></tr>
+<tr><td><code>EnableLoadShedCmd</code></td><td>Control</td><td>Enable Load Shed Cmd.</td></tr>
+<tr><td><code>DisableLoadShedCmd</code></td><td>Control</td><td>Disable Load Shed Cmd.</td></tr>
+<tr><td><code>EnableLossOfSourceCmd</code></td><td>Control</td><td>Enable Loss Of Source Cmd.</td></tr>
+<tr><td><code>DisableLossOfSourceCmd</code></td><td>Control</td><td>Disable Loss Of Source Cmd.</td></tr>
+<tr><td><code>HeartbeatEnableCmd</code></td><td>Control</td><td>Activates monitoring of Heartbeat Command</td></tr>
+<tr><td><code>HeartbeatDisableCmd</code></td><td>Control</td><td>Deactivates monitoring of Heartbeat Command</td></tr>
+<tr><td><code>HeartbeatCmd</code></td><td>Control</td><td>SCADA heartbeat. Each one restarts the timeout.</td></tr>
+<tr><td><code>ForcePrimaryActiveCmd</code></td><td>Control</td><td>Force Primary Active Cmd.</td></tr>
+<tr><td><code>UnforcePrimaryActiveCmd</code></td><td>Control</td><td>Unforce Primary Active Cmd.</td></tr>
+<tr><td><code>ForceSecondaryActiveCmd</code></td><td>Control</td><td>Force Secondary Active Cmd.</td></tr>
+<tr><td><code>UnforceSecondaryActiveCmd</code></td><td>Control</td><td>Unforce Secondary Active Cmd.</td></tr>
+<tr><td><code>ForceTertiaryActiveCmd</code></td><td>Control</td><td>Force Tertiary Active Cmd.</td></tr>
+<tr><td><code>UnforceTertiaryActiveCmd</code></td><td>Control</td><td>Unforce Tertiary Active Cmd.</td></tr>
+<tr><td><code>ForceQuaternaryActiveCmd</code></td><td>Control</td><td>Force Quaternary Active Cmd.</td></tr>
+<tr><td><code>UnforceQuaternaryActiveCmd</code></td><td>Control</td><td>Unforce Quaternary Active Cmd.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Circuit (DA_FDR)</b> <span class="cnt">56 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>FeederArmed</code></td><td>Status</td><td>Feeder is armed and ready to response to event</td></tr>
+<tr><td><code>FeederAbnormal</code></td><td>Status</td><td>An abnormal condition exists on equipment associated with feeder</td></tr>
+<tr><td><code>FeederReady</code></td><td>Status</td><td>Indication that the feeder is ready to operate. Combination of Armed and Abnormal Status.</td></tr>
+<tr><td><code>Excluded</code></td><td>Status</td><td>Feeder is disabled from operation by operator control</td></tr>
+<tr><td><code>AllowSelectLevel1</code></td><td>Status</td><td>Allow the DA system to select this feeder if voltage is above level 1 but below level 2.</td></tr>
+<tr><td><code>AllowRestoreLevel1</code></td><td>Status</td><td>Allow the DA system to restore load onto this feeder if voltage is above level 1 but below level 2.</td></tr>
+<tr><td><code>FeederLoop</code></td><td>Status</td><td>An loopl condition has been confirmed on feeder</td></tr>
+<tr><td><code>FeederEvent</code></td><td>Status</td><td>An event has been detected on feeder</td></tr>
+<tr><td><code>FeederFault</code></td><td>Status</td><td>A fault has been confirmed on feeder</td></tr>
+<tr><td><code>FeederOpenPhase</code></td><td>Status</td><td>An open phase condition has been confirmed on feeder</td></tr>
+<tr><td><code>FeederSourceEvent</code></td><td>Status</td><td>A fault has been confirmed on source side of the circuit</td></tr>
+<tr><td><code>LossOfSource</code></td><td>Status</td><td>Indication that a loss of source was confirmed on the circuit.</td></tr>
+<tr><td><code>FeederMiscoordination</code></td><td>Status</td><td>An miscoordination condition has been confirmed on feeder</td></tr>
+<tr><td><code>FeederOverload</code></td><td>Status</td><td>An overload condition has been confirmed on feeder</td></tr>
+<tr><td><code>OverloadWarning</code></td><td>Status</td><td>An overload condition has been detected on feeder</td></tr>
+<tr><td><code>ShedWarning</code></td><td>Status</td><td>System is timing toward a load shed action</td></tr>
+<tr><td><code>LoadShed</code></td><td>Status</td><td>Indication that a load shed was initiated on the circuit.</td></tr>
+<tr><td><code>FeederConfirmedEvent</code></td><td>Status</td><td>An event has been confirmed on feeder</td></tr>
+<tr><td><code>FeederReconfigured</code></td><td>Status</td><td>An event has caused the feeder to attemp to be reconfigured</td></tr>
+<tr><td><code>FeederIdle</code></td><td>Status</td><td>Feeder step is IDLE.</td></tr>
+<tr><td><code>FeederUpdate</code></td><td>Status</td><td>Feeder step is UPDATE.</td></tr>
+<tr><td><code>FeederAnalyze</code></td><td>Status</td><td>Feeder step is ANALYZE.</td></tr>
+<tr><td><code>ReconfigurationStarted</code></td><td>Status</td><td>An event on the feeder has resulted in starting a reconfiguration</td></tr>
+<tr><td><code>ReconfigurationComplete</code></td><td>Status</td><td>The reconfiguration actions have been completed - will reset automatically after 10 minutes</td></tr>
+<tr><td><code>FeederReturn</code></td><td>Status</td><td>Return to normal in progress on the feeder.</td></tr>
+<tr><td><code>CapacityLimit</code></td><td>Status</td><td>AR solution resulted in above temporary capacity limits, load not being restored, and/or load shed</td></tr>
+<tr><td><code>RestorationFail</code></td><td>Status</td><td>The reconfiguration was unsucessful in restoring all load - will reset automatically after 10 minutes</td></tr>
+<tr><td><code>FeederUpdateTimeout</code></td><td>Status</td><td>Feeder left UPDATE on timeout.</td></tr>
+<tr><td><code>FeederAnalyzeTimeout</code></td><td>Status</td><td>Feeder left ANALYZE on timeout.</td></tr>
+<tr><td><code>FeederCommandTimeout</code></td><td>Status</td><td>Alarm indication that a command has timed out</td></tr>
+<tr><td><code>CommandFailure</code></td><td>Status</td><td>AR solution was not executed to completion due to no response to a command</td></tr>
+<tr><td><code>AbnormalFailure</code></td><td>Status</td><td>Sequence ended with AbnormalCondition.</td></tr>
+<tr><td><code>VoltageLimit</code></td><td>Status</td><td>AR solution was not executed to completion due to voltage being less than the live threshold or phase incompatibilities</td></tr>
+<tr><td><code>ExcludedByUnderfrequency</code></td><td>Status</td><td>Feeder operation has been excluded due to a recent underfrequency event</td></tr>
+<tr><td><code>CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>IncorrectSG</code></td><td>Status</td><td>Active settings group does not match the group for the present source.</td></tr>
+<tr><td><code>VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>FeederState</code></td><td>Analog</td><td>0 INITIALIZE, 1 UNARMED, 2 ARMED.</td></tr>
+<tr><td><code>FeederStep</code></td><td>Analog</td><td>0 IDLE, 1 UPDATE, 2 ANALYZE (3 and 4 are defined but never used).</td></tr>
+<tr><td><code>ID</code></td><td>Analog</td><td>Unique equipment number for this source</td></tr>
+<tr><td><code>LossOfSourceRestoreWindow</code></td><td>Analog</td><td>Time remaining in seconds that a LossOfSourceRestore command will be accepted after a confirmed loss of source</td></tr>
+<tr><td><code>OverloadTime</code></td><td>Analog</td><td>Overload countdown time</td></tr>
+<tr><td><code>OverloadSeconds</code></td><td>Analog</td><td>Overload countdown (s).</td></tr>
+<tr><td><code>ShedSeconds</code></td><td>Analog</td><td>Seconds until a level-2 overload sheds load.</td></tr>
+<tr><td><code>ReturnNormalCmd</code></td><td>Control</td><td>Start return to normal for this feeder.</td></tr>
+<tr><td><code>FeederResetCmd</code></td><td>Control</td><td>Resets feeder indicators and indicators of all devices currently connected to the feeder source</td></tr>
+<tr><td><code>ExcludeCmd</code></td><td>Control</td><td>Turn off Automation for this circuit</td></tr>
+<tr><td><code>IncludeCmd</code></td><td>Control</td><td>Turn on automation for this circuit</td></tr>
+<tr><td><code>LossOfSourceRestoreCmd</code></td><td>Control</td><td>Accept restoration after a confirmed loss of source (inside the window).</td></tr>
+<tr><td><code>AllowSelectLevel1Cmd</code></td><td>Control</td><td>Allow the DA system to select this feeder if voltage is above level 1 but below level 2.</td></tr>
+<tr><td><code>DisallowSelectLevel1Cmd</code></td><td>Control</td><td>Allow the DA system to select this feeder if voltage is above level 1 but below level 2.</td></tr>
+<tr><td><code>AllowRestoreLevel1Cmd</code></td><td>Control</td><td>Allow the DA system to restore load onto this feeder if voltage is above level 1 but below level 2.</td></tr>
+<tr><td><code>DisallowRestoreLevel1Cmd</code></td><td>Control</td><td>Allow the DA system to restore load onto this feeder if voltage is above level 1 but below level 2.</td></tr>
+<tr><td><code>LossOfSourceRestore</code></td><td>Control</td><td>Accept restoration after a confirmed loss of source (inside the window).</td></tr>
+<tr><td><code>ReconfigurationTimeout</code></td><td>Control</td><td>Listed in the definition; see code before relying on it.</td></tr>
+<tr><td><code>RequestPermissive</code></td><td>Control</td><td>DAC is requesting the feeder permissive.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Recloser (DA_REC)</b> <span class="cnt">35 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>InhibitControl</code></td><td>Status</td><td>Controls to the device are inhibited (field or SCADA).</td></tr>
+<tr><td><code>Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>OpenPhaseIsolated</code></td><td>Status</td><td>Device opened upstream of an open phase.</td></tr>
+<tr><td><code>DacClose</code></td><td>Status</td><td>Close command issued by the DAC.</td></tr>
+<tr><td><code>DacOpen</code></td><td>Status</td><td>Open command issued by the DAC.</td></tr>
+<tr><td><code>LiveA1</code></td><td>Status</td><td>Side A three-phase live above Live1.</td></tr>
+<tr><td><code>LiveA2</code></td><td>Status</td><td>Side A three-phase live above Live2.</td></tr>
+<tr><td><code>LiveB1</code></td><td>Status</td><td>Side B three-phase live above Live1.</td></tr>
+<tr><td><code>LiveB2</code></td><td>Status</td><td>Side B three-phase live above Live2.</td></tr>
+<tr><td><code>DeadA</code></td><td>Status</td><td>Side A has one or more phases dead.</td></tr>
+<tr><td><code>DeadB</code></td><td>Status</td><td>Side B has one or more phases dead.</td></tr>
+<tr><td><code>NormalState</code></td><td>Status</td><td>Not implemented.</td></tr>
+<tr><td><code>AFS_CloseDisabled</code></td><td>Status</td><td>Alternate-feed-source close disabled.</td></tr>
+<tr><td><code>AFS_MarginAlarm</code></td><td>Status</td><td>Alternate-feed-source margin alarm.</td></tr>
+<tr><td><code>CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>IncorrectSG</code></td><td>Status</td><td>Active settings group does not match the group for the present source.</td></tr>
+<tr><td><code>BadFaultIndication</code></td><td>Status</td><td>Conflicting directional fault indications.</td></tr>
+<tr><td><code>StatusDiscrepancy</code></td><td>Status</td><td>Phases report open and closed at the same time.</td></tr>
+<tr><td><code>FeederNormalMarginA</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>FeederNormalMarginB</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>FeederTempMarginA</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>FeederTempMarginB</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>PID</code></td><td>Analog</td><td>Present device identifier written by the DAC.</td></tr>
+<tr><td><code>UPID</code></td><td>Analog</td><td>Upstream device identifier written by the DAC.</td></tr>
+<tr><td><code>EnableInhibitControlCmd</code></td><td>Control</td><td>Inhibit DAC controls to this device.</td></tr>
+<tr><td><code>DisableInhibitControlCmd</code></td><td>Control</td><td>Remove the control inhibit.</td></tr>
+<tr><td><code>EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Switch (DA_SW)</b> <span class="cnt">30 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>InhibitControl</code></td><td>Status</td><td>Controls to the device are inhibited (field or SCADA).</td></tr>
+<tr><td><code>Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>OpenPhaseIsolated</code></td><td>Status</td><td>Device opened upstream of an open phase.</td></tr>
+<tr><td><code>DacClose</code></td><td>Status</td><td>Close command issued by the DAC.</td></tr>
+<tr><td><code>DacOpen</code></td><td>Status</td><td>Open command issued by the DAC.</td></tr>
+<tr><td><code>LiveA1</code></td><td>Status</td><td>Side A three-phase live above Live1.</td></tr>
+<tr><td><code>LiveA2</code></td><td>Status</td><td>Side A three-phase live above Live2.</td></tr>
+<tr><td><code>LiveB1</code></td><td>Status</td><td>Side B three-phase live above Live1.</td></tr>
+<tr><td><code>LiveB2</code></td><td>Status</td><td>Side B three-phase live above Live2.</td></tr>
+<tr><td><code>DeadA</code></td><td>Status</td><td>Side A has one or more phases dead.</td></tr>
+<tr><td><code>DeadB</code></td><td>Status</td><td>Side B has one or more phases dead.</td></tr>
+<tr><td><code>NormalState</code></td><td>Status</td><td>Not implemented.</td></tr>
+<tr><td><code>CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>BadFaultIndication</code></td><td>Status</td><td>Conflicting directional fault indications.</td></tr>
+<tr><td><code>StatusDiscrepancy</code></td><td>Status</td><td>Phases report open and closed at the same time.</td></tr>
+<tr><td><code>FeederNormalMarginA</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>FeederNormalMarginB</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>FeederTempMarginA</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>FeederTempMarginB</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>EnableInhibitControlCmd</code></td><td>Control</td><td>Inhibit DAC controls to this device.</td></tr>
+<tr><td><code>DisableInhibitControlCmd</code></td><td>Control</td><td>Remove the control inhibit.</td></tr>
+<tr><td><code>EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Breaker (DA_BKR)</b> <span class="cnt">36 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>InhibitControl</code></td><td>Status</td><td>Controls to the device are inhibited (field or SCADA).</td></tr>
+<tr><td><code>Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>OpenPhaseIsolated</code></td><td>Status</td><td>Device opened upstream of an open phase.</td></tr>
+<tr><td><code>SpareInService</code></td><td>Status</td><td>Model is using the spare breaker instead of the primary.</td></tr>
+<tr><td><code>DacClose</code></td><td>Status</td><td>Close command issued by the DAC.</td></tr>
+<tr><td><code>DacOpen</code></td><td>Status</td><td>Open command issued by the DAC.</td></tr>
+<tr><td><code>LiveA1</code></td><td>Status</td><td>Side A three-phase live above Live1.</td></tr>
+<tr><td><code>LiveA2</code></td><td>Status</td><td>Side A three-phase live above Live2.</td></tr>
+<tr><td><code>LiveB1</code></td><td>Status</td><td>Side B three-phase live above Live1.</td></tr>
+<tr><td><code>LiveB2</code></td><td>Status</td><td>Side B three-phase live above Live2.</td></tr>
+<tr><td><code>DeadA</code></td><td>Status</td><td>Side A has one or more phases dead.</td></tr>
+<tr><td><code>DeadB</code></td><td>Status</td><td>Side B has one or more phases dead.</td></tr>
+<tr><td><code>NormalState</code></td><td>Status</td><td>Not implemented.</td></tr>
+<tr><td><code>CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>IncorrectSG</code></td><td>Status</td><td>Active settings group does not match the group for the present source.</td></tr>
+<tr><td><code>BadFaultIndication</code></td><td>Status</td><td>Conflicting directional fault indications.</td></tr>
+<tr><td><code>StatusDiscrepancy</code></td><td>Status</td><td>Phases report open and closed at the same time.</td></tr>
+<tr><td><code>FeederNormalMarginA</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>FeederNormalMarginB</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>FeederTempMarginA</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>FeederTempMarginB</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>PID</code></td><td>Analog</td><td>Present device identifier written by the DAC.</td></tr>
+<tr><td><code>UPID</code></td><td>Analog</td><td>Upstream device identifier written by the DAC.</td></tr>
+<tr><td><code>EnableInhibitControlCmd</code></td><td>Control</td><td>Inhibit DAC controls to this device.</td></tr>
+<tr><td><code>DisableInhibitControlCmd</code></td><td>Control</td><td>Remove the control inhibit.</td></tr>
+<tr><td><code>EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+<tr><td><code>TransferToSpareBkrCmd</code></td><td>Control</td><td>Model the spare breaker in service (topology reset).</td></tr>
+<tr><td><code>TransferFromSpareBkrCmd</code></td><td>Control</td><td>Return to the primary breaker (topology reset).</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Dual switch (DA_DUAL_SW)</b> <span class="cnt">58 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>SW1_Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>SW1_CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>SW1_CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>SW1_InhibitControl</code></td><td>Status</td><td>Controls to the device are inhibited (field or SCADA).</td></tr>
+<tr><td><code>SW1_Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>SW1_OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>SW1_VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>SW1_OpenPhaseIsolated</code></td><td>Status</td><td>Device opened upstream of an open phase.</td></tr>
+<tr><td><code>SW1_DacClose</code></td><td>Status</td><td>Close command issued by the DAC.</td></tr>
+<tr><td><code>SW1_DacOpen</code></td><td>Status</td><td>Open command issued by the DAC.</td></tr>
+<tr><td><code>SW1_LiveA1</code></td><td>Status</td><td>Side A three-phase live above Live1.</td></tr>
+<tr><td><code>SW1_LiveA2</code></td><td>Status</td><td>Side A three-phase live above Live2.</td></tr>
+<tr><td><code>SW1_LiveB1</code></td><td>Status</td><td>Side B three-phase live above Live1.</td></tr>
+<tr><td><code>SW1_LiveB2</code></td><td>Status</td><td>Side B three-phase live above Live2.</td></tr>
+<tr><td><code>SW1_DeadA</code></td><td>Status</td><td>Side A has one or more phases dead.</td></tr>
+<tr><td><code>SW1_DeadB</code></td><td>Status</td><td>Side B has one or more phases dead.</td></tr>
+<tr><td><code>SW1_NormalState</code></td><td>Status</td><td>Not implemented.</td></tr>
+<tr><td><code>SW1_CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>SW1_BadFaultIndication</code></td><td>Status</td><td>Conflicting directional fault indications.</td></tr>
+<tr><td><code>SW2_Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>SW2_CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>SW2_CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>SW2_InhibitControl</code></td><td>Status</td><td>Controls to the device are inhibited (field or SCADA).</td></tr>
+<tr><td><code>SW2_Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>SW2_OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>SW2_VoltageDiscrepancy</code></td><td>Status</td><td>Measured and inferred voltage disagree.</td></tr>
+<tr><td><code>SW2_OpenPhaseIsolated</code></td><td>Status</td><td>Device opened upstream of an open phase.</td></tr>
+<tr><td><code>SW2_DacClose</code></td><td>Status</td><td>Close command issued by the DAC.</td></tr>
+<tr><td><code>SW2_DacOpen</code></td><td>Status</td><td>Open command issued by the DAC.</td></tr>
+<tr><td><code>SW2_LiveA1</code></td><td>Status</td><td>Side A three-phase live above Live1.</td></tr>
+<tr><td><code>SW2_LiveA2</code></td><td>Status</td><td>Side A three-phase live above Live2.</td></tr>
+<tr><td><code>SW2_LiveB1</code></td><td>Status</td><td>Side B three-phase live above Live1.</td></tr>
+<tr><td><code>SW2_LiveB2</code></td><td>Status</td><td>Side B three-phase live above Live2.</td></tr>
+<tr><td><code>SW2_DeadA</code></td><td>Status</td><td>Side A has one or more phases dead.</td></tr>
+<tr><td><code>SW2_DeadB</code></td><td>Status</td><td>Side B has one or more phases dead.</td></tr>
+<tr><td><code>SW2_NormalState</code></td><td>Status</td><td>Not implemented.</td></tr>
+<tr><td><code>SW2_CloseOnFault</code></td><td>Status</td><td>DAC detected a close onto fault (latched).</td></tr>
+<tr><td><code>SW2_BadFaultIndication</code></td><td>Status</td><td>Conflicting directional fault indications.</td></tr>
+<tr><td><code>SW1_FeederNormalMarginA</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>SW1_FeederNormalMarginB</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>SW1_FeederTempMarginA</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>SW1_FeederTempMarginB</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>SW2_FeederNormalMarginA</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>SW2_FeederNormalMarginB</code></td><td>Analog</td><td>Margin below normal capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>SW2_FeederTempMarginA</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal A.</td></tr>
+<tr><td><code>SW2_FeederTempMarginB</code></td><td>Analog</td><td>Margin below temporary capacity of the feeder on terminal B.</td></tr>
+<tr><td><code>SW1_EnableInhibitControlCmd</code></td><td>Control</td><td>Inhibit DAC controls to this device.</td></tr>
+<tr><td><code>SW1_DisableInhibitControlCmd</code></td><td>Control</td><td>Remove the control inhibit.</td></tr>
+<tr><td><code>SW1_EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>SW1_DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>SW1_EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>SW1_DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+<tr><td><code>SW2_EnableInhibitControlCmd</code></td><td>Control</td><td>Inhibit DAC controls to this device.</td></tr>
+<tr><td><code>SW2_DisableInhibitControlCmd</code></td><td>Control</td><td>Remove the control inhibit.</td></tr>
+<tr><td><code>SW2_EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>SW2_DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>SW2_EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>SW2_DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation main (DA_SUB_MAIN)</b> <span class="cnt">8 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>EnableOutofServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>DisableOutofServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation tie (DA_SUB_TIE)</b> <span class="cnt">8 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>Bypass</code></td><td>Status</td><td>Device is bypassed in the model.</td></tr>
+<tr><td><code>OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>EnableBypassCmd</code></td><td>Control</td><td>Set bypass.</td></tr>
+<tr><td><code>DisableBypassCmd</code></td><td>Control</td><td>Clear bypass.</td></tr>
+<tr><td><code>EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation bus (DA_SUB_BUS)</b> <span class="cnt">1 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>TopologyID</code></td><td>Analog</td><td>Designation inherited from the connected transformer.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Substation transformer (DA_SUB_TRANSFORMER)</b> <span class="cnt">5 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>Overload</code></td><td>Status</td><td>Overload.</td></tr>
+<tr><td><code>NormalMargin</code></td><td>Analog</td><td>Current margin below normal capacity for the Transformer</td></tr>
+<tr><td><code>TempMargin</code></td><td>Analog</td><td>Current margin below temporary capacity for the Transformer</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Distributed generation (DA_DG)</b> <span class="cnt">10 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>CmdTimeout</code></td><td>Status</td><td>A DAC command to the device got no feedback within CMD_TIMEOUT.</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>Islanded</code></td><td>Status</td><td>DG is not connected to a source</td></tr>
+<tr><td><code>DisallowedCircuit</code></td><td>Status</td><td>DG is on circuit it is not allowed be on</td></tr>
+<tr><td><code>OutOfService</code></td><td>Status</td><td>Device is out of service in the model.</td></tr>
+<tr><td><code>EnableOutOfServiceCmd</code></td><td>Control</td><td>Set out of service.</td></tr>
+<tr><td><code>DisableOutOfServiceCmd</code></td><td>Control</td><td>Clear out of service.</td></tr>
+<tr><td><code>RideThroughMode</code></td><td>Status</td><td>DG will ride through a temporary interruption.</td></tr>
+<tr><td><code>RideThroughModeCmd</code></td><td>Control</td><td>Control ridethough modes</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Connector (DA_DAC_INTERCONNECT)</b> <span class="cnt">5 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+<tr><td><code>CommAlarm</code></td><td>Status</td><td>Communication failure to the device.</td></tr>
+<tr><td><code>ControlSequenceFailure</code></td><td>Status</td><td>Control Sequence Failure.</td></tr>
+<tr><td><code>LocalAbnormal</code></td><td>Status</td><td>Local Abnormal.</td></tr>
+<tr><td><code>RemoteAbnormal</code></td><td>Status</td><td>Remote Abnormal.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Connector manager</b> <span class="cnt">2 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>RemoteDacCommFail</code></td><td>Status</td><td>Remote DAC communications are down</td></tr>
+<tr><td><code>RemoteDacEnabled</code></td><td>Status</td><td>Remote DAC is Enabled</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Feeder group (DA_FeederGroupControl)</b> <span class="cnt">5 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>AllGroupExcluded</code></td><td>Status</td><td>Feeder Group Excluded</td></tr>
+<tr><td><code>AllGroupIncluded</code></td><td>Status</td><td>Feeder Group Included</td></tr>
+<tr><td><code>GroupExcluded</code></td><td>Status</td><td>Feeder Group Excluded. eFeederGroup_SetOverrideFeeders mode only</td></tr>
+<tr><td><code>GroupExcludeCmd</code></td><td>Control</td><td>Turn off Automation for this feeder group</td></tr>
+<tr><td><code>GroupIncludeCmd</code></td><td>Control</td><td>Turn on Automation for this feeder group</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Priority load (DA_PRIORITY_LOAD)</b> <span class="cnt">6 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Fault</code></td><td>Status</td><td>A temporary or perminant fault has been confirmed on the load</td></tr>
+<tr><td><code>Overload</code></td><td>Status</td><td>An overload condition has been confirmed on the load</td></tr>
+<tr><td><code>OverloadWarning</code></td><td>Status</td><td>An overload condition has been detected on the load</td></tr>
+<tr><td><code>Stranded</code></td><td>Status</td><td>Load is disconnected from all circuits</td></tr>
+<tr><td><code>Priority</code></td><td>Analog</td><td>Priority for the load - smaller numbers mean more important</td></tr>
+<tr><td><code>PriorityCmd</code></td><td>Control</td><td>Priority Cmd.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Pseudo breaker (DA_PSEUDO_BKR)</b> <span class="cnt">4 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>Status</code></td><td>Status</td><td>Status.</td></tr>
+<tr><td><code>FaultLatch</code></td><td>Status</td><td>Fault Latch.</td></tr>
+<tr><td><code>Lockout</code></td><td>Status</td><td>Lockout.</td></tr>
+<tr><td><code>Abnormal</code></td><td>Status</td><td>Device is abnormal (any abnormal cause; see <a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>Manual switch (DA_ManSw)</b> <span class="cnt">9 points</span></summary><div class="tw"><table><tr><th>Point (<code>SCADA_…_Index</code>)</th><th>Type</th><th>Meaning</th></tr>
+<tr><td><code>SetClosedCmd</code></td><td>Control</td><td>Set Closed Cmd.</td></tr>
+<tr><td><code>SetOpenCmd</code></td><td>Control</td><td>Set Open Cmd.</td></tr>
+<tr><td><code>Status</code></td><td>Control</td><td>Status.</td></tr>
+<tr><td><code>LiveA1</code></td><td>Control</td><td>Side A three-phase live above Live1.</td></tr>
+<tr><td><code>LiveA2</code></td><td>Control</td><td>Side A three-phase live above Live2.</td></tr>
+<tr><td><code>LiveB1</code></td><td>Control</td><td>Side B three-phase live above Live1.</td></tr>
+<tr><td><code>LiveB2</code></td><td>Control</td><td>Side B three-phase live above Live2.</td></tr>
+<tr><td><code>DeadA</code></td><td>Control</td><td>Side A has one or more phases dead.</td></tr>
+<tr><td><code>DeadB</code></td><td>Control</td><td>Side B has one or more phases dead.</td></tr>
+</table></div></details>
+<details class="cat"><summary><b>DFO / VVO blocks</b> <span class="cnt">names only</span></summary><div class="tw"><table><tr><th>Block</th><th>Points</th></tr>
+<tr><td>DFO scheme</td><td><code>DFO_Enabled</code>, <code>MinCapOnTime</code>, <code>MinCapOffTime</code>, <code>SettleTime</code>, <code>EvaluationInterval</code>, <code>MaxRegOps</code>, <code>MaxCapOps</code>, <code>ControlQualificationTime</code>, <code>CriticalQualificationTime</code>, <code>DFO_EnableCmd</code>, <code>DFO_DisableCmd</code>, <code>MinCapOnTimeCmd</code>, <code>MinCapOffTimeCmd</code>, <code>SettleTimeCmd</code>, <code>EvaluationIntervalCmd</code>, <code>MaxRegOpsCmd</code>, <code>MaxCapOpsCmd</code>, <code>ControlQualificationTimeCmd</code>, <code>CriticalQualificationTimeCmd</code></td></tr>
+<tr><td>DFO circuit</td><td><code>V_LoAlarm</code>, <code>V_BandAlarm</code>, <code>V_HiAlarm</code>, <code>PF_Alarm</code>, <code>VQ_Enabled</code>, <code>VarControlOverridden</code>, <code>UnableToCorrect</code>, <code>F_Error</code>, <code>PF</code>, <code>PF_Limit1</code>, <code>PF_Limit2</code>, <code>Q_AverageProjected</code>, <code>Q_Average</code>, <code>Q_Band</code>, <code>Q_Error</code>, <code>Q_MaximumProjected</code>, <code>Q_Maximum</code>, <code>V_AverageProjected</code>, <code>V_Average</code>, <code>V_Band</code>, <code>V_Error</code>, <code>V_HiLimit</code>, <code>V_LoLimit</code>, <code>V_MaximumProjected</code>, <code>V_Maximum</code>, <code>V_MinimumProjected</code>, <code>V_Minimum</code>, <code>V_Setpoint</code>, <code>VQ_Factor</code>, <code>VQ_EnableCmd</code>, <code>VQ_DisableCmd</code>, <code>V_SetpointCmd</code>, <code>V_BandCmd</code>, <code>Q_BandCmd</code>, <code>V_HiLimitCmd</code>, <code>V_LoLimitCmd</code>, <code>PF_Limit1Cmd</code>, <code>PF_Limit2Cmd</code>, <code>VQ_FactorCmd</code></td></tr>
+<tr><td>DFO bus</td><td><code>PF_Enabled</code>, <code>Q_BandAlarm</code>, <code>V_HiAlarm</code>, <code>V_LoAlarm</code>, <code>UnableToCorrect</code>, <code>V_Minimum</code>, <code>V_Average</code>, <code>V_Maximum</code>, <code>V_LoLimit</code>, <code>V_HiLimit</code>, <code>Q_Band</code>, <code>PF_Setpoint</code>, <code>PF_Limit1</code>, <code>PF_Limit2</code>, <code>Q_BandLimit1</code>, <code>Q_BandLimit2</code>, <code>P</code>, <code>Q</code>, <code>PF</code>, <code>PF_EnableCmd</code>, <code>PF_DisableCmd</code>, <code>V_LoLimitCmd</code>, <code>V_HiLimitCmd</code>, <code>Q_BandCmd</code>, <code>PF_SetpointCmd</code>, <code>PF_Limit1Cmd</code>, <code>PF_Limit2Cmd</code></td></tr>
+<tr><td>DFO transformer</td><td><code>Q_Enabled</code>, <code>PF_Enabled</code>, <code>Q_BandAlarm</code>, <code>UnableToCorrect</code>, <code>Q_Setpoint</code>, <code>Q_Band</code>, <code>PF_Setpoint</code>, <code>Q_BandLimit1</code>, <code>Q_BandLimit2</code>, <code>P_PrimaryEstimate</code>, <code>Q_PrimaryEstimate</code>, <code>PF</code>, <code>Q_EnableCmd</code>, <code>Q_DisableCmd</code>, <code>PF_EnableCmd</code>, <code>PF_DisableCmd</code>, <code>Q_SetpointCmd</code>, <code>Q_BandCmd</code>, <code>PF_SetpointCmd</code></td></tr>
+<tr><td>Capacitor</td><td><code>InhibitControl</code>, <code>DFO_Enabled</code>, <code>DFO_Active</code>, <code>Available</code>, <code>Status</code>, <code>DeadA</code>, <code>LiveA1</code>, <code>LiveA2</code>, <code>Warning</code>, <code>Failure</code>, <code>FeedbackTrouble</code>, <code>SwitchingIssue</code>, <code>Calibrate</code>, <code>CalibrationDone</code>, <code>CalibrationFailed</code>, <code>OperationLimit</code>, <code>Rated_Q</code>, <code>Rated_V</code>, <code>OperationsToday</code>, <code>OperationCount</code>, <code>OnTime</code>, <code>OpenCmd</code>, <code>CloseCmd</code>, <code>EnableInhibitControlCmd</code>, <code>DisableInhibitControlCmd</code>, <code>CalibrateCmd</code>, <code>ResetCmd</code>, <code>SetStatusOpenCmd</code>, <code>SetStatusCloseCmd</code></td></tr>
+<tr><td>Regulator</td><td><code>Available</code>, <code>Bypass</code>, <code>InhibitControl</code>, <code>DeadA</code>, <code>LiveA1</code>, <code>LiveA2</code>, <code>DeadB</code>, <code>LiveB1</code>, <code>LiveB2</code>, <code>DFO_Active_All</code>, <code>DFO_Active_A</code>, <code>DFO_Active_B</code>, <code>DFO_Active_C</code>, <code>DFO_Enabled_All</code>, <code>DFO_Enabled_A</code>, <code>DFO_Enabled_B</code>, <code>DFO_Enabled_C</code>, <code>Failure_Any</code>, <code>Failure_A</code>, <code>Failure_B</code>, <code>Failure_C</code>, <code>FeedbackTrouble_Any</code>, <code>FeedbackTrouble_A</code>, <code>FeedbackTrouble_B</code>, <code>FeedbackTrouble_C</code>, <code>OperationLimit_Any</code>, <code>OperationLimit_A</code>, <code>OperationLimit_B</code>, <code>OperationLimit_C</code>, <code>Warning_Any</code>, <code>Warning_A</code>, <code>Warning_B</code>, <code>Warning_C</code>, <code>CBand</code>, <code>MaxTap</code>, <code>MinTap</code>, <code>MinTimeBtwTaps</code>, <code>FeederNormalMarginA</code>, <code>FeederTempMarginA</code>, <code>FeederNormalMarginB</code>, <code>FeederTempMarginB</code>, <code>RaiseOperations</code>, <code>LowerOperations</code>, <code>OperationsToday</code>, <code>RaiseOperations_A</code>, <code>LowerOperations_A</code>, <code>OperationsToday_A</code>, <code>RaiseOperations_B</code>, <code>LowerOperations_B</code>, <code>OperationsToday_B</code>, <code>RaiseOperations_C</code>, <code>LowerOperations_C</code>, <code>OperationsToday_C</code>, <code>EnableInhibitControlCmd</code>, <code>DisableInhibitControlCmd</code>, <code>EnableBypassCmd</code>, <code>DisableBypassCmd</code>, <code>ResetCmd</code>, <code>MinTimeBtwTapsCmd</code>, <code>MaxTapCmd</code>, <code>MinTapCmd</code></td></tr>
+</table></div></details>
+</body>
+</html>

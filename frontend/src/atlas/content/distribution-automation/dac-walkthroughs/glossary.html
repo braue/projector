@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glossary</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Glossary</h1>
+<p>Terms as the libraries use them, with links to where each is explained in full.</p>
+<div class="chips"><span>§30</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="tw"><table class="gl">
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Abnormal (device)</td><td>A device the DAC won't trust or operate: comm failure, remote off, hot-line tag, reclose blocked, close-on-fault, discrepancy and so on. <a href="atlas:distribution-automation/dac-foundations/topology.html#abn-device">§06</a></td></tr>
+<tr><td>Abnormal (feeder)</td><td>Any equipment in the feeder's actual topology is abnormal, or the feeder is in a confirmed loop. <a href="atlas:distribution-automation/dac-foundations/enable.html#arming">§02</a></td></tr>
+<tr><td>AbnormalCondition</td><td>Completion flag: the sequence ended because of an abnormal device, a missing source, a close onto fault or a non-responding device. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-completion">§03</a></td></tr>
+<tr><td>Abnormal restoration mode</td><td>Per-feeder setting (None / Isolate / RestoreUpstream / RestoreAround) that lets an abnormal feeder still isolate or restore. <a href="atlas:distribution-automation/dac-foundations/topology.html#abn-modes">§06</a></td></tr>
+<tr><td>Actual topology</td><td>The network as it is now, built from present switch states and filtered continuity. Frozen while an event is worked. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-feeder">§03</a></td></tr>
+<tr><td>Adapter</td><td>The DA Adapter library: device blocks that turn relay points into DAC inputs and handle SCADA, logging, email and redundancy. <a href="atlas:distribution-automation/dac-foundations/architecture.html">§01</a></td></tr>
+<tr><td>Alternate (source / feeder)</td><td>A feeder that can pick up restored load. Must be armed and <i>available</i>. <a href="atlas:distribution-automation/dac-foundations/enable.html#arming">§02</a></td></tr>
+<tr><td>ANALYZE</td><td>Feeder step where the event is confirmed and located. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-feeder">§03</a></td></tr>
+<tr><td>AR</td><td>Automatic Reconfiguration: fault isolation and service restoration, as opposed to DFO. <a href="atlas:distribution-automation/dac-foundations/architecture.html">§01</a></td></tr>
+<tr><td>AR_Enabled</td><td>Enable AND active DAC AND licensed AND no settings error. <a href="atlas:distribution-automation/dac-foundations/enable.html#enable-chain">§02</a></td></tr>
+<tr><td>Armed</td><td>Feeder state in which it detects events: AR enabled and the feeder not excluded. <a href="atlas:distribution-automation/dac-foundations/enable.html#arming">§02</a></td></tr>
+<tr><td>Available</td><td>Armed and (not abnormal, or an abnormal restoration mode is set). Only available feeders can be alternates. <a href="atlas:distribution-automation/dac-foundations/enable.html#arming">§02</a></td></tr>
+<tr><td>BestSolution</td><td>The plan the solver chose, which execution works through. <a href="atlas:distribution-automation/dac-restoration/solver.html">§13</a></td></tr>
+<tr><td>Block close</td><td>Optional commands that block or enable a device's own close while the DAC works. <a href="atlas:distribution-automation/dac-features/other.html">§18</a></td></tr>
+<tr><td>CapacityLimit</td><td>Completion flag: the plan sheds load, leaves an overload, or couldn't restore everything for capacity reasons. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-completion">§03</a></td></tr>
+<tr><td>Close onto fault</td><td>A DAC close followed within 10 s by a fault or trip. Latched; blocks further closes on that device. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Closed transition</td><td>Make-before-break transfer between sources of the same source group. Always on in this version. <a href="atlas:distribution-automation/dac-restoration/execution.html">§14</a></td></tr>
+<tr><td>Collaboration</td><td>The joint update/solve/execute handshake between two DACs across a connector. <a href="atlas:distribution-automation/dac-features/connector.html">§17</a></td></tr>
+<tr><td>Confirmed (event)</td><td>The event passed its confirmation test in ANALYZE, for example a fault with lockout. Starts reconfiguration. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-detect">§03</a></td></tr>
+<tr><td>Connector (DA_CONNECTOR / DA_DAC_INTERCONNECT)</td><td>Link to another DAC at a boundary switch. Models the far side as a source with an offered margin. <a href="atlas:distribution-automation/dac-features/connector.html">§17</a></td></tr>
+<tr><td>Continuity</td><td>Whether current can pass through a piece of equipment in the model (closed, not out of service). <a href="atlas:distribution-automation/dac-foundations/topology.html#continuity">§06</a></td></tr>
+<tr><td>DA_InProgress</td><td>Event or RTN detected or confirmed, analysing, reconfiguring, or collaborating for 2 s or more. Many behaviours key off it. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-manager">§03</a></td></tr>
+<tr><td>Dead / Indeterminate / Live1 / Live2</td><td>Voltage levels: below 20 %, between, above 90 %, above 95 % of nominal (defaults). <a href="atlas:distribution-automation/dac-foundations/voltage.html#v-levels">§05</a></td></tr>
+<tr><td>Device definition</td><td>Shared point map and behaviour settings for a type of device (indexes, normal states, scaling). <a href="atlas:distribution-automation/dac-reference/adapter.html">§21</a>, <a href="atlas:distribution-automation/dac-walkthroughs/scadamap.html#sm-link">§29</a></td></tr>
+<tr><td>DFO / VVO</td><td>Dynamic Feeder Optimisation: volt/var control with capacitors and regulators. Separately licensed. <a href="atlas:distribution-automation/dac-features/other.html">§18</a></td></tr>
+<tr><td>Event report</td><td>File written by the Lib after each sequence: candidates, rejections, operations. <a href="atlas:distribution-automation/dac-features/other.html">§18</a></td></tr>
+<tr><td>Excluded</td><td>Feeder taken out of automation by an operator or logic. Unarmed. <a href="atlas:distribution-automation/dac-foundations/enable.html#arming">§02</a></td></tr>
+<tr><td>Extended isolation</td><td>Isolation that grows past a non-controllable device, or into an adjacent bus or line zone. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Feeder (in the model)</td><td>Everything reachable from one source, one per DA_CIRCUIT, plus one per connector. Counts toward the license. <a href="atlas:distribution-automation/dac-foundations/enable.html#licensing">§02</a></td></tr>
+<tr><td>Head / Tail</td><td>Which DAC sources the boundary at a connector: Head = local, Tail = remote. <a href="atlas:distribution-automation/dac-features/connector.html">§17</a></td></tr>
+<tr><td>Heartbeat (SCADA)</td><td>Periodic SCADA control. If it stops for <code>HeartbeatTimeoutTime</code>, the DAC disables itself. <a href="atlas:distribution-automation/dac-foundations/comms.html">§04</a></td></tr>
+<tr><td>Immediate isolation</td><td>Opening the switches that bound a confirmed fault, done at confirmation before the solve. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Integrity poll</td><td>Background poll of every device every <code>IntegrityPeriod</code> (300 s), and after enable or a finished sequence. <a href="atlas:distribution-automation/dac-foundations/comms.html#polling">§04</a></td></tr>
+<tr><td>Isolation point</td><td>A controllable switch at the edge of a fault zone. Flagged <code>SW.Isolation</code>. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Lockout</td><td>Reclosing finished with the device open. Required to confirm a permanent fault. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Loss of source (LOS)</td><td>Open phase whose dead section starts at the source, above the first switch. <a href="atlas:distribution-automation/dac-events/openphase.html">§08</a></td></tr>
+<tr><td>Manager</td><td><code>DA_MANAGER_AR</code>: the scheme-level block that runs the solve and execution. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-manager">§03</a></td></tr>
+<tr><td>MapOutputs</td><td>Goes TRUE 5 s after a reset. No outputs are written before then. <a href="atlas:distribution-automation/dac-foundations/enable.html#startup">§02</a></td></tr>
+<tr><td>Margin</td><td>Spare capacity: rating × multiplier minus present or projected load, in amps. <a href="atlas:distribution-automation/dac-restoration/solver.html">§13</a></td></tr>
+<tr><td>Miscoordination</td><td>An upstream device locked out although a downstream device also saw the fault. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>MOT</td><td>The RTAC's part number string, read for licensing. <a href="atlas:distribution-automation/dac-foundations/enable.html#licensing">§02</a></td></tr>
+<tr><td>Node</td><td>A connection point between equipment terminals in the model. <a href="atlas:distribution-automation/dac-foundations/architecture.html#arch-model">§01</a></td></tr>
+<tr><td>Normal topology</td><td>The network with every device in its normal state. Used for RTN. <a href="atlas:distribution-automation/dac-events/rtn.html">§12</a></td></tr>
+<tr><td>Open phase</td><td>A dead section directly below a live device, with no fault. <a href="atlas:distribution-automation/dac-events/openphase.html">§08</a></td></tr>
+<tr><td>Permissive</td><td>Per-feeder input that must be TRUE before the DAC puts load on it. If it's FALSE, the DAC sends <code>RequestPermissive</code> and waits. <a href="atlas:distribution-automation/dac-restoration/execution.html">§14</a></td></tr>
+<tr><td>Pseudo breaker</td><td>A source breaker modelled without full measurements. <a href="atlas:distribution-automation/dac-features/other.html">§18</a></td></tr>
+<tr><td>Reconfiguration Started / Complete</td><td>Feeder flags for a sequence that began / finished successfully. Complete self-clears after 600 s. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-completion">§03</a></td></tr>
+<tr><td>Remote event</td><td>An event on a feeder shared with another DAC, reported through a connector. <a href="atlas:distribution-automation/dac-events/remote.html">§11</a></td></tr>
+<tr><td>RestorationFail</td><td>Completion flag: the sequence aborted, timed out or couldn't restore. Self-clears after 600 s. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-completion">§03</a></td></tr>
+<tr><td>ReturnClose</td><td>A locked-out device the plan recloses, for example after a miscoordination correction. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Root</td><td>A de-energised area beyond an isolation point that the solver tries to restore. <a href="atlas:distribution-automation/dac-restoration/solver.html">§13</a></td></tr>
+<tr><td>RTN</td><td>Return to normal: putting the network back to its normal topology after repair. <a href="atlas:distribution-automation/dac-events/rtn.html">§12</a></td></tr>
+<tr><td>Scan</td><td>One execution of the RTAC task. Almost everything is re-evaluated every scan. <a href="atlas:distribution-automation/dac-foundations/read-me.html">§00</a></td></tr>
+<tr><td>Scheme</td><td>One automation domain: a <code>DA_SCHEME</code> with its feeders. Up to 2 per RTAC. <a href="atlas:distribution-automation/dac-foundations/architecture.html">§01</a></td></tr>
+<tr><td>Settings error</td><td>A blocking configuration problem that disables AR. <a href="atlas:distribution-automation/dac-walkthroughs/alarms.html#al-settings">§28</a></td></tr>
+<tr><td>Settings group (SG)</td><td>Relay protection group. The DAC sets the group for the source that will feed the device before closing. <a href="atlas:distribution-automation/dac-restoration/sg.html">§15</a></td></tr>
+<tr><td>Source event</td><td>An event at or behind the feeder source (bus, transformer, breaker failure), raised by logic or voltage. <a href="atlas:distribution-automation/dac-events/source.html">§09</a></td></tr>
+<tr><td>Source group</td><td>Sources that may be paralleled. Closed transition is only allowed within a group. <a href="atlas:distribution-automation/dac-restoration/execution.html">§14</a></td></tr>
+<tr><td>TransferDepth</td><td>How many ties away an alternate source may be. 0 blocks crossing any tie (caveat). <a href="atlas:distribution-automation/dac-restoration/solver.html">§13</a></td></tr>
+<tr><td>TripNew</td><td>The moment a latched fault coincides with an open or locked-out device. The fault event trigger. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Unresolved fault</td><td>A located fault with no upstream lockout yet. Keeps the feeder in ANALYZE. <a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>UPDATE</td><td>Feeder step that collects fresh data from every relevant device. <a href="atlas:distribution-automation/dac-foundations/sequence.html#seq-feeder">§03</a></td></tr>
+<tr><td>Voltage discrepancy</td><td>Measured voltage disagrees with what the model infers. <a href="atlas:distribution-automation/dac-foundations/voltage.html#v-discrepancy">§05</a></td></tr>
+<tr><td>WatchdogCount</td><td>Counter point from each relay. It must change for a poll response to count as fresh. <a href="atlas:distribution-automation/dac-foundations/comms.html">§04</a></td></tr>
+<tr><td>WDOG</td><td>The DAC's periodic 5 s pulse to each device (90 s period). <a href="atlas:distribution-automation/dac-foundations/comms.html">§04</a></td></tr>
+</table></div>
+</body>
+</html>

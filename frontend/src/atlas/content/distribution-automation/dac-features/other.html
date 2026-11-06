@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Other Features &amp; Device Types</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC,Block close,Underfrequency load shed support,Non-load-break switches,Pseudo breakers,Spare breaker,Single-phase operate devices,Automatic transfer switch,Backup groups,DFO / VVO (optional),Reports and logs">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Other features and device types</h1>
+<p></p>
+<div class="chips"><span>§18</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<h2 id="blockclose">Block close</h2>
+<p>For devices with a <code>CloseBlocked</code> feedback, the DAC pulses <code>BlockClose</code> (1 s pulses, 10 s period) until the IED confirms the block, and <code>EnableClose</code> to remove it. <code>BlockCloseMode</code>: <code>BlockCloseDisabled</code> (Adapter default); <code>AllClosedTransition</code> (Lib default) blocks closing of an open device with sources on both sides; <code>DifferentSourceGroup</code> blocks only when the two sides have different source groups. A device the DAC has selected to close is unblocked. Only active while the device is online and healthy. <span class="src">Equipment/BlockCloseLogic/fb_BlockClose</span></p>
+<div class="callout interp"><b>Interpretation</b> Block close protects against someone (or a local auto-close scheme) paralleling two live sources at a tie the DAC did not intend to close.</div>
+
+<h2 id="uf">Underfrequency load shed support</h2>
+<p>A device's <code>UnderFrequencyDetected</code> (Adapter: <code>FrequencyLockout</code> point) is held for <code>AnalyzeTimeLimit</code>. It latches if the device opened within 10 s or the voltage downstream went dead for <code>EventDetectTime</code>. While latched, plus MAX(<code>OpenPhaseConfirmTime</code>, <code>FaultHoldTime</code>), the feeder is <code>ExcludedByUnderFrequency</code> (unarmed), so the DAC does not try to restore load that UFLS deliberately dropped. Scheme or feeder reset clears it. Pseudo breakers have no UF input. <span class="src">Feeder/UnderFrequenceTrip/fb_UF_Check</span> <span class="src">Feeder/FEEDER</span></p>
+
+<h2 id="nlb">Non-load-break switches</h2>
+<ul>
+<li>A closed (or phase-discrepant) switch with <code>LoadBreak</code> FALSE that is connected to any source is automatically <b>InhibitControl</b>: it cannot be operated while energised. <span class="src">Equipment/EQUIPMENT</span></li>
+<li>It is opened only when disconnected from every source; plans that would open it energised are rejected (<code>BadLoadBreak</code>).</li>
+<li>Upstream of an open phase it is handled with TripReclose of a load-break device further upstream (<a href="atlas:distribution-automation/dac-events/openphase.html#op-isolate">§08</a>).</li>
+</ul>
+
+<h2 id="nfi">Devices without fault detection or protection</h2>
+<p><code>DA_SWITCH_AV_BV</code> has optional fault detection and no protection. A fault seen by such a switch is located normally; when an upstream protective device locks out, it is reclosed after the switch isolates, regardless of the miscoordination setting (<a href="atlas:distribution-automation/dac-events/fault.html#miscoord">§07</a>). A switch with no fault detection is transparent to fault location: the fault zone extends past it.</p>
+
+<h2 id="pseudo">Pseudo breakers</h2>
+<p><code>DA_PS_BREAKER_AV_BV</code> (Adapter <code>DA_PSEUDO_BKR</code>, <code>DA_FDR_PSEUDO_BKR</code>) represents a breaker whose data the DAC does not have directly: protection, fault, reclose and settings groups exist, but no current measurement and no UF detection. A locked-out, inhibited pseudo breaker at the first level with no current or voltage measurement causes the breaker zone to be isolated.</p>
+
+<h2 id="spare">Spare breaker</h2>
+<p><code>DA_BREAKER_AV_BV.pSpareBreaker</code> + <code>SpareInService</code>: when the spare is in service the breaker's B-side connection is swapped to the spare's, both devices are cross-referenced (<code>ActiveSwappedDevice</code>), and a topology reset rebuilds the model. Not processed while DA is in progress.</p>
+
+<h2 id="singlephase">Single-phase operate devices</h2>
+<p>In the Adapter, per-phase status and lockout points feed a single DAC status: in three-phase (gang) mode any phase not confirmed open is treated as closed, and lockout needs all phases; in single-phase lockout mode the device is "prefer open" (any phase lockout counts) except during RTN of a normally-open device. Mixed phases set <code>PhaseDiscrepancy</code>, which the engine handles specially in voltage inference, RTN and execution. <span class="src">ADP/DA_REC.prv_StatusInputs</span></p>
+
+<h2 id="ats">Automatic transfer switch</h2>
+<p><code>DA_TRANSFER_SWITCH_AV</code> has two ways (A/B) with their own normal and actual status, Automatic mode, and AUTO/MAN commands. No fault or current detection; load-break.</p>
+
+<h2 id="backup">Backup groups</h2>
+<p><code>DA_MANAGER_BACKUP.Enable</code> sets <code>g_BackupEnabled</code>, which allows <code>EN_BACKUP</code>/<code>DIS_BACKUP</code> commands to devices carrying a <code>BackupGroup</code>.</p>
+
+<h2 id="dfo">DFO / VVO (optional)</h2>
+<p><code>DA_MANAGER_OP</code>, <code>DA_CAPACITOR_OP</code>, <code>DA_REGULATOR_OP</code> and the <code>PermitOp</code>/<code>VQ_Enable</code> pins on circuits implement voltage/var optimisation (setpoints, PF limits, critical and control excursions, daily operation limits). It is licensed separately and is independent of AR; a circuit with <code>PermitOp</code> cannot <code>PermitLoop</code>. Not covered in depth here.</p>
+
+<h2 id="reports">Reports and logs</h2>
+<ul>
+<li><b>Event report</b> (HTML) per DA event: event types (PermanentFault, Miscoordination, OpenPhase, Overload, SourceEvent, LossOfSource, ReturnToNormal, BusTransfer, Remote), chosen solution, miscoordination switches, extended-fault-zone loads, open-phase-inhibited switches, execution flags, end issues (CapacityLimit, CommandFail, VoltageLimit, WaitingForSource, CloseOnFault). <span class="src">Reports/EventReport/fb_DAEventRecorder</span></li>
+<li><b>Execution log</b> and <b>mid-event log</b>: snapshots of equipment, nodes, feeders and the best solution at the start of execution; written at completion or abort.</li>
+<li><b>Solution logs</b> (checked and compared states with reasons) when a writer is linked.</li>
+<li><b>Post-outage report</b> (customer minutes, kWh): default ON only with ≤ 10 feeders and customer counts loaded; minimum outage <code>OutageMinimumReportingTime</code> (5 min); tracking ends after <code>OutageTimeoutTime</code> (7 d) or <code>OutageManualReset</code>. Forced off when DG exists.</li>
+<li>Adapter: SOE logging for every device point, pre-event reports from live data, settings audit, commissioning HMI, email alarms (inhibited while DA is disabled or the feeder is excluded).</li>
+</ul>
+
+<h2 id="sim">Simulation mode (Adapter)</h2>
+<p><code>DA_SimulationMode</code> lets device points be toggled from the HMI instead of the field (status, lockout, fault, HLT, remote, online, etc., with watchdog counters kept incrementing). It switches itself off after <code>DA_Simulation_On_Time</code>; leaving it disables the DAC (held off 5 s in FieldLatch_NoScada). Devices in simulation report CommissioningMode, which removes their current and power measurements from the model.</p>
+</body>
+</html>

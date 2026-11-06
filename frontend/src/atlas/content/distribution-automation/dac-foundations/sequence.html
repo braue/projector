@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Event Sequence</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DAC,Per-feeder state machine,Feeder and scheme timers,The manager&#x27;s sequence,Completion flags">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>The event sequence</h1>
+<p>How a disturbance moves from detection to a finished reconfiguration. Each feeder runs its own small state machine; the manager coordinates them and owns the solve and execute steps.</p>
+<div class="chips"><span>§03</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>A <b>new</b> event (trip, open phase, overload trigger, source event, remote event, bus restore) moves the feeder from IDLE to <b>UPDATE</b> and polls every device on the feeder plus feeders within <code>TransferDepth</code>.</li>
+<li>UPDATE ends when every on-scan device on the feeder has answered AND <code>MinimumUpdateTime</code> has passed. A device that never answers ends UPDATE at the timeout with <b>AbnormalCondition</b> and no restoration.</li>
+<li><b>ANALYZE</b> confirms the event (lockout found, open phase persisted, etc.). The feeder returns to IDLE when confirmed with no unresolved faults and adjacent feeders updated, when the event disappears, when <code>AnalyzeTimeLimit</code> expires, or when the fault is shown to be off the feeder.</li>
+<li>The manager solves only when <b>every</b> feeder is idle (or sitting in ANALYZE with a confirmed event). One solution covers all confirmed events at once.</li>
+<li>Execution is re-evaluated every scan until all opens/closes are done or <code>ReconfigTimeLimit</code> expires.</li>
+<li>Switches needed purely for <b>isolation</b> are opened at confirmation time, before the solve, when allowed.</li>
+</ol></div>
+
+<h2 id="seq-feeder">Per-feeder state machine</h2>
+<div class="flow">         new event, RTN or update request
+  IDLE ───────────────────────────────────▶ UPDATE
+   ▲                                          │ latched and all devices updated
+   │  update timeout or nothing latched       ▼
+   ├───────────────────────────────────── ANALYZE
+   │  confirmed with no unresolved faults,    │
+   └── or event gone, timeout, off feeder ◀───┘</div>
+<p style="font-size:14px;color:var(--muted)">UPDATE polls the feeder and its neighbours; leaving UPDATE needs <code>MinimumUpdateTime</code> elapsed. An update timeout with an event latched sets AbnormalCondition. ANALYZE exits on: confirmed with NumUnresolved = 0 and adjacent feeders updated; event no longer latched; <code>AnalyzeTimeLimit</code>; or <code>Fault.OffFeeder</code>.</p>
+<p class="srcs"><span class="src">Feeder/FEEDER</span> <span class="src">ExternalHelpers/Feeder/mFEEDER_RefreshStep</span></p>
+<p>While IDLE, the feeder rebuilds its actual and normal topology each scan, but only when there is no fault, no source or remote event, no switch opened in the last 10 s (<code>FaultDetectorDelayTime</code>), no confirmed event, and no collaboration step other than Execution. This freezes the picture of the feeder while an event is being worked.</p>
+
+<h2 id="seq-timers">Feeder and scheme timers</h2>
+<div class="tw"><table>
+<tr><th>Timer</th><th>Runs while</th><th class="num">Length</th><th>On expiry</th></tr>
+<tr><td>MinimumUpdate</td><td>In UPDATE/ANALYZE with no new request</td><td class="num"><code>MinimumUpdateTime</code> (10 s)</td><td>Allows UPDATE→ANALYZE. Guarantees fresh data even if responses come back fast.</td></tr>
+<tr><td>Update timeout</td><td>In UPDATE</td><td class="num">MAX(<code>UpdateTimeLimit</code>, MinimumUpdate+10 s)</td><td>Leave UPDATE. If an event/RTN was latched: <code>AbnormalCondition</code>, devices that did not answer get <code>UpdateFailed</code> + comm failure + abnormal, feeder abnormal.</td></tr>
+<tr><td>Analyze timeout (feeder)</td><td>In ANALYZE</td><td class="num"><code>AnalyzeTimeLimit</code></td><td>Leave ANALYZE; event cleared; non-responders marked as above.</td></tr>
+<tr><td>DA_AnalyzeTimer (scheme)</td><td>Manager analysing, or collab InitialSolutionHandshake</td><td class="num">3 × <code>AnalyzeTimeLimit</code></td><td><code>AnalyzeStepTimeout</code> target, sequence abort.</td></tr>
+<tr><td>DA_ReconfigurationTimer</td><td>Executing</td><td class="num"><code>ReconfigTimeLimit</code></td><td><code>ReconfigureStepTimeout</code> target, <code>ExecutionFailure</code>, abort, <b>RestorationFail</b> on started feeders, RTN cancelled.</td></tr>
+<tr><td>Pending collaboration</td><td>Collab state InitialUpdate</td><td class="num">Update + Analyze limits</td><td>Collaboration abandoned.</td></tr>
+<tr><td>Abort hold-off</td><td>After abort, collab idle</td><td class="num">60 s</td><td>Abort latch cleared (no new collaborations until then).</td></tr>
+<tr><td>Loop confirm</td><td>Feeder sees a loop in its actual topology</td><td class="num"><code>LoopConfirmTime</code> (60 s)</td><td><code>ActualLoop</code> → feeder Abnormal.</td></tr>
+<tr><td>Event duration</td><td>DA_InProgress</td><td class="num">ET only</td><td><code>EventDuration</code> output (seconds).</td></tr>
+<tr><td>Reconfiguration Complete / Restoration Fail</td><td>Flag set</td><td class="num">600 s</td><td>Self-clearing feeder outputs.</td></tr>
+</table></div>
+<p class="srcs"><span class="src">Feeder/FEEDER</span> <span class="src">OBJ/DA_MANAGER_AR</span> <span class="src">OBJ/DA_CIRCUIT</span></p>
+
+<h2 id="seq-detect">Detection and confirmation, event by event</h2>
+<p>Each scan an ARMED feeder runs <code>mFEEDER_DetectEvent</code>. <code>Event.New</code> is the OR of the new-flags; <code>Event.Latched</code> the OR of the latched flags. Confirmation in ANALYZE follows a fixed priority: <b>source event</b> (with any coincident fault) → <b>fault</b> → <b>remote event</b> → <b>bus restore</b> → <b>open phase</b> → <b>overload</b>. <span class="src">Feeder/Event/mFEEDER_ConfirmEvent</span></p>
+<div class="tw"><table>
+<tr><th>Event</th><th>"New" when</th><th>Confirmed when</th><th>Section</th></tr>
+<tr><td>Permanent fault</td><td>A latched fault on the feeder coincides with a device that is open or locked out (<code>TripNew</code>)</td><td>A device that saw the fault is in reclose lockout (or a source event exists), and every device on the feeder has answered the follow-up poll</td><td><a href="atlas:distribution-automation/dac-events/fault.html">§07</a></td></tr>
+<tr><td>Open phase / LOS</td><td>Dead section below a live device for <code>EventDetectTime</code></td><td>Still present after <code>OpenPhaseConfirmTime</code></td><td><a href="atlas:distribution-automation/dac-events/openphase.html">§08</a></td></tr>
+<tr><td>Source event</td><td>Rising edge of <code>DA_CIRCUIT.SourceEvent</code> (only if armed and isolation allowed)</td><td>Immediately in ANALYZE</td><td><a href="atlas:distribution-automation/dac-events/source.html">§09</a></td></tr>
+<tr><td>Overload</td><td>Pulsed 60 s before the confirm timer runs out (or on shed/recheck)</td><td>L1 or L2 confirm timer expired while in ANALYZE</td><td><a href="atlas:distribution-automation/dac-events/overload.html">§10</a></td></tr>
+<tr><td>Remote event</td><td>Connector reports an event on the shared feeder</td><td>Remote DAC reports it confirmed</td><td><a href="atlas:distribution-automation/dac-events/remote.html">§11</a></td></tr>
+<tr><td>Bus restore</td><td><code>DA_BUS_RESTORE</code> confirms a bus restoration</td><td>Bus restore confirmed</td><td><a href="atlas:distribution-automation/dac-events/remote.html">§11</a></td></tr>
+</table></div>
+<p>The feeder's overall <code>Event.Confirmed</code> needs: (fault confirmed AND source event confirmed) OR (fault confirmed AND no source event) OR (source event confirmed AND no fault) OR open phase confirmed OR overload confirmed OR (remote confirmed AND no fault) OR bus restore confirmed. On confirmation the feeder sets <code>Reconfiguration.Started</code>, the scheme sets <code>DA_EVENT_Confirmed</code>, and if the feeder's <code>Permissive</code> is FALSE a permissive request is sent.</p>
+<p>Event priority side effects: a fault or source event clears any overload and RTN on that feeder; an open phase clears overload and RTN; a remote event clears RTN. A new event while an RTN is being worked wipes every restoration list (the RTN is abandoned).</p>
+
+<h2 id="seq-manager">The manager's sequence</h2>
+<div class="flow">DA_EVENT_Detected ── feeders in UPDATE/ANALYZE ── DA_EVENT_Confirmed
+        │
+        ▼  AllFeedersIdle (idle, or analysing with event confirmed)
+   DA_Analyze: AbnormalRestoration.Fault.Process()   ← isolation around abnormal devices
+               mAR_FindSolution()                     ← solver, <a href="atlas:distribution-automation/dac-restoration/solver.html">§13</a>
+               SourceReversal.PrepScenario()
+        │
+        ▼  SolutionFoundExecution
+   DA_Reconfiguration: g_SolutionExecution.Execute.Run() every scan  ← <a href="atlas:distribution-automation/dac-restoration/execution.html">§14</a>
+        │
+        ├─ all done (DA_PhaseThreeComplete) ─► DA_EVENT_Complete ─► completion flags, reports
+        └─ ReconfigTimeLimit / abort ─────────► RestorationFail, ExecutionFailure</div>
+<p>When the sequence ends (complete, timeout, abort, disable, or nothing left to do) the manager clears <code>DA_EVENT_*</code>, <code>DA_RETURN_*</code>, every equipment <code>Restore</code>, <code>Root</code> and <code>SW.Isolation</code> flag, and every feeder's RTN state. On the rising edge of reconfiguration and on the end of the sequence it clears equipment fault latches (and pulses <code>Fault.Reset</code> to the relays) and clears feeder events. <span class="src">OBJ/DA_MANAGER_AR</span></p>
+<p><code>DA_InProgress</code> = event detected or confirmed, RTN detected or confirmed, analysing, reconfiguring, or a collaboration active for ≥ 2 s. Many behaviours key off it: Reset is refused, overload detection is suppressed (and for 30 s after), voltage-discrepancy alarms are not raised, watchdog pulses stop, polling speeds up, open-phase disarm timers pause.</p>
+
+<h2 id="seq-completion">Completion flags</h2>
+<p>When the sequence ends every feeder with <code>Reconfiguration.Started</code> (that is not a pure RTN) gets <code>ReconfigurationComplete</code> (success) or <code>RestorationFail</code> (abort/timeout/insufficient capacity), plus any of:</p>
+<div class="tw"><table>
+<tr><th>Flag</th><th>Set when, at the end of the sequence</th></tr>
+<tr><td><code>VoltageLimit</code></td><td>Execution was still waiting for voltage on a source side (<code>DA_SEQ.WaitingForVoltage</code>), or an RTN close lacked Live2.</td></tr>
+<tr><td><code>CommandFailure</code></td><td>A command was still in progress (no feedback) when the sequence ended.</td></tr>
+<tr><td><code>AbnormalCondition</code></td><td>Waiting for a source, a close-onto-fault happened, a device failed to answer the update, or an RTN found an abnormal/unoperable device.</td></tr>
+<tr><td><code>CapacityLimit</code></td><td>The chosen solution sheds load or leaves a temporary-limit overload (<code>NotEnoughCapacityFound</code>), or an RTN found a source-group mismatch.</td></tr>
+</table></div>
+<p>These feeder flags persist until a feeder or system reset; <code>ReconfigurationComplete</code> and <code>RestorationFail</code> also self-clear after 10 minutes. <span class="src">OBJ/DA_MANAGER_AR.EventCompletionFlags</span></p>
+</body>
+</html>

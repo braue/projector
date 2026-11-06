@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Return to Normal</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="DAC,ReturnMode,How the switching list is built">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Return to normal</h1>
+<p>Putting the system back in its normal configuration after a reconfiguration, preferably without another outage.</p>
+<div class="chips"><span>§12</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>RTN is requested by a rising edge of the circuit's <code>ReturnNormal</code>, the scheme's <code>ReturnNormal</code>, or a <code>ReturnNormal</code> on any feeder that normally feeds part of this one.</li>
+<li>It is <b>silently ignored</b> if an event is in progress, the feeder is unarmed, anything touched by its normal topology is abnormal or unarmed or in a temporary loop, or <code>ReturnMode</code> is NO_RETURN.</li>
+<li>Every device on the normal path must be either already in its normal position or operable. One unoperable off-normal device or one abnormal device aborts the whole RTN.</li>
+<li>CLOSED_TRANSITION (default) means normally-closed points are closed while still tied (make before break), which requires the same source group on both sides.</li>
+<li>A new event during RTN aborts the RTN.</li>
+</ol></div>
+
+<h2 id="rtn-modes">ReturnMode</h2>
+<div class="tw"><table>
+<tr><th>Mode</th><th>Behaviour</th></tr>
+<tr><td><code>NO_RETURN</code></td><td>RTN requests are ignored.</td></tr>
+<tr><td><code>SG_ONLY</code></td><td>Only accepted when the feeder is already in its normal switching configuration; used to put settings groups back. Otherwise AbnormalCondition.</td></tr>
+<tr><td><code>CLOSED_TRANSITION</code> (default)</td><td>Normally-closed open switches are closed first where both sides are sourced from the same source group, then the temporary tie opens. Source-group mismatch aborts (flagged CapacityLimit).</td></tr>
+<tr><td><code>ALLOW_OPEN_TRANSITION</code></td><td>Source-group checks bypassed; a momentary outage (open then close) is allowed.</td></tr>
+</table></div>
+
+<h2 id="rtn-switches">How the switching list is built</h2>
+<p>In ANALYZE, after polling the feeder, its adjacent feeders and every feeder touching its normal topology, <code>mFEEDER_FindReturnSwitches</code> walks the <b>normal</b> topology from the source: <span class="src">Feeder/Event/Return/mFEEDER_FindReturnSwitches</span></p>
+<div class="tw"><table>
+<tr><th>Device found</th><th>Sources on each side</th><th>Action</th></tr>
+<tr><td>Off-normal and cannot be operated (no switch or inhibited), or abnormal</td><td>—</td><td>Abort RTN (AbnormalCondition).</td></tr>
+<tr><td>Normally-open, currently <span class="st-closed">closed</span></td><td>Neither or both</td><td>Open it (isolation).</td></tr>
+<tr><td>Normally-open, currently <span class="st-closed">closed</span></td><td>One side only</td><td>Root on the dead side; it will be opened after the close (closed transition).</td></tr>
+<tr><td>Normally-open, <span class="st-open">open</span></td><td>—</td><td>Boundary, stays open.</td></tr>
+<tr><td>Normally-closed, currently <span class="st-open">open</span></td><td>Same group as the returning source (or open transition allowed) and Live2 on the return side (or <code>AllowSelectLevel1</code>)</td><td>Candidate close.</td></tr>
+<tr><td>Normally-closed, <span class="st-open">open</span></td><td>Voltage below Live2</td><td>Abort, <code>VoltageLimit</code>.</td></tr>
+<tr><td>Normally-closed, <span class="st-open">open</span></td><td>Source-group mismatch</td><td>Abort, flagged <code>CapacityLimit</code>.</td></tr>
+</table></div>
+<p>The resulting lists go through the same solver and execution engine as a restoration. Insufficient capacity in the solution aborts the RTN (<code>CapacityLimit</code>). After execution the RTN completes when the feeder reports <code>NormalConfig</code> and <code>NormalSG</code> (all normally-closed devices in the correct settings group for the normal source).</p>
+<ul>
+<li>On RTN detection the feeder's targets and the latched flags of its equipment are reset (including command failures), and the targets of the other feeders involved are reset.</li>
+<li>During RTN, solver searches only use switches that touch a feeder with RTN latched.</li>
+<li>Phase-discrepancy devices get special handling: a normally-open point energised through a phase-discrepancy device is treated as connected (to avoid blinking load), and closes are only issued when one side is live and the other ≤ Live1, or the device is in phase discrepancy.</li>
+</ul>
+<div class="warn"><b>Code caveat</b> An RTN aborted because the source groups differ sets <code>CapacityLimit</code>, not a source-group-specific flag. If an RTN fails with CapacityLimit on a lightly loaded system, check the <code>SourceGroup</code> of the circuits involved.</div>
+</body>
+</html>

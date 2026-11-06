@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Open Phase &amp; Loss of Source</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC,Arming,Detection,Confirmation and location,IsolateOpenPhase,Loss of source">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Open phase and loss of source</h1>
+<p>Both use the same detector. A dead section directly below a live point is an open phase; if it starts at the source itself it is a loss of source.</p>
+<div class="chips"><span>§08</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>Detection needs the feeder and every voltage point on it to be <b>armed</b>: each must have seen Live1 for half the <code>OpenPhaseConfirmTime</code>.</li>
+<li>The detector finds the <b>first</b> closed device (walking out from the source) whose upstream side is live and everything downstream is dead. That condition must hold for <code>EventDetectTime</code> to latch, and for <code>OpenPhaseConfirmTime</code> to confirm.</li>
+<li>If the dead section starts before the first switching device, it is a <b>loss of source</b>.</li>
+<li>Any fault activity, bus-restore activity, DA analysis or execution, or a loop change blocks detection for 10 s after it clears.</li>
+<li>A loss of source only proceeds to restoration if <code>LossOfSourceRestoreTime</code> = 0 (automatic) or an operator sends <code>LossOfSourceRestore</code> inside that window.</li>
+</ol></div>
+
+<h2 id="op-arming">Arming</h2>
+<ul>
+<li><b>Device arming</b> (<code>OpenPhase.Armed</code>): AR enabled, not told to disarm, the device sees ≥ Live1, closed, no discrepancy alarm, no comm failure — for <code>OpenPhaseConfirmTime / 2</code>. Disarms after <code>OpenPhaseConfirmTime + EventDetectTime</code> of being dead or open (paused while DA is in progress), immediately on discrepancy alarm, comm failure, AR disable or a disarm message. <span class="src">Equipment/EQUIPMENT</span></li>
+<li><b>PT arming</b>: each sensed terminal arms the same way on its own voltage. <span class="src">Equipment/Measurements/Voltage/Sensor/EQUIPMENT_VOLTAGE_SENSOR</span></li>
+<li><b>Feeder arming</b>: AR enabled, feeder armed, open-phase or LOS detection enabled, no source event / tripped fault / confirmed event, no bus-restore activity if a bus is upline, AND every node-source device on the feeder armed AND every PT on those nodes armed. When the feeder is not armed it sends a disarm message to all its devices and PTs, so after any event they need the full re-arm time again. <span class="src">Feeder/Voltage/FEEDER_DetectOpenPhase</span></li>
+</ul>
+<div class="callout interp"><b>Interpretation</b> One device on the feeder that has not re-armed (just closed, recently comm-failed, sitting at Indeterminate voltage) keeps open-phase detection off for the whole feeder. After any DAC operation there is a quiet period of at least <code>OpenPhaseConfirmTime / 2</code> (30 s with defaults) before open-phase protection is back.</div>
+
+<h2 id="op-detect">Detection</h2>
+<p>Walking the actual topology from the source, for each closed device that feeds a node: if the node above it is Live (better than Indeterminate) — or for the very first device, if a bus/transformer exists upline (or no bus object at all) — AND everything downstream of it is Dead (no node above Dead and no device with a voltage discrepancy), the timer runs. After <code>EventDetectTime</code> the device is latched as the open-phase point and the feeder's <code>OpenPhase.New/Latched</code> set. Only the first such location is taken. If open-phase detection is disabled and only LOS detection is enabled, only the first device is checked. <span class="src">Feeder/Voltage/FEEDER_DetectOpenPhase</span> <span class="src">Shared/Voltage/checkDead</span></p>
+
+<h2 id="op-confirm">Confirmation and location</h2>
+<p>In ANALYZE, once the open phase has been latched for <code>OpenPhaseConfirmTime</code> (or a loss of source is already confirmed, or a remote DAC confirmed it) and no fault is present, <code>class_OpenPhase.Confirm</code> walks downstream. The location is a device whose entire upstream path is Live and whose node is Dead (or all of its downstream branches are dead), with no deeper location. If nothing qualifies by the end of the confirm time, the latch is dropped. <span class="src">Feeder/Event/OpenPhase/class_OpenPhase</span></p>
+<ul>
+<li>Location at switch depth 0 (no switching device between the source and the dead section) → <code>LossOfSource</code> event and target.</li>
+<li>Reconfiguration starts only if the location is at depth ≥ 1, or for LOS when <code>LossOfSource.Restore</code> is set.</li>
+<li>The open-phased device and downstream non-isolating equipment are flagged <code>OpenPhased</code>; abnormal devices downstream are added to the abnormal check list as interrupted.</li>
+<li><b>Unmetered switches</b>: downstream switches that have no PT of their own but carry inferred voltage along a single metered path get <code>InhibitControlOpenPhaseIsolation</code>. The DAC cannot tell which side of such a switch the open conductor is on, so it will not use it as an isolation point; the zone extends past it. These appear in the event report as open-phase-inhibited switches.</li>
+</ul>
+
+<h2 id="op-isolate">IsolateOpenPhase</h2>
+<div class="tw"><table>
+<tr><th><code>IsolateOpenPhase</code></th><th>Downstream</th><th>Upstream</th><th>Result</th></tr>
+<tr><td>TRUE</td><td>Next controllable switches beyond the dead zone become isolation points with roots behind them (opened during execution, not immediately).</td><td>Nearest closed controllable switch upstream of the open-phase device. If it can break load it is opened (<code>IsolateOpenPhaseUpstream</code> output). If it cannot, the DAC looks further upstream for load-break switches that can de-energise it: those get <b>TripReclose</b> (trip, open the non-load-break switch dead, reclose). If no such path exists without reaching a source, no upstream isolation.</td><td>The section containing the open conductor is de-energised on both sides; load beyond it is restored from alternates.</td></tr>
+<tr><td>FALSE (Adapter default)</td><td>Next switches downstream become roots (<code>OpenPhase.Root</code>), opened and fed from alternates.</td><td>Nothing opened upstream. The open-phase device is a non-restorable root.</td><td>Load beyond the next switch is restored; the open-phased section stays as it is (single- or two-phase energised).</td></tr>
+</table></div>
+<p>The per-circuit <code>IsolateOpenPhase</code> pin (ENABLE/DISABLE/GLOBAL) overrides the scheme. <code>AllowExtendedOpenPhaseRestoration</code> (default FALSE) lets restoration paths run through open-phase-flagged equipment.</p>
+
+<h2 id="los">Loss of source</h2>
+<ul>
+<li>Enabled by <code>EnableLossOfSourceDetection</code> (Adapter default TRUE, Lib FALSE).</li>
+<li><code>LossOfSourceRestoreTime</code> = 0 (both defaults): restoration is automatic once confirmed.</li>
+<li>&gt; 0: the circuit's <code>LossOfSource</code> output asserts and <code>LossOfSourceRestoreWindow</code> counts down; a rising edge on the circuit's <code>LossOfSourceRestore</code> inside the window starts the restoration. Outside the window nothing happens. If the source comes back the LOS state resets.</li>
+<li>Adapter: on circuits with <code>IsolateBreakerZone</code> set, a confirmed and restorable LOS is converted into a <b>source event</b> so that the breaker zone is isolated (<a href="atlas:distribution-automation/dac-events/source.html">§09</a>). <span class="src">ADP/DA_FDR</span></li>
+<li>No immediate isolation is done on a feeder with an open-phase or LOS event unless that feeder is set to isolate open phases.</li>
+</ul>
+</body>
+</html>

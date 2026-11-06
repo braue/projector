@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Execution &amp; Interlocks</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC,Order within each scan,When a close is issued,Closed-transition safeguard,Auxiliary checks before a close">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Execution: turning the plan into operations</h1>
+<p>The execution engine re-evaluates the whole plan every scan and only issues an operation when the electrical state makes it safe. It is a set of interlocks, not a timed sequence.</p>
+<div class="chips"><span>§14</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>Isolation opens go first. Non-load-break switches are only opened once dead.</li>
+<li>A tie is closed only when exactly one side has a source and that side is live and the other side is <b>dead</b> (or, for closed transition, both sides have sources of the <b>same source group</b>).</li>
+<li>Before any close, every device that will be fed through it must already be in the settings group for its new source; the DAC changes settings groups first and waits.</li>
+<li>A switch that is "to open" (not isolation) opens after the tie that replaces it has closed (make before break), or straight away if it separates a source from a now-dead area.</li>
+<li>Nothing operates while another operation in the same area is in progress, while a permissive request is outstanding, or on an inhibited/abnormal device.</li>
+<li>If not finished within <code>ReconfigTimeLimit</code>, the sequence aborts as a restoration failure.</li>
+</ol></div>
+
+<h2 id="ex-order">Order within each scan</h2>
+<ol>
+<li><b>Opens</b>: isolation switches (load-break: open; non-load-break: open only when disconnected from every source); any switch-to-open already disconnected from every source; with closed transition, other switches-to-open when their tie (<code>CloseTransitionSwitch</code>) shows closed, when <code>OverrideCloseTransition</code> is set, when one side has a source and the other has neither a source nor pending operations, or when neither side has a source. <span class="src">AutomaticReconfig/ExecuteSolution/class_ExecuteSolution.OpenSwitch</span></li>
+<li>Substation bus-restoration switches.</li>
+<li>Phase-discrepancy corrections.</li>
+<li><b>Closes</b>, first pass honouring upstream isolation still in progress; if nothing is in progress and nothing is inhibited, a relaxed second and third pass to break circular waits.</li>
+<li>RTN and connector feeder checks (settings groups, auxiliary commands).</li>
+</ol>
+<p><code>ClosedTransition</code> is hard-coded TRUE in the manager, so the make-before-break path is always active. <span class="src">OBJ/DA_MANAGER_AR</span></p>
+
+<h2 id="ex-close">When a close is issued</h2>
+<div class="tw"><table>
+<tr><th>Situation</th><th>Close?</th></tr>
+<tr><td>One side sourced &amp; Live, other side Dead</td><td>Yes, after aux checks (settings group, source reversal, remote pending). During RTN only if the other side is ≤ Live1 or the device is in phase discrepancy.</td></tr>
+<tr><td>One side sourced but not yet Live</td><td>Wait (<code>WaitingForVoltage</code>).</td></tr>
+<tr><td>Both sides sourced, same source group, the other side has a switch-to-open with a remote source</td><td>Yes (closed transition); that switch is told to open as soon as this one shows closed.</td></tr>
+<tr><td>Both sides sourced, different source groups</td><td>No (<code>BadSourceGroup</code>).</td></tr>
+<tr><td>Neither side sourced</td><td>Wait (<code>WaitingForSource</code>).</td></tr>
+<tr><td>A source path is invalid</td><td>No (<code>AbnormalSource</code>).</td></tr>
+<tr><td>An upstream isolation on either side not yet open</td><td>Wait (<code>UpstreamIsolation</code>).</td></tr>
+<tr><td>Other switching in progress nearby</td><td>Wait (<code>OtherCommand</code>).</td></tr>
+<tr><td>Source feeder's Permissive FALSE</td><td>Wait; <code>RequestPermissive</code> sent (<code>FeederPermissive</code>).</td></tr>
+<tr><td>Device flagged CloseOnFault</td><td>Never (<code>CloseOnFault</code>).</td></tr>
+</table></div>
+<p>The bracketed names are the blocked-command flags recorded by the execution tracker and shown in the execution/mid-event diagnostics. <code>CloseDelay</code> (default 0) adds a fixed delay between deciding to close and the command going out. <span class="src">class_ExecuteSolution.CloseSwitch / CheckCloseSwitchStatus / CheckSourceStatusElectrical</span></p>
+
+<h2 id="ex-ct">Closed-transition safeguard</h2>
+<p>When a tie closes in closed transition, the paired switch carries the tie's index in <code>SW.CloseTransitionSwitch</code>. Every scan, once the tie shows closed, the paired switch is commanded open. If that open command fails and the tie can break load, the DAC opens the tie again to back the loop out. If the tie never closes or its command fails, the pairing is dropped. <span class="src">Equipment/EQUIPMENT</span></p>
+
+<h2 id="ex-aux">Auxiliary checks before a close</h2>
+<ul>
+<li><b>Settings group</b>: walking from the restoring source through closed equipment and the switch to close, every SG-capable, not-inhibited device must show the group configured for that source (<code>SRC_A/SG_A … SRC_F/SG_F</code>). Wrong ones get <code>SG.Control[n]</code> (the <code>SSn</code> outputs) and the close waits.</li>
+<li><b>Source reversal</b>: devices that need preparing for reversed power flow get <code>REVERSE_SOURCE</code> and the close waits for <code>SourceReversalReady</code>.</li>
+<li><b>Remote pending</b>: a connector on the path with an auxiliary command still pending on the remote DAC.</li>
+</ul>
+<p class="srcs"><span class="src">AutomaticReconfig/ExecuteSolution/CommandChecks/*</span></p>
+</body>
+</html>

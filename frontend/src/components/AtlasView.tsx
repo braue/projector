@@ -131,7 +131,10 @@ document.addEventListener('click', function (e) {
   while (el && el.nodeName !== 'A') el = el.parentElement
   if (!el) return
   var href = el.getAttribute('href') || ''
-  if (href.slice(0, 6) === 'atlas:') {
+  if (href.charAt(0) === '#') {
+    var t = document.getElementById(href.slice(1))
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+  } else if (href.slice(0, 6) === 'atlas:') {
     e.preventDefault()
     parent.postMessage({ atlasNavigate: href.slice(6) }, '*')
   }
@@ -246,10 +249,15 @@ export function AtlasView({ active = true }: { active?: boolean }) {
   const reading = useMemo(() => docsInReadingOrder(), [])
 
   /* Selecting a doc reveals it in the rail. */
-  const go = useCallback((id: string) => {
+  /* `atlas:<doc id>#<anchor>` lands on a section of the target page. The
+     counter re-fires the scroll when the same anchor is asked for twice. */
+  const [anchor, setAnchor] = useState<{ id: string; n: number } | null>(null)
+  const go = useCallback((target: string) => {
+    const [id, frag] = target.split('#')
     const doc = docById(id)
     if (!doc) return
     setSelectedId(id)
+    setAnchor(frag ? (prev) => ({ id: frag, n: (prev?.n ?? 0) + 1 }) : null)
     setOpen((prev) => (prev.has(doc.category) ? prev : new Set(prev).add(doc.category)))
   }, [])
 
@@ -466,7 +474,7 @@ export function AtlasView({ active = true }: { active?: boolean }) {
 
       <main className="atl-content">
         {selected ? (
-          <AtlasDocView doc={selected} prev={prev} next={next} onSelect={go} active={active} />
+          <AtlasDocView doc={selected} prev={prev} next={next} onSelect={go} active={active} anchor={anchor} />
         ) : (
           /* Only reachable when the build embeds no documents at all — the
              atlas content repo was not beside the checkout at build time. */
@@ -561,8 +569,9 @@ function AtlasDocView(props: {
   next: Doc | null
   onSelect: (id: string) => void
   active: boolean
+  anchor: { id: string; n: number } | null
 }) {
-  const { doc, prev, next, onSelect, active } = props
+  const { doc, prev, next, onSelect, active, anchor } = props
   const [headings, setHeadings] = useState<Heading[]>([])
   const frameRef = useRef<HTMLIFrameElement>(null)
   const articleRef = useRef<HTMLElement>(null)
@@ -628,9 +637,21 @@ function AtlasDocView(props: {
     setPainted((n) => n + 1)
   }, [doc.id, doc.kind, html])
 
+  const scrollToAnchor = useCallback(() => {
+    if (!anchor) return
+    const root = doc.kind === 'html' ? frameRef.current?.contentDocument : articleRef.current
+    root?.querySelector(`[id="${CSS.escape(anchor.id)}"]`)?.scrollIntoView({ block: 'start' })
+  }, [anchor, doc.kind])
+
+  /* Same page, new anchor: the frame does not reload, so scroll now. */
+  useEffect(() => {
+    scrollToAnchor()
+  }, [scrollToAnchor])
+
   function collectFrameHeadings() {
     const d = frameRef.current?.contentDocument
     if (!d) return
+    scrollToAnchor()
     setHeadings([...d.querySelectorAll('h2')].map((el) => ({ text: headingText(el), el })))
     // A new page is a new document: whatever find had matched is gone with
     // the old one, so the search has to run again against this one.

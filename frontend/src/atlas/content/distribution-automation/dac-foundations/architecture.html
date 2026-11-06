@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Architecture</title>
+<meta name="atlas-order" content="20">
+<meta name="atlas-tags" content="DAC,The layers,The data model,What runs each scan  in order">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Architecture: two libraries, one model</h1>
+<p>DA Lib is the engine. DA Adapter is the wrapper that turns relay points into engine inputs and adds SCADA, redundancy, HMI, logging and device templates.</p>
+<div class="chips"><span>§01</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<h2 id="arch-layers">The layers</h2>
+<div class="tw"><table>
+<tr><th>Layer</th><th>Lives in</th><th>What it does</th></tr>
+<tr><td>Field / SCADA points</td><td>RTAC tags (DNP, 61850, Modbus…)</td><td>Raw relay statuses, analogs, controls; SCADA binaries/controls.</td></tr>
+<tr><td>Adapter device blocks</td><td><code>DA_REC</code>, <code>DA_BKR</code>, <code>DA_SW</code>, <code>DA_DUAL_SW</code>, <code>DA_FDR</code>, <code>DA_FDR_BKR</code>, <code>DA_SUB_*</code>, <code>DA_DG</code>, <code>DA_ManSw</code>, <code>DA_DAC_INTERCONNECT</code>, <code>DA_CONTROL</code>…</td><td>Map points by Device Definition index, condition them (52A vs pole-open, per-phase lockout, fault latching, 59N, capacity from phase pickup, inhibit if no control point), run simulation mode, log SOE, expose SCADA points, persist operator setpoints, redundancy.</td></tr>
+<tr><td>Lib device objects</td><td><code>DA_RECLOSER_AV_BV</code>, <code>DA_BREAKER_AV_BV</code>, <code>DA_PS_BREAKER_AV_BV</code>, <code>DA_SWITCH_AV_BV</code>, <code>DA_TRANSFER_SWITCH_AV</code>, <code>DA_CIRCUIT</code>, <code>DA_TRANSFORMER</code>, <code>DA_BUS</code>, <code>DA_CONNECTOR</code>, <code>DA_DG_UNIT</code>, <code>DA_LINE</code>, <code>DA_LOAD</code>…</td><td>Each wraps one or more <code>EQUIPMENT</code> instances, owns its command blocks (<code>CMD</code>), poll and watchdog pulses, and publishes into the global model.</td></tr>
+<tr><td>Engine</td><td><code>DA_CONTROLLER</code> (program), <code>DA_SCHEME</code>, <code>DA_MANAGER_AR</code>, per-feeder <code>FEEDER</code></td><td>Topology, voltage, margins, event detection/confirmation, isolation, restoration planning, execution, reports.</td></tr>
+</table></div>
+
+<h2 id="arch-model">The data model</h2>
+<p>Every device block, line and load becomes one or more entries in <code>dEQUIPMENT[1..2000]</code>, each with two terminals that point at connectivity nodes in <code>dNODE[1..2000]</code>. Device FBs are chained with <code>A</code>/<code>B</code> node indexes exactly as drawn in the area diagram. A switching device FB actually creates three equipment entries: a virtual A-side line, the switch itself, and a B-side line that carries the section's <code>LoadAllocation</code>, R and X. <span class="src">OBJ/DA_RECLOSER_AV_BV</span></p>
+<p>A <code>DA_CIRCUIT</code> creates a SOURCE equipment and a <code>FEEDER</code> instance. The feeder's <b>actual topology</b> is rebuilt by walking from that source through closed equipment; its <b>normal topology</b> by walking through normally-closed equipment. Every node records which feeder, source, source group and source-side equipment feed it (<code>dNODE.Actual</code> and <code>.Normal</code>).</p>
+<div class="tw"><table>
+<tr><th>Limit</th><th class="num">Value</th><th>Consequence when exceeded</th></tr>
+<tr><td>Schemes per controller</td><td class="num">2</td><td>—</td></tr>
+<tr><td>Feeders (circuits)</td><td class="num">100</td><td>Settings error</td></tr>
+<tr><td>Equipment entries</td><td class="num">2000</td><td><code>TooManyEquipment</code> settings error (each switch FB uses 3)</td></tr>
+<tr><td>Nodes</td><td class="num">2000</td><td><code>TooManyNodes</code></td></tr>
+<tr><td>Equipment on one node</td><td class="num">10</td><td>Node treated as empty during searches</td></tr>
+<tr><td>DA_CONNECTORs / shared DA_BUSes</td><td class="num">15 / 15</td><td><code>TooManyConnectors</code> / <code>TooManySharedBuses</code></td></tr>
+<tr><td>Solver frontier states</td><td class="num">600</td><td>Search stops early, best-so-far used</td></tr>
+</table></div>
+<p class="src" style="margin-left:0">Global Variables/Global_Variables</p>
+
+<h2 id="arch-scan">What runs each scan, in order</h2>
+<ol>
+  <li><b>Adapter <code>DA_CONTROL.prv_Run</code></b>: read SCADA controls and heartbeat, run redundancy, then feeder-group controllers and DAC-interconnect managers.</li>
+  <li><b><code>DA_CONTROLLER</code></b>: licence check (AR and DFO feeder counts), startup pulse (first 3 scans), controller-reset pulse, scan-time estimate, node voltage update, equipment and node margins, node overloads, the <b>integrity poll</b>, customer-count and post-outage managers, event recorder. <span class="src">OBJ/DA_CONTROLLER</span></li>
+  <li><b><code>DA_SCHEME</code></b>: converts the voltage percentages into primary and secondary thresholds; publishes settings-error outputs.</li>
+  <li><b><code>DA_MANAGER_AR</code></b>: scheme-wide enable, aggregation of feeder states, solve, execute, timers, collaboration state machine. <span class="src">OBJ/DA_MANAGER_AR</span></li>
+  <li><b>Device blocks</b> (in diagram order): each <code>EQUIPMENT</code> maps inputs, detects abnormal/continuity/close-on-fault, runs its fault detector, voltage sensor, comm monitor and commands. Each <code>DA_CIRCUIT</code> runs its <code>FEEDER</code> state machine.</li>
+</ol>
+<div class="callout interp"><b>Interpretation</b> Because devices and feeders run after the manager, a flag set by a feeder in scan N is acted on by the manager in scan N+1. Many "pulse" flags in the code are held for a cycle for exactly this reason (for example <code>Update.Request</code> is cleared only after it has been present one full cycle).</div>
+</body>
+</html>

@@ -31,16 +31,26 @@ export interface Doc {
 export const GROUP_LABELS: Record<string, string> = {
   dnp3: 'DNP3',
   modbus: 'Modbus',
-  dac: 'DAC / FLISR',
   blueframe: 'Blueframe',
+  'dac-foundations': 'Foundations',
+  'dac-events': 'Events',
+  'dac-restoration': 'Restoration',
+  'dac-features': 'Features',
+  'dac-reference': 'Reference',
+  'dac-walkthroughs': 'Walkthroughs & Lookups',
 }
 
 /** groups render after ungrouped docs, in this order */
 export const GROUP_ORDER: Record<string, number> = {
   dnp3: 10,
   modbus: 20,
-  dac: 10,
   blueframe: 10,
+  'dac-foundations': 10,
+  'dac-events': 20,
+  'dac-restoration': 30,
+  'dac-features': 40,
+  'dac-reference': 50,
+  'dac-walkthroughs': 60,
 }
 
 export function groupLabel(id: string): string {
@@ -63,7 +73,7 @@ export const CATEGORIES: Category[] = [
   { id: 'data-protocols', label: 'Data Protocols', hint: 'DNP3, Modbus, 61850, Mirrored Bits' },
   { id: 'rtac-automation', label: 'RTAC & Automation', hint: 'tags, logic, HMI, SCADA integration' },
   { id: 'distribution-equipment', label: 'Distribution Equipment', hint: 'regulators, capacitors, fault indicators, DER' },
-  { id: 'distribution-automation', label: 'Distribution Automation', hint: 'FLISR: locating, isolating, restoring' },
+  { id: 'distribution-automation', label: 'DAC Library', hint: 'DA Lib / DA Adapter, from source' },
   { id: 'commissioning', label: 'Commissioning & Field Work', hint: 'working safely on live plant' },
   { id: 'reference', label: 'Reference', hint: 'acronyms, device numbers, products, formulas' },
 ]

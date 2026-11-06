@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Permanent Faults</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DAC,At the device,Detection on the feeder,Lockout confirmation,Locating the fault,Isolation and extended isolation,Miscoordination,Close onto fault,Protection failure and breaker failure,Temporary faults and other non-events">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Permanent faults</h1>
+<p>Detection, lockout confirmation, locating the fault, immediate isolation, extended isolation, miscoordination, close-onto-fault, and protection/breaker failure.</p>
+<div class="chips"><span>§07</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>A fault is only an event when a device that saw it is <b>open or locked out</b>. A fault indication with everything still closed is just latched and waits.</li>
+<li>A fault is <b>permanent</b> only when a device in the fault path reports <b>reclose lockout</b> (or the feeder also has a source event). A successful reclose never confirms.</li>
+<li>The fault is located on the section <b>below the deepest device that saw fault current</b> and above the first device downstream that did not.</li>
+<li>The switches bounding that section are opened at confirmation time, before the restoration solve, if they can break load and isolation is allowed.</li>
+<li>Uncontrollable closed devices do not bound the zone; the zone grows to the next controllable switch.</li>
+<li>If an upstream device locked out while a downstream device also saw the fault, that is <b>miscoordination</b>; what happens next depends on <code>EnableMiscoordinationDetection</code> and on whether the downstream device has protection.</li>
+</ol></div>
+
+<h2 id="fault-device">At the device</h2>
+<ul>
+<li><code>Fault.Raw</code> = Fault OR FaultAB OR FaultBA. A rising edge creates <code>Fault.New</code>; the condition is held (<code>Conditioned</code>) until processed or reset. <span class="src">Equipment/Fault/EQUIPMENT_FAULT_DETECTOR</span></li>
+<li>After <code>FaultHoldTime</code> (120 s) the DAC sends a fault-target <b>RESET</b> to the relay, but only if the feeder is not locked out and not in UPDATE.</li>
+<li>Adapter: with <code>LatchFaultAtDevice</code> FALSE the adapter latches the relay's fault bits itself for 2 minutes (cleared by the DAC's RESET output). Fault = Fault | Fault_A/B/C | Grnd_Trip; FaultFwd/FaultRev map to AB/BA according to the forward direction setting. <span class="src">ADP/DA_REC.prv_StatusInputs</span></li>
+<li><b>Reclose in progress</b> is inferred: the device opened within the last 10 s with a fault present. It ends on lockout, or when the device has been closed again for 2 × <code>EventDetectTime</code>. An open device with reclose in progress is treated as tripped and locked out for fault-location purposes.</li>
+<li>Adapter lockout = lockout AND open (all phases in three-phase mode). In <code>SwitchMode</code>, open itself counts as lockout.</li>
+</ul>
+
+<h2 id="fault-detect">Detection on the feeder</h2>
+<p>Each scan, <code>class_Fault.Detect</code> walks from the feeder source through equipment with filtered continuity. A new fault on any device latches the feeder's <code>Fault.Latched</code> (only if armed). <code>TripNew</code> fires once when a latched fault coincides with a device that is open or locked out; that is the event trigger. Out-of-service devices are skipped. On permitted-loop devices only the fault direction pointing into the current search direction counts. <span class="src">Feeder/Event/Fault/class_Fault.Detect</span></p>
+
+<h2 id="lockout">Lockout confirmation</h2>
+<p><code>class_Lockout.Confirm</code> searches the feeder for a device that saw the fault, has reclosing, and is in lockout. Finding one sets <code>LockoutLatched</code> and polls the feeder again for fresh data. A <b>source event</b> on the feeder counts as lockout. If a directional device at the first switch level (the feeder breaker zone) shows the fault in the reverse direction, the fault is behind the breaker: <code>Fault.OffFeeder</code> is set and the feeder leaves ANALYZE without acting. <span class="src">Feeder/Event/Fault/class_Lockout</span></p>
+<p>The fault is confirmed only when lockout is latched AND every device on the feeder has answered the follow-up poll (<code>mFEEDER_CheckDeviceResponses</code>).</p>
+
+<h2 id="locate">Locating the fault</h2>
+<p><code>class_Fault.Confirm</code> walks downstream carrying what has been seen upstream (fault, trip, lockout, protection, controllable). At each device: <span class="src">Feeder/Event/Fault/class_Fault.prv_Confirm / prv_ProcessFault</span></p>
+<ul>
+<li>A device that saw fault while <b>nothing downstream of it</b> saw fault marks the fault location: the node below it is <code>Faulted</code>, and every piece of equipment downstream up to the next fault-detecting device is flagged <code>Faulted</code>.</li>
+<li>Faults located this way stay "unresolved" until an upstream lockout is found; the feeder cannot leave ANALYZE while any are unresolved (it times out instead).</li>
+<li>When the lockout device is processed, each unresolved fault location is handed to the extended-isolation search.</li>
+</ul>
+
+<h2 id="isolation">Isolation and extended isolation</h2>
+<p><code>fb_PermFaultIsolation.FindIsolation</code> searches outward from each fault node. <span class="src">Feeder/Event/Fault/ExtendedIsolation/fb_PermFaultIsolation</span></p>
+<ul>
+<li>It passes freely through non-isolating equipment (lines, loads, buses, capacitors, regulators) and through <b>closed switching devices that cannot be controlled</b> (no switch, inhibited, abnormal, protection failure). The zone therefore extends to the next device the DAC can actually open.</li>
+<li>Each controllable switching device reached is an isolation point: <code>SW.Isolation</code>, shed-permissive set, source-group matching cleared. It is <b>opened immediately</b> if: it is closed, not a connector, and either load-break-capable or already disconnected from every source; AND the feeder allows isolation; AND there is no open-phase or loss-of-source event on the feeder (unless that feeder isolates open phases).</li>
+<li>If the far side of an isolation point is energised and moving away from the source, it becomes a <b>root</b> (load to restore) when the feeder allows restoration, otherwise a non-restorable root.</li>
+<li><b>Bus-fault rules</b>: if the faulted zone contains a bus/line object configured with <code>AdjacentBusIsolate</code> or <code>AdjacentLineIsolate</code> (set with a device FB's <code>SetLoadBus</code> method), the search extends one more switch into the adjacent bus or line zones. Loads in that extension are marked <code>ExtendedFaultZone</code> and reported. Isolation points beyond the first switch carry the <code>ExtendedIsolation</code> flag (device output).</li>
+</ul>
+<div class="callout interp"><b>Interpretation</b> "Open immediately" happens during ANALYZE, before the solver has even run. That is why isolation switches can be seen opening, then a pause while the solve completes, then the tie closing. Non-load-break switches are never opened while still energised; they wait until the upstream device has de-energised them.</div>
+
+<h2 id="miscoord">Miscoordination</h2>
+<p>Miscoordination = an upstream device locked out while a device downstream of it also saw the fault. The feeder's <code>Miscoordination</code> output sets when the downstream device has protection and at least one non-connector device saw the fault. The handling: <span class="src">Feeder/Event/Fault/class_Fault.prv_ProcessFault</span></p>
+<div class="tw"><table>
+<tr><th>Case</th><th>What the DAC does</th></tr>
+<tr><td><code>EnableMiscoordinationDetection</code> ON (Adapter default) and the downstream device is controllable</td><td>Corrects it: the downstream fault-bounding switches isolate the fault; the locked-out upstream device is added to the <b>ReturnClose</b> list so it is reclosed to restore the healthy section between them. Shed permissives and restore flags are set below it.</td></tr>
+<tr><td>Detection OFF, downstream device has <b>no protection</b> (e.g. a switch with fault indication) and is controllable</td><td>Same correction. This is ordinary sectionalising: the upstream protective device is expected to trip for faults below a non-protective switch.</td></tr>
+<tr><td>Detection OFF, downstream device <b>has protection</b></td><td>No correction. Equipment between the locked-out device and the fault is flagged <code>MiscoordinationIsolation</code> and treated as non-restorable. Only load beyond the fault isolation is restored.</td></tr>
+<tr><td>Locked-out device is at the first switch level and the feeder has a source event</td><td>Never reclosed (the source side is not trustworthy).</td></tr>
+<tr><td>Locked-out device is inhibited (cannot be reclosed)</td><td>An isolation search is run from it instead. If it is a pseudo breaker (no current and no voltage measurement) at the first level, the whole breaker zone is isolated.</td></tr>
+</table></div>
+<p>If a ReturnClose device is also on the isolation list, the solver drops the reclose and reports it as a miscoordination switch.</p>
+
+<h2 id="cof">Close onto fault</h2>
+<p>Every close command opens a 10 s window. Inside it, the DAC declares <b>CloseOnFault</b> on the device if: the device's feeder sees a new trip; or a new fault arrives and the device is open 10 s later; or the fault input stays up through the close and the device then opens. <span class="src">Equipment/EQUIPMENT</span></p>
+<ul>
+<li>CloseOnFault is latched, makes the device abnormal, blocks further CLOSE outputs, aborts the running sequence (<code>DA_SEQ.CloseOnFault</code> → abort, AbnormalCondition), and is cleared only by a feeder reset or system reset.</li>
+<li>A "possible close on fault" (inside the window) already blocks repeat closes.</li>
+</ul>
+
+<h2 id="bf">Protection failure and breaker failure</h2>
+<p>Devices have a <code>ProtectionFailure</code> input (Adapter: <code>BreakerFailure</code>/<code>ProtectionFailure</code> point). <code>fb_ProtFailure</code> arms on a rising fault at that device, provided the neighbouring feeders are armed and not abnormal and the device itself is not abnormal; it disarms when the event finishes, when the device is commanded open, or after <code>FaultHoldTime</code> with nothing in progress. <span class="src">Equipment/ProtFail/fb_ProtFailure</span> <span class="src">Feeder/Event/Fault/ExtendedIsolation/fb_BreakerFailure</span></p>
+<ul>
+<li>Protection failure while armed (<code>IsolateFailedDevice</code>): during fault confirmation the DAC isolates around the failed device itself, at the next controllable switches, with <code>ExtendedIsolation</code>. Bus-terminal rules (<code>BusTerminalIsolateLine/Bus</code>) extend this one zone further from a bus.</li>
+<li>Protection failure while not armed: the device is simply abnormal.</li>
+<li>A device with protection failure never counts as controllable, so it is never chosen as an isolation point.</li>
+<li>Adapter substation logic: any feeder breaker on a bus reporting breaker failure raises a <b>source event</b> on every feeder of that bus (<a href="atlas:distribution-automation/dac-events/source.html">§09</a>).</li>
+</ul>
+
+<h2 id="tempfault">Temporary faults and other non-events</h2>
+<ul>
+<li>Reclose succeeds: no lockout, so the fault never confirms; the feeder sits in ANALYZE until <code>AnalyzeTimeLimit</code>, then clears. Nothing is switched. The fault targets reset after <code>FaultHoldTime</code>.</li>
+<li>Fault indication with nothing open: latched, no trip, no event.</li>
+<li>Reverse fault at the breaker zone: <code>OffFeeder</code>, no action (bus or adjacent-feeder fault).</li>
+<li>Both directional elements on a device asserting together: the device becomes abnormal (bad fault indication).</li>
+</ul>
+</body>
+</html>

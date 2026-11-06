@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Status Outputs</title>
+<meta name="atlas-order" content="30">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Status outputs: what each means and how it clears</h1>
+<p></p>
+<div class="chips"><span>§22</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="tw"><table>
+<tr><th>Output</th><th>Level</th><th>Meaning</th><th>Clears</th></tr>
+<tr><td><code>Enabled</code></td><td>Scheme</td><td>AR running (enabled, active DAC, licensed, no settings error)</td><td>—</td></tr>
+<tr><td><code>EventDetected / EventConfirmed</code></td><td>Scheme, feeder</td><td>An event latched / confirmed target</td><td>Event cleared / reset</td></tr>
+<tr><td><code>PermanentFault, OpenPhase, Overload, Miscoordination, FeederSourceEvent, LossOfSource, RemoteEvent, LoadShed</code></td><td>Scheme, feeder</td><td>Event-type targets</td><td>Feeder or system reset; RTN on the feeder</td></tr>
+<tr><td><code>UpdateStep / AnalyzeStep / ReconfigureStep</code></td><td>Scheme</td><td>Current step</td><td>Live</td></tr>
+<tr><td><code>Update/Analyze/ReconfigureStepTimeout</code></td><td>Scheme</td><td>A step timed out</td><td>Reset or any feeder reset</td></tr>
+<tr><td><code>ReconfigurationStarted / Complete</code></td><td>Feeder</td><td>Event confirmed / finished successfully</td><td>Complete self-clears after 10 min</td></tr>
+<tr><td><code>RestorationFail</code></td><td>Feeder</td><td>Aborted, timed out, or not all load restored</td><td>10 min, or reset</td></tr>
+<tr><td><code>CapacityLimit, VoltageLimit, CommandFailure, AbnormalCondition</code></td><td>Scheme, feeder</td><td>Why the sequence fell short (<a href="atlas:distribution-automation/dac-foundations/sequence.html">§03</a>)</td><td>Reset</td></tr>
+<tr><td><code>FeederArmed, FeederAbnormal, NormalConfig, FeederLoop, ExcludedByUnderFrequency</code></td><td>Feeder</td><td>Live state</td><td>Live</td></tr>
+<tr><td><code>IncorrectSG, VoltageDiscrepancy, PhaseDiscrepancy, CloseOnFault</code></td><td>Scheme, feeder, device</td><td>Any device in that condition</td><td>Live, except CloseOnFault (reset)</td></tr>
+<tr><td><code>RequestPermissive, CMD_TIMEOUT</code></td><td>Feeder</td><td>Permissive requested / request timed out</td><td>Permissive received</td></tr>
+<tr><td><code>LossOfSourceRestoreWindow</code></td><td>Feeder</td><td>Seconds left to send LossOfSourceRestore</td><td>—</td></tr>
+<tr><td><code>ABNORMAL, COMM_ALARM, CMD_TIMEOUT</code></td><td>Device</td><td>§06, <a href="atlas:distribution-automation/dac-foundations/comms.html">§04</a></td><td>Condition clears / reset</td></tr>
+<tr><td><code>IsolateOpenPhaseUpstream, ExtendedIsolation</code></td><td>Device</td><td>DAC opened this device for that reason</td><td>Latched flag kept for the event report</td></tr>
+<tr><td><code>AbnormalFaultDetector</code> (BadFaultIndication)</td><td>Device</td><td>Forward and reverse fault at once</td><td>Both drop</td></tr>
+<tr><td><code>FeederNormal/TempMarginA/B</code></td><td>Device</td><td>Live margin at each terminal's node</td><td>—</td></tr>
+<tr><td><code>UPID</code></td><td>Device</td><td>Protection ID of the upstream protective device</td><td>—</td></tr>
+<tr><td><code>SettingsError</code> + detail bits</td><td>Scheme</td><td>Configuration problem; AR disabled</td><td>Fix + reset</td></tr>
+<tr><td><code>DisabledByHeartbeat</code></td><td>Scheme (Adapter)</td><td>SCADA heartbeat lost</td><td>Next heartbeat</td></tr>
+<tr><td><code>RedundancyCommunicationFailure</code></td><td>Scheme (Adapter)</td><td>DAC-to-DAC link down</td><td>Link up</td></tr>
+</table></div>
+</body>
+</html>

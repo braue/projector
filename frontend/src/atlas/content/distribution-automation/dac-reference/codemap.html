@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Code Map</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Code map: where to look</h1>
+<p></p>
+<div class="chips"><span>§25</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="tw"><table>
+<tr><th>Topic</th><th>POUs (DA Lib unless marked)</th></tr>
+<tr><td>Scheme sequencing, timers, collaboration</td><td><code>DA_OBJECTS_AR/DA_MANAGER_AR</code>, <code>DA_CONTROLLER</code>, <code>DA_SCHEME</code></td></tr>
+<tr><td>Feeder state machine</td><td><code>Feeder/FEEDER</code>, <code>Feeder/Event/mFEEDER_DetectEvent</code>, <code>mFEEDER_ConfirmEvent</code>, <code>mFEEDER_ClearEvent</code></td></tr>
+<tr><td>Per-device model</td><td><code>Equipment/EQUIPMENT</code>, <code>Equipment/Abnormal/*</code>, <code>Equipment/Fault/*</code>, <code>Equipment/Measurements/Voltage/Sensor/*</code></td></tr>
+<tr><td>Fault, lockout, isolation</td><td><code>Feeder/Event/Fault/class_Fault</code>, <code>class_Lockout</code>, <code>ExtendedIsolation/fb_PermFaultIsolation</code>, <code>fb_BreakerFailure</code>, <code>Feeder/Event/Helper/mAR_findIsolation</code></td></tr>
+<tr><td>Abnormal restoration</td><td><code>Feeder/Event/Abnormal/class_AbnormalIsolation</code>, <code>class_FindAbnormals</code></td></tr>
+<tr><td>Open phase / LOS</td><td><code>Feeder/Voltage/FEEDER_DetectOpenPhase</code>, <code>Feeder/Event/OpenPhase/class_OpenPhase</code>, <code>class_OpenPhaseInhibitNonMetered</code></td></tr>
+<tr><td>Source / remote / bus restore</td><td><code>Feeder/Event/Source/*</code>, <code>Feeder/Event/Remote/*</code>, <code>Feeder/Event/BusRestore/*</code>, <code>ExternalHelpers/Bus/Restore/*</code></td></tr>
+<tr><td>Overload</td><td><code>Feeder/Event/Overload/*</code>, <code>Equipment/Overload/Detector/*</code></td></tr>
+<tr><td>RTN</td><td><code>Feeder/Event/Return/*</code></td></tr>
+<tr><td>Solver</td><td><code>AutomaticReconfig/ReconfigPlanning/mAR_FindSolution</code>, <code>Classes/class_ArSelector</code>, <code>Calculate Utility/class_CalcUtility</code>, <code>Helper/mAR_CompareStates</code>, <code>NonRestorable/class_NonRestorable</code>, <code>Common/GetSource/*</code></td></tr>
+<tr><td>Execution</td><td><code>AutomaticReconfig/ExecuteSolution/class_ExecuteSolution</code>, <code>CommandChecks/*</code>, <code>Tracking/*</code></td></tr>
+<tr><td>Comms</td><td><code>Equipment/Communication/EQUIPMENT_COM_MONITOR</code>, <code>Communications/Command/CMD</code>, <code>WCMD</code>, <code>DA_OBJECTS_AR/DA_COM_LINE</code>, <code>Feeder/Comms/*</code></td></tr>
+<tr><td>Connector</td><td><code>DA_OBJECTS_AR/DA_CONNECTOR</code>, <code>Connector/*</code></td></tr>
+<tr><td>DG</td><td><code>DA_OBJECTS_AR/DA_DG_UNIT</code>, <code>ExternalHelpers/DG/*</code></td></tr>
+<tr><td>Reports</td><td><code>Reports/EventReport/*</code>, <code>Reports/OutageTracking/*</code>, <code>DiagnosticLoggers/*</code></td></tr>
+<tr><td>Adapter scheme, heartbeat, enable modes</td><td>ADP <code>Device Function Blocks/AR/DA_CONTROL</code>, <code>zInternal/Functions/Heartbeat Monitor/fb_Heartbeat</code></td></tr>
+<tr><td>Adapter device conditioning</td><td>ADP <code>Device Function Blocks/AR/DA_REC</code> (and DA_BKR, DA_SW, DA_DUAL_SW, DA_FDR, DA_FDR_BKR, DA_XFMR_MAIN_BUS)</td></tr>
+<tr><td>Redundancy</td><td>ADP <code>Device Function Blocks/AR/DA_Redundancy</code>, <code>RtuVotingScheme/*</code>, <code>zInternal/Redundancy/*</code></td></tr>
+</table></div>
+<p style="margin-top:28px;color:var(--muted);font-size:14px">Written 2026-11-05 from the da-combined repository on the USB stick. Behaviour can change with library revisions; re-check the revision history when the library version changes.</p>
+</body>
+</html>

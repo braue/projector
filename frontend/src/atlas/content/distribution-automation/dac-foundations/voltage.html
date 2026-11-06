@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voltage Levels &amp; Discrepancy</title>
+<meta name="atlas-order" content="60">
+<meta name="atlas-tags" content="DAC,Levels and thresholds,Confidence and node voltage,Voltage discrepancy">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Voltage: levels, inference and discrepancy</h1>
+<p>Voltage decides open-phase detection, which sources are usable, and whether a close may be issued. It is evaluated per device terminal, then propagated to nodes.</p>
+<div class="chips"><span>§05</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<h2 id="v-levels">Levels and thresholds</h2>
+<p>Each terminal has a level: <b>Dead</b> (0), <b>Indeterminate</b> (1), <b>Live1</b> (2), <b>Live2</b> (3). Thresholds come from <code>DA_SCHEME</code> as a percent of nominal, applied to both primary (<code>NominalVoltage</code>, line-to-neutral) and a 120 V secondary base, with hysteresis of <code>VoltageDeadband</code>: <span class="src">OBJ/DA_SCHEME</span> <span class="src">Equipment/Measurements/Voltage/Sensor/EQUIPMENT_VOLTAGE_SENSOR</span></p>
+<div class="tw"><table>
+<tr><th>Level</th><th class="num">Picks up at</th><th class="num">Drops out at</th></tr>
+<tr><td>Live2</td><td class="num">≥ 95 %</td><td class="num">≤ 93 %</td></tr>
+<tr><td>Live1</td><td class="num">≥ 90 %</td><td class="num">≤ 88 %</td></tr>
+<tr><td>Dead</td><td class="num">&lt; 20 %</td><td class="num">≥ 22 %</td></tr>
+<tr><td>Indeterminate</td><td colspan="2">anything between</td></tr>
+</table></div>
+<ul>
+<li>Analog voltage: <code>Level</code> uses the <b>lowest</b> phase; <code>HighestPhaseLevel</code> uses the highest phase (used for phase-discrepancy and RTN cases). Values are clamped to 0–2 × nominal.</li>
+<li>Binary voltage (Dead/Live1/Live2 bits from the relay): Live and Dead both set = Indeterminate.</li>
+<li>Adapter: an asserted 59N on a side forces that side to 0 V / Dead.</li>
+<li>A terminal with no sensing on a <b>closed</b> device inherits the other side's level (<code>INFERRED</code>).</li>
+</ul>
+
+<h2 id="v-confidence">Confidence and node voltage</h2>
+<p>Each terminal carries a confidence: sensed 1.0, inferred through a closed device 0.95, propagated from downstream 0.75, propagated from upstream 0.5 (lower still when passing through a phase-discrepancy device, so any other reading wins). A device in comm failure or out of service gets confidence 0 and both terminals forced Dead. <code>fb_VoltageUpdate</code> walks from the sources and gives every node the most confident reading available, then pushes readings into unmetered branches. <span class="src">Node/Voltage/fb_VoltageUpdate</span> <span class="src">Equipment/Measurements/Voltage/Sensor/mEQUIPMENT_EvaluateVoltageConfidence</span></p>
+
+<h2 id="v-discrepancy">Voltage discrepancy</h2>
+<p>On a closed device that is not in phase discrepancy, <code>DiscrepancyDetect</code> sets when:</p>
+<ul>
+<li>both sides are sensed and one is Dead while the other is ≥ Live1; or</li>
+<li>sources exist in both directions and a sensed side reads Dead; or</li>
+<li>the device's own side is source-facing, it reads Dead, and the downstream reading is ≥ Live1.</li>
+</ul>
+<p>Held for <code>UpdateTimeLimit</code> it becomes <code>DiscrepancyAlarm</code> (a new alarm is only raised while no DA sequence is in progress). The alarm makes the device abnormal. A discrepancy device also blocks "dead" declarations through it, so it cannot be the location of an open phase. Enabled by <code>EnableVoltageDiscrepancy</code> (Adapter default FALSE, Lib default TRUE). <span class="src">Node/Voltage/fb_VoltageUpdate.prv_CheckDiscrepancy</span> <span class="src">Equipment/EQUIPMENT</span></p>
+<div class="callout interp"><b>Interpretation</b> Discrepancy is how the DAC catches a failed PT or bad wiring: a closed switch cannot really be dead on one side and live on the other. Making the device abnormal stops the DAC from trusting that location for open-phase or restoration decisions.</div>
+</body>
+</html>

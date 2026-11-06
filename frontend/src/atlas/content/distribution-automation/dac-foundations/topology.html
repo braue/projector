@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Topology, Loops &amp; Abnormals</title>
+<meta name="atlas-order" content="70">
+<meta name="atlas-tags" content="DAC,Continuity,Loops,What makes a device abnormal,Abnormal restoration modes">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Topology, loops and abnormal conditions</h1>
+<p>What makes a device or a feeder abnormal, and the four abnormal-restoration modes that decide what the DAC still does when it is.</p>
+<div class="chips"><span>§06</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<h2 id="continuity">Continuity</h2>
+<div class="tw"><table>
+<tr><th>Equipment</th><th>Continuity (conducts between its terminals)</th></tr>
+<tr><td>Has a switch (breaker, recloser, switch)</td><td>= reported status (closed)</td></tr>
+<tr><td>Bypassed (<code>Bypass</code> / OOS-closed)</td><td>TRUE. Treated as a closed piece of wire: no fault detection, no protection, no voltage, no control, never abnormal.</td></tr>
+<tr><td>Out of service (OOS-open)</td><td>FALSE. Treated as an open, dead, inert gap.</td></tr>
+<tr><td>Lines, loads, buses, transformers</td><td>TRUE</td></tr>
+</table></div>
+<p>The fault and source-event searches use <code>FilteredContinuity</code> (continuity as seen by the last stable topology build) so that a device that has just tripped still counts as part of the feeder it tripped from. <span class="src">Equipment/State/mEQUIPMENT_DetectContinuity</span></p>
+
+<h2 id="loops">Loops</h2>
+<p>While building the actual topology, reaching a node that already has a source assigned is a <b>loop</b>, unless every device on the path has <code>PermitLoop</code>. A loop that persists for <code>LoopConfirmTime</code> (60 s) sets <code>ActualLoop</code>, which makes the feeder <b>abnormal</b>, makes it non-normal, and blocks RTN. New loop detection is suppressed while the DAC is analysing (so the DAC's own closed-transition switching does not trip it), but a loop that existed before analysis stays latched. <span class="src">Feeder/Topology/mFEEDER_BuildActualTopology</span> <span class="src">Feeder/FEEDER</span></p>
+<p><code>PermitLoop</code> on a circuit is ignored if <code>PermitOp</code> (VVO) is set on it. Directional devices on permitted-loop feeders evaluate faults per direction (<code>FaultAB</code>/<code>FaultBA</code>).</p>
+
+<h2 id="abn-device">What makes a device abnormal</h2>
+<p>Any one of these, unless the device is out of service or bypassed: <span class="src">Equipment/Abnormal/mEQUIPMENT_DetectAbnormal</span></p>
+<div class="tw"><table>
+<tr><th>Condition</th><th>Source</th><th>Clears when</th></tr>
+<tr><td>Not in Remote (local/supervisory off)</td><td><code>Remote</code> input (Adapter: <code>Normal_Remote</code> polarity)</td><td>Back in remote</td></tr>
+<tr><td>Hot line tag</td><td><code>HotLineTag</code>; Adapter also ORs the user <code>CustomizableAbnormal</code> point</td><td>Tag removed</td></tr>
+<tr><td>Close onto fault</td><td>DAC-detected (<a href="atlas:distribution-automation/dac-events/fault.html#cof">§07</a>)</td><td>Feeder reset or system reset only</td></tr>
+<tr><td>Communication failure</td><td><a href="atlas:distribution-automation/dac-foundations/comms.html#comm-health">§04</a></td><td>3 good responses</td></tr>
+<tr><td>Command failure</td><td>Command timed out</td><td>Feeder/system reset, or RTN detected on its feeder</td></tr>
+<tr><td>Diagnostic fail</td><td>Relay <code>Trouble</code> point</td><td>Point clears</td></tr>
+<tr><td>Reclose blocked</td><td>Reclose-enabled point FALSE (devices with reclosing). Adapter SwitchMode forces reclose TRUE.</td><td>Reclosing enabled</td></tr>
+<tr><td>Voltage discrepancy alarm</td><td><a href="atlas:distribution-automation/dac-foundations/voltage.html#v-discrepancy">§05</a></td><td>Discrepancy clears</td></tr>
+<tr><td>Abnormal fault detector</td><td>Forward and reverse fault both asserted within <code>EventDetectTime</code> (or during UPDATE)</td><td>Both directional inputs drop with no event detected</td></tr>
+<tr><td>Protection-failure abnormal</td><td>ProtectionFailure asserted when the DAC was not armed to use it (<a href="atlas:distribution-automation/dac-events/fault.html#bf">§07</a>)</td><td>Input clears</td></tr>
+</table></div>
+<p>The feeder's <code>Abnormal</code> = any equipment in its actual topology abnormal OR <code>ActualLoop</code>. Out-of-service devices never make a feeder abnormal.</p>
+
+<h2 id="abn-modes">Abnormal restoration modes</h2>
+<p>Set scheme-wide (<code>AbnormalRestoration</code> on the manager, hidden on the Adapter, default <b>None</b>) and overridable per circuit (<code>DA_CIRCUIT.AbnormalRestoration</code>, default GLOBAL). The mode is a bit field: <span class="src">Feeder/Event/Abnormal/eAbnormalRestorationMode</span> <span class="src">OBJ/DA_CIRCUIT</span></p>
+<div class="tw"><table>
+<tr><th>Mode</th><th>Bits</th><th>Abnormal feeder may isolate?</th><th>…be an alternate source?</th><th>Around an abnormal device on an event feeder</th></tr>
+<tr><td><b>None</b> (default)</td><td>0000</td><td>No</td><td>No</td><td>Nothing. The abnormal feeder is left alone. Source events on it are ignored.</td></tr>
+<tr><td><b>Isolate</b></td><td>0001</td><td>Yes</td><td>Yes (if its path is clean)</td><td>Opens the first controllable switch on each side of the abnormal device (if the device lost power); restores nothing that the abnormal device bounds.</td></tr>
+<tr><td><b>RestoreUpstream</b></td><td>0011</td><td>Yes</td><td>Yes</td><td>Isolate, then restore the section on the source side of the abnormal device.</td></tr>
+<tr><td><b>RestoreAround</b></td><td>0111</td><td>Yes</td><td>Yes</td><td>Isolate, then restore both upstream and downstream sections.</td></tr>
+</table></div>
+<p>How the isolation works: abnormal devices met during fault, open-phase or source-event confirmation go on a check list with an "interrupted" flag (it lost power from the event). Before solving, <code>AbnormalRestoration.Fault.Process()</code> takes the mode from the feeders on both sides of the device (the more restrictive one). If the device still shows voltage, the DAC re-checks whether it is really cut off from every live source. It then opens the first controllable switch on each side (flag <code>AbnormalIsolation</code>), marks the zone in between <code>AbnormalIsolateZone</code> (reported as extended outage), and makes the far side of each switch a root if restoration is allowed there. Edges that the mode does not allow restoring get <code>AbnormalBlockRestore</code> on their nodes, and any planned reclose through them is removed. <span class="src">Feeder/Event/Abnormal/class_AbnormalIsolation</span></p>
+<div class="callout interp"><b>Interpretation</b> With mode None, one abnormal device anywhere on a feeder (a single relay in local, a hot-line tag, a comm-failed switch) stops all automatic action on that feeder and removes it as a backup for its neighbours. This is the most common reason a "should have restored" event did nothing. Check <code>FeederAbnormal</code> on every feeder involved, not just the faulted one.</div>
+
+<div class="warn"><b>Code caveat</b> In <code>DA_CIRCUIT</code>, the per-circuit override of <code>DetectMiscoordination</code> reads <code>dFEEDER.Fault.DetectMiscoordination := IsolateOpenPhase = ENABLE</code>. It compares the <b>IsolateOpenPhase</b> pin, not the DetectMiscoordination pin. When the circuit's DetectMiscoordination is set to anything other than GLOBAL, the feeder's miscoordination correction follows that circuit's IsolateOpenPhase setting instead. With both left at GLOBAL (the usual case) the scheme setting is used correctly. <span class="src">OBJ/DA_CIRCUIT line ~327</span></div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>End-to-End Timing</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DAC,Communication latency  the hidden term,Typical totals,Reading a stall">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>End-to-end timing</h1>
+<p>How long each stage of an event takes, which timer or condition gates it, and how to tell from the logs where a slow or stalled restoration was waiting.</p>
+<div class="chips"><span>§26</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>The DAC does not run a stopwatch sequence. Each stage starts as soon as its conditions are true. Total time is <b>protection time + the DAC's minimum waits + communication latency + device operating time</b>.</li>
+<li>Only two DAC timers always add time: <code>MinimumUpdateTime</code> (10 s) in UPDATE, and for open phase or loss of source, <code>OpenPhaseConfirmTime</code> (60 s). Every other timer is a <b>limit</b>. It only matters when something is late.</li>
+<li>For a permanent fault, most of the elapsed time is the reclosing sequence. The DAC can't confirm the fault until the last shot locks out.</li>
+<li>Command feedback is not polled for. <code>CHECK_POLL</code> is FALSE, so the DAC learns a device moved only when the RTAC's normal communication delivers the new status. Slow polling or no unsolicited reporting adds directly to every open and close.</li>
+<li>When a limit expires, the result is always a named flag: <code>UpdateStepTimeout</code>, <code>AnalyzeStepTimeout</code>, <code>ReconfigureStepTimeout</code>, <code>CommandFailure</code> or <code>RestorationFail</code>. Each one points to the stage that stalled.</li>
+</ol></div>
+
+<h2 id="timing-budget">The budget, stage by stage (Adapter defaults)</h2>
+<div class="tw"><table>
+<tr><th>Stage</th><th>Starts when</th><th>Minimum added by the DAC</th><th>Limit (what fires if exceeded)</th></tr>
+<tr><td>Detection</td><td>A latched fault coincides with an open or locked-out device (TripNew). For open phase: dead section for <code>EventDetectTime</code>.</td><td class="num">0 s (fault) · 10 s (open phase)</td><td>—</td></tr>
+<tr><td>UPDATE</td><td>Event detected. Feeder and neighbours within <code>TransferDepth</code> are polled.</td><td class="num">10 s (<code>MinimumUpdateTime</code>)</td><td>MAX(<code>UpdateTimeLimit</code>, MinimumUpdate + 10 s) = 120 s → <code>UpdateStepTimeout</code>, AbnormalCondition, non-responders abnormal</td></tr>
+<tr><td>ANALYZE: waiting for lockout</td><td>Feeder in ANALYZE with the fault latched</td><td class="num">0 s (but waits for the last reclose shot)</td><td><code>AnalyzeTimeLimit</code> 120 s → feeder clears the event. A temporary fault ends here.</td></tr>
+<tr><td>ANALYZE: confirmation</td><td>Lockout latched. The feeder is polled again.</td><td class="num">Until every device answers</td><td>Same 120 s → <code>AnalyzeStepTimeout</code>. Scheme-level limit is 3 × 120 s = 360 s.</td></tr>
+<tr><td>Open-phase / LOS confirmation</td><td>Open phase latched</td><td class="num">60 s (<code>OpenPhaseConfirmTime</code>)</td><td>Needs to be confirmed inside ANALYZE (120 s). LOS with <code>LossOfSourceRestoreTime</code> &gt; 0 also waits for the operator.</td></tr>
+<tr><td>Immediate isolation</td><td>Fault confirmed. Load-break isolation points get OPEN.</td><td class="num">0 s, then a 5 s command pulse</td><td><code>CMD_TIMEOUT</code> = <code>UpdateTimeLimit</code> (120 s Adapter) → <code>CMD_TIMEOUT</code> on the device, <code>CommandFailure</code></td></tr>
+<tr><td>Solve</td><td>All feeders idle (or analysing with event confirmed)</td><td class="num">One or a few scans</td><td>Part of the scheme analyse limit</td></tr>
+<tr><td>Execution: opens</td><td>Solution found</td><td class="num">Device time + status latency</td><td><code>ReconfigTimeLimit</code> 120 s for the whole execution → <code>ReconfigureStepTimeout</code>, <code>RestorationFail</code></td></tr>
+<tr><td>Execution: settings groups</td><td>A close is pending and a device on the new path has the wrong group</td><td class="num">Until the group status changes</td><td>Same 120 s</td></tr>
+<tr><td>Execution: close</td><td>Isolation open, groups right, one side live, other side dead, permissive present</td><td class="num"><code>CloseDelay</code> (0 s) + 5 s pulse</td><td>Same 120 s. Command retries every 7 s, up to 3 pulses in all.</td></tr>
+<tr><td>Close-onto-fault watch</td><td>Every DAC close</td><td class="num">10 s window (runs in parallel)</td><td>—</td></tr>
+<tr><td>Completion</td><td>All operations done</td><td class="num">0 s</td><td><code>ReconfigurationComplete</code>/<code>RestorationFail</code> self-clear after 600 s. Alarm emails go out after 30 s.</td></tr>
+</table></div>
+<p class="srcs"><span class="src">Feeder/FEEDER</span> <span class="src">OBJ/DA_MANAGER_AR</span> <span class="src">Communications/Command/CMD</span> <span class="src">Global Variables/Global_Variables</span></p>
+
+<h2 id="timing-comms">Communication latency, the hidden term</h2>
+<ul>
+<li><b>Polls during an event:</b> one poll at a time per communication port. A poll that gets no answer times out after 10 s while DA is in progress (30 s otherwise) before the next device on that port is asked. Several silent devices on one port therefore add 10 s each to UPDATE. <span class="src">Communications/DA_COM_LINE</span></li>
+<li><b>Freshness:</b> a device counts as "updated" only when its <code>WatchdogCount</code> changes after the poll request (<a href="atlas:distribution-automation/dac-foundations/comms.html">§04</a>). A relay that answers without incrementing the counter looks silent.</li>
+<li><b>Command feedback:</b> a command pulse is 5 s. If the status hasn't changed by the time the 7 s retry timer runs out, a second pulse goes out, then a third. Feedback arrives however the RTAC's DNP client normally gets data. The DAC doesn't trigger a check poll (<code>CHECK_POLL</code> = FALSE).</li>
+<li><b>Connectors:</b> polled immediately (no queue). Their watchdog limit is the connector's own <code>UpdateTimeLimit</code> (10 s).</li>
+</ul>
+
+<h2 id="timing-typical">Typical totals</h2>
+<p>These are illustrative figures. They assume devices answer polls in 1–2 s, report status changes within 2–3 s, and a recloser curve of trip, 2 s, 10 s, 15 s to lockout.</p>
+<div class="tw"><table>
+<tr><th>Event</th><th class="num">Fault/event to last DAC operation</th><th>Where the time goes</th></tr>
+<tr><td>Permanent fault, one isolation open, one tie close</td><td class="num">≈ 40–45 s</td><td>≈ 27 s reclosing, ≈ 3 s confirmation, ≈ 3 s isolation feedback, ≈ 5 s settings group, ≈ 3 s close feedback</td></tr>
+<tr><td>Permanent fault, breaker with a single shot</td><td class="num">≈ 20–25 s</td><td><code>MinimumUpdateTime</code> 10 s dominates; lockout is already there when ANALYZE starts</td></tr>
+<tr><td>Open phase or loss of source (automatic)</td><td class="num">≈ 75–85 s</td><td>10 s detection + 60 s confirmation + switching</td></tr>
+<tr><td>Temporary fault</td><td class="num">No operation</td><td>Feeder sits in ANALYZE up to 120 s and then clears</td></tr>
+</table></div>
+
+<h2 id="timing-stalls">Reading a stall</h2>
+<div class="tw"><table>
+<tr><th>What you see</th><th>Stage that stalled</th><th>Usual cause</th></tr>
+<tr><td><code>UpdateStepTimeout</code>, device <code>COMM_ALARM</code></td><td>UPDATE</td><td>A device didn't answer, or answered without its watchdog counter changing</td></tr>
+<tr><td><code>AnalyzeStepTimeout</code>, no permanent-fault target</td><td>ANALYZE</td><td>Lockout never seen: reclosing still running, lockout point not mapped, or a successful reclose</td></tr>
+<tr><td><code>ReconfigureStepTimeout</code> + <code>VoltageLimit</code></td><td>Execution, before the close</td><td>Alternate side never reached Live (Live2 during RTN), or a phase mismatch</td></tr>
+<tr><td><code>ReconfigureStepTimeout</code> + <code>CommandFailure</code></td><td>Execution, a command</td><td>Device didn't report the new state within 120 s</td></tr>
+<tr><td><code>RestorationFail</code> + <code>IncorrectSG</code></td><td>Execution, settings group</td><td>The group change wasn't reflected in the SG status points</td></tr>
+<tr><td><code>Request Permissive</code> asserted, nothing closes</td><td>Execution, permissive</td><td>Alternate feeder's permissive input stayed FALSE</td></tr>
+</table></div>
+</body>
+</html>

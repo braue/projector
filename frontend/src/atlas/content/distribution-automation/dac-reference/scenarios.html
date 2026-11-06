@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scenario Playbook</title>
+<meta name="atlas-order" content="40">
+<meta name="atlas-tags" content="DAC,Faults,Capacity  voltage  permissive,Open phase and loss of source,Source events,Operations  configuration  health">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Scenario playbook: what the DAC will do, and why</h1>
+<p>Each case follows from the rules above. Defaults assumed are the Adapter's unless stated. "Feeder A" is the faulted feeder, "B" an adjacent feeder with a normally-open tie.</p>
+<div class="chips"><span>§23</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<h2 id="sc-faults">Faults</h2>
+<div class="scen"><h3>Permanent fault between two reclosers, coordination correct</h3><div class="b">
+<p>R1 (upstream) sees fault, R2 (downstream) does not; R1 recloses and locks out.</p>
+<p><b>DAC:</b> TripNew → UPDATE (A and feeders within TransferDepth polled) → ANALYZE → lockout found at R1 → re-poll → fault located below R1 → isolation search: R1 already open; next controllable switch downstream (R2) is an isolation point and is <b>opened immediately</b>; beyond R2 is a root. Solver closes the tie to B if B is armed, available, Live2, and has margin. If B has a permissive input and it is FALSE, a permissive request goes out first.</p>
+<p class="why">Why: the fault lies between the deepest device that saw fault (R1) and the first that did not (R2).</p></div></div>
+
+<div class="scen"><h3>Temporary fault (reclose succeeds)</h3><div class="b">
+<p><b>DAC:</b> UPDATE then ANALYZE, but no lockout is ever found, so the fault stays unresolved until <code>AnalyzeTimeLimit</code>; then the event clears. No switching. Relay targets are reset after <code>FaultHoldTime</code>.</p></div></div>
+
+<div class="scen"><h3>Fault beyond the last DA device on the feeder</h3><div class="b">
+<p>Last recloser RL sees fault and locks out; nothing is downstream of it in the model.</p>
+<p><b>DAC:</b> Confirms a permanent fault at RL. There is no isolation point and no root beyond it, so the solver has nothing to restore. Feeder shows <code>PermanentFault</code> and a completed (empty) reconfiguration.</p></div></div>
+
+<div class="scen"><h3>Fault in the breaker zone (between feeder breaker and first recloser)</h3><div class="b">
+<p><b>DAC:</b> Breaker locks out; the first downstream recloser did not see fault → it is the isolation point, opened immediately; everything beyond it is restored from alternates.</p></div></div>
+
+<div class="scen"><h3>Miscoordination: upstream R1 locked out although R2 also saw the fault</h3><div class="b">
+<p><b>Detection ON (Adapter default):</b> R2 (and the next device below the fault) isolate the fault; R1 is put on the ReturnClose list and reclosed after isolation, restoring the healthy section between R1 and R2. Load beyond the fault goes to alternates. <code>Miscoordination</code> target.</p>
+<p><b>Detection OFF and R2 has protection:</b> R1 is not reclosed; the section R1–R2 is flagged non-restorable (miscoordination). Only load beyond the fault isolation is restored.</p>
+<p><b>R2 is a switch without protection:</b> R1 is reclosed either way; this is normal sectionalising.</p>
+<p class="why">Why: with protection on R2, a trip of R1 means a coordination problem; the DAC only "corrects" it when told to.</p></div></div>
+
+<div class="scen"><h3>Directional device at the breaker sees reverse fault</h3><div class="b">
+<p><b>DAC:</b> <code>Fault.OffFeeder</code>; the feeder leaves ANALYZE without acting. The fault is on the bus or an adjacent feeder.</p></div></div>
+
+<div class="scen"><h3>A device on the faulted feeder does not answer the update poll</h3><div class="b">
+<p><b>DAC:</b> UPDATE times out (MAX(UpdateTimeLimit, MinimumUpdateTime+10 s), 120 s with Adapter defaults). The feeder gets <code>AbnormalCondition</code>; the silent device gets UpdateFailed/comm failure and becomes abnormal; the feeder becomes abnormal. Nothing is restored.</p>
+<p class="why">Why: the DAC will not act on a feeder it cannot see completely.</p></div></div>
+
+<div class="scen"><h3>A switch on the faulted feeder is in local / has a hot-line tag</h3><div class="b">
+<p><b>Mode None (default):</b> Feeder A is abnormal: no immediate isolation, no restoration. Feeder A also cannot serve as an alternate for anyone. If the tagged device is on feeder B, B is unavailable as an alternate.</p>
+<p><b>Mode Isolate / RestoreUpstream / RestoreAround:</b> The fault is handled; the abnormal device is isolated at the nearest controllable switches if it lost power, and its neighbouring sections restored according to the mode (<a href="atlas:distribution-automation/dac-foundations/topology.html">§06</a>).</p></div></div>
+
+<div class="scen"><h3>Fault zone bounded by an uncontrollable switch</h3><div class="b">
+<p>Isolation boundary device is inhibited, has no comms, or protection-failed.</p>
+<p><b>DAC:</b> The isolation search passes through it (it is closed and cannot be operated) and continues to the next controllable switch. More customers stay out; the extra load shows as extended outage.</p></div></div>
+
+<div class="scen"><h3>Isolation boundary is a non-load-break switch</h3><div class="b">
+<p><b>DAC:</b> It is not opened immediately while energised. It is opened during execution once it is disconnected from every source (normally right away, because the upstream device is locked out). A plan that would need it opened live is rejected (<code>BadLoadBreak</code>).</p></div></div>
+
+<div class="scen"><h3>Tie closes back into the fault (wrong location)</h3><div class="b">
+<p><b>DAC:</b> Inside the 10 s window after the close, a trip on the tie's feeder (or the tie opening with fault) sets <code>CloseOnFault</code> on the tie: it becomes abnormal and blocked from closing; the sequence aborts with <code>AbnormalCondition</code> and <code>RestorationFail</code>. It stays latched until feeder or system reset.</p></div></div>
+
+<div class="scen"><h3>Breaker failure on a feeder breaker</h3><div class="b">
+<p><b>Adapter:</b> Every feeder on that bus gets a source event; the failed breaker's own feeder isolates its breaker zone. <b>Lib:</b> the failed device is never used as an isolation point; when armed, isolation extends around it to the next controllable switches.</p></div></div>
+
+<h2 id="sc-capacity">Capacity, voltage, permissive</h2>
+<div class="scen"><h3>Alternate B cannot carry all of A's dead load</h3><div class="b">
+<p><b>DAC:</b> The solver tries splitting the dead area at internal switches across several ties (B, C…), and cascading transfers within TransferDepth. If no combination fits within temporary ratings, the best plan picks up what it can and leaves the rest dead (only if that dead part is shed-permissive; otherwise the plan is rejected with <code>NoResSrc</code>). Result: <code>CapacityLimit</code>, <code>RestorationFail</code>.</p></div></div>
+
+<div class="scen"><h3>Alternate B voltage is between Live1 and Live2</h3><div class="b">
+<p><b>Default:</b> B is not usable (path reason "Bad Voltage"). <b>AllowSelectLevel1</b>: chosen if nothing better (penalised); <b>without AllowRestoreLevel1</b> the close waits for Live2 and the sequence may time out with <code>VoltageLimit</code>. <b>With AllowRestoreLevel1</b>: closes at Live1.</p></div></div>
+
+<div class="scen"><h3>Alternate feeder's Permissive is FALSE</h3><div class="b">
+<p><b>DAC:</b> The close waits; <code>RequestPermissive</code> pulses to that circuit. No permissive within the command timeout → command failure on the circuit, and the sequence ends with <code>CommandFailure</code> if it is still waiting at ReconfigTimeLimit.</p></div></div>
+
+<div class="scen"><h3>Tie command gets no feedback</h3><div class="b">
+<p><b>DAC:</b> 3 pulses 7 s apart; after <code>CMD_TIMEOUT</code> (= UpdateTimeLimit) the tie is command-failed and abnormal. If execution cannot complete another way, <code>ReconfigTimeLimit</code> aborts it: <code>RestorationFail</code>, <code>CommandFailure</code>.</p></div></div>
+
+<div class="scen"><h3>Settings group of a recloser must change before the tie closes</h3><div class="b">
+<p><b>DAC:</b> The close is held while SSn is sent to each device that will be fed from the new source; the close goes out when all show the right group. A device that never changes holds the close until ReconfigTimeLimit.</p></div></div>
+
+<h2 id="sc-op">Open phase and loss of source</h2>
+<div class="scen"><h3>Open conductor mid-feeder, IsolateOpenPhase FALSE (Adapter default)</h3><div class="b">
+<p><b>DAC:</b> After EventDetectTime the dead section below the last live device is latched; after OpenPhaseConfirmTime it confirms. The next switch(es) downstream of the dead zone are opened and the load beyond restored from alternates. The open-phased section itself is left as is.</p></div></div>
+
+<div class="scen"><h3>Same, IsolateOpenPhase TRUE</h3><div class="b">
+<p><b>DAC:</b> Also opens the nearest controllable switch upstream of the open point (or trip-recloses through a load-break device if that switch cannot break load). The open-phase zone ends up de-energised on both sides.</p></div></div>
+
+<div class="scen"><h3>Open phase between unmetered switches</h3><div class="b">
+<p><b>DAC:</b> Switches without their own PTs whose voltage is only inferred are inhibited for open-phase isolation; the isolated zone grows to the next metered switch. Report lists them as open-phase-inhibited.</p></div></div>
+
+<div class="scen"><h3>Open phase not detected at all</h3><div class="b">
+<p>Check: open-phase detection enabled? Feeder armed for open phase — every device and PT on it must have been Live1 for OpenPhaseConfirmTime/2 since the last disturbance? Any device with discrepancy or comm failure? Any fault activity in the last 10 s? Only one feeder node? The detector needs a <b>live upstream</b> and <b>all-dead downstream</b>; a partially-energised downstream (backfeed, Indeterminate readings) defeats it.</p></div></div>
+
+<div class="scen"><h3>Substation source lost (all of feeder dead from the breaker down)</h3><div class="b">
+<p><b>LOS detection on, restore time 0:</b> confirmed after OpenPhaseConfirmTime; restoration of the feeder from alternates proceeds automatically. <b>Restore time &gt; 0:</b> waits for operator <code>LossOfSourceRestore</code> within the window. <b>Adapter, circuit with IsolateBreakerZone:</b> converted into a source event that isolates the breaker zone first.</p></div></div>
+
+<h2 id="sc-source">Source events</h2>
+<div class="scen"><h3>Transformer bank lockout</h3><div class="b">
+<p><b>DAC:</b> Every feeder on the bus gets a source event; each feeder breaker (first switch) is opened if needed and everything behind it restored from alternates. Feeders on that bus are not used as alternates ("Source Faulted"). With BankLockout_IsolatesBreakerZone the first downstream switches are opened instead and the breaker zones left dead.</p></div></div>
+
+<div class="scen"><h3>Source event while a fault also exists on the feeder</h3><div class="b">
+<p><b>DAC:</b> The source event counts as the lockout; the fault is located and isolated without waiting for a relay lockout; the breaker is not reclosed.</p></div></div>
+
+<h2 id="sc-ops">Operations, configuration, health</h2>
+<div class="scen"><h3>Operator closes a tie by hand, making a loop</h3><div class="b">
+<p><b>DAC:</b> After LoopConfirmTime (60 s) both feeders show <code>FeederLoop</code> and become abnormal (unless every device on the path has PermitLoop). With Block close mode AllClosedTransition the DAC would have been pulsing BlockClose on that tie beforehand.</p></div></div>
+
+<div class="scen"><h3>Operator presses Reset during an event</h3><div class="b">
+<p><b>DAC:</b> Ignored (Reset requires no DA in progress). Press it again after the sequence finishes.</p></div></div>
+
+<div class="scen"><h3>DAC disabled mid-sequence</h3><div class="b">
+<p><b>DAC:</b> Everything stops: AR_Enabled false clears all DA flags; device OPEN/CLOSE outputs stop; feeders unarm. Partially executed switching stays where it is.</p></div></div>
+
+<div class="scen"><h3>SCADA heartbeat stops</h3><div class="b">
+<p><b>DAC:</b> After HeartbeatTimeoutTime (300 s) the scheme is disabled (<code>DisabledByHeartbeat</code>) but the enable latch is kept; the first heartbeat after recovery re-enables automatically. With heartbeat-based redundancy, the DAC that still receives heartbeats becomes active.</p></div></div>
+
+<div class="scen"><h3>Primary DAC fails</h3><div class="b">
+<p><b>DAC:</b> The standby takes over per the voting rules (most live RTUs, then priority), with the operator setpoints that were replicated to it. It only drives devices once it is active; the old primary stops its DA_ENABLED_WDOG.</p></div></div>
+
+<div class="scen"><h3>Underfrequency load shed trips a feeder</h3><div class="b">
+<p><b>DAC:</b> The UF-detected device opened (or downstream voltage dead) → feeder <code>ExcludedByUnderFrequency</code> → unarmed. No restoration attempt, and the feeder is not an alternate, until the UF indication clears plus MAX(OpenPhaseConfirmTime, FaultHoldTime), or reset.</p></div></div>
+
+<div class="scen"><h3>DG on the faulted feeder</h3><div class="b">
+<p><b>DAC:</b> DG trip after 5 s because its feeder has a fault (unless RideThrough.Fault). If the DG's section is later restored from an alternate that is not in its <code>Circuit</code> list, it trips (DisallowedCircuit). Back on an allowed circuit with nothing in progress → EnableClose after 5 s.</p></div></div>
+
+<div class="scen"><h3>Return to normal requested</h3><div class="b">
+<p><b>DAC:</b> If nothing is abnormal anywhere on the normal path: open normally-open points that are closed, close normally-closed points that are open, closed transition where both sides share a source group and Live2; settings groups returned. Any abnormal or unoperable device → <code>AbnormalCondition</code>, nothing switched. Source-group mismatch → <code>CapacityLimit</code>. A new event during RTN cancels it.</p></div></div>
+
+<div class="scen"><h3>Reset just before a test</h3><div class="b">
+<p><b>DAC:</b> Controller reset re-proves comm health; each device needs 3 good responses (about 30 s with 10 s re-polls) before it stops being abnormal, and outputs are held off for 5 s. An event in that window may be handled as abnormal.</p></div></div>
+
+<div class="scen"><h3>Connector partner goes silent</h3><div class="b">
+<p><b>DAC:</b> After the connector's UpdateTimeLimit (10 s) <code>Comm_Alarm</code>, the remote source is excluded, collaborations are rejected; local restoration still proceeds without the partner. Recovery needs 3 fresh updates.</p></div></div>
+</body>
+</html>

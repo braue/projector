@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Code Caveats</title>
+<meta name="atlas-order" content="50">
+<meta name="atlas-tags" content="DAC">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Code caveats collected</h1>
+<p>Places where the code does something surprising. Each is worth confirming on a test set before relying on it.</p>
+<div class="chips"><span>§24</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="tw"><table>
+<tr><th>#</th><th>Where</th><th>Observation</th></tr>
+<tr><td class="num">1</td><td><span class="src">OBJ/DA_CIRCUIT</span></td><td>Per-circuit <code>DetectMiscoordination</code> override actually reads the <code>IsolateOpenPhase</code> pin. Only matters if either is set off GLOBAL.</td></tr>
+<tr><td class="num">2</td><td><span class="src">fb_RestorationSourceCheck</span></td><td><code>TransferDepth = 0</code> prevents crossing any tie in the restorability check (unless <code>g_BypassDepthCheck</code>), so outaged branches become non-restorable. Lib default is 0; Adapter default 2.</td></tr>
+<tr><td class="num">3</td><td><span class="src">ADP fb_Heartbeat</span></td><td>Heartbeat setpoint range check uses OR; any value is accepted, including 0.</td></tr>
+<tr><td class="num">4</td><td><span class="src">mFEEDER_FindReturnSwitches</span></td><td>RTN source-group mismatch is reported as <code>CapacityLimit</code>.</td></tr>
+<tr><td class="num">5</td><td><span class="src">mAR_CompareStates</span></td><td>"Maximise load restored" and "same-feeder restoration" criteria disabled.</td></tr>
+<tr><td class="num">6</td><td><span class="src">mAR_FindSolution</span></td><td>Always returns TRUE; the best executable state is executed even if it restores little. Partial restoration is signalled only by CapacityLimit/RestorationFail.</td></tr>
+<tr><td class="num">7</td><td><span class="src">OBJ/DA_MANAGER_AR</span></td><td><code>ClosedTransition</code> hard-coded TRUE.</td></tr>
+<tr><td class="num">8</td><td><span class="src">OBJ/DA_MANAGER_AR</span></td><td>Overload and load shed silently disabled when any DA_CONNECTOR exists.</td></tr>
+<tr><td class="num">9</td><td><span class="src">Revision_History</span></td><td>Load shed flagged "untested, do not enable".</td></tr>
+<tr><td class="num">10</td><td><span class="src">OBJ/DA_DG_CURTAILMENT</span></td><td>Marked obsolete, "needs updates before deployment".</td></tr>
+<tr><td class="num">11</td><td><span class="src">OBJ/DA_MANAGER_AR</span></td><td>Reset is silently dropped while DA is in progress (not queued).</td></tr>
+<tr><td class="num">12</td><td>Defaults</td><td>Adapter and Lib defaults differ on 12 settings (<a href="atlas:distribution-automation/dac-reference/settings.html">§20</a>). Projects using raw Lib blocks behave differently from Adapter projects with the same visible configuration.</td></tr>
+<tr><td class="num">13</td><td><span class="src">prvfb_LicenseManager</span></td><td>Demo license: the 4-hour <code>DemoOver</code> timeout disables DFO only. AR stays licensed until a restart, despite the Adapter's description.</td></tr>
+<tr><td class="num">14</td><td><span class="src">ADP/DA_CONTROL</span></td><td><code>DFO Functionality Unlicensed</code> alarm is driven by the AR licensed flag.</td></tr>
+<tr><td class="num">15</td><td><span class="src">prvfb_LicenseManager</span></td><td>Exceeding the licensed feeder count (connectors included) disables AR for the whole RTAC, not just the excess feeders.</td></tr>
+<tr><td class="num">16</td><td><span class="src">class_SettingsErrors</span></td><td>Duplicate connector ID shows as "Duplicate Instances" in <code>SettingsErrorText</code> (flag mapping crossed). The log entry is correct.</td></tr>
+<tr><td class="num">17</td><td><span class="src">ADP/DA_CONTROL</span></td><td>Scheme Include/Exclude are cross-wired when mapped as two device-definition indexes. Other mapping methods are correct.</td></tr>
+<tr><td class="num">18</td><td><span class="src">Global_Variables</span></td><td><code>CHECK_POLL</code> = FALSE: no check poll after a command. Feedback timing depends entirely on the RTAC's normal communication.</td></tr>
+</table></div>
+</body>
+</html>

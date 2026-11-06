@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Restoration Planning</title>
+<meta name="atlas-order" content="10">
+<meta name="atlas-tags" content="DAC,From event to solver inputs,The search,Ranking (mAR_CompareStates),Capacity and margin">
+<style>
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; line-height: 1.6; color: #1a1a22; background: #fff; max-width: 800px; margin: 0 auto; padding: 32px; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 0.9em; background: #f2f3f5; border-radius: 3px; padding: 0 3px; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #6e7180; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: 6px 12px 6px 0; }
+  td { vertical-align: top; border-bottom: 1px solid #eef0f2; padding: 6px 12px 6px 0; }
+  td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tw { overflow-x: auto; }
+  .card { border: 1px solid #e5e7eb; border-left: 3px solid var(--accent, #10a37f); border-radius: 8px; padding: 12px 16px; margin: 16px 0 20px; }
+  .card h4 { margin: 0 0 6px; }
+  .card ol, .card ul { margin: 0; padding-left: 20px; }
+  .callout, .warn { border: 1px solid #e5e7eb; border-left: 3px solid #10a37f; border-radius: 8px; padding: 10px 15px; margin: 14px 0; background: #fafbfc; }
+  .warn { border-left-color: #c58a1a; background: #fdf3e7; }
+  .callout.interp { border-left-style: dashed; border-left-color: var(--muted, #6e7180); }
+  .callout > b:first-child, .warn > b:first-child { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted, #6e7180); margin-bottom: 2px; }
+  .warn > b:first-child { color: var(--warn-ink, #9c6d06); }
+  .src { font-family: var(--font-mono, Consolas, monospace); font-size: 11px; color: var(--muted, #6e7180); margin-left: 6px; white-space: nowrap; }
+  p.srcs .src { margin-left: 0; margin-right: 10px; }
+  .tag { font-family: var(--font-mono, Consolas, monospace); font-size: 10.5px; color: var(--muted, #6e7180); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .flow { font-family: var(--font-mono, Consolas, monospace); font-size: 12px; line-height: 1.5; white-space: pre; overflow-x: auto; background: var(--bg, #fafbfc); border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 12px 14px; margin: 12px 0 16px; }
+  .scen { border-top: 1px solid var(--border, #e5e7eb); padding: 14px 0 4px; }
+  .scen h3 { margin: 0 0 4px; }
+  .scen .b p { margin: 4px 0 8px; }
+  .why, .muted { color: var(--muted, #6e7180); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .two > div { min-width: 0; }
+  details.cat { border-top: 1px solid var(--border, #e5e7eb); padding: 9px 0; }
+  details.cat:last-of-type { border-bottom: 1px solid var(--border, #e5e7eb); }
+  details.cat summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  details.cat summary::-webkit-details-marker { display: none; }
+  details.cat summary::before { content: "+"; font-family: var(--font-mono, monospace); color: var(--muted, #6e7180); width: 12px; }
+  details.cat[open] summary::before { content: "\2212"; }
+  details.cat .cnt { font-size: 12px; color: var(--muted, #6e7180); }
+  table.gl td:first-child { white-space: nowrap; font-weight: 600; }
+  .st-closed { color: var(--bad-ink, #a32d2d); font-weight: 600; }
+  .st-open { color: var(--ok-ink, #0d7f63); font-weight: 600; }
+  :target { scroll-margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="masthead">
+<h1>Restoration planning: how a solution is chosen</h1>
+<p>After isolation, the DAC searches for a set of opens and closes that re-energises the most load without overloading anything, then ranks candidates by a fixed list of criteria.</p>
+<div class="chips"><span>§13</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+</div>
+<div class="card"><h4>The rules, stated plainly</h4><ol>
+<li>The inputs are <b>roots</b> (points beyond which load is dead and must be restored), the <b>isolation</b> list (must open) and the <b>return-close</b> list (must close).</li>
+<li>Candidates are built by choosing a switch inside the dead area to split it at, and a <b>normally-open tie</b> beyond that split whose far side reaches a valid, live, armed source.</li>
+<li>A candidate is thrown out if any rule in the reason-code table below fails.</li>
+<li>The best surviving candidate is chosen by: least temporary-limit overload → shed least important load → least load left dead → least normal-limit overload → least load on Level-1-only sources → fewest operations → least load on non-preferred sources → least load moved to a different source group → most load back on its normal source → most margin.</li>
+<li>The best executable candidate is always executed, even if it restores only part of the load. Partial restoration sets <code>CapacityLimit</code> and <code>RestorationFail</code>.</li>
+</ol></div>
+
+<h2 id="sol-inputs">From event to solver inputs</h2>
+<div class="tw"><table>
+<tr><th>List</th><th>Filled by</th><th>Meaning</th></tr>
+<tr><td>Roots</td><td>Fault isolation (far side of each isolation point), source event, open phase, overload (feeder source), remote event, bus restore, RTN, abnormal isolation</td><td>Equipment/node pairs: "everything beyond here needs a source".</td></tr>
+<tr><td>Source roots</td><td>Transfer-depth search</td><td>Alternate feeders that may themselves shed load to a third feeder to make room.</td></tr>
+<tr><td>Non-restorable roots</td><td>Isolation where restore is not allowed, open-phase device when not isolating</td><td>Counted as unrestorable load.</td></tr>
+<tr><td>Isolation (→ OpenSwitch)</td><td>Every isolation point</td><td>Must be open in any solution.</td></tr>
+<tr><td>ReturnCorrection (→ CloseSwitch)</td><td>Miscoordination correction, TripReclose, RTN closes</td><td>Must be closed in any solution (unless also an isolation point; then dropped and reported as miscoordination).</td></tr>
+</table></div>
+<p>Before searching, load figures are frozen: feeders with an event latched get scenario loads calculated from the model; all others use <code>FeederLoad</code>, the 30 s average source current delayed 30 s and held while DA is in progress. Transformer and bus margins start from present conditions. <span class="src">AutomaticReconfig/ReconfigPlanning/mAR_FindSolution</span> <span class="src">Feeder/FEEDER</span></p>
+<p>Non-restorable classification also runs here: load in a branch that has no possible restoration source within <code>TransferDepth</code> feeder hops is flagged <code>NonRestorable-Branch</code>; loads in extended-fault, abnormal-isolate and miscoordination zones get their own flags. <span class="src">AutomaticReconfig/ReconfigPlanning/NonRestorable/class_NonRestorable</span></p>
+
+<h2 id="sol-search">The search</h2>
+<p><code>class_ArSelector</code> runs a best-first search over a frontier of partial solutions (states). <span class="src">AutomaticReconfig/ReconfigPlanning/Classes/class_ArSelector</span></p>
+<ol>
+<li><b>Initial state</b> = all isolation opens + all required closes. A switch whose feeders are abnormal with mode None on both sides is left out.</li>
+<li><b>Expand roots</b>: for each root, walk the dead area through closed equipment. Every closed, controllable switch found (not inhibited, isolation allowed, not already chosen to close) is a candidate <b>sectionalising point</b>, as is the root itself. If the walk reaches a SOURCE, the area is still connected to a source and that root produces nothing.</li>
+<li>For each sectionalising point, walk beyond it to find <b>open, controllable switches</b> not already in the state whose far side reaches a valid source (<a href="#sol-reasons">rules below</a>) on a feeder with no detected overload and with restoration allowed. Each one produces a child state: + open(sectionalising point) + close(tie).</li>
+<li><b>Load shed expansion</b> (only when the state has a temporary-limit violation, or shedding a less important load is possible): open shed-permissive switches on the overloaded path, least important priority first.</li>
+<li>Alternate-source roots (cascading transfers) are expanded only after the ordinary roots have been tried.</li>
+</ol>
+<div class="tw"><table>
+<tr><th>Search limit</th><th class="num">Value</th></tr>
+<tr><td>States expanded (MaxScenarioCount)</td><td class="num">100</td></tr>
+<tr><td>Frontier size</td><td class="num">600</td></tr>
+<tr><td>Sectionalising candidates</td><td class="num">4000</td></tr>
+<tr><td>Restoration candidates</td><td class="num">2000</td></tr>
+<tr><td>Steps per area walk</td><td class="num">350</td></tr>
+</table></div>
+<p>The search stops early when the best executable state is <b>Satisfied</b> (executable, positive normal margin everywhere, nothing shed) and more than 10 states have been checked, or the frontier is empty after at least 2. Hitting a limit ends the search with the best found so far.</p>
+<div class="callout interp"><b>Interpretation</b> Because every expansion adds one open and one close, solutions that split the outage among several alternates are built up one tie at a time. A large, highly meshed system can hit the 100-state limit; the result is still the best of what was examined, not necessarily the global best.</div>
+
+<h2 id="sol-rank">Ranking (mAR_CompareStates)</h2>
+<p>A candidate replaces the best so far if it wins on the first criterion where the two differ by more than the deadband (0.01 A; margins 0.2 A). Empty, non-expandable or non-executable states always lose first. <span class="src">AutomaticReconfig/ReconfigPlanning/Helper/mAR_CompareStates</span></p>
+<div class="two">
+<div>
+<p class="k">When the best so far overloads a temporary limit</p>
+<ol>
+<li>Higher minimum temporary margin</li>
+<li>Less total temporary overload</li>
+<li>Higher shed priority value (sheds less important load)</li>
+<li>Less load left to shed</li>
+<li>Less max load on any one Level-1 source</li>
+<li>Less total load selected on Level-1 sources</li>
+<li>Fewer switching operations</li>
+<li>Less max load on a non-preferred source</li>
+<li>Less total load on non-preferred sources</li>
+<li>Less load moved to a different source group</li>
+<li>More nodes restored by their normal source</li>
+<li>Higher minimum normal margin</li>
+<li>Higher total normal margin</li>
+</ol>
+</div>
+<div>
+<p class="k">When the best so far is within temporary limits</p>
+<p>The candidate must also be within temporary limits. Then:</p>
+<ol>
+<li>Higher shed priority value</li>
+<li>Less load left to shed</li>
+<li>If the best overloads a normal limit: higher minimum normal margin</li>
+<li>Less max load on any one Level-1 source</li>
+<li>Less total load selected on Level-1 sources</li>
+<li>Fewer switching operations</li>
+<li>Less max / total load on non-preferred sources</li>
+<li>Less load moved to a different source group</li>
+<li>More nodes restored by their normal source</li>
+<li>Higher minimum normal margin</li>
+</ol>
+</div>
+</div>
+<p>"Non-preferred" sources are those with <code>Preference</code> ≥ 1: DAC connectors and circuits fed by a shared bus with an event in progress in a neighbouring DAC.</p>
+<div class="warn"><b>Code caveat</b> Two criteria from the manual's list are disabled in this build: "maximise load restored" (<code>TotalLoadToRestore</code>, disabled 2020-10-26) and "prefer restoring from the same feeder" (<code>TotalLoadRestoredByDifferentFeeder</code>, disabled 2019-06-13), both because the calculations break when the outage area is split. Load restored is still driven indirectly through "less load left to shed".</div>
+
+<h2 id="sol-reasons">Validity rules and the reason codes in reports</h2>
+<p>These strings appear in the solution and diagnostic reports as <code>REASON:Role-Device</code> (for example <code>BadRestSrc-Dead Source:OpenSw-G9106</code>). <span class="src">AutomaticReconfig/ReconfigPlanning/Calculate Utility/class_CalcUtility</span> <span class="src">Common/GetSource/class_BaseGetSource.prv_VerifySource</span></p>
+<div class="tw"><table>
+<tr><th>Code</th><th>Meaning</th><th>Effect</th></tr>
+<tr><td><code>BadRestSrc-…</code> on <code>OpenSw</code></td><td>The source found behind a tie (or a switch to close) is not valid. The suffix gives why (next table).</td><td>Candidate aborted</td></tr>
+<tr><td><code>BadRootSrc-…</code> on <code>Root</code></td><td>The source still feeding a root (partial area) is not valid.</td><td>Not executable</td></tr>
+<tr><td><code>BadRestSrcGrp</code></td><td>Restoring source has source group 65535 (a bus fed by transformers of different source groups).</td><td>Aborted</td></tr>
+<tr><td><code>BadLoadBreak</code></td><td>The plan opens a closed non-load-break switch that is still connected to a source.</td><td>Aborted</td></tr>
+<tr><td><code>NoResSrc</code></td><td>A section would be left dead that was interrupted, has restorable load, and is not shed-permissive.</td><td>Aborted</td></tr>
+<tr><td><code>NoShedPerm</code></td><td>A root with no source and no shed permissive.</td><td>Not executable</td></tr>
+<tr><td><code>OpenMarginOverload</code> (RestSrc)</td><td>The restoring feeder's scenario exceeds temporary limits.</td><td>Not executable</td></tr>
+<tr><td><code>SourceMarginOverload</code> (RootSrc)</td><td>A root's present source exceeds temporary limits in the scenario.</td><td>Not executable</td></tr>
+<tr><td><code>XfmrOverload</code></td><td>The scenario makes a transformer/bus temporary overload worse than it already is.</td><td>Aborted</td></tr>
+<tr><td><code>CtrlConflict</code></td><td>The same switch is both opened and closed.</td><td>Not executable</td></tr>
+<tr><td><code>InvalOpnSw</code></td><td>Invalid switch reference.</td><td>Aborted</td></tr>
+</table></div>
+<div class="tw"><table>
+<tr><th>Source-path reason (suffix)</th><th>Cause</th></tr>
+<tr><td><code>Any Abnormal Equipment</code> / <code>Abnormal Equipment</code></td><td>An abnormal device lies on the path to that source, and the source's feeder has mode None (the reclose-correction path is exempt).</td></tr>
+<tr><td><code>Non Restorable-Branch / -Miscoordination / -OpenPhase / -Fault / -Extended / -Abnormal</code></td><td>The path crosses load flagged non-restorable for that reason.</td></tr>
+<tr><td><code>Any Bad Voltage</code> / <code>Bad Voltage</code></td><td>Some equipment on the path (not itself flagged for restoration) is below the required level: Live2, or Live1 if that source has <code>AllowRestoreLevel1</code>.</td></tr>
+<tr><td><code>Any Dead Source</code> / <code>Dead Source</code></td><td>The source itself is below the required level.</td></tr>
+<tr><td><code>Bad Src Group</code></td><td>The path carries a MatchSourceGroup flag (live-load transfer) and the source group differs.</td></tr>
+<tr><td><code>Feeder Not Armed</code></td><td>The alternate's feeder is unarmed (excluded, UF, AR off).</td></tr>
+<tr><td><code>Source Faulted</code></td><td>The alternate feeder has a source event latched.</td></tr>
+<tr><td><code>No Feeder Associated</code></td><td>Model problem: source with no feeder.</td></tr>
+<tr><td><code>Connector Not Participating</code></td><td>The source is a DAC connector that is not in an established collaboration.</td></tr>
+<tr><td><code>Loop Through Connector</code></td><td>More than one source found and one is a connector.</td></tr>
+<tr><td><code>Joining Multiple Sources On Side[ - Return]</code></td><td>RTN only: the close would tie sources whose masks differ.</td></tr>
+</table></div>
+
+<h2 id="sol-sg">Source groups, voltage levels, permissives</h2>
+<ul>
+<li><b>Source group</b> (<code>SourceGroup</code> on circuit or transformer; circuit 0 inherits the transformer's) identifies sources that may be paralleled. It is only enforced where a MatchSourceGroup flag exists: overload transfers, remote events (as copied from the remote DAC), closed-transition RTN. Dead load being restored after a fault is marked 65535 ("was de-energised"), so <b>any</b> source group may pick it up (open transition by nature). At execution, a close between two live sides always requires equal groups.</li>
+<li><b>Level 1 / Level 2</b>: by default an alternate is used only at Live2. <code>AllowSelectLevel1</code> lets the solver choose a Live1 feeder (penalised in the ranking); <code>AllowRestoreLevel1</code> lets it actually close onto one. Select without restore: the plan is made but the close waits for Live2 and may end with <code>VoltageLimit</code>.</li>
+<li><b>Permissive</b>: if a source feeder's <code>Permissive</code> is FALSE, the close onto it waits while the DAC pulses <code>RequestPermissive</code> to that circuit (command retries/timeout as any command).</li>
+<li><b>TransferDepth</b> (Adapter default 2, Lib default 0): the number of open boundaries (feeder hops) the DAC may cross when polling neighbours and when checking that an outaged branch has any possible restoration source. 1 = directly adjacent feeders; 2 = also a cascading transfer through a second feeder. <span class="src">AutomaticReconfig/ReconfigPlanning/Helper/fb_RestorationSourceCheck</span></li>
+</ul>
+<div class="warn"><b>Code caveat</b> The restorability check crosses an open switch only while <code>depth &lt; TransferDepth</code>. With <code>TransferDepth = 0</code> no tie can be crossed, so every outaged branch is classed <code>NonRestorable-Branch</code> and nothing is restored through a tie, unless the hidden global <code>g_BypassDepthCheck</code> is set (which raises the limit to 20). The code comments call this out for "legacy projects that have TransferDepth = 0". Projects built on the raw Lib default should be checked; Adapter projects default to 2.</div>
+
+
+<h2 id="sol-margin">Capacity and margin</h2>
+<p>Each equipment has a normal and temporary rating (<code>Capacity</code>, <code>TempCapacity</code>; lines inside switch FBs default to 9999 A on the A side, B-side lines use the device's capacity). Margin = rating minus calculated current. For each restoring source the scenario's minimum margin along every path is computed; the scheme minimum and totals feed the ranking. Load is allocated to line sections by <code>LoadAllocation</code> weights between metering points. DG output is excluded from margin. <span class="src">ExternalHelpers/Controller/System/SYS_CalcEquipMargins</span> <span class="src">AutomaticReconfig/ActiveSolution/Margins/mAR_ScenarioNodeMarginsGet</span></p>
+<p>Adapter capacity: if a device's fixed Capacity is 0 or a <code>PhasePu</code> point is mapped, TempCapacity = 0.95 × phase pickup (unless pickup &lt; 10 A or that exceeds the line limit setting, in which case the line limit), and Capacity = 0.95 × TempCapacity (<code>TempCapacityMultiplierPhasePu</code>, <code>CapacityMultiplier</code>). <span class="src">ADP fun_Capacity</span></p>
+</body>
+</html>
