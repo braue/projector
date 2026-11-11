@@ -3,9 +3,8 @@
 // ref server-side; a mismatch is a 400. `resolve(req)` supplies the
 // project's CompareService.
 
-import { Router } from 'express';
-
 import { requireQuery } from '../lib/http.js';
+import { Router } from '../lib/router.js';
 
 function compareRoutes(resolve) {
   const router = Router({ mergeParams: true });

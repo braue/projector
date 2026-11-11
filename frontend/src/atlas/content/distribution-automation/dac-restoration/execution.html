@@ -49,12 +49,12 @@
 <div class="masthead">
 <h1>Execution: turning the plan into operations</h1>
 <p>The execution engine re-evaluates the whole plan every scan and only issues an operation when the electrical state makes it safe. It is a set of interlocks, not a timed sequence.</p>
-<div class="chips"><span>§14</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§14</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="card"><h4>The rules, stated plainly</h4><ol>
 <li>Isolation opens go first. Non-load-break switches are only opened once dead.</li>
 <li>A tie is closed only when exactly one side has a source and that side is live and the other side is <b>dead</b> (or, for closed transition, both sides have sources of the <b>same source group</b>).</li>
-<li>Before any close, every device that will be fed through it must already be in the settings group for its new source; the DAC changes settings groups first and waits.</li>
+<li>Before any close, every device that will be fed through it must already be in the settings group for its new source; the DAC changes settings groups first and waits. DG on a circuit it is not allowed on is tripped first the same way.</li>
 <li>A switch that is "to open" (not isolation) opens after the tie that replaces it has closed (make before break), or straight away if it separates a source from a now-dead area.</li>
 <li>Nothing operates while another operation in the same area is in progress, while a permissive request is outstanding, or on an inhibited/abnormal device.</li>
 <li>If not finished within <code>ReconfigTimeLimit</code>, the sequence aborts as a restoration failure.</li>
@@ -93,6 +93,7 @@
 <ul>
 <li><b>Settings group</b>: walking from the restoring source through closed equipment and the switch to close, every SG-capable, not-inhibited device must show the group configured for that source (<code>SRC_A/SG_A … SRC_F/SG_F</code>). Wrong ones get <code>SG.Control[n]</code> (the <code>SSn</code> outputs) and the close waits.</li>
 <li><b>Source reversal</b>: devices that need preparing for reversed power flow get <code>REVERSE_SOURCE</code> and the close waits for <code>SourceReversalReady</code>.</li>
+<li><b>Distributed generation</b>: in the same walk, a closed DG point of interconnection whose allowed circuits do not include the restoring source, and whose close permissive is TRUE, is opened at once and the close waits. Reported as a settings-group wait. <a href="atlas:distribution-automation/dac-features/dg.html">§16</a></li>
 <li><b>Remote pending</b>: a connector on the path with an auxiliary command still pending on the remote DAC.</li>
 </ul>
 <p class="srcs"><span class="src">AutomaticReconfig/ExecuteSolution/CommandChecks/*</span></p>

@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>Voltage: levels, inference and discrepancy</h1>
 <p>Voltage decides open-phase detection, which sources are usable, and whether a close may be issued. It is evaluated per device terminal, then propagated to nodes.</p>
-<div class="chips"><span>§05</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§05</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <h2 id="v-levels">Levels and thresholds</h2>
 <p>Each terminal has a level: <b>Dead</b> (0), <b>Indeterminate</b> (1), <b>Live1</b> (2), <b>Live2</b> (3). Thresholds come from <code>DA_SCHEME</code> as a percent of nominal, applied to both primary (<code>NominalVoltage</code>, line-to-neutral) and a 120 V secondary base, with hysteresis of <code>VoltageDeadband</code>: <span class="src">OBJ/DA_SCHEME</span> <span class="src">Equipment/Measurements/Voltage/Sensor/EQUIPMENT_VOLTAGE_SENSOR</span></p>

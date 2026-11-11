@@ -16,7 +16,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { PDFDocument, PDFArray, PDFName } from 'pdf-lib';
-import { PNG } from 'pngjs';
 
 import {
   arrayify,
@@ -25,6 +24,7 @@ import {
   selectLayerOption,
 } from '../selPartNumberRules.js';
 import { pdfium } from '../pdfium.js';
+import { encodePng } from '../png.js';
 import { loadDeviceMetadata, SEL_DEVICES_DIR } from './deviceMetadata.js';
 
 const PDF_RENDER_SCALE = 150 / 72;
@@ -200,13 +200,13 @@ function cropPixels(view, pageSize, bitmap) {
 
 /** The `{x, y, w, h}` rect of an RGBA bitmap, encoded as PNG. */
 function cropToPng(bitmap, { x, y, w, h }) {
-  const png = new PNG({ width: w, height: h });
+  const data = Buffer.alloc(w * h * 4);
   const rowBytes = w * 4;
   for (let row = 0; row < h; row += 1) {
     const from = ((y + row) * bitmap.width + x) * 4;
-    bitmap.data.copy(png.data, row * rowBytes, from, from + rowBytes);
+    bitmap.data.copy(data, row * rowBytes, from, from + rowBytes);
   }
-  return PNG.sync.write(png);
+  return encodePng({ width: w, height: h, data });
 }
 
 async function renderedViewContext(metadata, deviceDir, pdfName, pn, pageNumber, renderCache, configuredPdfs) {

@@ -201,3 +201,26 @@ test('visualizations classify with a fingerprinted screen blob', () => {
   assert.equal(item.hasArchivedContent, true);
   assert.ok(item.archivedContentHash);
 });
+
+test('a resaved screen keeps its fingerprint; an edited one does not', () => {
+  const entry = (key, value) => `<Entry><Key><Single Type="string">${key}</Single></Key>`
+    + `<Value><Single Type="string">${value}</Single></Value></Entry>`;
+  const screen = (counter, entries, x = '10') => wrap(`<Visualization>
+      <Name>Overview</Name>
+      <ArchivedContent><![CDATA[<Single>
+  <Single Name="UniqueIdGenerator" Type="string">${counter}</Single>
+  <Dictionary Type="System.Collections.Hashtable" Name="TypeNodeAttributesData">
+    ${entries.join('\n    ')}
+  </Dictionary>
+  <Single Name="X" Type="int">${x}</Single>
+</Single>]]></ArchivedContent>
+    </Visualization>`);
+  const hash = (xml) => parseRtacProject([{ file: 'Visualizations/Overview.xml', xml }]).items[0].archivedContentHash;
+
+  const saved = hash(screen(660, [entry('FB_Exit', 'a'), entry('FB_Reinit', 'b')]));
+  assert.equal(hash(screen(678, [entry('FB_Reinit', 'b'), entry('FB_Exit', 'a')])), saved,
+    'counter bump + Hashtable reorder is a resave, not an edit');
+  assert.notEqual(hash(screen(660, [entry('FB_Exit', 'a'), entry('FB_Reinit', 'b')], '20')), saved);
+  assert.notEqual(hash(screen(660, [entry('FB_Exit', 'b'), entry('FB_Reinit', 'a')])), saved,
+    'a changed dictionary value still counts');
+});

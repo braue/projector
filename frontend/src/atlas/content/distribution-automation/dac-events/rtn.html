@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>Return to normal</h1>
 <p>Putting the system back in its normal configuration after a reconfiguration, preferably without another outage.</p>
-<div class="chips"><span>§12</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§12</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="card"><h4>The rules, stated plainly</h4><ol>
 <li>RTN is requested by a rising edge of the circuit's <code>ReturnNormal</code>, the scheme's <code>ReturnNormal</code>, or a <code>ReturnNormal</code> on any feeder that normally feeds part of this one.</li>
@@ -57,6 +57,7 @@
 <li>Every device on the normal path must be either already in its normal position or operable. One unoperable off-normal device or one abnormal device aborts the whole RTN.</li>
 <li>CLOSED_TRANSITION (default) means normally-closed points are closed while still tied (make before break), which requires the same source group on both sides.</li>
 <li>A new event during RTN aborts the RTN.</li>
+<li>Non-restorable flags left by the event do not block RTN. They are cleared when the DA sequence finishes, and a close next to a returning feeder ignores <code>NonRestorable-Branch</code> when tracing its source. <span class="src">OBJ/DA_MANAGER_AR</span> <span class="src">Common/GetSource/class_ExecuteGetSource</span></li>
 </ol></div>
 
 <h2 id="rtn-modes">ReturnMode</h2>

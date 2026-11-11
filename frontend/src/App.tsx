@@ -9,6 +9,7 @@ import {
   setProjectArchived,
 } from './api'
 import { CompareView } from './components/CompareView'
+import { FileView, hasFileView, type FindSeed } from './components/FileView'
 import { HoursPanel } from './components/HoursPanel'
 import { InspectView } from './components/InspectView'
 import { PdfView } from './components/PdfView'
@@ -29,6 +30,7 @@ import { ToolsView } from './tools/ToolsView'
 import { errorMessage } from './lib/errors'
 import { onEvent, useConnected } from './lib/events'
 import { toggleTheme, useTheme } from './lib/theme'
+import { useContentSearch } from './lib/contentSearch'
 import { findLeafFor, isPdfFile, isTextFile, refLabel, type FileLeaf } from './lib/fileNodes'
 import { formatSize, formatStamp, formatWhen } from './lib/format'
 import { useJobs } from './lib/jobs'
@@ -38,7 +40,7 @@ import { useAction } from './lib/useAction'
 import { useTreeSelection } from './lib/useTreeSelection'
 import type { FileNode, LandedDownload, ToolJob } from './types'
 
-/** What fills the window under the topbar: the project, or one of the
+/** What fills the window beside the margin: the project, or one of the
  *  machine-global takeover panes. */
 type Pane = 'project' | 'todo' | 'test' | 'tools' | 'atlas'
 
@@ -74,13 +76,17 @@ export default function App() {
       path: String(job.meta!.path),
       into: (job.meta!.into as string | null) ?? null,
     })), [jobs, project])
-  // The file-tree filter, opened with Ctrl+Shift+F (and with Ctrl+F when the
-  // pane on the right has no find of its own) and living in the topbar beside
-  // the project it filters. Closing clears it — a narrowed tree with no
-  // visible box to explain it is a trap.
+  // The file-tree filter: always on show in the margin, under the project it
+  // filters, so a narrowed tree always has its box beside it. Ctrl+Shift+F
+  // (and Ctrl+F when the pane on the right has no find of its own) jumps to
+  // it; Esc clears it.
   const [filter, setFilter] = useState('')
-  const [filterOpen, setFilterOpen] = useState(false)
   const filterInput = useRef<HTMLInputElement>(null)
+  // The filter also looks INSIDE files: the index's hits sit under their
+  // rows, and clicking one opens the file with find already on the term.
+  const content = useContentSearch(project, filter)
+  const indexing = (content.status?.reading ?? 0) + (content.status?.ocr ?? 0)
+  const [seed, setSeed] = useState<(FindSeed & { path: string; nonce: number }) | null>(null)
 
   const loadTree = useCallback(async () => {
     if (!project) return
@@ -126,8 +132,8 @@ export default function App() {
 
   const projectMode = pane === 'project'
   const closeFilter = useCallback(() => {
-    setFilterOpen(false)
     setFilter('')
+    filterInput.current?.blur()
   }, [])
 
   // What the main pane shows for the current selection.
@@ -142,12 +148,12 @@ export default function App() {
   const paneOwnsFind = Boolean(
     projectMode &&
       (comparePair ||
-        (selectedLeaf && (selectedLeaf.kind || isPdfFile(selectedLeaf.name)))),
+        (selectedLeaf &&
+          (selectedLeaf.kind || isPdfFile(selectedLeaf.name) || hasFileView(selectedLeaf.name)))),
   )
 
+  // The cursor goes into the box with the term selected, to type over.
   const openFilter = useCallback(() => {
-    setFilterOpen(true)
-    // Already open: put the cursor back in it, term selected to type over.
     filterInput.current?.focus()
     filterInput.current?.select()
   }, [])
@@ -161,20 +167,31 @@ export default function App() {
         if (!e.shiftKey && paneOwnsFind) return
         e.preventDefault()
         openFilter()
-      } else if (e.key === 'Escape' && filterOpen) {
-        closeFilter()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [projectMode, paneOwnsFind, filterOpen, openFilter, closeFilter])
+  }, [projectMode, paneOwnsFind, openFilter])
 
-  /* Opening hands the keyboard straight to the box. */
-  useEffect(() => {
-    if (!filterOpen) return
-    filterInput.current?.focus()
-    filterInput.current?.select()
-  }, [filterOpen])
+  // Picking something in the tree always lands in the project, whichever
+  // takeover pane was up.
+  const selectInTree = useCallback((path: string | null, options?: { keepPane?: boolean }) => {
+    select(path)
+    setSeed(null)
+    if (!options?.keepPane) setPane('project')
+  }, [select])
+  const openHit = useCallback((path: string, where: string) => {
+    select(path)
+    setSeed((current) => ({ path, term: content.term, where, nonce: (current?.nonce ?? 0) + 1 }))
+    setPane('project')
+  }, [select, content.term])
+  // A seed belongs to the file it was clicked under.
+  const activeSeed = seed && seed.path === selected ? seed : null
+  const { compare } = selection
+  const compareInTree = useCallback((original: string, updated: string) => {
+    compare(original, updated)
+    setPane('project')
+  }, [compare])
 
   const handleCreateProject = useCallback(
     async (name: string) => {
@@ -229,7 +246,7 @@ export default function App() {
 
   // Still loading the project list: just the shell, no flash of onboarding.
   if (projectList === null) {
-    return <header className="topbar" />
+    return <div className="app"><aside className="sources" /></div>
   }
 
   // Nothing exists yet: the user names their first project.
@@ -241,99 +258,124 @@ export default function App() {
     <>
       {!connected && <div className="reconnect-bar">Reconnecting to the backend…</div>}
       <TasksPopover />
-      <header className="topbar">
-        {/* Top-left: the project — the only control on that side. It stays
-            on the todo board, which it scopes; it goes away under the other
-            takeover panes, since nothing on screen is scoped to a project. */}
-        {(projectMode || pane === 'todo') && (
-          <ProjectSwitcher
-            current={project}
-            projects={projectList.projects}
-            archived={projectList.archived}
-            onSelect={setProject}
-            onCreate={handleCreateProject}
-            onRename={handleRenameProject}
-            onDelete={handleDeleteProject}
-            onArchive={handleArchiveProject}
-          />
-        )}
-        {projectMode && project !== null && filterOpen && (
-          <div className="tree-filter">
-            <TextInput
-              ref={filterInput}
-              className="ui-input tree-filter-input"
-              placeholder="Filter files…"
-              value={filter}
-              spellCheck={false}
-              onChange={(e) => setFilter(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  e.preventDefault()
-                  closeFilter()
-                }
-              }}
-            />
-            <button className="tree-filter-clear" title="Clear filter (Esc)" onClick={closeFilter}>
-              ✕
-            </button>
-          </div>
-        )}
-        <span className="topbar-info" />
-        {/* Top-right: the machine-global panes, holding the corner so their
-            toggles never move. */}
-        <HoursPanel />
-        <PaneToggle
-          mark="✓"
-          label="Todo"
-          count={openTodos}
-          on={pane === 'todo'}
-          title={pane === 'todo' ? 'Back to the project' : 'Open the todo board'}
-          onClick={() => togglePane('todo')}
-        />
-        <PaneToggle
-          mark="▦"
-          label="Test"
-          on={pane === 'test'}
-          title={pane === 'test' ? 'Back to the project' : 'Open the test network'}
-          onClick={() => togglePane('test')}
-        />
-        <PaneToggle
-          mark="⚒"
-          label="Tools"
-          on={pane === 'tools'}
-          title={pane === 'tools' ? 'Back to the project' : 'Open the tools'}
-          onClick={() => togglePane('tools')}
-        />
-        <PaneToggle
-          mark="◆"
-          label="Atlas"
-          on={pane === 'atlas'}
-          title={pane === 'atlas' ? 'Back to the project' : 'Open the atlas reference'}
-          onClick={() => togglePane('atlas')}
-        />
-        <ThemeToggle />
-      </header>
-
       <div className="app">
+        {(() => {
+          // The margin: the project, its filter box, the tree, and the
+          // machine-global panes along the foot. One column, always up, so
+          // the files are never more than a click away from any pane.
+          const head = (
+            <div className="margin-head">
+              <ProjectSwitcher
+                current={project}
+                projects={projectList.projects}
+                archived={projectList.archived}
+                onSelect={setProject}
+                onCreate={handleCreateProject}
+                onRename={handleRenameProject}
+                onDelete={handleDeleteProject}
+                onArchive={handleArchiveProject}
+              />
+              {project !== null && (
+                <div className="tree-filter">
+                  <svg className="tree-filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M20 20l-4-4" />
+                  </svg>
+                  <TextInput
+                    ref={filterInput}
+                    className="ui-input tree-filter-input"
+                    placeholder="Filter files"
+                    aria-label="Filter files"
+                    value={filter}
+                    spellCheck={false}
+                    onChange={(e) => setFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        e.preventDefault()
+                        closeFilter()
+                      }
+                    }}
+                  />
+                  {indexing > 0 && (
+                    <span
+                      className="tree-filter-busy"
+                      title={`Reading ${content.status?.reading ?? 0} · OCR ${content.status?.ocr ?? 0}`}
+                    >
+                      {indexing}
+                    </span>
+                  )}
+                  {filter ? (
+                    <button className="tree-filter-clear" title="Clear filter (Esc)" onClick={closeFilter}>
+                      ✕
+                    </button>
+                  ) : (
+                    <span className="tree-filter-key">Ctrl ⇧ F</span>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+          const foot = (
+            <nav className="margin-nav" aria-label="Panes">
+              <PaneToggle
+                label="Todo"
+                count={openTodos}
+                on={pane === 'todo'}
+                title={pane === 'todo' ? 'Back to the project' : 'Open the todo board'}
+                onClick={() => togglePane('todo')}
+              />
+              <HoursPanel />
+              <PaneToggle
+                label="Test"
+                on={pane === 'test'}
+                title={pane === 'test' ? 'Back to the project' : 'Open the test network'}
+                onClick={() => togglePane('test')}
+              />
+              <PaneToggle
+                label="Tools"
+                on={pane === 'tools'}
+                title={pane === 'tools' ? 'Back to the project' : 'Open the tools'}
+                onClick={() => togglePane('tools')}
+              />
+              <PaneToggle
+                label="Atlas"
+                on={pane === 'atlas'}
+                title={pane === 'atlas' ? 'Back to the project' : 'Open the atlas reference'}
+                onClick={() => togglePane('atlas')}
+              />
+              <ThemeToggle />
+            </nav>
+          )
+          return project === null ? (
+            <aside className="sources">
+              {head}
+              <div className="source-scroll" />
+              {foot}
+            </aside>
+          ) : (
+            <ProjectTree
+              project={project}
+              tree={tree}
+              filter={filter}
+              contentHits={content.hits}
+              onOpenHit={openHit}
+              treeError={treeError}
+              landed={landed}
+              selected={selected}
+              held={held}
+              head={head}
+              foot={foot}
+              onSelect={selectInTree}
+              onToggleHeld={selection.toggleHeld}
+              onHoldRange={selection.holdRange}
+              onComparePair={compareInTree}
+              onReload={loadTree}
+            />
+          )
+        })()}
+
         {projectMode && (
           <>
-            {project !== null && (
-              <ProjectTree
-                project={project}
-                tree={tree}
-                filter={filterOpen ? filter : ''}
-                treeError={treeError}
-                landed={landed}
-                selected={selected}
-                held={held}
-                onSelect={selection.select}
-                onToggleHeld={selection.toggleHeld}
-                onHoldRange={selection.holdRange}
-                onComparePair={selection.compare}
-                onReload={loadTree}
-              />
-            )}
-
             {project === null ? (
               <main className="preview" />
             ) : comparePair ? (
@@ -351,13 +393,27 @@ export default function App() {
                 path={selected}
                 kind={selectedLeaf.kind}
                 title={refLabel(tree, selected)}
+                // Not every .xml is a switch export: one that does not parse
+                // as one is shown as the text it is.
+                fallback={hasFileView(selectedLeaf.name) ? (
+                  <FileView project={project} path={selected} name={refLabel(tree, selected)} />
+                ) : undefined}
               />
             ) : selected && selectedLeaf && isPdfFile(selectedLeaf.name) ? (
               <PdfView
-                key={`${project}:${selected}`}
+                key={`${project}:${selected}:${activeSeed?.nonce ?? 0}`}
                 project={project}
                 path={selected}
                 name={refLabel(tree, selected)}
+                seed={activeSeed?.term}
+              />
+            ) : selected && selectedLeaf && hasFileView(selectedLeaf.name) ? (
+              <FileView
+                key={`${project}:${selected}:${activeSeed?.nonce ?? 0}`}
+                project={project}
+                path={selected}
+                name={refLabel(tree, selected)}
+                seed={activeSeed}
               />
             ) : selected && selectedLeaf && isTextFile(selectedLeaf.name) ? (
               <TextFileView
@@ -413,11 +469,11 @@ export default function App() {
   )
 }
 
-/** The topbar's corner: light / dark. */
+/** The margin's last word: light / dark. */
 function ThemeToggle() {
   const dark = useTheme() === 'dark'
   return (
-    <button className="topbar-button theme-toggle" onClick={toggleTheme} title={dark ? 'Light mode' : 'Dark mode'}>
+    <button className="nav-link theme-toggle" onClick={toggleTheme} title={dark ? 'Light mode' : 'Dark mode'}>
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
         {dark ? (
           <>
@@ -432,16 +488,14 @@ function ThemeToggle() {
   )
 }
 
-/** A topbar button that swaps the main area for a takeover pane. */
+/** A margin link that swaps the main area for a takeover pane. */
 function PaneToggle({
-  mark,
   label,
   count = 0,
   on,
   title,
   onClick,
 }: {
-  mark: string
   label: string
   /** A chip after the label (open todo cards); hidden at 0. */
   count?: number
@@ -450,8 +504,7 @@ function PaneToggle({
   onClick: () => void
 }) {
   return (
-    <button className={on ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'} onClick={onClick} title={title}>
-      <span className="topbar-toggle-mark">{mark}</span>
+    <button className={on ? 'nav-link on' : 'nav-link'} onClick={onClick} title={title} aria-pressed={on}>
       <span>{label}</span>
       {count > 0 && <span className="todo-count">{count}</span>}
     </button>
@@ -519,7 +572,6 @@ function FirstProject({ onCreate }: { onCreate: (name: string) => Promise<void> 
 
   return (
     <>
-      <header className="topbar" />
       <div className="app onboard">
         <div className="modal-card onboard-card">
           <div className="modal-head">

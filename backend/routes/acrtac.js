@@ -4,7 +4,7 @@
 //   GET  /api/acrtac/projects           { projects, error } — reads once
 //   POST /api/acrtac/projects/refresh   re-read the database, then the same
 
-import { Router } from 'express';
+import { Router } from '../lib/router.js';
 
 function acrtacRoutes(catalog) {
   const router = Router();

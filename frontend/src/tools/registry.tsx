@@ -1,7 +1,7 @@
 // The tool registry — the Tools rail renders this list, and adding a tool to
 // the pane is one entry here plus its component. Tools are global utilities:
-// they take ad-hoc inputs regardless of the current project, and offer
-// "save to project" for results worth keeping.
+// they take inputs dragged in from the project tree (or from disk), and
+// their outputs drag back onto a tree folder to be kept.
 
 import type { ComponentType } from 'react'
 
@@ -15,8 +15,9 @@ import { RtacExportTool } from './RtacExportTool'
 import { SelTerminalTool } from './SelTerminalTool'
 import { SwsetTool } from './SwsetTool'
 
-/** Every tool component gets the current project (for save-to-project) and
- *  whether it is the visible tool (opened tools stay mounted while hidden). */
+/** Every tool component gets the open project and whether it is the visible
+ *  tool (opened tools stay mounted while hidden). Inputs come from the tree
+ *  by drag, not from the open project (lib/treeDrag). */
 export interface ToolProps {
   project: string
   active: boolean

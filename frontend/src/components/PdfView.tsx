@@ -29,12 +29,15 @@ export function PdfView({
   project,
   path,
   name,
+  seed,
 }: {
   project: string
   path: string
   name: string
+  /** Open find on this term (a content hit clicked in the tree). */
+  seed?: string
 }) {
-  const { open, term, setTerm, inputRef, closeFind } = useFindBox()
+  const { open, term, setTerm, inputRef, closeFind } = useFindBox(true, seed ?? '')
   const [matches, setMatches] = useState<PdfMatch[]>([])
   const [total, setTotal] = useState(0)
   const [at, setAt] = useState(0)
@@ -43,6 +46,10 @@ export function PdfView({
   // A scanned drawing set is images of paper: there is nothing to search,
   // which is worth saying rather than answering every term with "none".
   const [textless, setTextless] = useState(false)
+  // Scanned pages are read by OCR in the background; until then, say so
+  // rather than "no text", and ask again.
+  const [ocrPending, setOcrPending] = useState(false)
+  const [ocrEpoch, setOcrEpoch] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const needle = useDebounced(term.trim(), 220)
 
@@ -54,13 +61,20 @@ export function PdfView({
     if (!open) return
     let live = true
     setError(null)
+    let timer = 0
     searchPdfFile(project, path, '')
-      .then((result) => live && setTextless(result.hasText === false))
+      .then((result) => {
+        if (!live) return
+        setTextless(result.hasText === false)
+        setOcrPending(result.ocr === 'pending')
+        if (result.ocr === 'pending') timer = window.setTimeout(() => setOcrEpoch((n) => n + 1), 2500)
+      })
       .catch((err) => live && setError(errorMessage(err)))
     return () => {
       live = false
+      window.clearTimeout(timer)
     }
-  }, [open, project, path])
+  }, [open, project, path, ocrEpoch])
 
   useEffect(() => {
     if (!open || !needle) {
@@ -87,7 +101,7 @@ export function PdfView({
     return () => {
       live = false
     }
-  }, [open, needle, project, path])
+  }, [open, needle, project, path, ocrPending])
 
   const goTo = useCallback(
     (index: number) => {
@@ -133,6 +147,8 @@ export function PdfView({
         >
           {error ? (
             <div className="find-note">{error}</div>
+          ) : ocrPending && !matches.length ? (
+            <div className="find-note">Reading scanned pages…</div>
           ) : textless && !matches.length ? (
             <div className="find-note">
               No text in this PDF.

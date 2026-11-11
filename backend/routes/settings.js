@@ -1,6 +1,6 @@
 // Machine settings: read them all, or PATCH-merge some (null removes a key).
 
-import { Router } from 'express';
+import { Router } from '../lib/router.js';
 
 function settingsRoutes(settings) {
   const router = Router();

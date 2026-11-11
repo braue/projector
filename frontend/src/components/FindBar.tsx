@@ -111,9 +111,10 @@ function useFindKeys({
 /** The box itself: open state, the term, and the keyboard. Both kinds of find
  *  own one — the DOM engine below, and the PDF viewer, whose hits come from
  *  the backend — so opening a find bar behaves the same wherever you are. */
-export function useFindBox(active = true) {
-  const [open, setOpen] = useState(false)
-  const [term, setTerm] = useState('')
+export function useFindBox(active = true, seed = '') {
+  // A seed (a content hit clicked in the tree) opens the bar on that term.
+  const [open, setOpen] = useState(Boolean(seed))
+  const [term, setTerm] = useState(seed)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const openFind = useCallback(() => {
@@ -172,12 +173,15 @@ export function useFindInPage({
   active = true,
   /** Bumped by the caller when the content is replaced wholesale. */
   epoch = 0,
+  /** Open on this term (a content hit clicked in the tree). */
+  seed = '',
 }: {
   getRoot: () => HTMLElement | null
   active?: boolean
   epoch?: number
+  seed?: string
 }): FindState {
-  const { open, term, setTerm, inputRef, openFind, closeFind } = useFindBox(active)
+  const { open, term, setTerm, inputRef, openFind, closeFind } = useFindBox(active, seed)
   const [ranges, setRanges] = useState<Range[]>([])
   const [at, setAt] = useState(0)
   // DOM churn under the root (tab switch, section toggle, a fetch landing).

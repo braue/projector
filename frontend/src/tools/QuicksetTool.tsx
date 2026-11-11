@@ -15,7 +15,7 @@ import {
   Button,
   CollapsibleSection,
   DataTable,
-  FileDropZone,
+  DropZone,
   SectionHeader,
   TextArea,
   TextInput,
@@ -23,7 +23,6 @@ import {
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
 import type { QuicksetExtract, QuicksetInventory } from '../types'
-import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 import { ToolHeader } from './ToolHeader'
@@ -34,7 +33,7 @@ const DEFAULT_SETTINGS = [
   'OUT209', 'OUT210',
 ].join(' ')
 
-export function QuicksetTool({ project }: ToolProps) {
+export function QuicksetTool(_props: ToolProps) {
   const [error, setError] = useState<string | null>(null)
   const [run, setRun] = useState<string | null>(null)
 
@@ -127,16 +126,15 @@ export function QuicksetTool({ project }: ToolProps) {
       <ToolHeader title="QuickSet Extract" busy={busy || dumping} />
       <div className="tool-scroll">
         <SectionHeader title="Source" />
-        <FileDropZone accept=".zip" onFile={uploadZip}>
-          <b>Drop an exported-configs ZIP here</b>
-          or click to browse
-        </FileDropZone>
-        <ProjectFilePick
-          project={project}
+        <DropZone
           extensions={['.zip']}
-          onPick={(path, fromProject) => openSource(() => importQuicksetProjectConfigs(fromProject, path))}
+          onFile={uploadZip}
+          onEntries={(fromProject, [path]) => openSource(() => importQuicksetProjectConfigs(fromProject, path))}
           disabled={busy}
-        />
+        >
+          <b>Drop an exported-configs ZIP here</b>
+          from the tree or disk, or click to browse
+        </DropZone>
         <div className="tool-col">
           {field('host', 'DB host')}
           {field('port', 'Port')}

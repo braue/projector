@@ -6,24 +6,16 @@
 import { copyFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { Router } from 'express';
-import multer from 'multer';
-
 import { httpError, requireQuery } from '../lib/http.js';
+import { Router, uploads } from '../lib/router.js';
 
 const MAX_UPLOAD_BYTES = 256 * 1024 * 1024;
 
 function toolsRoutes(tools, projects) {
   const { workspace } = tools;
   const router = Router();
-  const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 },
-  });
-  const uploadPair = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: MAX_UPLOAD_BYTES, files: 2 },
-  }).fields([{ name: 'workbook', maxCount: 1 }, { name: 'report', maxCount: 1 }]);
+  const upload = uploads({ maxFileSize: MAX_UPLOAD_BYTES, maxFiles: 1 });
+  const uploadPair = uploads({ maxFileSize: MAX_UPLOAD_BYTES, maxFiles: 2 }).fields(['workbook', 'report']);
 
   // Tool inputs come from either place the user keeps files: a multipart
   // upload (the OS file picker / drag-in), or a file already in a project's
@@ -260,7 +252,7 @@ function toolsRoutes(tools, projects) {
       req.params.run,
       requireQuery(req, 'path'),
     );
-    res.download(absolute);
+    await res.download(absolute);
   });
 
   return router;

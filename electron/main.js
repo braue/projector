@@ -1,4 +1,4 @@
-// The desktop shell. Starts projector's own Express server in a utility
+// The desktop shell. Starts projector's own HTTP server in a utility
 // process of its own (electron/backendHost.js) and points a window at it, so
 // the UI and API share an origin (no proxy, no CORS). The backend is its own
 // process so that when it dies — a V8 heap OOM parsing a huge RTAC export is
@@ -283,14 +283,19 @@ function createWindow(url) {
 
   // Anything aimed elsewhere — a documentation link, an external site — opens
   // in the real browser rather than replacing the app with a web page.
+  // Links reach here from email bodies too, so only web and mail links go to
+  // the OS — never file: or a custom protocol handler a message names.
+  const external = (target) => {
+    if (/^(https?|mailto):/i.test(target)) shell.openExternal(target);
+  };
   win.webContents.setWindowOpenHandler(({ url: target }) => {
-    shell.openExternal(target);
+    external(target);
     return { action: 'deny' };
   });
   win.webContents.on('will-navigate', (event, target) => {
     if (new URL(target).origin !== new URL(url).origin) {
       event.preventDefault();
-      shell.openExternal(target);
+      external(target);
     }
   });
 

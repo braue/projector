@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>Scenario playbook: what the DAC will do, and why</h1>
 <p>Each case follows from the rules above. Defaults assumed are the Adapter's unless stated. "Feeder A" is the faulted feeder, "B" an adjacent feeder with a normally-open tie.</p>
-<div class="chips"><span>§23</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§23</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <h2 id="sc-faults">Faults</h2>
 <div class="scen"><h3>Permanent fault between two reclosers, coordination correct</h3><div class="b">
@@ -156,7 +156,7 @@
 <p><b>DAC:</b> The UF-detected device opened (or downstream voltage dead) → feeder <code>ExcludedByUnderFrequency</code> → unarmed. No restoration attempt, and the feeder is not an alternate, until the UF indication clears plus MAX(OpenPhaseConfirmTime, FaultHoldTime), or reset.</p></div></div>
 
 <div class="scen"><h3>DG on the faulted feeder</h3><div class="b">
-<p><b>DAC:</b> DG trip after 5 s because its feeder has a fault (unless RideThrough.Fault). If the DG's section is later restored from an alternate that is not in its <code>Circuit</code> list, it trips (DisallowedCircuit). Back on an allowed circuit with nothing in progress → EnableClose after 5 s.</p></div></div>
+<p><b>DAC:</b> DG trip after 5 s because its feeder has a fault (unless RideThrough.Fault). If the DG's section is later restored from an alternate that is not in its <code>Circuit</code> list and the DG still has close permissive, the DAC opens the POI before closing the tie and the close waits. Otherwise it trips after the transfer (DisallowedCircuit). Back on an allowed circuit with nothing in progress → EnableClose after 5 s.</p></div></div>
 
 <div class="scen"><h3>Return to normal requested</h3><div class="b">
 <p><b>DAC:</b> If nothing is abnormal anywhere on the normal path: open normally-open points that are closed, close normally-closed points that are open, closed transition where both sides share a source group and Live2; settings groups returned. Any abnormal or unoperable device → <code>AbnormalCondition</code>, nothing switched. Source-group mismatch → <code>CapacityLimit</code>. A new event during RTN cancels it.</p></div></div>

@@ -3,7 +3,7 @@
 // compare/search; this router owns project CRUD and mounts each sub-surface
 // with a per-request bundle resolver.
 
-import { Router } from 'express';
+import { Router } from '../lib/router.js';
 
 import { artifactRoutes } from './artifacts.js';
 import { compareRoutes } from './compare.js';

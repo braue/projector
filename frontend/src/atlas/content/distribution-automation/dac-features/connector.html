@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>DAC-to-DAC interconnection (DA_CONNECTOR)</h1>
 <p>Lets a feeder shared between two DACs be restored by either. Each DAC models the other side as a source, a source switch, a line, an edge switch and a boundary line, and the two negotiate a joint solution.</p>
-<div class="chips"><span>§17</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§17</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="card"><h4>The rules, stated plainly</h4><ol>
 <li>The connection is online only when the partner's messages carry a matching library version and its watchdog counter keeps changing.</li>
@@ -66,7 +66,7 @@
 <tr><td>InitialUpdate</td><td>Both DACs update and confirm their events. Times out after Update + Analyze limits.</td></tr>
 <tr><td>InitialSolutionHandshake → InitialSolution</td><td>Phase one: each DAC solves alone and publishes what it could give across the boundary (capacity, load to shed, whether restoration is certain).</td></tr>
 <tr><td>FinalSolutionHandshake → FinalSolution</td><td>Phase two: each solves again using the partner's phase-one offer. Return-close overrides isolation on connector switches here.</td></tr>
-<tr><td>ExecutionHandshake → Execution</td><td>Both execute; remote operations go as handshake commands.</td></tr>
+<tr><td>ExecutionHandshake → Execution</td><td>Both execute; remote operations go as handshake commands. A close requested on a modelled remote switch stays closed in the local model even while the partner still reports Isolated. The edge switch always holds it. The source switch holds it unless the partner's edge switch is closed. <span class="src">OBJ/DA_CONNECTOR.prv_ControlHandShaking</span></td></tr>
 <tr><td>Complete</td><td>Both report execution complete.</td></tr>
 </table></div>
 <p>Each phase step needs at least 2 fresh watchdog updates from the partner (<code>CON_UpdateCheck</code>). After any abort no new collaboration starts for 60 s. Remote events are mapped onto local feeders only after the connector has been head (local DAC feeds the boundary) or tail (remote feeds it) for 10 s.</p>
@@ -80,7 +80,10 @@
 </table></div>
 <p>The margin a DAC offers its partner is its node margin if the boundary is fed locally; otherwise the best margin over its open edge switches (minimum of node margin and switch capacity). <span class="src">Connector/Measurements/Current/mCON_getLocalMargin</span></p>
 <div class="callout interp"><b>Interpretation</b> A margin of exactly 0.1 A in a connector report means one side offered nothing (or a clamp to the dead side's margin) and the floor was applied. It is a symptom, not a real measurement.</div>
+<h2 id="con-exclude">When the partner sees this feeder as excluded</h2>
+<p>Each DAC sends <code>Exclude</code> to its partner, and the partner excludes the source it models behind the connector. The DAC sends <code>Exclude</code> only when its feeder on the connector is <b>abnormal</b> and either not armed or not allowed to isolate (abnormal-restoration mode without Isolate). The head DAC also sends it whenever its scheme has AR disabled. <span class="src">OBJ/DA_CONNECTOR</span></p>
+<div class="warn"><b>Code caveat</b> A feeder with no abnormal devices is never reported excluded, even when it is unarmed by operator Exclude or by underfrequency. In 105.0.1.100 any unarmed feeder was reported excluded. Confirm on a test set whether the partner can now plan restoration across the connector onto an excluded but normal feeder.</div>
 <h2 id="con-outputs">Outputs</h2>
-<p><code>Comm_Alarm</code>, <code>Abnormal</code>, <code>VersionMismatch</code> (partner's DA_Version checksum differs or is 0; connection refused), <code>ControlSequenceFailure</code> (a handshake open/close failed), <code>NoEdgePts</code> (no PTs at the connector edge device), <code>SolutionLoop</code> (both DACs planned to feed the boundary).</p>
+<p><code>Comm_Alarm</code>, <code>Abnormal</code>, <code>VersionMismatch</code> (partner's DA_Version checksum differs or is 0; connection refused, so a 105.0.2 DAC will not connect to a 105.0.1.100 partner), <code>ControlSequenceFailure</code> (a handshake open/close failed), <code>NoEdgePts</code> (no PTs at the connector edge device), <code>SolutionLoop</code> (both DACs planned to feed the boundary).</p>
 </body>
 </html>

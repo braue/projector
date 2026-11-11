@@ -8,9 +8,9 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
-import { PNG } from 'pngjs';
 
 import { ArtifactsService } from '../lib/artifacts.js';
+import { decodePng } from '../lib/png.js';
 import { FilesService } from '../services/files.js';
 import { RdbKind } from '../services/rdb.js';
 import { makeRdb } from './helpers/makeRdb.js';
@@ -92,7 +92,7 @@ test('rdb upload generates front/rear drawings, tree leads with them, item serve
     // holds its own square and not the other's.
     const px = Math.round(300 * 150 / 72);
     for (const [view, own, other] of [['front', 'red', 'blue'], ['rear', 'blue', 'red']]) {
-      const png = PNG.sync.read(await readFile(await service.drawingPath(ref, view)));
+      const png = decodePng(await readFile(await service.drawingPath(ref, view)));
       assert.deepEqual([png.width, png.height], [px, px], view);
       const seen = { red: false, blue: false };
       for (let i = 0; i < png.data.length; i += 4) {

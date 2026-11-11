@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>How to read this</h1>
 <p>What is sourced, what is inferred, and how to verify anything here against the code.</p>
-<div class="chips"><span>§00</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§00</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <ul>
   <li><b>Body text is code-derived.</b> Every rule was read out of the Structured Text. Where a rule lives, a small grey tag such as <span class="src">Feeder/FEEDER</span> names the POU. Paths without a prefix are under <code>DA Lib/POUs/POUs/DA_INTERNAL_USE_ONLY/</code>. <span class="src">OBJ/…</span> means <code>DA Lib/…/DA_OBJECTS_AR/</code>. <span class="src">ADP/…</span> means <code>DA Adapter/POUs/…</code>.</li>
@@ -57,6 +57,7 @@
   <li><div class="warn" style="margin:6px 0"><b>Code caveat</b> Notes like this mark places where the code looks wrong, contradicts its own comments, or has a surprising side effect. Treat these as leads to confirm on a test set, not as settled fact.</div></li>
   <li><b>Two sets of defaults exist.</b> The DA Lib blocks (<code>DA_MANAGER_AR</code>, <code>DA_SCHEME</code>) have one set of pin defaults; the Adapter's <code>DA_CONTROL</code> passes a different set. Projects built on the Adapter get the <b>Adapter</b> defaults. <a href="atlas:distribution-automation/dac-reference/settings.html">§20</a> lists both side by side.</li>
   <li><b>"Scan"</b> means one execution of the RTAC task. Nearly everything is re-evaluated every scan; very little is a one-shot sequence. That matters: the DAC does not run a script, it keeps re-deciding from the present state.</li>
+  <li><b>Source.</b> <code>da-combined</code> master at <code>e64c0800e14</code>, which reports <code>DA_Version</code> 'Rev 105.0.2'. Changes from 105.0.1.100: DG tripped before a close onto a disallowed circuit and a new <code>Normal_ClosePermissive</code> setting (<a href="atlas:distribution-automation/dac-features/dg.html">§16</a>), narrower connector Exclude and held remote closes during Execution (<a href="atlas:distribution-automation/dac-features/connector.html">§17</a>), and non-restorable flags no longer blocking RTN (<a href="atlas:distribution-automation/dac-events/rtn.html">§12</a>). Revision_History has no notes for this release.</li>
   <li>To search the code yourself: grep works directly on the XML because the code sits in plain CDATA blocks. Blocks talk to each other through global arrays and flags (<code>dEQUIPMENT</code>, <code>dFEEDER</code>, <code>dNODE</code>, <code>DA_EVENT_*</code>, <code>BestSolution</code>), not through calls, so follow a flag by grepping for its writers and readers.</li>
 </ul>
 </body>

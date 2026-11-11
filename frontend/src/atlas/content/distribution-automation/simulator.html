@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="atlas-order" content="0">
+<meta name="atlas-tags" content="DAC, simulator, timing, sequence, UPDATE, ANALYZE, connector, handshake, open phase, overload, DG">
+<meta name="atlas-skin" content="app">
+<title>DAC Simulator</title>
+<style>
+/* Atlas page (atlas-skin: app). Left rail = scenario + settings, centre = one-line + transport + timeline, right rail = log with the reason for each step. */
+:root {
+  /* Projector's own tokens are injected by the Atlas (later in <head>, so they
+   * win); these are only the fallbacks for opening the file on its own. */
+  --bg: #f6f6f8; --card: #ffffff; --ink: #101014; --ink-soft: #3d3d47; --muted: #6a6a73; --ghost: #a3a3ad; --ghost-soft: #b9b9c2;
+  --border: #e6e6ea; --border-soft: #efeff2; --fill: #efeff2; --accent: #2b46e8; --accent-tint: #eef0ff; --on-accent: #ffffff;
+  --ok: #0d7a52; --ok-ink: #0b6544; --ok-tint: #e3f5ec;
+  --bad: #c42a1e; --bad-ink: #a32319; --bad-tint: #fde7e5;
+  --warn: #e09000; --warn-ink: #7d4c00; --warn-tint: #fff3dc;
+  --shadow-raised: 0 1px 2px rgba(16,16,20,0.06), 0 4px 14px rgba(16,16,20,0.06);
+  --shadow-menu: 0 2px 6px rgba(16,16,20,0.06), 0 14px 36px rgba(16,16,20,0.14);
+  --font-ui: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  /* The simulator's own colours: one per source, one for DAC-2. The Atlas
+   * switches color-scheme to dark with the app, and light-dark() follows. */
+  --sa: light-dark(#2f6fd6, #6b9cf0); --sa-tint: light-dark(#e6eefb, #1c2a42);
+  --sb: light-dark(#8a56d4, #b28ef0); --sb-tint: light-dark(#f1eafb, #2a2140);
+  --sc: light-dark(#0d8f9b, #3cc3cf); --sc-tint: light-dark(#e2f4f5, #153236);
+  --dac2: light-dark(#5262c9, #8b97f0); --dac2-tint: light-dark(#eceefb, #23264a);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--card); color: var(--ink); font-family: var(--font-ui); font-size: 13.5px; }
+button, input, select { font: inherit; color: inherit; }
+.mono { font-family: var(--font-mono); }
+
+
+
+.scen-list { padding: 6px; display: flex; flex-direction: column; gap: 1px; }
+.scen { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px; width: 100%; text-align: left; padding: 6px 10px; border: 0; border-radius: 7px; background: none; cursor: pointer; font-size: 13px; }
+.scen:hover { background: var(--fill); }
+.scen.selected { background: var(--card); font-weight: 600; box-shadow: var(--shadow-raised); }
+.scen .len { font-family: var(--font-mono); font-size: 11px; color: var(--muted); font-weight: 400; }
+.group { padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 7px; }
+.group h3 { margin: 0 0 2px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+.row label { color: var(--ink-soft); min-width: 0; }
+.row input[type=number] { width: 64px; height: 26px; border: 1px solid transparent; border-radius: 7px; background: var(--card); padding: 0 6px; font-family: var(--font-mono); font-size: 12px; text-align: right; }
+.row input[type=text] { width: 92px; height: 26px; border: 1px solid transparent; border-radius: 7px; background: var(--card); padding: 0 6px; font-family: var(--font-mono); font-size: 12px; }
+.row select { height: 26px; max-width: 130px; border: 1px solid transparent; border-radius: 7px; background: var(--card); font-size: 12px; padding: 0 4px; }
+.row input[type=checkbox] { accent-color: var(--ink); width: 14px; height: 14px; margin: 0; }
+.row.changed label { color: var(--ink); font-weight: 600; }
+.linkbtn { border: 0; background: none; color: var(--muted); font-size: 11.5px; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.transport { display: flex; align-items: center; gap: 8px; padding: 14px 18px 6px; background: var(--card); flex-wrap: wrap; }
+.btn { height: 32px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--fill); font-size: 13px; font-weight: 550; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { background: var(--border); }
+.btn.primary { background: var(--accent); color: var(--on-accent); min-width: 86px; justify-content: center; font-weight: 600; }
+.seg { display: flex; gap: 2px; background: var(--fill); border-radius: 999px; padding: 3px; }
+.seg button { padding: 3px 11px; border: 0; border-radius: 999px; background: none; font-size: 12.5px; font-weight: 550; color: var(--muted); cursor: pointer; }
+.seg button.active { background: var(--ink); color: var(--card); }
+.chip { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--fill); color: var(--ink-soft); white-space: nowrap; margin-right: auto; }
+.clock { margin-left: auto; display: flex; align-items: baseline; gap: 8px; }
+.clock .t { font-family: var(--font-mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.clock .of { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+.diagram { background: var(--bg); border-radius: 16px; overflow-x: auto; }
+.diagram #dia { display: block; width: 100%; min-width: 680px; height: auto; }
+.legend svg { width: 12px; height: 12px; flex: none; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 0 14px 10px; font-size: 11.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.sw { width: 18px; height: 0; border-top: 3px solid; display: inline-block; }
+
+.box { background: var(--bg); border-radius: 16px; padding: 12px 14px; min-width: 0; }
+.box h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; display: flex; justify-content: space-between; }
+.flags { display: flex; flex-wrap: wrap; gap: 5px; }
+.flag { font-family: var(--font-mono); font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--fill); color: var(--ghost); }
+.flag.on { background: var(--ink); color: var(--card); }
+.flag.on.ok { background: var(--ok-tint); color: var(--ok-ink); }
+.flag.on.bad { background: var(--bad-tint); color: var(--bad-ink); }
+.flag.on.warn { background: var(--warn-tint); color: var(--warn-ink); }
+.feeders { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-top: 10px; }
+.fd { border-top: 3px solid var(--fc); padding-top: 6px; min-width: 0; }
+.fd .nm { font-size: 12px; font-weight: 600; }
+.fd .st { font-family: var(--font-mono); font-size: 12px; margin: 2px 0 4px; }
+.fd .tg { display: flex; flex-wrap: wrap; gap: 3px; }
+.fd .tg span { font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--fill); color: var(--ink-soft); }
+.fd .tg span.bad { background: var(--bad-tint); color: var(--bad-ink); }
+.fd .tg span.ok { background: var(--ok-tint); color: var(--ok-ink); }
+.fd .tg span.warn { background: var(--warn-tint); color: var(--warn-ink); }
+.timers { display: flex; flex-direction: column; gap: 7px; }
+.tm { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 8px; font-size: 12px; }
+.tm .nm { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tm .v { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tm .bar { grid-column: 1 / -1; height: 5px; background: var(--fill); border-radius: 3px; overflow: hidden; }
+.tm .bar i { display: block; height: 100%; background: var(--accent); }
+.tm.limit .bar i { background: var(--ghost); }
+.tm.limit.hot .bar i { background: var(--warn); }
+.empty { color: var(--ghost); font-size: 12px; }
+
+.tl { background: var(--bg); border-radius: 16px; overflow-x: auto; margin-bottom: 14px; }
+.tl #tl { display: block; min-width: 720px; width: 100%; cursor: crosshair; user-select: none; }
+.tl-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px 0; }
+.tl-head h4 { margin: 0; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.tip { position: fixed; pointer-events: none; z-index: 10; background: var(--card); box-shadow: var(--shadow-menu); border-radius: 12px; padding: 7px 10px; font-size: 12px; max-width: 300px; }
+.tip b { display: block; font-size: 12px; }
+.tip .mono { font-size: 11px; color: var(--muted); }
+
+.why { margin: 12px 12px 4px; padding: 14px 16px; border-radius: 14px; background: var(--card); box-shadow: var(--shadow-raised); display: flex; flex-direction: column; gap: 6px; }
+.why .when { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.why .what { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; text-wrap: balance; }
+.why p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+.why .refs { display: flex; gap: 6px; flex-wrap: wrap; }
+.why .refs span { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; min-width: 0; overflow-wrap: anywhere; }
+.why, .logpane { min-width: 0; overflow-x: hidden; }
+.why .refs span.atl { color: var(--accent); border-color: var(--accent); }
+.log { flex: 1; overflow-y: auto; padding: 4px 0 12px; min-height: 240px; }
+.le { display: grid; grid-template-columns: 52px 46px minmax(0,1fr); gap: 0 8px; padding: 5px 16px 5px 13px; border-left: 3px solid transparent; cursor: pointer; font-size: 12.5px; }
+.le:hover { background: var(--fill); }
+.le.sel { background: var(--card); }
+.le.future { display: none; }
+.le .t { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.le .src { font-family: var(--font-mono); font-size: 10px; font-weight: 600; padding: 1px 0; color: var(--muted); }
+.le .nm { font-weight: 550; overflow-wrap: anywhere; }
+.le .ds { grid-column: 3; font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
+.le.k-field { border-left-color: var(--ghost-soft); }
+.le.k-field .nm { font-weight: 450; color: var(--ink-soft); }
+.le.k-dac { border-left-color: var(--sa); }
+.le.k-dac2 { border-left-color: var(--dac2); }
+.le.k-dac2 .src { color: var(--dac2); }
+.le.k-cmd { border-left-color: var(--ink); }
+.le.k-bad { border-left-color: var(--bad); }
+.le.k-bad .nm { color: var(--bad-ink); }
+.le.k-ok { border-left-color: var(--ok); }
+.le.k-warn { border-left-color: var(--warn); }
+.le.k-con { border-left-color: var(--dac2); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@keyframes pulse { 50% { opacity: .35; } }
+.pulse { animation: pulse 1s ease-in-out infinite; }
+
+/* ---- page layout: one column, top to bottom, the way an event reads ---- */
+[hidden] { display: none !important; }
+.page { max-width: 1440px; margin: 0 auto; padding: 30px 36px 48px; display: flex; flex-direction: column; gap: 26px; }
+.hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.hero-title { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.hero h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+.chip { margin-right: 0; }
+.transport { padding: 0; gap: 10px; align-items: center; }
+.btn { height: 36px; padding: 0 16px; border-radius: 11px; font-size: 13.5px; }
+.btn.primary { min-width: 96px; }
+.btn.ghost { background: transparent; color: var(--ink-soft); }
+.btn.ghost:hover { background: var(--fill); color: var(--ink); }
+.seg button { padding: 5px 13px; }
+.clock { margin-left: 14px; }
+.clock .t { font-size: 24px; }
+
+.pick { display: flex; flex-direction: column; gap: 14px; }
+.scen-list { padding: 0; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+.scen { display: inline-flex; width: auto; gap: 8px; align-items: baseline; padding: 8px 15px; border-radius: 999px; background: var(--bg); font-size: 13.5px; }
+.scen:hover { background: var(--fill); }
+.scen.selected { background: var(--ink); color: var(--card); box-shadow: none; }
+.scen.selected .len { color: var(--ghost-soft); }
+.pick-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.opts { flex: 1; min-width: 0; }
+#opts { display: flex; flex-wrap: wrap; gap: 8px; }
+#opts .row { gap: 10px; padding: 6px 8px 6px 14px; border-radius: 999px; background: var(--bg); font-size: 13px; }
+#opts .row select { background: var(--card); height: 28px; border-radius: 999px; padding: 0 8px; }
+#opts .row input[type=checkbox] { margin-right: 6px; }
+
+.diagram { padding: 10px 6px 4px; }
+.diagram #dia { min-width: 760px; }
+.legend { padding: 4px 20px 14px; gap: 18px; font-size: 12px; }
+
+.trio { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.8fr); gap: 18px; align-items: start; }
+@media (max-width: 1100px) { .trio { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .trio .why { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .trio { grid-template-columns: minmax(0, 1fr); } }
+.why { margin: 0; padding: 20px 22px; gap: 10px; min-height: 190px; }
+.why .what { font-size: 18px; }
+.why p { font-size: 14px; line-height: 1.6; }
+.box { padding: 18px 20px; }
+.box h4 { margin-bottom: 12px; }
+.flags { gap: 6px; }
+.flag { padding: 3px 10px; }
+.feeders { gap: 14px; margin-top: 16px; }
+.timers { gap: 10px; }
+
+.tl { margin-bottom: 0; padding-bottom: 8px; }
+.tl-head { padding: 16px 20px 4px; }
+
+.logwrap { background: var(--bg); border-radius: 16px; padding: 6px 0 10px; }
+.log-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px 6px; }
+.log-head h4 { margin: 0; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.log-head .mono { font-size: 12px; color: var(--muted); }
+.log { max-height: 440px; min-height: 0; padding: 0 8px 4px; }
+.le { grid-template-columns: 60px 54px minmax(0, 1fr) minmax(0, 1.2fr); gap: 0 14px; padding: 8px 14px; border-radius: 10px; font-size: 13px; }
+.le .ds { grid-column: 4; grid-row: 1; font-size: 12.5px; }
+.le.sel { background: var(--card); box-shadow: var(--shadow-raised); }
+@media (max-width: 900px) { .le { grid-template-columns: 56px 50px minmax(0, 1fr); } .le .ds { grid-column: 3; grid-row: auto; } }
+
+.drawer {
+  position: fixed; top: 16px; right: 16px; bottom: 16px; width: 340px; max-width: calc(100vw - 32px); z-index: 20;
+  overflow-y: auto; padding: 18px 20px; border-radius: 18px; background: var(--card); box-shadow: var(--shadow-menu);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.drawer-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.drawer-head h3 { margin: 0; flex: 1; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.drawer .row { font-size: 13px; }
+.drawer .row input[type=number], .drawer .row input[type=text] { background: var(--fill); height: 30px; }
+#settings { display: flex; flex-direction: column; gap: 9px; }
+.x { border: 0; background: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
+.x:hover { background: var(--fill); color: var(--ink); }
+</style>
+
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <div class="hero-title">
+      <h1>DAC Simulator</h1>
+      <span class="chip">DA Lib 105.0.2 · Adapter defaults</span>
+    </div>
+    <div class="transport">
+      <button class="btn primary" id="play" type="button">Play</button>
+      <button class="btn" id="restart" type="button">Restart</button>
+      <button class="btn" id="prev" type="button">‹ Step</button>
+      <button class="btn" id="next" type="button">Step ›</button>
+      <div class="seg" id="speed"><button type="button" data-s="1">1×</button><button type="button" data-s="5" class="active">5×</button><button type="button" data-s="20">20×</button></div>
+      <div class="clock"><span class="t" id="clock">t+0.0 s</span><span class="of" id="clockOf">/ 0 s</span></div>
+    </div>
+  </header>
+
+  <section class="pick">
+    <div class="scen-list" id="scenList"></div>
+    <div class="pick-row">
+      <div class="opts" id="optGroup"><div id="opts"></div></div>
+      <button class="btn ghost" id="openSettings" type="button">Timers &amp; delays</button>
+    </div>
+  </section>
+
+  <section class="diagram"><svg id="dia" viewBox="0 0 1000 300" role="img" aria-label="One-line diagram"></svg>
+    <div class="legend">
+      <span><i class="sw" style="border-color:var(--sa)"></i>Fed from Sub A</span>
+      <span><i class="sw" style="border-color:var(--sb)"></i>Sub B</span>
+      <span><i class="sw" style="border-color:var(--sc)"></i>Sub C (DAC-2)</span>
+      <span><i class="sw" style="border-color:var(--warn);border-top-style:dashed"></i>One phase lost</span>
+      <span><i class="sw" style="border-color:var(--ghost-soft);border-top-style:dashed"></i>Dead</span>
+      <span><svg width="12" height="12"><rect x="1" y="1" width="10" height="10" fill="var(--bad)"/></svg>Closed</span>
+      <span><svg width="12" height="12"><rect x="1.5" y="1.5" width="9" height="9" fill="var(--card)" stroke="var(--ok)" stroke-width="2"/></svg>Open</span>
+    </div>
+  </section>
+
+  <section class="trio">
+    <div class="why" id="why"></div>
+    <div class="box">
+      <h4>Scheme <span id="dacState" class="mono" style="text-transform:none;letter-spacing:0"></span></h4>
+      <div class="flags" id="flags"></div>
+      <div class="feeders" id="feeders"></div>
+    </div>
+    <div class="box"><h4>Running timers <span id="tmCount"></span></h4><div class="timers" id="timers"></div></div>
+  </section>
+
+  <section class="tl">
+    <div class="tl-head"><h4>Timeline</h4><span class="chip" id="tlInfo"></span></div>
+    <svg id="tl"></svg>
+  </section>
+
+  <section class="logwrap">
+    <div class="log-head"><h4>Log</h4><span class="mono" id="logCount"></span></div>
+    <div class="log" id="log"></div>
+  </section>
+</div>
+
+<aside class="drawer" id="drawer" hidden aria-label="Timers and delays">
+  <div class="drawer-head"><h3>Timers &amp; delays</h3><button class="linkbtn" id="resetSettings" type="button">Defaults</button><button class="x" id="closeSettings" type="button" aria-label="Close">✕</button></div>
+  <div id="settings"></div>
+</aside>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+/* ------------------------------------------------------------------ model */
+const PULSE = 5, COF = 10, POLL_TO = 10, RETRY = 7;
+const SETTINGS = [
+  ['MinimumUpdateTime', 10, 's'], ['UpdateTimeLimit', 120, 's'], ['AnalyzeTimeLimit', 120, 's'], ['ReconfigTimeLimit', 120, 's'],
+  ['EventDetectTime', 10, 's'], ['OpenPhaseConfirmTime', 60, 's'], ['OverloadConfirmTime2', 60, 's'], ['FaultHoldTime', 120, 's'],
+  ['CloseDelay', 0, 's'], ['RecloseIntervals', '2,10,15', ''], ['PollAnswer', 1.5, 's'], ['StatusLatency', 2, 's'], ['ConnectorMsg', 1, 's'],
+];
+const LABEL = { RecloseIntervals: 'R1 reclose intervals', PollAnswer: 'Poll answer time', StatusLatency: 'Status report delay', ConnectorMsg: 'Connector message' };
+const SECN = { A0: 'BKR-A–R1', A1: 'R1–R2', A2: 'R2–T1', A3: 'R3–T2', B1: 'T1–R4', B0: 'R4–BKR-B', C1: 'T2–BKR-C' };
+const LOAD0 = { A0: 200, A1: 120, A2: 90, A3: 60, B1: 80, B0: 170, C1: 150 };
+const PORT = { 'BKR-A': 'Port 1', R1: 'Port 1', R2: 'Port 1', R3: 'Port 1', T1: 'Port 2', R4: 'Port 2', 'BKR-B': 'Port 2', 'DG POI': 'Port 3' };
+const FA = ['BKR-A', 'R1', 'R2', 'R3', 'T1'], FB = ['T1', 'R4', 'BKR-B'];
+const W = (text, pou, atlas) => ({ text, pou, atlas });
+const uniq = a => [...new Set(a)];
+const f1 = x => (Math.round(x * 10) / 10).toFixed(1);
+
+class Run {
+  constructor() { this.E = []; this.S = []; this.P = []; this.end = 0; this.fsl = []; this.mgl = []; this.focus = 0; }
+  bump(t) { if (isFinite(t) && t > this.end) this.end = t; return t; }
+  log(t, src, name, desc = '', why = null, k = '') { this.bump(t); this.E.push({ t, src, name, desc, why, k: k || (src === 'Field' ? 'field' : src === 'DAC-2' ? 'dac2' : 'dac') }); }
+  span(lane, a, b, label, tone = '', o = {}) { this.bump(b); this.S.push({ lane, a, b, label, tone, ...o }); }
+  timer(name, a, len, actual, kind = 'min', info = '') { const b = actual ?? a + len; this.span('Timers', a, b, name, kind, { full: a + len, kind, info }); }
+  set(t, p) { this.bump(t); this.P.push({ t, p, i: this.P.length }); }
+  fs(f, t, st) { this.set(t, { fs: { [f]: st } }); this.fsl.push({ f, t, st }); }
+  mg(t, st) { this.set(t, { mg: st }); this.mgl.push({ t, st }); }
+  flag(t, k, v = true) { this.set(t, { flags: { [k]: v } }); }
+  tg(t, f, k, v = true) { this.set(t, { tg: { [f]: { [k]: v } } }); }
+  finalize(pad = 12) {
+    this.end = Math.ceil((this.end + pad) / 5) * 5;
+    for (const [list, laneOf] of [[this.fsl, x => 'Feeder ' + (x.f === 'C' ? 'C · DAC-2' : x.f)], [this.mgl, () => 'Manager']]) {
+      const by = {};
+      for (const x of list) (by[laneOf(x)] ??= []).push(x);
+      for (const [lane, xs] of Object.entries(by)) {
+        xs.sort((a, b) => a.t - b.t);
+        xs.forEach((x, i) => { const nx = xs[i + 1]; if (x.st && x.st !== 'IDLE') this.span(lane, x.t, nx ? nx.t : this.end, x.st, 'st-' + x.st); });
+      }
+    }
+    for (const s of this.S) if (s.b == null) s.b = this.end;
+    this.E.sort((a, b) => a.t - b.t);
+    this.P.sort((a, b) => a.t - b.t || a.i - b.i);
+  }
+}
+
+function baseState(o = {}) {
+  const dev = {};
+  for (const d of ['BKR-A', 'R1', 'R2', 'R3', 'R4', 'BKR-B', 'BKR-C', 'DG POI']) dev[d] = { st: 'closed' };
+  dev.T1 = { st: 'open', no: true }; dev.T2 = { st: 'open', no: true };
+  return { dev, src: { A: true, B: true, C: true }, fault: {}, op: false, flags: {}, fs: { A: 'IDLE', B: 'IDLE', C: 'IDLE' }, mg: '', tg: { A: {}, B: {}, C: {} }, load: { ...LOAD0 }, collab: 'CollabIdle', con: true, dg: !!o.dg, dgOn: false, notes: {} };
+}
+function apply(s, p) {
+  for (const [k, v] of Object.entries(p)) {
+    if (k === 'dev') for (const [d, dv] of Object.entries(v)) s.dev[d] = { ...s.dev[d], ...dv };
+    else if (k === 'tg') for (const [f, fv] of Object.entries(v)) s.tg[f] = { ...s.tg[f], ...fv };
+    else if (v && typeof v === 'object' && !Array.isArray(v)) s[k] = { ...s[k], ...v };
+    else s[k] = v;
+  }
+}
+
+/* --------------------------------------------------------- shared pieces */
+function polls(r, S, t0, devs, { silent = [], until = t0 + 300, tag = '' } = {}) {
+  const ports = {}; for (const d of devs) (ports[PORT[d]] ??= []).push(d);
+  const ans = {};
+  for (const [p, list] of Object.entries(ports)) {
+    let t = t0, pending = [...list], guard = 0;
+    while (pending.length && t < until && guard++ < 40) {
+      const next = [];
+      for (const d of pending) {
+        if (t >= until) { next.push(d); continue; }
+        if (silent.includes(d)) { const b = Math.min(t + POLL_TO, until); r.span(p, t, b, d + ' · no answer', 'pbad', { info: 'Poll timeout during DA = 10 s. The next device on this port waits.' }); t = b; next.push(d); }
+        else { r.span(p, t, t + S.PollAnswer, d, 'poll', { info: tag || 'Poll answered, WatchdogCount changed' }); t += S.PollAnswer; ans[d] = t; }
+      }
+      pending = next.filter(d => silent.includes(d));
+    }
+  }
+  const done = devs.every(d => ans[d] != null) ? Math.max(t0, ...devs.map(d => ans[d])) : Infinity;
+  return { done, ans };
+}
+const maxOf = (ans, list) => list.every(d => ans[d] != null) ? Math.max(...list.map(d => ans[d])) : Infinity;
+
+function begin(r, t, why) {
+  r.flag(t, 'DA_EVENT_Detected'); r.flag(t, 'DA_InProgress');
+  r.log(t, 'DAC-1', 'DAC: Event Detected', 'Asserted · DA_InProgress', why || W('Any feeder with a new event sets DA_EVENT_Detected. DA_InProgress then refuses Reset, suppresses overload detection, pauses open-phase disarm timers and speeds up polling.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
+  r.log(t, 'DAC-1', 'WDOG pulses stop', 'Watchdog pulses to field devices pause while DA is in progress', W('The WDOG pulse to field devices is not sent while DA_InProgress is TRUE.', 'OBJ/DA_MANAGER_AR', '§04 Comms & watchdogs'));
+}
+
+// UPDATE for the event feeder plus neighbours inside TransferDepth.
+function updatePhase(r, S, t, own, nbr, { silent = [], ownF = 'A', nbrF = 'B' } = {}) {
+  const uLim = Math.max(S.UpdateTimeLimit, S.MinimumUpdateTime + 10);
+  r.fs(ownF, t, 'UPDATE'); if (nbrF) r.fs(nbrF, t, 'UPDATE');
+  r.log(t, 'DAC-1', 'DAC: Update Step', `Polls to Feeder ${ownF}${nbrF ? ' and Feeder ' + nbrF + ' (inside TransferDepth 2)' : ''}`, W('A new event moves the feeder from IDLE to UPDATE and polls every device on it plus feeders within TransferDepth. Polls go one at a time per communication port.', 'Feeder/FEEDER', '§03 Event sequence'));
+  const p = polls(r, S, t, uniq([...own, ...nbr]), { silent, until: t + uLim });
+  const doneOwn = maxOf(p.ans, own);
+  const tA = doneOwn === Infinity ? Infinity : Math.max(t + S.MinimumUpdateTime, doneOwn);
+  r.timer('MinimumUpdateTime', t, S.MinimumUpdateTime, undefined, 'min', 'Always adds time: UPDATE cannot end sooner.');
+  r.timer('Update timeout', t, uLim, Math.min(tA, t + uLim), 'limit', `MAX(UpdateTimeLimit, MinimumUpdateTime + 10 s) = ${uLim} s`);
+  if (nbrF) {
+    const dn = maxOf(p.ans, nbr);
+    const tb = Math.min(t + uLim, Math.max(t + S.MinimumUpdateTime, dn));
+    r.fs(nbrF, tb, 'IDLE');
+  }
+  if (tA !== Infinity) {
+    const why = doneOwn > t + S.MinimumUpdateTime ? `Every on-scan device answered at t+${f1(doneOwn)}, after MinimumUpdateTime.` : `All devices answered by t+${f1(doneOwn)}, but MinimumUpdateTime holds UPDATE until t+${f1(t + S.MinimumUpdateTime)}.`;
+    r.fs(ownF, tA, 'ANALYZE');
+    r.log(tA, 'DAC-1', 'DAC: Analyze Step', `Feeder ${ownF} leaves UPDATE`, W(why + ' UPDATE ends only when both are true.', 'Feeder/FEEDER', '§03 Event sequence'));
+  }
+  return { tA, uLim, p };
+}
+
+function updateFail(r, S, t0, uLim, dev, f = 'A') {
+  const t = t0 + uLim;
+  r.fs(f, t, 'IDLE');
+  r.log(t, 'DAC-1', 'DAC: Update Step Timeout', 'UpdateStepTimeout', W(`${dev} never answered, so UPDATE ended at its limit, MAX(UpdateTimeLimit, MinimumUpdateTime + 10 s) = ${uLim} s. With an event latched that means AbnormalCondition and no restoration.`, 'Feeder/FEEDER', '§26 Timing'), 'bad');
+  r.log(t, 'DAC-1', `${dev}: Update Failed`, 'COMM_ALARM · device abnormal', W('Devices that did not answer get UpdateFailed plus a communication failure and become abnormal. The feeder becomes abnormal.', 'Feeder/Comms/mFEEDER_CheckDeviceUpdateFail', '§04 Comms & watchdogs'), 'bad');
+  r.set(t, { dev: { [dev]: { abn: true } } });
+  r.tg(t, f, 'AbnormalCondition'); r.tg(t, f, 'Abnormal');
+  r.log(t, 'DAC-1', `Feeder ${f}: Abnormal Condition`, 'Asserted · nothing is restored', W('An update timeout with an event latched sets AbnormalCondition. The sequence ends without a solve.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'), 'bad');
+  endSeq(r, S, t, { ok: false });
+}
+
+function confirmFlags(r, t, f, kind, why) {
+  r.flag(t, 'DA_EVENT_Confirmed'); r.tg(t, f, kind); r.tg(t, f, 'ReconfigurationStarted');
+  r.log(t, 'DAC-1', `Feeder ${f}: ${kind}`, 'Confirmed Event · Reconfiguration Started', why, 'warn');
+  r.log(t, 'DAC-1', 'DAC: Event Confirmed', 'DA_EVENT_Confirmed', W('On confirmation the feeder sets Reconfiguration.Started and the scheme sets DA_EVENT_Confirmed. If the feeder Permissive is FALSE a permissive request is sent.', 'Feeder/Event/mFEEDER_ConfirmEvent', '§03 Event sequence'));
+}
+
+function cmd(r, S, t, dev, act, why, { src = 'DAC-1', lane = 'Commands', fails = false } = {}) {
+  const A = act === 'open' ? 'Open' : 'Close';
+  r.span(lane, t, t + PULSE, `${dev} ${act.toUpperCase()}`, 'cmd', { info: 'CMD_PULSE = 5 s' });
+  r.set(t, { dev: { [dev]: { cmd: act.toUpperCase() } } }); r.set(t + PULSE, { dev: { [dev]: { cmd: '' } } });
+  r.log(t, src, `${dev}: ${A} Cmd`, 'Asserted · 5 s pulse', why, 'cmd');
+  if (fails) return Infinity;
+  const tp = t + S.op;
+  r.set(tp, { dev: { [dev]: { st: act === 'open' ? 'open' : 'closed', lo: false } } });
+  r.log(tp, 'Field', `${dev} ${act === 'open' ? 'opens' : 'closes'}`, '');
+  const tk = tp + S.StatusLatency;
+  r.log(tk, src, `${dev}: Status`, `${act === 'open' ? 'Opened' : 'Closed'} · reported ${f1(S.StatusLatency)} s after the move`, W(`The DAC does not poll for command feedback (CHECK_POLL = FALSE). It learns ${dev} moved only when normal communication reports it.`, 'Global Variables/Global_Variables', '§26 Timing'));
+  return tk;
+}
+
+function solve(r, S, t, text, why, { src = 'DAC-1' } = {}) {
+  r.mg(t, 'DA_Analyze'); r.flag(t, 'DA_Analyze');
+  r.log(t, src, 'DAC: Solve', text, why || W('The manager solves only when every feeder is idle, or analysing with a confirmed event. One solution covers every confirmed event.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§13 Solver'));
+  const tr = t + 0.4;
+  r.flag(tr, 'DA_Analyze', false);
+  return tr;
+}
+function startExec(r, S, t) {
+  r.mg(t, 'DA_Reconfiguration'); r.flag(t, 'DA_Reconfiguration');
+  r.log(t, 'DAC-1', 'DAC: Reconfigure Step', `ReconfigTimeLimit ${S.ReconfigTimeLimit} s starts`, W('Execution is re-evaluated every scan. Each operation goes out only when the electrical state makes it safe.', 'AutomaticReconfig/ExecuteSolution/class_ExecuteSolution', '§14 Execution'));
+  return t;
+}
+
+// Tie close with every interlock in order. Returns the time the DAC knows the tie is closed (or Infinity).
+function closeTie(r, S, t0, tie, o) {
+  const { waitUntil = t0, waitWhy = 'UpstreamIsolation', sgWrong = false, perm = 'TRUE', cof = false, execStart, dgCheck = null, srcName = 'Feeder B', side = 'B' } = o;
+  let t = Math.max(t0, waitUntil);
+  if (waitUntil > t0 + 0.05) r.span('Execution', t0, waitUntil, `${tie} waits · ${waitWhy}`, 'wait', { info: waitWhy === 'UpstreamIsolation' ? 'An isolation switch on either side has not reported open yet.' : waitWhy });
+  if (waitUntil > t0 + 0.05) r.log(waitUntil, 'DAC-1', `${tie}: close interlocks clear`, waitWhy + ' cleared', W(waitWhy === 'UpstreamIsolation' ? 'A tie is closed only when exactly one side has a source and is live and the other side is dead. The isolation open has now been reported.' : 'The condition that held the close is gone.', 'class_ExecuteSolution.CloseSwitch', '§14 Execution'));
+  if (dgCheck) t = dgCheck(t);
+  if (sgWrong) {
+    r.span('Commands', t, t + PULSE, `${tie} SET SG`, 'cmd', { info: 'SSn output, 5 s pulse' });
+    r.set(t, { dev: { [tie]: { cmd: 'SG' } } }); r.set(t + PULSE, { dev: { [tie]: { cmd: '' } } });
+    r.log(t, 'DAC-1', `${tie}: Set Settings Cmd`, 'SG.Control → SSn output · close waits', W(`Settings-group check: walking from ${srcName} through the switch to close, every SG-capable device must already be in the group mapped to that source. ${tie} is not, so SG.Control goes out and the close waits.`, 'ExecuteSolution/CommandChecks/class_CheckSettings', '§15 Settings groups'), 'cmd');
+    const tg = t + 1.5 + S.StatusLatency;
+    r.span('Execution', t, tg, `${tie} waits · SettingsGroup`, 'wait', { info: 'Close waits until the SG status shows the group for the new source.' });
+    r.log(t + 1.5, 'Field', `${tie} changes settings group`, `Group for ${srcName}`);
+    r.log(tg, 'DAC-1', `${tie}: Active Settings`, 'Group correct for the new source', W('The SG status point now matches, so the settings-group check passes.', 'Equipment/SettingGroup/EQUIPMENT_SETTING_GROUP_CHECK', '§15 Settings groups'));
+    t = tg;
+  }
+  if (perm !== 'TRUE') {
+    r.log(t, 'DAC-1', `Feeder ${side}: Request Permissive`, 'Asserted · close waits', W(`${srcName} Permissive is FALSE. The DAC asks for it and holds the close (FeederPermissive).`, 'class_ExecuteSolution.CheckSourceStatusElectrical', '§14 Execution'), 'warn');
+    if (perm === 'never') {
+      r.span('Execution', t, execStart + S.ReconfigTimeLimit, `${tie} waits · FeederPermissive`, 'wait', { info: 'Permissive never arrives' });
+      return Infinity;
+    }
+    const tp = t + 12;
+    r.span('Execution', t, tp, `${tie} waits · FeederPermissive`, 'wait', { info: 'Waiting for the alternate feeder Permissive input' });
+    r.log(tp, 'Field', `Feeder ${side} permissive granted`, 'Operator or upstream logic sets Permissive TRUE');
+    t = tp;
+  }
+  if (S.CloseDelay > 0) { r.span('Execution', t, t + S.CloseDelay, 'CloseDelay', 'wait', { info: 'Fixed delay before each DAC close' }); t += S.CloseDelay; }
+  const tk = cmd(r, S, t, tie, 'close', W(`One side (${srcName}) is sourced and live, the other side is dead, isolation is open, groups are right and the permissive is present. CLOSE goes out as a 5 s pulse. A 10 s close-onto-fault watch starts.`, 'class_ExecuteSolution.CloseSwitch', '§14 Execution'), { fails: cof });
+  r.timer('Close-onto-fault window', t, COF, undefined, 'min', 'A new trip on the feeder inside 10 s latches CloseOnFault');
+  r.focusT = t;
+  if (cof) return { cof: t };
+  return tk;
+}
+
+function endSeq(r, S, t, { ok = true, feeders = ['A'], flags = [], note = '', reset = [] } = {}) {
+  r.mg(t, 'IDLE'); r.flag(t, 'DA_Reconfiguration', false);
+  for (const f of feeders) {
+    if (ok) { r.tg(t, f, 'ReconfigurationComplete'); r.log(t, 'DAC-1', `Feeder ${f}: Reconfiguration Complete`, 'Self-clears after 600 s', W('Every feeder with Reconfiguration.Started gets ReconfigurationComplete on success or RestorationFail on abort, timeout or insufficient capacity.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'), 'ok'); }
+    for (const fl of flags) { r.tg(t, f, fl); r.log(t, 'DAC-1', `Feeder ${f}: ${fl.replace(/([a-z])([A-Z])/g, '$1 $2')}`, 'Asserted', FLAGWHY[fl] || null, fl === 'RestorationFail' || fl === 'AbnormalCondition' ? 'bad' : 'warn'); }
+  }
+  r.flag(t, 'DA_EVENT_Complete'); r.flag(t, 'DA_EVENT_Detected', false); r.flag(t, 'DA_EVENT_Confirmed', false); r.flag(t, 'DA_InProgress', false);
+  r.log(t, 'DAC-1', 'DAC: Sequence End', note || 'DA_EVENT_* cleared · fault latches cleared · WDOG pulses resume', W('When the sequence ends the manager clears DA_EVENT_*, every Restore/Root/Isolation flag, feeder events, and equipment fault latches (pulsing Fault.Reset to relays). Non-restorable flags are also cleared now (new in 105.0.2).', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
+  r.set(t + 0.5, { flags: { DA_EVENT_Complete: false } });
+  for (const d of reset) { r.span('Commands', t, t + PULSE, `${d} RESET`, 'cmd', { info: 'Fault target reset pulse' }); r.log(t, 'DAC-1', `${d}: Reset Cmd`, 'Fault target reset pulse', W('On the end of the sequence, fault latches are cleared and a RESET is pulsed to relays that still show targets.', 'OBJ/DA_MANAGER_AR', '§07 Permanent faults')); r.set(t + 1, { dev: { [d]: { ft: false } } }); }
+  r.timer('Overload new-detection suppression', t, 30, undefined, 'min', 'No new overload for 30 s after any DA sequence');
+  r.timer('Open-phase re-arm (OPC / 2)', t, S.OpenPhaseConfirmTime / 2, undefined, 'min', 'Every device and PT needs Live1 for OpenPhaseConfirmTime / 2 again before open-phase detection is back');
+  if (ok || flags.length) r.log(t + 30, 'DAC-1', 'Email: feeder state', 'Sent once the point has been in alarm for 30 s', W('Each email buffer waits 30 s of continuous alarm before building one email.', 'ADP emailer', '§28 Alarms'));
+}
+const FLAGWHY = {
+  RestorationFail: W('Set at the end of the sequence on every started feeder that was not fully restored: abort, timeout or insufficient capacity. Self-clears after 600 s.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
+  CapacityLimit: W('The chosen solution sheds load or leaves a temporary-limit overload (NotEnoughCapacityFound). The best executable state is still executed even if it restores little.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§24 Caveats #6'),
+  AbnormalCondition: W('Waiting for a source, close onto fault, a device that failed to answer the update, or an abnormal device in an RTN.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
+  CommandFailure: W('A command was still in progress, with no feedback, when the sequence ended.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
+};
+
+/* --------------------------------------------- permanent-fault front half */
+function faultFront(r, S, o) {
+  const { sec = 'A1', trip = 'R1', saw = [trip], silent = [], own = FA, nbr = FB, curve } = o;
+  const shots = curve || S.curve;
+  r.set(0, { fault: { [sec]: true } });
+  r.log(0, 'Field', `Fault in ${sec} (${SECN[sec]})`, 'Permanent');
+  let tt = 0.1;
+  const ft = {}; for (const d of saw) ft[d] = { ft: true };
+  r.set(tt, { dev: { [trip]: { st: 'open' }, ...ft } });
+  r.log(tt, 'Field', `${trip} trips`, `Fault current seen by ${saw.join(', ')}`);
+  for (let i = 0; i < shots.length; i++) {
+    const rc = tt + shots[i];
+    r.span('Protection', tt, rc, `${trip} open ${shots[i]} s`, 'trip');
+    r.set(rc, { dev: { [trip]: { st: 'closed' } } }); r.log(rc, 'Field', `${trip} recloses (shot ${i + 1})`, 'Onto the fault');
+    tt = rc + 0.1; r.set(tt, { dev: { [trip]: { st: 'open' } } }); r.log(tt, 'Field', `${trip} trips`, '');
+  }
+  const tLO = tt;
+  r.set(tLO, { dev: { [trip]: { lo: true } } });
+  r.log(tLO, 'Field', `${trip} locks out`, `After ${shots.length + 1} trips`);
+  r.span('Protection', tLO, null, `${trip} locked out`, 'lo');
+
+  const tD = 0.1 + S.StatusLatency;
+  r.log(tD, 'DAC-1', `${trip}: FaultLatch`, `Asserted · ${trip} open with fault present → TripNew`, W(`A fault is an event only when a device that saw it is open or locked out. The latched fault plus the open ${trip} fires TripNew once. The DAC learns of it ${f1(S.StatusLatency)} s after the trip.`, 'Feeder/Event/Fault/class_Fault.Detect', '§07 Permanent faults'));
+  begin(r, tD);
+  if (shots.length) r.log(tD + 0.1, 'DAC-1', `${trip}: reclose in progress (inferred)`, 'Opened within 10 s with a fault present', W('Reclose in progress is inferred: the device opened in the last 10 s with a fault. An open device with reclose in progress counts as tripped and locked out for fault location.', 'Feeder/Event/Fault/class_Fault', '§07 Permanent faults'));
+  const up = updatePhase(r, S, tD, own, nbr, { silent, nbrF: nbr.length ? 'B' : null });
+  if (up.tA === Infinity) { updateFail(r, S, tD, up.uLim, silent[0]); return null; }
+  const tA = up.tA;
+  r.log(tA + 0.1, 'DAC-1', `Feeder A: fault located ${SECN[o.locSec || sec]}`, 'Unresolved until a lockout is found', W(`The fault is placed below the deepest device that saw fault current (${o.deep || saw[saw.length - 1]}) and above the first device downstream that did not. It stays unresolved, so the feeder cannot leave ANALYZE, until an upstream lockout is seen.`, 'Feeder/Event/Fault/class_Fault.prv_Confirm', '§07 Permanent faults'));
+  const tLk = tLO + S.StatusLatency;
+  if (tLk > tA + S.AnalyzeTimeLimit) {
+    r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Feeder leaves ANALYZE and clears the event if nothing confirms');
+    const t = tA + S.AnalyzeTimeLimit;
+    r.fs('A', t, 'IDLE');
+    r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · no action', W(`The lockout arrived at t+${f1(tLk)}, after ANALYZE gave up at t+${f1(t)}. The last reclose shot finished too late for AnalyzeTimeLimit = ${S.AnalyzeTimeLimit} s.`, 'Feeder/FEEDER', '§26 Timing'), 'bad');
+    endSeq(r, S, t, { ok: false, note: 'Nothing switched. R1 stays locked out.' });
+    return null;
+  }
+  const tLL = Math.max(tLk, tA);
+  r.log(tLL, 'DAC-1', `${trip}: Lockout`, tLk < tA ? 'Already locked out when ANALYZE started' : 'Asserted · LockoutLatched', W(`class_Lockout.Confirm finds a device that saw the fault, has reclosing, and is in lockout. That sets LockoutLatched and polls the feeder again for fresh data.${shots.length === 0 ? ' A single-shot device is already locked out, so MinimumUpdateTime is what sets the pace here.' : ''}`, 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
+  const p2 = polls(r, S, tLL, own, { tag: 'Follow-up poll after lockout' });
+  const tC = p2.done;
+  r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, tC, 'limit', 'Feeder leaves ANALYZE and clears the event if nothing confirms');
+  confirmFlags(r, tC, 'A', 'Fault', W('Confirmed: lockout latched AND every device on the feeder answered the follow-up poll.', 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
+  r.log(tC, 'DAC-1', 'DAC: Permanent Fault', 'Asserted', null);
+  return { tD, tA, tC, tLO };
+}
+
+/* --------------------------------------------------------------- scenarios */
+const SCEN = [];
+const sc = (id, name, len, opts, build) => SCEN.push({ id, name, len, opts, build });
+
+sc('perm', 'Permanent fault', '≈40 s', [
+  ['sg', 'T1 in wrong settings group', 'check', true],
+  ['perm', 'Feeder B Permissive', 'select', 'TRUE', [['TRUE', 'TRUE'], ['late', 'FALSE, granted later'], ['never', 'FALSE, never']]],
+  ['silent', 'R2 does not answer polls', 'check', false],
+  ['hidden', 'R2 fault indicator failed', 'check', false],
+], (S, o) => {
+  const r = new Run();
+  const fsec = o.hidden ? 'A2' : 'A1';
+  const fr = faultFront(r, S, { sec: fsec, trip: 'R1', saw: ['R1'], silent: o.silent ? ['R2'] : [], locSec: 'A1' });
+  if (!fr) return r;
+  const { tC } = fr;
+  if (o.hidden) r.log(tC + 0.05, 'Field', 'The fault is really in R2–T1', 'R2 saw the current but its indicator never asserted');
+  r.fs('A', tC, 'IDLE');
+  const tO = tC;
+  const tR2 = cmd(r, S, tO, 'R2', 'open', W('R2 bounds the faulted section on the load side. It can break load and isolation is allowed, so it is opened now, at confirmation, before the solve. R1 is already open.', 'Feeder/Event/Fault/ExtendedIsolation/fb_PermFaultIsolation', '§07 Permanent faults'));
+  r.log(tC + 0.1, 'DAC-1', 'Feeder A: IDLE', 'No unresolved faults left', W('With the fault resolved the feeder returns to IDLE. All feeders idle lets the manager solve.', 'Feeder/FEEDER', '§03 Event sequence'));
+  const ts = solve(r, S, tC + 0.2, 'Close T1 from Feeder B · R2–T1 + R3 branch 150 A, B margin 550 A');
+  startExec(r, S, ts);
+  const res = closeTie(r, S, ts, 'T1', { waitUntil: tR2, sgWrong: o.sg, perm: o.perm, execStart: ts, cof: o.hidden });
+  if (res && res.cof !== undefined) {
+    const tc = res.cof, tp = tc + S.op;
+    r.set(tp, { dev: { T1: { st: 'closed', cmd: '' } } });
+    r.log(tp, 'Field', 'T1 closes onto the fault', '');
+    r.set(tp + 0.12, { dev: { R4: { st: 'open', ft: true }, T1: { ft: true } } });
+    r.log(tp + 0.12, 'Field', 'R4 trips', 'Feeder B sees the R2–T1 fault through T1');
+    r.span('Protection', tp + 0.12, tp + 0.12 + S.curve[0], 'R4 open', 'trip');
+    const tk = tp + 0.12 + S.StatusLatency;
+    r.log(tk, 'DAC-1', 'T1: Close On Fault', 'Latched · T1 abnormal, no further closes', W('Inside the 10 s window after the close, Feeder B saw a new trip. CloseOnFault latches on T1, makes it abnormal, blocks CLOSE outputs, and aborts the sequence. It clears only on a feeder or system reset.', 'Equipment/EQUIPMENT', '§07 Permanent faults'), 'bad');
+    r.set(tk, { dev: { T1: { abn: true } } });
+    r.log(tk + 0.1, 'Field', 'Feeder B now has its own fault event', 'Its reclose sequence runs. Not followed further here.');
+    endSeq(r, S, tk + 0.2, { ok: false, flags: ['AbnormalCondition', 'RestorationFail'] });
+    r.focus = tk;
+    return r;
+  }
+  if (res === Infinity) {
+    const t = ts + S.ReconfigTimeLimit;
+    r.log(t, 'DAC-1', 'DAC: Reconfigure Step Timeout', 'ReconfigureStepTimeout · ExecutionFailure', W(`Execution did not finish inside ReconfigTimeLimit = ${S.ReconfigTimeLimit} s. The sequence aborts.`, 'OBJ/DA_MANAGER_AR', '§26 Timing'), 'bad');
+    endSeq(r, S, t, { ok: false, flags: ['RestorationFail'], reset: ['R1'] });
+    r.focus = t;
+    return r;
+  }
+  endSeq(r, S, res, { reset: ['R1'] });
+  r.timer('FaultHoldTime (relay target reset)', fr.tD, S.FaultHoldTime, Math.min(res, fr.tD + S.FaultHoldTime), 'limit', 'The sequence end cleared the targets first');
+  r.focus = tC + 2;
+  return r;
+});
+
+sc('temp', 'Temporary fault', '≈130 s', [], (S) => {
+  const r = new Run();
+  r.set(0, { fault: { A1: true } }); r.log(0, 'Field', 'Fault in A1 (R1–R2)', 'Temporary');
+  r.set(0.1, { dev: { R1: { st: 'open', ft: true } } }); r.log(0.1, 'Field', 'R1 trips', 'Fault current');
+  const rc = 0.1 + S.curve[0];
+  r.span('Protection', 0.1, rc, 'R1 open', 'trip');
+  r.set(rc - 0.5, { fault: { A1: false } }); r.log(rc - 0.5, 'Field', 'Fault clears', 'Arc extinguished during the open interval');
+  r.set(rc, { dev: { R1: { st: 'closed' } } }); r.log(rc, 'Field', 'R1 recloses and holds', 'Successful reclose');
+  const tD = 0.1 + S.StatusLatency;
+  r.log(tD, 'DAC-1', 'R1: FaultLatch', 'Asserted · R1 open with fault present → TripNew', W('The DAC cannot know yet that the reclose will hold. A latched fault with an open device is an event.', 'Feeder/Event/Fault/class_Fault.Detect', '§07 Permanent faults'));
+  begin(r, tD);
+  const up = updatePhase(r, S, tD, FA, FB);
+  const tA = up.tA;
+  r.log(tA + 0.1, 'DAC-1', 'Feeder A: fault located R1–R2', 'Unresolved. Waiting for lockout.', W('The location is known but stays unresolved until a lockout is seen. A successful reclose never confirms.', 'Feeder/Event/Fault/class_Fault', '§07 Permanent faults'));
+  const tRe = rc + 2 * S.EventDetectTime;
+  r.timer('Reclose-in-progress reset (2 × EventDetectTime)', rc, 2 * S.EventDetectTime, undefined, 'min', 'Ends when the device has been closed again for 2 × EventDetectTime');
+  r.log(tRe, 'DAC-1', 'R1: reclose in progress ends', `Closed for 2 × EventDetectTime = ${2 * S.EventDetectTime} s`, W('Reclose in progress ends on lockout or when the device has been closed again for 2 × EventDetectTime.', 'Feeder/Event/Fault/class_Fault', '§07 Permanent faults'));
+  const tX = tA + S.AnalyzeTimeLimit;
+  r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Nothing confirms, so this limit is what ends the event');
+  r.fs('A', tX, 'IDLE');
+  r.log(tX, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · nothing switched', W(`No lockout ever arrives. The feeder sits in ANALYZE for the full AnalyzeTimeLimit (${S.AnalyzeTimeLimit} s) and then clears the event.`, 'Feeder/FEEDER', '§26 Timing'), 'ok');
+  endSeq(r, S, tX, { ok: false, note: 'No operation. DA_InProgress held for the whole ANALYZE window.' });
+  const tF = tD + S.FaultHoldTime;
+  r.timer('FaultHoldTime', tD, S.FaultHoldTime, undefined, 'limit', 'RESET to the relay only when the feeder is not locked out and not in UPDATE');
+  r.span('Commands', tF, tF + PULSE, 'R1 RESET', 'cmd');
+  r.log(tF, 'DAC-1', 'R1: Reset Cmd', `Fault target reset after FaultHoldTime ${S.FaultHoldTime} s`, W('After FaultHoldTime the DAC sends a fault-target RESET to the relay, provided the feeder is not locked out and not in UPDATE.', 'Equipment/Fault/EQUIPMENT_FAULT_DETECTOR', '§07 Permanent faults'), 'cmd');
+  r.set(tF + 1, { dev: { R1: { ft: false } } });
+  r.focus = tA + 20;
+  return r;
+});
+
+sc('op', 'Open phase', '≈80 s', [
+  ['iso', 'IsolateOpenPhase', 'select', 'FALSE', [['FALSE', 'FALSE (Adapter)'], ['TRUE', 'TRUE (Lib)']]],
+], (S, o) => {
+  const r = new Run();
+  r.set(0, { op: true }); r.log(0, 'Field', 'B-phase jumper burns open below R1', 'R1 closed. A1 and beyond lose one phase. No fault current.');
+  const tSee = S.StatusLatency;
+  r.log(tSee, 'DAC-1', 'R2, T1: voltage Dead', 'Lowest phase sets the level', W('Analog voltage Level uses the lowest phase, so one dead phase reads Dead. The open-phase detector sees a live node above R1 and everything below dead.', 'Equipment/Measurements/Voltage/Sensor/EQUIPMENT_VOLTAGE_SENSOR', '§05 Voltage'));
+  r.timer('EventDetectTime', tSee, S.EventDetectTime, undefined, 'min', 'Dead section below a live device must persist this long to latch');
+  const tL = tSee + S.EventDetectTime;
+  r.log(tL, 'DAC-1', 'Feeder A: Open Phase', 'Latched at R1', W(`Feeder and every PT were armed (Live1 for OpenPhaseConfirmTime / 2 = ${S.OpenPhaseConfirmTime / 2} s beforehand). The dead section held for EventDetectTime, so OpenPhase.New latches. Only the first location walking out from the source is taken.`, 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'), 'warn');
+  begin(r, tL);
+  const up = updatePhase(r, S, tL, FA, FB);
+  r.timer('OpenPhaseConfirmTime', tL, S.OpenPhaseConfirmTime, undefined, 'min', 'Always adds time for open phase and LOS');
+  r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, Math.max(up.tA, tL + S.OpenPhaseConfirmTime), 'limit', 'Open phase must confirm inside ANALYZE');
+  const tC = Math.max(up.tA, tL + S.OpenPhaseConfirmTime);
+  if (tC > up.tA + S.AnalyzeTimeLimit) {
+    const t = up.tA + S.AnalyzeTimeLimit; r.fs('A', t, 'IDLE');
+    r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Open phase never confirmed', W('OpenPhaseConfirmTime is longer than what remains of AnalyzeTimeLimit, so ANALYZE gives up first.', 'Feeder/FEEDER', '§26 Timing'), 'bad');
+    endSeq(r, S, t, { ok: false }); return r;
+  }
+  confirmFlags(r, tC, 'A', 'OpenPhase', W(`Still dead after OpenPhaseConfirmTime. The location is R1: its upstream path is live and its node is dead. BKR-A sits between the source and R1, so the switch depth is 1. That makes it an open phase, not a loss of source.`, 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'));
+  r.fs('A', tC, 'IDLE');
+  r.log(tC, 'DAC-1', 'No immediate isolation', 'Open-phase opens happen during execution', W('Immediate isolation at confirmation is skipped on a feeder with an open-phase event unless that feeder isolates open phases. Even then, roots are opened during execution, not at confirmation.', 'Feeder/Event/Fault/ExtendedIsolation/fb_PermFaultIsolation', '§08 Open phase & LOS'));
+  const iso = o.iso === 'TRUE';
+  const ts = solve(r, S, tC + 0.2, iso ? 'Open R1 (upstream) and R2 · close T1 · A1 left dead' : 'Open R2 (root) · close T1 · A1 stays on two phases',
+    W(iso ? 'IsolateOpenPhase TRUE: the nearest closed controllable switch upstream is opened (IsolateOpenPhaseUpstream) and the next switch downstream becomes an isolation point with a root behind it. The open-phased section is de-energised on both sides.' : 'IsolateOpenPhase FALSE (Adapter default): the next switch downstream becomes a root, opened and fed from the alternate. Nothing upstream is opened. R1 is a non-restorable root and A1 stays single- or two-phase energised.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'));
+  startExec(r, S, ts);
+  let tOpen = cmd(r, S, ts, 'R2', 'open', W('R2 is the root switch. It is load-break, so it opens even though A1 is still partly energised.', 'class_ExecuteSolution.OpenSwitch', '§14 Execution'));
+  if (iso) { const t1 = cmd(r, S, ts + 0.05, 'R1', 'open', W('IsolateOpenPhaseUpstream: R1 can break load, so it is opened.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS')); tOpen = Math.max(tOpen, t1); r.tg(ts, 'A', 'IsolateOpenPhaseUpstream'); }
+  const tk = closeTie(r, S, ts, 'T1', { waitUntil: tOpen, waitWhy: 'R2 open (side A must be dead)', execStart: ts });
+  endSeq(r, S, tk, {});
+  r.log(tk + S.OpenPhaseConfirmTime / 2, 'DAC-1', 'Open-phase detection re-armed', `${S.OpenPhaseConfirmTime / 2} s quiet period over`, W('After any event the feeder sends a disarm message to all its devices and PTs, so they need the full re-arm time again. One device that has not re-armed keeps detection off for the whole feeder.', 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'), 'ok');
+  r.focus = tC + 3;
+  return r;
+});
+
+sc('los', 'Loss of source', '≈80 s', [
+  ['lrt', 'LossOfSourceRestoreTime', 'select', '0', [['0', '0 s (automatic)'], ['op', '300 s, operator at +20 s'], ['none', '300 s, no operator']]],
+], (S, o) => {
+  const r = new Run();
+  r.set(0, { src: { A: false } }); r.log(0, 'Field', 'Sub A transmission source lost', 'BKR-A stays closed. No fault anywhere.');
+  const tSee = S.StatusLatency;
+  r.log(tSee, 'DAC-1', 'Feeder A: all voltage Dead', 'Dead from the source down', W('The same detector as open phase. With nothing live below the source the dead section starts above the first switching device.', 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'));
+  r.timer('EventDetectTime', tSee, S.EventDetectTime, undefined, 'min', 'Detection delay');
+  const tL = tSee + S.EventDetectTime;
+  r.log(tL, 'DAC-1', 'Feeder A: Open Phase latched', 'At the source', W('Latches after EventDetectTime. Needs the feeder and all PTs armed beforehand.', 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'), 'warn');
+  begin(r, tL);
+  const up = updatePhase(r, S, tL, FA, FB);
+  r.timer('OpenPhaseConfirmTime', tL, S.OpenPhaseConfirmTime, undefined, 'min', 'Always adds time');
+  const tC = Math.max(up.tA, tL + S.OpenPhaseConfirmTime);
+  r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, tC, 'limit', '');
+  r.tg(tC, 'A', 'LossOfSource'); r.flag(tC, 'DA_EVENT_Confirmed');
+  r.log(tC, 'DAC-1', 'Feeder A: Loss Of Source', 'Location at switch depth 0', W('No switching device lies between the source and the dead section, so the location is depth 0 and the target is LossOfSource.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'), 'warn');
+  let tGo = tC;
+  if (o.lrt !== '0') {
+    r.timer('LossOfSourceRestoreWindow', tC, 300, o.lrt === 'op' ? tC + 20 : undefined, 'limit', 'Operator must send LossOfSourceRestore inside this window');
+    r.log(tC, 'DAC-1', 'Feeder A: LossOfSource output', 'Window counting down · nothing switches', W('LossOfSourceRestoreTime > 0: the circuit LossOfSource output asserts and the window counts down. A rising edge of LossOfSourceRestore inside it starts restoration. The Adapter also raises the alarm "Non-Zero LossOfSourceRestoreTime Set".', 'OBJ/DA_CIRCUIT', '§08 Open phase & LOS'), 'warn');
+    if (o.lrt === 'none') {
+      const t = tC + 300;
+      r.log(t, 'DAC-1', 'Restore window expired', 'No restoration', W('Outside the window nothing happens. The feeder stays dead until the source returns.', 'OBJ/DA_CIRCUIT', '§08 Open phase & LOS'), 'bad');
+      r.fs('A', t, 'IDLE'); endSeq(r, S, t, { ok: false, note: 'Feeder A left dead.' }); r.focus = tC + 2; return r;
+    }
+    tGo = tC + 20;
+    r.log(tGo, 'Field', 'Operator: LossOfSourceRestore', 'SCADA command inside the window');
+  } else r.log(tC, 'DAC-1', 'LossOfSource.Restore set', 'LossOfSourceRestoreTime = 0 (automatic)', W('With LossOfSourceRestoreTime = 0 the restore flag is set automatically once confirmed.', 'OBJ/DA_CIRCUIT', '§08 Open phase & LOS'));
+  r.tg(tGo, 'A', 'ReconfigurationStarted');
+  r.log(tGo, 'DAC-1', 'Feeder A: Reconfiguration Started', 'LossOfSource.Restore set', W('LOS proceeds to restoration only when LossOfSource.Restore is set.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'), 'warn');
+  r.fs('A', tGo, 'IDLE');
+  const ts = solve(r, S, tGo + 0.2, 'Open BKR-A · close T1 · whole feeder 470 A, B margin 550 A');
+  startExec(r, S, ts);
+  const tB = cmd(r, S, ts, 'BKR-A', 'open', W('T1 cannot close yet: side A still connects through the closed BKR-A to a source, even though that source is dead. BKR-A separates the restored area from the dead source, so it opens first.', 'class_ExecuteSolution.OpenSwitch', '§14 Execution'));
+  const tk = closeTie(r, S, ts, 'T1', { waitUntil: tB, waitWhy: 'Side A still sourced through BKR-A', execStart: ts });
+  endSeq(r, S, tk, {});
+  r.focus = tC + 2;
+  return r;
+});
+
+sc('src', 'Source event', '≈20 s', [
+  ['zone', 'IsolateBreakerZone', 'check', false],
+  ['margin', 'Feeder B margin', 'select', '550', [['550', '550 A'], ['300', '300 A']]],
+], (S, o) => {
+  const r = new Run();
+  r.set(0, { src: { A: false } }); r.log(0, 'Field', 'Sub A transformer bank lockout (86B)', 'Bank breaker trips. BKR-A stays closed.');
+  const tD = S.StatusLatency;
+  r.log(tD, 'DAC-1', 'Feeder A: Source Event', 'Rising edge from BankLockout', W('DA_XFMR_MAIN_BUS raises SourceEvent on every feeder breaker on the bus. It is accepted because the feeder is armed and allowed to isolate. There is no 10 s detection delay and no 60 s confirm, unlike loss of source.', 'ADP/DA_XFMR_MAIN_BUS', '§09 Source events'), 'warn');
+  begin(r, tD);
+  r.log(tD + 0.1, 'DAC-1', 'Open-phase detector blocked', 'DA analysis in progress', W('Fault activity, DA analysis or execution blocks open-phase and LOS detection for 10 s after it clears, so the dead feeder does not raise a second LOS event.', 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'));
+  const up = updatePhase(r, S, tD, FA, FB);
+  const tC = up.tA;
+  confirmFlags(r, tC, 'A', 'SourceEvent', W('A source event is confirmed as soon as the feeder reaches ANALYZE, after the update poll.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events'));
+  r.fs('A', tC, 'IDLE');
+  const tB = cmd(r, S, tC, 'BKR-A', 'open', W('The first switching device of the feeder is the isolation point and is opened immediately. A feeder with a latched source event is never used as an alternate.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events'));
+  let tIso = tB;
+  if (o.zone) tIso = Math.max(tIso, cmd(r, S, tC + 0.05, 'R1', 'open', W('IsolateBreakerZone: the breaker zone, from the breaker to the first downstream switches, is isolated and left dead.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events')));
+  const full = o.zone ? 270 : 470;
+  const fits = +o.margin >= full;
+  const part = !fits && !o.zone;
+  const ts = solve(r, S, tC + 0.3, fits ? `Close T1 · ${full} A onto B margin ${o.margin} A` : part ? `Open R1 · close T1 · only R1 and beyond (270 A) fit in ${o.margin} A` : 'Nothing fits', null);
+  startExec(r, S, ts);
+  if (part) tIso = Math.max(tIso, cmd(r, S, ts, 'R1', 'open', W('The solver sectionalises: opening R1 leaves BKR-A–R1 dead so the rest fits in Feeder B margin.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§13 Solver')));
+  const tk = closeTie(r, S, ts, 'T1', { waitUntil: tIso, execStart: ts });
+  endSeq(r, S, tk, { ok: !part, flags: part ? ['CapacityLimit', 'RestorationFail'] : [] });
+  r.focus = tC + 1;
+  return r;
+});
+
+sc('ovl', 'Overload', '≈85 s', [
+  ['en', 'EnableOverloadDetection', 'check', true],
+  ['con', 'DA_CONNECTOR in service', 'check', false],
+  ['grp', 'Feeder B source group', 'select', 'same', [['same', 'Same as A'], ['diff', 'Different']]],
+], (S, o) => {
+  const r = new Run();
+  r.set(0, { con: !!o.con });
+  r.set(0, { load: { A0: 380 } });
+  r.log(0, 'Field', 'Load pickup on Feeder A', 'BKR-A 650 A · Capacity 500 A · TempCapacity 600 A');
+  if (!o.en || o.con) {
+    const t = S.EventDetectTime + S.StatusLatency;
+    r.log(t, 'DAC-1', 'No overload detected', o.con ? 'A DA_CONNECTOR exists in the scheme' : 'EnableOverloadDetection = FALSE (Adapter default)', W(o.con ? 'Any DA_CONNECTOR in service disables overload detection and load shed for the whole scheme, silently.' : 'Overload detection and load shed are off by default in both the Adapter and the Lib.', 'OBJ/DA_MANAGER_AR', o.con ? '§24 Caveats #8' : '§10 Overload'), 'bad');
+    r.bump(90); r.focus = t; return r;
+  }
+  const tDet = S.StatusLatency + S.EventDetectTime;
+  r.timer('EventDetectTime (overload pickup)', S.StatusLatency, S.EventDetectTime, undefined, 'min', 'Filtered current must stay above the rating this long');
+  r.log(tDet, 'DAC-1', 'BKR-A: Overload Warning', 'Level 2 (above TempCapacity)', W('Level 1 is above Capacity and Level 2 above TempCapacity. Each must persist EventDetectTime to be detected.', 'Equipment/Overload/Detector/EQUIPMENT_OVERLOAD_DETECTOR', '§10 Overload'), 'warn');
+  r.tg(tDet, 'A', 'OverloadWarning');
+  const oc2 = S.OverloadConfirmTime2;
+  r.timer('OverloadConfirmTime2 (L2)', tDet, oc2, undefined, 'min', 'L2 confirmation');
+  const lead = oc2 <= 60 ? 2 : 60;
+  const tNew = tDet + oc2 - lead;
+  r.log(tNew, 'DAC-1', 'Feeder A: Overload.New', `${lead} s before the L2 confirm timer runs out`, W('Overload.New, the trigger into UPDATE, fires 60 s before a confirm timer expires, or 2 s before if the confirm time is 60 s or less. That way the data is fresh when it confirms.', 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'));
+  begin(r, tNew);
+  const up = updatePhase(r, S, tNew, FA, FB);
+  const tC = Math.max(up.tA, tDet + oc2);
+  r.timer('OverloadConfirmTime1 (L1)', tDet, 300, tC, 'limit', 'L1 confirmation, 5 min. L2 confirmed first.');
+  confirmFlags(r, tC, 'A', 'Overload', W(`The L2 timer ran out at t+${f1(tDet + oc2)} and the feeder is in ANALYZE, so it confirms. The feeder source becomes a root, the whole feeder gets restore flags, and without shed it is flagged MatchSourceGroup: only same-group alternates, closed transition.`, 'Feeder/Event/Overload/mFEEDER_ConfirmOverload', '§10 Overload'));
+  r.fs('A', tC, 'IDLE');
+  if (o.grp === 'diff') {
+    const ts = solve(r, S, tC + 0.2, 'No same-source-group alternate', W('MatchSourceGroup: the load is live, so the transfer must be closed transition, and that needs both sides in the same source group. Feeder B is in another group.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
+    endSeq(r, S, ts, { ok: false, flags: ['CapacityLimit'], note: 'Nothing switched. Overload remains.' });
+    r.log(tC + 120, 'DAC-1', 'Feeder A: Overload.New again', '120 s after confirmation, still overloaded', W('Overload.New fires again 120 s after confirmation if the overload is still there and nothing is in progress.', 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'), 'warn');
+    r.focus = tC + 1; return r;
+  }
+  const ts = solve(r, S, tC + 0.2, 'Close T1 (closed transition) · then open R1 · move 270 A to B', W('The solver treats an overloaded root feeder as if its temporary margin were its normal margin. That drives the solution back under the normal rating: moving R1 and beyond leaves 380 A on BKR-A.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
+  startExec(r, S, ts);
+  const tk = cmd(r, S, ts, 'T1', 'close', W('Both sides of T1 are sourced, from the same source group, and R1 is a switch-to-open with a remote source. Closed transition: T1 closes first.', 'class_ExecuteSolution.CloseSwitch', '§14 Execution'));
+  r.timer('Close-onto-fault window', ts, COF, undefined, 'min', '');
+  r.set(ts + S.op, { looped: true });
+  const tk2 = cmd(r, S, tk, 'R1', 'open', W('The paired switch carries the tie index in SW.CloseTransitionSwitch. Once T1 shows closed, R1 is commanded open (make before break). If R1 failed to open, the DAC would reopen T1.', 'Equipment/EQUIPMENT', '§14 Execution'));
+  r.set(tk + S.op, { looped: false });
+  r.log(tk2 + 0.1, 'DAC-1', 'BKR-A load 380 A', 'Below Capacity 500 A', null, 'ok');
+  endSeq(r, S, tk2, {});
+  r.focus = tC + 1;
+  return r;
+});
+
+sc('con', 'Connector restore', '≈55 s', [
+  ['offer', 'DAC-2 offered margin', 'select', '450', [['450', '450 A'], ['100', '100 A'], ['0', '0 A']]],
+  ['ver', 'DAC-2 on 105.0.1.100', 'check', false],
+], (S, o) => {
+  const r = new Run();
+  const M = S.ConnectorMsg;
+  r.set(0, { tg: { B: { Excluded: true } } });
+  r.log(0, 'Field', 'Feeder B excluded by operator', 'T1 is not an alternate. The only one is Feeder C, owned by DAC-2.');
+  if (o.ver) { r.set(0, { con: false }); r.log(0, 'DAC-1', 'Connector: Version Mismatch', 'Connection refused', W('The partner DA_Version checksum differs (Rev 105.0.1.100 vs Rev 105.0.2). The connection is online only with a matching library version.', 'OBJ/DA_CONNECTOR', '§17 Connectors'), 'bad'); }
+  const fr = faultFront(r, S, { sec: 'A1', trip: 'R1', saw: ['R1'], nbr: [] });
+  const { tD, tC } = fr;
+  const tR2 = cmd(r, S, tC, 'R2', 'open', W('Isolation at confirmation, as for any permanent fault.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
+  r.fs('A', tC, 'IDLE');
+  if (o.ver) {
+    const ts = solve(r, S, tC + 0.2, 'No alternate: Feeder B excluded, connector offline');
+    endSeq(r, S, ts, { ok: false, flags: ['CapacityLimit', 'RestorationFail'], reset: ['R1'] });
+    r.focus = tC; return r;
+  }
+  // DAC-2 sees a remote event
+  const tRe = tD + M;
+  r.log(tRe, 'DAC-2', 'Feeder C: Remote Event', 'Detected from the connector', W('The connector sets RemoteEvent.Detected on the local feeder when the partner reports an event on the shared circuit, after the connector has been head or tail for 10 s.', 'Feeder/Event/Remote/class_RemoteEvent', '§11 Remote events'), 'dac2');
+  r.fs('C', tRe, 'UPDATE');
+  r.span('DAC-2 polls', tRe, tRe + 3 * S.PollAnswer, 'T2, BKR-C', 'poll');
+  r.fs('C', tRe + S.MinimumUpdateTime, 'ANALYZE');
+  r.timer('DAC-2 MinimumUpdateTime', tRe, S.MinimumUpdateTime, undefined, 'min', '');
+  r.span('Collab · DAC-1', tRe, tC + M, 'InitialUpdate', 'col');
+  r.span('Collab · DAC-2', tRe, tC + M, 'InitialUpdate', 'col2');
+  r.set(tRe, { collab: 'InitialUpdate' });
+  r.log(tRe, 'DAC-1', 'Connector: Collaboration requested', 'InitialUpdate', W('Either DAC can start a collaboration when it has an event on the shared feeder. Both must accept. InitialUpdate waits for both to update and confirm, up to Update + Analyze limits.', 'OBJ/DA_CONNECTOR', '§17 Connectors'), 'con');
+  r.timer('Pending collaboration', tRe, S.UpdateTimeLimit + S.AnalyzeTimeLimit, tC + M, 'limit', 'Update + Analyze limits');
+  r.log(tC + M, 'DAC-2', 'Feeder C: Remote Event confirmed', 'DAC-1 reported confirmation', W('A remote event confirms when the remote DAC confirms. The connector source becomes a root.', 'Feeder/Event/Remote/class_RemoteEvent', '§11 Remote events'), 'dac2');
+  r.fs('C', tC + M, 'IDLE');
+  const phases = [['InitialSolutionHandshake', ''], ['InitialSolution', 'Phase one: each DAC solves alone and publishes what it can give'], ['FinalSolutionHandshake', ''], ['FinalSolution', 'Phase two: each solves again with the partner offer'], ['ExecutionHandshake', '']];
+  let t = tC + M;
+  const step = 2 * M;
+  for (const [ph, d] of phases) {
+    r.span('Collab · DAC-1', t, t + step, ph, 'col'); r.span('Collab · DAC-2', t, t + step, ph, 'col2');
+    r.set(t, { collab: ph });
+    r.log(t, 'DAC-1', `Connector: ${ph}`, d || 'Waiting for 2 fresh partner updates', W('Each phase completes only when both DACs report it done, and each step needs at least 2 fresh watchdog updates from the partner (CON_UpdateCheck).', 'OBJ/DA_CONNECTOR', '§17 Connectors'), 'con');
+    if (ph === 'InitialSolution') {
+      r.mg(t, 'Solve (phase one)');
+      r.log(t + 0.4, 'DAC-2', 'Offer published', `Margin at T2 for Feeder C: ${o.offer} A`, W('The margin offered is the node margin if the boundary is fed locally, otherwise the best margin over its open edge switches.', 'Connector/Measurements/Current/mCON_getLocalMargin', '§17 Connectors'), 'dac2');
+    }
+    if (ph === 'FinalSolution') {
+      const seen = Math.max(+o.offer, 0.1);
+      r.mg(t, 'Solve (phase two)');
+      r.log(t + 0.4, 'DAC-1', 'Remote capacity seen', `MAX(${o.offer}, 0.1) = ${seen} A`, W('Remote feeds the boundary (tail), so the modelled remote source capacity is MAX(remote capacity, 0.1 A). The floor stops the solver seeing zero.', 'OBJ/DA_CONNECTOR.prv_MapCapacity', '§17 Connectors'));
+    }
+    if (ph === 'ExecutionHandshake') r.mg(t, 'IDLE');
+    t += step;
+  }
+  const need = 150;
+  const fit = +o.offer >= need ? 'all' : +o.offer >= 60 ? 'part' : 'none';
+  r.log(t - step * 2 + 0.5, 'DAC-1', 'DAC: Solve', fit === 'all' ? 'Request close of T2 · R2–T1 + R3 branch 150 A' : fit === 'part' ? 'Open R3 · request close of T2 · only the R3 branch (60 A) fits' : 'Nothing fits in 0.1 A',
+    fit === 'none' ? W('DAC-2 offered nothing, so the remote margin is the 0.1 A floor. A 0.1 A connector margin in a report is a symptom, not a measurement: the remote side was dead, its permissive was off, it clamped, or its watchdog was stale. This is the Evergreen 10-19-26 pattern.', 'OBJ/DA_CONNECTOR.prv_MapCapacity', '§27 Example 3') : null);
+  if (fit === 'none') {
+    r.span('Collab · DAC-1', t, t + step, 'Execution', 'col'); r.span('Collab · DAC-2', t, t + step, 'Execution', 'col2');
+    r.span('Collab · DAC-1', t + step, t + step * 2, 'Complete', 'col'); r.span('Collab · DAC-2', t + step, t + step * 2, 'Complete', 'col2');
+    r.set(t, { collab: 'Execution' }); r.set(t + step, { collab: 'Complete' }); r.set(t + step * 2, { collab: 'CollabIdle' });
+    endSeq(r, S, t + step * 2, { ok: false, flags: ['CapacityLimit', 'RestorationFail'], reset: ['R1'] });
+    r.focus = t - 2; return r;
+  }
+  r.span('Collab · DAC-1', t, null, 'Execution', 'col'); r.set(t, { collab: 'Execution' });
+  startExec(r, S, t);
+  let tOk = Math.max(t, tR2);
+  if (fit === 'part') tOk = Math.max(tOk, cmd(r, S, t, 'R3', 'open', W('Sectionalise so only what fits is picked up.', 'mAR_FindSolution', '§13 Solver')));
+  if (tOk > t + 0.05) r.span('Execution', t, tOk, 'T2 request waits', 'wait');
+  r.log(tOk, 'DAC-1', 'Connector: Close request T2', 'Handshake to DAC-2', W('Remote switches are never operated directly. Every remote open or close is a handshake request. In 105.0.2 the local model of T2 holds the requested close even while the partner still reports Isolated.', 'OBJ/DA_CONNECTOR.prv_ControlHandShaking', '§17 Connectors'), 'con');
+  r.span('Connector msgs', tOk, tOk + M, 'close req →', 'msg');
+  const tRx = tOk + M;
+  r.log(tRx, 'DAC-2', 'T2 close request received', 'DAC-2 runs its own interlocks', null, 'dac2');
+  const tk2 = cmd(r, S, tRx + 0.2, 'T2', 'close', W('On DAC-2: Feeder C side is live, the boundary side is dead, the group is right. DAC-2 issues the close.', 'class_ExecuteSolution.CloseSwitch', '§14 Execution'), { src: 'DAC-2', lane: 'DAC-2 cmds' });
+  r.span('Connector msgs', tk2, tk2 + M, '← edge closed', 'msg');
+  const tSeen = tk2 + M;
+  r.log(tSeen, 'DAC-1', 'Connector: T2 status Closed', 'Reported by DAC-2', null, 'con');
+  r.span('Collab · DAC-2', t, tSeen, 'Execution', 'col2');
+  r.span('Collab · DAC-1', tSeen, tSeen + step, 'Complete', 'col'); r.span('Collab · DAC-2', tSeen, tSeen + step, 'Complete', 'col2');
+  r.set(tSeen, { collab: 'Complete' }); r.set(tSeen + step, { collab: 'CollabIdle' });
+  r.S.find(s => s.lane === 'Collab · DAC-1' && s.label === 'Execution' && s.b == null).b = tSeen;
+  endSeq(r, S, tSeen + step, { ok: fit === 'all', flags: fit === 'part' ? ['CapacityLimit', 'RestorationFail'] : [], reset: ['R1'] });
+  r.log(tSeen + step + 0.1, 'DAC-1', 'Abort hold-off not needed', 'Collaboration completed normally', W('After an abort no new collaboration starts for 60 s.', 'OBJ/DA_CONNECTOR', '§17 Connectors'));
+  r.focus = tC + M + 4;
+  return r;
+});
+
+sc('mis', 'Miscoordination', '≈25 s', [
+  ['det', 'EnableMiscoordinationDetection', 'select', 'TRUE', [['TRUE', 'TRUE (Adapter)'], ['FALSE', 'FALSE (Lib)']]],
+], (S, o) => {
+  const r = new Run();
+  const fr = faultFront(r, S, { sec: 'A1', trip: 'BKR-A', saw: ['BKR-A', 'R1'], deep: 'R1', curve: [S.curve[0]] });
+  if (!fr) return r;
+  const { tC } = fr;
+  r.log(tC, 'DAC-1', 'Feeder A: Miscoordination', 'BKR-A locked out while R1 also saw the fault', W('An upstream device locked out while a device downstream of it also saw the fault. R1 has protection, so the Miscoordination output sets.', 'Feeder/Event/Fault/class_Fault.prv_ProcessFault', '§07 Permanent faults'), 'warn');
+  r.tg(tC, 'A', 'Miscoordination');
+  r.fs('A', tC, 'IDLE');
+  const t1 = cmd(r, S, tC, 'R1', 'open', W('R1 bounds the fault on the source side. It is dead (BKR-A is open), so it opens now.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
+  const t2 = cmd(r, S, tC + 0.05, 'R2', 'open', W('R2 bounds the fault on the load side and opens now.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
+  const corr = o.det === 'TRUE';
+  const ts = solve(r, S, tC + 0.3, corr ? 'Reclose BKR-A (ReturnClose) · close T1 for R2 and beyond' : 'BKR-A–R1 non-restorable · close T1 for R2 and beyond',
+    W(corr ? 'Detection ON and R1 is controllable: the fault-bounding switches isolate it and the locked-out BKR-A goes on the ReturnClose list, so the healthy BKR-A–R1 section is restored by reclosing it.' : 'Detection OFF and R1 has protection: no correction. BKR-A–R1 is flagged MiscoordinationIsolation and treated as non-restorable. Only load beyond the fault isolation is restored.', 'Feeder/Event/Fault/class_Fault.prv_ProcessFault', '§07 Permanent faults'));
+  startExec(r, S, ts);
+  let tEnd = closeTie(r, S, ts, 'T1', { waitUntil: t2, execStart: ts });
+  if (corr) {
+    const tb = cmd(r, S, Math.max(ts, t1), 'BKR-A', 'close', W('ReturnClose: one side of BKR-A is the live source, the other side (up to the open R1) is dead.', 'class_ExecuteSolution.CloseSwitch', '§14 Execution'));
+    r.timer('Close-onto-fault window (BKR-A)', Math.max(ts, t1), COF, undefined, 'min', '');
+    tEnd = Math.max(tEnd, tb);
+  }
+  endSeq(r, S, tEnd, { ok: corr, flags: corr ? [] : ['RestorationFail'], reset: ['BKR-A', 'R1'] });
+  r.focus = tC + 1;
+  return r;
+});
+
+sc('dg', 'DG on wrong circuit', '≈45 s', [
+  ['ver', 'Library', 'select', '105.0.2', [['105.0.2', '105.0.2'], ['105.0.1', '105.0.1.100']]],
+  ['ride', 'RideThrough', 'select', 'All', [['All', 'All (7)'], ['None', 'None (0)']]],
+], (S, o) => {
+  const r = new Run();
+  r.set(0, { dg: true, dgOn: true });
+  r.log(0, 'Field', 'DG at R2–T1 exporting', 'Circuit list = Feeder A only · ClosePermissive TRUE');
+  const own = [...FA, 'DG POI'];
+  const fr = faultFront(r, S, { sec: 'A1', trip: 'R1', saw: ['R1'], own });
+  if (!fr) return r;
+  const { tD, tC } = fr;
+  r.set(0.15, { dgOn: false });
+  r.log(0.15, 'Field', 'DG inverter ceases to energise', 'Its own anti-islanding. The POI breaker stays closed.');
+  let poiOpen = false;
+  if (o.ride === 'None') {
+    const t = tD + 5;
+    r.timer('DG TripDelay (flicker)', tD, 5, undefined, 'min', 'DgFlickerDelayTime 5 s');
+    cmd(r, S, t, 'DG POI', 'open', W('RideThrough None: DG is tripped 5 s after its feeder has a fault.', 'OBJ/DA_DG_UNIT', '§16 DG'));
+    poiOpen = true;
+  } else r.log(tD + 0.2, 'DAC-1', 'DG POI: no trip', 'RideThrough covers fault and isolation', W('RideThrough All (7) exempts fault, isolation and close-transition trips. A disallowed circuit still trips.', 'OBJ/DA_DG_UNIT', '§16 DG'));
+  const tR2 = cmd(r, S, tC, 'R2', 'open', W('Isolation at confirmation.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
+  r.fs('A', tC, 'IDLE');
+  const ts = solve(r, S, tC + 0.2, 'Close T1 from Feeder B');
+  startExec(r, S, ts);
+  const v2 = o.ver === '105.0.2';
+  const dgCheck = (!poiOpen && v2) ? (t) => {
+    const tk = cmd(r, S, t, 'DG POI', 'open', W('New in 105.0.2. The pre-close walk reaches the closed DG POI. Feeder B is not in its Circuit list and its ClosePermissive is TRUE, so Dg.Control trips the POI now, with no 5 s delay and no RideThrough exemption. The close waits, and diagnostics show it as a settings-group wait.', 'Shared/DG/checkDg', '§16 DG'));
+    r.span('Execution', t, tk, 'T1 waits · DG check (shows as SettingsGroup)', 'wait');
+    return tk;
+  } : null;
+  const tk = closeTie(r, S, ts, 'T1', { waitUntil: tR2, execStart: ts, dgCheck });
+  let tEnd = tk;
+  if (!poiOpen && !v2) {
+    r.log(tk + 0.1, 'DAC-1', 'DG POI: SourceInValid', 'Closed POI now on Feeder B', W('105.0.1.100 has no pre-close DG check, so T1 closes with the POI closed. The DG then sees a transfer to an invalid source.', 'ExternalHelpers/DG/Equip/mDgIsConnectable', '§16 DG'), 'bad');
+    r.timer('DG TripDelay (transferred to invalid source)', tk, 5, undefined, 'min', 'DgFlickerDelayTime');
+    tEnd = cmd(r, S, tk + 5, 'DG POI', 'open', W('Transferred to an invalid source: TripDelay runs 5 s, then the POI opens. RideThrough does not cover this case.', 'OBJ/DA_DG_UNIT', '§16 DG'));
+  }
+  r.log(tEnd + 0.1, 'DAC-1', 'DG POI: DisallowedCircuit', 'No close permissive while on Feeder B', W('Close permissive is given only 5 s after the DG is back on an allowed circuit with no fault and no DA sequence in progress.', 'OBJ/DA_DG_UNIT', '§16 DG'), 'warn');
+  endSeq(r, S, Math.max(tk, tEnd), { reset: ['R1'] });
+  r.focus = ts + 1;
+  return r;
+});
+
+/* ------------------------------------------------------------- energising */
+const EDGES = [ // device, section a, section b
+  ['BKR-A', 'SA', 'A0'], ['R1', 'A0', 'A1'], ['R2', 'A1', 'A2'], ['T1', 'A2', 'B1'], ['R4', 'B1', 'B0'], ['BKR-B', 'B0', 'SB'],
+  ['R3', 'A2', 'A3'], ['T2', 'A3', 'C1'], ['BKR-C', 'C1', 'SC'], ['DG POI', 'A2', 'DG'],
+];
+function energise(s) {
+  const feed = {}; // section -> {src, op}
+  const q = [];
+  for (const [k, sec] of [['A', 'SA'], ['B', 'SB'], ['C', 'SC']]) if (s.src[k]) q.push({ sec, src: k, op: false, from: null });
+  const seen = new Set();
+  while (q.length) {
+    const c = q.shift();
+    const key = c.sec + c.src + c.op;
+    if (seen.has(key)) continue; seen.add(key);
+    if (c.sec[0] !== 'S') { (feed[c.sec] ??= []).push({ src: c.src, op: c.op }); }
+    for (const [d, a, b] of EDGES) {
+      if (s.dev[d].st !== 'closed') continue;
+      const nx = a === c.sec ? b : b === c.sec ? a : null;
+      if (!nx || nx === 'DG') continue;
+      const op = c.op || (s.op && d === 'R1' && nx === 'A1');
+      q.push({ sec: nx, src: c.src, op });
+    }
+  }
+  const out = {};
+  for (const sec of Object.keys(SECN)) {
+    const f = feed[sec] || [];
+    const full = f.find(x => !x.op);
+    out[sec] = full ? { v: 'live', src: full.src } : f.length ? { v: 'op', src: f[0].src } : { v: 'dead' };
+  }
+  const amps = { A: 0, B: 0, C: 0 };
+  for (const [sec, e] of Object.entries(out)) if (e.v !== 'dead') amps[e.src] += s.load[sec];
+  return { out, amps };
+}
+
+/* ---------------------------------------------------------------- diagram */
+const Y1 = 130, Y2 = 250;
+const POS = { 'BKR-A': [110, Y1], R1: [255, Y1], R2: [405, Y1], T1: [565, Y1], R4: [720, Y1], 'BKR-B': [865, Y1], R3: [480, 190], T2: [740, Y2], 'BKR-C': [865, Y2], 'DG POI': [525, 80] };
+const SEGS = {
+  A0: [[110, Y1, 255, Y1]], A1: [[255, Y1, 405, Y1]], A2: [[405, Y1, 565, Y1], [480, Y1, 480, 190]], A3: [[480, 190, 480, Y2], [480, Y2, 692, Y2]],
+  B1: [[565, Y1, 720, Y1]], B0: [[720, Y1, 865, Y1]], C1: [[692, Y2, 865, Y2]],
+};
+const MID = { A0: [182, Y1], A1: [330, Y1], A2: [522, Y1], A3: [590, Y2], B1: [642, Y1], B0: [792, Y1], C1: [800, Y2] };
+const SRCC = { A: 'var(--sa)', B: 'var(--sb)', C: 'var(--sc)' };
+function drawDiagram(s) {
+  const { out, amps } = energise(s);
+  let h = '';
+  h += `<rect x="676" y="204" width="314" height="88" rx="10" fill="var(--dac2-tint)" stroke="var(--dac2)" stroke-dasharray="4 4" opacity="0.9"/>`;
+  h += `<text x="984" y="222" text-anchor="end" font-size="11" font-weight="600" fill="var(--dac2)">DAC-2</text>`;
+  h += `<text x="16" y="22" font-size="11" font-weight="600" fill="var(--muted)">DAC-1</text>`;
+  h += `<line x1="692" y1="232" x2="692" y2="272" stroke="var(--dac2)" stroke-width="2"/><text x="686" y="226" text-anchor="end" font-size="10" fill="var(--dac2)" font-family="var(--font-mono)">connector${s.con ? '' : ' · offline'}</text>`;
+  for (const [sec, segs] of Object.entries(SEGS)) {
+    const e = out[sec];
+    const col = e.v === 'dead' ? 'var(--ghost-soft)' : e.v === 'op' ? 'var(--warn)' : SRCC[e.src];
+    const dash = e.v === 'live' ? '' : 'stroke-dasharray="7 5"';
+    for (const [x1, y1, x2, y2] of segs) h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${e.v === 'live' ? 4 : 3}" stroke-linecap="round" ${dash}/>`;
+    const [mx, my] = MID[sec];
+    h += `<text x="${mx}" y="${my + 22}" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="var(--font-mono)">${sec} · ${s.load[sec]} A</text>`;
+    if (s.fault[sec]) h += `<path d="M${mx - 10} ${my - 12} l7 7 l-5 1 l8 9" fill="none" stroke="var(--bad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><text x="${mx}" y="${my - 18}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--bad)">FAULT</text>`;
+  }
+  if (s.op) h += `<text x="268" y="${Y1 - 14}" font-size="10" font-weight="700" fill="var(--warn-ink)">✕ B-phase</text>`;
+  if (s.dg) {
+    const e = out.A2;
+    const poiClosed = s.dev['DG POI'].st === 'closed';
+    h += `<line x1="525" y1="${Y1}" x2="525" y2="80" stroke="${poiClosed && e.v === 'live' ? SRCC[e.src] : 'var(--ghost-soft)'}" stroke-width="3"/>`;
+    h += `<line x1="525" y1="80" x2="525" y2="46" stroke="${poiClosed && (s.dgOn || e.v === 'live') ? (s.dgOn ? 'var(--ok)' : SRCC[e.src]) : 'var(--ghost-soft)'}" stroke-width="3"/>`;
+    h += `<circle cx="525" cy="34" r="13" fill="var(--card)" stroke="var(--ink-soft)" stroke-width="1.5"/><path d="M517 34 q4 -7 8 0 t8 0" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>`;
+    h += `<text x="545" y="30" font-size="10.5" font-weight="600" fill="var(--ink-soft)">DG 2 MW</text><text x="545" y="43" font-size="10" fill="var(--muted)" font-family="var(--font-mono)">${s.dgOn ? 'exporting' : 'offline'}</text>`;
+  }
+  // sources
+  const sub = (x, y, k, name, cap) => {
+    const live = s.src[k];
+    h += `<rect x="${x - 26}" y="${y - 20}" width="52" height="40" rx="7" fill="var(--card)" stroke="${live ? SRCC[k] : 'var(--ghost)'}" stroke-width="2"/>`;
+    h += `<text x="${x}" y="${y - 3}" text-anchor="middle" font-size="11" font-weight="650" fill="${live ? 'var(--ink)' : 'var(--ghost)'}">${name}</text>`;
+    h += `<text x="${x}" y="${y + 11}" text-anchor="middle" font-size="9.5" fill="${live ? 'var(--muted)' : 'var(--bad)'}" font-family="var(--font-mono)">${live ? 'source' : 'lost'}</text>`;
+    const a = amps[k], over = cap && a > cap[1] ? 'var(--bad-ink)' : cap && a > cap[0] ? 'var(--warn-ink)' : 'var(--muted)';
+    h += `<text x="${x}" y="${y + 36}" text-anchor="middle" font-size="10.5" font-family="var(--font-mono)" fill="${over}">${a} A</text>`;
+  };
+  sub(40, Y1, 'A', 'Sub A', [500, 600]); sub(948, Y1, 'B', 'Sub B', [800, 900]); sub(948, Y2, 'C', 'Sub C', [600, 700]);
+  h += `<line x1="66" y1="${Y1}" x2="110" y2="${Y1}" stroke="${s.src.A ? 'var(--sa)' : 'var(--ghost-soft)'}" stroke-width="4"/>`;
+  h += `<line x1="865" y1="${Y1}" x2="922" y2="${Y1}" stroke="var(--sb)" stroke-width="4"/><line x1="865" y1="${Y2}" x2="922" y2="${Y2}" stroke="var(--sc)" stroke-width="4"/>`;
+  h += `<text x="40" y="${Y1 + 50}" text-anchor="middle" font-size="9.5" fill="var(--muted)">cap 500/600</text>`;
+  // devices
+  for (const [d, [x, y]] of Object.entries(POS)) {
+    if (d === 'DG POI' && !s.dg) continue;
+    const v = s.dev[d];
+    const closed = v.st === 'closed';
+    const own2 = d === 'T2' || d === 'BKR-C';
+    h += `<g>`;
+    if (v.abn) h += `<rect x="${x - 15}" y="${y - 15}" width="30" height="30" rx="5" fill="none" stroke="var(--warn)" stroke-width="2"/>`;
+    if (v.cmd) h += `<rect class="pulse" x="${x - 18}" y="${y - 18}" width="36" height="36" rx="7" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;
+    h += closed ? `<rect x="${x - 10}" y="${y - 10}" width="20" height="20" rx="2" fill="var(--bad)"/>` : `<rect x="${x - 9}" y="${y - 9}" width="18" height="18" rx="2" fill="var(--card)" stroke="var(--ok)" stroke-width="2.5"/>`;
+    const ly = d === 'R3' ? y + 4 : d === 'DG POI' ? y + 4 : y - 22;
+    const lx = d === 'R3' || d === 'DG POI' ? x + 18 : x;
+    const anchor = d === 'R3' || d === 'DG POI' ? 'start' : 'middle';
+    h += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-size="11.5" font-weight="650" fill="${own2 ? 'var(--dac2)' : 'var(--ink)'}">${d}</text>`;
+    const tags = [];
+    if (v.no) tags.push(['N.O.', 'var(--muted)']);
+    if (v.lo) tags.push(['LO', 'var(--bad-ink)']);
+    if (v.ft) tags.push(['FI', 'var(--bad-ink)']);
+    if (v.abn) tags.push(['ABN', 'var(--warn-ink)']);
+    if (v.cmd) tags.push([v.cmd === 'SG' ? 'SET SG' : v.cmd, 'var(--ink)']);
+    tags.forEach(([t, c], i) => {
+      const ty = (d === 'R3' || d === 'DG POI') ? y + 17 + i * 12 : y + 26 + i * 12;
+      const tx = (d === 'R3' || d === 'DG POI') ? x + 18 : x;
+      h += `<text x="${tx}" y="${ty}" text-anchor="${anchor}" font-size="9.5" font-weight="700" fill="${c}" font-family="var(--font-mono)">${t}</text>`;
+    });
+    h += `</g>`;
+  }
+  if (s.looped) h += `<text x="565" y="${Y1 - 40}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--warn-ink)">temporarily looped</text>`;
+  dia.innerHTML = h;
+}
+
+/* ------------------------------------------------------------- timeline */
+const LANES = ['Protection', 'Feeder A', 'Feeder B', 'Feeder C · DAC-2', 'Manager', 'Collab · DAC-1', 'Connector msgs', 'Collab · DAC-2', 'Timers', 'Execution', 'Commands', 'DAC-2 cmds', 'Port 1', 'Port 2', 'Port 3', 'DAC-2 polls'];
+const TONE = {
+  trip: ['var(--bad-tint)', 'var(--bad-ink)'], lo: ['var(--bad-tint)', 'var(--bad-ink)'],
+  'st-UPDATE': ['var(--sa-tint)', 'var(--sa)'], 'st-ANALYZE': ['var(--sa)', 'var(--card)'],
+  'st-DA_Analyze': ['var(--ink-soft)', 'var(--card)'], 'st-DA_Reconfiguration': ['var(--accent-tint)', 'var(--ok-ink)'],
+  'st-Solve (phase one)': ['var(--ink-soft)', 'var(--card)'], 'st-Solve (phase two)': ['var(--ink-soft)', 'var(--card)'],
+  poll: ['var(--fill)', 'var(--ink-soft)'], pbad: ['var(--bad-tint)', 'var(--bad-ink)'],
+  cmd: ['var(--ink)', 'var(--card)'], wait: ['var(--warn-tint)', 'var(--warn-ink)'],
+  min: ['var(--accent-tint)', 'var(--ink)'], limit: ['var(--fill)', 'var(--ink-soft)'],
+  col: ['var(--dac2-tint)', 'var(--dac2)'], col2: ['var(--dac2-tint)', 'var(--dac2)'], msg: ['var(--dac2)', 'var(--card)'],
+};
+const LH = 17, LGAP = 6, LBL = 128;
+let tlGeom = null;
+function drawTimeline(run) {
+  const svg = document.getElementById('tl');
+  const W = Math.max(720, svg.parentElement.clientWidth - 2);
+  const used = LANES.filter(l => run.S.some(s => s.lane === l));
+  const rows = {};
+  const packed = [];
+  for (const l of used) {
+    const ss = run.S.filter(s => s.lane === l).sort((a, b) => a.a - b.a);
+    const ends = [];
+    for (const s of ss) {
+      const e = s.full ?? s.b;
+      let r = ends.findIndex(x => x <= s.a + 0.01);
+      if (r < 0) { r = ends.length; ends.push(0); }
+      ends[r] = Math.max(e, s.b);
+      packed.push({ s, row: r });
+    }
+    rows[l] = Math.max(1, ends.length);
+  }
+  let y = 26; const laneY = {};
+  for (const l of used) { laneY[l] = y; y += rows[l] * LH + LGAP; }
+  const H = y + 6;
+  const x = t => LBL + (t / run.end) * (W - LBL - 14);
+  tlGeom = { x, W, H, end: run.end };
+  let h = '';
+  const step = run.end > 400 ? 60 : run.end > 150 ? 20 : run.end > 60 ? 10 : 5;
+  for (let t = 0; t <= run.end; t += step) h += `<line x1="${x(t)}" y1="18" x2="${x(t)}" y2="${H}" stroke="var(--border-soft)"/><text x="${x(t)}" y="13" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--font-mono)">${t}s</text>`;
+  for (const l of used) {
+    const ly = laneY[l];
+    h += `<text x="12" y="${ly + 12}" font-size="11" fill="var(--ink-soft)" font-weight="550">${l}</text>`;
+    h += `<line x1="${LBL}" y1="${ly + rows[l] * LH + LGAP / 2}" x2="${W - 8}" y2="${ly + rows[l] * LH + LGAP / 2}" stroke="var(--border-soft)"/>`;
+  }
+  packed.forEach(({ s, row }, i) => {
+    const yy = laneY[s.lane] + row * LH + 1, hh = LH - 3;
+    const [bg, fg] = TONE[s.tone] || TONE.poll;
+    const x0 = x(s.a), x1 = Math.max(x(s.b), x0 + 2);
+    if (s.full != null && s.kind === 'limit') {
+      h += `<rect x="${x0}" y="${yy}" width="${Math.max(2, x(s.full) - x0)}" height="${hh}" rx="3" fill="none" stroke="var(--ghost)" stroke-dasharray="3 3"/>`;
+      h += `<rect data-i="${i}" x="${x0}" y="${yy}" width="${x1 - x0}" height="${hh}" rx="3" fill="${bg}" stroke="var(--ghost)"/>`;
+    } else h += `<rect data-i="${i}" x="${x0}" y="${yy}" width="${x1 - x0}" height="${hh}" rx="3" fill="${bg}"/>`;
+    const lw = (s.kind === 'limit' && s.full != null ? x(s.full) : x1) - x0;
+    if (lw > s.label.length * 5.6 + 8) h += `<text x="${x0 + 5}" y="${yy + 11}" font-size="10" fill="${fg}" pointer-events="none" font-family="var(--font-mono)">${esc(s.label)}</text>`;
+  });
+  h += `<g id="ph"><line id="phl" x1="0" y1="18" x2="0" y2="${H}" stroke="var(--ink)" stroke-width="1.5"/><rect id="phk" x="-4" y="14" width="8" height="8" rx="2" fill="var(--ink)"/></g>`;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H); svg.innerHTML = h;
+  tlGeom.packed = packed;
+  document.getElementById('tlInfo').textContent = `${used.length} lanes · ${run.S.length} spans`;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ------------------------------------------------------------- app state */
+const dia = document.getElementById('dia');
+let S = {}, scen = SCEN[0], opt = {}, run = null, now = 0, playing = false, speed = 5, sel = -1, lastKey = '';
+// Scenario and settings last for the session only: the Atlas frame's storage
+// is wiped between launches, so nothing is written there.
+const memo = {};
+const store = { get(k) { return memo[k] ?? null; }, set(k, v) { memo[k] = v; } };
+
+function defaults() { const o = {}; for (const [k, v] of SETTINGS) o[k] = v; return o; }
+function parsedSettings() {
+  const P = { ...S };
+  P.curve = String(S.RecloseIntervals).split(/[ ,]+/).map(Number).filter(x => x > 0).slice(0, 4);
+  P.op = 0.3;
+  for (const [k] of SETTINGS) if (k !== 'RecloseIntervals') P[k] = Math.max(0, +S[k] || 0);
+  P.ConnectorMsg = Math.max(0.2, P.ConnectorMsg); P.PollAnswer = Math.max(0.2, P.PollAnswer);
+  P.MinimumUpdateTime = Math.max(0, P.MinimumUpdateTime);
+  return P;
+}
+
+function renderScenList() {
+  const el = document.getElementById('scenList');
+  el.innerHTML = SCEN.map(s => `<button type="button" class="scen${s === scen ? ' selected' : ''}" data-id="${s.id}"><span>${s.name}</span><span class="len">${s.len}</span></button>`).join('');
+  el.querySelectorAll('.scen').forEach(b => b.onclick = () => { scen = SCEN.find(s => s.id === b.dataset.id); opt = {}; store.set('scen', scen.id); renderScenList(); renderOpts(); rebuild(true); });
+}
+function renderOpts() {
+  const el = document.getElementById('opts');
+  document.getElementById('optGroup').hidden = !scen.opts.length;
+  for (const [k, , type, def] of scen.opts) if (opt[k] === undefined) opt[k] = def;
+  el.innerHTML = scen.opts.map(([k, label, type, def, choices]) => {
+    const id = 'o_' + k;
+    const ctl = type === 'check' ? `<input type="checkbox" id="${id}" ${opt[k] ? 'checked' : ''}>` : `<select id="${id}">${choices.map(([v, l]) => `<option value="${v}" ${opt[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+    return `<div class="row${opt[k] !== def ? ' changed' : ''}"><label for="${id}">${label}</label>${ctl}</div>`;
+  }).join('');
+  for (const [k, , type] of scen.opts) {
+    const c = document.getElementById('o_' + k);
+    c.onchange = () => { opt[k] = type === 'check' ? c.checked : c.value; renderOpts(); rebuild(true); };
+  }
+}
+function renderSettings() {
+  const el = document.getElementById('settings');
+  const D = defaults();
+  el.innerHTML = SETTINGS.map(([k, def, u]) => {
+    const id = 's_' + k, txt = typeof def === 'string';
+    return `<div class="row${String(S[k]) !== String(D[k]) ? ' changed' : ''}"><label for="${id}">${LABEL[k] || k}</label><input id="${id}" type="${txt ? 'text' : 'number'}" ${txt ? '' : 'step="0.5" min="0"'} value="${S[k]}"></div>`;
+  }).join('');
+  for (const [k, def] of SETTINGS) {
+    const c = document.getElementById('s_' + k);
+    c.onchange = () => { S[k] = typeof def === 'string' ? c.value : +c.value; store.set('settings', S); renderSettings(); rebuild(false); };
+  }
+}
+
+function rebuild(resetTime) {
+  run = scen.build(parsedSettings(), opt);
+  run.finalize();
+  drawTimeline(run);
+  renderLog();
+  if (resetTime) { now = Math.min(run.focus || 0, run.end); playing = false; sel = -1; }
+  now = Math.min(now, run.end);
+  lastKey = '';
+  frame();
+}
+
+function stateAt(t) {
+  const s = baseState();
+  for (const p of run.P) { if (p.t > t + 1e-6) break; apply(s, p.p); }
+  return s;
+}
+
+function renderLog() {
+  const el = document.getElementById('log');
+  el.innerHTML = run.E.map((e, i) => `<div class="le k-${e.k}" data-i="${i}"><span class="t">${f1(e.t)}</span><span class="src">${e.src}</span><span class="nm">${esc(e.name)}</span>${e.desc ? `<span class="ds">${esc(e.desc)}</span>` : ''}</div>`).join('');
+  el.querySelectorAll('.le').forEach(d => d.onclick = () => { sel = +d.dataset.i; now = run.E[sel].t; playing = false; frame(); });
+}
+
+function renderWhy(e) {
+  const el = document.getElementById('why');
+  if (!e) { el.innerHTML = `<div class="when">t+0.0</div><div class="what">Pick a scenario and press Play</div>`; return; }
+  const w = e.why;
+  el.innerHTML = `<div class="when">t+${f1(e.t)} s · ${e.src}</div><div class="what">${esc(e.name)}</div>` +
+    (w ? `<p>${esc(w.text)}</p><div class="refs">${w.pou ? `<span>${esc(w.pou)}</span>` : ''}${w.atlas ? `<span class="atl">Atlas ${esc(w.atlas)}</span>` : ''}</div>` : (e.desc ? `<p>${esc(e.desc)}</p>` : ''));
+}
+
+const FLAGS = [['DA_InProgress', ''], ['DA_EVENT_Detected', 'warn'], ['DA_EVENT_Confirmed', 'warn'], ['DA_Analyze', ''], ['DA_Reconfiguration', ''], ['DA_EVENT_Complete', 'ok']];
+const TGTONE = { ReconfigurationComplete: 'ok', RestorationFail: 'bad', AbnormalCondition: 'bad', Abnormal: 'bad', CapacityLimit: 'warn', Fault: 'bad', Excluded: '', OverloadWarning: 'warn', Overload: 'bad' };
+function frame() {
+  const s = stateAt(now);
+  const key = JSON.stringify(s);
+  if (key !== lastKey) {
+    lastKey = key;
+    drawDiagram(s);
+    document.getElementById('flags').innerHTML = FLAGS.map(([f, t]) => `<span class="flag ${s.flags[f] ? 'on ' + t : ''}">${f}</span>`).join('');
+    const fcol = { A: 'var(--sa)', B: 'var(--sb)', C: 'var(--sc)' };
+    document.getElementById('feeders').innerHTML = ['A', 'B', 'C'].map(f => {
+      const tg = Object.entries(s.tg[f] || {}).filter(([, v]) => v).map(([k]) => `<span class="${TGTONE[k] ?? ''}">${k.replace(/([a-z])([A-Z])/g, '$1 $2')}</span>`).join('');
+      return `<div class="fd" style="--fc:${fcol[f]}"><div class="nm">Feeder ${f}${f === 'C' ? ' · DAC-2' : ''}</div><div class="st">${s.fs[f]}</div><div class="tg">${tg}</div></div>`;
+    }).join('');
+    document.getElementById('dacState').textContent = [s.mg && s.mg !== 'IDLE' ? s.mg : '', s.collab !== 'CollabIdle' ? 'collab ' + s.collab : ''].filter(Boolean).join(' · ');
+  }
+  // timers
+  const act = run.S.filter(x => x.lane === 'Timers' && x.a <= now && now < (x.b ?? 0));
+  document.getElementById('tmCount').textContent = act.length ? act.length : '';
+  document.getElementById('timers').innerHTML = act.length ? act.map(x => {
+    const len = (x.full ?? x.b) - x.a, el = now - x.a, rem = len - el;
+    const hot = x.kind === 'limit' && rem < len * 0.2;
+    return `<div class="tm ${x.kind === 'limit' ? 'limit' : ''}${hot ? ' hot' : ''}" title="${esc(x.info || '')}"><span class="nm">${esc(x.label)}${x.kind === 'limit' ? ' · limit' : ''}</span><span class="v">${f1(el)} / ${f1(len)} s</span><span class="bar"><i style="width:${Math.min(100, el / len * 100)}%"></i></span></div>`;
+  }).join('') : '<div class="empty">None</div>';
+  // log
+  let lastVisible = -1;
+  document.querySelectorAll('#log .le').forEach((d, i) => { const fut = run.E[i].t > now + 1e-6; d.classList.toggle('future', fut); if (!fut) lastVisible = i; });
+  document.querySelectorAll('#log .le').forEach((d, i) => d.classList.toggle('sel', i === (sel >= 0 && run.E[sel].t <= now + 1e-6 ? sel : lastVisible)));
+  const shown = sel >= 0 && run.E[sel].t <= now + 1e-6 ? sel : lastVisible;
+  renderWhy(run.E[shown]);
+  document.getElementById('logCount').textContent = `${lastVisible + 1} / ${run.E.length}`;
+  if (playing) { const lg = document.getElementById('log'); lg.scrollTop = lg.scrollHeight; }
+  // clock + playhead
+  document.getElementById('clock').textContent = `t+${f1(now)} s`;
+  document.getElementById('clockOf').textContent = `/ ${run.end} s`;
+  if (tlGeom) { const px = tlGeom.x(now); document.getElementById('phl').setAttribute('x1', px); document.getElementById('phl').setAttribute('x2', px); document.getElementById('phk').setAttribute('x', px - 4); }
+  document.getElementById('play').textContent = playing ? 'Pause' : now >= run.end ? 'Replay' : 'Play';
+}
+
+let last = 0;
+function tick(ts) {
+  if (playing) {
+    const dt = Math.min(0.1, (ts - last) / 1000);
+    now += dt * speed;
+    if (now >= run.end) { now = run.end; playing = false; }
+    sel = -1;
+    frame();
+  }
+  last = ts;
+  requestAnimationFrame(tick);
+}
+
+/* ------------------------------------------------------------- controls */
+document.getElementById('play').onclick = () => { if (now >= run.end) now = 0; playing = !playing; frame(); };
+document.getElementById('restart').onclick = () => { now = 0; sel = -1; playing = true; document.getElementById('log').scrollTop = 0; frame(); };
+document.getElementById('next').onclick = () => { playing = false; const i = run.E.findIndex(e => e.t > now + 1e-6); if (i >= 0) { now = run.E[i].t; sel = i; } frame(); scrollSel(); };
+document.getElementById('prev').onclick = () => { playing = false; let i = -1; run.E.forEach((e, j) => { if (e.t < now - 1e-6) i = j; }); if (i >= 0) { now = run.E[i].t; sel = i; } else now = 0; frame(); scrollSel(); };
+function scrollSel() { const d = document.querySelector('#log .le.sel'); if (d) d.scrollIntoView({ block: 'nearest' }); }
+document.querySelectorAll('#speed button').forEach(b => b.onclick = () => { speed = +b.dataset.s; document.querySelectorAll('#speed button').forEach(x => x.classList.toggle('active', x === b)); });
+const drawer = document.getElementById('drawer');
+document.getElementById('openSettings').onclick = () => { drawer.hidden = !drawer.hidden; };
+document.getElementById('closeSettings').onclick = () => { drawer.hidden = true; };
+document.getElementById('resetSettings').onclick = () => { S = defaults(); store.set('settings', S); renderSettings(); rebuild(false); };
+const tl = document.getElementById('tl'), tip = document.getElementById('tip');
+const tlTime = ev => { const r = tl.getBoundingClientRect(); const px = (ev.clientX - r.left) * (tlGeom.W / r.width); return Math.max(0, Math.min(tlGeom.end, (px - LBL) / (tlGeom.W - LBL - 14) * tlGeom.end)); };
+let drag = false;
+tl.addEventListener('pointerdown', ev => { drag = true; tl.setPointerCapture(ev.pointerId); playing = false; sel = -1; now = tlTime(ev); frame(); });
+tl.addEventListener('pointermove', ev => {
+  if (drag) { now = tlTime(ev); frame(); }
+  const i = ev.target.dataset && ev.target.dataset.i;
+  if (i != null && !drag) {
+    const s = tlGeom.packed[+i].s;
+    tip.hidden = false;
+    tip.innerHTML = `<b>${esc(s.label)}</b><span class="mono">${esc(s.lane)} · t+${f1(s.a)} → t+${f1(s.b)} (${f1(s.b - s.a)} s)${s.full != null && s.kind === 'limit' ? ` · limit ${f1(s.full - s.a)} s` : ''}</span>${s.info ? `<div>${esc(s.info)}</div>` : ''}`;
+    tip.style.left = Math.min(window.innerWidth - 310, ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 14) + 'px';
+  } else tip.hidden = true;
+});
+tl.addEventListener('pointerup', () => { drag = false; });
+tl.addEventListener('pointerleave', () => { tip.hidden = true; });
+document.addEventListener('keydown', ev => {
+  if (ev.target.closest('input, select')) return;
+  if (ev.key === 'Escape' && !drawer.hidden) { drawer.hidden = true; return; }
+  if (ev.code === 'Space') { ev.preventDefault(); document.getElementById('play').click(); }
+  if (ev.key === 'ArrowRight') document.getElementById('next').click();
+  if (ev.key === 'ArrowLeft') document.getElementById('prev').click();
+});
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawTimeline(run); frame(); }, 120); });
+
+S = { ...defaults(), ...(store.get('settings') || {}) };
+const sid = store.get('scen'); if (sid) scen = SCEN.find(s => s.id === sid) || SCEN[0];
+renderScenList(); renderOpts(); renderSettings(); rebuild(true);
+requestAnimationFrame(tick);
+})();
+</script>
+
+</body>
+</html>

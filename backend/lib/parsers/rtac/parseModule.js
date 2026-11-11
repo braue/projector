@@ -68,6 +68,47 @@ function findContainer(rtac) {
   return { kind: 'Unknown', container: rtac };
 }
 
+// An ArchivedContent blob with the save-time noise taken out, for hashing.
+// Opening and re-saving an unchanged screen still rewrites two things:
+//   - UniqueIdGenerator, the next-free element id counter. It climbs on every
+//     library update or resave (New Iberia: +18 on all ten screens at once).
+//   - Dictionary entry order. Most are .NET Hashtables (TypeNodeAttributesData,
+//     FbMethods, ...), serialized in hash-bucket order, so the same pairs come
+//     back shuffled.
+// Neither is content. Dropping the counter and sorting each dictionary's
+// entries leaves a real edit (a moved element, a repointed frame) visible.
+const UNIQUE_ID_COUNTER = /<Single Name="UniqueIdGenerator" Type="string">\d+<\/Single>/g;
+const DICTIONARY_TAG = /<(\/?)(Dictionary2?|Entry)\b[^>]*?(\/?)>/g;
+
+function canonicalArchive(blob) {
+  const tags = new RegExp(DICTIONARY_TAG);
+  // Copy from the cursor through the close tag `closing` (EOF when null),
+  // with every non-empty dictionary on the way rewritten in sorted order.
+  const copyThrough = (source, closing) => {
+    let out = '';
+    let from = tags.lastIndex;
+    for (let match; (match = tags.exec(source));) {
+      const [whole, slash, name, selfClosing] = match;
+      out += source.slice(from, match.index) + whole;
+      if (slash && name === closing) return out;
+      if (!slash && !selfClosing && name !== 'Entry') out += sortedEntries(source, name);
+      from = tags.lastIndex;
+    }
+    return out + source.slice(from);
+  };
+  // Inside a dictionary: its entries sorted, then its close tag.
+  const sortedEntries = (source, name) => {
+    const entries = [];
+    for (let match; (match = tags.exec(source));) {
+      const [whole, slash, tagName, selfClosing] = match;
+      if (slash && tagName === name) return entries.sort().join('') + whole;
+      if (!slash && tagName === 'Entry' && !selfClosing) entries.push(whole + copyThrough(source, 'Entry'));
+    }
+    return entries.sort().join('');
+  };
+  return copyThrough(blob.replace(UNIQUE_ID_COUNTER, ''), null);
+}
+
 // Parse one export file (raw XML) into a structural module. `file` is the path
 // relative to the export root and doubles as the module's stable identity.
 function parseRtacModule(xmlString, file = '<memory>') {
@@ -110,7 +151,7 @@ function parseRtacModule(xmlString, file = '<memory>') {
     const archived = findFirst(container, 'ArchivedContent');
     if (archived !== undefined) {
       module.hasArchivedContent = true;
-      module.archivedContentHash = createHash('sha1').update(cdata(archived)).digest('hex');
+      module.archivedContentHash = createHash('sha1').update(canonicalArchive(cdata(archived))).digest('hex');
     }
   }
 

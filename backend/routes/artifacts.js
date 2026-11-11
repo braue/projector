@@ -5,12 +5,9 @@
 // `resolve(req)` supplies the project's { artifacts } bundle slice.
 
 import { rm } from 'node:fs/promises';
-import os from 'node:os';
-
-import { Router } from 'express';
-import multer from 'multer';
 
 import { httpError, requireQuery } from '../lib/http.js';
+import { Router, uploads } from '../lib/router.js';
 
 const MAX_RTAC_UPLOAD_BYTES = 64 * 1024 * 1024;
 
@@ -20,10 +17,7 @@ function artifactRoutes(resolve) {
   // MB across thousands of files, and buffering a whole export in RAM is the
   // OOM the parse cache exists to prevent. Files land in the OS temp dir and are removed after
   // the store copies them into place.
-  const upload = multer({
-    storage: multer.diskStorage({ destination: os.tmpdir() }),
-    limits: { fileSize: MAX_RTAC_UPLOAD_BYTES, files: 5000 },
-  });
+  const upload = uploads({ disk: true, maxFileSize: MAX_RTAC_UPLOAD_BYTES, maxFiles: 5000 });
 
   // File-tree sidebar for one artifact (or one profile of one).
   router.get('/tree', async (req, res) => {
@@ -58,7 +52,7 @@ function artifactRoutes(resolve) {
     const kind = artifacts.kinds.rdb;
     if (!kind) throw httpError(404, 'no drawings here');
     const file = await kind.drawingPath(requireQuery(req, 'ref'), requireQuery(req, 'view'));
-    res.sendFile(file);
+    await res.sendFile(file);
   });
 
   // --- RTAC intake -----------------------------------------------------------
@@ -87,8 +81,8 @@ function artifactRoutes(resolve) {
     res.json((await resolve(req)).previewFolder(paths));
   });
 
-  // The no-database path: an exported folder uploaded from disk. Multer
-  // basenames filenames, so the folder-relative paths travel in a parallel
+  // The no-database path: an exported folder uploaded from disk. Uploads
+  // basename filenames, so the folder-relative paths travel in a parallel
   // JSON field, index-aligned with the files. "dir" and "note" ride the
   // same form.
   router.post('/rtac/upload', upload.array('files'), async (req, res) => {

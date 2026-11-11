@@ -129,7 +129,7 @@ class HmiTesterService {
   }
 
   /**
-   * Analyze one uploaded .hprj/.hprb (a multer memory-storage file). The
+   * Analyze one uploaded .hprj/.hprb (an in-memory upload: { originalname, buffer }). The
    * response IS the result — the UI shows the tables in place, and nothing
    * is kept for later download. A .hprb still touches disk on the way: it
    * lands in a scratch run because ProjectConvert.exe needs real files, and

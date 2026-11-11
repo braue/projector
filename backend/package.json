@@ -12,13 +12,16 @@
   "license": "ISC",
   "dependencies": {
     "@hyzyla/pdfium": "^2.1.13",
+    "@tesseract.js-data/eng": "^1.0.0",
     "cfb": "^1.2.2",
-    "express": "^5.1.0",
-    "fast-xml-parser": "^5.10.1",
+    "fast-xml-parser": "^5.12.0",
     "fflate": "^0.8.3",
-    "multer": "^2.4.0",
     "pdf-lib": "^1.17.1",
-    "pg": "^8.23.0",
-    "pngjs": "^7.0.0"
+    "pg": "^8.23.1",
+    "postal-mime": "^4.2.1",
+    "tesseract.js": "^7.0.0"
+  },
+  "allowScripts": {
+    "tesseract.js": false
   }
 }

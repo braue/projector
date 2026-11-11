@@ -20,6 +20,11 @@ import type {
   TodoFields,
   TodoStatus,
   ToolJob,
+  ContentSearch,
+  FileParts,
+  FileViewModel,
+  IndexStatus,
+  InnerChain,
 } from './types'
 
 // Every endpoint speaks JSON, including failures: { error } with a status.
@@ -174,8 +179,8 @@ export async function previewRtacFolder(project: string, paths: string[]): Promi
 }
 
 /** Upload exported RTAC XML folders into `dir`, as picked or dropped — the
- * backend groups the paths into exports (see previewRtacFolder). Multer
- * basenames filenames, so the paths ride in a parallel field, index-aligned. */
+ * backend groups the paths into exports (see previewRtacFolder). Uploads
+ * basename filenames, so the paths ride in a parallel field, index-aligned. */
 export function uploadRtacFolder(
   project: string,
   dir: string,
@@ -329,9 +334,48 @@ export function searchPdfFile(
   project: string,
   path: string,
   query: string,
+  inner: InnerChain = [],
 ): Promise<PdfSearchResult> {
   const params = new URLSearchParams({ path, q: query })
+  if (inner.length) params.set('inner', JSON.stringify(inner))
   return get(`${base(project)}/files/pdf-search?${params}`)
+}
+
+function fileParams(path: string, inner: InnerChain): URLSearchParams {
+  const params = new URLSearchParams({ path })
+  if (inner.length) params.set('inner', JSON.stringify(inner))
+  return params
+}
+
+/** Search the text of every file in the project (the tree filter's other half). */
+export function searchProjectContent(project: string, query: string): Promise<ContentSearch> {
+  return get(`${base(project)}/files/search?${new URLSearchParams({ q: query })}`)
+}
+
+export function fetchIndexStatus(project: string): Promise<IndexStatus> {
+  return get(`${base(project)}/files/index`)
+}
+
+/** What the in-app viewer draws for a file (or a file inside a zip/email). */
+export function fetchFileView(project: string, path: string, inner: InnerChain = []): Promise<FileViewModel> {
+  return get(`${base(project)}/files/view?${fileParams(path, inner)}`)
+}
+
+/** The text read out of a file — OCR included once it has run. */
+export function fetchFileParts(project: string, path: string, inner: InnerChain = []): Promise<FileParts> {
+  return get(`${base(project)}/files/parts?${fileParams(path, inner)}`)
+}
+
+/** Raw bytes of a file or of a file inside a container, typed by its name. */
+export function fileBytesUrl(project: string, path: string, inner: InnerChain = []): string {
+  return inner.length
+    ? `${base(project)}/files/inner-raw?${fileParams(path, inner)}`
+    : fileRawUrl(project, path)
+}
+
+/** Open a file inside a zip or email with the OS default app. */
+export function openInnerFile(project: string, path: string, inner: InnerChain): Promise<unknown> {
+  return send(`${base(project)}/files/open-inner`, 'POST', { path, inner })
 }
 
 /** Save a text file in place (creates it when new). Not a version. */

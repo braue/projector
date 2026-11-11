@@ -327,7 +327,7 @@ class FilesService {
     return this.#serialized(async () => {
       const added = [];
       for (const file of files) {
-        // In-memory bytes, or a disk-staged upload (multer diskStorage) whose
+        // In-memory bytes, or a disk-staged upload (lib/router.js uploads, disk: true) whose
         // bytes never need to enter the heap.
         const write = (target) => (file.buffer !== undefined
           ? writeFile(target, file.buffer)

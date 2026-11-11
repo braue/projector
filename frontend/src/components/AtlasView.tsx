@@ -38,32 +38,50 @@ const SKIN_TOKENS = [
   'card', 'bg', 'ink', 'muted', 'border', 'border-soft', 'fill',
   'accent', 'accent-tint', 'bad', 'bad-tint', 'warn', 'warn-tint', 'warn-line',
   'ink-soft', 'ghost', 'bad-ink', 'warn-ink', 'ok-ink',
-  'font-mono',
+  'ok', 'ok-tint', 'ghost-soft', 'on-accent', 'shadow-raised', 'shadow-menu',
+  'font-ui', 'font-display', 'font-mono',
 ]
+
+/* The bundled faces are declared in the parent's stylesheets; the frame
+   cannot see them, so their @font-face rules are restated inside it too
+   (same origin, so the font files resolve the same way). */
+function fontFaces(): string {
+  const rules: string[] = []
+  for (const sheet of Array.from(document.styleSheets)) {
+    let list: CSSRuleList
+    try {
+      list = sheet.cssRules
+    } catch {
+      continue
+    }
+    for (const rule of Array.from(list)) if (rule instanceof CSSFontFaceRule) rules.push(rule.cssText)
+  }
+  return rules.join('\n')
+}
 
 function skinTokens(): string {
   const root = getComputedStyle(document.documentElement)
   const values = SKIN_TOKENS.map((n) => `--${n}: ${root.getPropertyValue(`--${n}`).trim()};`)
-  return `:root { ${values.join(' ')} }`
+  return `${fontFaces()}\n:root { ${values.join(' ')} }`
 }
 
 const DOC_SKIN = `<style id="atlas-skin">@media screen {
   html { scroll-behavior: smooth; }
   body {
-    font-family: ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-family: var(--font-ui);
     font-size: 14.5px; line-height: 1.7; color: var(--ink); background: var(--card);
     max-width: 800px; margin: 0 auto; padding: 40px 40px 110px;
     -webkit-font-smoothing: antialiased;
   }
   .masthead { background: transparent; border: 0; border-radius: 0; padding: 0 0 22px; margin-bottom: 26px; border-bottom: 1px solid var(--border); }
-  .masthead h1 { font-size: 26px; font-weight: 650; letter-spacing: 0; color: var(--ink); margin-bottom: 8px; }
+  .masthead h1 { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 10px; }
   .masthead p { color: var(--muted); font-size: 14px; line-height: 1.65; margin-bottom: 14px; }
   .chips span {
     border: 1px solid var(--border); background: var(--fill); color: var(--muted);
     border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 600; margin-right: 5px;
   }
   h2 {
-    font-size: 18px; font-weight: 650; color: var(--ink);
+    font-family: var(--font-display); font-size: 20px; font-weight: 650; letter-spacing: -0.01em; color: var(--ink);
     margin: 36px 0 12px; padding-top: 22px; border-top: 1px solid var(--border);
   }
   h2 .num {
@@ -90,19 +108,20 @@ const DOC_SKIN = `<style id="atlas-skin">@media screen {
   }
   td { border-bottom: 1px solid var(--border-soft); padding: 7px 12px 7px 0; }
   .card {
-    border: 1px solid var(--border); border-left-width: 3px; border-radius: 8px;
-    padding: 13px 17px; background: var(--card); margin-bottom: 12px;
+    border: 0; border-radius: 14px;
+    padding: 14px 18px; background: var(--bg); margin-bottom: 12px;
   }
+  .card h4 { color: var(--accent); }
   /* A callout is neutral; .warn and .keyfact are the same block carrying the
      amber and red tones. They must keep their own left border and tint — the
      skin used to flatten all three to accent-green on grey, which threw the
      signal away. */
   .callout, .warn, .keyfact {
-    background: var(--fill); border: 1px solid var(--border); border-left: 3px solid var(--accent);
-    border-radius: 8px; padding: 11px 16px; margin: 14px 0;
+    background: var(--accent-tint); border: 0;
+    border-radius: 14px; padding: 12px 17px; margin: 14px 0;
   }
-  .warn { background: var(--warn-tint); border-color: var(--border); border-left-color: var(--warn); }
-  .keyfact { background: var(--bad-tint); border-color: var(--border); border-left-color: var(--bad); }
+  .warn { background: var(--warn-tint); }
+  .keyfact { background: var(--bad-tint); }
   .grid3 > div { border: 1px solid var(--border); border-radius: 8px; padding: 12px 15px; }
   .fig { border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 18px 0; background: var(--card); }
   .figcap { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.55; }
@@ -203,8 +222,13 @@ function themeStyles(): string {
   return `<style id="atlas-tokens">@media screen { ${skinTokens()} }</style>${dark}`
 }
 
+/* A page that is an app rather than a document (the DAC simulator) opts out
+   of the reading skin with <meta name="atlas-skin" content="app">: it lays
+   itself out, and takes only the theme — tokens, fonts, dark mode. */
+const APP_PAGE = /<meta[^>]+name=["']atlas-skin["'][^>]+content=["']app["']/i
+
 function injectSkin(raw: string): string {
-  const skin = `${DOC_SKIN}${themeStyles()}`
+  const skin = APP_PAGE.test(raw) ? themeStyles() : `${DOC_SKIN}${themeStyles()}`
   const i = raw.search(/<\/head>/i)
   if (i >= 0) return raw.slice(0, i) + skin + raw.slice(i)
   return skin + raw

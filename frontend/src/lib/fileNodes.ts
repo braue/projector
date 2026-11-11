@@ -70,18 +70,37 @@ export function isPdfFile(name: string): boolean {
   return /\.pdf$/i.test(name)
 }
 
-/** The tree narrowed to what matches: a leaf by its own name, a folder by
- *  holding a match — or by its own name, which keeps its whole subtree, since
- *  naming a folder means asking for what is in it. */
-export function filterTree(nodes: FileNode[], needle: string): FileNode[] {
+/** What the preview pane does with a plain file, by extension — mirrors the
+ *  backend's lib/extract formats. */
+export type FileFormat =
+  | 'text' | 'csv' | 'json' | 'xml' | 'pdf' | 'image'
+  | 'docx' | 'xlsx' | 'pptx' | 'mail' | 'zip'
+
+const FORMATS: Record<string, FileFormat> = {
+  txt: 'text', md: 'text', csv: 'csv', json: 'json', xml: 'xml', pdf: 'pdf',
+  png: 'image', jpg: 'image', jpeg: 'image', gif: 'image',
+  docx: 'docx', xlsx: 'xlsx', xlsm: 'xlsx', pptx: 'pptx',
+  msg: 'mail', eml: 'mail', zip: 'zip',
+}
+
+export function formatOf(name: string): FileFormat | null {
+  const ext = /\.([^./]+)$/.exec(name)?.[1]?.toLowerCase() ?? ''
+  return FORMATS[ext] ?? null
+}
+
+/** The tree narrowed to what matches: a leaf by its own name (or by being
+ *  one of `also` — the files whose CONTENT matched), a folder by holding a
+ *  match — or by its own name, which keeps its whole subtree, since naming a
+ *  folder means asking for what is in it. */
+export function filterTree(nodes: FileNode[], needle: string, also: ReadonlySet<string> = new Set()): FileNode[] {
   const out: FileNode[] = []
   for (const node of nodes) {
     const self = node.name.toLowerCase().includes(needle)
     if (node.type !== 'folder' || self) {
-      if (self) out.push(node)
+      if (self || also.has(node.path)) out.push(node)
       continue
     }
-    const children = filterTree(node.children, needle)
+    const children = filterTree(node.children, needle, also)
     if (children.length) out.push({ ...node, children })
   }
   return out

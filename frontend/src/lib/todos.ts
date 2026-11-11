@@ -1,4 +1,4 @@
-// The todo board, shared by the topbar toggle (its open count) and the board
+// The todo board, shared by the margin toggle (its open count) and the board
 // pane. One read, kept current by the backend's `todos` event (and re-read
 // after a dropped connection). Every write answers with the whole board,
 // which replaces what is shown; a move is applied locally first so a dropped

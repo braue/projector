@@ -20,8 +20,8 @@
     "version:minor": "npm version minor --no-git-tag-version"
   },
   "devDependencies": {
-    "electron": "^43.4.1",
-    "electron-builder": "^26.15.3"
+    "electron": "^43.8.8",
+    "electron-builder": "^26.18.0"
   },
   "build": {
     "appId": "com.braue.projector",
@@ -32,7 +32,19 @@
       "buildResources": "build"
     },
     "asarUnpack": [
-      "backend/py/**"
+      "backend/py/**",
+      "backend/node_modules/tesseract.js/**",
+      "backend/node_modules/tesseract.js-core/**",
+      "backend/node_modules/@tesseract.js-data/**",
+      "backend/node_modules/wasm-feature-detect/**",
+      "backend/node_modules/bmp-js/**",
+      "backend/node_modules/regenerator-runtime/**",
+      "backend/node_modules/is-url/**",
+      "backend/node_modules/zlibjs/**",
+      "backend/node_modules/node-fetch/**",
+      "backend/node_modules/whatwg-url/**",
+      "backend/node_modules/tr46/**",
+      "backend/node_modules/webidl-conversions/**"
     ],
     "extraResources": [
       {
@@ -72,5 +84,9 @@
       "artifactName": "Projector-Setup-${version}.${ext}",
       "include": "build/installer.nsh"
     }
+  },
+  "allowScripts": {
+    "electron-winstaller": false,
+    "electron": true
   }
 }

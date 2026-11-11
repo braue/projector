@@ -19,7 +19,7 @@ import { CollapsibleSection, SegmentedControl, Select } from './ui'
 // Inspect — the default face of a clicked settings artifact (live or an
 // archived version; a version path is an artifact like any other). RTAC
 // exports inspect whole; multi-profile artifacts (RDB relays, SCD IEDs) get
-// a profile picker. Browse is the settings tree + preview; Aggregate (RTAC)
+// a profile picker at the head of the tree pane. Browse is the settings tree + preview; Aggregate (RTAC)
 // pivots setting names across objects; Search finds a string anywhere in
 // the artifact. A slim bar carries the artifact's name and those controls;
 // the panes flex underneath.
@@ -31,6 +31,7 @@ export function InspectView({
   path,
   kind,
   title,
+  fallback,
 }: {
   project: string
   /** The artifact's tree path — the live entry or a `.versions/` path. */
@@ -38,6 +39,9 @@ export function InspectView({
   kind: ArtifactKindName
   /** What to call it in pane headers (version label included). */
   title: string
+  /** Shown instead when the file does not parse as its kind at all (an
+   *  .xml that is not a switch export). */
+  fallback?: React.ReactNode
 }) {
   const [sub, setSub] = useState<InspectSub>('browse')
   const [profileRef, setProfileRef] = useState<string | null>(null)
@@ -79,6 +83,24 @@ export function InspectView({
     { keepStale: true },
   )
 
+  if (fallback && profilesError) return <>{fallback}</>
+
+  // Multi-profile files pick their profile at the head of the tree pane, in
+  // place of the device line.
+  const profilePicker = !isRtac && (profiles?.length ?? 0) > 1 && ref ? (
+    <Select
+      value={ref}
+      onChange={(value) => {
+        setProfileRef(value)
+        setSelectedItem(null)
+      }}
+      options={(profiles ?? []).map((profile) => ({
+        value: profile.ref,
+        label: profile.deviceType ? `${profile.deviceType} · ${profile.name}` : profile.name,
+      }))}
+    />
+  ) : undefined
+
   const escalate = () => {
     setSearchSeed(find.term.trim())
     setSub('search')
@@ -116,19 +138,6 @@ export function InspectView({
           value={sub}
           onChange={setSub}
         />
-        {!isRtac && (profiles?.length ?? 0) > 1 && ref && (
-          <Select
-            value={ref}
-            onChange={(value) => {
-              setProfileRef(value)
-              setSelectedItem(null)
-            }}
-            options={(profiles ?? []).map((profile) => ({
-              value: profile.ref,
-              label: profile.deviceType ? `${profile.name} · ${profile.deviceType}` : profile.name,
-            }))}
-          />
-        )}
       </div>
 
       <div className="inspect-panes" ref={panesRef}>
@@ -154,9 +163,9 @@ export function InspectView({
         ) : (
           <>
             {tree ? (
-              <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} />
+              <FileTree tree={tree} selected={selectedItem} onSelect={setSelectedItem} header={profilePicker} />
             ) : (
-              <TreePane header={null}>
+              <TreePane header={profilePicker ?? null}>
                 <div className="pane-message">{treeError ?? profilesError ?? 'Parsing…'}</div>
               </TreePane>
             )}

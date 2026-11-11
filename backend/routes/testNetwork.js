@@ -4,7 +4,7 @@
 // and an AcRTAC upload to / read from one bench RTAC
 // (each a job).
 
-import { Router } from 'express';
+import { Router } from '../lib/router.js';
 
 function testNetworkRoutes(testNetwork) {
   const router = Router();

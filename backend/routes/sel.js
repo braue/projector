@@ -4,9 +4,8 @@
 // Machine-global, like the AcRTAC catalog — the library is a folder of PDFs on
 // this machine, not project state, so these routes are not project-scoped.
 
-import { Router } from 'express';
-
 import { httpError, requireQuery } from '../lib/http.js';
+import { Router } from '../lib/router.js';
 
 function selRoutes(library, fullText) {
   const router = Router();

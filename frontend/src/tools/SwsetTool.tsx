@@ -6,10 +6,9 @@
 import { useState } from 'react'
 
 import { generateSwsetXml, parseSwsetProjectFile, parseSwsetXml } from '../api'
-import { Button, CollapsibleSection, FileDropZone, Select, TabBar, TextInput } from '../components/ui'
+import { Button, CollapsibleSection, DropZone, Select, TabBar, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { SwsetColumn, SwsetGenerateResult, SwsetModel, SwsetTable } from '../types'
-import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 import { ToolHeader } from './ToolHeader'
@@ -53,7 +52,7 @@ function initialEdits(model: SwsetModel): Record<string, TableEdits> {
   return edits
 }
 
-export function SwsetTool({ project }: ToolProps) {
+export function SwsetTool(_props: ToolProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [model, setModel] = useState<SwsetModel | null>(null)
@@ -219,16 +218,15 @@ export function SwsetTool({ project }: ToolProps) {
         {model && <span className="tool-stats">{model.deviceType} · {model.fid}</span>}
       </ToolHeader>
       <div className="tool-scroll">
-        <FileDropZone accept=".xml" onFile={parse}>
-          <b>Drop a switch Configuration XML here</b>
-          or click to browse
-        </FileDropZone>
-        <ProjectFilePick
-          project={project}
+        <DropZone
           extensions={['.xml']}
-          onPick={(path, fromProject) => load(() => parseSwsetProjectFile(fromProject, path))}
+          onFile={parse}
+          onEntries={(fromProject, [path]) => load(() => parseSwsetProjectFile(fromProject, path))}
           disabled={busy}
-        />
+        >
+          <b>Drop a switch Configuration XML here</b>
+          from the tree or disk, or click to browse
+        </DropZone>
 
         {error && <div className="tool-error">{error}</div>}
 

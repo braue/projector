@@ -8,9 +8,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import express from 'express';
-
 import { EventHub } from '../lib/events.js';
+import { Router, createServer } from '../lib/router.js';
 import { eventRoutes } from '../routes/jobs.js';
 import { JobRegistry } from '../services/jobs.js';
 import { ProjectsService } from '../services/projects.js';
@@ -98,9 +97,9 @@ test('events: a new client gets the job snapshot, then live events', async () =>
   const jobs = new JobRegistry({ events });
   jobs.start('earlier', async () => 'ok');
   await tick();
-  const app = express();
+  const app = Router();
   app.use('/api/events', eventRoutes(events, jobs));
-  const server = app.listen(0);
+  const server = createServer(app).listen(0);
   try {
     const res = await fetch(`http://127.0.0.1:${server.address().port}/api/events`);
     const reader = res.body.getReader();
@@ -130,7 +129,8 @@ test('projects: a change in a project folder publishes one tree event', async ()
     // a burst of writes, from outside the app, settles into one event
     for (let i = 0; i < 5; i += 1) await writeFile(path.join(files.root, `note-${i}.txt`), 'x');
     await tick(600);
-    assert.deepEqual(events.seen, [['tree', { project: 'Bench' }]]);
+    // (the text index reports its own progress as `index` events)
+    assert.deepEqual(events.seen.filter(([type]) => type === 'tree'), [['tree', { project: 'Bench' }]]);
     await projects.remove('Bench');
     assert.equal(projects.watchers.size, 0);
   } finally {

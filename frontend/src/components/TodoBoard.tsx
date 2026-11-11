@@ -10,7 +10,7 @@ import { Button, InlineNameForm, Modal, SegmentedControl, Select, TextArea, Text
 // The todo board: three columns of cards, dragged between and within them.
 // Machine-global like the hours — a card may name a project, but the board
 // is not inside one — so it is a takeover pane beside Test / Tools / Atlas.
-// The topbar's project switcher stays up over it and scopes it to that
+// The margin's project switcher stays up beside it and scopes it to that
 // project's cards; "All" (or no project picked) shows every card.
 
 const COLUMNS: { status: TodoStatus; label: string }[] = [

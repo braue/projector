@@ -12,6 +12,7 @@ import {
   renameFileEntry,
   revealFileEntry,
   saveTextFile,
+  saveToolFileToProject,
   startAcrtacOpen,
   startRtacExport,
   uploadFiles,
@@ -33,10 +34,11 @@ import {
   type FileLeaf,
 } from '../lib/fileNodes'
 import { readDropped, type FolderFile } from '../lib/folderDrop'
+import { dragHas, readToolOutputDrag, readTreeDrag, setTreeDrag, TREE_ENTRY_MIME } from '../lib/treeDrag'
 import { useExpanded } from '../lib/useExpanded'
 import { formatDay, formatStamp, formatWhen } from '../lib/format'
-import { useSidebarWidth } from '../lib/usePaneWidth'
-import type { ArtifactKindName, FileNode, FileVersion, LandedDownload } from '../types'
+import { useMarginWidth } from '../lib/usePaneWidth'
+import type { ArtifactKindName, ContentResult, FileNode, FileVersion, LandedDownload } from '../types'
 import { AcrtacImportModal, type AcrtacImportTarget } from './AcrtacImportModal'
 import { RtacDatabaseModal } from './RtacDatabaseModal'
 import { ContextMenu, InlineNameForm, type ContextMenuItem } from './ui'
@@ -71,11 +73,18 @@ import { VersionNoteModal, type PendingItem } from './VersionNoteModal'
 //                    a held row moves everything held
 //   drop OS files    upload into that folder — the version-note dialog runs;
 //                    dropped FOLDERS come in as RTAC exports
-
-const ENTRY_MIME = 'application/projector-file-entry'
+//   drop tool output save a tool run's file into that folder
+//   drag row to tool a tool's drop area takes it as its input (lib/treeDrag)
 
 /** A row's left padding at a nesting depth. */
-const indent = (depth: number) => ({ paddingLeft: `${10 + depth * 20}px` })
+// --depth feeds the indent guides (index.css .tree-row): one hairline per
+// ancestor, under that ancestor's chevron.
+const INDENT = 18
+const indent = (depth: number) =>
+  ({ paddingLeft: `${10 + depth * INDENT}px`, '--depth': depth }) as React.CSSProperties
+
+/** Text hits listed under a row; the rest are a count. */
+const HITS_SHOWN = 3
 
 const KIND_LABEL: Record<ArtifactKindName, string> = {
   rtac: 'RTAC',
@@ -115,10 +124,14 @@ export function ProjectTree({
   project,
   tree,
   filter,
+  contentHits,
+  onOpenHit,
   treeError,
   landed,
   selected,
   held,
+  head,
+  foot,
   onSelect,
   onToggleHeld,
   onHoldRange,
@@ -127,9 +140,13 @@ export function ProjectTree({
 }: {
   project: string
   tree: FileNode[] | null
-  /** The topbar's filter box. Narrows what the tree SHOWS; every other use
+  /** The margin's filter box. Narrows what the tree SHOWS; every other use
    *  of the tree (upload collisions, compare labels) still sees all of it. */
   filter: string
+  /** Files whose TEXT matched the filter, with located snippets. */
+  contentHits: ReadonlyMap<string, ContentResult>
+  /** A snippet under a row was clicked: open that file at that hit. */
+  onOpenHit: (path: string, where: string) => void
   treeError: string | null
   /** AcRTAC downloads into this project that have finished (the tasks
    *  popover shows them; the tree only opens where each one landed). */
@@ -137,7 +154,13 @@ export function ProjectTree({
   selected: string | null
   /** Further rows held alongside the selection (ctrl/shift-click). */
   held: string[]
-  onSelect: (path: string | null) => void
+  /** The margin's top (project and filter) and foot (pane links); the tree
+   *  scrolls between them and the resize grip spans all three. */
+  head: React.ReactNode
+  foot: React.ReactNode
+  /** `keepPane`: a folder click selects in place — the tools stay open, so
+   *  folders can be opened to drag from. */
+  onSelect: (path: string | null, options?: { keepPane?: boolean }) => void
   /** Ctrl/cmd-click: hold (or let go of) one more row. */
   onToggleHeld: (path: string) => void
   /** Shift-click: hold exactly these rows alongside the selection. */
@@ -162,7 +185,8 @@ export function ProjectTree({
   const [dbState, setDbState] = useState<{ dir: string; versionOf?: string } | null>(null)
   const [importTargets, setImportTargets] = useState<AcrtacImportTarget[] | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number; target: MenuTarget } | null>(null)
-  const { width, startResize } = useSidebarWidth()
+  const aside = useRef<HTMLElement>(null)
+  const { width, startResize } = useMarginWidth(aside)
   const fileInput = useRef<HTMLInputElement>(null)
   const folderInput = useRef<HTMLInputElement>(null)
   const versionInput = useRef<HTMLInputElement>(null)
@@ -625,14 +649,20 @@ export function ProjectTree({
     e.preventDefault()
     e.stopPropagation()
     setDropTarget(null)
-    const raw = e.dataTransfer.getData(ENTRY_MIME)
-    if (raw) {
-      let paths: string[]
-      try {
-        paths = JSON.parse(raw)
-      } catch {
-        paths = [raw]
-      }
+    const output = readToolOutputDrag(e)
+    if (output) {
+      act(async () => {
+        await saveToolFileToProject({ project, tool: output.tool, run: output.run, path: output.path, dir })
+        revealDir(dir)
+      })
+      return
+    }
+    const dragged = readTreeDrag(e)
+    if (dragged) {
+      // Rows of another project's tree (a drag begun before a switch) are
+      // not this project's to move.
+      if (dragged.project !== project) return
+      const paths = dragged.paths
       // Skip what is already there, and a folder dropped into itself.
       const moving = paths.filter((p) => p !== dir && parentOf(p) !== dir && !dir.startsWith(`${p}/`))
       if (moving.length) {
@@ -667,6 +697,7 @@ export function ProjectTree({
     onDragOver: (e: React.DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
+      e.dataTransfer.dropEffect = dragHas(e, TREE_ENTRY_MIME) ? 'move' : 'copy'
       setDropTarget(dir)
     },
     onDragLeave: (e: React.DragEvent) => {
@@ -707,8 +738,7 @@ export function ProjectTree({
   // version cannot move on its own).
   const dragStart = (e: React.DragEvent, path: string) => {
     const group = heldPaths.length > 1 && heldSet.has(path) ? heldEntries : []
-    e.dataTransfer.setData(ENTRY_MIME, JSON.stringify(group.length ? group : [path]))
-    e.dataTransfer.effectAllowed = 'move'
+    setTreeDrag(e, { project, paths: group.length ? group : [path] })
   }
 
   // One version-history row — the archived versions and the current-version
@@ -821,8 +851,8 @@ export function ProjectTree({
   const filterTerm = filter.trim().toLowerCase()
   const filtering = filterTerm !== ''
   const shown = useMemo(
-    () => (filtering && tree ? filterTree(tree, filterTerm) : tree),
-    [tree, filterTerm, filtering],
+    () => (filtering && tree ? filterTree(tree, filterTerm, new Set(contentHits.keys())) : tree),
+    [tree, filterTerm, filtering, contentHits],
   )
 
   // The entry rows on screen, top to bottom — what a shift-click range
@@ -838,6 +868,31 @@ export function ProjectTree({
     walk(shown ?? [])
     return out
   }, [shown, filtering, expanded])
+
+  // The text hits under a row: where each one is, and the line it sits in.
+  const renderHits = (node: FileLeaf, result: ContentResult, depth: number) => (
+    <div className="content-hits">
+      {result.hits.slice(0, HITS_SHOWN).map((hit, index) => (
+        <button
+          key={index}
+          className="content-hit"
+          style={indent(depth + 1)}
+          onClick={() => onOpenHit(node.path, hit.where)}
+          title={hit.where}
+        >
+          {hit.where && <span className="content-hit-where">{hit.where}</span>}
+          <span className="content-hit-text">
+            {hit.before}
+            <mark>{hit.match}</mark>
+            {hit.after}
+          </span>
+        </button>
+      ))}
+      {result.total > HITS_SHOWN && (
+        <div className="content-hit-more" style={indent(depth + 1)}>+{result.total - HITS_SHOWN}</div>
+      )}
+    </div>
+  )
 
   const renderLeaf = (node: FileLeaf, depth: number) => {
     const versionsOpen = openVersions.has(node.path)
@@ -893,6 +948,7 @@ export function ProjectTree({
             {stamp && <span className="row-stamp">{stamp}</span>}
           </button>
         )}
+        {filtering && contentHits.has(node.path) && renderHits(node, contentHits.get(node.path)!, depth)}
         {versionsOpen && (
           <>
             {/* The current version leads its own history — same row shape as
@@ -944,7 +1000,7 @@ export function ProjectTree({
                 select(e, node.path)
                 return
               }
-              onSelect(node.path)
+              onSelect(node.path, { keepPane: true })
               toggleExpanded(node.path)
             }}
             onContextMenu={(e) => openMenu(e, { type: 'dir', dir: node.path, node })}
@@ -961,8 +1017,9 @@ export function ProjectTree({
   }
 
   return (
-    <aside className="sources" style={{ width }}>
+    <aside ref={aside} className="sources" style={{ width }}>
       <div className="sidebar-resize" onMouseDown={startResize} title="Drag to resize" />
+      {head}
       <div
         className={`source-scroll files-root${dropTarget === '' ? ' file-drop' : ''}`}
         {...dropProps('')}
@@ -1037,6 +1094,7 @@ export function ProjectTree({
           </div>
         )}
       </div>
+      {foot}
 
       {menu && (
         <ContextMenu

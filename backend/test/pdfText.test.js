@@ -10,7 +10,7 @@ import test from 'node:test';
 
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 
-import { searchPdf, warmPdf } from '../services/pdfText.js';
+import { searchPdf } from '../services/pdfText.js';
 
 /** A PDF whose page N carries `lines[N - 1]`, one drawn line per entry. */
 async function writePdf(file, pages) {
@@ -83,7 +83,7 @@ test('pdf search: a term that is not there reports the page count anyway', async
 
 test('pdf search: an empty query reads the document without searching it', async () => {
   await withPdf([['a'], ['b'], ['c']], async (file) => {
-    const warm = await warmPdf(file);
+    const warm = await searchPdf(file, '');
     assert.equal(warm.pages, 3);
     assert.equal(warm.hasText, true);
     const result = await searchPdf(file, '   ');

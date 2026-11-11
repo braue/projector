@@ -1,7 +1,7 @@
 // The machine-global todo board: read it, or change one card. Every write
 // answers with the whole board.
 
-import { Router } from 'express';
+import { Router } from '../lib/router.js';
 
 function todoRoutes(todos) {
   const router = Router();

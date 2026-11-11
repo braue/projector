@@ -1,184 +1,120 @@
-// Parser for SEL relay databases (.rdb) — an OLE compound file (CFB) holding
-// one or more relay profiles, as AcSELerator QuickSet writes them. Ported
-// from Volture and made memory-only: projector keeps the original upload plus
-// this parsed model, and never re-extracts the tree to disk.
+// Parser for SEL relay databases (.rdb), the OLE compound files (CFB) that
+// AcSELerator QuickSet writes. Memory-only: projector keeps the upload plus
+// this model and never extracts the tree to disk.
 //
-// Layout inside the container:
-//   Root Entry/Relays/<profile>/    one folder per relay profile
-//     Set_*.txt (etc.)              settings files: an optional [INFO] block,
-//                                   one [SECTION] header, then KEY,"VALUE" lines
-//     Cfg.txt                       [CLASSES] table: section key -> description
+//   Root Entry/Relays/<profile>/   one folder per relay profile
+//     Cfg.txt                      [CLASSES]: section key, description, file
+//     Set_*.txt (etc.)             optional [INFO] block of KEY=VALUE, one
+//                                  [SECTION] header, then KEY,"VALUE" lines
 //
-// Values survive verbatim (SEL settings hold long logic equations); anything
-// past the cap is truncated with an explicit marker, never dropped silently.
+// Values are kept verbatim (SEL logic equations run long). Anything past the
+// cap is truncated with a visible marker, never dropped.
 
 import CFB from 'cfb';
 
 import { uniqueName } from '../../names.js';
 
-const PROFILE_ROOT_PREFIX = 'Root Entry/Relays/';
+const RELAYS = 'Root Entry/Relays/';
+const MAX_VALUE = 4096;
+const TRUNCATED = '…[truncated]';
+const NOT_SETTINGS = new Set(['Cfg.txt', 'DatabaseVersion.txt', 'Device.txt', 'DmyCmts5010', 'Version']);
 
-const MAX_SETTING_VALUE_LENGTH = 4096;
-const TRUNCATION_MARKER = '…[truncated]';
+const FOLDER = 1;
+const FILE = 2;
 
-const SKIP_FILES = new Set([
-  'Cfg.txt',
-  'DatabaseVersion.txt',
-  'Device.txt',
-  'DmyCmts5010',
-  'Version',
-]);
+const unquote = (text) => text.replace(/^"|"$/g, '').trim();
 
-function sanitizeName(raw) {
-  return (raw ?? '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '').trim();
-}
-
-function uniqueProfileName(rawName, usedNames, index) {
-  const baseName = sanitizeName(rawName) || `profile-${index + 1}`;
-  const name = uniqueName(baseName, (candidate) => usedNames.has(candidate));
-  usedNames.add(name);
-  return name;
-}
-
-// The relay's model as stated in the profile's [INFO] metadata; spellings
-// vary by product family.
+// The relay model from [INFO]; product families spell the key differently.
 function relayType(profile) {
   return profile.info?.RELAYTYPE ?? profile.info?.DEVICETYPE ?? null;
 }
 
-// Walks container.FullPaths once and maps each profile folder directly under
-// Root Entry/Relays/ to every file entry inside it. Membership is by path
-// prefix, so files in subfolders such as Misc belong to their profile.
-function indexProfileEntries(container) {
-  const folderNames = [];
-  const entriesByProfile = new Map();
-
-  for (const [index, fullPath] of container.FullPaths.entries()) {
-    if (!fullPath.startsWith(PROFILE_ROOT_PREFIX)) continue;
-    const withinRelays = fullPath.slice(PROFILE_ROOT_PREFIX.length);
-    const profileName = withinRelays.split('/')[0];
-    if (!profileName) continue;
-
+// Profile folder name -> the file entries anywhere beneath it, in folder order.
+function filesByProfile(container) {
+  const folders = [];
+  const files = [];
+  container.FullPaths.forEach((fullPath, index) => {
+    if (!fullPath.startsWith(RELAYS)) return;
+    const [name, ...rest] = fullPath.slice(RELAYS.length).split('/');
     const entry = container.FileIndex[index];
-    const relativePath = withinRelays.slice(profileName.length + 1);
-    if (!relativePath) {
-      if (entry.type === 1 && !folderNames.includes(profileName)) {
-        folderNames.push(profileName);
-      }
-      continue;
-    }
-
-    if (!entriesByProfile.has(profileName)) entriesByProfile.set(profileName, []);
-    entriesByProfile.get(profileName).push({ entry, relativePath });
-  }
-
-  const profileEntries = new Map();
-  for (const name of folderNames) {
-    profileEntries.set(name, entriesByProfile.get(name) || []);
-  }
-  return profileEntries;
+    if (!name) return;
+    if (rest.join('') === '' && entry.type === FOLDER) folders.push(name);
+    else if (entry.type === FILE) files.push({ name, entry });
+  });
+  return new Map(folders.map((folder) => [
+    folder,
+    files.filter(({ name }) => name === folder).map(({ entry }) => entry),
+  ]));
 }
 
-// Cfg.txt's [CLASSES] table: section key -> { desc, file }.
-function translationTable(profileEntries) {
-  const table = {};
-  const cfgEntry = profileEntries.find(
-    ({ entry }) => entry.type === 2 && /^Cfg\.txt$/i.test(entry.name),
-  );
-  if (!cfgEntry) return table;
-
-  const text = cfgEntry.entry.content.toString();
-  const matchLines = text.match(/\[CLASSES\]([\s\S]*)/i);
-  if (!matchLines) return table;
-
-  for (const line of matchLines[1].trim().split('\n')) {
-    const parts = line.trim().split(',');
-    if (parts.length >= 2) {
-      const key = parts[0].replace(/^"|"$/g, '').trim().toUpperCase();
-      const entry = { desc: parts[1].replace(/^"|"$/g, '').trim() };
-      if (parts.length >= 3 && parts[2].trim() !== '') {
-        entry.file = parts[2].replace(/^"|"$/g, '').trim();
-      }
-      table[key] = entry;
-    }
+// Cfg.txt's [CLASSES] table: section key -> { desc, file? }.
+function sectionClasses(files) {
+  const cfg = files.find((entry) => /^Cfg\.txt$/i.test(entry.name));
+  const body = cfg?.content.toString().match(/\[CLASSES\]([\s\S]*)/i)?.[1] ?? '';
+  const classes = {};
+  for (const line of body.trim().split('\n')) {
+    const [key, desc, file] = line.trim().split(',');
+    if (desc === undefined) continue;
+    classes[unquote(key).toUpperCase()] = file?.trim()
+      ? { desc: unquote(desc), file: unquote(file) }
+      : { desc: unquote(desc) };
   }
-  return table;
+  return classes;
 }
 
-function parseSettingsFile(contentStr) {
-  const lines = contentStr.split(/\r?\n/);
-
-  // [INFO] block: KEY=VALUE metadata (RELAYTYPE, FID, ...).
+function parseSettingsFile(text) {
   const info = {};
-  let insideInfo = false;
-  for (const line of lines) {
-    if (/^\[INFO\]/i.test(line)) {
-      insideInfo = true;
-      continue;
-    }
-    if (insideInfo) {
-      if (/^\[.*\]/.test(line)) break;
-      const match = line.trim().match(/^([^=[\]]+)=([^\r\n]*)$/);
-      if (match) info[match[1].trim()] = match[2].trim();
-    }
-  }
-
-  // The section this file carries: first non-INFO [HEADER].
-  const sectionLine = lines.find((line) => /^\[[^\]]+\]/.test(line) && !/^\[INFO\]/i.test(line));
-  const sectionKey = sectionLine ? sectionLine.match(/^\[([^\]]+)\]/)[1] : null;
-
   const settings = {};
-  for (const line of lines) {
-    const match = line.trim().match(/^([^,]+)\s*,\s*"([^"]*)"/);
-    if (match) {
-      const [, key, value] = match;
-      settings[key] = value.length > MAX_SETTING_VALUE_LENGTH
-        ? value.slice(0, MAX_SETTING_VALUE_LENGTH) + TRUNCATION_MARKER
-        : value;
+  let section = null;
+  let inInfo = false;
+
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    const header = raw.match(/^\[([^\]]+)\]/);
+    if (header) {
+      inInfo = /^INFO$/i.test(header[1]);
+      if (!inInfo) section ??= header[1];
+    } else if (inInfo) {
+      const pair = line.match(/^([^=[\]]+)=(.*)$/);
+      if (pair) info[pair[1].trim()] = pair[2].trim();
+    }
+
+    const setting = line.match(/^([^,]+)\s*,\s*"([^"]*)"/);
+    if (setting) {
+      const [, key, value] = setting;
+      settings[key] = value.length > MAX_VALUE ? value.slice(0, MAX_VALUE) + TRUNCATED : value;
     }
   }
-
-  return { info, sectionKey, settings };
+  return { info, section, settings };
 }
 
-// Parse an .rdb from a buffer into profiles:
-//   [{ name, info, sections: [{ key, desc, file, settings }] }]
+// .rdb buffer -> { profiles: [{ name, info, sections: [{ key, desc, file, settings }] }] }
 function parseRdb(buffer) {
   const container = CFB.read(buffer, { type: 'buffer' });
-  const profiles = [];
-  const usedNames = new Set();
+  const used = new Set();
 
-  let profileIndex = 0;
-  for (const [rawName, profileEntries] of indexProfileEntries(container)) {
-    const name = uniqueProfileName(rawName, usedNames, profileIndex);
-    profileIndex += 1;
+  const profiles = [...filesByProfile(container)].map(([rawName, files], index) => {
+    const base = rawName.replace(/[\\/:*?"<>|\x00-\x1f]/g, '').trim() || `profile-${index + 1}`;
+    const name = uniqueName(base, (candidate) => used.has(candidate));
+    used.add(name);
 
-    const translations = translationTable(profileEntries);
+    const classes = sectionClasses(files);
     const profile = { name, info: {}, sections: [] };
-    let infoParsed = false;
 
-    for (const { entry } of profileEntries) {
-      if (entry.type !== 2) continue;
-      if (SKIP_FILES.has(entry.name)) continue;
-
-      const parsed = parseSettingsFile(entry.content.toString());
-
-      if (!infoParsed && Object.keys(parsed.info).length > 0) {
-        profile.info = parsed.info;
-        infoParsed = true;
-      }
-      if (!parsed.sectionKey) continue;
-
+    for (const entry of files) {
+      if (NOT_SETTINGS.has(entry.name)) continue;
+      const { info, section, settings } = parseSettingsFile(entry.content.toString());
+      if (!Object.keys(profile.info).length) profile.info = info;
+      if (!section) continue;
       profile.sections.push({
-        key: parsed.sectionKey,
-        desc: translations[parsed.sectionKey]?.desc ?? parsed.sectionKey,
-        file: translations[parsed.sectionKey]?.file ?? entry.name,
-        settings: parsed.settings,
+        key: section,
+        desc: classes[section]?.desc ?? section,
+        file: classes[section]?.file ?? entry.name,
+        settings,
       });
     }
-
-    profiles.push(profile);
-  }
+    return profile;
+  });
 
   return { profiles };
 }

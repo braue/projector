@@ -5,6 +5,8 @@
 //   <name>/files/         the folder tree — settings artifacts, documents,
 //                         and .txt notes side by side, versioned in place
 //   <name>/drawings/      generated RDB panel drawings, keyed by content hash
+//   <name>/text-index/    every file's extracted text, for the tree's search
+//                         (services/contentIndex.js)
 //   <name>/.archived      present = the project is archived: no longer in
 //                         active development, filed under the switcher's
 //                         Archive section but otherwise fully usable
@@ -25,6 +27,7 @@ import path from 'node:path';
 import { ArtifactsService } from '../lib/artifacts.js';
 import { httpError, resolveChild } from '../lib/http.js';
 import { CompareService } from './compare.js';
+import { ContentIndex } from './contentIndex.js';
 import { FilesService } from './files.js';
 import { SearchService } from './search.js';
 import { RdbKind } from './rdb.js';
@@ -116,8 +119,7 @@ class ProjectsService {
 
   async remove(name) {
     // Unwatch first: on Windows a watched folder can't be deleted or moved.
-    this.#unwatch(name);
-    this.bundles.delete(name);
+    this.#drop(name);
     await rm(this.dir(name), { recursive: true, force: true });
     this.events?.publish('projects', {});
   }
@@ -133,8 +135,7 @@ class ProjectsService {
     if (trimmed === name) return { name: trimmed };
     if (names.includes(trimmed)) throw httpError(409, `project already exists: ${trimmed}`);
     const to = this.dir(trimmed);
-    this.#unwatch(name);
-    this.bundles.delete(name);
+    this.#drop(name);
     await rename(this.dir(name), to);
     await this.hours?.renameProject(name, trimmed);
     await this.todos?.renameProject(name, trimmed);
@@ -182,14 +183,31 @@ class ProjectsService {
     const search = new SearchService({ load });
 
     await files.init();
-    this.#watch(name, files.root);
-    return { files, artifacts, compare, search };
+    // The text index follows the same watcher as the window's tree.
+    const index = new ContentIndex({
+      files,
+      kindOf: (entryName, isDirectory) => artifacts.kindOf(entryName, isDirectory),
+      cacheDir: path.join(projectDir, 'text-index'),
+      events: this.events,
+      project: name,
+    });
+    index.start().catch((err) => console.warn(`text index for ${name}: ${err?.message ?? err}`));
+    this.#watch(name, files.root, () => index.schedule());
+    return { files, artifacts, compare, search, index };
   }
 
-  #watch(name, dir) {
+  /** Forget a project's bundle: stop its watcher and its index. */
+  #drop(name) {
+    this.#unwatch(name);
+    this.bundles.get(name)?.then((bundle) => bundle.index.close(), () => {});
+    this.bundles.delete(name);
+  }
+
+  #watch(name, dir, onChange = () => {}) {
     if (!this.events || this.watchers.has(name)) return;
     let timer = null;
     const changed = () => {
+      onChange();
       clearTimeout(timer);
       timer = setTimeout(() => this.events.publish('tree', { project: name }), TREE_SETTLE_MS);
     };
@@ -211,6 +229,7 @@ class ProjectsService {
 
   /** Stop every watcher (server shutdown). */
   close() {
+    for (const name of [...this.bundles.keys()]) this.#drop(name);
     for (const name of [...this.watchers.keys()]) this.#unwatch(name);
   }
 }

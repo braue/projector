@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>Remote events and bus restoration</h1>
 <p></p>
-<div class="chips"><span>§11</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§11</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <h2 id="remote-ev">Remote event</h2>
 <p>A <code>DA_CONNECTOR</code> sets <code>RemoteEvent.Detected</code> on a local feeder when the DAC on the other side reports an event on the shared circuit (after the connector has been head or tail for 10 s). It confirms when the remote DAC confirms. Confirmation makes the connector's modelled source a root and flags the whole feeder for restoration, copying the remote side's shed permissive or source-group matching. <span class="src">Feeder/Event/Remote/class_RemoteEvent</span> <span class="src">OBJ/DA_CONNECTOR</span></p>

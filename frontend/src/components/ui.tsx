@@ -20,6 +20,7 @@
 import { useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 import { errorMessage } from '../lib/errors'
+import { dragHas, hasExtension, readTreeDrag, TREE_ENTRY_MIME } from '../lib/treeDrag'
 import { useDismiss } from '../lib/useDismiss'
 
 // --- buttons -----------------------------------------------------------------
@@ -264,45 +265,92 @@ export function Checkbox({
 }
 
 /**
- * The hidden-input + drop-target pair every file-taking tool shares: click
- * to browse (accept-filtered) or drop a file on it. Children are the zone's
- * copy.
+ * Where a tool takes its input: drop a file from disk, drag entries from the
+ * project tree, or click to browse disk. `extensions` (lowercase, with dots)
+ * filters all three. Without `onFile` the zone takes tree entries only.
+ * `multiple` passes every matching tree entry; otherwise the first.
+ * Children are the zone's copy.
  */
-export function FileDropZone({
-  accept,
+export function DropZone({
+  extensions,
   onFile,
+  onEntries,
+  multiple = false,
+  disabled = false,
   children,
 }: {
-  accept: string
-  onFile: (file: File) => void
+  extensions: string[]
+  onFile?: (file: File) => void
+  onEntries: (project: string, paths: string[]) => void
+  multiple?: boolean
+  disabled?: boolean
   children: ReactNode
 }) {
   const input = useRef<HTMLInputElement>(null)
+  const [over, setOver] = useState(false)
+  const [refused, setRefused] = useState<string | null>(null)
+  const wanted = extensions.join(' / ')
+  const takes = (e: React.DragEvent) => dragHas(e, TREE_ENTRY_MIME) || (Boolean(onFile) && dragHas(e, 'Files'))
+
+  const drop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setOver(false)
+    if (disabled) return
+    const tree = readTreeDrag(e)
+    if (tree) {
+      const matching = tree.paths.filter((p) => hasExtension(p, extensions))
+      if (!matching.length) {
+        setRefused(`Not a ${wanted}`)
+        return
+      }
+      setRefused(null)
+      onEntries(tree.project, multiple ? matching : matching.slice(0, 1))
+      return
+    }
+    const file = e.dataTransfer.files[0]
+    if (!file || !onFile) return
+    if (!hasExtension(file.name, extensions)) {
+      setRefused(`Not a ${wanted}`)
+      return
+    }
+    setRefused(null)
+    onFile(file)
+  }
+
+  const zone = {
+    className: ['drop-zone', onFile ? 'as-button' : '', over ? 'over' : ''].filter(Boolean).join(' '),
+    onDragOver: (e: React.DragEvent) => {
+      if (disabled || !takes(e)) return
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+      setOver(true)
+    },
+    onDragLeave: () => setOver(false),
+    onDrop: drop,
+  }
   return (
     <>
-      <input
-        ref={input}
-        type="file"
-        accept={accept}
-        style={{ display: 'none' }}
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) onFile(file)
-          e.target.value = ''
-        }}
-      />
-      <button
-        className="drop-zone as-button"
-        onClick={() => input.current?.click()}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault()
-          const file = e.dataTransfer.files[0]
-          if (file) onFile(file)
-        }}
-      >
-        {children}
-      </button>
+      {onFile ? (
+        <>
+          <input
+            ref={input}
+            type="file"
+            accept={extensions.join(',')}
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) onFile(file)
+              e.target.value = ''
+            }}
+          />
+          <button {...zone} disabled={disabled} onClick={() => input.current?.click()}>
+            {children}
+          </button>
+        </>
+      ) : (
+        <div {...zone}>{children}</div>
+      )}
+      {refused && <div className="drop-zone-refused">{refused}</div>}
     </>
   )
 }

@@ -49,21 +49,26 @@
 <div class="masthead">
 <h1>Distributed generation</h1>
 <p><code>DA_DG_UNIT</code> (Adapter <code>DA_DG</code>) models a DG point of interconnection the DAC can trip and permit to reconnect.</p>
-<div class="chips"><span>§16</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§16</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="card"><h4>The rules, stated plainly</h4><ol>
 <li>DG is tripped 5 s after its feeder has a fault, it becomes islanded, it is paralleled across a valid and an invalid circuit, or it ends up on a circuit it is not allowed on, unless its <code>RideThrough</code> setting covers that case. A disallowed circuit always trips.</li>
+<li>Before closing a switch, the DAC checks every closed DG point of interconnection the close would feed. If the restoring source is not in that DG's <code>Circuit</code> list and its <code>ClosePermissive</code> feedback is TRUE, the DAC opens the POI at once and the close waits. No 5 s delay and no <code>RideThrough</code> exemption apply.</li>
 <li>DG is given a close permissive 5 s after it is back on an allowed circuit with no fault and no DA sequence in progress.</li>
 <li>If DG exists anywhere in the system, post-outage reporting is turned off, and DG output is ignored in capacity margins.</li>
 </ol></div>
 <ul>
-<li><code>Circuit[1..4]</code>: the source (circuit) IDs the DG may be connected to. All zero = any circuit.</li>
+<li><code>Circuit[1..4]</code>: the source (circuit) IDs the DG may be connected to. All zero = any circuit, and no pre-close check.</li>
 <li><code>RideThrough</code> bits: Fault (1), Isolation (2), CloseTransition (4), All (7), None (0, default).</li>
 <li>Controls only act when AR is enabled, the DG is in service and not abnormal, and it has been seen connected to a source at least once since boot (and its feeder is not excluded). Trips need <code>OpenControlAvailable</code>; close permissive needs <code>EnableCloseControlAvailable</code> and is only sent while <code>ClosePermissive</code> feedback is FALSE.</li>
+<li><b>Pre-close check</b> <span class="src">ExecuteSolution/CommandChecks/class_CheckSettings</span> <span class="src">Shared/DG/checkDg</span>: it runs in the same walk as the settings-group check (from the restoring source through closed equipment and the switch to close, skipping devices selected to open). It applies only when the DG has a non-zero <code>Circuit</code> entry, <code>OpenControlAvailable</code> is TRUE and control is not inhibited. The open goes out through the normal block conditions, so it still needs AR enabled, the DG in service and not abnormal, and a source seen since boot. The request (<code>Dg.Control</code>) is cleared every scan, so the hold lasts only while the check keeps failing.</li>
+<li>Because the DG hold is part of the settings-group check, a close held by DG reports as a settings-group wait in execution diagnostics.</li>
+<li>Adapter <code>Normal_ClosePermissive</code> (device definition, default TRUE): polarity of the <code>ClosePermissive</code> point. FALSE inverts it.</li>
+<li>The trip timer is held reset while a DAC connector on the DG's source path is showing its solution-phase model of the remote source instead of the real status (<code>CON.StatusOverridden</code>). This stops DG tripping on the model change during collaboration.</li>
 <li>The 5 s flicker delay drops to 0 when the DG is fed through a DAC connector (held 5 s).</li>
 <li>Outputs: <code>Open</code>, <code>EnableClose</code>, <code>Islanded</code>, <code>DisallowedCircuit</code>. The open in progress is reported to the execution engine (<code>LogicOpenInProgress</code>).</li>
 <li><code>DA_DG_CURTAILMENT</code> (trip DG when POI export falls below a threshold) is marked obsolete in this build: "Needs updates before deployment".</li>
 </ul>
-<p class="srcs"><span class="src">OBJ/DA_DG_UNIT</span> <span class="src">ExternalHelpers/DG/Equip/mDgIsConnectable</span> <span class="src">OBJ/DA_DG_CURTAILMENT</span></p>
+<p class="srcs"><span class="src">OBJ/DA_DG_UNIT</span> <span class="src">ExternalHelpers/DG/Equip/mDgIsConnectable</span> <span class="src">Shared/DG/checkDg</span> <span class="src">ADP/DA_DG</span> <span class="src">OBJ/DA_DG_CURTAILMENT</span></p>
 </body>
 </html>

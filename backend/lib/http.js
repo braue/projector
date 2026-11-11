@@ -1,6 +1,6 @@
-// Shared HTTP plumbing. Routes are plain async handlers — Express 5 forwards
-// a rejected promise to the error middleware in index.js, the one place a
-// coded error ({ status }) becomes a JSON response.
+// Shared HTTP plumbing. Routes are plain async handlers — lib/router.js
+// forwards a rejected promise to its error handler, the one place a coded
+// error ({ status }) becomes a JSON response.
 
 import path from 'node:path';
 

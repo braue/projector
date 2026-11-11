@@ -1,5 +1,5 @@
 // CLECO DAC Inits — the projector-native replacement for the "DAC Inits"
-// workbook + copy/paste. Pick a DAC .rtac already in a project, describe the
+// workbook + copy/paste. Drag a DAC .rtac in from the project tree, describe the
 // devices you're adding (reclosers, transformers, feeders/breakers), and the
 // backend generates the same Structured-Text init blocks the macro did,
 // appends them to the project's Init_* POUs, and — on the explicit Save —
@@ -17,18 +17,12 @@
 // capacity is an edit, not a second block at the bottom of the POU). Choosing
 // overwrite just re-runs generate with those names; nothing lands until Save.
 
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 
-import {
-  generateDacInit,
-  listFiles,
-  saveDacInitRun,
-} from '../api'
-import { Button, Checkbox, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { generateDacInit, saveDacInitRun } from '../api'
+import { Button, Checkbox, DropZone, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
-import { rtacPaths } from '../lib/fileNodes'
-import { projectOptions, useProjectList } from '../lib/projectList'
 import { useToolJob } from '../lib/useToolJob'
 import type { DacInitResult } from '../types'
 import type { ToolProps } from './registry'
@@ -96,7 +90,7 @@ const newRec = (): RecRow => ({
 const newXfmr = (): XfmrRow => ({ substation: '', transformer: '', ratedMva: '', dnpClient: '' })
 const newFb = (): FbRow => ({ number: '', capacity: '', normallyOpen: false, downstream: false, dnpClient: '' })
 
-export function DacInitTool({ project }: ToolProps) {
+export function DacInitTool(_props: ToolProps) {
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<DacInitResult | null>(null)
   // Which of the reported conflicts to overwrite on the next generate. Seeded
@@ -111,9 +105,8 @@ export function DacInitTool({ project }: ToolProps) {
     setError,
   )
 
-  const projectList = useProjectList()
-  const [formProject, setFormProject] = useState(project)
-  const [rtacEntries, setRtacEntries] = useState<string[]>([])
+  // The DAC .rtac dragged in from the tree, and the project it came from.
+  const [formProject, setFormProject] = useState('')
   const [selectedPath, setSelectedPath] = useState('')
   const [params, setParams] = useState<Params>(DEFAULT_PARAMS)
   const [reclosers, setReclosers] = useState<RecRow[]>([])
@@ -121,25 +114,10 @@ export function DacInitTool({ project }: ToolProps) {
   const [feedersBreakers, setFeedersBreakers] = useState<FbRow[]>([])
 
   // "Save to project": the project the run was configured from, captured at
-  // generate so switching the dropdown afterwards can't misplace it.
+  // generate so dropping another DAC afterwards cannot misplace it.
   const generatedFrom = useRef('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState<string | null>(null)
-
-  const loadEntries = (chosen: string) => {
-    listFiles(chosen)
-      .then((tree) => {
-        const paths = rtacPaths(tree)
-        setRtacEntries(paths)
-        setSelectedPath((current) => (paths.includes(current) ? current : paths[0] ?? ''))
-      })
-      .catch((err) => setError(errorMessage(err)))
-  }
-
-  useEffect(() => {
-    if (formProject) loadEntries(formProject)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formProject])
 
   const setParam = (patch: Partial<Params>) => setParams((p) => ({ ...p, ...patch }))
   // Patch/remove one row of a device table — the same two lines for all three.
@@ -245,24 +223,24 @@ export function DacInitTool({ project }: ToolProps) {
     <>
       <ToolHeader title="CLECO DAC Inits" busy={generating} />
       <div className="tool-scroll">
-        <SectionHeader title="Project" />
-        <div className="tool-row" onFocusCapture={() => formProject && loadEntries(formProject)}>
-          <Select
-            label="Project"
-            value={formProject}
-            placeholder="Pick a project…"
-            options={projectOptions(projectList, formProject)}
-            onChange={(name) => name && setFormProject(name)}
-          />
-          <Select
-            label="DAC .rtac"
-            value={selectedPath}
-            options={rtacEntries.length ? rtacEntries : ['']}
-            onChange={setSelectedPath}
-          />
-        </div>
-        {formProject && rtacEntries.length === 0 && (
-          <div className="tool-stats">No RTAC projects in {formProject}</div>
+        <SectionHeader title="DAC" />
+        {selectedPath ? (
+          <div className="tool-row">
+            <span className="tool-stats">{selectedPath} (from {formProject})</span>
+            <Button disabled={generating} onClick={() => setSelectedPath('')}>Change</Button>
+          </div>
+        ) : (
+          <DropZone
+            extensions={['.rtac']}
+            onEntries={(fromProject, [path]) => {
+              setFormProject(fromProject)
+              setSelectedPath(path)
+            }}
+            disabled={generating}
+          >
+            <b>Drop the DAC .rtac here</b>
+            from the project tree
+          </DropZone>
         )}
 
         <SectionHeader title="Parameters" />
@@ -362,7 +340,7 @@ export function DacInitTool({ project }: ToolProps) {
             Generate inits
           </Button>
           <span className="tool-stats">
-            {deviceCount} device{deviceCount === 1 ? '' : 's'} → {selectedPath || '(pick a project)'}
+            {deviceCount} device{deviceCount === 1 ? '' : 's'} → {selectedPath || '(drop a DAC)'}
           </span>
         </div>
 

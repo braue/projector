@@ -11,8 +11,8 @@ import { RowAction, Select } from './ui'
 
 // Billable hours: a week grid — projects down, Mon–Sun across — with each
 // project's running total against its budget. Machine-global like the todo
-// list (a week bills to many projects, not the open one), and it drops from
-// the topbar the same way, so hours get logged without leaving the work.
+// list (a week bills to many projects, not the open one), and it opens from
+// the margin's foot as a floating panel, so hours get logged without leaving the work.
 //
 // Rows are the projects with hours this week, plus last week's (Monday's
 // rows are usually Friday's), plus any picked from the dropdown. A row with
@@ -135,11 +135,10 @@ export function HoursPanel() {
   return (
     <div className="todo-switch" ref={wrap}>
       <button
-        className={open ? 'topbar-button topbar-toggle on' : 'topbar-button topbar-toggle'}
+        className={open ? 'nav-link on' : 'nav-link'}
         onClick={() => setOpen(!open)}
         title={open ? 'Close hours' : 'Log billable hours'}
       >
-        <span className="topbar-toggle-mark">◷</span>
         <span>Hours</span>
         {currentTotal > 0 && <span className="todo-count">{fmt(currentTotal)}</span>}
       </button>

@@ -8,8 +8,7 @@
 //   DELETE /api/jobs/:id      forget a finished job (the popover's ✕)
 //   DELETE /api/jobs          forget every finished job
 
-import { Router } from 'express';
-
+import { Router } from '../lib/router.js';
 import { JobRegistry } from '../services/jobs.js';
 
 function eventRoutes(events, jobs) {

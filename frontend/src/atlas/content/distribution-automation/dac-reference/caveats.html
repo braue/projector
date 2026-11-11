@@ -49,12 +49,12 @@
 <div class="masthead">
 <h1>Code caveats collected</h1>
 <p>Places where the code does something surprising. Each is worth confirming on a test set before relying on it.</p>
-<div class="chips"><span>§24</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§24</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="tw"><table>
 <tr><th>#</th><th>Where</th><th>Observation</th></tr>
 <tr><td class="num">1</td><td><span class="src">OBJ/DA_CIRCUIT</span></td><td>Per-circuit <code>DetectMiscoordination</code> override actually reads the <code>IsolateOpenPhase</code> pin. Only matters if either is set off GLOBAL.</td></tr>
-<tr><td class="num">2</td><td><span class="src">fb_RestorationSourceCheck</span></td><td><code>TransferDepth = 0</code> prevents crossing any tie in the restorability check (unless <code>g_BypassDepthCheck</code>), so outaged branches become non-restorable. Lib default is 0; Adapter default 2.</td></tr>
+<tr><td class="num">2</td><td><span class="src">fb_RestorationSourceCheck</span></td><td><code>TransferDepth = 0</code> prevents crossing any tie in the restorability check (unless <code>g_BypassDepthCheck</code>), so outaged branches become non-restorable. Lib default is 0; Adapter default 2. Since 105.0.2 the flags no longer carry over into RTN.</td></tr>
 <tr><td class="num">3</td><td><span class="src">ADP fb_Heartbeat</span></td><td>Heartbeat setpoint range check uses OR; any value is accepted, including 0.</td></tr>
 <tr><td class="num">4</td><td><span class="src">mFEEDER_FindReturnSwitches</span></td><td>RTN source-group mismatch is reported as <code>CapacityLimit</code>.</td></tr>
 <tr><td class="num">5</td><td><span class="src">mAR_CompareStates</span></td><td>"Maximise load restored" and "same-feeder restoration" criteria disabled.</td></tr>
@@ -71,6 +71,7 @@
 <tr><td class="num">16</td><td><span class="src">class_SettingsErrors</span></td><td>Duplicate connector ID shows as "Duplicate Instances" in <code>SettingsErrorText</code> (flag mapping crossed). The log entry is correct.</td></tr>
 <tr><td class="num">17</td><td><span class="src">ADP/DA_CONTROL</span></td><td>Scheme Include/Exclude are cross-wired when mapped as two device-definition indexes. Other mapping methods are correct.</td></tr>
 <tr><td class="num">18</td><td><span class="src">Global_Variables</span></td><td><code>CHECK_POLL</code> = FALSE: no check poll after a command. Feedback timing depends entirely on the RTAC's normal communication.</td></tr>
+<tr><td class="num">19</td><td><span class="src">OBJ/DA_CONNECTOR</span></td><td>A feeder is reported excluded to the connector partner only if it is also abnormal. An excluded or UF-excluded feeder in normal condition looks available to the partner. <a href="atlas:distribution-automation/dac-features/connector.html#con-exclude">§17</a></td></tr>
 </table></div>
 </body>
 </html>

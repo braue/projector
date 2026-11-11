@@ -15,12 +15,11 @@
 import { Fragment, useEffect, useState } from 'react'
 
 import { fetchFatFeeders, generateFatSheets, saveFatSheetsRun, type FatInput } from '../api'
-import { Button, Checkbox, CollapsibleSection, DataTable, FileDropZone, SectionHeader, Spinner, TextInput } from '../components/ui'
+import { Button, Checkbox, CollapsibleSection, DataTable, DropZone, SectionHeader, Spinner, TextInput } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { saveSettings, setting } from '../lib/settings'
 import { useToolJob } from '../lib/useToolJob'
 import type { FatSheetsResult } from '../types'
-import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 import { ToolHeader } from './ToolHeader'
@@ -49,17 +48,13 @@ function inputLabel(input: FatInput): string {
 
 function InputPick({
   title,
-  accept,
   extensions,
-  project,
   value,
   onChange,
   disabled,
 }: {
   title: string
-  accept: string
   extensions: string[]
-  project: string
   value: FatInput | null
   onChange: (input: FatInput | null) => void
   disabled: boolean
@@ -74,23 +69,22 @@ function InputPick({
         </div>
       ) : (
         <>
-          <FileDropZone accept={accept} onFile={(file) => onChange({ file })}>
-            <b>Drop the {accept.split(',').join(' / ')} here</b>
-            or click to browse
-          </FileDropZone>
-          <ProjectFilePick
-            project={project}
+          <DropZone
             extensions={extensions}
-            onPick={(path, fromProject) => onChange({ project: fromProject, path })}
+            onFile={(file) => onChange({ file })}
+            onEntries={(fromProject, [path]) => onChange({ project: fromProject, path })}
             disabled={disabled}
-          />
+          >
+            <b>Drop the {extensions.join(' / ')} here</b>
+            from the tree or disk, or click to browse
+          </DropZone>
         </>
       )}
     </>
   )
 }
 
-export function FatSheetsTool({ project }: ToolProps) {
+export function FatSheetsTool(_props: ToolProps) {
   const [workbook, setWorkbook] = useState<FatInput | null>(null)
   const [report, setReport] = useState<FatInput | null>(null)
   const [engineer, setEngineer] = useState(() => setting(ENGINEER_KEY, ''))
@@ -226,18 +220,14 @@ export function FatSheetsTool({ project }: ToolProps) {
       <div className="tool-scroll">
         <InputPick
           title="FAT workbook"
-          accept=".xlsm,.xlsx"
           extensions={['.xlsm', '.xlsx']}
-          project={project}
           value={workbook}
           onChange={changeInput(setWorkbook)}
           disabled={running}
         />
         <InputPick
           title="Automatic FAT report"
-          accept=".html,.htm"
           extensions={['.html', '.htm']}
-          project={project}
           value={report}
           onChange={changeInput(setReport)}
           disabled={running}

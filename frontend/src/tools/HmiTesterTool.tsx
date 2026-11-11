@@ -6,14 +6,13 @@
 import { useState } from 'react'
 
 import { analyzeHmi, analyzeHmiProjectFile } from '../api'
-import { CollapsibleSection, DataTable, FileDropZone } from '../components/ui'
+import { CollapsibleSection, DataTable, DropZone } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import type { HmiReport } from '../types'
-import { ProjectFilePick } from './ProjectFilePick'
 import type { ToolProps } from './registry'
 import { ToolHeader } from './ToolHeader'
 
-export function HmiTesterTool({ project }: ToolProps) {
+export function HmiTesterTool(_props: ToolProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [report, setReport] = useState<HmiReport | null>(null)
@@ -41,16 +40,15 @@ export function HmiTesterTool({ project }: ToolProps) {
     <>
       <ToolHeader title="HMI Tag Tester" busy={busy} />
       <div className="tool-scroll">
-        <FileDropZone accept=".hprj,.hprb" onFile={analyze}>
-          <b>Drop an .hprj here</b>
-          or click to browse
-        </FileDropZone>
-        <ProjectFilePick
-          project={project}
+        <DropZone
           extensions={['.hprj', '.hprb']}
-          onPick={analyzeProjectFile}
+          onFile={analyze}
+          onEntries={(fromProject, [path]) => analyzeProjectFile(path, fromProject)}
           disabled={busy}
-        />
+        >
+          <b>Drop an .hprj here</b>
+          from the tree or disk, or click to browse
+        </DropZone>
         {error && <div className="tool-error">{error}</div>}
 
         {report && (

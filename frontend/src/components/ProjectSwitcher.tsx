@@ -5,7 +5,7 @@ import { useDismiss } from '../lib/useDismiss'
 
 import { InlineNameForm, RowAction, Tag } from './ui'
 
-// Topbar dropdown for projects: pick one, rename, archive or delete from the
+// The margin's title and its dropdown for projects: pick one, rename, archive or delete from the
 // hover actions on each row, or create a new one from the "+" row at the
 // bottom, which turns into an inline name input. Archived projects (no longer
 // in active development) sit in a collapsed "Archive" section below the
@@ -105,7 +105,7 @@ export function ProjectSwitcher({
   return (
     <div className="ws-switch" ref={wrap}>
       <button
-        className="topbar-button ws-trigger"
+        className="ws-trigger"
         onClick={() => setOpen(!open)}
         title={current === null ? 'Choose a project'
           : archived.includes(current) ? `${current} (archived)` : current}

@@ -7,6 +7,7 @@
 //   job-removed   { id }               dismissed or aged out
 //   tree          { project }          that project's files changed on disk
 //   projects      {}                   a project was created/renamed/deleted
+//   index         { project, reading, ocr, files }  text-index progress
 //
 // A reconnecting window gets the `jobs` snapshot again and re-reads anything
 // it shows, so a missed event never leaves it stale.
@@ -21,7 +22,7 @@ class EventHub {
     for (const res of this.#clients) res.write(frame);
   }
 
-  /** Express handler for the stream. `snapshot()` is what a new client is
+  /** Route handler for the stream. `snapshot()` is what a new client is
    *  sent first, as [[type, data], ...]. */
   handler(snapshot = () => []) {
     return (req, res) => {

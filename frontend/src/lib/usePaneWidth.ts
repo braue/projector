@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { saveSettingSoon, setting } from './settings'
 
@@ -13,7 +13,22 @@ interface PaneConfig {
   fallback: number
 }
 
-function usePaneWidth(key: string, { min, max, fallback }: PaneConfig) {
+/** The width a nowrap flex row needs to lay its items out on one line,
+ *  whatever width it has now. */
+function rowWidth(row: HTMLElement) {
+  const style = getComputedStyle(row)
+  const items = [...row.children].filter((el) => getComputedStyle(el).position !== 'absolute')
+  const gap = parseFloat(style.columnGap) || 0
+  return Math.ceil(
+    parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
+      + items.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0)
+      + gap * Math.max(items.length - 1, 0),
+  )
+}
+
+/** `floor`: finds a row inside the pane that must never wrap — the pane
+ *  stops narrowing at that row's width, and widens if the row grows past it. */
+function usePaneWidth(key: string, { min, max, fallback }: PaneConfig, floor?: () => HTMLElement | null | undefined) {
   const [width, setWidth] = useState(() => {
     const stored = setting<unknown>(key, null)
     return typeof stored === 'number' && stored >= min && stored <= max ? stored : fallback
@@ -26,13 +41,23 @@ function usePaneWidth(key: string, { min, max, fallback }: PaneConfig) {
     if (width !== initial.current && width !== setting(key, null)) saveSettingSoon(key, width)
   }, [key, width])
 
+  const floorWidth = useCallback(() => {
+    const row = floor?.()
+    return row ? rowWidth(row) : 0
+  }, [floor])
+  useLayoutEffect(() => {
+    const need = floorWidth()
+    if (need > width) setWidth(Math.min(need, max))
+  })
+
   /** Mousedown handler for the pane's right-edge grip. */
   const startResize = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
       const startX = e.clientX
       const startWidth = width
-      const clamp = (value: number) => Math.min(Math.max(value, min), max)
+      const lowest = Math.max(min, floorWidth())
+      const clamp = (value: number) => Math.min(Math.max(value, lowest), max)
       const move = (ev: MouseEvent) => setWidth(clamp(startWidth + ev.clientX - startX))
       const up = () => {
         document.removeEventListener('mousemove', move)
@@ -43,13 +68,22 @@ function usePaneWidth(key: string, { min, max, fallback }: PaneConfig) {
       document.addEventListener('mouseup', up)
       document.body.style.cursor = 'col-resize'
     },
-    [width, min, max],
+    [width, min, max, floorWidth],
   )
 
   return { width, startResize }
 }
 
-/** The left sidebar: the project tree, and the tools list. */
+/** The margin: the project, its filter, its tree and the pane links (never
+ *  narrower than the links need to sit on one line). Its
+ *  own key — the old sidebar width saved before the margin was too narrow
+ *  for the project title. */
+export function useMarginWidth(margin: React.RefObject<HTMLElement | null>) {
+  const nav = useCallback(() => margin.current?.querySelector<HTMLElement>('.margin-nav'), [margin])
+  return usePaneWidth('marginWidth', { min: 240, max: 560, fallback: 300 }, nav)
+}
+
+/** The tools list. */
 export function useSidebarWidth() {
   return usePaneWidth('sidebarWidth', { min: 180, max: 560, fallback: 224 })
 }

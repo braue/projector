@@ -1,7 +1,7 @@
 // Billable hours: read them all, or set one cell — a project's hours on a
 // day, or its budget.
 
-import { Router } from 'express';
+import { Router } from '../lib/router.js';
 
 function hourRoutes(hours) {
   const router = Router();

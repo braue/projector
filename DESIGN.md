@@ -61,7 +61,7 @@ exported-folder upload, tool-output save.
 
 ## Backend
 
-Node/Express (loopback), per-project service bundle:
+Node on node:http alone (loopback; `lib/router.js`), per-project service bundle:
 
 ```
 services/files.js     the tree: bytes, versions sidecar, text save, OS open
@@ -71,7 +71,26 @@ services/rdb|scd|sw   ArtifactKind subclasses: parse + inspect sections
                       (RtacKind lives in lib/artifacts.js)
 services/compare.js   union tree + structured diff over one loader
 services/search.js    free-text search over the same loader
+services/contentIndex THE project text index: every readable file's text
+                      (lib/extract), cached by content hash in
+                      <project>/text-index/, OCR as a background second lane
+lib/extract/          per-format readers: text/csv/json/xml, PDF (+OCR of
+                      textless pages), images (OCR), docx/xlsx/xlsm/pptx,
+                      msg/eml (attachments recurse), zip (entries recurse);
+                      views.js builds the in-app viewer models
 ```
+
+**Search inside files.** The tree's filter box matches names AND content:
+the index's hits sit under their rows ("Sheet1 · row 40", "report.pdf ›
+p. 2"), and clicking one opens the file with find on the term, at the
+sheet, zip entry or attachment the hit is in. A file inside a zip or an
+email is addressed by an `inner` chain from its tree entry (entry names,
+attachment indexes) — `/files/view`, `/files/parts`, `/files/inner-raw`,
+`/files/open-inner`. OCR is Tesseract WASM with the English model bundled
+(no network), one worker, idle-terminated; its modules are asarUnpack'd
+because a worker thread reads them off the disk. Email HTML renders in a
+sandboxed frame under a no-remote CSP; main.js only hands http/https/mailto
+links to the OS.
 
 Refs: an artifact is its tree path; a profile inside one is
 `"<path>::<profile>"` (`:` is invalid in names, so no collisions). Kind is
@@ -142,6 +161,10 @@ components/InspectView.tsx   header bar (title · Browse/Aggregate/Search ·
                              profile picker) over FileTree + Preview
 components/CompareView.tsx   union tree + DiffPreview for two refs
 components/TextFileView.tsx  the notes editor (checkbox overlay, list markers)
+components/FileView.tsx      the plain-file viewers: image + OCR text, sheet
+                             grid (xlsx/xlsm/csv), docx HTML, slides, mail,
+                             zip browser, json/xml text; nests for inner files
+lib/contentSearch.ts         the filter box's content search + index progress
 components/VersionNoteModal  the mandatory what-changed dialog
 components/FindBar.tsx       the one find bar + the DOM find hook every
                              readable pane uses (lib/findInPage.ts is the
@@ -186,3 +209,11 @@ rows of one kind offer Compare.
 - Compare = any two same-kind refs; the same-artifact version compare is the
   one-click case.
 - AcRTAC downloads land in the currently selected folder.
+- Few dependencies (2026-11-11). HTTP, uploads, PNG writing, Word-to-HTML
+  and Outlook .msg reading are in-house (`lib/router.js`, `lib/png.js`,
+  `lib/extract/wordHtml.js`, `lib/extract/msg.js`). The Geist fonts are
+  vendored in `frontend/src/fonts/`. What stays does work that is not
+  reasonable to rewrite: pdfium (PDF render/text), pdf-lib (PDF layer
+  edits), tesseract.js (OCR), pg (QuickSet's Postgres), fast-xml-parser,
+  fflate, cfb and postal-mime (MIME). Install scripts are opt-in through
+  `allowScripts`.

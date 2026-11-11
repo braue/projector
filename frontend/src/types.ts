@@ -279,7 +279,115 @@ export interface PdfSearchResult {
   /** Every occurrence, including those past the listing cap. */
   total: number
   truncated: boolean
+  /** Scanned pages are read by OCR in the background; 'pending' until then. */
+  ocr?: OcrState
 }
+
+// --- file contents (the text index and the in-app viewers) ------------------------
+
+export type OcrState = 'none' | 'pending' | 'done'
+
+/** One located hit inside a file: "p. 4", "Sheet1 · row 12", "slide 3"… */
+export interface ContentHit {
+  where: string
+  before: string
+  match: string
+  after: string
+}
+
+export interface ContentResult {
+  path: string
+  total: number
+  hits: ContentHit[]
+}
+
+export interface IndexStatus {
+  /** Files whose text layer is still being read. */
+  reading: number
+  /** Files still waiting on OCR. */
+  ocr: number
+  files: number
+}
+
+export interface ContentSearch {
+  query: string
+  results: ContentResult[]
+  totalFiles: number
+  truncated: boolean
+  status: IndexStatus
+}
+
+export interface TextPart {
+  where: string
+  text: string
+  unit?: 'line'
+}
+
+export interface FileParts {
+  parts: TextPart[]
+  ocr: OcrState
+  error: string | null
+}
+
+/** Steps into a container: zip entry names, mail attachment indexes. */
+export type InnerChain = (string | number)[]
+
+export interface SheetCell {
+  c: number
+  v: string
+  f?: string
+}
+
+export interface SheetModel {
+  name: string
+  hidden: boolean
+  rows: { r: number; cells: SheetCell[] }[]
+  merges: { r1: number; c1: number; r2: number; c2: number }[]
+  /** Column widths in Excel character units, by column number. */
+  widths: Record<string, number>
+  cols: number
+  totalRows: number
+}
+
+export interface MailAttachment {
+  index: number
+  name: string
+  /** The name made unique within the message: what hit locations use. */
+  label: string
+  mime: string
+  size: number
+  inline: boolean
+}
+
+export interface ZipEntry {
+  name: string
+  size: number
+  compressed: number
+}
+
+export type FileViewModel =
+  | { format: 'sheet'; sheets: SheetModel[] }
+  | { format: 'doc'; html: string }
+  | {
+      format: 'slides'
+      slides: { number: number; title: string; paragraphs: { text: string; level: number }[]; notes: string; images: string[] }[]
+    }
+  | {
+      format: 'mail'
+      subject: string
+      from: string
+      to: string
+      cc: string
+      date: string | null
+      html: string | null
+      text: string
+      attachments: MailAttachment[]
+    }
+  | { format: 'zip'; entries: ZipEntry[] }
+  | { format: 'code'; language: string; text: string }
+  | { format: 'image' }
+  | { format: 'pdf' }
+  | { format: 'none' }
 
 // --- the project tree -----------------------------------------------------------
 

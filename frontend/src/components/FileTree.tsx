@@ -156,20 +156,25 @@ export function FileTree({
   tree,
   selected,
   onSelect,
+  header,
 }: {
   tree: ProjectTree
   selected: string | null
   onSelect: (path: string) => void
+  /** Replaces the device line (Inspect's profile picker sits here). */
+  header?: ReactNode
 }) {
   const { summary } = tree
   return (
     <TreePane
       header={
         // No name line: the inspect bar right above already carries it.
-        <div className="tree-subtitle">
-          {tree.deviceLabel ?? 'Unknown device'}
-          {tree.schema && ` · schema ${tree.schema}`}
-        </div>
+        header ?? (
+          <div className="tree-subtitle">
+            {tree.deviceLabel ?? 'Unknown device'}
+            {tree.schema && ` · schema ${tree.schema}`}
+          </div>
+        )
       }
       footer={
         summary.connections !== undefined

@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>The event sequence</h1>
 <p>How a disturbance moves from detection to a finished reconfiguration. Each feeder runs its own small state machine; the manager coordinates them and owns the solve and execute steps.</p>
-<div class="chips"><span>§03</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§03</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="card"><h4>The rules, stated plainly</h4><ol>
 <li>A <b>new</b> event (trip, open phase, overload trigger, source event, remote event, bus restore) moves the feeder from IDLE to <b>UPDATE</b> and polls every device on the feeder plus feeders within <code>TransferDepth</code>.</li>

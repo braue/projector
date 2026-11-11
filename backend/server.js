@@ -1,7 +1,7 @@
 // projector backend — a versioned project file tree for substation settings,
 // plus the tools and reference library around it.
 //
-// Loopback-only Express app. Two ways in:
+// Loopback-only HTTP app on node:http (lib/router.js). Two ways in:
 //
 //   - DEVELOPMENT: `npm run dev` runs index.js, the Vite dev server serves the
 //     UI on its own port and proxies /api here.
@@ -20,10 +20,10 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import express from 'express';
-
 import { createAcRtacClient } from './lib/acrtac/pythonClient.js';
+import { shutdownOcr } from './lib/extract/ocr.js';
 import { EventHub } from './lib/events.js';
+import { Router, createServer, serveStatic } from './lib/router.js';
 import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from './lib/selPaths.js';
 import { acrtacRoutes } from './routes/acrtac.js';
 import { eventRoutes, jobRoutes } from './routes/jobs.js';
@@ -148,11 +148,10 @@ export async function startServer(options = {}) {
       : `No SEL full-text index — none shipped at ${selIndex}.`);
   }
 
-  const app = express();
+  const app = Router();
   // No CORS, on purpose: the window is served from this same origin (Vite
   // proxies /api in dev), and allowing other origins would let any web page
   // open in a browser on this machine read the local API.
-  app.use(express.json());
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, version });
@@ -176,18 +175,14 @@ export async function startServer(options = {}) {
   // Packaged mode: serve the built UI from this same origin. The SPA has no
   // router, so the index fallback is only there to survive a manual reload on
   // a deep URL.
-  if (staticDir) {
-    app.use(express.static(staticDir, { index: 'index.html' }));
-    app.use((_req, res) => res.sendFile(path.join(staticDir, 'index.html')));
-  }
-
-  // eslint-disable-next-line no-unused-vars -- Express keys on the arity.
-  app.use((err, _req, res, _next) => {
-    res.status(err?.status ?? 500).json({ error: err?.message ?? 'internal error' });
-  });
+  const fallback = staticDir
+    ? async (req, res) => {
+      if (!(await serveStatic(staticDir, req, res))) await res.sendFile(path.join(staticDir, 'index.html'));
+    }
+    : null;
 
   const server = await new Promise((resolve, reject) => {
-    const s = app.listen(port, '127.0.0.1');
+    const s = createServer(app, { fallback }).listen(port, '127.0.0.1');
     s.once('listening', () => resolve(s));
     s.once('error', reject);
   });
@@ -208,6 +203,7 @@ export async function startServer(options = {}) {
         tools.terminal.closeAll();
         events.closeAll();
         projects.close();
+        shutdownOcr();
         const done = setTimeout(resolve, 2000);
         server.close(() => {
           clearTimeout(done);

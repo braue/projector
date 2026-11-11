@@ -1,17 +1,16 @@
 // The output strip every tool ends with: each file a run produced, with the
-// two ways out — a browser download, and a copy into a chosen project's
-// Files store (the "Save to project…" dropdown saves on pick). Same shape as
-// the drawing generator's outputs. `downloadOnly` drops the save path for
-// tools whose files are transport, not project material (dacsim's ZIP —
-// its saving happens through the tool's own Save button, which `rowActions`
-// puts in the same row so the two ways out stay side by side).
+// two ways out — a browser download, and a drag onto a folder of the project
+// tree, which saves it there (lib/treeDrag). Same shape as the drawing
+// generator's outputs. `downloadOnly` drops the drag for tools whose files
+// are transport, not project material (dacsim's ZIP — its saving happens
+// through the tool's own Save button, which `rowActions` puts in the same
+// row so the two ways out stay side by side).
 
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import { saveToolFileToProject, toolRunFileUrl } from '../api'
-import { LinkButton, SectionHeader, Select } from '../components/ui'
-import { errorMessage } from '../lib/errors'
-import { projectOptions, useProjectList } from '../lib/projectList'
+import { toolRunFileUrl } from '../api'
+import { LinkButton, SectionHeader } from '../components/ui'
+import { setToolOutputDrag } from '../lib/treeDrag'
 import type { ToolReport } from '../types'
 
 export function RunOutputs({
@@ -36,47 +35,26 @@ export function RunOutputs({
    *  Download (dacsim's Save to project) instead of on a row of its own. */
   rowActions?: (report: ToolReport) => ReactNode
 }) {
-  const [status, setStatus] = useState<string | null>(null)
-  const projectList = useProjectList()
-
-  const saveToProject = async (report: ToolReport, target: string) => {
-    setStatus(null)
-    try {
-      const { added } = await saveToolFileToProject({ project: target, tool, run, path: report.path })
-      setStatus(`Saved to ${target} › Files as ${added[0]}`)
-    } catch (err) {
-      setStatus(`Save failed: ${errorMessage(err)}`)
-    }
-  }
-
   if (!reports.length && !children) return null
   return (
     <div className="tool-outputs">
       <SectionHeader title="Outputs" count={count ?? reports.length} />
       {reports.map((report) => (
-        <div className="tool-row" key={report.path}>
-          <span className="tool-output-name" title={report.path}>{report.label}</span>
+        <div
+          className={downloadOnly ? 'tool-row' : 'tool-row tool-output-drag'}
+          key={report.path}
+          draggable={!downloadOnly}
+          title={report.path}
+          onDragStart={(e) => setToolOutputDrag(e, { tool, run, path: report.path, name: report.label })}
+        >
+          <span className="tool-output-name">{report.label}</span>
           <LinkButton href={toolRunFileUrl(tool, run, report.path)} download>
             Download
           </LinkButton>
           {rowActions?.(report)}
-          {/* Picking a project saves immediately; value stays pinned to the
-              placeholder so it reads (and re-fires) like a button. */}
-          {!downloadOnly && (
-            <Select
-              value=""
-              variant="action"
-              placeholder="Save to project…"
-              options={projectOptions(projectList)}
-              onChange={(target) => {
-                if (target) saveToProject(report, target)
-              }}
-            />
-          )}
         </div>
       ))}
       {children}
-      {status && <div className="tool-status">{status}</div>}
     </div>
   )
 }

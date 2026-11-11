@@ -49,7 +49,7 @@
 <div class="masthead">
 <h1>Restoration planning: how a solution is chosen</h1>
 <p>After isolation, the DAC searches for a set of opens and closes that re-energises the most load without overloading anything, then ranks candidates by a fixed list of criteria.</p>
-<div class="chips"><span>§13</span><span>DA Lib / DA Adapter 105.0.1.100</span><span>Code-derived</span></div>
+<div class="chips"><span>§13</span><span>DA Lib / DA Adapter 105.0.2</span><span>Code-derived</span></div>
 </div>
 <div class="card"><h4>The rules, stated plainly</h4><ol>
 <li>The inputs are <b>roots</b> (points beyond which load is dead and must be restored), the <b>isolation</b> list (must open) and the <b>return-close</b> list (must close).</li>
@@ -69,7 +69,7 @@
 <tr><td>ReturnCorrection (→ CloseSwitch)</td><td>Miscoordination correction, TripReclose, RTN closes</td><td>Must be closed in any solution (unless also an isolation point; then dropped and reported as miscoordination).</td></tr>
 </table></div>
 <p>Before searching, load figures are frozen: feeders with an event latched get scenario loads calculated from the model; all others use <code>FeederLoad</code>, the 30 s average source current delayed 30 s and held while DA is in progress. Transformer and bus margins start from present conditions. <span class="src">AutomaticReconfig/ReconfigPlanning/mAR_FindSolution</span> <span class="src">Feeder/FEEDER</span></p>
-<p>Non-restorable classification also runs here: load in a branch that has no possible restoration source within <code>TransferDepth</code> feeder hops is flagged <code>NonRestorable-Branch</code>; loads in extended-fault, abnormal-isolate and miscoordination zones get their own flags. <span class="src">AutomaticReconfig/ReconfigPlanning/NonRestorable/class_NonRestorable</span></p>
+<p>Non-restorable classification also runs here: load in a branch that has no possible restoration source within <code>TransferDepth</code> feeder hops is flagged <code>NonRestorable-Branch</code>; loads in extended-fault, abnormal-isolate and miscoordination zones get their own flags. The flags are cleared when the DA sequence finishes. <span class="src">AutomaticReconfig/ReconfigPlanning/NonRestorable/class_NonRestorable</span></p>
 
 <h2 id="sol-search">The search</h2>
 <p><code>class_ArSelector</code> runs a best-first search over a frontier of partial solutions (states). <span class="src">AutomaticReconfig/ReconfigPlanning/Classes/class_ArSelector</span></p>
