@@ -214,6 +214,8 @@ rows of one kind offer Compare.
   `lib/extract/wordHtml.js`, `lib/extract/msg.js`). The Geist fonts are
   vendored in `frontend/src/fonts/`. What stays does work that is not
   reasonable to rewrite: pdfium (PDF render/text), pdf-lib (PDF layer
-  edits), tesseract.js (OCR), pg (QuickSet's Postgres), fast-xml-parser,
-  fflate, cfb and postal-mime (MIME). Install scripts are opt-in through
+  edits), tesseract.js (OCR), fast-xml-parser, fflate, cfb and
+  postal-mime (MIME). QuickSet backups are read without Postgres: WinZip-AES
+  ZIP reading and the pg_dump parser are in-house
+  (`services/tools/quickset/`). Install scripts are opt-in through
   `allowScripts`.

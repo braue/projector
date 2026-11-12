@@ -489,11 +489,28 @@ export interface HmiReport {
   diagrams: { diagram: string; tags: number; bad: number; sameScreenDuplicates: number }[]
 }
 
-/** QuickSet Extract: the relay inventory over a configs run. */
-export interface QuicksetInventory {
+/** QuickSet Extract: one device of a backup read, as the tool's table shows it. */
+export interface QuicksetDeviceRow {
+  deviceId: string
+  folder: string
+  device: string
+  viaParent: string
+  deviceType: string
+  firmware: string
+  inService: string
+  commType: string
+  ipAddress: string
+  telnetPort: string
+  settingsDate: string
+}
+
+/** QuickSet Extract: a finished backup read. */
+export interface QuicksetResult {
   tool: string
   run: string
-  rows: { location: string; device: string; relayType: string; firmware: string }[]
+  rows: QuicksetDeviceRow[]
+  folders: number
+  withSettings: number
   reports: ToolReport[]
 }
 

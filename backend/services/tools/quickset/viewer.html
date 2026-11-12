@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuickSet Device Browser</title>
+<style>
+:root {
+  --bg: #f6f6f4; --panel: #ffffff; --ink: #1d1f22; --muted: #6b7078; --faint: #9aa0a8;
+  --line: #e3e3df; --hover: #eeeeea; --sel: #e2ebfb; --sel-ink: #1f4fbf; --accent: #2b62d9;
+  --ok: #1e7a46; --warn: #a15c00; --off: #9b2c2c; --code: #f1f1ee;
+  --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --panel: #1c1f23; --ink: #e6e7e9; --muted: #9aa0a8; --faint: #6b7078;
+    --line: #2c3036; --hover: #252930; --sel: #1f2d47; --sel-ink: #9dbaff; --accent: #6d9bff;
+    --ok: #5cc98a; --warn: #e0a24a; --off: #ef7d7d; --code: #23272d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --panel: #1c1f23; --ink: #e6e7e9; --muted: #9aa0a8; --faint: #6b7078;
+  --line: #2c3036; --hover: #252930; --sel: #1f2d47; --sel-ink: #9dbaff; --accent: #6d9bff;
+  --ok: #5cc98a; --warn: #e0a24a; --off: #ef7d7d; --code: #23272d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 13px/1.45 var(--sans); display: flex; flex-direction: column; }
+.mono { font-family: var(--mono); font-size: 12px; }
+header { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+header h1 { font-size: 14px; margin: 0; font-weight: 650; white-space: nowrap; }
+header .stats { color: var(--muted); white-space: nowrap; }
+#search { flex: 1; max-width: 420px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+#search:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.layout { flex: 1; display: flex; min-height: 0; }
+nav { width: 360px; min-width: 260px; border-right: 1px solid var(--line); background: var(--panel); overflow: auto; padding: 6px 0 24px; resize: horizontal; }
+main { flex: 1; overflow: auto; padding: 20px 28px 48px; min-width: 0; }
+.row { display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 0; cursor: pointer; white-space: nowrap; user-select: none; }
+.row:hover { background: var(--hover); }
+.row.sel { background: var(--sel); color: var(--sel-ink); }
+.caret { width: 14px; flex: none; text-align: center; color: var(--faint); font-size: 10px; transition: transform .1s; }
+.open > .row .caret { transform: rotate(90deg); }
+.kids { display: none; }
+.open > .kids { display: block; }
+.row .name { overflow: hidden; text-overflow: ellipsis; }
+.row .meta { margin-left: auto; color: var(--faint); font-size: 11px; padding-left: 8px; }
+.row.folder .name { font-weight: 600; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--faint); }
+.dot.on { background: var(--ok); }
+mark { background: #ffe58a; color: inherit; border-radius: 2px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) mark { background: #6b5a12; } }
+h2 { font-size: 20px; margin: 0 0 4px; font-weight: 650; }
+.crumbs { color: var(--muted); margin-bottom: 18px; }
+.crumbs a { color: inherit; text-decoration: none; cursor: pointer; }
+.crumbs a:hover { color: var(--accent); text-decoration: underline; }
+.badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); margin-left: 8px; vertical-align: 3px; font-weight: 500; }
+.badge.on { color: var(--ok); border-color: currentColor; }
+.badge.off { color: var(--off); border-color: currentColor; }
+section { margin: 0 0 26px; }
+section > h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; font-weight: 650; border-bottom: 1px solid var(--line); padding-bottom: 5px; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 3px 22px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0 36px; }
+table { border-collapse: collapse; width: 100%; }
+table.vals td:last-child { overflow-wrap: anywhere; }
+table.list td { white-space: nowrap; }
+.scroll { overflow-x: auto; }
+.nowrap { white-space: nowrap; }
+th, td { text-align: left; padding: 4px 10px 4px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; white-space: nowrap; }
+th.sort { cursor: pointer; }
+th.sort:hover { color: var(--ink); }
+tbody tr.click { cursor: pointer; }
+tbody tr.click:hover { background: var(--hover); }
+td.k { white-space: nowrap; }
+td .lbl { color: var(--muted); font-family: var(--sans); font-size: 12px; margin-left: 6px; }
+.copy { cursor: copy; border-bottom: 1px dashed var(--faint); }
+.copy:hover { color: var(--accent); }
+.tiles { display: flex; gap: 32px; margin: 4px 0 24px; flex-wrap: wrap; }
+.tile b { display: block; font-size: 22px; font-weight: 650; }
+.tile span { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.chip { padding: 3px 9px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--panel); color: var(--ink); font: inherit; font-size: 12px; }
+.chip:hover { background: var(--hover); }
+.chip.sel { background: var(--sel); color: var(--sel-ink); border-color: var(--sel-ink); }
+.chip small { color: var(--faint); margin-left: 3px; }
+.filter { padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; width: 260px; margin-bottom: 10px; }
+.empty { color: var(--faint); }
+.grouphdr td { font-weight: 650; padding-top: 12px; color: var(--muted); font-family: var(--sans); }
+.diff { color: var(--warn); }
+#toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 6px 14px; border-radius: 6px; opacity: 0; transition: opacity .15s; pointer-events: none; }
+#toast.show { opacity: .92; }
+.theme { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 4px 8px; cursor: pointer; font: inherit; margin-left: auto; }
+@media (max-width: 760px) {
+  .layout { flex-direction: column; }
+  nav { width: auto; max-height: 40vh; border-right: 0; border-bottom: 1px solid var(--line); resize: none; }
+  main { padding: 16px; }
+  header { flex-wrap: wrap; }
+  .stats { display: none; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">QuickSet Device Browser</h1>
+  <input id="search" type="search" placeholder="Search name, type, IP" autocomplete="off">
+  <span class="stats" id="stats"></span>
+  <button class="theme" id="theme" title="Toggle theme">◐</button>
+</header>
+<div class="layout">
+  <nav id="tree"></nav>
+  <main id="main"></main>
+</div>
+<div id="toast"></div>
+<script>window.QS = /*DATA*/;</script>
+<script>
+(() => {
+const Q = window.QS;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+const LABELS = {
+  EPORT: 'Port enabled', IPADDR: 'IP address', SUBNETM: 'Subnet mask', DEFRTR: 'Default gateway',
+  IPADDRB: 'IP address B', SUBNETMB: 'Subnet mask B', DEFRTRB: 'Gateway B', NETMODE: 'Network mode',
+  NETPORT: 'Active port', NETASPD: 'Port A speed', NETBSPD: 'Port B speed', ETELNET: 'Telnet',
+  TPORT: 'Telnet port', TIDLE: 'Telnet idle (min)', EFTPSERV: 'FTP server', FTPUSER: 'FTP user',
+  FTPANMS: 'Anonymous FTP', EHTTP: 'HTTP server', HTTPPORT: 'HTTP port', EHTTPS: 'HTTPS', E61850: 'IEC 61850',
+  EGSE: 'GOOSE', EDNP: 'DNP sessions', DNPADR: 'DNP address', DNPNUM: 'DNP port', EMOD: 'Modbus sessions',
+  MODNUM: 'Modbus port', ESNTP: 'SNTP', SNTPPSIP: 'SNTP primary', SNTPBSIP: 'SNTP backup', SNTPRATE: 'SNTP rate (s)',
+  SNTPPORT: 'SNTP port', EPMIP: 'Synchrophasor IP', PMOTS1: 'PMU output 1',
+  LER: 'Event length (cyc)', PRE: 'Prefault (cyc)', ERDIG: 'Digital elements in events', EVELOCK: 'Event lock',
+  NUMEVE: 'Number of events', ESER: 'SER enabled', SER1: 'SER points 1', SER2: 'SER points 2', SER3: 'SER points 3',
+  SER4: 'SER points 4', SER5: 'SER points 5', SRATE: 'Sample rate', ELDP: 'Load profile enabled',
+  LDLIST: 'Load profile channels', LDAR: 'Load profile rate (min)', EVSSI: 'VSSI enabled', VSSIP: 'VSSI pickup',
+  DATE_F: 'Date format', IRIGC: 'IRIG control', DST_BEGM: 'DST begin month', UTCOFFS: 'UTC offset',
+  TIME_SRC: 'Time source', NFREQ: 'Nominal frequency', FREQ: 'Frequency', PHROT: 'Phase rotation',
+  RID: 'Relay ID', TID: 'Terminal ID', SID: 'Station ID',
+};
+
+// ---- tree model
+const nodes = new Map(Q.tree.map((n) => [n.id, { ...n, kids: [] }]));
+const roots = [];
+for (const n of nodes.values()) (n.parent && nodes.has(n.parent) ? nodes.get(n.parent).kids : roots).push(n);
+const isDev = (n) => !!n.device_id;
+const sortKids = (a, b) => (isDev(a) - isDev(b)) || (a.order - b.order) || a.label.localeCompare(b.label, undefined, { numeric: true });
+const walk = (n, f) => { f(n); n.kids.forEach((k) => walk(k, f)); };
+roots.sort(sortKids); nodes.forEach((n) => n.kids.sort(sortKids));
+const devNode = new Map();
+nodes.forEach((n) => { if (n.device_id) devNode.set(n.device_id, n); });
+const devCount = new Map();
+const countDevs = (n) => { let c = isDev(n) ? 1 : 0; n.kids.forEach((k) => (c += countDevs(k))); devCount.set(n.id, c); return c; };
+roots.forEach(countDevs);
+const pathOf = (n) => { const p = []; let cur = n; while (cur) { p.unshift(cur); cur = nodes.get(cur.parent); } return p; };
+
+const D = Q.devices;
+const devs = Object.values(D);
+const withSettings = devs.filter((d) => d.settings_folder).length;
+$('#stats').textContent = `${devs.length} devices · ${Q.tree.length - devs.length} folders · ${withSettings} with settings`;
+if (roots.length === 1 && !isDev(roots[0])) { $('#title').textContent = roots[0].label; document.title = roots[0].label + ' · QuickSet'; }
+
+const settingsIp = (id) => (Q.network[id] || []).map((p) => p.IPADDR).filter(Boolean);
+const searchText = (d) => [d.device, d.device_type, d.ip_address, d.folder, d.fid, d.part_number, d.serial_number, d.description, ...settingsIp(d.device_id)].join(' ').toLowerCase();
+const searchIdx = new Map(devs.map((d) => [d.device_id, searchText(d)]));
+
+// ---- tree render
+let selected = null;
+let query = '';
+const open = new Set();
+roots.forEach((r) => open.add(r.id));
+
+function hl(text) {
+  const t = esc(text);
+  if (!query) return t;
+  const i = String(text).toLowerCase().indexOf(query);
+  if (i < 0) return t;
+  return esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + query.length)) + '</mark>' + esc(text.slice(i + query.length));
+}
+
+function visible(n) {
+  if (!query) return true;
+  if (isDev(n) && searchIdx.get(n.device_id)?.includes(query)) return true;
+  if (!isDev(n) && n.label.toLowerCase().includes(query)) return true;
+  return n.kids.some(visible);
+}
+
+function renderTree() {
+  const html = [];
+  const rec = (n, depth) => {
+    if (!visible(n)) return;
+    const pad = 8 + depth * 16;
+    const sel = selected && selected.id === n.id ? ' sel' : '';
+    const hasKids = n.kids.some(visible);
+    const isOpen = query ? hasKids : open.has(n.id);
+    html.push(`<div class="${isOpen ? 'open' : ''}" data-id="${esc(n.id)}">`);
+    if (isDev(n)) {
+      const d = D[n.device_id] || {};
+      html.push(`<div class="row dev${sel}" style="padding-left:${pad}px"><span class="caret">${hasKids ? '▶' : ''}</span>`
+        + `<span class="dot${d.in_service === 't' ? ' on' : ''}" title="${d.in_service === 't' ? 'In service' : 'Not in service'}"></span>`
+        + `<span class="name">${hl(n.label)}</span><span class="meta mono">${hl(d.device_type || '')}</span></div>`);
+    } else {
+      html.push(`<div class="row folder${sel}" style="padding-left:${pad}px"><span class="caret">▶</span>`
+        + `<span class="name">${hl(n.label)}</span><span class="meta">${devCount.get(n.id) || ''}</span></div>`);
+    }
+    if (hasKids) {
+      html.push('<div class="kids">');
+      if (isOpen) n.kids.forEach((k) => rec(k, depth + 1));
+      html.push('</div>');
+    }
+    html.push('</div>');
+  };
+  roots.forEach((r) => rec(r, 0));
+  $('#tree').innerHTML = html.join('') || '<div class="empty" style="padding:10px 16px">No matches</div>';
+}
+
+$('#tree').addEventListener('click', (e) => {
+  const row = e.target.closest('.row');
+  if (!row) return;
+  const n = nodes.get(row.parentElement.dataset.id);
+  const onCaret = e.target.classList.contains('caret');
+  if (n.kids.length && (onCaret || (!isDev(n) && selected?.id === n.id))) {
+    open.has(n.id) ? open.delete(n.id) : open.add(n.id);
+    if (onCaret) { renderTree(); return; }
+  } else if (!isDev(n)) open.add(n.id);
+  go(n);
+});
+
+// ---- selection and routing
+function go(n, push = true) {
+  selected = n;
+  if (n) pathOf(n).slice(0, -1).forEach((a) => open.add(a.id));
+  if (push) history.replaceState(null, '', n ? '#' + (isDev(n) ? 'd=' + n.device_id : 'f=' + n.id) : '#');
+  renderTree();
+  if (!n) renderOverview(null);
+  else if (isDev(n)) renderDevice(n);
+  else renderOverview(n);
+  $('#main').scrollTop = 0;
+  requestAnimationFrame(() => $('#tree .row.sel')?.scrollIntoView({ block: 'nearest' }));
+}
+
+function crumbs(n) {
+  const p = pathOf(n).slice(0, -1);
+  return `<div class="crumbs"><a data-go="">All</a>${p.map((a) => ` / <a data-go="${esc(a.id)}">${esc(a.label)}</a>`).join('')}</div>`;
+}
+$('#main').addEventListener('click', (e) => {
+  const a = e.target.closest('[data-go]');
+  if (a) { go(a.dataset.go ? nodes.get(a.dataset.go) : null); return; }
+  const tr = e.target.closest('tr[data-dev]');
+  if (tr && !e.target.closest('.copy')) { go(devNode.get(tr.dataset.dev)); return; }
+  const c = e.target.closest('.copy');
+  if (c) copy(c.textContent);
+});
+
+function copy(text) {
+  navigator.clipboard?.writeText(text).then(() => toast('Copied ' + text), () => {});
+}
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1200);
+}
+
+// ---- overview (all or one folder)
+let sortKey = 'folder', sortDir = 1;
+function renderOverview(folder) {
+  let list = [];
+  if (folder) walk(folder, (n) => { if (isDev(n) && D[n.device_id]) list.push(D[n.device_id]); });
+  else list = devs.slice();
+  if (query) list = list.filter((d) => searchIdx.get(d.device_id).includes(query));
+  const types = {};
+  list.forEach((d) => (types[d.device_type || 'Unknown'] = (types[d.device_type || 'Unknown'] || 0) + 1));
+  const val = (d, k) => k === 'sip' ? settingsIp(d.device_id).join(', ') : k === 'qs' ? (d.ip_address || '') + (d.telnet_port ? ':' + d.telnet_port : '') : (d[k] || '');
+  list.sort((a, b) => sortDir * String(val(a, sortKey)).localeCompare(String(val(b, sortKey)), undefined, { numeric: true }));
+  const cols = [['device', 'Device'], ['folder', 'Folder'], ['device_type', 'Type'], ['firmware', 'FW'], ['qs', 'QuickSet IP:port'], ['sip', 'Settings IP'], ['settings_date', 'Settings date']];
+  const base = folder ? pathOf(folder).map((a) => a.label).join(' / ') : (roots.length === 1 ? roots[0].label : '');
+  const relFolder = (f) => (base && (f || '').startsWith(base) ? f.slice(base.length).replace(/^ \/ /, '') : f || '');
+  const fdesc = folder ? Q.folders[pathOf(folder).map((a) => a.label).join(' / ')] : null;
+  $('#main').innerHTML = `
+    ${folder ? crumbs(folder) : ''}
+    <h2>${esc(folder ? folder.label : 'All devices')}</h2>
+    ${fdesc?.description ? `<div class="crumbs">${esc(fdesc.description)}</div>` : ''}
+    <div class="tiles">
+      <div class="tile"><b>${list.length}</b><span>devices${query ? ' matching' : ''}</span></div>
+      ${Object.entries(types).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([t, c]) => `<div class="tile"><b>${c}</b><span>${esc(t)}</span></div>`).join('')}
+    </div>
+    <div class="scroll"><table class="list"><thead><tr>${cols.map(([k, l]) => `<th class="sort" data-k="${k}">${l}${sortKey === k ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead>
+    <tbody>${list.map((d) => {
+      const sip = settingsIp(d.device_id);
+      return `<tr class="click" data-dev="${esc(d.device_id)}">
+        <td>${hl(d.device)}</td><td class="empty">${esc(relFolder(d.folder))}</td><td class="nowrap">${hl(d.device_type || '')}</td><td class="mono">${esc(d.firmware || '')}</td>
+        <td class="mono nowrap">${d.ip_address ? `<span class="copy">${esc(d.ip_address)}</span>${d.telnet_port ? ':' + esc(d.telnet_port) : ''}` : '<span class="empty">' + esc(d.comm_type || '') + '</span>'}</td>
+        <td class="mono">${sip.map((ip) => `<span class="copy">${esc(ip)}</span>`).join(', ')}</td>
+        <td class="mono empty nowrap">${esc((d.settings_date || '').slice(0, 10))}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  $('#main').querySelectorAll('th.sort').forEach((th) => th.addEventListener('click', () => {
+    sortDir = sortKey === th.dataset.k ? -sortDir : 1; sortKey = th.dataset.k; renderOverview(folder);
+  }));
+}
+
+// ---- device detail
+const kv = (pairs) => {
+  const rows = pairs.filter(([, v]) => v !== undefined && v !== null && v !== '');
+  return rows.length ? `<dl class="kv">${rows.map(([k, v, raw]) => `<dt>${esc(k)}</dt><dd>${raw ? v : esc(v)}</dd>`).join('')}</dl>` : '<div class="empty">None</div>';
+};
+const ipCell = (ip) => ip ? `<span class="copy mono">${esc(ip)}</span>` : '';
+const yes = (v) => v === 't' ? 'Yes' : v === 'f' ? 'No' : v;
+
+const loaded = new Map();
+window.QSV_LOADED = (id, data) => { loaded.set(id, data); if (selected && selected.device_id === id) renderSettings(id); };
+function loadSettings(id) {
+  if (loaded.has(id)) { renderSettings(id); return; }
+  const s = document.createElement('script');
+  s.src = 'viewer_data/' + encodeURIComponent(id) + '.js';
+  s.onerror = () => { const el = $('#settings'); if (el) el.innerHTML = '<div class="empty">Settings file missing from viewer_data/</div>'; };
+  document.head.appendChild(s);
+}
+
+function renderDevice(n) {
+  const d = D[n.device_id] || { device: n.label };
+  const id = n.device_id;
+  const net = Q.network[id] || [];
+  const col = Q.collection[id] || {};
+  const revs = (Q.revisions[id] || []).slice().sort((a, b) => Number(b.seq) - Number(a.seq));
+  const children = n.kids.filter(isDev);
+  const status = d.in_service === 't' ? '<span class="badge on">In service</span>' : '<span class="badge off">Not in service</span>';
+
+  // Network: settings keys as rows, ports as columns.
+  let netHtml = '<div class="empty">No IP settings found in this device\'s port settings</div>';
+  if (net.length) {
+    const keys = [];
+    net.forEach((p) => Object.keys(p).forEach((k) => { if (k !== 'port' && k !== 'qs_ip_address' && !keys.includes(k)) keys.push(k); }));
+    netHtml = `<table><thead><tr><th>Setting</th>${net.map((p) => `<th>Port ${esc(p.port)}</th>`).join('')}</tr></thead><tbody>
+      ${keys.map((k) => `<tr><td class="k mono">${esc(k)}<span class="lbl">${esc(LABELS[k] || '')}</span></td>${net.map((p) => `<td class="mono">${/IPADDR|DEFRTR|SNTP.SIP/.test(k) && p[k] && p[k] !== '0.0.0.0' ? ipCell(p[k]) : esc(p[k] ?? '')}</td>`).join('')}</tr>`).join('')}
+    </tbody></table>`;
+    const sip = settingsIp(id);
+    if (d.ip_address && sip.length && !sip.includes(d.ip_address))
+      netHtml += `<p class="diff">QuickSet reaches this device at ${esc(d.ip_address)}${d.telnet_port ? ':' + esc(d.telnet_port) : ''}, which is not an IP in its own settings. It is likely reached through a gateway or port server.</p>`;
+  }
+
+  const colKeys = Object.keys(col);
+  const colHtml = colKeys.length
+    ? `<table class="vals"><tbody>${colKeys.map((k) => `<tr><td class="k mono">${esc(k)}<span class="lbl">${esc(LABELS[k] || '')}</span></td><td class="mono">${esc(col[k])}</td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">None found</div>';
+
+  $('#main').innerHTML = `
+    ${crumbs(n)}
+    <h2>${esc(d.device)}${status}</h2>
+    <div class="crumbs mono">${esc(d.device_type || '')}${d.fid ? ' · ' + esc(d.fid) : ''}</div>
+    <div class="cols">
+      <section><h3>Device</h3>${kv([
+        ['Type', d.device_type], ['Class', d.device_class], ['Part number', d.part_number], ['Serial number', d.serial_number],
+        ['Firmware', d.firmware], ['FID', d.fid], ['Description', d.description], ['Station', d.station_name], ['Attributes', d.attributes],
+      ])}</section>
+      <section><h3>QuickSet connection</h3>${kv([
+        ['Comm type', d.comm_type], ['IP address', ipCell(d.ip_address), true], ['Telnet port', d.telnet_port],
+        ['HTTPS port', d.https_port], ['FTP port', d.ftp_port], ['File transfer option', d.file_transfer_option],
+        ['Reached via', d.via_parent_device ? `<a data-go="${esc(n.parent)}" class="copy" style="cursor:pointer">${esc(d.via_parent_device)}</a>` : '', true],
+        ['Parent port', d.via_parent_device ? d.parent_port : ''], ['Serial', d.serial], ['Phone', d.phone_number],
+        ['Protocol', d.protocol !== 'Unspecified' ? d.protocol : ''], ['Host protocol', d.host_protocol], ['Credentials', d.credential_source],
+        ['User name', d.user_name], ['Access level', d.access_level], ['RTAC titled password', d.rtac_titled_password],
+        ['RTAC SOE listening', yes(d.rtac_soe_listening)], ['Blueframe IP', ipCell(d.blueframe_ip), true],
+        ['Blueframe user', d.blueframe_user], ['Blueframe resource', d.blueframe_resource_id],
+      ])}</section>
+    </div>
+    ${children.length ? `<section><h3>Devices behind this one</h3><table><thead><tr><th>Device</th><th>Type</th><th>Port</th><th>QuickSet IP:port</th></tr></thead><tbody>
+      ${children.map((c) => { const cd = D[c.device_id] || {}; return `<tr class="click" data-dev="${esc(c.device_id)}"><td>${esc(c.label)}</td><td>${esc(cd.device_type || '')}</td><td class="mono">${esc(cd.parent_port || '')}</td><td class="mono">${esc(cd.ip_address || '')}${cd.telnet_port ? ':' + esc(cd.telnet_port) : ''}</td></tr>`; }).join('')}
+    </tbody></table></section>` : ''}
+    <section><h3>Network (from device settings)</h3>${netHtml}</section>
+    <section><h3>Events, SER, load profile, time</h3>${colHtml}</section>
+    <section><h3>Settings revisions</h3>${revs.length ? `<table><thead><tr><th>#</th><th>Date</th><th>Type</th><th>User</th><th>Comment</th></tr></thead><tbody>
+      ${revs.map((r) => `<tr><td class="mono">${esc(r.seq)}</td><td class="mono">${esc((r.date || '').slice(0, 16))}</td><td>${esc(r.type || '')}</td><td>${esc(r.user || '')}</td><td>${esc(r.comment || '')}</td></tr>`).join('')}
+    </tbody></table>` : '<div class="empty">None</div>'}
+    ${d.settings_source ? `<p class="empty">Showing the ${esc(d.settings_source)} from ${esc((d.settings_date || '').slice(0, 16))}. Files in <span class="mono">${esc(d.settings_folder || '')}</span></p>` : ''}
+    </section>
+    <section><h3>All settings</h3><div id="settings">${d.settings_folder ? '<div class="empty">Loading…</div>' : '<div class="empty">No settings stored for this device</div>'}</div></section>`;
+  if (d.settings_folder) loadSettings(id);
+}
+
+let activeGroup = null, settingFilter = '';
+function renderSettings(id) {
+  const el = $('#settings');
+  const data = loaded.get(id);
+  if (!el || !data) return;
+  const groups = data.groups;
+  if (!groups.some((g) => g.code === activeGroup)) activeGroup = groups[0]?.code ?? null;
+  const f = settingFilter.toLowerCase();
+  const shown = f ? groups : groups.filter((g) => g.code === activeGroup);
+  const rows = [];
+  for (const g of shown) {
+    const items = g.settings.filter(([k, v]) => !f || k.toLowerCase().includes(f) || v.toLowerCase().includes(f));
+    if (!items.length) continue;
+    if (f) rows.push(`<tr class="grouphdr"><td colspan="2">${esc(g.name)} <span class="empty mono">${esc(g.file)}</span></td></tr>`);
+    items.forEach(([k, v]) => rows.push(`<tr><td class="k mono">${esc(k)}</td><td class="mono">${esc(v)}</td></tr>`));
+  }
+  el.innerHTML = `
+    <input class="filter" id="sfilter" type="search" placeholder="Filter all groups" value="${esc(settingFilter)}">
+    <div class="chips">${groups.map((g) => `<button class="chip${!f && g.code === activeGroup ? ' sel' : ''}" data-g="${esc(g.code)}">${esc(g.name)}<small>${g.settings.length}</small></button>`).join('')}</div>
+    ${!f && shown[0] ? `<div class="empty mono" style="margin-bottom:6px">${esc(shown[0].file)}</div>` : ''}
+    <table class="vals"><tbody>${rows.join('') || '<tr><td class="empty">No matching settings</td></tr>'}</tbody></table>`;
+  el.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => { activeGroup = b.dataset.g; settingFilter = ''; renderSettings(id); }));
+  const inp = $('#sfilter', el);
+  inp.addEventListener('input', () => { settingFilter = inp.value; const pos = inp.selectionStart; renderSettings(id); const ni = $('#sfilter'); ni.focus(); ni.setSelectionRange(pos, pos); });
+}
+
+// ---- search, theme, keyboard
+let searchTimer;
+$('#search').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    query = e.target.value.trim().toLowerCase();
+    renderTree();
+    if (!selected || !isDev(selected)) renderOverview(selected);
+  }, 80);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $('#search').focus(); }
+  if (e.key === 'Escape' && document.activeElement === $('#search')) { $('#search').value = ''; query = ''; renderTree(); if (!selected || !isDev(selected)) renderOverview(selected); }
+});
+const root = document.documentElement;
+try { const t = localStorage.getItem('qsv-theme'); if (t) root.dataset.theme = t; } catch {}
+$('#theme').addEventListener('click', () => {
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('qsv-theme', root.dataset.theme); } catch {}
+});
+
+function fromHash() {
+  const m = location.hash.match(/^#([df])=(.+)$/);
+  if (!m) return go(null, false);
+  const n = m[1] === 'd' ? devNode.get(decodeURIComponent(m[2])) : nodes.get(decodeURIComponent(m[2]));
+  go(n || null, false);
+}
+window.addEventListener('hashchange', fromHash);
+fromHash();
+})();
+</script>
+</body>
+</html>

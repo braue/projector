@@ -1,28 +1,33 @@
-// QuickSet Extract — dump a QuickSet database (or upload an exported-configs
-// ZIP), then inventory the relay fleet and pull chosen settings across it.
-// Database credentials are typed here per run and never stored.
+// QuickSet Extract — read a QuickSet database backup ZIP (or a bare
+// DMData.dump) without restoring it: the device tree, each device's
+// connection, its newest settings, a standalone device browser, and a
+// fleet-wide pull of chosen settings. The backup password is typed per run
+// and never stored.
 
 import { useState } from 'react'
 
 import {
   extractQuicksetSettings,
-  fetchQuicksetInventory,
-  importQuicksetProjectConfigs,
-  startQuicksetDump,
-  uploadQuicksetConfigs,
+  fetchQuicksetResult,
+  locateQuicksetBackup,
+  quicksetViewerUrl,
+  sendQuicksetSlice,
+  startQuicksetProjectRead,
+  startQuicksetRead,
 } from '../api'
 import {
   Button,
   CollapsibleSection,
   DataTable,
   DropZone,
+  LinkButton,
   SectionHeader,
   TextArea,
   TextInput,
 } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
-import type { QuicksetExtract, QuicksetInventory } from '../types'
+import type { QuicksetExtract, QuicksetResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 import { ToolHeader } from './ToolHeader'
@@ -33,77 +38,51 @@ const DEFAULT_SETTINGS = [
   'OUT209', 'OUT210',
 ].join(' ')
 
+type Source =
+  | { kind: 'disk'; file: File; name: string }
+  | { kind: 'project'; project: string; path: string; name: string }
+
 export function QuicksetTool(_props: ToolProps) {
   const [error, setError] = useState<string | null>(null)
-  const [run, setRun] = useState<string | null>(null)
-
-  // Database dump form + its job.
-  const [db, setDb] = useState({ host: 'localhost', port: '5432', dbname: '', user: 'postgres', password: '' })
-
-  const [inventory, setInventory] = useState<QuicksetInventory | null>(null)
+  const [source, setSource] = useState<Source | null>(null)
+  const [password, setPassword] = useState('')
+  const [result, setResult] = useState<QuicksetResult | null>(null)
   const [busy, setBusy] = useState(false)
   const [terms, setTerms] = useState(DEFAULT_SETTINGS)
   const [extract, setExtract] = useState<QuicksetExtract | null>(null)
 
-  const openRun = async (runId: string) => {
-    setRun(runId)
-    setExtract(null)
-    setInventory(null)
-    setBusy(true)
-    try {
-      setInventory(await fetchQuicksetInventory(runId))
-    } catch (err) {
-      setError(errorMessage(err))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  // The dump job; its run becomes the source.
-  const { job, running: dumping, start } = useToolJob(
-    (result) => {
-      const settled = result as { run?: string } | null
-      if (settled?.run) openRun(settled.run)
+  const { job, running, start } = useToolJob(
+    (settled) => {
+      const run = (settled as { run?: string } | null)?.run
+      if (!run) return
+      fetchQuicksetResult(run).then(setResult, (err) => setError(errorMessage(err)))
     },
     setError,
   )
 
-  const startDump = async () => {
+  const pick = (next: Source) => {
+    setSource(next)
     setError(null)
-    try {
-      const { job: id } = await startQuicksetDump({
-        host: db.host,
-        port: Number(db.port) || undefined,
-        dbname: db.dbname,
-        user: db.user,
-        password: db.password,
-      })
-      start(id)
-    } catch (err) {
-      setError(errorMessage(err))
-    }
   }
 
-  const openSource = async (request: () => Promise<{ run: string }>) => {
+  const read = async () => {
+    if (!source) return
     setError(null)
+    setResult(null)
+    setExtract(null)
     setBusy(true)
     try {
-      const { run: runId } = await request()
-      await openRun(runId)
-    } catch (err) {
-      setError(errorMessage(err))
-      setBusy(false)
-    }
-  }
-
-  const uploadZip = (file: File) => openSource(() => uploadQuicksetConfigs(file))
-
-  const runExtract = async () => {
-    if (!run) return
-    setError(null)
-    setBusy(true)
-    try {
-      setExtract(await extractQuicksetSettings(run, terms.split(/[\s,;]+/).filter(Boolean)))
+      if (source.kind === 'project') {
+        const { job: id } = await startQuicksetProjectRead(source.project, source.path, password)
+        start(id)
+      } else {
+        const located = await locateQuicksetBackup(source.file)
+        const { run, job: id } = await startQuicksetRead(source.name, password, located)
+        start(id)
+        // The job reports its own failure; this only catches a send that
+        // never reached it.
+        sendQuicksetSlice(run, source.file, located).catch(() => {})
+      }
     } catch (err) {
       setError(errorMessage(err))
     } finally {
@@ -111,39 +90,44 @@ export function QuicksetTool(_props: ToolProps) {
     }
   }
 
-  const field = (key: keyof typeof db, label: string, type = 'text') => (
-    <TextInput
-      label={label}
-      type={type}
-      value={db[key]}
-      disabled={dumping}
-      onChange={(e) => setDb((current) => ({ ...current, [key]: e.target.value }))}
-    />
-  )
+  const runExtract = async () => {
+    if (!result) return
+    setError(null)
+    setBusy(true)
+    try {
+      setExtract(await extractQuicksetSettings(result.run, terms.split(/[\s,;]+/).filter(Boolean)))
+    } catch (err) {
+      setError(errorMessage(err))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <>
-      <ToolHeader title="QuickSet Extract" busy={busy || dumping} />
+      <ToolHeader title="QuickSet Extract" busy={busy || running} />
       <div className="tool-scroll">
         <SectionHeader title="Source" />
         <DropZone
-          extensions={['.zip']}
-          onFile={uploadZip}
-          onEntries={(fromProject, [path]) => openSource(() => importQuicksetProjectConfigs(fromProject, path))}
-          disabled={busy}
+          extensions={['.zip', '.dump']}
+          onFile={(file) => pick({ kind: 'disk', file, name: file.name })}
+          onEntries={(project, [path]) => pick({ kind: 'project', project, path, name: path.split('/').pop() ?? path })}
+          disabled={busy || running}
         >
-          <b>Drop an exported-configs ZIP here</b>
-          from the tree or disk, or click to browse
+          <b>{source ? source.name : 'Drop a QuickSet database backup here'}</b>
+          {!source && 'from the tree or disk, or click to browse'}
         </DropZone>
         <div className="tool-col">
-          {field('host', 'DB host')}
-          {field('port', 'Port')}
-          {field('dbname', 'Database')}
-          {field('user', 'User')}
-          {field('password', 'Password', 'password')}
+          <TextInput
+            label="Backup password"
+            type="password"
+            value={password}
+            disabled={running}
+            onChange={(e) => setPassword(e.target.value)}
+          />
           <div className="tool-row">
-            <Button variant="primary" disabled={dumping || !db.dbname} onClick={startDump}>
-              Dump database
+            <Button variant="primary" disabled={!source || busy || running} onClick={read}>
+              Read backup
             </Button>
           </div>
         </div>
@@ -160,24 +144,40 @@ export function QuicksetTool(_props: ToolProps) {
 
         {error && <div className="tool-error">{error}</div>}
 
-        {inventory && (
+        {result && (
           <>
-            <CollapsibleSection title="Relay inventory" count={inventory.rows.length}>
+            <div className="tool-row">
+              <span className="tool-stats">
+                {result.rows.length} devices · {result.folders} folders · {result.withSettings} with settings
+              </span>
+              <LinkButton href={quicksetViewerUrl(result.run)} target="_blank" rel="noreferrer">
+                Open device browser
+              </LinkButton>
+            </div>
+            <CollapsibleSection title="Devices" count={result.rows.length}>
               <DataTable
-                maxHeight="300px"
+                maxHeight="360px"
                 columns={[
-                  { key: 'location', label: 'Location' },
+                  { key: 'folder', label: 'Folder' },
                   { key: 'device', label: 'Device' },
-                  { key: 'relayType', label: 'Relay type' },
+                  { key: 'deviceType', label: 'Type' },
                   { key: 'firmware', label: 'Firmware' },
+                  { key: 'address', label: 'IP:port' },
+                  { key: 'inService', label: 'In service' },
+                  { key: 'settingsDate', label: 'Settings' },
                 ]}
-                rows={inventory.rows.map((row, i) => ({
-                  id: `${row.location}/${row.device}:${i}`,
-                  cells: row,
+                rows={result.rows.map((row) => ({
+                  id: row.deviceId,
+                  cells: {
+                    ...row,
+                    folder: row.viaParent ? `${row.folder} / ${row.viaParent}` : row.folder,
+                    address: row.ipAddress ? (row.telnetPort ? `${row.ipAddress}:${row.telnetPort}` : row.ipAddress) : row.commType,
+                    settingsDate: row.settingsDate.slice(0, 10),
+                  },
                 }))}
               />
-              <RunOutputs tool="quickset" run={inventory.run} reports={inventory.reports} />
             </CollapsibleSection>
+            <RunOutputs tool="quickset" run={result.run} reports={result.reports} />
 
             <SectionHeader title="Settings extraction" />
             <TextArea

@@ -16,6 +16,7 @@ function toolsRoutes(tools, projects) {
   const router = Router();
   const upload = uploads({ maxFileSize: MAX_UPLOAD_BYTES, maxFiles: 1 });
   const uploadPair = uploads({ maxFileSize: MAX_UPLOAD_BYTES, maxFiles: 2 }).fields(['workbook', 'report']);
+  const locateUpload = uploads({ maxFileSize: 16 * 1024 * 1024, maxFiles: 4 });
 
   // Tool inputs come from either place the user keeps files: a multipart
   // upload (the OS file picker / drag-in), or a file already in a project's
@@ -93,19 +94,48 @@ function toolsRoutes(tools, projects) {
     res.json({ ok: true });
   });
 
-  // QuickSet Extract: source a configs tree (DB dump job, or uploaded ZIP),
-  // then inventory and settings extraction over the run.
-  router.post('/quickset/dump', async (req, res) => {
-    res.status(202).json(await tools.quickset.startDump(req.body ?? {}));
+  // QuickSet Extract: read a QuickSet database backup ZIP (or a bare
+  // DMData.dump). A project file is read in place: start { project, path,
+  // password }. A file from disk goes in two steps so only the bytes that
+  // matter cross: locate (multipart: name, size, and "range" parts each named
+  // by its start offset — the file's tail first) answers { need } until it
+  // can name the slice to send, then start { name, password, located } and
+  // PUT the slice as the raw body of /quickset/:run/data.
+  router.post('/quickset/locate', locateUpload.array('range'), async (req, res) => {
+    const size = Number(req.body?.size);
+    if (!Number.isFinite(size) || size <= 0) throw httpError(400, 'size required');
+    const ranges = (req.files ?? []).map((f) => ({ start: Number(f.originalname), buffer: f.buffer }));
+    res.json(await tools.quickset.locate({ name: String(req.body?.name ?? ''), size, ranges }));
   });
-  router.post('/quickset/upload', upload.single('file'), async (req, res) => {
-    res.status(201).json(await tools.quickset.uploadConfigs(await resolveInput(req)));
+  router.post('/quickset/start', async (req, res) => {
+    const { project, path: filePath, name, password, located } = req.body ?? {};
+    if (project && filePath) {
+      const files = (await projects.bundle(project)).files;
+      res.status(202).json(await tools.quickset.start({
+        name: path.basename(String(filePath)),
+        password,
+        absolute: await files.rawPath(filePath),
+      }));
+      return;
+    }
+    res.status(202).json(await tools.quickset.start({ name: String(name ?? ''), password, located }));
   });
-  router.get('/quickset/:run/inventory', async (req, res) => {
-    res.json(await tools.quickset.inventory(req.params.run));
+  router.put('/quickset/:run/data', async (req, res) => {
+    res.json(await tools.quickset.feed(req.params.run, req));
+  });
+  router.get('/quickset/:run/result', async (req, res) => {
+    res.json(await tools.quickset.result(req.params.run));
   });
   router.post('/quickset/:run/extract', async (req, res) => {
     res.json(await tools.quickset.extract(req.params.run, req.body?.settings));
+  });
+  // The device browser, served so it opens in a browser tab; its per-device
+  // settings load from viewer_data/ beside it.
+  router.get('/quickset/:run/viewer/:file', async (req, res) => {
+    await res.sendFile(await tools.quickset.viewerFile(req.params.run, req.params.file));
+  });
+  router.get('/quickset/:run/viewer/viewer_data/:file', async (req, res) => {
+    await res.sendFile(await tools.quickset.viewerFile(req.params.run, `viewer_data/${req.params.file}`));
   });
 
   // Switch Settings: XML in (upload or project file), editable model out;

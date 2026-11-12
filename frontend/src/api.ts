@@ -10,7 +10,7 @@ import type {
   ProjectItem,
   ProjectTree,
   QuicksetExtract,
-  QuicksetInventory,
+  QuicksetResult,
   AcrtacProjectList,
   SearchResults,
   SwsetGenerateResult,
@@ -506,26 +506,72 @@ export function closeTerminal(sessionId: string): Promise<unknown> {
 
 // --- QuickSet Extract ----------------------------------------------------------
 
-/** Start the database dump job; poll the returned job id, then use the run. */
-export function startQuicksetDump(config: {
-  host: string
-  port?: number
-  dbname: string
-  user: string
-  password: string
-}): Promise<{ job: string; run: string }> {
-  return send('/api/tools/quickset/dump', 'POST', config)
+/** What the backend needs to read a backup from disk: the slice to send. */
+export interface QuicksetLocated {
+  kind: 'zip' | 'dump'
+  range: { start: number; end: number }
+  encrypted?: boolean
+  entry?: unknown
 }
 
-/** Alternative source: an uploaded ZIP of an exported-configs tree. */
-export function uploadQuicksetConfigs(file: File): Promise<{ run: string }> {
-  const form = new FormData()
-  form.append('file', file)
-  return send('/api/tools/quickset/upload', 'POST', form)
+/**
+ * Find DMData.dump inside a backup on disk without sending the file: post
+ * its tail, and any further byte range the backend asks for, until it can
+ * name the slice that holds the dump.
+ */
+export async function locateQuicksetBackup(file: File): Promise<QuicksetLocated> {
+  const ranges: { start: number; end: number }[] = [
+    { start: Math.max(0, file.size - 128 * 1024), end: file.size },
+  ]
+  for (let round = 0; round < 6; round += 1) {
+    const form = new FormData()
+    form.append('name', file.name)
+    form.append('size', String(file.size))
+    for (const r of ranges) form.append('range', file.slice(r.start, r.end), String(r.start))
+    const answer = await send<QuicksetLocated & { need?: { start: number; end: number } }>(
+      '/api/tools/quickset/locate', 'POST', form,
+    )
+    if (!answer.need) return answer
+    ranges.push(answer.need)
+  }
+  throw new Error('could not read the ZIP directory')
 }
 
-export function fetchQuicksetInventory(run: string): Promise<QuicksetInventory> {
-  return get(`/api/tools/quickset/${encodeURIComponent(run)}/inventory`)
+/** Start reading a located backup; then send its slice with sendQuicksetSlice. */
+export function startQuicksetRead(
+  name: string,
+  password: string,
+  located: QuicksetLocated,
+): Promise<{ run: string; job: string }> {
+  return send('/api/tools/quickset/start', 'POST', { name, password, located })
+}
+
+/** Start reading a backup that is a project file (read in place). */
+export function startQuicksetProjectRead(
+  project: string,
+  path: string,
+  password: string,
+): Promise<{ run: string; job: string }> {
+  return send('/api/tools/quickset/start', 'POST', { project, path, password })
+}
+
+/** Stream the located slice of the file to the waiting read. */
+export async function sendQuicksetSlice(run: string, file: File, located: QuicksetLocated): Promise<void> {
+  const res = await fetch(`/api/tools/quickset/${encodeURIComponent(run)}/data`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: file.slice(located.range.start, located.range.end),
+  })
+  await parse(res)
+}
+
+export function fetchQuicksetResult(run: string): Promise<QuicksetResult> {
+  return get(`/api/tools/quickset/${encodeURIComponent(run)}/result`)
+}
+
+/** The run's device browser, opened in the system browser. */
+export function quicksetViewerUrl(run: string): string {
+  return `/api/tools/quickset/${encodeURIComponent(run)}/viewer/viewer.html`
 }
 
 export function extractQuicksetSettings(
@@ -800,7 +846,4 @@ export function parseSwsetProjectFile(project: string, path: string): Promise<Sw
   return send('/api/tools/swset/parse', 'POST', { project, path })
 }
 
-export function importQuicksetProjectConfigs(project: string, path: string): Promise<{ run: string }> {
-  return send('/api/tools/quickset/upload', 'POST', { project, path })
-}
 

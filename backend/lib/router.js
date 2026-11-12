@@ -289,7 +289,9 @@ function createRouter() {
  * took; `onError` shapes failures (default: JSON { error }).
  */
 function createServer(router, { fallback = null } = {}) {
-  return http.createServer(async (req, res) => {
+  // No whole-request deadline (node's default is 5 minutes): the server is
+  // loopback-only, and a tool can stream GBs from a slow drive in one body.
+  return http.createServer({ requestTimeout: 0 }, async (req, res) => {
     decorate(req, res);
     try {
       const url = new URL(req.url ?? '/', 'http://localhost');
