@@ -124,7 +124,7 @@
 
 <h2 id="tempfault">Temporary faults and other non-events</h2>
 <ul>
-<li>Reclose succeeds: no lockout, so the fault never confirms; the feeder sits in ANALYZE until <code>AnalyzeTimeLimit</code>, then clears. Nothing is switched. The fault targets reset after <code>FaultHoldTime</code>.</li>
+<li>Reclose succeeds: no lockout, so the fault never confirms; the feeder sits in ANALYZE until whichever comes first: <code>FaultHoldTime</code> (120 s from when the DAC saw the fault) resets the targets, the relay drops them, and with no conditioned fault left the feeder fault unlatches and ANALYZE ends; or <code>AnalyzeTimeLimit</code> (120 s from the start of ANALYZE) runs out. With Adapter defaults FaultHoldTime wins by about 10 s. Nothing is switched.</li>
 <li>Fault indication with nothing open: latched, no trip, no event.</li>
 <li>Reverse fault at the breaker zone: <code>OffFeeder</code>, no action (bus or adjacent-feeder fault).</li>
 <li>Both directional elements on a device asserting together: the device becomes abnormal (bad fault indication).</li>

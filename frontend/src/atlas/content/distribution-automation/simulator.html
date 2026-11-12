@@ -279,7 +279,7 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 <script>
 (() => {
 /* ------------------------------------------------------------------ model */
-const PULSE = 5, COF = 10, POLL_TO = 10, RETRY = 7;
+const PULSE = 5, COF = 10, POLL_TO = 10;
 const SETTINGS = [
   ['MinimumUpdateTime', 10, 's'], ['UpdateTimeLimit', 120, 's'], ['AnalyzeTimeLimit', 120, 's'], ['ReconfigTimeLimit', 120, 's'],
   ['EventDetectTime', 10, 's'], ['OpenPhaseConfirmTime', 60, 's'], ['OverloadConfirmTime2', 60, 's'], ['FaultHoldTime', 120, 's'],
@@ -288,7 +288,6 @@ const SETTINGS = [
 const LABEL = { RecloseIntervals: 'R1 reclose intervals', PollAnswer: 'Poll answer time', StatusLatency: 'Status report delay', ConnectorMsg: 'Connector message' };
 const SECN = { A0: 'BKR-A–R1', A1: 'R1–R2', A2: 'R2–T1', A3: 'R3–T2', B1: 'T1–R4', B0: 'R4–BKR-B', C1: 'T2–BKR-C' };
 const LOAD0 = { A0: 200, A1: 120, A2: 90, A3: 60, B1: 80, B0: 170, C1: 150 };
-const PORT = { 'BKR-A': 'Port 1', R1: 'Port 1', R2: 'Port 1', R3: 'Port 1', T1: 'Port 2', R4: 'Port 2', 'BKR-B': 'Port 2', 'DG POI': 'Port 3' };
 const FA = ['BKR-A', 'R1', 'R2', 'R3', 'T1'], FB = ['T1', 'R4', 'BKR-B'];
 const W = (text, pou, atlas) => ({ text, pou, atlas });
 const uniq = a => [...new Set(a)];
@@ -337,20 +336,14 @@ function apply(s, p) {
 }
 
 /* --------------------------------------------------------- shared pieces */
+// The Adapter builds 6 comm lines with ConcurrentFirstAttempt TRUE, so the first poll
+// goes to every requested device at once. Only retries queue, one per line.
 function polls(r, S, t0, devs, { silent = [], until = t0 + 300, tag = '' } = {}) {
-  const ports = {}; for (const d of devs) (ports[PORT[d]] ??= []).push(d);
   const ans = {};
-  for (const [p, list] of Object.entries(ports)) {
-    let t = t0, pending = [...list], guard = 0;
-    while (pending.length && t < until && guard++ < 40) {
-      const next = [];
-      for (const d of pending) {
-        if (t >= until) { next.push(d); continue; }
-        if (silent.includes(d)) { const b = Math.min(t + POLL_TO, until); r.span(p, t, b, d + ' · no answer', 'pbad', { info: 'Poll timeout during DA = 10 s. The next device on this port waits.' }); t = b; next.push(d); }
-        else { r.span(p, t, t + S.PollAnswer, d, 'poll', { info: tag || 'Poll answered, WatchdogCount changed' }); t += S.PollAnswer; ans[d] = t; }
-      }
-      pending = next.filter(d => silent.includes(d));
-    }
+  for (const d of devs) {
+    if (silent.includes(d)) {
+      for (let t = t0, guard = 0; t < until && guard++ < 60; t += POLL_TO) r.span('Polls', t, Math.min(t + POLL_TO, until), d + ' · no answer', 'pbad', { info: 'WatchdogCount never changes. While DA_InProgress the comm line gives up after 10 s (PollTimeout 30 s otherwise), counts a failure and polls again.' });
+    } else { r.span('Polls', t0, t0 + S.PollAnswer, d, 'poll', { info: tag || 'Answered: WatchdogCount changed. First attempt is concurrent (ConcurrentFirstAttempt TRUE).' }); ans[d] = t0 + S.PollAnswer; }
   }
   const done = devs.every(d => ans[d] != null) ? Math.max(t0, ...devs.map(d => ans[d])) : Infinity;
   return { done, ans };
@@ -359,17 +352,22 @@ const maxOf = (ans, list) => list.every(d => ans[d] != null) ? Math.max(...list.
 
 function begin(r, t, why) {
   r.flag(t, 'DA_EVENT_Detected'); r.flag(t, 'DA_InProgress');
-  r.log(t, 'DAC-1', 'DAC: Event Detected', 'Asserted · DA_InProgress', why || W('Any feeder with a new event sets DA_EVENT_Detected. DA_InProgress then refuses Reset, suppresses overload detection, pauses open-phase disarm timers and speeds up polling.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
+  r.log(t, 'DAC-1', 'DAC: Event Detected', 'Asserted · DA_InProgress', why || W('Any feeder with a new event sets DA_EVENT_Detected. DA_InProgress then refuses Reset, blocks new overload triggers (and for 30 s after), pauses open-phase disarm timers and cuts the poll retry timeout from PollTimeout (30 s) to 10 s.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
   r.log(t, 'DAC-1', 'WDOG pulses stop', 'Watchdog pulses to field devices pause while DA is in progress', W('The WDOG pulse to field devices is not sent while DA_InProgress is TRUE.', 'OBJ/DA_MANAGER_AR', '§04 Comms & watchdogs'));
 }
 
 // UPDATE for the event feeder plus neighbours inside TransferDepth.
-function updatePhase(r, S, t, own, nbr, { silent = [], ownF = 'A', nbrF = 'B' } = {}) {
+function updatePhase(r, S, t, own, nbr, { silent = [], ownF = 'A', nbrF = 'B', lockAt = Infinity } = {}) {
   const uLim = Math.max(S.UpdateTimeLimit, S.MinimumUpdateTime + 10);
   r.fs(ownF, t, 'UPDATE'); if (nbrF) r.fs(nbrF, t, 'UPDATE');
-  r.log(t, 'DAC-1', 'DAC: Update Step', `Polls to Feeder ${ownF}${nbrF ? ' and Feeder ' + nbrF + ' (inside TransferDepth 2)' : ''}`, W('A new event moves the feeder from IDLE to UPDATE and polls every device on it plus feeders within TransferDepth. Polls go one at a time per communication port.', 'Feeder/FEEDER', '§03 Event sequence'));
+  r.log(t, 'DAC-1', 'DAC: Update Step', `Polls to Feeder ${ownF}${nbrF ? ' and Feeder ' + nbrF + ' (inside TransferDepth 2)' : ''}`, W('A new event moves the feeder from IDLE to UPDATE and requests a poll of every device on it. Feeders within TransferDepth get an update request too and run their own UPDATE. The Adapter polls concurrently on the first attempt, so every device is asked at once.', 'Feeder/FEEDER', '§03 Event sequence'));
   const p = polls(r, S, t, uniq([...own, ...nbr]), { silent, until: t + uLim });
-  const doneOwn = maxOf(p.ans, own);
+  let doneOwn = maxOf(p.ans, own);
+  // A lockout seen while still in UPDATE re-polls the feeder, and UPDATE waits for those answers too.
+  if (lockAt < Math.max(t + S.MinimumUpdateTime, doneOwn)) {
+    const p2 = polls(r, S, lockAt, own.filter(d => !silent.includes(d)), { tag: 'Follow-up poll after lockout' });
+    doneOwn = silent.some(d => own.includes(d)) ? Infinity : Math.max(doneOwn, p2.done);
+  }
   const tA = doneOwn === Infinity ? Infinity : Math.max(t + S.MinimumUpdateTime, doneOwn);
   r.timer('MinimumUpdateTime', t, S.MinimumUpdateTime, undefined, 'min', 'Always adds time: UPDATE cannot end sooner.');
   r.timer('Update timeout', t, uLim, Math.min(tA, t + uLim), 'limit', `MAX(UpdateTimeLimit, MinimumUpdateTime + 10 s) = ${uLim} s`);
@@ -393,8 +391,8 @@ function updateFail(r, S, t0, uLim, dev, f = 'A') {
   r.log(t, 'DAC-1', `${dev}: Update Failed`, 'COMM_ALARM · device abnormal', W('Devices that did not answer get UpdateFailed plus a communication failure and become abnormal. The feeder becomes abnormal.', 'Feeder/Comms/mFEEDER_CheckDeviceUpdateFail', '§04 Comms & watchdogs'), 'bad');
   r.set(t, { dev: { [dev]: { abn: true } } });
   r.tg(t, f, 'AbnormalCondition'); r.tg(t, f, 'Abnormal');
-  r.log(t, 'DAC-1', `Feeder ${f}: Abnormal Condition`, 'Asserted · nothing is restored', W('An update timeout with an event latched sets AbnormalCondition. The sequence ends without a solve.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'), 'bad');
-  endSeq(r, S, t, { ok: false });
+  r.log(t, 'DAC-1', `Feeder ${f}: Abnormal Condition`, 'Asserted · nothing is restored', W('An update timeout with an event latched sets AbnormalCondition and sends the feeder straight back to IDLE. No event was confirmed, so with every feeder idle the manager drops DA_EVENT_Detected and the sequence is over without a solve.', 'Feeder/FEEDER', '§03 Event sequence'), 'bad');
+  endSeq(r, S, t, { ok: false, complete: false });
 }
 
 function confirmFlags(r, t, f, kind, why) {
@@ -405,9 +403,10 @@ function confirmFlags(r, t, f, kind, why) {
 
 function cmd(r, S, t, dev, act, why, { src = 'DAC-1', lane = 'Commands', fails = false } = {}) {
   const A = act === 'open' ? 'Open' : 'Close';
-  r.span(lane, t, t + PULSE, `${dev} ${act.toUpperCase()}`, 'cmd', { info: 'CMD_PULSE = 5 s' });
-  r.set(t, { dev: { [dev]: { cmd: act.toUpperCase() } } }); r.set(t + PULSE, { dev: { [dev]: { cmd: '' } } });
-  r.log(t, src, `${dev}: ${A} Cmd`, 'Asserted · 5 s pulse', why, 'cmd');
+  const pe = t + Math.min(PULSE, S.op + S.StatusLatency);
+  r.span(lane, t, pe, `${dev} ${act.toUpperCase()}`, 'cmd', { info: 'Output = trigger AND NOT feedback AND CMD_PULSE (5 s). It drops as soon as the new status arrives. No feedback: 2 retries 7 s apart, Fail at CMD_TIMEOUT = UpdateTimeLimit.' });
+  r.set(t, { dev: { [dev]: { cmd: act.toUpperCase() } } }); r.set(pe, { dev: { [dev]: { cmd: '' } } });
+  r.log(t, src, `${dev}: ${A} Cmd`, 'Asserted · drops when the status arrives (5 s max)', why, 'cmd');
   if (fails) return Infinity;
   const tp = t + S.op;
   r.set(tp, { dev: { [dev]: { st: act === 'open' ? 'open' : 'closed', lo: false } } });
@@ -427,6 +426,7 @@ function solve(r, S, t, text, why, { src = 'DAC-1' } = {}) {
 function startExec(r, S, t) {
   r.mg(t, 'DA_Reconfiguration'); r.flag(t, 'DA_Reconfiguration');
   r.log(t, 'DAC-1', 'DAC: Reconfigure Step', `ReconfigTimeLimit ${S.ReconfigTimeLimit} s starts`, W('Execution is re-evaluated every scan. Each operation goes out only when the electrical state makes it safe.', 'AutomaticReconfig/ExecuteSolution/class_ExecuteSolution', '§14 Execution'));
+  r.log(t, 'DAC-1', 'Fault latches and feeder events cleared', 'DA_Reconfiguration rising edge', W('On the rising edge of DA_Reconfiguration the manager runs mEQUIPMENT_ClearFault on every device and mFEEDER_ClearEvent on every feeder. It does it again when DA_InProgress falls.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
   return t;
 }
 
@@ -466,22 +466,31 @@ function closeTie(r, S, t0, tie, o) {
   return tk;
 }
 
-function endSeq(r, S, t, { ok = true, feeders = ['A'], flags = [], note = '', reset = [] } = {}) {
+// RESET_CMD pulses on Fault.Reset while the relay still reports its target (STATE = NOT Fault.Raw).
+// The detector raises Fault.Reset once FaultHoldTime has run with the feeder not locked out and not in UPDATE.
+function relayReset(r, S, t, d) {
+  const pe = t + Math.min(PULSE, S.StatusLatency + 0.3);
+  r.span('Commands', t, pe, `${d} RESET`, 'cmd', { info: 'RESET_CMD: drops when the target clears, 5 s max' });
+  r.log(t, 'DAC-1', `${d}: Reset Cmd`, `FaultHoldTime ${S.FaultHoldTime} s expired`, W(`The fault-hold timer runs from when the DAC first saw the fault indication. When it expires with the feeder not locked out and not in UPDATE, Fault.Reset is set and RESET goes to the relay because its target is still up.`, 'Equipment/Fault/EQUIPMENT_FAULT_DETECTOR', '§07 Permanent faults'), 'cmd');
+  r.set(pe, { dev: { [d]: { ft: false } } });
+}
+function endSeq(r, S, t, { ok = true, complete = true, feeders = ['A'], flags = [], note = '', reset = [] } = {}) {
   r.mg(t, 'IDLE'); r.flag(t, 'DA_Reconfiguration', false);
   for (const f of feeders) {
-    if (ok) { r.tg(t, f, 'ReconfigurationComplete'); r.log(t, 'DAC-1', `Feeder ${f}: Reconfiguration Complete`, 'Self-clears after 600 s', W('Every feeder with Reconfiguration.Started gets ReconfigurationComplete on success or RestorationFail on abort, timeout or insufficient capacity.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'), 'ok'); }
+    if (ok) { r.tg(t, f, 'ReconfigurationComplete'); r.log(t, 'DAC-1', `Feeder ${f}: Reconfiguration Complete`, 'Self-clears after 600 s', W('Every feeder with Reconfiguration.Started gets ReconfigurationComplete when execution finishes with everything restored, or RestorationFail on abort, timeout or a capacity-limited solution. Both self-clear after 600 s.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'), 'ok'); }
     for (const fl of flags) { r.tg(t, f, fl); r.log(t, 'DAC-1', `Feeder ${f}: ${fl.replace(/([a-z])([A-Z])/g, '$1 $2')}`, 'Asserted', FLAGWHY[fl] || null, fl === 'RestorationFail' || fl === 'AbnormalCondition' ? 'bad' : 'warn'); }
   }
-  r.flag(t, 'DA_EVENT_Complete'); r.flag(t, 'DA_EVENT_Detected', false); r.flag(t, 'DA_EVENT_Confirmed', false); r.flag(t, 'DA_InProgress', false);
-  r.log(t, 'DAC-1', 'DAC: Sequence End', note || 'DA_EVENT_* cleared · fault latches cleared · WDOG pulses resume', W('When the sequence ends the manager clears DA_EVENT_*, every Restore/Root/Isolation flag, feeder events, and equipment fault latches (pulsing Fault.Reset to relays). Non-restorable flags are also cleared now (new in 105.0.2).', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
-  r.set(t + 0.5, { flags: { DA_EVENT_Complete: false } });
-  for (const d of reset) { r.span('Commands', t, t + PULSE, `${d} RESET`, 'cmd', { info: 'Fault target reset pulse' }); r.log(t, 'DAC-1', `${d}: Reset Cmd`, 'Fault target reset pulse', W('On the end of the sequence, fault latches are cleared and a RESET is pulsed to relays that still show targets.', 'OBJ/DA_MANAGER_AR', '§07 Permanent faults')); r.set(t + 1, { dev: { [d]: { ft: false } } }); }
+  if (complete) r.flag(t, 'DA_EVENT_Complete');
+  r.flag(t, 'DA_EVENT_Detected', false); r.flag(t, 'DA_EVENT_Confirmed', false); r.flag(t, 'DA_InProgress', false);
+  r.log(t, 'DAC-1', 'DAC: Sequence End', note || (complete ? 'DA_EVENT_Complete · DA_EVENT_* cleared · WDOG pulses resume' : 'DA_EVENT_* cleared without DA_EVENT_Complete · WDOG pulses resume'), W(`${complete ? 'Execution finished, so DA_EVENT_Complete pulses for one pass and the manager clears DA_EVENT_*.' : 'DA_EVENT_Complete is set only when an execution finishes. Here the manager simply clears DA_EVENT_* (abort, timeout, or every feeder idle with nothing confirmed).'} Every Restore/Root/Isolation flag is cleared. When DA_InProgress falls, fault latches and feeder events are cleared again and non-restorable flags are reset (new in 105.0.2).`, 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
+  if (complete) r.set(t + 0.5, { flags: { DA_EVENT_Complete: false } });
+  for (const d of reset) relayReset(r, S, Math.max(t, (r.tD ?? t) + S.FaultHoldTime), d);
   r.timer('Overload new-detection suppression', t, 30, undefined, 'min', 'No new overload for 30 s after any DA sequence');
   r.timer('Open-phase re-arm (OPC / 2)', t, S.OpenPhaseConfirmTime / 2, undefined, 'min', 'Every device and PT needs Live1 for OpenPhaseConfirmTime / 2 again before open-phase detection is back');
   if (ok || flags.length) r.log(t + 30, 'DAC-1', 'Email: feeder state', 'Sent once the point has been in alarm for 30 s', W('Each email buffer waits 30 s of continuous alarm before building one email.', 'ADP emailer', '§28 Alarms'));
 }
 const FLAGWHY = {
-  RestorationFail: W('Set at the end of the sequence on every started feeder that was not fully restored: abort, timeout or insufficient capacity. Self-clears after 600 s.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
+  RestorationFail: W('Set on every started feeder instead of ReconfigurationComplete when the sequence aborts or times out, or when the solution leaves load unrestored or below temporary margin (mAR_FindSolution sets RestorationFail with NotEnoughCapacityFound). Self-clears after 600 s.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
   CapacityLimit: W('The chosen solution sheds load or leaves a temporary-limit overload (NotEnoughCapacityFound). The best executable state is still executed even if it restores little.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§24 Caveats #6'),
   AbnormalCondition: W('Waiting for a source, close onto fault, a device that failed to answer the update, or an abnormal device in an RTN.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
   CommandFailure: W('A command was still in progress, with no feedback, when the sequence ended.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'),
@@ -509,26 +518,26 @@ function faultFront(r, S, o) {
   r.span('Protection', tLO, null, `${trip} locked out`, 'lo');
 
   const tD = 0.1 + S.StatusLatency;
+  r.tD = tD;
   r.log(tD, 'DAC-1', `${trip}: FaultLatch`, `Asserted · ${trip} open with fault present → TripNew`, W(`A fault is an event only when a device that saw it is open or locked out. The latched fault plus the open ${trip} fires TripNew once. The DAC learns of it ${f1(S.StatusLatency)} s after the trip.`, 'Feeder/Event/Fault/class_Fault.Detect', '§07 Permanent faults'));
   begin(r, tD);
   if (shots.length) r.log(tD + 0.1, 'DAC-1', `${trip}: reclose in progress (inferred)`, 'Opened within 10 s with a fault present', W('Reclose in progress is inferred: the device opened in the last 10 s with a fault. An open device with reclose in progress counts as tripped and locked out for fault location.', 'Feeder/Event/Fault/class_Fault', '§07 Permanent faults'));
-  const up = updatePhase(r, S, tD, own, nbr, { silent, nbrF: nbr.length ? 'B' : null });
+  const tLk = tLO + S.StatusLatency;
+  const up = updatePhase(r, S, tD, own, nbr, { silent, nbrF: nbr.length ? 'B' : null, lockAt: tLk });
   if (up.tA === Infinity) { updateFail(r, S, tD, up.uLim, silent[0]); return null; }
   const tA = up.tA;
   r.log(tA + 0.1, 'DAC-1', `Feeder A: fault located ${SECN[o.locSec || sec]}`, 'Unresolved until a lockout is found', W(`The fault is placed below the deepest device that saw fault current (${o.deep || saw[saw.length - 1]}) and above the first device downstream that did not. It stays unresolved, so the feeder cannot leave ANALYZE, until an upstream lockout is seen.`, 'Feeder/Event/Fault/class_Fault.prv_Confirm', '§07 Permanent faults'));
-  const tLk = tLO + S.StatusLatency;
   if (tLk > tA + S.AnalyzeTimeLimit) {
     r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Feeder leaves ANALYZE and clears the event if nothing confirms');
     const t = tA + S.AnalyzeTimeLimit;
     r.fs('A', t, 'IDLE');
     r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · no action', W(`The lockout arrived at t+${f1(tLk)}, after ANALYZE gave up at t+${f1(t)}. The last reclose shot finished too late for AnalyzeTimeLimit = ${S.AnalyzeTimeLimit} s.`, 'Feeder/FEEDER', '§26 Timing'), 'bad');
-    endSeq(r, S, t, { ok: false, note: 'Nothing switched. R1 stays locked out.' });
+    endSeq(r, S, t, { ok: false, complete: false, note: 'Nothing switched. R1 stays locked out.' });
     return null;
   }
-  const tLL = Math.max(tLk, tA);
-  r.log(tLL, 'DAC-1', `${trip}: Lockout`, tLk < tA ? 'Already locked out when ANALYZE started' : 'Asserted · LockoutLatched', W(`class_Lockout.Confirm finds a device that saw the fault, has reclosing, and is in lockout. That sets LockoutLatched and polls the feeder again for fresh data.${shots.length === 0 ? ' A single-shot device is already locked out, so MinimumUpdateTime is what sets the pace here.' : ''}`, 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
-  const p2 = polls(r, S, tLL, own, { tag: 'Follow-up poll after lockout' });
-  const tC = p2.done;
+  const early = tLk < tA;
+  r.log(tLk, 'DAC-1', `${trip}: Lockout`, early ? 'LockoutLatched during UPDATE · feeder re-polled' : 'Asserted · LockoutLatched · feeder re-polled', W(`class_Lockout.Confirm finds a device that saw the fault, has reclosing, and reports lockout. That sets LockoutLatched and calls mFEEDER_PollDevices once, at that moment, so confirmation uses fresh data. RepollAfterLockout (Adapter default FALSE) would add a second poll that also covers the neighbour feeders.${early ? ' The lockout arrived while UPDATE was still running, so UPDATE also waited for this poll and MinimumUpdateTime set the pace.' : ''}`, 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
+  const tC = early ? tA : polls(r, S, tLk, own, { tag: 'Follow-up poll after lockout' }).done;
   r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, tC, 'limit', 'Feeder leaves ANALYZE and clears the event if nothing confirms');
   confirmFlags(r, tC, 'A', 'Fault', W('Confirmed: lockout latched AND every device on the feeder answered the follow-up poll.', 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
   r.log(tC, 'DAC-1', 'DAC: Permanent Fault', 'Asserted', null);
@@ -569,24 +578,24 @@ sc('perm', 'Permanent fault', '≈40 s', [
     r.log(tk, 'DAC-1', 'T1: Close On Fault', 'Latched · T1 abnormal, no further closes', W('Inside the 10 s window after the close, Feeder B saw a new trip. CloseOnFault latches on T1, makes it abnormal, blocks CLOSE outputs, and aborts the sequence. It clears only on a feeder or system reset.', 'Equipment/EQUIPMENT', '§07 Permanent faults'), 'bad');
     r.set(tk, { dev: { T1: { abn: true } } });
     r.log(tk + 0.1, 'Field', 'Feeder B now has its own fault event', 'Its reclose sequence runs. Not followed further here.');
-    endSeq(r, S, tk + 0.2, { ok: false, flags: ['AbnormalCondition', 'RestorationFail'] });
+    endSeq(r, S, tk + 0.2, { ok: false, complete: false, flags: ['AbnormalCondition', 'RestorationFail'] });
     r.focus = tk;
     return r;
   }
   if (res === Infinity) {
     const t = ts + S.ReconfigTimeLimit;
     r.log(t, 'DAC-1', 'DAC: Reconfigure Step Timeout', 'ReconfigureStepTimeout · ExecutionFailure', W(`Execution did not finish inside ReconfigTimeLimit = ${S.ReconfigTimeLimit} s. The sequence aborts.`, 'OBJ/DA_MANAGER_AR', '§26 Timing'), 'bad');
-    endSeq(r, S, t, { ok: false, flags: ['RestorationFail'], reset: ['R1'] });
+    endSeq(r, S, t, { ok: false, complete: false, flags: ['RestorationFail'], reset: ['R1'] });
     r.focus = t;
     return r;
   }
   endSeq(r, S, res, { reset: ['R1'] });
-  r.timer('FaultHoldTime (relay target reset)', fr.tD, S.FaultHoldTime, Math.min(res, fr.tD + S.FaultHoldTime), 'limit', 'The sequence end cleared the targets first');
+  r.timer('FaultHoldTime (relay target reset)', fr.tD, S.FaultHoldTime, undefined, 'limit', 'Runs from when the DAC first saw the fault. RESET can go out once it expires and the feeder is no longer locked out.');
   r.focus = tC + 2;
   return r;
 });
 
-sc('temp', 'Temporary fault', '≈130 s', [], (S) => {
+sc('temp', 'Temporary fault', '≈125 s', [], (S) => {
   const r = new Run();
   r.set(0, { fault: { A1: true } }); r.log(0, 'Field', 'Fault in A1 (R1–R2)', 'Temporary');
   r.set(0.1, { dev: { R1: { st: 'open', ft: true } } }); r.log(0.1, 'Field', 'R1 trips', 'Fault current');
@@ -603,16 +612,25 @@ sc('temp', 'Temporary fault', '≈130 s', [], (S) => {
   const tRe = rc + 2 * S.EventDetectTime;
   r.timer('Reclose-in-progress reset (2 × EventDetectTime)', rc, 2 * S.EventDetectTime, undefined, 'min', 'Ends when the device has been closed again for 2 × EventDetectTime');
   r.log(tRe, 'DAC-1', 'R1: reclose in progress ends', `Closed for 2 × EventDetectTime = ${2 * S.EventDetectTime} s`, W('Reclose in progress ends on lockout or when the device has been closed again for 2 × EventDetectTime.', 'Feeder/Event/Fault/class_Fault', '§07 Permanent faults'));
+  r.tD = tD;
   const tX = tA + S.AnalyzeTimeLimit;
-  r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Nothing confirms, so this limit is what ends the event');
-  r.fs('A', tX, 'IDLE');
-  r.log(tX, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · nothing switched', W(`No lockout ever arrives. The feeder sits in ANALYZE for the full AnalyzeTimeLimit (${S.AnalyzeTimeLimit} s) and then clears the event.`, 'Feeder/FEEDER', '§26 Timing'), 'ok');
-  endSeq(r, S, tX, { ok: false, note: 'No operation. DA_InProgress held for the whole ANALYZE window.' });
   const tF = tD + S.FaultHoldTime;
-  r.timer('FaultHoldTime', tD, S.FaultHoldTime, undefined, 'limit', 'RESET to the relay only when the feeder is not locked out and not in UPDATE');
-  r.span('Commands', tF, tF + PULSE, 'R1 RESET', 'cmd');
-  r.log(tF, 'DAC-1', 'R1: Reset Cmd', `Fault target reset after FaultHoldTime ${S.FaultHoldTime} s`, W('After FaultHoldTime the DAC sends a fault-target RESET to the relay, provided the feeder is not locked out and not in UPDATE.', 'Equipment/Fault/EQUIPMENT_FAULT_DETECTOR', '§07 Permanent faults'), 'cmd');
-  r.set(tF + 1, { dev: { R1: { ft: false } } });
+  r.timer('FaultHoldTime', tD, S.FaultHoldTime, undefined, 'limit', 'Fault.Reset when it expires, if the feeder is not locked out and not in UPDATE');
+  const tClr = Math.max(tF, tA) + S.StatusLatency;
+  if (tClr < tX) {
+    r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, tClr, 'limit', 'FaultHoldTime runs out first and ends the event');
+    relayReset(r, S, Math.max(tF, tA), 'R1');
+    r.log(tClr, 'DAC-1', 'R1: fault indication cleared', 'Fault.Conditioned FALSE', W(`The relay dropped its target after the RESET. Fault.Conditioned and Fault.Latched on R1 go FALSE, so class_Fault.Detect sees no conditioned fault on the feeder and unlatches the feeder fault.`, 'Equipment/Fault/mEQUIPMENT_ConditionFault', '§07 Permanent faults'));
+    r.fs('A', tClr, 'IDLE');
+    r.log(tClr, 'DAC-1', 'Feeder A: ANALYZE ends', 'No event latched any more', W(`FaultHoldTime (${S.FaultHoldTime} s from t+${f1(tD)}) expired before AnalyzeTimeLimit (${S.AnalyzeTimeLimit} s from t+${f1(tA)}). With no event latched the feeder leaves ANALYZE without confirming anything.`, 'Feeder/FEEDER', '§26 Timing'), 'ok');
+    endSeq(r, S, tClr, { ok: false, complete: false, note: 'No operation. Every feeder idle with nothing confirmed.' });
+  } else {
+    r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Nothing confirms, so this limit is what ends the event');
+    r.fs('A', tX, 'IDLE');
+    r.log(tX, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · nothing switched', W(`No lockout ever arrives. The feeder sits in ANALYZE for the full AnalyzeTimeLimit (${S.AnalyzeTimeLimit} s), clears the event and returns to IDLE.`, 'Feeder/FEEDER', '§26 Timing'), 'ok');
+    endSeq(r, S, tX, { ok: false, complete: false, note: 'No operation. DA_InProgress held for the whole ANALYZE window.' });
+    relayReset(r, S, Math.max(tF, tA), 'R1');
+  }
   r.focus = tA + 20;
   return r;
 });
@@ -635,7 +653,7 @@ sc('op', 'Open phase', '≈80 s', [
   if (tC > up.tA + S.AnalyzeTimeLimit) {
     const t = up.tA + S.AnalyzeTimeLimit; r.fs('A', t, 'IDLE');
     r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Open phase never confirmed', W('OpenPhaseConfirmTime is longer than what remains of AnalyzeTimeLimit, so ANALYZE gives up first.', 'Feeder/FEEDER', '§26 Timing'), 'bad');
-    endSeq(r, S, t, { ok: false }); return r;
+    endSeq(r, S, t, { ok: false, complete: false }); return r;
   }
   confirmFlags(r, tC, 'A', 'OpenPhase', W(`Still dead after OpenPhaseConfirmTime. The location is R1: its upstream path is live and its node is dead. BKR-A sits between the source and R1, so the switch depth is 1. That makes it an open phase, not a loss of source.`, 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'));
   r.fs('A', tC, 'IDLE');
@@ -703,14 +721,14 @@ sc('src', 'Source event', '≈20 s', [
   const tD = S.StatusLatency;
   r.log(tD, 'DAC-1', 'Feeder A: Source Event', 'Rising edge from BankLockout', W('DA_XFMR_MAIN_BUS raises SourceEvent on every feeder breaker on the bus. It is accepted because the feeder is armed and allowed to isolate. There is no 10 s detection delay and no 60 s confirm, unlike loss of source.', 'ADP/DA_XFMR_MAIN_BUS', '§09 Source events'), 'warn');
   begin(r, tD);
-  r.log(tD + 0.1, 'DAC-1', 'Open-phase detector blocked', 'DA analysis in progress', W('Fault activity, DA analysis or execution blocks open-phase and LOS detection for 10 s after it clears, so the dead feeder does not raise a second LOS event.', 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'));
+  r.log(tD + 0.1, 'DAC-1', 'Open-phase detector disarmed', 'SourceEvent.Latched', W('A latched source event (like a tripped fault or a confirmed event) disarms open-phase and LOS detection on the feeder and sends Disarm to its devices and PTs, so the dead feeder does not raise a second LOS event. DA_Analyze and DA_Reconfiguration also block detection, for 10 s after they clear.', 'Feeder/Voltage/FEEDER_DetectOpenPhase', '§08 Open phase & LOS'));
   const up = updatePhase(r, S, tD, FA, FB);
   const tC = up.tA;
   confirmFlags(r, tC, 'A', 'SourceEvent', W('A source event is confirmed as soon as the feeder reaches ANALYZE, after the update poll.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events'));
   r.fs('A', tC, 'IDLE');
-  const tB = cmd(r, S, tC, 'BKR-A', 'open', W('The first switching device of the feeder is the isolation point and is opened immediately. A feeder with a latched source event is never used as an alternate.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events'));
-  let tIso = tB;
-  if (o.zone) tIso = Math.max(tIso, cmd(r, S, tC + 0.05, 'R1', 'open', W('IsolateBreakerZone: the breaker zone, from the breaker to the first downstream switches, is isolated and left dead.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events')));
+  let tIso = o.zone
+    ? cmd(r, S, tC, 'R1', 'open', W('IsolateBreakerZone: the search starts past the breaker (EvaluateFirstEquip FALSE), so the first switch downstream is the isolation point and opens immediately. BKR-A is not commanded. The breaker zone BKR-A–R1 is left dead.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events'))
+    : cmd(r, S, tC, 'BKR-A', 'open', W('The first switching device of the feeder is the isolation point and is opened immediately. A feeder with a latched source event is never used as an alternate.', 'Feeder/Event/Source/class_SourceEvent', '§09 Source events'));
   const full = o.zone ? 270 : 470;
   const fits = +o.margin >= full;
   const part = !fits && !o.zone;
@@ -723,7 +741,7 @@ sc('src', 'Source event', '≈20 s', [
   return r;
 });
 
-sc('ovl', 'Overload', '≈85 s', [
+sc('ovl', 'Overload', '≈80 s', [
   ['en', 'EnableOverloadDetection', 'check', true],
   ['con', 'DA_CONNECTOR in service', 'check', false],
   ['grp', 'Feeder B source group', 'select', 'same', [['same', 'Same as A'], ['diff', 'Different']]],
@@ -743,19 +761,28 @@ sc('ovl', 'Overload', '≈85 s', [
   r.tg(tDet, 'A', 'OverloadWarning');
   const oc2 = S.OverloadConfirmTime2;
   r.timer('OverloadConfirmTime2 (L2)', tDet, oc2, undefined, 'min', 'L2 confirmation');
-  const lead = oc2 <= 60 ? 2 : 60;
-  const tNew = tDet + oc2 - lead;
-  r.log(tNew, 'DAC-1', 'Feeder A: Overload.New', `${lead} s before the L2 confirm timer runs out`, W('Overload.New, the trigger into UPDATE, fires 60 s before a confirm timer expires, or 2 s before if the confirm time is 60 s or less. That way the data is fresh when it confirms.', 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'));
+  const lag = oc2 > 60 ? oc2 - 60 : 2;
+  const tNew = tDet + lag;
+  r.timer('Overload update timer (L2)', tDet, lag, undefined, 'min', oc2 > 60 ? 'OverloadConfirmTime2 − 60 s' : 'Fixed 2 s because OverloadConfirmTime2 is 60 s or less');
+  r.log(tNew, 'DAC-1', 'Feeder A: Overload.New', `${lag} s after detection`, W(`Overload.New, the trigger into UPDATE, fires when an update timer runs out. Its preset is the confirm time minus 60 s, or a fixed 2 s when the confirm time is 60 s or less. With OverloadConfirmTime2 = ${oc2} s that is ${lag} s after detection${oc2 > 60 ? ', 60 s before the confirm timer' : ', so the feeder then waits in ANALYZE for the confirm timer'}. New triggers are blocked while DA_InProgress and for 30 s after.`, 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'));
   begin(r, tNew);
   const up = updatePhase(r, S, tNew, FA, FB);
   const tC = Math.max(up.tA, tDet + oc2);
+  if (tC > up.tA + S.AnalyzeTimeLimit) {
+    const t = up.tA + S.AnalyzeTimeLimit; r.fs('A', t, 'IDLE');
+    r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, undefined, 'limit', '');
+    r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Overload never confirmed', W('The confirm timer runs out later than AnalyzeTimeLimit allows, so ANALYZE gives up first.', 'Feeder/FEEDER', '§26 Timing'), 'bad');
+    endSeq(r, S, t, { ok: false, complete: false }); r.focus = tNew; return r;
+  }
+  r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, tC, 'limit', 'Overload must confirm inside ANALYZE');
   r.timer('OverloadConfirmTime1 (L1)', tDet, 300, tC, 'limit', 'L1 confirmation, 5 min. L2 confirmed first.');
   confirmFlags(r, tC, 'A', 'Overload', W(`The L2 timer ran out at t+${f1(tDet + oc2)} and the feeder is in ANALYZE, so it confirms. The feeder source becomes a root, the whole feeder gets restore flags, and without shed it is flagged MatchSourceGroup: only same-group alternates, closed transition.`, 'Feeder/Event/Overload/mFEEDER_ConfirmOverload', '§10 Overload'));
   r.fs('A', tC, 'IDLE');
   if (o.grp === 'diff') {
     const ts = solve(r, S, tC + 0.2, 'No same-source-group alternate', W('MatchSourceGroup: the load is live, so the transfer must be closed transition, and that needs both sides in the same source group. Feeder B is in another group.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
     endSeq(r, S, ts, { ok: false, flags: ['CapacityLimit'], note: 'Nothing switched. Overload remains.' });
-    r.log(tC + 120, 'DAC-1', 'Feeder A: Overload.New again', '120 s after confirmation, still overloaded', W('Overload.New fires again 120 s after confirmation if the overload is still there and nothing is in progress.', 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'), 'warn');
+    r.timer('Overload re-check (UpdateTimer3)', ts, 120, undefined, 'min', 'Starts once DA_InProgress falls while a confirm timer is still timed out');
+    r.log(ts + 120, 'DAC-1', 'Feeder A: Overload.New again', '120 s after the sequence ended, still overloaded', W('While a confirm timer stays timed out, UpdateTimer3 starts as soon as no DA sequence is in progress and fires Overload.New 120 s later. This trigger is not held off by the 30 s new-overload suppression.', 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'), 'warn');
     r.focus = tC + 1; return r;
   }
   const ts = solve(r, S, tC + 0.2, 'Close T1 (closed transition) · then open R1 · move 270 A to B', W('The solver treats an overloaded root feeder as if its temporary margin were its normal margin. That drives the solution back under the normal rating: moving R1 and beyond leaves 380 A on BKR-A.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
@@ -793,7 +820,7 @@ sc('con', 'Connector restore', '≈55 s', [
   const tRe = tD + M;
   r.log(tRe, 'DAC-2', 'Feeder C: Remote Event', 'Detected from the connector', W('The connector sets RemoteEvent.Detected on the local feeder when the partner reports an event on the shared circuit, after the connector has been head or tail for 10 s.', 'Feeder/Event/Remote/class_RemoteEvent', '§11 Remote events'), 'dac2');
   r.fs('C', tRe, 'UPDATE');
-  r.span('DAC-2 polls', tRe, tRe + 3 * S.PollAnswer, 'T2, BKR-C', 'poll');
+  r.span('DAC-2 polls', tRe, tRe + S.PollAnswer, 'T2', 'poll'); r.span('DAC-2 polls', tRe, tRe + S.PollAnswer, 'BKR-C', 'poll');
   r.fs('C', tRe + S.MinimumUpdateTime, 'ANALYZE');
   r.timer('DAC-2 MinimumUpdateTime', tRe, S.MinimumUpdateTime, undefined, 'min', '');
   r.span('Collab · DAC-1', tRe, tC + M, 'InitialUpdate', 'col');
@@ -1039,7 +1066,7 @@ function drawDiagram(s) {
 }
 
 /* ------------------------------------------------------------- timeline */
-const LANES = ['Protection', 'Feeder A', 'Feeder B', 'Feeder C · DAC-2', 'Manager', 'Collab · DAC-1', 'Connector msgs', 'Collab · DAC-2', 'Timers', 'Execution', 'Commands', 'DAC-2 cmds', 'Port 1', 'Port 2', 'Port 3', 'DAC-2 polls'];
+const LANES = ['Protection', 'Feeder A', 'Feeder B', 'Feeder C · DAC-2', 'Manager', 'Collab · DAC-1', 'Connector msgs', 'Collab · DAC-2', 'Timers', 'Execution', 'Commands', 'DAC-2 cmds', 'Polls', 'DAC-2 polls'];
 const TONE = {
   trip: ['var(--bad-tint)', 'var(--bad-ink)'], lo: ['var(--bad-tint)', 'var(--bad-ink)'],
   'st-UPDATE': ['var(--sa-tint)', 'var(--sa)'], 'st-ANALYZE': ['var(--sa)', 'var(--card)'],

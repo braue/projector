@@ -58,7 +58,7 @@
 <p class="why">Why: the fault lies between the deepest device that saw fault (R1) and the first that did not (R2).</p></div></div>
 
 <div class="scen"><h3>Temporary fault (reclose succeeds)</h3><div class="b">
-<p><b>DAC:</b> UPDATE then ANALYZE, but no lockout is ever found, so the fault stays unresolved until <code>AnalyzeTimeLimit</code>; then the event clears. No switching. Relay targets are reset after <code>FaultHoldTime</code>.</p></div></div>
+<p><b>DAC:</b> UPDATE then ANALYZE, but no lockout is ever found, so the fault stays unresolved. The event clears at whichever comes first: <code>FaultHoldTime</code> (120 s from when the DAC saw the fault) resets the targets, the relay drops them, and with no conditioned fault left the feeder fault unlatches and ANALYZE ends; or <code>AnalyzeTimeLimit</code> (120 s from the start of ANALYZE) runs out. With Adapter defaults FaultHoldTime wins by about 10 s. No switching.</p></div></div>
 
 <div class="scen"><h3>Fault beyond the last DA device on the feeder</h3><div class="b">
 <p>Last recloser RL sees fault and locks out; nothing is downstream of it in the model.</p>

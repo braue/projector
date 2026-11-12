@@ -64,7 +64,7 @@
 <tr><th>Stage</th><th>Starts when</th><th>Minimum added by the DAC</th><th>Limit (what fires if exceeded)</th></tr>
 <tr><td>Detection</td><td>A latched fault coincides with an open or locked-out device (TripNew). For open phase: dead section for <code>EventDetectTime</code>.</td><td class="num">0 s (fault) · 10 s (open phase)</td><td>—</td></tr>
 <tr><td>UPDATE</td><td>Event detected. Feeder and neighbours within <code>TransferDepth</code> are polled.</td><td class="num">10 s (<code>MinimumUpdateTime</code>)</td><td>MAX(<code>UpdateTimeLimit</code>, MinimumUpdate + 10 s) = 120 s → <code>UpdateStepTimeout</code>, AbnormalCondition, non-responders abnormal</td></tr>
-<tr><td>ANALYZE: waiting for lockout</td><td>Feeder in ANALYZE with the fault latched</td><td class="num">0 s (but waits for the last reclose shot)</td><td><code>AnalyzeTimeLimit</code> 120 s → feeder clears the event. A temporary fault ends here.</td></tr>
+<tr><td>ANALYZE: waiting for lockout</td><td>Feeder in ANALYZE with the fault latched</td><td class="num">0 s (but waits for the last reclose shot)</td><td><code>AnalyzeTimeLimit</code> 120 s → feeder clears the event. A temporary fault usually ends earlier, when the FaultHoldTime reset clears the fault indication (§07).</td></tr>
 <tr><td>ANALYZE: confirmation</td><td>Lockout latched. The feeder is polled again.</td><td class="num">Until every device answers</td><td>Same 120 s → <code>AnalyzeStepTimeout</code>. Scheme-level limit is 3 × 120 s = 360 s.</td></tr>
 <tr><td>Open-phase / LOS confirmation</td><td>Open phase latched</td><td class="num">60 s (<code>OpenPhaseConfirmTime</code>)</td><td>Needs to be confirmed inside ANALYZE (120 s). LOS with <code>LossOfSourceRestoreTime</code> &gt; 0 also waits for the operator.</td></tr>
 <tr><td>Immediate isolation</td><td>Fault confirmed. Load-break isolation points get OPEN.</td><td class="num">0 s, then a 5 s command pulse</td><td><code>CMD_TIMEOUT</code> = <code>UpdateTimeLimit</code> (120 s Adapter) → <code>CMD_TIMEOUT</code> on the device, <code>CommandFailure</code></td></tr>
@@ -79,7 +79,7 @@
 
 <h2 id="timing-comms">Communication latency, the hidden term</h2>
 <ul>
-<li><b>Polls during an event:</b> one poll at a time per communication port. A poll that gets no answer times out after 10 s while DA is in progress (30 s otherwise) before the next device on that port is asked. Several silent devices on one port therefore add 10 s each to UPDATE. <span class="src">Communications/DA_COM_LINE</span></li>
+<li><b>Polls during an event:</b> with the Adapter defaults (<code>ConcurrentFirstAttempt</code> TRUE) the first poll goes to every device at once, so UPDATE normally lasts MinimumUpdateTime. A device that does not answer times out after 10 s while DA is in progress (30 s otherwise) and is re-polled from the line's queue, one retry at a time. Several silent devices on one line take 10 s turns each. A device that never answers holds UPDATE to its limit. <span class="src">Communications/DA_COM_LINE</span></li>
 <li><b>Freshness:</b> a device counts as "updated" only when its <code>WatchdogCount</code> changes after the poll request (<a href="atlas:distribution-automation/dac-foundations/comms.html">§04</a>). A relay that answers without incrementing the counter looks silent.</li>
 <li><b>Command feedback:</b> a command pulse is 5 s. If the status hasn't changed by the time the 7 s retry timer runs out, a second pulse goes out, then a third. Feedback arrives however the RTAC's DNP client normally gets data. The DAC doesn't trigger a check poll (<code>CHECK_POLL</code> = FALSE).</li>
 <li><b>Connectors:</b> polled immediately (no queue). Their watchdog limit is the connector's own <code>UpdateTimeLimit</code> (10 s).</li>
@@ -92,7 +92,7 @@
 <tr><td>Permanent fault, one isolation open, one tie close</td><td class="num">≈ 40–45 s</td><td>≈ 27 s reclosing, ≈ 3 s confirmation, ≈ 3 s isolation feedback, ≈ 5 s settings group, ≈ 3 s close feedback</td></tr>
 <tr><td>Permanent fault, breaker with a single shot</td><td class="num">≈ 20–25 s</td><td><code>MinimumUpdateTime</code> 10 s dominates; lockout is already there when ANALYZE starts</td></tr>
 <tr><td>Open phase or loss of source (automatic)</td><td class="num">≈ 75–85 s</td><td>10 s detection + 60 s confirmation + switching</td></tr>
-<tr><td>Temporary fault</td><td class="num">No operation</td><td>Feeder sits in ANALYZE up to 120 s and then clears</td></tr>
+<tr><td>Temporary fault</td><td class="num">No operation</td><td>Feeder sits in ANALYZE until the FaultHoldTime target reset (≈ 122 s after the trip with defaults) or AnalyzeTimeLimit, whichever is first</td></tr>
 </table></div>
 
 <h2 id="timing-stalls">Reading a stall</h2>
