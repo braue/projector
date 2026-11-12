@@ -34,6 +34,7 @@ import { useContentSearch } from './lib/contentSearch'
 import { findLeafFor, isPdfFile, isTextFile, refLabel, type FileLeaf } from './lib/fileNodes'
 import { formatSize, formatStamp, formatWhen } from './lib/format'
 import { useJobs } from './lib/jobs'
+import { useMarginWidth } from './lib/usePaneWidth'
 import { reloadProjects, useProjectList } from './lib/projectList'
 import { useTodos } from './lib/todos'
 import { useAction } from './lib/useAction'
@@ -347,11 +348,7 @@ export default function App() {
             </nav>
           )
           return project === null ? (
-            <aside className="sources">
-              {head}
-              <div className="source-scroll" />
-              {foot}
-            </aside>
+            <EmptyMargin head={head} foot={foot} />
           ) : (
             <ProjectTree
               project={project}
@@ -466,6 +463,21 @@ export default function App() {
         )}
       </div>
     </>
+  )
+}
+
+/** The margin with no project open: the same width (and floor) as the
+ *  project tree's, so the pane links never spill past its edge. */
+function EmptyMargin({ head, foot }: { head: React.ReactNode; foot: React.ReactNode }) {
+  const aside = useRef<HTMLElement>(null)
+  const { width, startResize } = useMarginWidth(aside)
+  return (
+    <aside ref={aside} className="sources" style={{ width }}>
+      <div className="sidebar-resize" onMouseDown={startResize} title="Drag to resize" />
+      {head}
+      <div className="source-scroll" />
+      {foot}
+    </aside>
   )
 }
 

@@ -49,6 +49,25 @@ function usePaneWidth(key: string, { min, max, fallback }: PaneConfig, floor?: (
     const need = floorWidth()
     if (need > width) setWidth(Math.min(need, max))
   })
+  // The row can grow without a render: the web font swaps in after the
+  // first layout (Windows' fallback is narrower, so the row then overflows
+  // the pane), or a count chip appears inside a link. Watch for both.
+  useEffect(() => {
+    const row = floor?.()
+    if (!row) return
+    const grow = () => {
+      const need = floorWidth()
+      setWidth((current) => (need > current ? Math.min(need, max) : current))
+    }
+    const observer = new ResizeObserver(grow)
+    for (const item of row.children) observer.observe(item)
+    document.fonts?.addEventListener('loadingdone', grow)
+    document.fonts?.ready.then(grow)
+    return () => {
+      observer.disconnect()
+      document.fonts?.removeEventListener('loadingdone', grow)
+    }
+  }, [floor, floorWidth, max])
 
   /** Mousedown handler for the pane's right-edge grip. */
   const startResize = useCallback(
