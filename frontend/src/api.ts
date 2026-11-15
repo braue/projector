@@ -1,5 +1,6 @@
 import type {
   AggregateResult,
+  DacInitLookup,
   ArtifactProfile,
   CompareItem,
   CompareTree,
@@ -614,11 +615,18 @@ export function generateDacInit(project: string, payload: {
   reclosers: unknown[]
   transformers: unknown[]
   feedersBreakers: unknown[]
+  connectors: unknown[]
   /** Identifiers already in the project whose init blocks should be
    *  regenerated in place; anything left out is reported as a conflict. */
   overwrite: string[]
 }): Promise<{ job: string; run: string }> {
   return send('/api/tools/dacinit/generate', 'POST', { project, ...payload })
+}
+
+/** The reclosers a DAC .rtac already initializes — the form prefills an
+ *  existing one's capacity and switch mode, and generate updates it in place. */
+export function lookupDacInit(project: string, path: string): Promise<DacInitLookup> {
+  return send('/api/tools/dacinit/lookup', 'POST', { project, path })
 }
 
 /** Land the run's modified project as a new version of the source .rtac entry. */

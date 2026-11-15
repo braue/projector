@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RTACModule>
+  <TagList>
+    <ExportSource>
+      <Schema>38</Schema>
+      <DeviceMOT>3555</DeviceMOT>
+    </ExportSource>
+    <Name>Fault_Data</Name>
+    <TagListType>Virtual</TagListType>
+    <SettingPages>
+      <SettingPage>
+        <Name>Inputs</Name>
+        <Commands>
+          <AddItems>
+            <Quantity>4</Quantity>
+          </AddItems>
+        </Commands>
+        <Row>
+          <Setting>
+            <Column>Enable</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Name</Column>
+            <Value>Fault_Data.SEL_651R2_6315_IA_FAULT_CURRENT</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Type</Column>
+            <Value>MV</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Alias</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Status Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Inst Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Deadband</Column>
+            <Value>100</Value>
+          </Setting>
+          <Setting>
+            <Column>Zero Deadband</Column>
+            <Value>2</Value>
+          </Setting>
+          <Setting>
+            <Column>Max Value</Column>
+            <Value>1e+37</Value>
+          </Setting>
+          <Setting>
+            <Column>H H Limit</Column>
+            <Value>1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>H Limit</Column>
+            <Value>1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L Limit</Column>
+            <Value>-1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L L Limit</Column>
+            <Value>-1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>Min Value</Column>
+            <Value>-1e+37</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Inst Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Actual Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Frozen Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>String Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Enable</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Name</Column>
+            <Value>Fault_Data.SEL_651R2_6315_IB_FAULT_CURRENT</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Type</Column>
+            <Value>MV</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Alias</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Status Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Inst Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Deadband</Column>
+            <Value>100</Value>
+          </Setting>
+          <Setting>
+            <Column>Zero Deadband</Column>
+            <Value>2</Value>
+          </Setting>
+          <Setting>
+            <Column>Max Value</Column>
+            <Value>1e+37</Value>
+          </Setting>
+          <Setting>
+            <Column>H H Limit</Column>
+            <Value>1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>H Limit</Column>
+            <Value>1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L Limit</Column>
+            <Value>-1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L L Limit</Column>
+            <Value>-1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>Min Value</Column>
+            <Value>-1e+37</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Inst Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Actual Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Frozen Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>String Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Enable</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Name</Column>
+            <Value>Fault_Data.SEL_651R2_6315_IC_FAULT_CURRENT</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Type</Column>
+            <Value>MV</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Alias</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Status Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Inst Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Deadband</Column>
+            <Value>100</Value>
+          </Setting>
+          <Setting>
+            <Column>Zero Deadband</Column>
+            <Value>2</Value>
+          </Setting>
+          <Setting>
+            <Column>Max Value</Column>
+            <Value>1e+37</Value>
+          </Setting>
+          <Setting>
+            <Column>H H Limit</Column>
+            <Value>1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>H Limit</Column>
+            <Value>1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L Limit</Column>
+            <Value>-1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L L Limit</Column>
+            <Value>-1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>Min Value</Column>
+            <Value>-1e+37</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Inst Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Actual Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Frozen Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>String Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+        <Row>
+          <Setting>
+            <Column>Enable</Column>
+            <Value>True</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Name</Column>
+            <Value>Fault_Data.SEL_651R2_6315_IG_FAULT_CURRENT</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Type</Column>
+            <Value>MV</Value>
+          </Setting>
+          <Setting>
+            <Column>Tag Alias</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Status Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Inst Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Magnitude</Column>
+            <Value>0</Value>
+          </Setting>
+          <Setting>
+            <Column>Deadband</Column>
+            <Value>100</Value>
+          </Setting>
+          <Setting>
+            <Column>Zero Deadband</Column>
+            <Value>2</Value>
+          </Setting>
+          <Setting>
+            <Column>Max Value</Column>
+            <Value>1e+37</Value>
+          </Setting>
+          <Setting>
+            <Column>H H Limit</Column>
+            <Value>1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>H Limit</Column>
+            <Value>1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L Limit</Column>
+            <Value>-1e+35</Value>
+          </Setting>
+          <Setting>
+            <Column>L L Limit</Column>
+            <Value>-1e+36</Value>
+          </Setting>
+          <Setting>
+            <Column>Min Value</Column>
+            <Value>-1e+37</Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Inst Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Angle</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Actual Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>Frozen Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting enabled="false">
+            <Column>String Value</Column>
+            <Value></Value>
+          </Setting>
+          <Setting>
+            <Column>Comment</Column>
+            <Value></Value>
+          </Setting>
+        </Row>
+      </SettingPage>
+      <SettingPage>
+        <Name>Standard Types</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Integer Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Unsigned Integer Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Analog Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>DNP Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>I/O Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>LED Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>MODBUS Coil Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Mirrored Bits Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Remote Bit Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Breaker Bit Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Double Point Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Single Point Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>IEC60870 Double Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>IEC60870 Single Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Binary Controlled Step Position Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Integer Controlled Step Position Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Binary Controlled Analog Process Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Controllable Enumerated Status</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Binary Counter Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Long Binary Counter Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>String Controls</Name>
+      </SettingPage>
+      <SettingPage>
+        <Name>Setpoint Controls</Name>
+      </SettingPage>
+    </SettingPages>
+  </TagList>
+</RTACModule>

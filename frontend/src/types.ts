@@ -578,6 +578,23 @@ export interface FatSheetsResult {
   reports: ToolReport[]
 }
 
+/** A recloser the DAC already has, with the settings an update can change. */
+export interface DacInitExisting {
+  name: string
+  capacity: string | null
+  definition: string | null
+  switchMode: boolean
+  /** Its six settings-group sources as written ("F4094D.ID", "0"), or null. */
+  sources: { src: string; sg: string }[] | null
+}
+
+export interface DacInitLookup {
+  family: string
+  reclosers: DacInitExisting[]
+  /** Remote DACs the project already has a connector manager for. */
+  remotes: string[]
+}
+
 export interface DacInitResult {
   run: string
   entryName: string
@@ -587,9 +604,24 @@ export interface DacInitResult {
   added: Record<string, string[]>
   /** Devices whose existing init block was regenerated in place, by kind. */
   replaced: Record<string, string[]>
+  /** Existing reclosers whose capacity / switch mode was changed in place. */
+  updated: { name: string; where: string; changes: { what: string; from: string | null; to: string }[] }[]
+  /** Existing reclosers listed with the settings they already have. */
+  unchanged: string[]
   declarations: { added: string[]; skipped: string[] }
   /** Already-used identifiers left untouched — offer these for overwrite. */
   conflicts: DacInitConflict[]
+  /** The voltage family the run wrote in (the project's, unless overridden). */
+  family: string
+  /** Lines the project couldn't answer, and devices not wired, with why. */
+  warnings: { device: string; message: string }[]
+  /** What the run wired beyond the inits, for the devices it added. */
+  wired: {
+    scada: { name: string; map: string; group: string; template: string; points: number }[]
+    areaMap: { name: string; where: string }[]
+    faults: { name: string; program: string; created: boolean; tagProcessor: boolean }[]
+    excluded: string[]
+  }
   note: string
   reports: ToolReport[]
 }

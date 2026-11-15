@@ -121,6 +121,98 @@ function replaceDevices(implText, edits) {
   return out + implText.slice(cursor);
 }
 
+// --- updating one recloser's settings where it sits ----------------------------
+
+// "Capacity\t:=\t105\t," — the value of one named argument, whatever the
+// whitespace. \b keeps "Capacity" from matching inside "TempCapacity".
+const argValue = (name) => new RegExp(`(\\b${name}\\s*:=\\s*)([^,)\\s]+)`, 'i');
+const isCall = (text, method) => new RegExp(`^\\w+\\s*\\.\\s*${method}\\s*\\(`, 'i').test(text);
+const SWITCH_MODE = /^\w+\s*\.\s*DisplaySwitchMode\s*:=\s*(\w+)/i;
+
+const SOURCE_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+/**
+ * What a recloser's statements currently say: its capacity, device
+ * definition, switch mode (DisplaySwitchMode when written; otherwise implied
+ * by a switch definition) and settings-group sources — six { src, sg } from
+ * InitSettingsGroups, or null when it has none. `spans` are its deviceIndex
+ * entries.
+ */
+function recloserState(implText, spans) {
+  const state = { capacity: null, definition: null, switchMode: null, sources: null };
+  for (const span of spans) {
+    const text = implText.slice(span.start, span.end);
+    if (isCall(text, 'init')) {
+      state.capacity = argValue('Capacity').exec(text)?.[2] ?? null;
+      state.definition = argValue('DeviceDefinition').exec(text)?.[2] ?? null;
+    } else if (isCall(text, 'InitSettingsGroups')) {
+      state.sources = SOURCE_LETTERS.map((letter) => ({
+        src: argValue(`SRC_${letter}`).exec(text)?.[2] ?? '0',
+        sg: argValue(`SG_${letter}`).exec(text)?.[2] ?? '0',
+      }));
+    } else {
+      const mode = SWITCH_MODE.exec(text);
+      if (mode) state.switchMode = /^true$/i.test(mode[1]);
+    }
+  }
+  if (state.switchMode == null) state.switchMode = /(_sw$|^recdef_switch)/i.test(state.definition ?? '');
+  return state;
+}
+
+/**
+ * Rewrite only the named settings of one recloser, in place: `patch` may set
+ * `capacity` (Capacity and TempCapacity), `definition` (DeviceDefinition),
+ * `switchMode` (DisplaySwitchMode — added after the device's SCADA link when
+ * the block never wrote one) and `sources` (six { src, sg } for the
+ * InitSettingsGroups arguments). Every other byte of its block is kept.
+ */
+function patchRecloser(implText, name, spans, patch) {
+  const ops = [];
+  let hasMode = false;
+  let after = spans[spans.length - 1];
+  for (const span of spans) {
+    const text = implText.slice(span.start, span.end);
+    let next = text;
+    if (isCall(text, 'init')) {
+      if (patch.capacity != null) {
+        next = next.replace(argValue('Capacity'), `$1${patch.capacity}`)
+          .replace(argValue('TempCapacity'), `$1${patch.capacity}`);
+      }
+      if (patch.definition != null) next = next.replace(argValue('DeviceDefinition'), `$1${patch.definition}`);
+    } else if (isCall(text, 'InitSettingsGroups') && patch.sources) {
+      const args = SOURCE_LETTERS.flatMap((letter) => [`SRC_${letter}`, `SG_${letter}`]);
+      if (args.every((arg) => argValue(arg).test(text))) {
+        patch.sources.forEach(({ src, sg }, i) => {
+          next = next.replace(argValue(`SRC_${SOURCE_LETTERS[i]}`), `$1${src}`)
+            .replace(argValue(`SG_${SOURCE_LETTERS[i]}`), `$1${sg}`);
+        });
+      } else {
+        // A call that leaves arguments out can't take a value for them in
+        // place, so it is written out in full.
+        next = `${name}.InitSettingsGroups(\n${patch.sources.map(({ src, sg }, i) => `\tSRC_${SOURCE_LETTERS[i]} := ${src},\n\tSG_${SOURCE_LETTERS[i]} := ${sg}`).join(',\n')});`;
+      }
+    } else if (SWITCH_MODE.test(text)) {
+      hasMode = true;
+      if (patch.switchMode != null) {
+        next = next.replace(/(DisplaySwitchMode\s*:=\s*)\w+/i, `$1${patch.switchMode ? 'TRUE' : 'FALSE'}`);
+      }
+    }
+    if (isCall(text, 'initDaScadaLink')) after = span;
+    if (next !== text) ops.push({ start: span.start, end: span.end, text: next });
+  }
+  if (!hasMode && patch.switchMode != null) {
+    ops.push({ start: after.end, end: after.end, text: `\n\n${name}.DisplaySwitchMode := ${patch.switchMode ? 'TRUE' : 'FALSE'};` });
+  }
+  ops.sort((a, b) => a.start - b.start);
+  let out = '';
+  let cursor = 0;
+  for (const op of ops) {
+    out += implText.slice(cursor, op.start) + op.text;
+    cursor = op.end;
+  }
+  return out + implText.slice(cursor);
+}
+
 /** Return `implText` with `text` appended, separated by a blank line. */
 function appendImplementation(implText, text) {
   return `${implText.replace(/\s*$/, '')}\n\n${text}\n`;
@@ -179,6 +271,7 @@ function insertDeclarations(xml, text) {
 
 export {
   readImplementation, writeImplementation, deviceIndex, replaceDevices,
+  recloserState, patchRecloser,
   appendImplementation,
   readDeclarations, declarationHasDevice, insertDeclarations,
 };

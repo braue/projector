@@ -182,6 +182,14 @@ function toolsRoutes(tools, projects) {
     const files = (await projects.bundle(project)).files;
     res.status(202).json(await tools.dacinit.generate(files, payload));
   });
+  // The reclosers the dropped DAC already has ({ project, path }), so the form
+  // can prefill an existing one's capacity and switch mode for an update.
+  router.post('/dacinit/lookup', async (req, res) => {
+    const { project, path: rtacPath } = req.body ?? {};
+    if (!project) throw httpError(400, 'project required');
+    const files = (await projects.bundle(project)).files;
+    res.json(await tools.dacinit.lookup(files, rtacPath));
+  });
   router.post('/dacinit/:run/save', async (req, res) => {
     const { project } = req.body ?? {};
     if (!project) throw httpError(400, 'project required');

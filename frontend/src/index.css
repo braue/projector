@@ -410,7 +410,15 @@ button.ui-section-header:hover { color: var(--ink); }
 .dacinit-grid .dacinit-col { font-size: 12px; font-weight: 600; color: var(--muted); }
 .dacinit-grid .ui-input { width: 100%; min-width: 0; }
 .dacinit-xfmr { grid-template-columns: 1fr 1fr 1fr 1.4fr auto; }
-.dacinit-fb { grid-template-columns: 1fr 1fr 1.4fr auto auto auto; }
+.dacinit-fb { grid-template-columns: 1fr 1fr 1.4fr 1.2fr auto auto 72px auto; }
+.dacinit-conn { grid-template-columns: 1fr 1fr 96px 1.4fr auto; }
+.dacinit-conn-named { grid-template-columns: 1fr 1fr 1.2fr 96px 1.4fr auto; }
+.dacinit-existing {
+  align-self: center; padding: 3px 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; background: var(--warn-tint); color: var(--warn-ink);
+}
+.dacinit-warnings { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.dacinit-warnings b { font-family: var(--font-mono); font-weight: 600; margin-right: 6px; }
 .dacinit-cell-check { display: flex; justify-content: center; }
 /* Identifiers the project already uses: an amber card, checked by default,
    whose button re-runs the generate with those names overwritten. */
