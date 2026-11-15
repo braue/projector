@@ -6,7 +6,7 @@
 // the engineer sees exactly which lines were guessed rather than read.
 
 import {
-  breakerField, breakerScada, clientStruct, commonProfile, conventions, definitionOf, feederScada,
+  breakerField, breakerScada, clientStruct, commonProfile, substationClient, conventions, definitionOf, feederScada,
   hasDefinition, recloserField, recloserScada, voltageFamily,
 } from './project.js';
 import { connectorName, planConnectors } from './connectors.js';
@@ -140,7 +140,7 @@ function resolveSpecs(payload, project, known) {
     const candidates = [...(/^[A-Za-z_]/.test(v) ? [v] : []), `F${v}`, `${v}_Connector`, `R${v}_Connector`];
     const hit = candidates.find(exists);
     if (!hit) warn(device, `SRC_${slot} ${v} is not a feeder or connector in this project`);
-    return `${hit ?? `F${v}`}.ID`;
+    return `${hit ?? (/^[A-Za-z_]/.test(v) ? v : `F${v}`)}.ID`;
   };
 
   const reclosers = (payload.reclosers ?? []).map((row) => {
@@ -209,8 +209,16 @@ function resolveSpecs(payload, project, known) {
   const xfmrDef = definitionOf(project, 'transformer');
   const transformers = (payload.transformers ?? []).map((row) => {
     const { name, label, sub } = transformerName(row);
-    const client = text(row.dnpClient) || `${sub}_Sub`;
-    if (!clientStruct(project, client)) warn(name, `no DNP client named ${client}`);
+    // A given client is taken as it is; otherwise the one named for the
+    // substation, else the convention.
+    let client = text(row.dnpClient);
+    if (client) {
+      if (!clientStruct(project, client)) warn(name, `no DNP client named ${client}`);
+    } else {
+      const found = substationClient(project, sub);
+      client = found.client ?? found.candidates[0] ?? `${sub}_Sub`;
+      if (found.problem) warn(name, `${found.problem}; wrote ${client}_DNP_POU`);
+    }
     if (!xfmrDef) warn(name, 'the project declares no transformer definition; wrote Sub_XFMR');
     // Capacity = ((MVA * 1e6) / 13200 / 1.73) * 1.20, rounded to nearest 1 — the
     // workbook's formula and the note the schemes carry beside it.

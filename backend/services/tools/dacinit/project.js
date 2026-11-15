@@ -279,6 +279,30 @@ function clientStruct(project, name) {
     && entry.struct.toLowerCase().replace(/_dnp$/, '') === key) ?? null;
 }
 
+/**
+ * The DNP client a substation's transformer reports through, found by the
+ * substation's name: every client whose name holds it ("Goodbee" ->
+ * Goodbee_Sub, Abita_Springs_Sub). Several narrow to the ones named for a
+ * substation (with "Sub" in the name), then to the ones without a device
+ * number in them (not a shared recloser client like ST_MARY_3166_3168).
+ * Returns { client } or { problem, candidates }.
+ */
+function substationClient(project, substation) {
+  const key = String(substation ?? '').trim().replace(/\s+/g, '_').toLowerCase();
+  if (!key) return { problem: 'no substation given', candidates: [] };
+  let found = project.structs.filter((e) => e.kind === 'client')
+    .map((e) => e.struct.replace(/_DNP$/i, ''))
+    .filter((name) => name.toLowerCase().includes(key));
+  for (const narrow of [(n) => /(^|_)sub(_|$)/i.test(n), (n) => !/\d{3,}/.test(n)]) {
+    if (found.length > 1 && found.some(narrow)) found = found.filter(narrow);
+  }
+  if (found.length === 1) return { client: found[0] };
+  return {
+    problem: found.length ? `several DNP clients name ${substation} (${found.join(', ')})` : `no DNP client names ${substation}`,
+    candidates: found,
+  };
+}
+
 // Group prefixes that name something other than a recloser.
 const NOT_RECLOSER = new Set(['fdr', 'feeder', 'bkr', 'dac', 'xfmr']);
 
@@ -399,6 +423,7 @@ function conventions(project) {
 
 export {
   readProject, parseTag, conventions, hasDefinition, definitionOf, voltageFamily, commonProfile, clientStruct,
+  substationClient,
   recloserField, recloserScada, feederScada, breakerScada, breakerField,
   POU_PATTERNS,
 };

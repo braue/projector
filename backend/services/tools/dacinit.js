@@ -24,6 +24,8 @@ import path from 'node:path';
 import { copyEntry } from '../../lib/fs.js';
 import { httpError } from '../../lib/http.js';
 import { DECL_ORDER, declarationBatch, writeInits } from './dacinit/generate.js';
+import { feedsOf } from './dacinit/areamap.js';
+import { Cfc } from './dacinit/cfc.js';
 import { addIpVars, newConnectorPou } from './dacinit/connectors.js';
 import { POU_PATTERNS, hasDefinition, readProject, voltageFamily } from './dacinit/project.js';
 import { resolveSpecs, rowNames, switchDefinition } from './dacinit/resolve.js';
@@ -95,6 +97,26 @@ function versionNote(added, replaced, declared, updated = [], wired = {}) {
   return `Auto inits & declarations: ${parts.join('; ')}`;
 }
 
+// AreaMap box types, by what the form calls them.
+const AREA_KINDS = [
+  ['recloser', /^DA_REC\./i], ['feeder', /^DA_FDR\./i], ['breaker', /^DA_(PSEUDO_)?BKR\./i],
+  ['transformer', /^DA_SUB_TRANSFORMER\./i], ['connector', /^DA_DAC_INTERCONNECT\./i],
+];
+
+// A device number may be typed with its identifier's letter ("R6267",
+// "F4473A", "B4473A") or without; the generators want it without.
+const bare = (letters) => (value) => String(value ?? '').trim().replace(new RegExp(`^[${letters}](?=\\d)`, 'i'), '');
+const bareRecloser = bare('R');
+const bareFeeder = bare('FB');
+function withBareNumbers(payload) {
+  if (!payload) return payload;
+  return {
+    ...payload,
+    reclosers: payload.reclosers?.map((r) => ({ ...r, number: bareRecloser(r.number) })),
+    feedersBreakers: payload.feedersBreakers?.map((f) => ({ ...f, number: bareFeeder(f.number) })),
+  };
+}
+
 class DacInitService {
   constructor({ workspace, jobs }) {
     this.workspace = workspace;
@@ -123,7 +145,8 @@ class DacInitService {
    *   overwrite[]                          // identifiers to regenerate in place
    * }
    */
-  async generate(files, payload) {
+  async generate(files, rawPayload) {
+    const payload = withBareNumbers(rawPayload);
     const sourcePath = String(payload?.path ?? '').trim();
     if (!sourcePath) throw httpError(400, 'pick a DAC .rtac project to build onto');
 
@@ -446,7 +469,21 @@ class DacInitService {
       reclosers.push({ name: head[1], ...state });
     }
     const remotes = project.interconnect.managers.map((m) => m.remote);
-    return { family: voltageFamily(project), reclosers, remotes };
+    // What the A side / B side / feeds / source fields can name.
+    const mapXml = await readFile(path.join(absolute, 'SEL_RTAC', 'DAC', 'AreaMap.xml'), 'utf8').catch(() => null);
+    const areaMap = [];
+    if (mapXml != null) {
+      const cfc = new Cfc(mapXml);
+      for (const box of cfc.boxes()) {
+        let kind = AREA_KINDS.find(([, pattern]) => pattern.test(box.type ?? ''))?.[0];
+        // A 651R breaker is a DA_REC on the map.
+        if (kind === 'recloser' && /^B\d/i.test(box.name ?? '')) kind = 'breaker';
+        if (kind && box.name) areaMap.push({ name: box.name, kind, feeds: feedsOf(cfc, box) });
+      }
+    }
+    const clients = project.structs.filter((e) => e.kind === 'client')
+      .map((e) => e.struct.replace(/_DNP$/i, '')).sort();
+    return { family: voltageFamily(project), reclosers, remotes, areaMap, clients };
   }
 
   /**

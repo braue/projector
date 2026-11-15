@@ -48,6 +48,12 @@ function reaches(cfc, conn) {
   return sources.flatMap((src) => wiresFrom(cfc, src.outs[0]).flatMap((c) => reaches(cfc, c)));
 }
 
+/** The devices a box's outputs are wired to now. */
+function feedsOf(cfc, box) {
+  return [...new Set(box.outs.flatMap((pin) => wiresFrom(cfc, pin))
+    .flatMap((c) => reaches(cfc, c)).map((el) => el?.name).filter(Boolean))];
+}
+
 function bottom(cfc) {
   let y = 0;
   for (const el of cfc.elements) if (el.y != null && el.kind !== 'connection') y = Math.max(y, el.y);
@@ -135,9 +141,22 @@ function newBox(cfc, template, name, x, y, after) {
 }
 
 /**
- * A normally-closed recloser between `aSide` and `bSide` (or after `aSide`
- * when it feeds nothing yet, or when bSide is blank and aSide feeds exactly
- * one thing). Returns a description of where it went, or throws a message.
+ * A recloser's B side as typed: "R6318", a list ("R6318, R5914") for a
+ * recloser that takes over several of the A side's branches, or "none" for
+ * one with nothing after it. Blank is not a choice — the engineer says.
+ */
+function bSides(bSide) {
+  const list = String(bSide ?? '').split(/[,\s]+/).map((n) => n.trim()).filter(Boolean);
+  if (!list.length) throw new Error('give the B side (or none)');
+  if (list.length === 1 && lower(list[0]) === 'none') return [];
+  if (list.some((n) => lower(n) === 'none')) throw new Error('B side is a list of devices or none, not both');
+  return list;
+}
+
+/**
+ * A normally-closed recloser after `aSide`, in front of each device listed
+ * as its B side (each must be one the A side is wired to now), or at the end
+ * of the A side with B side "none". Returns where it went, or throws.
  */
 function insertRecloser(cfc, { name, aSide, bSide }) {
   const template = templateBox(cfc, /^DA_REC\.AiBo$/i);
@@ -146,36 +165,51 @@ function insertRecloser(cfc, { name, aSide, bSide }) {
   if (!from) throw new Error(`no ${aSide} on the AreaMap`);
   const out = from.outs[0];
   if (!out) throw new Error(`${from.name} has no output to wire from`);
+  const targets = bSides(bSide).map((n) => {
+    const to = cfc.box(n);
+    if (!to) throw new Error(`no ${n} on the AreaMap`);
+    return to;
+  });
   const wires = wiresFrom(cfc, out);
-  let cut = null;
-  if (bSide) {
-    const to = cfc.box(bSide);
-    if (!to) throw new Error(`no ${bSide} on the AreaMap`);
-    cut = wires.find((c) => reaches(cfc, c).includes(to));
-    if (!cut) throw new Error(`${from.name} is not wired to ${to.name}`);
-  } else if (wires.length === 1) {
-    cut = wires[0];
-  } else if (wires.length > 1) {
-    const names = [...new Set(wires.flatMap((c) => reaches(cfc, c)).map((el) => el?.name).filter(Boolean))];
-    throw new Error(`${from.name} feeds ${names.join(', ')}; give the B side`);
+  const cuts = [];
+  for (const to of targets) {
+    const cut = wires.find((c) => reaches(cfc, c).includes(to));
+    if (!cut) {
+      const fed = [...new Set(wires.flatMap((c) => reaches(cfc, c)).map((el) => el?.name).filter(Boolean))];
+      throw new Error(`${from.name} is not wired to ${to.name}${fed.length ? ` (it feeds ${fed.join(', ')})` : ''}`);
+    }
+    if (!cuts.includes(cut)) cuts.push(cut);
   }
   const width = cfc.width(template);
-  if (cut) {
-    const end = cfc.pinPoint(cut.dst);
-    const target = cfc.pinOwner.get(cut.dst).el;
+  if (cuts.length) {
+    // The box takes the first branch's place; every other listed branch's row
+    // moves along with it and is re-fed from the new box.
+    const [first, ...rest] = cuts;
+    const end = cfc.pinPoint(first.dst);
     const x = end.x + 1;
     const y = end.y - 2;
-    const path = cfc.routePoints(cut.id);
+    const path = cfc.routePoints(first.id);
+    const rows = new Set([y]);
+    for (const cut of rest) {
+      const ry = cfc.pinPoint(cut.dst).y - 2;
+      if (![...rows].some((r) => Math.abs(r - ry) <= 4)) makeRoom(cfc, x, ry, width + GAP);
+      rows.add(ry);
+    }
     makeRoom(cfc, x, y, width + GAP);
     const box = newBox(cfc, template, name, x, y, from);
     addLabels(cfc, box, LABELS.aibo);
     // The cut wire keeps its drawn path; it now ends where the new box's A
     // pin sits, exactly where the moved device's pin was.
-    const dst = cut.dst;
-    cfc.setDestination(cut, box.ins[0]);
-    if (path) cfc.setRoute(cut.id, path);
+    const dst = first.dst;
+    cfc.setDestination(first, box.ins[0]);
+    if (path) cfc.setRoute(first.id, path);
     cfc.connect(box.outs[0], dst);
-    return `between ${from.name} and ${target.name}`;
+    for (const cut of rest) {
+      const to = cut.dst;
+      cfc.disconnect(cut);
+      cfc.reroute(cfc.connect(box.outs[0], to));
+    }
+    return `between ${from.name} and ${targets.map((t) => t.name).join(', ')}`;
   }
   const { x, y } = appendSpot(cfc, cfc.pinPoint(out), template);
   const box = newBox(cfc, template, name, x, y, from);
@@ -184,14 +218,16 @@ function insertRecloser(cfc, { name, aSide, bSide }) {
   return `after ${from.name}`;
 }
 
-/** A normally-open recloser fed from `aSide` and, if given, `bSide`. */
+/** A normally-open recloser fed from `aSide` and its B side, or "none". */
 function insertTie(cfc, { name, aSide, bSide }) {
   const template = templateBox(cfc, /^DA_REC\.AiBi$/i);
   if (!template) throw new Error('the AreaMap has no DA_REC.AiBi box to copy');
   const from = cfc.box(aSide);
   if (!from) throw new Error(`no ${aSide} on the AreaMap`);
-  const other = bSide ? cfc.box(bSide) : null;
-  if (bSide && !other) throw new Error(`no ${bSide} on the AreaMap`);
+  const sides = bSides(bSide);
+  if (sides.length > 1) throw new Error('a tie has one B side');
+  const other = sides.length ? cfc.box(sides[0]) : null;
+  if (sides.length && !other) throw new Error(`no ${sides[0]} on the AreaMap`);
   const start = cfc.pinPoint(from.outs[0]);
   if (!start) throw new Error(`${from.name} has no output to wire from`);
   const { x, y } = appendSpot(cfc, start, template);
@@ -319,7 +355,7 @@ function placeOnAreaMap(cfc, requests) {
   // A device that hangs off another new one waits until that one is placed,
   // whatever order the rows came in.
   const names = new Set(requests.map((req) => lower(req.name)));
-  const waitsOn = (req) => [req.aSide, req.bSide, req.feeds]
+  const waitsOn = (req) => [req.aSide, ...String(req.bSide ?? '').split(/[,\s]+/), req.feeds]
     .some((n) => n && names.has(lower(n)) && !cfc.box(n));
   let queue = requests.filter((req) => {
     if (!cfc.box(req.name)) return true;
@@ -335,6 +371,7 @@ function placeOnAreaMap(cfc, requests) {
       else if (req.kind === 'feeder') where = insertFeeder(cfc, req);
       else if (req.kind === 'connector') where = insertConnector(cfc, req);
       else if (!req.aSide) throw new Error('no A side given');
+      else if (/,/.test(req.aSide)) throw new Error('one A side');
       else if (req.open) where = insertTie(cfc, req);
       else where = insertRecloser(cfc, req);
       placed.push({ name: req.name, where });
@@ -370,4 +407,4 @@ function hasDownline(cfc, name, breakerName) {
   return false;
 }
 
-export { placeOnAreaMap, hasDownline };
+export { placeOnAreaMap, hasDownline, feedsOf };

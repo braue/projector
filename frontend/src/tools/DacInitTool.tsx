@@ -20,13 +20,22 @@
 //
 // New devices are wired into the rest of the scheme in the same run: each
 // gets a SCADA map block copied from a like device, a
-// recloser goes onto the AreaMap between its A-side and B-side devices (B
-// side blank = whatever the A side feeds now), a new feeder and its breaker
+// recloser goes onto the AreaMap after its one A side, in front of each B
+// side listed (a comma list takes over several of the A side's branches;
+// "none" ends the line; B side is never guessed), a new feeder and its breaker
 // on a new AreaMap row, a recloser on its own client gets its fault-current
 // block, Fault_Data tags and Tag Processor rows, and a new 13.2kV feeder with
 // nothing downline is added to Feeders_Excluded. A connector feeds the tie it
 // names on the AreaMap, on the manager for its remote DAC (a new one, with its
 // port and IP variables, when the DAC has none for that remote yet).
+//
+// The form names things the way the project does. A device's own number sits
+// after its fixed letter (R, F, XFMR_…), so "6267" and "R6267" both mean
+// R6267. Every field that points at another device (A side, B side, a
+// source, the tie a connector feeds) takes that device's full name, and
+// offers the AreaMap's names and the form's own new rows; a name that's in
+// neither is outlined red before generate ever runs. Each card draws where
+// its device lands (A side → R6267 → B side) so the wiring reads at a glance.
 //
 // Any other identifier the project already uses isn't quietly skipped:
 // generate comes back with it flagged, and the warning below offers to overwrite — which
@@ -34,14 +43,14 @@
 // capacity is an edit, not a second block at the bottom of the POU). Choosing
 // overwrite just re-runs generate with those names; nothing lands until Save.
 
-import { Fragment, useEffect, useRef, useState } from 'react'
-import type { Dispatch, SetStateAction } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { Dispatch, ReactNode, SetStateAction } from 'react'
 
 import { generateDacInit, lookupDacInit, saveDacInitRun } from '../api'
-import { Button, Checkbox, DropZone, SectionHeader, Select, Spinner, TextInput } from '../components/ui'
+import { Button, Checkbox, DropZone, SectionHeader, Select, Spinner } from '../components/ui'
 import { errorMessage } from '../lib/errors'
 import { useToolJob } from '../lib/useToolJob'
-import type { DacInitExisting, DacInitResult } from '../types'
+import type { DacInitExisting, DacInitLookup, DacInitResult } from '../types'
 import type { ToolProps } from './registry'
 import { RunOutputs } from './RunOutputs'
 import { ToolHeader } from './ToolHeader'
@@ -72,7 +81,7 @@ interface RecRow {
   bSide: string
   sources: SourceRow[]
 }
-interface XfmrRow { substation: string; transformer: string; ratedMva: string; dnpClient: string }
+interface XfmrRow { substation: string; transformer: string; ratedMva: string }
 interface FbRow {
   number: string; capacity: string; normallyOpen: boolean; breaker: string; lockout: string; dnpClient: string; aSide: string
 }
@@ -84,9 +93,109 @@ const newRec = (): RecRow => ({
   number: '', isSwitch: false, commFail: false, normallyOpen: false, capacity: '', circuit: '',
   aSide: '', bSide: '', sources: emptySources(),
 })
-const newXfmr = (): XfmrRow => ({ substation: '', transformer: '', ratedMva: '', dnpClient: '' })
+const newXfmr = (): XfmrRow => ({ substation: '', transformer: '', ratedMva: '' })
 const newFb = (breaker: string): FbRow => ({ number: '', capacity: '', normallyOpen: false, breaker, lockout: '', dnpClient: '', aSide: '' })
 const newConn = (): ConnRow => ({ connection: '', remoteDac: '', feeds: '', port: '', remoteIp: '' })
+
+const NO_LOOKUP: DacInitLookup = { family: '', reclosers: [], remotes: [], areaMap: [], clients: [] }
+const lower = (s: string) => s.trim().toLowerCase()
+const splitList = (v: string) => v.split(/[,\s]+/).map((t) => t.trim()).filter(Boolean)
+// The client a transformer reports through, found by its substation's name
+// the way the backend finds it (substationClient in dacinit/project.js).
+const substationClients = (clients: string[], substation: string) => {
+  const key = substation.trim().replace(/\s+/g, '_').toLowerCase()
+  if (!key) return []
+  let found = clients.filter((c) => c.toLowerCase().includes(key))
+  for (const narrow of [(n: string) => /(^|_)sub(_|$)/i.test(n), (n: string) => !/\d{3,}/.test(n)]) {
+    if (found.length > 1 && found.some(narrow)) found = found.filter(narrow)
+  }
+  return found
+}
+const xfmrName = (x: XfmrRow) => `XFMR_${x.substation.trim().replace(/\s+/g, '_')}_${x.transformer.trim()}`
+// The identifier a connector row lands as (the backend's connectorName).
+const connName = (c: ConnRow) => {
+  const n = /(\d+[A-Za-z]?)/.exec(c.feeds)?.[1]
+  return n ? `R${n}_Connector` : ''
+}
+
+/** A device's own number after its fixed letter: "R6267" typed or pasted is 6267. */
+function IdInput({ prefix, value, onChange, placeholder, strip, wide }: {
+  prefix: string; value: string; onChange: (v: string) => void; placeholder?: string; strip?: RegExp; wide?: boolean
+}) {
+  return (
+    <span className={`dacinit-id${wide ? ' dacinit-id-wide' : ''}`}>
+      <span className="dacinit-id-prefix">{prefix}</span>
+      <input value={value} placeholder={placeholder} spellCheck={false}
+        onChange={(e) => onChange(strip ? e.target.value.replace(strip, '') : e.target.value)} />
+    </span>
+  )
+}
+
+/**
+ * A field naming another device by its full name (or a comma list of them).
+ * Offers `names`; outlines a name that isn't one of them, or whatever
+ * `problem` says is wrong; and on blur completes each bare number to the one
+ * name it can only mean ("6310" -> "B6310").
+ */
+function RefInput({ value, onChange, names, list, placeholder, unknownTitle = 'Not on the AreaMap', strict = true, problem }: {
+  value: string; onChange: (v: string) => void; names: string[]; list: string; placeholder?: string
+  unknownTitle?: string; strict?: boolean; problem?: string | null
+}) {
+  const v = lower(value)
+  const unknown = problem !== undefined
+    ? problem
+    : strict && v !== '' && v !== '0' && !names.some((n) => lower(n) === v) ? unknownTitle : null
+  const completeOne = (token: string) => {
+    if (!/^\d+[a-z]?$/i.test(token)) return token
+    const hits = names.filter((n) => new RegExp(`^[a-z]+_?${token}$`, 'i').test(n))
+    return hits.length === 1 ? hits[0] : token
+  }
+  // Only a list's own commas split it: a name with a space ("St Mary") stays whole.
+  const complete = () => {
+    const tokens = value.split(',').map((t) => t.trim())
+    const done = tokens.map(completeOne)
+    if (done.some((t, i) => t !== tokens[i])) onChange(done.filter(Boolean).join(', '))
+  }
+  return (
+    <input type="text" className={`ui-input dacinit-ref${unknown ? ' is-unknown' : ''}`} list={list}
+      value={value} placeholder={placeholder} spellCheck={false} title={unknown ?? undefined}
+      onChange={(e) => onChange(e.target.value)} onBlur={complete} />
+  )
+}
+
+function Field({ label, unit, children, grow }: { label: string; unit?: string; children: ReactNode; grow?: boolean }) {
+  return (
+    <label className={`dacinit-field${grow ? ' dacinit-grow' : ''}`}>
+      <span>{label}</span>
+      {unit ? <span className="dacinit-unit">{children}<i>{unit}</i></span> : children}
+    </label>
+  )
+}
+
+/** Where the device lands: its neighbours either side of it. */
+function Flow({ label = 'AreaMap', children }: { label?: string; children: ReactNode }) {
+  return (
+    <div className="dacinit-flow">
+      <span className="dacinit-flow-label">{label}</span>
+      {children}
+    </div>
+  )
+}
+const Arrow = ({ back }: { back?: boolean }) => <span className="dacinit-arrow">{back ? '←' : '→'}</span>
+const Self = ({ name }: { name: string }) => <span className="dacinit-self">{name || '…'}</span>
+
+function CardHead({ kind, children, onRemove }: { kind: string; children: ReactNode; onRemove: () => void }) {
+  return (
+    <div className="dacinit-card-head">
+      <span className="dacinit-kind">{kind}</span>
+      {children}
+      <span className="dacinit-spacer" />
+      <button type="button" className="dacinit-remove" title="Remove" onClick={onRemove}>✕</button>
+    </div>
+  )
+}
+const Chip = ({ tone, children }: { tone: 'new' | 'update' | 'exists'; children: ReactNode }) =>
+  <span className={`dacinit-chip dacinit-chip-${tone}`}>{children}</span>
 
 export function DacInitTool(_props: ToolProps) {
   const [error, setError] = useState<string | null>(null)
@@ -111,38 +220,32 @@ export function DacInitTool(_props: ToolProps) {
   const [feedersBreakers, setFeedersBreakers] = useState<FbRow[]>([])
   const [connectors, setConnectors] = useState<ConnRow[]>([])
 
-  // The reclosers the dropped DAC already has, keyed by lowercased name.
+  // What the dropped DAC already has: its reclosers' settings (keyed by
+  // lowercased name), voltage, remote DACs, AreaMap names and DNP clients.
+  const [lookup, setLookup] = useState<DacInitLookup>(NO_LOOKUP)
   const [existing, setExisting] = useState<Map<string, DacInitExisting>>(new Map())
-  // Its voltage and the remote DACs it already has managers for.
-  const [family, setFamily] = useState('')
-  const [remotes, setRemotes] = useState<string[]>([])
   useEffect(() => {
+    setLookup(NO_LOOKUP)
     setExisting(new Map())
-    setFamily('')
-    setRemotes([])
     if (!selectedPath) return
     let live = true
     lookupDacInit(formProject, selectedPath)
-      .then(({ reclosers: found, family: fam, remotes: known }) => {
+      .then((found) => {
         if (!live) return
-        setExisting(new Map(found.map((r) => [r.name.toLowerCase(), r])))
-        setFamily(fam)
-        setRemotes(known)
+        setLookup(found)
+        setExisting(new Map(found.reclosers.map((r) => [r.name.toLowerCase(), r])))
       })
       .catch((err) => { if (live) setError(errorMessage(err)) })
     return () => { live = false }
   }, [formProject, selectedPath])
-  const existingRec = (number: string) => existing.get(`r${number.trim().toLowerCase()}`)
-  // Typing an existing recloser's number fills in what it has now. Sources
-  // show the way they're typed: a feeder by its number, anything else by name.
+  const { family, remotes, clients } = lookup
+  const existingRec = (number: string) => (number.trim() ? existing.get(`r${lower(number)}`) : undefined)
+  // Typing an existing recloser's number fills in what it has now.
   const setRecNumber = (i: number, number: string) => {
     const found = existingRec(number)
     if (!found) { setRec(i, { number }); return }
     const sources = found.sources
-      ? found.sources.map(({ src, sg }) => ({
-        feeder: src === '0' ? '' : src.replace(/\.ID$/i, '').replace(/^F(?=\d)/i, ''),
-        sg,
-      }))
+      ? found.sources.map(({ src, sg }) => ({ feeder: src === '0' ? '' : src.replace(/\.ID$/i, ''), sg }))
       : emptySources()
     setRec(i, { number, capacity: found.capacity ?? '', isSwitch: found.switchMode, sources })
   }
@@ -153,7 +256,7 @@ export function DacInitTool(_props: ToolProps) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState<string | null>(null)
 
-  // Patch/remove one row of a device table — the same two lines for all three.
+  // Patch/remove one row of a device table — the same two lines for all four.
   const rowOps = <T,>(setRows: Dispatch<SetStateAction<T[]>>) => ({
     patch: (i: number, patch: Partial<T>) =>
       setRows((rows) => rows.map((row, idx) => (idx === i ? { ...row, ...patch } : row))),
@@ -178,10 +281,55 @@ export function DacInitTool(_props: ToolProps) {
   const fbRows = feedersBreakers.filter((f) => f.number.trim())
   const connRows = connectors.filter((c) => c.feeds.trim())
   const isNewRemote = (c: ConnRow) => c.remoteDac.trim() !== ''
-    && !remotes.some((r) => r.toLowerCase() === c.remoteDac.trim().toLowerCase())
+    && !remotes.some((r) => lower(r) === lower(c.remoteDac))
   const wantsName = family === '13.2kV'
+  const fed = family !== '34.5kV'
   const deviceCount = recRows.length + xfmrRows.length + fbRows.length + connRows.length
-  const ready = selectedPath !== '' && deviceCount > 0 && !generating
+
+  // Names a reference field can point at: the AreaMap's, plus this form's new rows.
+  const onMap = lookup.areaMap.map((b) => b.name)
+  const mapKind = (kinds: string[]) => lookup.areaMap.filter((b) => kinds.includes(b.kind)).map((b) => b.name)
+  const breakerName = (f: FbRow) => (f.breaker === 'none' || !f.number.trim() ? '' : `B${f.number.trim()}`)
+  const newNames = {
+    reclosers: recRows.filter((r) => !existingRec(r.number)).map((r) => `R${r.number.trim()}`),
+    feeders: fbRows.map((f) => `F${f.number.trim()}`),
+    breakers: fbRows.map(breakerName).filter(Boolean),
+    transformers: xfmrRows.map(xfmrName),
+    connectors: connRows.map(connName).filter(Boolean),
+  }
+  const unique = (list: string[]) => [...new Map(list.map((n) => [lower(n), n])).values()]
+  const allNames = unique([...onMap, ...Object.values(newNames).flat()])
+  const sourceNames = unique([...mapKind(['feeder', 'connector']), ...newNames.feeders, ...newNames.connectors])
+  const xfmrNames = unique([...mapKind(['transformer']), ...newNames.transformers])
+  const tieNames = unique([...mapKind(['recloser']), ...newNames.reclosers])
+  const isOnMap = (name: string) => onMap.some((n) => lower(n) === lower(name))
+  const isKnown = (name: string) => allNames.some((n) => lower(n) === lower(name))
+  // A new recloser's sides: one A side, and a B side that is a list of what
+  // the A side feeds now (each must be), or "none". Wiring is only checked
+  // between devices already on the AreaMap — a new one has none yet.
+  const aSideProblem = (r: RecRow) => {
+    if (/,/.test(r.aSide)) return 'One A side'
+    if (r.aSide.trim() && !isKnown(r.aSide)) return 'Not on the AreaMap'
+    return null
+  }
+  const bSideProblem = (r: RecRow) => {
+    const list = splitList(r.bSide)
+    if (!list.length) return null
+    if (list.length === 1 && lower(list[0]) === 'none') return null
+    if (list.some((n) => lower(n) === 'none')) return 'A list or none, not both'
+    if (r.normallyOpen && list.length > 1) return 'A tie has one B side'
+    const unknown = list.find((n) => !isKnown(n))
+    if (unknown) return `${unknown} is not on the AreaMap`
+    const branches = lookup.areaMap.find((b) => lower(b.name) === lower(r.aSide))?.feeds
+    if (!r.normallyOpen && branches) {
+      const off = list.find((n) => isOnMap(n) && !branches.some((f) => lower(f) === lower(n)))
+      if (off) return `${r.aSide.trim()} feeds ${branches.length ? branches.join(', ') : 'nothing'}, not ${off}`
+    }
+    return null
+  }
+  const sidesReady = recRows.every((r) => existingRec(r.number)
+    || (r.aSide.trim() && r.bSide.trim() && !aSideProblem(r) && !bSideProblem(r)))
+  const ready = selectedPath !== '' && deviceCount > 0 && !generating && sidesReady
 
   const saveRun = async () => {
     if (!result) return
@@ -223,7 +371,6 @@ export function DacInitTool(_props: ToolProps) {
           substation: x.substation.trim(),
           transformer: x.transformer.trim(),
           ratedMva: Number(x.ratedMva) || 0,
-          dnpClient: x.dnpClient.trim(),
         })),
         feedersBreakers: fbRows.map((f) => ({
           number: f.number.trim(),
@@ -232,7 +379,7 @@ export function DacInitTool(_props: ToolProps) {
           breaker: f.breaker,
           lockout: f.lockout.trim(),
           dnpClient: f.dnpClient.trim(),
-          aSide: f.aSide.trim(),
+          aSide: fed ? f.aSide.trim() : '',
         })),
         connectors: connRows.map((c) => ({
           connection: wantsName ? c.connection.trim() : '',
@@ -266,15 +413,32 @@ export function DacInitTool(_props: ToolProps) {
       {saving ? <Spinner /> : saved ? 'Saved' : `Save new version to ${generatedFrom.current}`}
     </Button>
   )
+  const summaryRow = (label: string, text: string) => (
+    <div className="dacinit-summary-row"><span>{label}</span><span>{text}</span></div>
+  )
+  const mapCounts = ['recloser', 'feeder', 'transformer', 'connector']
+    .map((kind) => [kind, lookup.areaMap.filter((b) => b.kind === kind).length] as const)
+    .filter(([, n]) => n > 0)
 
   return (
     <>
       <ToolHeader title="CLECO DAC Inits" busy={generating} />
       <div className="tool-scroll">
+        <datalist id="dacinit-names">{allNames.map((n) => <option key={n} value={n} />)}</datalist>
+        <datalist id="dacinit-sources">{sourceNames.map((n) => <option key={n} value={n} />)}</datalist>
+        <datalist id="dacinit-xfmrs">{xfmrNames.map((n) => <option key={n} value={n} />)}</datalist>
+        <datalist id="dacinit-ties">{tieNames.map((n) => <option key={n} value={n} />)}</datalist>
+        <datalist id="dacinit-clients">{clients.map((n) => <option key={n} value={n} />)}</datalist>
+        <datalist id="dacinit-remotes">{remotes.map((n) => <option key={n} value={n} />)}</datalist>
+
         <SectionHeader title="DAC" />
         {selectedPath ? (
-          <div className="tool-row">
-            <span className="tool-stats">{selectedPath} (from {formProject})</span>
+          <div className="dacinit-dac">
+            <span className="dacinit-dac-name">{selectedPath.split('/').pop()}</span>
+            <span className="tool-stats">{formProject}</span>
+            {family && <Chip tone="exists">{family}</Chip>}
+            {mapCounts.map(([kind, n]) => <span key={kind} className="tool-stats">{n} {kind}{n === 1 ? '' : 's'}</span>)}
+            <span className="dacinit-spacer" />
             <Button disabled={generating} onClick={() => setSelectedPath('')}>Change</Button>
           </div>
         ) : (
@@ -291,130 +455,200 @@ export function DacInitTool(_props: ToolProps) {
           </DropZone>
         )}
 
+        <SectionHeader title="Devices" />
 
-        <SectionHeader title="Reclosers" count={reclosers.length || undefined} />
         {reclosers.map((r, i) => {
-          const update = !!existingRec(r.number)
+          const found = existingRec(r.number)
+          const name = r.number.trim() ? `R${r.number.trim()}` : ''
           return (
-          <div key={i} className="dacinit-card">
-            <div className="dacinit-card-row">
-              <label className="dacinit-field"><span>Number</span>
-                <TextInput value={r.number} placeholder="048" onChange={(e) => setRecNumber(i, e.target.value)} /></label>
-              <label className="dacinit-field"><span>Capacity</span>
-                <TextInput value={r.capacity} placeholder="105" onChange={(e) => setRec(i, { capacity: e.target.value })} /></label>
-              <label className="dacinit-check"><Checkbox checked={r.isSwitch} onChange={() => setRec(i, { isSwitch: !r.isSwitch })} /> Switch</label>
-              <label className="dacinit-check"><Checkbox checked={r.commFail} disabled={update} onChange={() => setRec(i, { commFail: !r.commFail })} /> Comm fail</label>
-              <label className="dacinit-check"><Checkbox checked={r.normallyOpen} disabled={update} onChange={() => setRec(i, { normallyOpen: !r.normallyOpen })} /> Normally open</label>
-              <label className="dacinit-field dacinit-grow"><span>Circuit (comment)</span>
-                <TextInput value={r.circuit} disabled={update} onChange={(e) => setRec(i, { circuit: e.target.value })} /></label>
-              <label className="dacinit-field"><span>A side</span>
-                <TextInput value={r.aSide} placeholder="B6310" disabled={update} onChange={(e) => setRec(i, { aSide: e.target.value })} /></label>
-              <label className="dacinit-field"><span>B side</span>
-                <TextInput value={r.bSide} disabled={update} onChange={(e) => setRec(i, { bSide: e.target.value })} /></label>
-              {update && <span className="dacinit-existing">Updates R{r.number.trim()}</span>}
-              <Button title="Remove recloser" onClick={() => recOps.remove(i)}>✕</Button>
+            <div key={`r${i}`} className={`dacinit-card${found ? ' dacinit-card-update' : ''}`}>
+              <CardHead kind="Recloser" onRemove={() => recOps.remove(i)}>
+                <IdInput prefix="R" value={r.number} placeholder="6267" strip={/^\s*r(?=\d)/i}
+                  onChange={(v) => setRecNumber(i, v)} />
+                {found ? <Chip tone="update">Update</Chip> : name && <Chip tone="new">New</Chip>}
+              </CardHead>
+              <div className="dacinit-card-row">
+                <Field label="Capacity" unit="A">
+                  <input className="ui-input" value={r.capacity} placeholder="170"
+                    onChange={(e) => setRec(i, { capacity: e.target.value })} />
+                </Field>
+                <label className="dacinit-check"><Checkbox checked={r.isSwitch} onChange={() => setRec(i, { isSwitch: !r.isSwitch })} /> Switch</label>
+                {!found && <>
+                  <label className="dacinit-check"><Checkbox checked={r.commFail} onChange={() => setRec(i, { commFail: !r.commFail })} /> Comm fail</label>
+                  <label className="dacinit-check"><Checkbox checked={r.normallyOpen} onChange={() => setRec(i, { normallyOpen: !r.normallyOpen })} /> Normally open</label>
+                  <Field label="Circuit" grow>
+                    <input className="ui-input" value={r.circuit} placeholder="6310"
+                      onChange={(e) => setRec(i, { circuit: e.target.value })} />
+                  </Field>
+                </>}
+              </div>
+              {!found && (
+                <Flow>
+                  <RefInput value={r.aSide} names={allNames} list="dacinit-names" placeholder="A side"
+                    problem={aSideProblem(r)} onChange={(v) => setRec(i, { aSide: v })} />
+                  <Arrow />
+                  <Self name={name} />
+                  <Arrow back={r.normallyOpen} />
+                  <RefInput value={r.bSide} names={allNames} list="dacinit-names" placeholder="B side, or none"
+                    problem={bSideProblem(r)} onChange={(v) => setRec(i, { bSide: v })} />
+                  {(aSideProblem(r) ?? bSideProblem(r)) && (
+                    <span className="dacinit-problem">{aSideProblem(r) ?? bSideProblem(r)}</span>
+                  )}
+                </Flow>
+              )}
+              <div className="dacinit-sources">
+                <span className="dacinit-flow-label">Sources</span>
+                <div className="dacinit-source-grid">
+                  {r.sources.map((src, s) => (
+                    <div key={s} className="dacinit-source">
+                      <span className="dacinit-source-slot">{String.fromCharCode(65 + s)}</span>
+                      <RefInput value={src.feeder} names={sourceNames} list="dacinit-sources"
+                        unknownTitle="Not a feeder or connector"
+                        onChange={(v) => setRecSource(i, s, { feeder: v })} />
+                      <IdInput prefix="SG" value={src.sg} onChange={(v) => setRecSource(i, s, { sg: v })} />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="dacinit-sources">
-              {r.sources.map((src, s) => (
-                <Fragment key={s}>
-                  <TextInput value={src.feeder} placeholder={`SRC ${String.fromCharCode(65 + s)}`}
-                    onChange={(e) => setRecSource(i, s, { feeder: e.target.value })} />
-                  <TextInput value={src.sg} placeholder="SG"
-                    onChange={(e) => setRecSource(i, s, { sg: e.target.value })} />
-                </Fragment>
-              ))}
-            </div>
-          </div>
           )
         })}
-        <div className="tool-row">
+
+        {feedersBreakers.map((f, i) => {
+          const name = f.number.trim() ? `F${f.number.trim()}` : ''
+          return (
+            <div key={`f${i}`} className="dacinit-card">
+              <CardHead kind="Feeder" onRemove={() => fbOps.remove(i)}>
+                <IdInput prefix="F" value={f.number} placeholder="4473A" strip={/^\s*[fb](?=\d)/i}
+                  onChange={(v) => setFb(i, { number: v })} />
+                {name && (isOnMap(name) ? <Chip tone="exists">On AreaMap</Chip> : <Chip tone="new">New</Chip>)}
+              </CardHead>
+              <div className="dacinit-card-row">
+                <Field label="Capacity" unit="A">
+                  <input className="ui-input" value={f.capacity} placeholder="500"
+                    onChange={(e) => setFb(i, { capacity: e.target.value })} />
+                </Field>
+                <Field label="Breaker">
+                  <Select value={f.breaker} options={BREAKERS} onChange={(v) => setFb(i, { breaker: v })} />
+                </Field>
+                {f.breaker === 'pseudo' && (
+                  <Field label="Lockout" unit="s">
+                    <input className="ui-input" value={f.lockout} placeholder="15"
+                      onChange={(e) => setFb(i, { lockout: e.target.value })} />
+                  </Field>
+                )}
+                <label className="dacinit-check"><Checkbox checked={f.normallyOpen} onChange={() => setFb(i, { normallyOpen: !f.normallyOpen })} /> Normally open</label>
+                <Field label="DNP client" grow>
+                  <RefInput value={f.dnpClient} names={clients} list="dacinit-clients" placeholder="auto"
+                    unknownTitle="No DNP client by that name" onChange={(v) => setFb(i, { dnpClient: v })} />
+                </Field>
+              </div>
+              <Flow>
+                {fed && <>
+                  <RefInput value={f.aSide} names={xfmrNames} list="dacinit-xfmrs" placeholder="Transformer"
+                    onChange={(v) => setFb(i, { aSide: v })} />
+                  <Arrow />
+                </>}
+                <Self name={name} />
+                {breakerName(f) && <><Arrow /><Self name={breakerName(f)} /></>}
+              </Flow>
+            </div>
+          )
+        })}
+
+        {transformers.map((x, i) => {
+          const name = x.substation.trim() && x.transformer.trim() ? xfmrName(x) : ''
+          return (
+            <div key={`x${i}`} className="dacinit-card">
+              <CardHead kind="Transformer" onRemove={() => xfmrOps.remove(i)}>
+                <span className="dacinit-id dacinit-id-wide">
+                  <span className="dacinit-id-prefix">XFMR_</span>
+                  <input value={x.substation} placeholder="Goodbee" spellCheck={false}
+                    onChange={(e) => setXfmr(i, { substation: e.target.value })} />
+                  <span className="dacinit-id-prefix">_</span>
+                  <input className="dacinit-id-short" value={x.transformer} placeholder="T1" spellCheck={false}
+                    onChange={(e) => setXfmr(i, { transformer: e.target.value })} />
+                </span>
+                {name && (isOnMap(name) ? <Chip tone="exists">On AreaMap</Chip> : <Chip tone="new">New</Chip>)}
+              </CardHead>
+              <div className="dacinit-card-row">
+                <Field label="Rated" unit="MVA">
+                  <input className="ui-input" value={x.ratedMva} placeholder="14"
+                    onChange={(e) => setXfmr(i, { ratedMva: e.target.value })} />
+                </Field>
+{x.substation.trim() && (() => {
+                  const found = substationClients(clients, x.substation)
+                  return (
+                    <Field label="DNP client">
+                      <span className={`dacinit-found${found.length === 1 ? '' : ' is-unknown'}`}>
+                        {found.length ? found.join(', ') : 'None found'}
+                      </span>
+                    </Field>
+                  )
+                })()}
+              </div>
+            </div>
+          )
+        })}
+
+        {connectors.map((c, i) => {
+          const name = connName(c)
+          const newRemote = isNewRemote(c)
+          return (
+            <div key={`c${i}`} className="dacinit-card">
+              <CardHead kind="Connector" onRemove={() => connOps.remove(i)}>
+                <span className="dacinit-self">{name || 'R…_Connector'}</span>
+                {name && (isOnMap(name) ? <Chip tone="exists">On AreaMap</Chip> : <Chip tone="new">New</Chip>)}
+                {newRemote && <Chip tone="update">New manager</Chip>}
+              </CardHead>
+              <div className="dacinit-card-row">
+                <Field label="Remote DAC">
+                  <RefInput value={c.remoteDac} names={remotes} list="dacinit-remotes" placeholder={remotes[0] ?? 'Eunice'}
+                    strict={false} onChange={(v) => setConn(i, { remoteDac: v })} />
+                </Field>
+                {wantsName && (
+                  <Field label="Name">
+                    <input className="ui-input" value={c.connection} placeholder="6421A_6404B"
+                      onChange={(e) => setConn(i, { connection: e.target.value })} />
+                  </Field>
+                )}
+                {newRemote && <>
+                  <Field label="Port">
+                    <input className="ui-input" value={c.port} placeholder="59056"
+                      onChange={(e) => setConn(i, { port: e.target.value })} />
+                  </Field>
+                  <Field label="Remote IP" grow>
+                    <input className="ui-input" value={c.remoteIp} placeholder="192.168.199.22"
+                      onChange={(e) => setConn(i, { remoteIp: e.target.value })} />
+                  </Field>
+                </>}
+              </div>
+              <Flow>
+                <span className="dacinit-remote">{c.remoteDac.trim() || 'Remote DAC'}</span>
+                <Arrow />
+                <Self name={name} />
+                <Arrow />
+                <RefInput value={c.feeds} names={tieNames} list="dacinit-ties" placeholder="Tie recloser"
+                  onChange={(v) => setConn(i, { feeds: v })} />
+              </Flow>
+            </div>
+          )
+        })}
+
+        <div className="dacinit-add">
           <Button onClick={() => setReclosers((rows) => [...rows, newRec()])}>+ Recloser</Button>
-        </div>
-
-        <SectionHeader title="Transformers" count={transformers.length || undefined} />
-        {transformers.length > 0 && (
-          <div className="dacinit-grid dacinit-xfmr">
-            <span className="dacinit-col">Substation</span>
-            <span className="dacinit-col">Transformer</span>
-            <span className="dacinit-col">Rated MVA</span>
-            <span className="dacinit-col">DNP client</span>
-            <span />
-            {transformers.map((x, i) => (
-              <Fragment key={i}>
-                <TextInput value={x.substation} placeholder="Goodbee" onChange={(e) => setXfmr(i, { substation: e.target.value })} />
-                <TextInput value={x.transformer} placeholder="T1" onChange={(e) => setXfmr(i, { transformer: e.target.value })} />
-                <TextInput value={x.ratedMva} placeholder="14" onChange={(e) => setXfmr(i, { ratedMva: e.target.value })} />
-                <TextInput value={x.dnpClient} placeholder="Goodbee_Sub" onChange={(e) => setXfmr(i, { dnpClient: e.target.value })} />
-                <Button title="Remove transformer" onClick={() => xfmrOps.remove(i)}>✕</Button>
-              </Fragment>
-            ))}
-          </div>
-        )}
-        <div className="tool-row">
+          <Button onClick={() => setFeedersBreakers((rows) => [...rows, newFb(defaultBreaker(family))])}>+ Feeder</Button>
           <Button onClick={() => setTransformers((rows) => [...rows, newXfmr()])}>+ Transformer</Button>
-        </div>
-
-        <SectionHeader title="Feeders / Breakers" count={feedersBreakers.length || undefined} />
-        {feedersBreakers.length > 0 && (
-          <div className="dacinit-grid dacinit-fb">
-            <span className="dacinit-col">Number</span>
-            <span className="dacinit-col">Capacity</span>
-            <span className="dacinit-col">DNP client</span>
-            <span className="dacinit-col">A side</span>
-            <span className="dacinit-col">Norm. open</span>
-            <span className="dacinit-col">Breaker</span>
-            <span className="dacinit-col">Lockout</span>
-            <span />
-            {feedersBreakers.map((f, i) => (
-              <Fragment key={i}>
-                <TextInput value={f.number} placeholder="4473A" onChange={(e) => setFb(i, { number: e.target.value })} />
-                <TextInput value={f.capacity} placeholder="500" onChange={(e) => setFb(i, { capacity: e.target.value })} />
-                <TextInput value={f.dnpClient} placeholder="Goodbee_Sub" onChange={(e) => setFb(i, { dnpClient: e.target.value })} />
-                <TextInput value={f.aSide} placeholder="XFMR_Goodbee_T1" onChange={(e) => setFb(i, { aSide: e.target.value })} />
-                <div className="dacinit-cell-check"><Checkbox checked={f.normallyOpen} onChange={() => setFb(i, { normallyOpen: !f.normallyOpen })} /></div>
-                <Select value={f.breaker} options={BREAKERS} onChange={(v) => setFb(i, { breaker: v })} />
-                <TextInput value={f.lockout} placeholder="15s" disabled={f.breaker !== 'pseudo'}
-                  onChange={(e) => setFb(i, { lockout: e.target.value })} />
-                <Button title="Remove" onClick={() => fbOps.remove(i)}>✕</Button>
-              </Fragment>
-            ))}
-          </div>
-        )}
-        <div className="tool-row">
-          <Button onClick={() => setFeedersBreakers((rows) => [...rows, newFb(defaultBreaker(family))])}>+ Feeder / Breaker</Button>
-        </div>
-
-        <SectionHeader title="Connectors" count={connectors.length || undefined} />
-        {connectors.length > 0 && (
-          <div className={`dacinit-grid dacinit-conn${wantsName ? ' dacinit-conn-named' : ''}`}>
-            <span className="dacinit-col">Feeds</span>
-            <span className="dacinit-col">Remote DAC</span>
-            {wantsName && <span className="dacinit-col">Name</span>}
-            <span className="dacinit-col">{connectors.some(isNewRemote) ? 'Port' : ''}</span>
-            <span className="dacinit-col">{connectors.some(isNewRemote) ? 'Remote IP' : ''}</span>
-            <span />
-            {connectors.map((c, i) => (
-              <Fragment key={i}>
-                <TextInput value={c.feeds} placeholder="R6315" onChange={(e) => setConn(i, { feeds: e.target.value })} />
-                <TextInput value={c.remoteDac} placeholder={remotes[0] ?? 'Eunice'} onChange={(e) => setConn(i, { remoteDac: e.target.value })} />
-                {wantsName && <TextInput value={c.connection} placeholder="6421A_6404B" onChange={(e) => setConn(i, { connection: e.target.value })} />}
-                {isNewRemote(c) ? <TextInput value={c.port} placeholder="59056" onChange={(e) => setConn(i, { port: e.target.value })} /> : <span />}
-                {isNewRemote(c) ? <TextInput value={c.remoteIp} placeholder="192.168.199.22" onChange={(e) => setConn(i, { remoteIp: e.target.value })} /> : <span />}
-                <Button title="Remove" onClick={() => connOps.remove(i)}>✕</Button>
-              </Fragment>
-            ))}
-          </div>
-        )}
-        <div className="tool-row">
           <Button onClick={() => setConnectors((rows) => [...rows, newConn()])}>+ Connector</Button>
         </div>
 
+        <SectionHeader title="Generate" />
         <div className="tool-row">
           <Button variant="primary" disabled={!ready} onClick={() => generate()}>
             Generate
           </Button>
           <span className="tool-stats">
-            {deviceCount} device{deviceCount === 1 ? '' : 's'} → {selectedPath || '(drop a DAC)'}
+            {deviceCount} device{deviceCount === 1 ? '' : 's'}
           </span>
         </div>
 
@@ -441,11 +675,7 @@ export function DacInitTool(_props: ToolProps) {
 
         {result && result.conflicts.length > 0 && (
           <div className="dacinit-conflicts">
-            <div className="dacinit-conflicts-head">
-              Already initialized in {result.entryName}, and left untouched. Check any you
-              meant to change — each is regenerated with the parameters above, in place,
-              where it already sits.
-            </div>
+            <div className="dacinit-conflicts-head">Already in {result.entryName}</div>
             <div className="dacinit-conflicts-list">
               {result.conflicts.map((conflict) => (
                 <label key={conflict.name} className="dacinit-check">
@@ -470,6 +700,7 @@ export function DacInitTool(_props: ToolProps) {
           </div>
         )}
 
+        {result && <SectionHeader title="Review" />}
         {result && (
           <RunOutputs
             tool="dacinit"
@@ -478,44 +709,28 @@ export function DacInitTool(_props: ToolProps) {
             downloadOnly
             rowActions={() => saveButton}
           >
-            <div className="tool-row"><span className="tool-stats">{result.family} scheme</span></div>
-            {addedSummary && (
-              <div className="tool-row"><span className="tool-stats">Will add — {addedSummary}</span></div>
-            )}
-            {updatedSummary && (
-              <div className="tool-row"><span className="tool-stats">Will update in place — {updatedSummary}</span></div>
-            )}
-            {result.unchanged.length > 0 && (
-              <div className="tool-row"><span className="tool-stats">Already as listed: {result.unchanged.join(', ')}</span></div>
-            )}
-            {replacedSummary && (
-              <div className="tool-row"><span className="tool-stats">Will overwrite in place — {replacedSummary}</span></div>
-            )}
-            {result.wired.scada.length > 0 && (
-              <div className="tool-row"><span className="tool-stats">SCADA map — {result.wired.scada
-                .map((s) => `${s.group} from ${s.template}`).join(' · ')}</span></div>
-            )}
-            {result.wired.areaMap.length > 0 && (
-              <div className="tool-row"><span className="tool-stats">AreaMap — {result.wired.areaMap
-                .map((p) => `${p.name} ${p.where}`).join(' · ')}</span></div>
-            )}
-            {result.wired.faults.length > 0 && (
-              <div className="tool-row"><span className="tool-stats">Fault logic — {result.wired.faults
-                .map((f) => `${f.name} in ${f.program}${f.created ? ' (new)' : ''}`).join(' · ')}</span></div>
-            )}
-            {result.wired.excluded.length > 0 && (
-              <div className="tool-row"><span className="tool-stats">Feeders_Excluded — {result.wired.excluded.join(', ')}</span></div>
-            )}
-            {alreadyDeclared.length > 0 && (
-              <div className="tool-row"><span className="tool-stats">Already declared: {alreadyDeclared.join(', ')}</span></div>
-            )}
+            <div className="dacinit-summary">
+              {summaryRow('Scheme', result.family)}
+              {addedSummary && summaryRow('Add', addedSummary)}
+              {updatedSummary && summaryRow('Update', updatedSummary)}
+              {result.unchanged.length > 0 && summaryRow('Unchanged', result.unchanged.join(', '))}
+              {replacedSummary && summaryRow('Overwrite', replacedSummary)}
+              {result.wired.scada.length > 0 && summaryRow('SCADA map', result.wired.scada
+                .map((s) => `${s.group} from ${s.template}`).join(' · '))}
+              {result.wired.areaMap.length > 0 && summaryRow('AreaMap', result.wired.areaMap
+                .map((p) => `${p.name} ${p.where}`).join(' · '))}
+              {result.wired.faults.length > 0 && summaryRow('Fault logic', result.wired.faults
+                .map((f) => `${f.name} in ${f.program}${f.created ? ' (new)' : ''}`).join(' · '))}
+              {result.wired.excluded.length > 0 && summaryRow('Excluded', result.wired.excluded.join(', '))}
+              {alreadyDeclared.length > 0 && summaryRow('Declared', alreadyDeclared.join(', '))}
+            </div>
             {!result.changed && (
               <div className="tool-row"><span className="tool-stats">Nothing new to save.</span></div>
             )}
             {result.changed > 0 && result.reports.length === 0 && <div className="tool-row">{saveButton}</div>}
             {saved && (
               <div className="tool-row">
-                <span className="tool-stats">Saved new version: {saved} — “{result.note}”</span>
+                <span className="tool-stats">Saved {saved} — “{result.note}”</span>
               </div>
             )}
           </RunOutputs>

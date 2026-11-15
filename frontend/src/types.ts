@@ -593,6 +593,10 @@ export interface DacInitLookup {
   reclosers: DacInitExisting[]
   /** Remote DACs the project already has a connector manager for. */
   remotes: string[]
+  /** Every device box on the AreaMap, with what its outputs are wired to. */
+  areaMap: { name: string; kind: 'recloser' | 'feeder' | 'breaker' | 'transformer' | 'connector'; feeds: string[] }[]
+  /** DNP client names, without _DNP. */
+  clients: string[]
 }
 
 export interface DacInitResult {

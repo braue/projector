@@ -272,6 +272,34 @@ test('dacinit: what the project cannot answer falls back to the naming conventio
   assert.ok(messages.some((m) => /^R9999: SRC_A 1234 is not a feeder or connector/.test(m)));
 });
 
+test('dacinit: a transformer finds its DNP client by its substation name', async () => {
+  const { warnings, text } = await resolved(PROJECT_13, {
+    params: PROJ,
+    transformers: [
+      { substation: 'Abita Springs', transformer: 'T1', ratedMva: 14 },
+      { substation: 'three_rivers', transformer: 'T2', ratedMva: 14 },
+      { substation: 'Nowhere', transformer: 'T1', ratedMva: 14 },
+    ],
+  });
+  const [abita, rivers, nowhere] = text.transformers.map((t) => t.text);
+  assert.match(abita, /Abita_Springs_Sub_DNP_POU/);
+  assert.match(rivers, /Three_Rivers_Sub_DNP_POU/);
+  assert.match(nowhere, /Nowhere_Sub_DNP_POU/);
+  assert.deepEqual(warnings.filter((w) => /DNP client/.test(w.message)).map((w) => w.device), ['XFMR_Nowhere_T1']);
+});
+
+test('dacinit: a source the project lacks keeps the name it was typed as', async () => {
+  const { warnings, text } = await resolved(PROJECT_13, {
+    params: PROJ,
+    reclosers: [recRow('119', { sources: [{ feeder: 'F9999', sg: 1 }, { feeder: '9998', sg: 2 }] })],
+  });
+  const rec = text.reclosers[0].text;
+  assert.match(rec, /F9999\.ID/);
+  assert.match(rec, /F9998\.ID/);
+  assert.doesNotMatch(rec, /FF999/);
+  assert.equal(warnings.filter((w) => /SRC_/.test(w.message)).length, 2);
+});
+
 test('dacinit: declarations batch eight to a line, kinds apart', () => {
   const batch = declarationBatch({
     reclosers: ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9'],
@@ -644,15 +672,22 @@ test('dacinit scheme: a recloser addition lands on the AreaMap, in fault logic a
       params: PROJ,
       // St Landry 2026: R6268 and R6267 go in between B6310 and R6318.
       reclosers: [
-        recRow('6268', { capacity: 170, aSide: 'B6310', bSide: 'R6318', sources: [] }),
-        recRow('6267', { capacity: 170, aSide: 'R6268', sources: [] }),
-        recRow('7003', { capacity: 170, aSide: 'B7002', sources: [] }),
+        // Typed with or without its letter: R6268 and F7001 are 6268 and 7001.
+        recRow('R6268', { capacity: 170, aSide: 'B6310', bSide: 'R6318', sources: [] }),
+        recRow('6267', { capacity: 170, aSide: 'R6268', bSide: 'R6318', sources: [] }),
+        recRow('7003', { capacity: 170, aSide: 'B7002', bSide: 'none', sources: [] }),
       ],
       feedersBreakers: [
-        { number: '7001', capacity: 400, breaker: 'pseudo', lockout: '15' },
+        { number: 'F7001', capacity: 400, breaker: 'pseudo', lockout: '15' },
         { number: '7002', capacity: 400, breaker: 'pseudo', lockout: '15' },
       ],
     });
+    // What the form offers for A side / B side / feeds / sources.
+    const { areaMap, clients } = await dacinit.lookup(files, 'Bunkie.rtac');
+    assert.deepEqual(areaMap.find((b) => b.name === 'B6310'), { name: 'B6310', kind: 'breaker', feeds: ['R6315', 'R6318'] });
+    assert.deepEqual(areaMap.find((b) => b.name === 'R6315_Connector'), { name: 'R6315_Connector', kind: 'connector', feeds: ['R6315'] });
+    assert.deepEqual(clients, ['SEL_651R2_6267', 'SEL_651R2_6268']);
+
     const job = await settled(jobs.get(jobId));
     assert.equal(job.status, 'done', job.error ?? '');
     const { wired } = job.result;
@@ -705,6 +740,44 @@ test('dacinit scheme: a recloser addition lands on the AreaMap, in fault logic a
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
+});
+
+test('dacinit areamap: B side is required, a list takes over several branches, none ends the line', async () => {
+  const { Cfc } = await import('../services/tools/dacinit/cfc.js');
+  const { placeOnAreaMap } = await import('../services/tools/dacinit/areamap.js');
+  const fresh = async () => new Cfc(await readFile(path.join(FIXTURES, 'AreaMap.xml'), 'utf8'));
+
+  // B6310 branches to R6318 and R6315; R7020 goes in front of both.
+  const map = await fresh();
+  const { placed, problems } = placeOnAreaMap(map, [
+    { kind: 'recloser', name: 'R7020', aSide: 'B6310', bSide: 'R6318, R6315' },
+    { kind: 'recloser', name: 'R7021', aSide: 'R7020', bSide: 'none', open: false },
+  ]);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(placed, [
+    { name: 'R7020', where: 'between B6310 and R6318, R6315' },
+    { name: 'R7021', where: 'after R7020' },
+  ]);
+  const wires = wiring(map);
+  for (const w of ['B6310.B->R7020.A', 'R7020.B->R6318.A', 'R7020.B->R6315.A']) assert.ok(wires.includes(w), w);
+  assert.ok(!wires.some((w) => /^B6310\.B->R63(18|15)/.test(w)), wires.join(' '));
+  assert.deepEqual(routesOnPins(map), []);
+  // Both re-fed rows moved clear of the new box.
+  assert.ok(map.box('R6318').x > map.box('R7020').x && map.box('R6315').x > map.box('R7020').x);
+
+  const bad = placeOnAreaMap(await fresh(), [
+    { kind: 'recloser', name: 'R7030', aSide: 'B6310', bSide: '' },
+    { kind: 'recloser', name: 'R7031', aSide: 'B6310', bSide: 'R5914' },
+    { kind: 'recloser', name: 'R7032', aSide: 'B6310, F6310', bSide: 'none' },
+    { kind: 'recloser', name: 'R7033', aSide: 'R6318', bSide: 'R5914, R6315', open: true },
+  ]);
+  assert.deepEqual(bad.placed, []);
+  assert.deepEqual(bad.problems.map((p) => p.message.replace('not placed on the AreaMap: ', '')), [
+    'give the B side (or none)',
+    'B6310 is not wired to R5914 (it feeds R6315, R6318)',
+    'one A side',
+    'a tie has one B side',
+  ]);
 });
 
 test('dacinit scada map: a copied block is numbered after each page and its AddItems grow', async () => {
@@ -793,7 +866,7 @@ R6315_Connector.InitDaScadaLink(
     const { job: jobId, run } = await dacinit.generate(files, {
       path: 'Bunkie.rtac',
       params: PROJ,
-      reclosers: [recRow('7010', { capacity: 170, aSide: 'R6318', normallyOpen: true, sources: [] })],
+      reclosers: [recRow('7010', { capacity: 170, aSide: 'R6318', bSide: 'none', normallyOpen: true, sources: [] })],
       connectors: [
         { feeds: 'R7010', remoteDac: 'Pineville', port: '59052', remoteIp: '192.168.199.25' },
         { name: 'R5914_Connector', feeds: 'R5914', remoteDac: 'eunice' },
