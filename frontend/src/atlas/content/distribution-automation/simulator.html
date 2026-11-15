@@ -186,6 +186,9 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 
 .tl { margin-bottom: 0; padding-bottom: 8px; }
 .tl-head { padding: 16px 20px 4px; }
+.tl-tools { display: flex; align-items: center; gap: 12px; }
+.tl-tools .mono { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+#zoom button { min-width: 34px; }
 
 .logwrap { background: var(--bg); border-radius: 16px; padding: 6px 0 10px; }
 .log-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px 6px; }
@@ -260,7 +263,7 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
   </section>
 
   <section class="tl">
-    <div class="tl-head"><h4>Timeline</h4><span class="chip" id="tlInfo"></span></div>
+    <div class="tl-head"><h4>Timeline</h4><div class="tl-tools"><span class="mono" id="tlRange"></span><div class="seg" id="zoom"><button type="button" data-z="out" aria-label="Zoom out">−</button><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit">Fit</button></div></div></div>
     <svg id="tl"></svg>
   </section>
 
@@ -283,9 +286,9 @@ const PULSE = 5, COF = 10, POLL_TO = 10;
 const SETTINGS = [
   ['MinimumUpdateTime', 10, 's'], ['UpdateTimeLimit', 120, 's'], ['AnalyzeTimeLimit', 120, 's'], ['ReconfigTimeLimit', 120, 's'],
   ['EventDetectTime', 10, 's'], ['OpenPhaseConfirmTime', 60, 's'], ['OverloadConfirmTime2', 60, 's'], ['FaultHoldTime', 120, 's'],
-  ['CloseDelay', 0, 's'], ['RecloseIntervals', '2,10,15', ''], ['PollAnswer', 1.5, 's'], ['StatusLatency', 2, 's'], ['ConnectorMsg', 1, 's'],
+  ['CloseDelay', 0, 's'], ['RecloseIntervals', '2,10,15', ''], ['PollAnswer', 1.5, 's'], ['StatusLatency', 2, 's'], ['ConnectorMsg', 1, 's'], ['Scan', 0.1, 's'],
 ];
-const LABEL = { RecloseIntervals: 'R1 reclose intervals', PollAnswer: 'Poll answer time', StatusLatency: 'Status report delay', ConnectorMsg: 'Connector message' };
+const LABEL = { RecloseIntervals: 'R1 reclose intervals', PollAnswer: 'Poll answer time', StatusLatency: 'Status report delay', ConnectorMsg: 'Connector message', Scan: 'DA task scan' };
 const SECN = { A0: 'BKR-A–R1', A1: 'R1–R2', A2: 'R2–T1', A3: 'R3–T2', B1: 'T1–R4', B0: 'R4–BKR-B', C1: 'T2–BKR-C' };
 const LOAD0 = { A0: 200, A1: 120, A2: 90, A3: 60, B1: 80, B0: 170, C1: 150 };
 const FA = ['BKR-A', 'R1', 'R2', 'R3', 'T1'], FB = ['T1', 'R4', 'BKR-B'];
@@ -294,8 +297,9 @@ const uniq = a => [...new Set(a)];
 const f1 = x => (Math.round(x * 10) / 10).toFixed(1);
 
 class Run {
-  constructor() { this.E = []; this.S = []; this.P = []; this.end = 0; this.fsl = []; this.mgl = []; this.focus = 0; }
+  constructor() { this.E = []; this.S = []; this.P = []; this.M = []; this.end = 0; this.fsl = []; this.mgl = []; this.focus = 0; }
   bump(t) { if (isFinite(t) && t > this.end) this.end = t; return t; }
+  mark(lane, t, label, info = '') { this.bump(t); this.M.push({ lane, t, label, info }); }
   log(t, src, name, desc = '', why = null, k = '') { this.bump(t); this.E.push({ t, src, name, desc, why, k: k || (src === 'Field' ? 'field' : src === 'DAC-2' ? 'dac2' : 'dac') }); }
   span(lane, a, b, label, tone = '', o = {}) { this.bump(b); this.S.push({ lane, a, b, label, tone, ...o }); }
   timer(name, a, len, actual, kind = 'min', info = '') { const b = actual ?? a + len; this.span('Timers', a, b, name, kind, { full: a + len, kind, info }); }
@@ -306,19 +310,63 @@ class Run {
   tg(t, f, k, v = true) { this.set(t, { tg: { [f]: { [k]: v } } }); }
   finalize(pad = 12) {
     this.end = Math.ceil((this.end + pad) / 5) * 5;
-    for (const [list, laneOf] of [[this.fsl, x => 'Feeder ' + (x.f === 'C' ? 'C · DAC-2' : x.f)], [this.mgl, () => 'Manager']]) {
+    for (const [list, laneOf] of [[this.fsl, x => 'Feeder ' + (x.f === 'C' ? 'C · DAC-2' : x.f)], [this.mgl, () => 'Reconfig sequence']]) {
       const by = {};
       for (const x of list) (by[laneOf(x)] ??= []).push(x);
       for (const [lane, xs] of Object.entries(by)) {
         xs.sort((a, b) => a.t - b.t);
-        xs.forEach((x, i) => { const nx = xs[i + 1]; if (x.st && x.st !== 'IDLE') this.span(lane, x.t, nx ? nx.t : this.end, x.st, 'st-' + x.st); });
+        xs.forEach((x, i) => { const nx = xs[i + 1]; if (x.st && x.st !== 'IDLE') this.span(lane, x.t, nx ? nx.t : this.end, x.st, 'st-' + x.st.split(' ')[0], { prio: 0, info: STINFO[x.st.split(' ')[0]] || '' }); });
       }
     }
+    this.P.sort((a, b) => a.t - b.t || a.i - b.i);
+    this.derive();
     for (const s of this.S) if (s.b == null) s.b = this.end;
     this.E.sort((a, b) => a.t - b.t);
-    this.P.sort((a, b) => a.t - b.t || a.i - b.i);
+    this.M.sort((a, b) => a.t - b.t);
+  }
+  // Rows that are pure functions of the state: sweep the patches once and cut a span every time a value changes.
+  derive() {
+    const s = baseState(), open = {};
+    const put = (lane, v, t) => {
+      const o = open[lane];
+      if (o && o.v === v) return;
+      if (o && o.v) this.S.push({ lane, a: o.t, b: t, label: DERIVED_LABEL[lane] ? DERIVED_LABEL[lane](o.v) : o.v, tone: 'd-' + o.v, info: DINFO[o.v] || '', prio: 0 });
+      open[lane] = { v, t };
+    };
+    let k = 0;
+    while (k < this.P.length) {
+      const t = this.P[k].t;
+      while (k < this.P.length && this.P[k].t === t) apply(s, this.P[k++].p);
+      for (const [lane, fn] of DERIVED) put(lane, fn(s), t);
+    }
+    for (const [lane] of DERIVED) put(lane, '', this.end);
   }
 }
+
+// DA_MANAGER_AR sequence rows and the SCADA step points, written as the code computes them.
+const COLLAB_ANALYZE = ['InitialSolutionHandshake', 'InitialSolution', 'FinalSolutionHandshake', 'FinalSolution', 'ExecutionHandshake'];
+const DERIVED = [
+  ['Event sequence', s => s.flags.DA_EVENT_Confirmed ? 'Confirmed' : s.flags.DA_EVENT_Detected ? 'Detected' : ''],
+  ['DA_InProgress', s => s.flags.DA_InProgress ? 'DA_InProgress' : ''],
+  ['UpdateStep', s => ['A', 'B'].some(f => s.fs[f] === 'UPDATE') ? 'UpdateStep' : ''],
+  ['AnalyzeStep', s => ['A', 'B'].some(f => s.fs[f] === 'ANALYZE') || s.flags.DA_Analyze || COLLAB_ANALYZE.includes(s.collab) ? 'AnalyzeStep' : ''],
+  ['ReconfigureStep', s => s.flags.DA_Reconfiguration ? 'ReconfigureStep' : ''],
+];
+const DERIVED_LABEL = { 'Event sequence': v => 'DA_EVENT_' + v, DA_InProgress: () => 'TRUE', UpdateStep: () => 'TRUE', AnalyzeStep: () => 'TRUE', ReconfigureStep: () => 'TRUE' };
+const DINFO = {
+  Detected: 'DA_EVENT_Detected: any feeder has an event latched. Cleared by the manager when every feeder is idle with nothing confirmed, on completion, abort or timeout.',
+  Confirmed: 'DA_EVENT_Confirmed: set by mFEEDER_ConfirmEvent when a feeder confirms. With every feeder idle (or analysing with a confirmed event) this lets the reconfiguration sequence solve.',
+  DA_InProgress: 'DA_InProgress := DA_EVENT_Detected OR DA_EVENT_Confirmed OR DA_RETURN_* OR DA_Analyze OR DA_Reconfiguration OR collaboration for 2 s. Blocks Reset, pauses WDOG pulses, cuts the poll retry to 10 s.',
+  UpdateStep: 'SCADA UpdateStep := any feeder Update.InProgress.',
+  AnalyzeStep: 'SCADA AnalyzeStep := AnalyzeStep1 OR DA_Analyze OR collaboration state from InitialSolutionHandshake up to Execution. AnalyzeStep1 is any feeder Analyze.InProgress. So this one point covers BOTH the feeder event-sequence ANALYZE and the reconfiguration-sequence Analyze.',
+  ReconfigureStep: 'SCADA ReconfigureStep := DA_Reconfiguration.',
+};
+const STINFO = {
+  UPDATE: 'Feeder event sequence, UPDATE: poll every device on the feeder (and neighbours inside TransferDepth). Ends when all answered AND MinimumUpdateTime has run, or at MAX(UpdateTimeLimit, MinimumUpdateTime + 10 s).',
+  ANALYZE: 'Feeder event sequence, ANALYZE: mFEEDER_ConfirmEvent runs every scan. Ends when the event is confirmed with no unresolved faults and neighbours updated, when no event is latched any more, or at AnalyzeTimeLimit. Fault isolation is commanded at the moment of confirmation, so it lands at the END of this step.',
+  Analyze: 'Reconfiguration sequence, Analyze (DA_Analyze): mAR_FindSolution. It always returns TRUE in one pass. Without a collaboration the same scan sets DA_Reconfiguration and clears DA_Analyze. With one it stays TRUE from InitialSolution until Execution. Isolation was already commanded at confirmation, so it lands BEFORE this step.',
+  Reconfiguration: 'Reconfiguration sequence, Reconfiguration (DA_Reconfiguration): g_SolutionExecution.Execute.Run() every scan until DA_PhaseThreeComplete, or ReconfigTimeLimit.',
+};
 
 function baseState(o = {}) {
   const dev = {};
@@ -352,6 +400,7 @@ const maxOf = (ans, list) => list.every(d => ans[d] != null) ? Math.max(...list.
 
 function begin(r, t, why) {
   r.flag(t, 'DA_EVENT_Detected'); r.flag(t, 'DA_InProgress');
+  r.mark('Event sequence', t, 'DA_EVENT_Detected', 'A feeder latched a new event.');
   r.log(t, 'DAC-1', 'DAC: Event Detected', 'Asserted · DA_InProgress', why || W('Any feeder with a new event sets DA_EVENT_Detected. DA_InProgress then refuses Reset, blocks new overload triggers (and for 30 s after), pauses open-phase disarm timers and cuts the poll retry timeout from PollTimeout (30 s) to 10 s.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
   r.log(t, 'DAC-1', 'WDOG pulses stop', 'Watchdog pulses to field devices pause while DA is in progress', W('The WDOG pulse to field devices is not sent while DA_InProgress is TRUE.', 'OBJ/DA_MANAGER_AR', '§04 Comms & watchdogs'));
 }
@@ -379,7 +428,8 @@ function updatePhase(r, S, t, own, nbr, { silent = [], ownF = 'A', nbrF = 'B', l
   if (tA !== Infinity) {
     const why = doneOwn > t + S.MinimumUpdateTime ? `Every on-scan device answered at t+${f1(doneOwn)}, after MinimumUpdateTime.` : `All devices answered by t+${f1(doneOwn)}, but MinimumUpdateTime holds UPDATE until t+${f1(t + S.MinimumUpdateTime)}.`;
     r.fs(ownF, tA, 'ANALYZE');
-    r.log(tA, 'DAC-1', 'DAC: Analyze Step', `Feeder ${ownF} leaves UPDATE`, W(why + ' UPDATE ends only when both are true.', 'Feeder/FEEDER', '§03 Event sequence'));
+    r.mark('Feeder ' + ownF, tA, 'UPDATE → ANALYZE', why);
+    r.log(tA, 'DAC-1', 'DAC: Analyze Step', `AnalyzeStep asserted · Feeder ${ownF} enters ANALYZE (event sequence)`, W(why + ' UPDATE ends only when both are true. The Adapter logs this from the AnalyzeStep point, which rises here because a feeder entered ANALYZE. This is the feeder event sequence\'s Analyze step: it confirms the event. The scheme\'s reconfiguration sequence has its own Analyze (DA_Analyze) that solves, and it can only start after a confirmation. SCADA AnalyzeStep is TRUE through both.', 'Feeder/FEEDER', '§03 Event sequence'));
   }
   return { tA, uLim, p };
 }
@@ -397,6 +447,7 @@ function updateFail(r, S, t0, uLim, dev, f = 'A') {
 
 function confirmFlags(r, t, f, kind, why) {
   r.flag(t, 'DA_EVENT_Confirmed'); r.tg(t, f, kind); r.tg(t, f, 'ReconfigurationStarted');
+  r.mark('Feeder ' + f, t, `${kind} confirmed`, kind === 'Fault' ? 'class_Fault.prv_ProcessFault sets Fault.Confirmed and, in the same pass, ExtendedIsolation.PermFault.FindIsolation sets SW.Open on the bounding switches. Device objects map OPEN_CMD.TRIGGER := SW.Open, so isolation goes out now, before any solve.' : 'mFEEDER_ConfirmEvent sets Event.Confirmed.');
   r.log(t, 'DAC-1', `Feeder ${f}: ${kind}`, 'Confirmed Event · Reconfiguration Started', why, 'warn');
   r.log(t, 'DAC-1', 'DAC: Event Confirmed', 'DA_EVENT_Confirmed', W('On confirmation the feeder sets Reconfiguration.Started and the scheme sets DA_EVENT_Confirmed. If the feeder Permissive is FALSE a permissive request is sent.', 'Feeder/Event/mFEEDER_ConfirmEvent', '§03 Event sequence'));
 }
@@ -417,14 +468,17 @@ function cmd(r, S, t, dev, act, why, { src = 'DAC-1', lane = 'Commands', fails =
 }
 
 function solve(r, S, t, text, why, { src = 'DAC-1' } = {}) {
-  r.mg(t, 'DA_Analyze'); r.flag(t, 'DA_Analyze');
-  r.log(t, src, 'DAC: Solve', text, why || W('The manager solves only when every feeder is idle, or analysing with a confirmed event. One solution covers every confirmed event.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§13 Solver'));
-  const tr = t + 0.4;
+  r.mg(t, 'Analyze'); r.flag(t, 'DA_Analyze');
+  r.mark('Reconfig sequence', t, 'mAR_FindSolution', 'Single pass. It always returns TRUE.');
+  r.log(t, src, 'DAC: Analyze (reconfiguration sequence)', text, why || W('The manager solves only when every feeder is idle, or analysing with a confirmed event. One solution covers every confirmed event.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§13 Solver'));
+  r.log(t, src, 'DA_Analyze for one scan', 'Solve and Reconfiguration start in the same pass', W('DA_MANAGER_AR sets DA_Analyze and runs mAR_FindSolution, which always returns TRUE. With no collaboration, the execute block further down the same scan sets DA_Reconfiguration and clears DA_Analyze. So this Analyze lasts one scan, and the isolation commanded at confirmation is already on its way.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
+  const tr = t + S.Scan;
   r.flag(tr, 'DA_Analyze', false);
   return tr;
 }
 function startExec(r, S, t) {
-  r.mg(t, 'DA_Reconfiguration'); r.flag(t, 'DA_Reconfiguration');
+  r.mg(t, 'Reconfiguration'); r.flag(t, 'DA_Reconfiguration'); r.flag(t, 'DA_Analyze', false);
+  r.execT = t;
   r.log(t, 'DAC-1', 'DAC: Reconfigure Step', `ReconfigTimeLimit ${S.ReconfigTimeLimit} s starts`, W('Execution is re-evaluated every scan. Each operation goes out only when the electrical state makes it safe.', 'AutomaticReconfig/ExecuteSolution/class_ExecuteSolution', '§14 Execution'));
   r.log(t, 'DAC-1', 'Fault latches and feeder events cleared', 'DA_Reconfiguration rising edge', W('On the rising edge of DA_Reconfiguration the manager runs mEQUIPMENT_ClearFault on every device and mFEEDER_ClearEvent on every feeder. It does it again when DA_InProgress falls.', 'OBJ/DA_MANAGER_AR', '§03 Event sequence'));
   return t;
@@ -475,7 +529,9 @@ function relayReset(r, S, t, d) {
   r.set(pe, { dev: { [d]: { ft: false } } });
 }
 function endSeq(r, S, t, { ok = true, complete = true, feeders = ['A'], flags = [], note = '', reset = [] } = {}) {
-  r.mg(t, 'IDLE'); r.flag(t, 'DA_Reconfiguration', false);
+  r.mg(t, 'IDLE'); r.flag(t, 'DA_Reconfiguration', false); r.flag(t, 'DA_Analyze', false);
+  if (r.execT != null) r.timer('ReconfigTimeLimit (DA_ReconfigurationTimer)', r.execT, S.ReconfigTimeLimit, t, 'limit', 'Runs while DA_Reconfiguration. Expiry sets ReconfigureStepTimeout and ExecutionFailure and aborts.');
+  r.mark('Event sequence', t, complete ? 'DA_EVENT_Complete' : 'DA_EVENT_* cleared', complete ? 'Pulses for one pass when execution finishes, then DA_EVENT_* clear.' : 'Cleared without DA_EVENT_Complete.');
   for (const f of feeders) {
     if (ok) { r.tg(t, f, 'ReconfigurationComplete'); r.log(t, 'DAC-1', `Feeder ${f}: Reconfiguration Complete`, 'Self-clears after 600 s', W('Every feeder with Reconfiguration.Started gets ReconfigurationComplete when execution finishes with everything restored, or RestorationFail on abort, timeout or a capacity-limited solution. Both self-clear after 600 s.', 'OBJ/DA_MANAGER_AR.EventCompletionFlags', '§03 Event sequence'), 'ok'); }
     for (const fl of flags) { r.tg(t, f, fl); r.log(t, 'DAC-1', `Feeder ${f}: ${fl.replace(/([a-z])([A-Z])/g, '$1 $2')}`, 'Asserted', FLAGWHY[fl] || null, fl === 'RestorationFail' || fl === 'AbnormalCondition' ? 'bad' : 'warn'); }
@@ -497,6 +553,7 @@ const FLAGWHY = {
 };
 
 /* --------------------------------------------- permanent-fault front half */
+const WAIT_LOCKOUT = 'Located but unresolved. Fault.NumUnresolved stays > 0, so the feeder cannot leave ANALYZE, until class_Lockout.Confirm finds an upstream lockout.';
 function faultFront(r, S, o) {
   const { sec = 'A1', trip = 'R1', saw = [trip], silent = [], own = FA, nbr = FB, curve } = o;
   const shots = curve || S.curve;
@@ -519,6 +576,7 @@ function faultFront(r, S, o) {
 
   const tD = 0.1 + S.StatusLatency;
   r.tD = tD;
+  r.mark('Feeder A', tD, 'TripNew', `${trip} open with a latched fault.`);
   r.log(tD, 'DAC-1', `${trip}: FaultLatch`, `Asserted · ${trip} open with fault present → TripNew`, W(`A fault is an event only when a device that saw it is open or locked out. The latched fault plus the open ${trip} fires TripNew once. The DAC learns of it ${f1(S.StatusLatency)} s after the trip.`, 'Feeder/Event/Fault/class_Fault.Detect', '§07 Permanent faults'));
   begin(r, tD);
   if (shots.length) r.log(tD + 0.1, 'DAC-1', `${trip}: reclose in progress (inferred)`, 'Opened within 10 s with a fault present', W('Reclose in progress is inferred: the device opened in the last 10 s with a fault. An open device with reclose in progress counts as tripped and locked out for fault location.', 'Feeder/Event/Fault/class_Fault', '§07 Permanent faults'));
@@ -530,14 +588,20 @@ function faultFront(r, S, o) {
   if (tLk > tA + S.AnalyzeTimeLimit) {
     r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Feeder leaves ANALYZE and clears the event if nothing confirms');
     const t = tA + S.AnalyzeTimeLimit;
+    r.span('Feeder A', tA, t, 'waits · upstream lockout', 'sub', { info: WAIT_LOCKOUT });
     r.fs('A', t, 'IDLE');
     r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · no action', W(`The lockout arrived at t+${f1(tLk)}, after ANALYZE gave up at t+${f1(t)}. The last reclose shot finished too late for AnalyzeTimeLimit = ${S.AnalyzeTimeLimit} s.`, 'Feeder/FEEDER', '§26 Timing'), 'bad');
     endSeq(r, S, t, { ok: false, complete: false, note: 'Nothing switched. R1 stays locked out.' });
     return null;
   }
   const early = tLk < tA;
+  r.mark('Feeder A', tLk, 'LockoutLatched', 'class_Lockout.Confirm: a device that saw the fault, has reclosing and reports lockout. The feeder is re-polled once, now.');
   r.log(tLk, 'DAC-1', `${trip}: Lockout`, early ? 'LockoutLatched during UPDATE · feeder re-polled' : 'Asserted · LockoutLatched · feeder re-polled', W(`class_Lockout.Confirm finds a device that saw the fault, has reclosing, and reports lockout. That sets LockoutLatched and calls mFEEDER_PollDevices once, at that moment, so confirmation uses fresh data. RepollAfterLockout (Adapter default FALSE) would add a second poll that also covers the neighbour feeders.${early ? ' The lockout arrived while UPDATE was still running, so UPDATE also waited for this poll and MinimumUpdateTime set the pace.' : ''}`, 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
   const tC = early ? tA : polls(r, S, tLk, own, { tag: 'Follow-up poll after lockout' }).done;
+  if (!early) {
+    r.span('Feeder A', tA, tLk, 'waits · upstream lockout', 'sub', { info: WAIT_LOCKOUT });
+    r.span('Feeder A', tLk, tC, 'waits · re-poll', 'sub', { info: 'mFEEDER_ConfirmEvent: Fault AND Lockout AND mFEEDER_CheckDeviceResponses. Every device on the feeder must answer the poll the lockout triggered.' });
+  }
   r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, tC, 'limit', 'Feeder leaves ANALYZE and clears the event if nothing confirms');
   confirmFlags(r, tC, 'A', 'Fault', W('Confirmed: lockout latched AND every device on the feeder answered the follow-up poll.', 'Feeder/Event/Fault/class_Lockout', '§07 Permanent faults'));
   r.log(tC, 'DAC-1', 'DAC: Permanent Fault', 'Asserted', null);
@@ -563,8 +627,8 @@ sc('perm', 'Permanent fault', '≈40 s', [
   r.fs('A', tC, 'IDLE');
   const tO = tC;
   const tR2 = cmd(r, S, tO, 'R2', 'open', W('R2 bounds the faulted section on the load side. It can break load and isolation is allowed, so it is opened now, at confirmation, before the solve. R1 is already open.', 'Feeder/Event/Fault/ExtendedIsolation/fb_PermFaultIsolation', '§07 Permanent faults'));
-  r.log(tC + 0.1, 'DAC-1', 'Feeder A: IDLE', 'No unresolved faults left', W('With the fault resolved the feeder returns to IDLE. All feeders idle lets the manager solve.', 'Feeder/FEEDER', '§03 Event sequence'));
-  const ts = solve(r, S, tC + 0.2, 'Close T1 from Feeder B · R2–T1 + R3 branch 150 A, B margin 550 A');
+  r.log(tC, 'DAC-1', 'Feeder A: IDLE', 'No unresolved faults left', W('With the fault resolved the feeder returns to IDLE. All feeders idle lets the manager solve.', 'Feeder/FEEDER', '§03 Event sequence'));
+  const ts = solve(r, S, tC + S.Scan, 'Close T1 from Feeder B · R2–T1 + R3 branch 150 A, B margin 550 A');
   startExec(r, S, ts);
   const res = closeTie(r, S, ts, 'T1', { waitUntil: tR2, sgWrong: o.sg, perm: o.perm, execStart: ts, cof: o.hidden });
   if (res && res.cof !== undefined) {
@@ -621,11 +685,13 @@ sc('temp', 'Temporary fault', '≈125 s', [], (S) => {
     r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, tClr, 'limit', 'FaultHoldTime runs out first and ends the event');
     relayReset(r, S, Math.max(tF, tA), 'R1');
     r.log(tClr, 'DAC-1', 'R1: fault indication cleared', 'Fault.Conditioned FALSE', W(`The relay dropped its target after the RESET. Fault.Conditioned and Fault.Latched on R1 go FALSE, so class_Fault.Detect sees no conditioned fault on the feeder and unlatches the feeder fault.`, 'Equipment/Fault/mEQUIPMENT_ConditionFault', '§07 Permanent faults'));
+    r.span('Feeder A', tA, tClr, 'waits · upstream lockout (never comes)', 'sub', { info: WAIT_LOCKOUT });
     r.fs('A', tClr, 'IDLE');
     r.log(tClr, 'DAC-1', 'Feeder A: ANALYZE ends', 'No event latched any more', W(`FaultHoldTime (${S.FaultHoldTime} s from t+${f1(tD)}) expired before AnalyzeTimeLimit (${S.AnalyzeTimeLimit} s from t+${f1(tA)}). With no event latched the feeder leaves ANALYZE without confirming anything.`, 'Feeder/FEEDER', '§26 Timing'), 'ok');
     endSeq(r, S, tClr, { ok: false, complete: false, note: 'No operation. Every feeder idle with nothing confirmed.' });
   } else {
     r.timer('AnalyzeTimeLimit (feeder)', tA, S.AnalyzeTimeLimit, undefined, 'limit', 'Nothing confirms, so this limit is what ends the event');
+    r.span('Feeder A', tA, tX, 'waits · upstream lockout (never comes)', 'sub', { info: WAIT_LOCKOUT });
     r.fs('A', tX, 'IDLE');
     r.log(tX, 'DAC-1', 'Feeder A: Analyze timeout', 'Event cleared · nothing switched', W(`No lockout ever arrives. The feeder sits in ANALYZE for the full AnalyzeTimeLimit (${S.AnalyzeTimeLimit} s), clears the event and returns to IDLE.`, 'Feeder/FEEDER', '§26 Timing'), 'ok');
     endSeq(r, S, tX, { ok: false, complete: false, note: 'No operation. DA_InProgress held for the whole ANALYZE window.' });
@@ -650,6 +716,7 @@ sc('op', 'Open phase', '≈80 s', [
   r.timer('OpenPhaseConfirmTime', tL, S.OpenPhaseConfirmTime, undefined, 'min', 'Always adds time for open phase and LOS');
   r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, Math.max(up.tA, tL + S.OpenPhaseConfirmTime), 'limit', 'Open phase must confirm inside ANALYZE');
   const tC = Math.max(up.tA, tL + S.OpenPhaseConfirmTime);
+  if (tC > up.tA) r.span('Feeder A', up.tA, Math.min(tC, up.tA + S.AnalyzeTimeLimit), 'waits · OpenPhaseConfirmTime', 'sub', { info: 'EventDetectors.OpenPhase.Confirm needs the dead section to persist OpenPhaseConfirmTime from the latch.' });
   if (tC > up.tA + S.AnalyzeTimeLimit) {
     const t = up.tA + S.AnalyzeTimeLimit; r.fs('A', t, 'IDLE');
     r.log(t, 'DAC-1', 'Feeder A: Analyze timeout', 'Open phase never confirmed', W('OpenPhaseConfirmTime is longer than what remains of AnalyzeTimeLimit, so ANALYZE gives up first.', 'Feeder/FEEDER', '§26 Timing'), 'bad');
@@ -659,7 +726,7 @@ sc('op', 'Open phase', '≈80 s', [
   r.fs('A', tC, 'IDLE');
   r.log(tC, 'DAC-1', 'No immediate isolation', 'Open-phase opens happen during execution', W('Immediate isolation at confirmation is skipped on a feeder with an open-phase event unless that feeder isolates open phases. Even then, roots are opened during execution, not at confirmation.', 'Feeder/Event/Fault/ExtendedIsolation/fb_PermFaultIsolation', '§08 Open phase & LOS'));
   const iso = o.iso === 'TRUE';
-  const ts = solve(r, S, tC + 0.2, iso ? 'Open R1 (upstream) and R2 · close T1 · A1 left dead' : 'Open R2 (root) · close T1 · A1 stays on two phases',
+  const ts = solve(r, S, tC + S.Scan, iso ? 'Open R1 (upstream) and R2 · close T1 · A1 left dead' : 'Open R2 (root) · close T1 · A1 stays on two phases',
     W(iso ? 'IsolateOpenPhase TRUE: the nearest closed controllable switch upstream is opened (IsolateOpenPhaseUpstream) and the next switch downstream becomes an isolation point with a root behind it. The open-phased section is de-energised on both sides.' : 'IsolateOpenPhase FALSE (Adapter default): the next switch downstream becomes a root, opened and fed from the alternate. Nothing upstream is opened. R1 is a non-restorable root and A1 stays single- or two-phase energised.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'));
   startExec(r, S, ts);
   let tOpen = cmd(r, S, ts, 'R2', 'open', W('R2 is the root switch. It is load-break, so it opens even though A1 is still partly energised.', 'class_ExecuteSolution.OpenSwitch', '§14 Execution'));
@@ -685,8 +752,10 @@ sc('los', 'Loss of source', '≈80 s', [
   const up = updatePhase(r, S, tL, FA, FB);
   r.timer('OpenPhaseConfirmTime', tL, S.OpenPhaseConfirmTime, undefined, 'min', 'Always adds time');
   const tC = Math.max(up.tA, tL + S.OpenPhaseConfirmTime);
+  if (tC > up.tA) r.span('Feeder A', up.tA, tC, 'waits · OpenPhaseConfirmTime', 'sub', { info: 'LOS uses the open-phase detector, so it needs the same OpenPhaseConfirmTime.' });
   r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, tC, 'limit', '');
   r.tg(tC, 'A', 'LossOfSource'); r.flag(tC, 'DA_EVENT_Confirmed');
+  r.mark('Feeder A', tC, 'LossOfSource confirmed', 'Location at switch depth 0.');
   r.log(tC, 'DAC-1', 'Feeder A: Loss Of Source', 'Location at switch depth 0', W('No switching device lies between the source and the dead section, so the location is depth 0 and the target is LossOfSource.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'), 'warn');
   let tGo = tC;
   if (o.lrt !== '0') {
@@ -700,10 +769,11 @@ sc('los', 'Loss of source', '≈80 s', [
     tGo = tC + 20;
     r.log(tGo, 'Field', 'Operator: LossOfSourceRestore', 'SCADA command inside the window');
   } else r.log(tC, 'DAC-1', 'LossOfSource.Restore set', 'LossOfSourceRestoreTime = 0 (automatic)', W('With LossOfSourceRestoreTime = 0 the restore flag is set automatically once confirmed.', 'OBJ/DA_CIRCUIT', '§08 Open phase & LOS'));
+  if (tGo > tC) r.span('Feeder A', tC, tGo, 'waits · LossOfSourceRestore', 'sub', { info: 'Confirmed, but nothing proceeds until LossOfSource.Restore is set.' });
   r.tg(tGo, 'A', 'ReconfigurationStarted');
   r.log(tGo, 'DAC-1', 'Feeder A: Reconfiguration Started', 'LossOfSource.Restore set', W('LOS proceeds to restoration only when LossOfSource.Restore is set.', 'Feeder/Event/OpenPhase/class_OpenPhase', '§08 Open phase & LOS'), 'warn');
   r.fs('A', tGo, 'IDLE');
-  const ts = solve(r, S, tGo + 0.2, 'Open BKR-A · close T1 · whole feeder 470 A, B margin 550 A');
+  const ts = solve(r, S, tGo + S.Scan, 'Open BKR-A · close T1 · whole feeder 470 A, B margin 550 A');
   startExec(r, S, ts);
   const tB = cmd(r, S, ts, 'BKR-A', 'open', W('T1 cannot close yet: side A still connects through the closed BKR-A to a source, even though that source is dead. BKR-A separates the restored area from the dead source, so it opens first.', 'class_ExecuteSolution.OpenSwitch', '§14 Execution'));
   const tk = closeTie(r, S, ts, 'T1', { waitUntil: tB, waitWhy: 'Side A still sourced through BKR-A', execStart: ts });
@@ -732,7 +802,7 @@ sc('src', 'Source event', '≈20 s', [
   const full = o.zone ? 270 : 470;
   const fits = +o.margin >= full;
   const part = !fits && !o.zone;
-  const ts = solve(r, S, tC + 0.3, fits ? `Close T1 · ${full} A onto B margin ${o.margin} A` : part ? `Open R1 · close T1 · only R1 and beyond (270 A) fit in ${o.margin} A` : 'Nothing fits', null);
+  const ts = solve(r, S, tC + S.Scan, fits ? `Close T1 · ${full} A onto B margin ${o.margin} A` : part ? `Open R1 · close T1 · only R1 and beyond (270 A) fit in ${o.margin} A` : 'Nothing fits', null);
   startExec(r, S, ts);
   if (part) tIso = Math.max(tIso, cmd(r, S, ts, 'R1', 'open', W('The solver sectionalises: opening R1 leaves BKR-A–R1 dead so the rest fits in Feeder B margin.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§13 Solver')));
   const tk = closeTie(r, S, ts, 'T1', { waitUntil: tIso, execStart: ts });
@@ -768,6 +838,7 @@ sc('ovl', 'Overload', '≈80 s', [
   begin(r, tNew);
   const up = updatePhase(r, S, tNew, FA, FB);
   const tC = Math.max(up.tA, tDet + oc2);
+  if (tC > up.tA) r.span('Feeder A', up.tA, Math.min(tC, up.tA + S.AnalyzeTimeLimit), 'waits · OverloadConfirmTime2', 'sub', { info: 'mFEEDER_ConfirmOverload needs the L2 confirm timer to have run out.' });
   if (tC > up.tA + S.AnalyzeTimeLimit) {
     const t = up.tA + S.AnalyzeTimeLimit; r.fs('A', t, 'IDLE');
     r.timer('AnalyzeTimeLimit (feeder)', up.tA, S.AnalyzeTimeLimit, undefined, 'limit', '');
@@ -779,13 +850,13 @@ sc('ovl', 'Overload', '≈80 s', [
   confirmFlags(r, tC, 'A', 'Overload', W(`The L2 timer ran out at t+${f1(tDet + oc2)} and the feeder is in ANALYZE, so it confirms. The feeder source becomes a root, the whole feeder gets restore flags, and without shed it is flagged MatchSourceGroup: only same-group alternates, closed transition.`, 'Feeder/Event/Overload/mFEEDER_ConfirmOverload', '§10 Overload'));
   r.fs('A', tC, 'IDLE');
   if (o.grp === 'diff') {
-    const ts = solve(r, S, tC + 0.2, 'No same-source-group alternate', W('MatchSourceGroup: the load is live, so the transfer must be closed transition, and that needs both sides in the same source group. Feeder B is in another group.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
+    const ts = solve(r, S, tC + S.Scan, 'No same-source-group alternate', W('MatchSourceGroup: the load is live, so the transfer must be closed transition, and that needs both sides in the same source group. Feeder B is in another group.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
     endSeq(r, S, ts, { ok: false, flags: ['CapacityLimit'], note: 'Nothing switched. Overload remains.' });
     r.timer('Overload re-check (UpdateTimer3)', ts, 120, undefined, 'min', 'Starts once DA_InProgress falls while a confirm timer is still timed out');
     r.log(ts + 120, 'DAC-1', 'Feeder A: Overload.New again', '120 s after the sequence ended, still overloaded', W('While a confirm timer stays timed out, UpdateTimer3 starts as soon as no DA sequence is in progress and fires Overload.New 120 s later. This trigger is not held off by the 30 s new-overload suppression.', 'Feeder/Event/Overload/FEEDER_OVERLOAD', '§10 Overload'), 'warn');
     r.focus = tC + 1; return r;
   }
-  const ts = solve(r, S, tC + 0.2, 'Close T1 (closed transition) · then open R1 · move 270 A to B', W('The solver treats an overloaded root feeder as if its temporary margin were its normal margin. That drives the solution back under the normal rating: moving R1 and beyond leaves 380 A on BKR-A.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
+  const ts = solve(r, S, tC + S.Scan, 'Close T1 (closed transition) · then open R1 · move 270 A to B', W('The solver treats an overloaded root feeder as if its temporary margin were its normal margin. That drives the solution back under the normal rating: moving R1 and beyond leaves 380 A on BKR-A.', 'AutomaticReconfig/ReconfigPlanning/mAR_FindSolution', '§10 Overload'));
   startExec(r, S, ts);
   const tk = cmd(r, S, ts, 'T1', 'close', W('Both sides of T1 are sourced, from the same source group, and R1 is a switch-to-open with a remote source. Closed transition: T1 closes first.', 'class_ExecuteSolution.CloseSwitch', '§14 Execution'));
   r.timer('Close-onto-fault window', ts, COF, undefined, 'min', '');
@@ -812,7 +883,7 @@ sc('con', 'Connector restore', '≈55 s', [
   const tR2 = cmd(r, S, tC, 'R2', 'open', W('Isolation at confirmation, as for any permanent fault.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
   r.fs('A', tC, 'IDLE');
   if (o.ver) {
-    const ts = solve(r, S, tC + 0.2, 'No alternate: Feeder B excluded, connector offline');
+    const ts = solve(r, S, tC + S.Scan, 'No alternate: Feeder B excluded, connector offline');
     endSeq(r, S, ts, { ok: false, flags: ['CapacityLimit', 'RestorationFail'], reset: ['R1'] });
     r.focus = tC; return r;
   }
@@ -822,8 +893,9 @@ sc('con', 'Connector restore', '≈55 s', [
   r.fs('C', tRe, 'UPDATE');
   r.span('DAC-2 polls', tRe, tRe + S.PollAnswer, 'T2', 'poll'); r.span('DAC-2 polls', tRe, tRe + S.PollAnswer, 'BKR-C', 'poll');
   r.fs('C', tRe + S.MinimumUpdateTime, 'ANALYZE');
+  r.span('Feeder C · DAC-2', tRe + S.MinimumUpdateTime, tC + M, 'waits · partner confirmation', 'sub', { info: 'class_RemoteEvent: a remote event confirms only when the remote DAC confirms.' });
   r.timer('DAC-2 MinimumUpdateTime', tRe, S.MinimumUpdateTime, undefined, 'min', '');
-  r.span('Collab · DAC-1', tRe, tC + M, 'InitialUpdate', 'col');
+  r.span('Collaboration', tRe, tC + M, 'InitialUpdate', 'col');
   r.span('Collab · DAC-2', tRe, tC + M, 'InitialUpdate', 'col2');
   r.set(tRe, { collab: 'InitialUpdate' });
   r.log(tRe, 'DAC-1', 'Connector: Collaboration requested', 'InitialUpdate', W('Either DAC can start a collaboration when it has an event on the shared feeder. Both must accept. InitialUpdate waits for both to update and confirm, up to Update + Analyze limits.', 'OBJ/DA_CONNECTOR', '§17 Connectors'), 'con');
@@ -833,34 +905,39 @@ sc('con', 'Connector restore', '≈55 s', [
   const phases = [['InitialSolutionHandshake', ''], ['InitialSolution', 'Phase one: each DAC solves alone and publishes what it can give'], ['FinalSolutionHandshake', ''], ['FinalSolution', 'Phase two: each solves again with the partner offer'], ['ExecutionHandshake', '']];
   let t = tC + M;
   const step = 2 * M;
+  const tISH = t;
   for (const [ph, d] of phases) {
-    r.span('Collab · DAC-1', t, t + step, ph, 'col'); r.span('Collab · DAC-2', t, t + step, ph, 'col2');
+    r.span('Collaboration', t, t + step, ph, 'col'); r.span('Collab · DAC-2', t, t + step, ph, 'col2');
     r.set(t, { collab: ph });
     r.log(t, 'DAC-1', `Connector: ${ph}`, d || 'Waiting for 2 fresh partner updates', W('Each phase completes only when both DACs report it done, and each step needs at least 2 fresh watchdog updates from the partner (CON_UpdateCheck).', 'OBJ/DA_CONNECTOR', '§17 Connectors'), 'con');
     if (ph === 'InitialSolution') {
-      r.mg(t, 'Solve (phase one)');
+      r.mg(t, 'Analyze · phase one'); r.flag(t, 'DA_Analyze');
+      r.mark('Reconfig sequence', t, 'mAR_FindSolution · phase one', 'genCollaborationSolution: DA_Analyze rises and stays up. The execute block needs DA_CollaborationState = Execution, so DA_Analyze is not cleared yet.');
       r.log(t + 0.4, 'DAC-2', 'Offer published', `Margin at T2 for Feeder C: ${o.offer} A`, W('The margin offered is the node margin if the boundary is fed locally, otherwise the best margin over its open edge switches.', 'Connector/Measurements/Current/mCON_getLocalMargin', '§17 Connectors'), 'dac2');
     }
     if (ph === 'FinalSolution') {
       const seen = Math.max(+o.offer, 0.1);
-      r.mg(t, 'Solve (phase two)');
+      r.mg(t, 'Analyze · phase two');
+      r.mark('Reconfig sequence', t, 'mAR_FindSolution · phase two', '_CollaborationStepChanged resets SolutionFound, so the manager solves again with the partner offer.');
       r.log(t + 0.4, 'DAC-1', 'Remote capacity seen', `MAX(${o.offer}, 0.1) = ${seen} A`, W('Remote feeds the boundary (tail), so the modelled remote source capacity is MAX(remote capacity, 0.1 A). The floor stops the solver seeing zero.', 'OBJ/DA_CONNECTOR.prv_MapCapacity', '§17 Connectors'));
     }
-    if (ph === 'ExecutionHandshake') r.mg(t, 'IDLE');
+    if (ph === 'ExecutionHandshake') r.mg(t, 'Analyze · exec handshake');
     t += step;
   }
   const need = 150;
   const fit = +o.offer >= need ? 'all' : +o.offer >= 60 ? 'part' : 'none';
-  r.log(t - step * 2 + 0.5, 'DAC-1', 'DAC: Solve', fit === 'all' ? 'Request close of T2 · R2–T1 + R3 branch 150 A' : fit === 'part' ? 'Open R3 · request close of T2 · only the R3 branch (60 A) fits' : 'Nothing fits in 0.1 A',
+  r.log(t - step * 2 + 0.5, 'DAC-1', 'DAC: Analyze (reconfiguration sequence)', fit === 'all' ? 'Request close of T2 · R2–T1 + R3 branch 150 A' : fit === 'part' ? 'Open R3 · request close of T2 · only the R3 branch (60 A) fits' : 'Nothing fits in 0.1 A',
     fit === 'none' ? W('DAC-2 offered nothing, so the remote margin is the 0.1 A floor. A 0.1 A connector margin in a report is a symptom, not a measurement: the remote side was dead, its permissive was off, it clamped, or its watchdog was stale. This is the Evergreen 10-19-26 pattern.', 'OBJ/DA_CONNECTOR.prv_MapCapacity', '§27 Example 3') : null);
+  r.timer('DA_AnalyzeTimer (3 × AnalyzeTimeLimit)', tISH, 3 * S.AnalyzeTimeLimit, t, 'limit', 'Runs while DA_Analyze OR InitialSolutionHandshake. Expiry sets AnalyzeStepTimeout and aborts both DACs.');
   if (fit === 'none') {
-    r.span('Collab · DAC-1', t, t + step, 'Execution', 'col'); r.span('Collab · DAC-2', t, t + step, 'Execution', 'col2');
-    r.span('Collab · DAC-1', t + step, t + step * 2, 'Complete', 'col'); r.span('Collab · DAC-2', t + step, t + step * 2, 'Complete', 'col2');
+    startExec(r, S, t);
+    r.span('Collaboration', t, t + step, 'Execution', 'col'); r.span('Collab · DAC-2', t, t + step, 'Execution', 'col2');
+    r.span('Collaboration', t + step, t + step * 2, 'Complete', 'col'); r.span('Collab · DAC-2', t + step, t + step * 2, 'Complete', 'col2');
     r.set(t, { collab: 'Execution' }); r.set(t + step, { collab: 'Complete' }); r.set(t + step * 2, { collab: 'CollabIdle' });
     endSeq(r, S, t + step * 2, { ok: false, flags: ['CapacityLimit', 'RestorationFail'], reset: ['R1'] });
     r.focus = t - 2; return r;
   }
-  r.span('Collab · DAC-1', t, null, 'Execution', 'col'); r.set(t, { collab: 'Execution' });
+  r.span('Collaboration', t, null, 'Execution', 'col'); r.set(t, { collab: 'Execution' });
   startExec(r, S, t);
   let tOk = Math.max(t, tR2);
   if (fit === 'part') tOk = Math.max(tOk, cmd(r, S, t, 'R3', 'open', W('Sectionalise so only what fits is picked up.', 'mAR_FindSolution', '§13 Solver')));
@@ -874,9 +951,9 @@ sc('con', 'Connector restore', '≈55 s', [
   const tSeen = tk2 + M;
   r.log(tSeen, 'DAC-1', 'Connector: T2 status Closed', 'Reported by DAC-2', null, 'con');
   r.span('Collab · DAC-2', t, tSeen, 'Execution', 'col2');
-  r.span('Collab · DAC-1', tSeen, tSeen + step, 'Complete', 'col'); r.span('Collab · DAC-2', tSeen, tSeen + step, 'Complete', 'col2');
+  r.span('Collaboration', tSeen, tSeen + step, 'Complete', 'col'); r.span('Collab · DAC-2', tSeen, tSeen + step, 'Complete', 'col2');
   r.set(tSeen, { collab: 'Complete' }); r.set(tSeen + step, { collab: 'CollabIdle' });
-  r.S.find(s => s.lane === 'Collab · DAC-1' && s.label === 'Execution' && s.b == null).b = tSeen;
+  r.S.find(s => s.lane === 'Collaboration' && s.label === 'Execution' && s.b == null).b = tSeen;
   endSeq(r, S, tSeen + step, { ok: fit === 'all', flags: fit === 'part' ? ['CapacityLimit', 'RestorationFail'] : [], reset: ['R1'] });
   r.log(tSeen + step + 0.1, 'DAC-1', 'Abort hold-off not needed', 'Collaboration completed normally', W('After an abort no new collaboration starts for 60 s.', 'OBJ/DA_CONNECTOR', '§17 Connectors'));
   r.focus = tC + M + 4;
@@ -896,7 +973,7 @@ sc('mis', 'Miscoordination', '≈25 s', [
   const t1 = cmd(r, S, tC, 'R1', 'open', W('R1 bounds the fault on the source side. It is dead (BKR-A is open), so it opens now.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
   const t2 = cmd(r, S, tC + 0.05, 'R2', 'open', W('R2 bounds the fault on the load side and opens now.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
   const corr = o.det === 'TRUE';
-  const ts = solve(r, S, tC + 0.3, corr ? 'Reclose BKR-A (ReturnClose) · close T1 for R2 and beyond' : 'BKR-A–R1 non-restorable · close T1 for R2 and beyond',
+  const ts = solve(r, S, tC + S.Scan, corr ? 'Reclose BKR-A (ReturnClose) · close T1 for R2 and beyond' : 'BKR-A–R1 non-restorable · close T1 for R2 and beyond',
     W(corr ? 'Detection ON and R1 is controllable: the fault-bounding switches isolate it and the locked-out BKR-A goes on the ReturnClose list, so the healthy BKR-A–R1 section is restored by reclosing it.' : 'Detection OFF and R1 has protection: no correction. BKR-A–R1 is flagged MiscoordinationIsolation and treated as non-restorable. Only load beyond the fault isolation is restored.', 'Feeder/Event/Fault/class_Fault.prv_ProcessFault', '§07 Permanent faults'));
   startExec(r, S, ts);
   let tEnd = closeTie(r, S, ts, 'T1', { waitUntil: t2, execStart: ts });
@@ -932,7 +1009,7 @@ sc('dg', 'DG on wrong circuit', '≈45 s', [
   } else r.log(tD + 0.2, 'DAC-1', 'DG POI: no trip', 'RideThrough covers fault and isolation', W('RideThrough All (7) exempts fault, isolation and close-transition trips. A disallowed circuit still trips.', 'OBJ/DA_DG_UNIT', '§16 DG'));
   const tR2 = cmd(r, S, tC, 'R2', 'open', W('Isolation at confirmation.', 'fb_PermFaultIsolation', '§07 Permanent faults'));
   r.fs('A', tC, 'IDLE');
-  const ts = solve(r, S, tC + 0.2, 'Close T1 from Feeder B');
+  const ts = solve(r, S, tC + S.Scan, 'Close T1 from Feeder B');
   startExec(r, S, ts);
   const v2 = o.ver === '105.0.2';
   const dgCheck = (!poiOpen && v2) ? (t) => {
@@ -1066,66 +1143,152 @@ function drawDiagram(s) {
 }
 
 /* ------------------------------------------------------------- timeline */
-const LANES = ['Protection', 'Feeder A', 'Feeder B', 'Feeder C · DAC-2', 'Manager', 'Collab · DAC-1', 'Connector msgs', 'Collab · DAC-2', 'Timers', 'Execution', 'Commands', 'DAC-2 cmds', 'Polls', 'DAC-2 polls'];
+// Rows grouped the way the code is split: field, the per-feeder event sequence,
+// each DA_MANAGER_AR sequence, the SCADA step points, execution, comms, DAC-2, timers.
+const GROUPS = [
+  ['', ['Log']],
+  ['Field', ['Protection']],
+  ['Feeder event sequence · FEEDER.Step', ['Feeder A', 'Feeder B']],
+  ['DA_MANAGER_AR', ['Event sequence', 'Reconfig sequence', 'Collaboration', 'DA_InProgress']],
+  ['SCADA step points', ['UpdateStep', 'AnalyzeStep', 'ReconfigureStep']],
+  ['Execution', ['Execution', 'Commands']],
+  ['Comms', ['Polls', 'Connector msgs']],
+  ['DAC-2', ['Feeder C · DAC-2', 'Collab · DAC-2', 'DAC-2 cmds', 'DAC-2 polls']],
+  ['Timers', ['Timers']],
+];
+const LANE_LABEL = { 'Feeder C · DAC-2': 'Feeder C', 'Collab · DAC-2': 'Collaboration', 'DAC-2 cmds': 'Commands', 'DAC-2 polls': 'Polls', 'Reconfig sequence': 'Reconfiguration seq', 'Event sequence': 'Event seq · DA_EVENT', Log: 'Log' };
 const TONE = {
   trip: ['var(--bad-tint)', 'var(--bad-ink)'], lo: ['var(--bad-tint)', 'var(--bad-ink)'],
   'st-UPDATE': ['var(--sa-tint)', 'var(--sa)'], 'st-ANALYZE': ['var(--sa)', 'var(--card)'],
-  'st-DA_Analyze': ['var(--ink-soft)', 'var(--card)'], 'st-DA_Reconfiguration': ['var(--accent-tint)', 'var(--ok-ink)'],
-  'st-Solve (phase one)': ['var(--ink-soft)', 'var(--card)'], 'st-Solve (phase two)': ['var(--ink-soft)', 'var(--card)'],
+  'st-Analyze': ['var(--ink-soft)', 'var(--card)'], 'st-Reconfiguration': ['var(--accent-tint)', 'var(--ok-ink)'],
+  sub: ['var(--card)', 'var(--ink-soft)', 'var(--sa)'],
+  'd-Detected': ['var(--warn-tint)', 'var(--warn-ink)'], 'd-Confirmed': ['var(--warn)', 'var(--card)'],
+  'd-DA_InProgress': ['var(--fill)', 'var(--ink-soft)'],
+  'd-UpdateStep': ['var(--sa-tint)', 'var(--sa)'], 'd-AnalyzeStep': ['var(--sa)', 'var(--card)'], 'd-ReconfigureStep': ['var(--accent-tint)', 'var(--ok-ink)'],
   poll: ['var(--fill)', 'var(--ink-soft)'], pbad: ['var(--bad-tint)', 'var(--bad-ink)'],
   cmd: ['var(--ink)', 'var(--card)'], wait: ['var(--warn-tint)', 'var(--warn-ink)'],
   min: ['var(--accent-tint)', 'var(--ink)'], limit: ['var(--fill)', 'var(--ink-soft)'],
   col: ['var(--dac2-tint)', 'var(--dac2)'], col2: ['var(--dac2-tint)', 'var(--dac2)'], msg: ['var(--dac2)', 'var(--card)'],
 };
-const LH = 17, LGAP = 6, LBL = 128;
-let tlGeom = null;
+const KCOL = { field: 'var(--ghost)', dac: 'var(--sa)', dac2: 'var(--dac2)', cmd: 'var(--ink)', bad: 'var(--bad)', ok: 'var(--ok)', warn: 'var(--warn)', con: 'var(--dac2)' };
+const LH = 17, LGAP = 5, GH = 20, LBL = 178, RPAD = 14, MINSPAN = 0.3;
+const NICE = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
+let tlGeom = null, view = { a: 0, b: 1 };
+// Lanes split into one named row per timer / device.
+const pollKey = s => s.label.split(' · ')[0], cmdKey = s => s.label.replace(/ (OPEN|CLOSE|RESET|SET SG)$/, '');
+const SUBKEY = { Timers: s => s.label, Polls: pollKey, 'DAC-2 polls': pollKey, Commands: cmdKey, 'DAC-2 cmds': cmdKey };
+
+function packRows(ss) {
+  const rows = [];
+  for (const s of [...ss].sort((p, q) => p.a - q.a || (p.prio ?? 1) - (q.prio ?? 1))) {
+    const e = Math.max(s.b, s.full ?? s.b);
+    let r = rows.findIndex(R => R.end <= s.a + 0.01);
+    if (r < 0) { r = rows.length; rows.push({ end: 0, items: [] }); }
+    rows[r].end = e; rows[r].items.push(s);
+  }
+  return rows;
+}
+const clip = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+
 function drawTimeline(run) {
   const svg = document.getElementById('tl');
   const W = Math.max(720, svg.parentElement.clientWidth - 2);
-  const used = LANES.filter(l => run.S.some(s => s.lane === l));
-  const rows = {};
-  const packed = [];
-  for (const l of used) {
-    const ss = run.S.filter(s => s.lane === l).sort((a, b) => a.a - b.a);
-    const ends = [];
-    for (const s of ss) {
-      const e = s.full ?? s.b;
-      let r = ends.findIndex(x => x <= s.a + 0.01);
-      if (r < 0) { r = ends.length; ends.push(0); }
-      ends[r] = Math.max(e, s.b);
-      packed.push({ s, row: r });
+  const PW = W - LBL - RPAD;
+  const span = view.b - view.a;
+  const x = t => LBL + (t - view.a) / span * PW;
+  const inView = (a, b) => b >= view.a && a <= view.b;
+  // layout: one entry per drawn row
+  const rows = [], bars = [], marks = [];
+  let y = 24;
+  const hdr = [];
+  for (const [g, lanes] of GROUPS) {
+    const used = lanes.filter(l => l === 'Log' ? run.E.length : run.S.some(s => s.lane === l) || run.M.some(m => m.lane === l));
+    if (!used.length) continue;
+    if (g) { hdr.push({ g, y }); y += GH; }
+    for (const l of used) {
+      const ss = run.S.filter(s => s.lane === l);
+      // Each timer gets its own named row; everything else packs into as few rows as it needs.
+      const key = SUBKEY[l];
+      const subs = key ? uniq(ss.map(key)).map(n => [n, ss.filter(s => key(s) === n)]) : [[null, ss]];
+      if (key && l !== 'Timers') { rows.push({ lane: l, title: true, y }); y += 14; }
+      const y0 = y;
+      subs.forEach(([name, list], si) => {
+        const packed = packRows(list);
+        const n = Math.max(1, packed.length);
+        rows.push({ lane: l, name, y, n, first: si === 0, sub: name != null });
+        packed.forEach((R, ri) => R.items.forEach(s => bars.push({ s, y: y + ri * LH })));
+        y += n * LH;
+      });
+      for (const m of run.M.filter(m => m.lane === l)) marks.push({ m, y: y0 });
+      y += LGAP;
     }
-    rows[l] = Math.max(1, ends.length);
   }
-  let y = 26; const laneY = {};
-  for (const l of used) { laneY[l] = y; y += rows[l] * LH + LGAP; }
-  const H = y + 6;
-  const x = t => LBL + (t / run.end) * (W - LBL - 14);
-  tlGeom = { x, W, H, end: run.end };
-  let h = '';
-  const step = run.end > 400 ? 60 : run.end > 150 ? 20 : run.end > 60 ? 10 : 5;
-  for (let t = 0; t <= run.end; t += step) h += `<line x1="${x(t)}" y1="18" x2="${x(t)}" y2="${H}" stroke="var(--border-soft)"/><text x="${x(t)}" y="13" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--font-mono)">${t}s</text>`;
-  for (const l of used) {
-    const ly = laneY[l];
-    h += `<text x="12" y="${ly + 12}" font-size="11" fill="var(--ink-soft)" font-weight="550">${l}</text>`;
-    h += `<line x1="${LBL}" y1="${ly + rows[l] * LH + LGAP / 2}" x2="${W - 8}" y2="${ly + rows[l] * LH + LGAP / 2}" stroke="var(--border-soft)"/>`;
+  const H = y + 4;
+  tlGeom = { x, W, H, PW, end: run.end, bars, marks };
+  let h = `<defs><clipPath id="tlclip"><rect x="${LBL}" y="0" width="${PW + 6}" height="${H}"/></clipPath></defs>`;
+  // ticks
+  const target = PW / 84;
+  const step = NICE.find(n => span / n <= target) || 600;
+  const dec = step < 0.1 ? 2 : step < 1 ? 1 : 0;
+  for (let t = Math.ceil(view.a / step - 1e-9) * step; t <= view.b + 1e-9; t += step) h += `<line x1="${x(t)}" y1="17" x2="${x(t)}" y2="${H}" stroke="var(--border-soft)"/><text x="${x(t)}" y="12" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--font-mono)">${t.toFixed(dec)}s</text>`;
+  // group headers and row labels
+  for (const { g, y: gy } of hdr) h += `<text x="12" y="${gy + 14}" font-size="9.5" font-weight="700" letter-spacing=".06em" fill="var(--muted)">${esc(g.toUpperCase())}</text><line x1="12" y1="${gy + 18}" x2="${W - 8}" y2="${gy + 18}" stroke="var(--border)"/>`;
+  for (const R of rows) {
+    if (R.title) { h += `<text x="12" y="${R.y + 10}" font-size="11" fill="var(--ink-soft)" font-weight="550">${esc(LANE_LABEL[R.lane] || R.lane)}</text>`; continue; }
+    if (R.sub) h += `<text x="22" y="${R.y + 12}" font-size="10.5" fill="var(--ink-soft)"><title>${esc(R.name)}</title>${esc(clip(R.name, 27))}</text>`;
+    else if (R.first) h += `<text x="12" y="${R.y + 12}" font-size="11" fill="var(--ink-soft)" font-weight="550">${esc(LANE_LABEL[R.lane] || R.lane)}</text>`;
+    if (!R.sub) h += `<line x1="${LBL}" y1="${R.y + R.n * LH + LGAP / 2}" x2="${W - 8}" y2="${R.y + R.n * LH + LGAP / 2}" stroke="var(--border-soft)"/>`;
   }
-  packed.forEach(({ s, row }, i) => {
-    const yy = laneY[s.lane] + row * LH + 1, hh = LH - 3;
-    const [bg, fg] = TONE[s.tone] || TONE.poll;
+  h += `<g clip-path="url(#tlclip)">`;
+  // log strip: one tick per log entry, click to jump
+  const logRow = rows.find(R => R.lane === 'Log');
+  if (logRow) run.E.forEach((e, i) => {
+    if (!inView(e.t, e.t)) return;
+    const px = x(e.t);
+    h += `<line x1="${px}" y1="${logRow.y + 2}" x2="${px}" y2="${logRow.y + LH - 3}" stroke="${KCOL[e.k] || 'var(--ink-soft)'}" stroke-width="2" pointer-events="none"/><rect data-e="${i}" x="${px - 3}" y="${logRow.y}" width="6" height="${LH - 1}" fill="transparent" style="cursor:pointer"/>`;
+  });
+  bars.forEach(({ s, y: yy0 }, i) => {
+    if (!inView(s.a, s.full ?? s.b)) return;
+    const yy = yy0 + 1, hh = LH - 3;
+    const [bg, fg, st] = TONE[s.tone] || TONE.poll;
     const x0 = x(s.a), x1 = Math.max(x(s.b), x0 + 2);
+    const stroke = st ? ` stroke="${st}" stroke-dasharray="3 2"` : s.tone === 'col' || s.tone === 'col2' ? ' stroke="var(--dac2)" stroke-opacity=".45"' : '';
     if (s.full != null && s.kind === 'limit') {
       h += `<rect x="${x0}" y="${yy}" width="${Math.max(2, x(s.full) - x0)}" height="${hh}" rx="3" fill="none" stroke="var(--ghost)" stroke-dasharray="3 3"/>`;
       h += `<rect data-i="${i}" x="${x0}" y="${yy}" width="${x1 - x0}" height="${hh}" rx="3" fill="${bg}" stroke="var(--ghost)"/>`;
-    } else h += `<rect data-i="${i}" x="${x0}" y="${yy}" width="${x1 - x0}" height="${hh}" rx="3" fill="${bg}"/>`;
-    const lw = (s.kind === 'limit' && s.full != null ? x(s.full) : x1) - x0;
-    if (lw > s.label.length * 5.6 + 8) h += `<text x="${x0 + 5}" y="${yy + 11}" font-size="10" fill="${fg}" pointer-events="none" font-family="var(--font-mono)">${esc(s.label)}</text>`;
+    } else h += `<rect data-i="${i}" x="${x0}" y="${yy}" width="${x1 - x0}" height="${hh}" rx="3" fill="${bg}"${stroke}/>`;
+    const tx = Math.max(x0, LBL) + 5;
+    const room = (s.kind === 'limit' && s.full != null ? x(s.full) : x1) - tx;
+    const key = SUBKEY[s.lane];
+    const text = s.lane === 'Timers' ? `${f1((s.full ?? s.b) - s.a)} s` : key ? (s.label.slice(key(s).length).replace(/^ · /, '').trim() || (s.tone === 'poll' ? 'answered' : '')) : s.label;
+    if (room > text.length * 5.8 + 3) h += `<text x="${tx}" y="${yy + 11}" font-size="10" fill="${fg}" pointer-events="none" font-family="var(--font-mono)">${esc(text)}</text>`;
   });
-  h += `<g id="ph"><line id="phl" x1="0" y1="18" x2="0" y2="${H}" stroke="var(--ink)" stroke-width="1.5"/><rect id="phk" x="-4" y="14" width="8" height="8" rx="2" fill="var(--ink)"/></g>`;
+  marks.forEach(({ m, y: my }, i) => {
+    if (!inView(m.t, m.t)) return;
+    const px = x(m.t), cy = my + LH / 2 - 1;
+    h += `<path data-m="${i}" d="M${px} ${cy - 5.5} L${px + 5.5} ${cy} L${px} ${cy + 5.5} L${px - 5.5} ${cy} Z" fill="var(--card)" stroke="var(--ink)" stroke-width="1.6" style="cursor:pointer"/>`;
+  });
+  h += `</g>`;
+  h += `<g pointer-events="none"><line id="hx" x1="-9" y1="17" x2="-9" y2="${H}" stroke="var(--accent)" stroke-dasharray="2 3"/><rect id="hxb" x="-99" y="0" width="56" height="15" rx="4" fill="var(--accent)"/><text id="hxt" x="-99" y="11" text-anchor="middle" font-size="10" fill="var(--on-accent)" font-family="var(--font-mono)"></text></g>`;
+  h += `<g id="ph" pointer-events="none"><line id="phl" x1="0" y1="17" x2="0" y2="${H}" stroke="var(--ink)" stroke-width="1.5"/><rect id="phk" x="-4" y="13" width="8" height="8" rx="2" fill="var(--ink)"/></g>`;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H); svg.innerHTML = h;
-  tlGeom.packed = packed;
-  document.getElementById('tlInfo').textContent = `${used.length} lanes · ${run.S.length} spans`;
+  const full = view.a <= 0 && view.b >= run.end;
+  document.getElementById('tlRange').textContent = full ? `0 – ${run.end} s` : `${f1(view.a)} – ${f1(view.b)} s · ${f1(span)} s`;
+  placePlayhead();
 }
+function placePlayhead() {
+  if (!tlGeom) return;
+  const on = now >= view.a && now <= view.b, px = on ? tlGeom.x(now) : -50;
+  document.getElementById('phl').setAttribute('x1', px); document.getElementById('phl').setAttribute('x2', px); document.getElementById('phk').setAttribute('x', px - 4);
+}
+function setView(a, b) {
+  const end = run.end;
+  let len = Math.min(end, Math.max(MINSPAN, b - a));
+  let A = Math.max(0, Math.min(a, end - len));
+  view = { a: A, b: A + len };
+  drawTimeline(run);
+}
+const zoomAt = (t, f) => { const len = (view.b - view.a) * f; const r = (t - view.a) / (view.b - view.a); setView(t - r * len, t - r * len + len); };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /* ------------------------------------------------------------- app state */
@@ -1143,6 +1306,7 @@ function parsedSettings() {
   P.op = 0.3;
   for (const [k] of SETTINGS) if (k !== 'RecloseIntervals') P[k] = Math.max(0, +S[k] || 0);
   P.ConnectorMsg = Math.max(0.2, P.ConnectorMsg); P.PollAnswer = Math.max(0.2, P.PollAnswer);
+  P.Scan = Math.max(0.01, P.Scan);
   P.MinimumUpdateTime = Math.max(0, P.MinimumUpdateTime);
   return P;
 }
@@ -1182,10 +1346,12 @@ function renderSettings() {
 function rebuild(resetTime) {
   run = scen.build(parsedSettings(), opt);
   run.finalize();
-  drawTimeline(run);
-  renderLog();
   if (resetTime) { now = Math.min(run.focus || 0, run.end); playing = false; sel = -1; }
   now = Math.min(now, run.end);
+  view = resetTime ? { a: 0, b: run.end } : { a: Math.min(view.a, run.end), b: Math.min(view.b, run.end) };
+  if (view.b - view.a < MINSPAN) view = { a: 0, b: run.end };
+  drawTimeline(run);
+  renderLog();
   lastKey = '';
   frame();
 }
@@ -1245,7 +1411,10 @@ function frame() {
   // clock + playhead
   document.getElementById('clock').textContent = `t+${f1(now)} s`;
   document.getElementById('clockOf').textContent = `/ ${run.end} s`;
-  if (tlGeom) { const px = tlGeom.x(now); document.getElementById('phl').setAttribute('x1', px); document.getElementById('phl').setAttribute('x2', px); document.getElementById('phk').setAttribute('x', px - 4); }
+  // Follow the playhead when zoomed in.
+  const len = view.b - view.a;
+  if (playing && len < run.end - 1e-6 && (now > view.b || now < view.a)) setView(now - len * 0.1, now + len * 0.9);
+  else placePlayhead();
   document.getElementById('play').textContent = playing ? 'Pause' : now >= run.end ? 'Replay' : 'Play';
 }
 
@@ -1274,27 +1443,68 @@ document.getElementById('openSettings').onclick = () => { drawer.hidden = !drawe
 document.getElementById('closeSettings').onclick = () => { drawer.hidden = true; };
 document.getElementById('resetSettings').onclick = () => { S = defaults(); store.set('settings', S); renderSettings(); rebuild(false); };
 const tl = document.getElementById('tl'), tip = document.getElementById('tip');
-const tlTime = ev => { const r = tl.getBoundingClientRect(); const px = (ev.clientX - r.left) * (tlGeom.W / r.width); return Math.max(0, Math.min(tlGeom.end, (px - LBL) / (tlGeom.W - LBL - 14) * tlGeom.end)); };
+const tlPx = ev => { const r = tl.getBoundingClientRect(); return (ev.clientX - r.left) * (tlGeom.W / r.width); };
+const tlTime = ev => Math.max(0, Math.min(tlGeom.end, view.a + (tlPx(ev) - LBL) / tlGeom.PW * (view.b - view.a)));
+const jumpTo = (t, name) => {
+  let i = run.E.findIndex(e => Math.abs(e.t - t) < 1e-6 && (!name || e.name === name));
+  if (i < 0) i = run.E.findIndex(e => Math.abs(e.t - t) < 1e-6);
+  playing = false; now = t; sel = i; frame(); scrollSel();
+};
 let drag = false;
-tl.addEventListener('pointerdown', ev => { drag = true; tl.setPointerCapture(ev.pointerId); playing = false; sel = -1; now = tlTime(ev); frame(); });
+tl.addEventListener('pointerdown', ev => {
+  const d = ev.target.dataset || {};
+  if (d.e != null) { const e = run.E[+d.e]; jumpTo(e.t, e.name); return; }
+  if (d.m != null) { jumpTo(tlGeom.marks[+d.m].m.t); return; }
+  if (tlPx(ev) < LBL) return;
+  drag = true; tl.setPointerCapture(ev.pointerId); playing = false; sel = -1; now = tlTime(ev); frame();
+});
+const showTip = (ev, html) => { tip.hidden = false; tip.innerHTML = html; tip.style.left = Math.min(window.innerWidth - 310, ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 14) + 'px'; };
 tl.addEventListener('pointermove', ev => {
+  if (!tlGeom) return;
   if (drag) { now = tlTime(ev); frame(); }
-  const i = ev.target.dataset && ev.target.dataset.i;
-  if (i != null && !drag) {
-    const s = tlGeom.packed[+i].s;
-    tip.hidden = false;
-    tip.innerHTML = `<b>${esc(s.label)}</b><span class="mono">${esc(s.lane)} · t+${f1(s.a)} → t+${f1(s.b)} (${f1(s.b - s.a)} s)${s.full != null && s.kind === 'limit' ? ` · limit ${f1(s.full - s.a)} s` : ''}</span>${s.info ? `<div>${esc(s.info)}</div>` : ''}`;
-    tip.style.left = Math.min(window.innerWidth - 310, ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 14) + 'px';
+  // crosshair through every row
+  const px = tlPx(ev), on = px >= LBL && px <= tlGeom.W - RPAD;
+  const hx = document.getElementById('hx'), hb = document.getElementById('hxb'), ht = document.getElementById('hxt');
+  if (hx) { const X = on ? px : -99; hx.setAttribute('x1', X); hx.setAttribute('x2', X); hb.setAttribute('x', X - 28); ht.setAttribute('x', X); ht.textContent = on ? 't+' + tlTime(ev).toFixed(view.b - view.a < 5 ? 2 : 1) : ''; }
+  const d = ev.target.dataset || {};
+  if (drag) { tip.hidden = true; return; }
+  if (d.i != null) {
+    const s = tlGeom.bars[+d.i].s;
+    showTip(ev, `<b>${esc(s.label)}</b><span class="mono">${esc(LANE_LABEL[s.lane] || s.lane)} · t+${f1(s.a)} → t+${f1(s.b)} (${(s.b - s.a).toFixed(s.b - s.a < 1 ? 2 : 1)} s)${s.full != null && s.kind === 'limit' ? ` · limit ${f1(s.full - s.a)} s` : ''}</span>${s.info ? `<div>${esc(s.info)}</div>` : ''}`);
+  } else if (d.m != null) {
+    const m = tlGeom.marks[+d.m].m;
+    showTip(ev, `<b>${esc(m.label)}</b><span class="mono">${esc(LANE_LABEL[m.lane] || m.lane)} · t+${m.t.toFixed(2)}</span>${m.info ? `<div>${esc(m.info)}</div>` : ''}`);
+  } else if (d.e != null) {
+    const e = run.E[+d.e];
+    showTip(ev, `<b>${esc(e.name)}</b><span class="mono">${esc(e.src)} · t+${e.t.toFixed(2)}</span>${e.desc ? `<div>${esc(e.desc)}</div>` : ''}`);
   } else tip.hidden = true;
 });
 tl.addEventListener('pointerup', () => { drag = false; });
-tl.addEventListener('pointerleave', () => { tip.hidden = true; });
+tl.addEventListener('pointerleave', () => { tip.hidden = true; const hx = document.getElementById('hx'); if (hx) { hx.setAttribute('x1', -99); hx.setAttribute('x2', -99); document.getElementById('hxb').setAttribute('x', -99); document.getElementById('hxt').textContent = ''; } });
+tl.addEventListener('dblclick', ev => {
+  const d = ev.target.dataset || {};
+  if (d.i != null) { const s = tlGeom.bars[+d.i].s, b = Math.max(s.b, s.full ?? s.b), pad = Math.max(0.1, (b - s.a) * 0.15); setView(s.a - pad, b + pad); }
+  else if (d.m != null) { const t = tlGeom.marks[+d.m].m.t; setView(t - 1, t + 1); }
+  else setView(0, run.end);
+});
+tl.addEventListener('wheel', ev => {
+  if (!tlGeom) return;
+  if (ev.ctrlKey || ev.metaKey) { ev.preventDefault(); zoomAt(tlTime(ev), Math.exp(ev.deltaY * 0.0025)); }
+  else if (ev.shiftKey || Math.abs(ev.deltaX) > Math.abs(ev.deltaY)) { ev.preventDefault(); const dt = (ev.shiftKey ? ev.deltaY || ev.deltaX : ev.deltaX) / tlGeom.PW * (view.b - view.a); setView(view.a + dt, view.b + dt); }
+}, { passive: false });
+document.querySelectorAll('#zoom button').forEach(b => b.onclick = () => {
+  const z = b.dataset.z, c = now >= view.a && now <= view.b ? now : (view.a + view.b) / 2;
+  if (z === 'fit') setView(0, run.end); else zoomAt(c, z === 'in' ? 0.4 : 2.5);
+});
 document.addEventListener('keydown', ev => {
   if (ev.target.closest('input, select')) return;
   if (ev.key === 'Escape' && !drawer.hidden) { drawer.hidden = true; return; }
   if (ev.code === 'Space') { ev.preventDefault(); document.getElementById('play').click(); }
   if (ev.key === 'ArrowRight') document.getElementById('next').click();
   if (ev.key === 'ArrowLeft') document.getElementById('prev').click();
+  if (ev.key === '=' || ev.key === '+') zoomAt(now, 0.4);
+  if (ev.key === '-') zoomAt(now, 2.5);
+  if (ev.key === '0') setView(0, run.end);
 });
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawTimeline(run); frame(); }, 120); });
 
