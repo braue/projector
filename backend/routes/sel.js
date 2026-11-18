@@ -17,7 +17,8 @@ function selRoutes(library, fullText) {
   // Full text across every page of every PDF. Absent when no index has been
   // built; the caller shows nothing rather than an error.
   router.get('/text', async (req, res) => {
-    res.json(fullText.search(requireQuery(req, 'q')));
+    // `folder` searches one document type alone.
+    res.json(fullText.search(requireQuery(req, 'q'), { folder: req.query.folder ?? null }));
   });
 
   router.post('/open', async (req, res) => {

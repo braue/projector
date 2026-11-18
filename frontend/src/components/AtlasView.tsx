@@ -12,8 +12,9 @@ import {
 } from '../atlas/content'
 import type { Doc } from '../atlas/content'
 import { search, highlightParts } from '../atlas/search'
-import { selOpen, selStatus, selText } from '../atlas/selDocs'
+import { folderShort, selOpen, selStatus, selText } from '../atlas/selDocs'
 import type { SelStatus, SelTextGroup } from '../atlas/selDocs'
+import { saveSettings, setting } from '../lib/settings'
 import { useDebounced } from '../lib/useDebounced'
 import { useTheme } from '../lib/theme'
 import { FindBar, useFindInPage } from './FindBar'
@@ -242,6 +243,9 @@ function isEditable(el: EventTarget | null): boolean {
 /** `active` is false while the atlas is mounted but hidden behind the project:
  *  it keeps the reading position alive without letting the view swallow the
  *  keyboard shortcuts meant for the pane you can actually see. */
+/** The atlas pages' scope; the others are the SEL folders in the index. */
+const ATLAS = 'atlas'
+
 export function AtlasView({ active = true }: { active?: boolean }) {
   const [query, setQuery] = useState('')
   // The atlas opens ON a document — the first of the reading order — not on
@@ -260,7 +264,27 @@ export function AtlasView({ active = true }: { active?: boolean }) {
   const [selLib, setSelLib] = useState<SelStatus | null>(null)
   // Page hits from inside the SEL PDFs, grouped by document type.
   const [textGroups, setTextGroups] = useState<SelTextGroup[]>([])
+  // Which query/scope textGroups answers, so "no pages" waits for the reply.
+  const [textFor, setTextFor] = useState('')
+  const [byName, setByName] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
+  // Which source the search box covers: the atlas pages, or one SEL
+  // document type (a library folder name).
+  const [scope, setScopeState] = useState<string>(() => setting('atlas.searchScope', ATLAS))
+  const setScope = useCallback((next: string) => {
+    setScopeState(next)
+    saveSettings({ 'atlas.searchScope': next }).catch(() => {})
+    searchRef.current?.focus()
+  }, [])
+  const folders = selLib?.fullText.folders ?? []
+  // A remembered folder the index no longer has (or no index at all) falls
+  // back to the atlas pages.
+  const effectiveScope = scope === ATLAS || !selLib || folders.some((f) => f.folder === scope) ? scope : ATLAS
+  const showAtlas = effectiveScope === ATLAS
+  const showSel = !showAtlas
+  const selFolder = showSel ? effectiveScope : null
+  // Text search skips short queries; a name search wants them ("27", "7").
+  const minQuery = folders.find((f) => f.folder === selFolder)?.byName ? 1 : 3
 
   const selected = useMemo(() => (selectedId ? docById(selectedId) : null), [selectedId])
   // The index ships with the app, so search always works; the PDF library is
@@ -268,7 +292,7 @@ export function AtlasView({ active = true }: { active?: boolean }) {
   // Optimistic until status answers, so the affordance does not flicker.
   const canOpenPdfs = selLib?.rootPresent ?? true
   const debounced = useDebounced(query.trim(), 180)
-  const hits = useMemo(() => (debounced ? search(debounced) : []), [debounced])
+  const hits = useMemo(() => (debounced && showAtlas ? search(debounced) : []), [debounced, showAtlas])
   const allCategories = useMemo(() => [...CATEGORIES, ...extraCategories()], [])
   const reading = useMemo(() => docsInReadingOrder(), [])
 
@@ -293,18 +317,24 @@ export function AtlasView({ active = true }: { active?: boolean }) {
   }, [])
 
   useEffect(() => {
-    if (debounced.length < 3) {
+    if (debounced.length < minQuery || !showSel) {
       setTextGroups([])
       return
     }
     let live = true
-    selText(debounced)
-      .then((result) => live && setTextGroups(result.groups ?? []))
-      .catch(() => live && setTextGroups([]))
+    const key = `${selFolder ?? ''}\n${debounced}`
+    const land = (groups: SelTextGroup[], names = false) => {
+      if (!live) return
+      setTextGroups(groups)
+      setByName(names)
+      setTextFor(key)
+    }
+    selText(debounced, selFolder)
+      .then((result) => land(result.groups ?? [], Boolean(result.byName)), () => land([]))
     return () => {
       live = false
     }
-  }, [debounced])
+  }, [debounced, showSel, selFolder, minQuery])
 
   /* Cross-doc links from inside the embedded pages. */
   useEffect(() => {
@@ -358,10 +388,30 @@ export function AtlasView({ active = true }: { active?: boolean }) {
             onChange={(e) => setQuery(e.target.value)}
             spellCheck={false}
           />
+          {selLib?.fullText.available && (
+            <div className="atl-scope" role="radiogroup">
+              {[
+                { id: ATLAS, label: 'Atlas' },
+                ...folders.map((f) => ({ id: f.folder, label: folderShort(f.folder) })),
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  role="radio"
+                  aria-checked={effectiveScope === s.id}
+                  className={`atl-scope-chip ${effectiveScope === s.id ? 'on' : ''}`}
+                  title={s.id === ATLAS ? undefined : s.id}
+                  onClick={() => setScope(s.id)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="atl-sidebar-body">
           {query.trim() ? (
             <div>
+              {showAtlas && (<>
               <div className="atl-section atl-section-atlas">
                 <div className="atl-section-head">
                   <span className="atl-section-title">Atlas guides</span>
@@ -382,26 +432,19 @@ export function AtlasView({ active = true }: { active?: boolean }) {
                   <Snippet text={h.snippet} query={debounced} />
                 </button>
               ))}
+              </>)}
 
-              {selLib && !selLib.fullText.available && query.trim().length > 2 && (
-                <div className="atl-sel-block">
-                  <div className="atl-section atl-section-sel">
-                    <div className="atl-section-head">
-                      <span className="atl-section-title">SEL documents</span>
-                    </div>
-                  </div>
-                  <div className="atl-sel-note">
-                    No full-text index is available in this build.
-                  </div>
-                </div>
+              {showSel && debounced.length >= minQuery && selLib?.fullText.available && textGroups.length === 0
+                && textFor === `${selFolder ?? ''}\n${debounced}` && (
+                <div className="atl-sel-note atl-scope-empty">No pages match.</div>
               )}
               {textGroups.length > 0 && (
-                <div className="atl-sel-block">
+                <div className="atl-sel-block alone">
                   <div className="atl-section atl-section-sel">
                     <div className="atl-section-head">
-                      <span className="atl-section-title">SEL documents</span>
+                      <span className="atl-section-title">{selFolder ?? 'SEL documents'}</span>
                       <span className="ui-count atl-section-count">
-                        {textGroups.reduce((n, g) => n + g.hits.length, 0)} pages
+                        {textGroups.reduce((n, g) => n + g.hits.length, 0)} {byName ? 'documents' : 'pages'}
                       </span>
                     </div>
                     <div className="atl-section-sub">
@@ -414,28 +457,31 @@ export function AtlasView({ active = true }: { active?: boolean }) {
                       so manuals cannot bury the application guides. */}
                   {textGroups.map((group) => (
                     <div key={group.folder} className="atl-sel-group">
-                      <div className="atl-sel-group-head">
-                        {group.label}
-                        <span className="atl-sel-note-inline">{group.hits.length}</span>
-                      </div>
+                      {!selFolder && (
+                        <div className="atl-sel-group-head">
+                          {group.label}
+                          <span className="atl-sel-note-inline">{group.hits.length}</span>
+                        </div>
+                      )}
                       {group.hits.map((hit) => (
                         <button
                           key={`${hit.path}#${hit.page}`}
-                          className="atl-result atl-text-hit"
+                          className={`atl-result atl-text-hit ${hit.title ? 'titled' : ''}`}
                           onClick={canOpenPdfs
                             ? () => selOpen(hit.path, hit.page).catch(() => {})
                             : undefined}
                           title={canOpenPdfs
-                            ? `Open ${hit.name} at page ${hit.page}`
-                            : `${hit.name} p.${hit.page} — the PDF is not on this machine`}
+                            ? (hit.page === null ? `Open ${hit.name}` : `Open ${hit.name} at page ${hit.page}`)
+                            : `${hit.name} — the PDF is not on this machine`}
                         >
                           <div className="atl-result-top">
-                            <span className="atl-result-title">{hit.name}</span>
+                            <span className="atl-result-title">{hit.title ?? hit.name}</span>
                             <span className="atl-result-cat">
-                              p.{hit.page}{canOpenPdfs && <> <span className="atl-ext">&#8599;</span></>}
+                              {hit.page === null ? `${hit.pages} pp` : `p.${hit.page}`}
+                              {canOpenPdfs && <> <span className="atl-ext">&#8599;</span></>}
                             </span>
                           </div>
-                          <Snippet text={hit.snippet} query={debounced} />
+                          {hit.snippet && <Snippet text={hit.snippet} query={debounced} />}
                         </button>
                       ))}
                     </div>

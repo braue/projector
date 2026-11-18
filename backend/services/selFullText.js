@@ -58,12 +58,120 @@ const CANDIDATE_PAGES = 600;
 /** Pages from any one document, and hits shown per document type. */
 const DOC_LIMIT = 3;
 const PER_GROUP = 8;
+/** One document type on its own has the whole list to itself. */
+const SCOPED_LIMIT = 60;
+/**
+ * A page whose document's title holds every query word. An application
+ * guide's title names its topic; a manual's or data sheet's names a product,
+ * which says less about any one page inside it.
+ */
+const TITLE_BOOST = { 'Application Guides': 1.8 };
+const PRODUCT_TITLE_BOOST = 1.3;
+const titleBoost = (folder) => TITLE_BOOST[folder] ?? PRODUCT_TITLE_BOOST;
+
+/**
+ * The query's words, lowercased and split the way page text is split for
+ * proximity: "SEL-751A" is the two tokens "sel" and "751a", which must then
+ * sit side by side.
+ */
+function queryTokens(raw) {
+  return String(raw ?? '')
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((w) => w.length > 1);
+}
+
+function pageTokens(body) {
+  return String(body ?? '').toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+}
+
+/**
+ * How tightly the query's words sit together on a page. bm25 scores each
+ * word on its own, so a feature matrix with "switch" in one row, "fault" in
+ * another and "onto" in a footnote ranks with the page that explains
+ * switch-onto-fault. The phrase itself, in order, counts most; the words
+ * within a few of each other count some. Words are prefixes, as in the
+ * search itself.
+ */
+function proximityBoost(words, body) {
+  if (words.length < 2) return 1;
+  const tokens = pageTokens(body);
+  const positions = words.map(() => []);
+  for (let i = 0; i < tokens.length; i++) {
+    for (let w = 0; w < words.length; w++) if (tokens[i].startsWith(words[w])) positions[w].push(i);
+  }
+  if (positions.some((p) => p.length === 0)) return 1;
+  // The phrase: word w at i + w for every w.
+  const later = positions.slice(1).map((p) => new Set(p));
+  if (positions[0].some((i) => later.every((set, w) => set.has(i + w + 1)))) return 1.8;
+  // The narrowest span holding every word, by walking all lists in order.
+  const at = positions.map(() => 0);
+  let best = Infinity;
+  for (;;) {
+    let lo = 0;
+    let hi = 0;
+    for (let w = 1; w < words.length; w++) {
+      if (positions[w][at[w]] < positions[lo][at[lo]]) lo = w;
+      if (positions[w][at[w]] > positions[hi][at[hi]]) hi = w;
+    }
+    best = Math.min(best, positions[hi][at[hi]] - positions[lo][at[lo]] + 1);
+    if (++at[lo] >= positions[lo].length) break;
+  }
+  if (best <= words.length + 3) return 1.4;
+  if (best <= words.length * 3 + 8) return 1.15;
+  return 1;
+}
+
+/** Every query word starts some word of the title. */
+function titleMatches(title, words) {
+  if (!title || !words.length) return false;
+  const tokens = pageTokens(title);
+  return words.every((w) => tokens.some((t) => t.startsWith(w)));
+}
+
+/**
+ * Types searched by file name instead of text. A model number appears in the
+ * text of hundreds of manuals, so "3530" should find the 3530 manual and
+ * nothing else.
+ */
+const NAME_FOLDERS = new Set(['Instruction Manuals']);
+
+/**
+ * How well a file name answers the query, lower is better, null for no match.
+ * Every word must appear in the name. The model is the part before the first
+ * underscore ("3530-4" in 3530-4_IM_20241217.pdf): an exact model beats a
+ * variant of it (3530-4, 351R), then a longer model number, then the word
+ * anywhere in the name.
+ */
+function nameRank(name, words) {
+  const lower = name.toLowerCase();
+  if (!words.every((w) => lower.includes(w))) return null;
+  const model = lower.split('_')[0];
+  const first = words[0];
+  if (model === first) return 0;
+  // "351" → 351R and 351-5 are variants; "35" → 3530 is a different model.
+  if (model.startsWith(first)) return /\d/.test(model[first.length]) ? 2 : 1;
+  return 3;
+}
+
+/** The query as lowercase name words, without a leading "SEL-". */
+function nameWords(raw) {
+  return String(raw ?? '')
+    .toLowerCase()
+    .replace(/\bsel-?(?=\w)/g, '')
+    .split(/[\s_]+/)
+    .filter(Boolean);
+}
 
 class SelFullText {
   #db = null;
   #file = null;
   #docs = 0;
   #pages = 0;
+  #folders = [];
+  /** path → { title, intro, folder, pages }, for indexes built with titles. */
+  #docMeta = new Map();
+  #prose = null;
   #error = null;
 
   /**
@@ -82,6 +190,29 @@ class SelFullText {
       this.#file = file;
       this.#docs = counts?.n ?? 0;
       this.#pages = counts?.p ?? 0;
+      this.#folders = db
+        .prepare('SELECT folder, COUNT(*) documents, SUM(pages) pages FROM docs GROUP BY folder ORDER BY folder')
+        .all()
+        .map((r) => ({
+          folder: r.folder,
+          documents: Number(r.documents),
+          pages: Number(r.pages),
+          byName: NAME_FOLDERS.has(r.folder),
+        }));
+      // Titles and page scores arrived after the first shipped index; an
+      // index without them still searches, ranked on its words alone.
+      const cols = new Set(db.prepare('PRAGMA table_info(docs)').all().map((c) => c.name));
+      const withTitles = cols.has('title') && cols.has('intro');
+      for (const r of db.prepare(`SELECT path, folder, pages${withTitles ? ', title, intro' : ''} FROM docs`).all()) {
+        this.#docMeta.set(r.path, {
+          folder: r.folder,
+          pages: Number(r.pages),
+          title: r.title ?? null,
+          intro: r.intro ?? '',
+        });
+      }
+      const hasProse = db.prepare("SELECT 1 FROM sqlite_master WHERE name = 'page_meta'").get();
+      this.#prose = hasProse ? db.prepare('SELECT prose FROM page_meta WHERE path = ? AND page = ?') : null;
     } catch (err) {
       // A truncated or half-written index should disable the feature, not take
       // the server down with it.
@@ -100,6 +231,9 @@ class SelFullText {
     this.#file = null;
     this.#docs = 0;
     this.#pages = 0;
+    this.#folders = [];
+    this.#docMeta = new Map();
+    this.#prose = null;
   }
 
   status() {
@@ -108,6 +242,8 @@ class SelFullText {
       file: this.#file,
       documents: this.#docs,
       pages: this.#pages,
+      // The document types, for searching one at a time.
+      folders: this.#folders,
       sizeMb: this.#file && existsSync(this.#file)
         ? Math.round(statSync(this.#file).size / 1048576)
         : null,
@@ -129,47 +265,88 @@ class SelFullText {
    * DOC_LIMIT caps pages from any ONE document, so a 1,698-page manual that
    * says "differential" on every other page cannot fill its own section.
    *
+   * `folder` narrows the search to one document type. The grouping problem
+   * above is then moot, so that type gets SCOPED_LIMIT hits instead of
+   * PER_GROUP.
+   *
    * @param {string} query
+   * @param {{ folder?: string | null }} [options]
    */
-  search(query) {
+  search(query, { folder = null } = {}) {
     if (!this.#db) return { available: false, groups: [] };
+    if (NAME_FOLDERS.has(folder)) return this.#searchNames(query, folder);
     const match = toMatchQuery(query);
     if (!match) return { available: true, groups: [] };
 
+    const scoped = typeof folder === 'string' && folder !== '';
     let rows;
     try {
       rows = this.#db
         .prepare(
-          `SELECT p.path AS path, p.page AS page,
+          `SELECT p.path AS path, p.page AS page, p.body AS body,
                   snippet(pages, 0, '', '', '…', 18) AS snippet,
                   bm25(pages) AS rank
              FROM pages p
             WHERE pages MATCH ?
+              ${scoped ? 'AND substr(p.path, 1, length(?) + 1) = ? || \'/\'' : ''}
             ORDER BY rank
             LIMIT ?`,
         )
-        .all(match, CANDIDATE_PAGES);
+        .all(match, ...(scoped ? [folder, folder] : []), CANDIDATE_PAGES);
     } catch (err) {
       return { available: true, groups: [], error: err?.message ?? String(err) };
     }
 
+    // bm25 picks the candidates; the order among them is bm25 (negated, so
+    // higher is better) scaled by three things it cannot see: whether the
+    // page explains or merely lists, whether the words sit together, and
+    // whether the document is ABOUT this, going by its title.
+    const words = queryTokens(query);
+    const scored = rows.map((row) => {
+      const page = Number(row.page);
+      const meta = this.#docMeta.get(row.path);
+      const prose = this.#prose?.get(row.path, page)?.prose;
+      const quality = prose === undefined ? 1 : 0.35 + 0.65 * Number(prose);
+      const title = titleMatches(meta?.title, words) ? titleBoost(meta.folder) : 1;
+      return {
+        path: row.path,
+        page,
+        snippet: clean(row.snippet),
+        score: -row.rank * quality * proximityBoost(words, row.body) * title,
+      };
+    });
+
+    // A document whose title answers the query is worth showing even when
+    // none of its pages made the candidate cut — the manuals' sheer page
+    // count crowds a short guide out of the top of a bm25 list. It comes in
+    // at its cover, scored as a strong page of a matching title would be.
+    const seen = new Set(scored.map((h) => h.path));
+    const strong = scored.length ? Math.max(...scored.map((h) => h.score)) * 0.6 : 1;
+    for (const [docPath, meta] of this.#docMeta) {
+      if (seen.has(docPath) || !titleMatches(meta.title, words)) continue;
+      if (scoped && meta.folder !== folder) continue;
+      scored.push({ path: docPath, page: 1, snippet: clean(meta.intro), score: strong * titleBoost(meta.folder) });
+    }
+    scored.sort((x, y) => y.score - x.score);
+
     const perDoc = new Map();
     const byFolder = new Map();
-    for (const row of rows) {
+    for (const row of scored) {
       const seen = perDoc.get(row.path) ?? 0;
       if (seen >= DOC_LIMIT) continue;
       perDoc.set(row.path, seen + 1);
       const folder = row.path.split('/').slice(0, -1).join('/');
       if (!byFolder.has(folder)) byFolder.set(folder, []);
       const bucket = byFolder.get(folder);
-      if (bucket.length >= PER_GROUP) continue;
+      if (bucket.length >= (scoped ? SCOPED_LIMIT : PER_GROUP)) continue;
       bucket.push({
         path: row.path,
         name: path.basename(row.path),
+        title: this.#docMeta.get(row.path)?.title ?? null,
         folder,
-        page: Number(row.page),
-        snippet: clean(row.snippet),
-        rank: row.rank,
+        page: row.page,
+        snippet: row.snippet,
+        rank: -row.score,
       });
     }
 
@@ -182,6 +359,36 @@ class SelFullText {
 
     return { available: true, groups };
   }
+
+  /** Documents of one type whose file name matches, best first. */
+  #searchNames(query, folder) {
+    const words = nameWords(query);
+    if (!words.length) return { available: true, byName: true, groups: [] };
+    const hits = this.#db
+      .prepare('SELECT path, name, pages FROM docs WHERE folder = ?')
+      .all(folder)
+      .map((row) => {
+        // The name decides; a title holding every word ("rtac") is a weaker
+        // match below every name match.
+        const title = this.#docMeta.get(row.path)?.title;
+        const byTitle = title && words.every((w) => title.toLowerCase().includes(w)) ? 4 : null;
+        return { row, rank: nameRank(row.name, words) ?? byTitle };
+      })
+      .filter((h) => h.rank !== null)
+      .sort((a, b) => a.rank - b.rank || a.row.name.localeCompare(b.row.name, undefined, { numeric: true }))
+      .slice(0, SCOPED_LIMIT)
+      .map(({ row, rank }) => ({
+        path: row.path,
+        name: row.name,
+        title: this.#docMeta.get(row.path)?.title ?? null,
+        folder,
+        page: null,
+        pages: Number(row.pages),
+        snippet: '',
+        rank,
+      }));
+    return { available: true, byName: true, groups: hits.length ? [{ folder, label: folder, hits }] : [] };
+  }
 }
 
-export { SelFullText, clean, toMatchQuery };
+export { SelFullText, clean, nameRank, nameWords, proximityBoost, toMatchQuery };

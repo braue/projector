@@ -12,6 +12,11 @@
 // where electron-builder's extraResources picks it up — so it ships inside the
 // installer and no user ever needs poppler installed. Re-run after adding
 // PDFs; unchanged files are skipped, so a top-up costs only the new ones.
+//
+// Every run ends by deriving each document's title and each page's prose
+// score from the indexed text (backend/lib/selDerive.js). That needs neither
+// the PDFs nor poppler, so `--derive` alone refreshes them on an existing
+// index after the derivation rules change.
 
 import { execFile } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
@@ -25,6 +30,7 @@ import { DEFAULT_SEL_ROOT, INDEX_FILENAME } from '../backend/lib/selPaths.js';
 // The same strip the reader applies, so an index and the snippets drawn from
 // it can never disagree about what a page says.
 import { clean } from '../backend/services/selFullText.js';
+import { docTitle, proseScore } from '../backend/lib/selDerive.js';
 
 const run = promisify(execFile);
 
@@ -44,6 +50,7 @@ const LIBRARY = path.resolve(arg('library', process.env.SEL_LIBRARY ?? DEFAULT_S
 const OUT = path.resolve(arg('out', path.join(ROOT, INDEX_FILENAME)));
 const JOBS = Number(arg('jobs', Math.max(2, availableParallelism() - 2)));
 const LIMIT = Number(arg('limit', 0)); // 0 = everything; for smoke tests
+const DERIVE_ONLY = process.argv.includes('--derive');
 
 /** poppler is not on PATH by default on Windows; find the winget install. */
 function findPdfToText() {
@@ -113,7 +120,18 @@ function openDb(file) {
       page UNINDEXED,
       tokenize = "unicode61 remove_diacritics 2"
     );
+    -- 0 (table, list, settings dump) to 1 (running prose), per page.
+    CREATE TABLE IF NOT EXISTS page_meta (
+      path  TEXT NOT NULL,
+      page  INTEGER NOT NULL,
+      prose REAL NOT NULL,
+      PRIMARY KEY (path, page)
+    ) WITHOUT ROWID;
   `);
+  // Added after the first shipped index; older files gain them in place.
+  const cols = new Set(db.prepare('PRAGMA table_info(docs)').all().map((c) => c.name));
+  if (!cols.has('title')) db.exec('ALTER TABLE docs ADD COLUMN title TEXT');
+  if (!cols.has('intro')) db.exec('ALTER TABLE docs ADD COLUMN intro TEXT');
   return db;
 }
 
@@ -129,7 +147,58 @@ async function extract(pdftotext, pdf) {
   return stdout;
 }
 
+/**
+ * Titles and prose scores for the whole index, in one pass over its stored
+ * text. A full pass rather than only the re-indexed documents: page rows are
+ * not indexed by path, so finding one document's pages is itself a full scan.
+ */
+function derive(db) {
+  const started = Date.now();
+  const folders = new Map(db.prepare('SELECT path, folder FROM docs').all().map((r) => [r.path, r.folder]));
+  const first = new Map();
+  db.exec('BEGIN');
+  try {
+    db.exec('DELETE FROM page_meta');
+    const insertMeta = db.prepare('INSERT OR REPLACE INTO page_meta (path, page, prose) VALUES (?,?,?)');
+    for (const row of db.prepare('SELECT c0 AS body, c1 AS path, c2 AS page FROM pages_content').iterate()) {
+      const page = Number(row.page);
+      insertMeta.run(row.path, page, proseScore(row.body));
+      const seen = first.get(row.path);
+      if (!seen || page < seen.page) first.set(row.path, { page, body: row.body });
+    }
+    const setTitle = db.prepare('UPDATE docs SET title = ?, intro = ? WHERE path = ?');
+    let titled = 0;
+    for (const [docPath, folder] of folders) {
+      const body = first.get(docPath)?.body ?? '';
+      const title = docTitle(folder, body);
+      if (title) titled++;
+      // The cover's opening after the title, for a document found by its
+      // title alone — the result already shows the title.
+      const at = title ? body.indexOf(title.replace(/…$/, '')) : -1;
+      const intro = at === -1 ? body.slice(0, 240) : `…${body.slice(at + title.length, at + title.length + 240).trim()}`;
+      setTitle.run(title, intro, docPath);
+    }
+    db.exec('COMMIT');
+    console.log(`derived  ${titled}/${folders.size} titles, ${first.size} documents' page scores ` +
+      `in ${Math.round((Date.now() - started) / 1000)}s`);
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
+}
+
 async function main() {
+  if (DERIVE_ONLY) {
+    if (!existsSync(OUT)) {
+      console.error(`No index at ${OUT}`);
+      process.exit(1);
+    }
+    const db = openDb(OUT);
+    derive(db);
+    summarise(db);
+    finalise(db);
+    return;
+  }
   if (!existsSync(LIBRARY)) {
     console.error(`No library at ${LIBRARY}`);
     process.exit(1);
@@ -160,6 +229,7 @@ async function main() {
 
   console.log(`${files.length} PDFs, ${todo.length} to (re)index\n`);
   if (todo.length === 0) {
+    derive(db);
     summarise(db);
     finalise(db);
     return;
@@ -236,6 +306,7 @@ async function main() {
 
   console.log('optimising…');
   db.exec("INSERT INTO pages(pages) VALUES('optimize')");
+  derive(db);
   summarise(db, failed, (Date.now() - started) / 1000);
   finalise(db);
 }
